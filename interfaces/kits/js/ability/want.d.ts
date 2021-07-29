@@ -15,11 +15,11 @@
 
 /**
  * @name WantOptions
- * @since 3
+ * @since 6
  * @SysCap AAFwk
  * @import
  * @permission N/A
- * @devices phone, tablet
+ * @devices phone
  */
 export declare interface WantOptions {
   // indicates the grant to perform read operations on the URI
@@ -66,17 +66,17 @@ export declare interface WantOptions {
 /**
   * Want is the basic communication component of the system.
   * @name Want
-  * @since 3
+  * @since 6
   * @sysCap AAFwk
-  * @devices phone, tablet
+  * @devices phone
   * @permission N/A
   */
 export declare interface Want {
   /**
    * device id
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   deviceId?: string;
@@ -84,8 +84,8 @@ export declare interface Want {
   /**
    * bundle name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   bundleName?: string;
@@ -93,16 +93,16 @@ export declare interface Want {
   /**
    * ability name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   abilityName?: string;
 
   /**
    * The description of a URI in a Want.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */
@@ -110,8 +110,8 @@ export declare interface Want {
 
   /**
    * The description of the type in this Want.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */
@@ -119,8 +119,8 @@ export declare interface Want {
 
   /**
    * The options of the flags in this Want.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */
@@ -128,8 +128,8 @@ export declare interface Want {
 
   /**
    * The description of an action in an want.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */
@@ -137,8 +137,8 @@ export declare interface Want {
 
   /**
    * The description of the WantParams object in an Want
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */
@@ -146,8 +146,8 @@ export declare interface Want {
 
   /**
    * The description of a entities in a Want.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @default -
    */

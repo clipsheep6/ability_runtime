@@ -16,11 +16,11 @@ import {AbilityInfo} from "./abilityinfo";
 
 /**
  * @name HapModuleInfo
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface HapModuleInfo {
   readonly name: string;

@@ -15,19 +15,19 @@
 
 /**
  * @name ModuleInfo
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface ModuleInfo {
   /**
    * The module name.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    */
   readonly moduleName: string;
@@ -36,8 +36,8 @@ export interface ModuleInfo {
    * The module source path.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    */
   readonly moduleSourceDir: string;

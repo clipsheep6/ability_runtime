@@ -16,19 +16,19 @@ import { ElementName }  from '../bundle/elementname';
 
 /**
  * @name Task stack information corresponding to ability
- * @since 3
+ * @since 6
  * @SysCap appexecfwk
  * @import import AbilityMissionInfo from '@ohos.AbilityMissionInfo'
  * @permission N/A
- * @devices phone, tablet
+ * @devices phone
  */
 export interface AbilityMissionInfo {
   /**
    * Unique identification of task stack information corresponding to ability
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   id: number;
@@ -38,8 +38,8 @@ export interface AbilityMissionInfo {
    * This can be considered the "application" of this task stack
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   baseAbility: ElementName;
@@ -49,8 +49,8 @@ export interface AbilityMissionInfo {
    * This is what the user is currently doing
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   topAbility: ElementName;
@@ -59,8 +59,8 @@ export interface AbilityMissionInfo {
    * The corresponding ability description information in the task stack
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   missionDescription: MissionDescriptionInfo;
@@ -68,19 +68,19 @@ export interface AbilityMissionInfo {
 
 /**
  * @name Task stack description information
- * @since 3
+ * @since 6
  * @SysCap appexecfwk
  * @import import app from '@system.app'
  * @permission N/A
- * @devices phone, tablet
+ * @devices phone
  */
 export interface MissionDescriptionInfo {
   /**
    * The label of the specified ability in the task stack
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   label: string;
@@ -89,8 +89,8 @@ export interface MissionDescriptionInfo {
    * The path to the icon that specifies the ability in the task stack
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   iconPath: string;
