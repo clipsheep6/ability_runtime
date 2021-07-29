@@ -16,18 +16,18 @@
 /**
  * the constant for action and entity in the want
  * @name wantConstant
- * @since 3
+ * @since 6
  * @sysCap aafwk
- * @devices phone, tablet
+ * @devices phone
  * @permission N/A
  */
 declare namespace wantConstant {
   /**
    * the constant for action of the want
    * @name Action
-   * @since 3
+   * @since 6
    * @sysCap aafwk
-   * @devices phone, tablet
+   * @devices phone
    * @permission N/A
    */
   export enum Action {
@@ -238,9 +238,9 @@ declare namespace wantConstant {
   /**
    * the constant for Entity of the want
    * @name Action
-   * @since 3
+   * @since 6
    * @sysCap aafwk
-   * @devices phone, tablet
+   * @devices phone
    * @permission N/A
    */
   export enum Entity {
