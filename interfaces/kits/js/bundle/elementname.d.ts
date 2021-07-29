@@ -18,17 +18,17 @@
  * You can use this class to obtain values of the fields set in an element,
  * such as the device ID, bundle name, and ability name.
  * @name ElementName
- * @since 3
+ * @since 6
  * @sysCap AAFwk
- * @devices phone, tablet
+ * @devices phone
  * @permission N/A
  */
 export interface ElementName {
   /**
    * device id
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   deviceId?: string;
@@ -36,8 +36,8 @@ export interface ElementName {
   /**
    * bundle name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   bundleName: string;
@@ -45,8 +45,8 @@ export interface ElementName {
   /**
    * ability name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   abilityName: string;
@@ -54,8 +54,8 @@ export interface ElementName {
   /**
    * shortName name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   uri?: string;
@@ -63,8 +63,8 @@ export interface ElementName {
   /**
    * shortName name
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    */
   shortName?: string;

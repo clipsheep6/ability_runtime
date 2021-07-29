@@ -19,8 +19,8 @@ export interface AbilityResult {
    * Indicates result code for startAbilityResult.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   resultCode: number;
@@ -29,8 +29,8 @@ export interface AbilityResult {
    * Indicates the data returned after the ability is started. You can define the data returned.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   want?: Want;
@@ -41,8 +41,8 @@ export interface StartAbilityResult extends AbilityResult {
    * Indicates the Want containing information about the target ability to start.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   requestCode: number;
