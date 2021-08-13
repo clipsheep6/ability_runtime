@@ -35,6 +35,15 @@ using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
+
+namespace {
+const std::string LANGUAGE = "locale";
+const std::string LAYOUT = "layout";
+const std::string FONTSIZE = "fontsize";
+const std::string ORIENTATION = "orientation";
+const std::string DENSITY = "density";
+}  // namespace
+
 class AbilityStackManagerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -44,7 +53,7 @@ public:
     void init();
 
     AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+        const std::string &appName, const std::string &bundleName, const std::vector<std::string> config);
 
     void makeScene(const std::string &abilityName, const std::string &bundleName, AbilityInfo &abilityInfo, Want &want);
 
@@ -84,17 +93,18 @@ void AbilityStackManagerTest::SetUp()
 
 void AbilityStackManagerTest::init()
 {
-    launcherAbilityRequest_ = GenerateAbilityRequest("device", "LauncherAbility", "launcher", "com.ix.hiworld");
+    std::vector<std::string> config;
+    launcherAbilityRequest_ = GenerateAbilityRequest("device", "LauncherAbility", "launcher", "com.ix.hiworld", config);
 
-    musicAbilityRequest_ = GenerateAbilityRequest("device", "MusicAbility", "music", "com.ix.hiMusic");
+    musicAbilityRequest_ = GenerateAbilityRequest("device", "MusicAbility", "music", "com.ix.hiMusic", config);
 
-    musicTopAbilityRequest_ = GenerateAbilityRequest("device", "MusicTopAbility", "music", "com.ix.hiMusic");
+    musicTopAbilityRequest_ = GenerateAbilityRequest("device", "MusicTopAbility", "music", "com.ix.hiMusic", config);
 
-    musicSAbilityRequest_ = GenerateAbilityRequest("device", "MusicSAbility", "music", "com.ix.hiMusic");
+    musicSAbilityRequest_ = GenerateAbilityRequest("device", "MusicSAbility", "music", "com.ix.hiMusic", config);
 
-    radioAbilityRequest_ = GenerateAbilityRequest("device", "RadioAbility", "radio", "com.ix.hiRadio");
+    radioAbilityRequest_ = GenerateAbilityRequest("device", "RadioAbility", "radio", "com.ix.hiRadio", config);
 
-    radioTopAbilityRequest_ = GenerateAbilityRequest("device", "RadioTopAbility", "radio", "com.ix.hiRadio");
+    radioTopAbilityRequest_ = GenerateAbilityRequest("device", "RadioTopAbility", "radio", "com.ix.hiRadio", config);
 }
 
 void AbilityStackManagerTest::makeScene(
@@ -139,7 +149,8 @@ void AbilityStackManagerTest::makeScene(
 }
 
 AbilityRequest AbilityStackManagerTest::GenerateAbilityRequest(const std::string &deviceName,
-    const std::string &abilityName, const std::string &appName, const std::string &bundleName)
+    const std::string &abilityName, const std::string &appName, const std::string &bundleName,
+    const std::vector<std::string> config)
 {
     ElementName element(deviceName, abilityName, bundleName);
     Want want;
@@ -153,6 +164,7 @@ AbilityRequest AbilityStackManagerTest::GenerateAbilityRequest(const std::string
     abilityInfo.applicationName = appName;
     abilityInfo.applicationInfo.bundleName = bundleName;
     abilityInfo.applicationInfo.name = appName;
+    abilityInfo.configChanges = config;
 
     makeScene(abilityName, bundleName, abilityInfo, want);
 
@@ -848,7 +860,8 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_022, TestSize.
     std::string abilityName = "otherAbility";
     std::string appName = "otherApp";
     std::string bundleName = "com.ix.other";
-    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    std::vector<std::string> config;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName, config);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto nullToken = new Token(record);
     EXPECT_NE(0, stackManager_->TerminateAbility(nullToken, -1, &want));
@@ -912,7 +925,8 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_024, TestSize.
     std::string abilityName = "otherAbility";
     std::string appName = "otherApp";
     std::string bundleName = "com.ix.other";
-    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    std::vector<std::string> config;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName, config);
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = topAbility->GetToken();
     stackManager_->GetTopMissionRecord()->RemoveTopAbilityRecord();
@@ -1865,7 +1879,9 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_053, TestSize.
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
     // 2
-    auto musicAbilityRequest2th = GenerateAbilityRequest("device", "MusicAbility2th", "music", "com.ix.hiMusic");
+    std::vector<std::string> config;
+    auto musicAbilityRequest2th =
+        GenerateAbilityRequest("device", "MusicAbility2th", "music", "com.ix.hiMusic", config);
     result = stackManager_->StartAbility(musicAbilityRequest2th);
     EXPECT_EQ(0, result);
     auto musicMisionRecord2th = stackManager_->GetTopMissionRecord();
@@ -2120,25 +2136,96 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_060, TestSize.
     auto result1 = stackManager_->StartLockMission(99, MisionRecordId, false, true);
     EXPECT_EQ(LOCK_MISSION_DENY_FAILED, result1);
 
-    result1 = stackManager_->StartLockMission(100, MisionRecordId, false, true);
+    result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     // unlock defferent uid(99)
     result1 = stackManager_->StartLockMission(99, MisionRecordId, false, false);
-    EXPECT_EQ(LOCK_MISSION_DENY_FAILED, result1);
+    EXPECT_EQ(UNLOCK_MISSION_DENY_FAILED, result1);
 
-    result1 = stackManager_->StartLockMission(100, MisionRecordId, false, false);
+    result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, false);
     EXPECT_EQ(ERR_OK, result1);
 }
 
 /*
  * Feature: AbilityStackManager
- * Function:  SetMissionDescriptionInfo
+ * Function:  UpdateConfiguration
  * SubFunction: NA
- * FunctionPoints: SetMissionDescriptionInfo
+ * FunctionPoints: Notify after system attribute changes
  * EnvConditions: NA
- * CaseDescription: when the uid defferent
+ * CaseDescription: Environmental judgment
  */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_061, TestSize.Level1)
+{
+    stackManager_->Init();
+
+    GlobalConfiguration globalConfiguration(LANGUAGE);
+    auto ref = stackManager_->UpdateConfiguration(globalConfiguration, LANGUAGE);
+    EXPECT_EQ(ERR_INVALID_VALUE, ref);
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function:  UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints: Notify after system attribute changes
+ * EnvConditions: NA
+ * CaseDescription: Restart ability
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_062, TestSize.Level1)
+{
+    stackManager_->Init();
+
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+
+    auto topMissionRecord = stackManager_->GetTopMissionRecord();
+    auto topAbilityRecord = topMissionRecord->GetTopAbilityRecord();
+    EXPECT_TRUE(topMissionRecord);
+    EXPECT_TRUE(topAbilityRecord);
+    topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    GlobalConfiguration globalConfiguration(LANGUAGE);
+    auto ref = stackManager_->UpdateConfiguration(globalConfiguration, LANGUAGE);
+    EXPECT_EQ(ERR_OK, ref);
+
+    auto abilityRecord = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(abilityRecord->IsRestarting());
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function:  UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints: Notify after system attribute changes
+ * EnvConditions: NA
+ * CaseDescription: Restart ability
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_063, TestSize.Level1)
+{
+    stackManager_->Init();
+
+    std::vector<std::string> config;
+    config.emplace_back(LANGUAGE);
+    config.emplace_back(ORIENTATION);
+
+    musicAbilityRequest_ = GenerateAbilityRequest("device", "MusicAbility", "music", "com.ix.hiMusic", config);
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+
+    auto topMissionRecord = stackManager_->GetTopMissionRecord();
+    auto topAbilityRecord = topMissionRecord->GetTopAbilityRecord();
+    EXPECT_TRUE(topMissionRecord);
+    EXPECT_TRUE(topAbilityRecord);
+    topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    GlobalConfiguration globalConfiguration(LANGUAGE);
+    auto ref = stackManager_->UpdateConfiguration(globalConfiguration, ORIENTATION);
+    EXPECT_EQ(ERR_OK, ref);
+
+    auto abilityRecord = stackManager_->GetCurrentTopAbility();
+    EXPECT_FALSE(abilityRecord->IsRestarting());
+}
 
 }  // namespace AAFwk
 }  // namespace OHOS

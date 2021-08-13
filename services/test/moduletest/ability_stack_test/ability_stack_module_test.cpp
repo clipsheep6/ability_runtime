@@ -37,6 +37,14 @@ using namespace testing;
 
 namespace OHOS {
 namespace AAFwk {
+
+namespace {
+const std::string LANGUAGE = "locale";
+const std::string LAYOUT = "layout";
+const std::string FONTSIZE = "fontsize";
+const std::string ORIENTATION = "orientation";
+const std::string DENSITY = "density";
+}  // namespace
 class AbilityStackModuleTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -1171,11 +1179,12 @@ HWTEST_F(AbilityStackModuleTest, ability_stack_test_017, TestSize.Level1)
 
 /*
  * Feature: AaFwk
- * Function: StartLockMission
+ * Function: OnAbilityDied
  * SubFunction: NA
- * FunctionPoints: lock a mission , It's locked mission top ability will be active
+ * FunctionPoints: Execute when application dies
  * EnvConditions: NA
- * CaseDescription: when locked mission died
+ * CaseDescription: When the system attribute is changed, if the listener is not registered, the application needs to be
+ * restarted
  */
 HWTEST_F(AbilityStackModuleTest, ability_stack_test_018, TestSize.Level1)
 {
@@ -1213,6 +1222,131 @@ HWTEST_F(AbilityStackModuleTest, ability_stack_test_018, TestSize.Level1)
 
     testing::Mock::AllowLeak(mockAppMgrClient);
     testing::Mock::AllowLeak(bundleObject_);
+}
+
+/*
+ * Feature: AaFwk
+ * Function: UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints:
+ * EnvConditions: NA
+ * CaseDescription: When the system attribute is changed, if the listener is not registered, the application needs to be
+ * restarted
+ */
+HWTEST_F(AbilityStackModuleTest, ability_stack_test_019, TestSize.Level1)
+{
+    stackManager_->Init();
+
+    auto appScheduler = OHOS::DelayedSingleton<AppScheduler>::GetInstance();
+    MockAppMgrClient *mockAppMgrClient = new MockAppMgrClient();
+    appScheduler->appMgrClient_.reset(mockAppMgrClient);
+
+    OHOS::sptr<MockAbilityScheduler> scheduler(new MockAbilityScheduler());
+
+    // When the application restarts, it is called
+    auto restartCall = [&](const sptr<IRemoteObject> &token,
+                           const sptr<IRemoteObject> &preToken,
+                           const AbilityInfo &abilityInfo,
+                           const ApplicationInfo &appInfo) {
+        return (AppMgrResultCode)stackManager_->AttachAbilityThread(scheduler, token);
+    };
+
+    EXPECT_CALL(*mockAppMgrClient, LoadAbility(_, _, _, _))
+        .Times(AtLeast(1))
+        .WillOnce(Return(AppMgrResultCode::RESULT_OK))
+        .WillOnce(testing::Invoke(restartCall));
+
+    EXPECT_CALL(*mockAppMgrClient, TerminateAbility(_)).Times(AtLeast(1)).WillOnce(Return(AppMgrResultCode::RESULT_OK));
+    EXPECT_CALL(*mockAppMgrClient, UpdateAbilityState(_, _))
+        .Times(AtLeast(2))
+        .WillOnce(Return(AppMgrResultCode::RESULT_OK))
+        .WillOnce(Return(AppMgrResultCode::RESULT_OK));
+
+    auto launcherAbilityRequest_ = GenerateAbilityRequest("device", "LauncherAbility", "launcher", "com.ix.hiworld");
+    stackManager_->StartAbility(launcherAbilityRequest_);
+    auto firstTopAbility = stackManager_->GetCurrentTopAbility();
+    firstTopAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
+    firstTopAbility->SetScheduler(scheduler);
+
+    auto transactionDoneInactive = [&](const Want &want, const LifeCycleStateInfo &targetState) {
+        stackManager_->CompleteInactive(firstTopAbility);
+    };
+
+    auto transactionDoneBackground = [&](const Want &want, const LifeCycleStateInfo &targetState) {
+        stackManager_->CompleteBackground(firstTopAbility);
+    };
+
+    auto transactionDoneTerminate = [&](const Want &want, const LifeCycleStateInfo &targetState) {
+        stackManager_->CompleteTerminate(firstTopAbility);
+    };
+
+    //  first time call
+    EXPECT_CALL(*scheduler, ScheduleAbilityTransaction(testing::_, testing::_))
+        .Times(testing::AtLeast(3))
+        .WillOnce(testing::Invoke(transactionDoneInactive))
+        .WillOnce(testing::Invoke(transactionDoneBackground))
+        .WillOnce(testing::Invoke(transactionDoneTerminate));
+
+    // when restart ability save the ability state
+    EXPECT_CALL(*scheduler, ScheduleSaveAbilityState(testing::_)).Times(testing::AtLeast(1));
+    // when restart ability restore the ability state
+    EXPECT_CALL(*scheduler, ScheduleRestoreAbilityState(testing::_)).Times(testing::AtLeast(1));
+
+    GlobalConfiguration globalConfiguration(LANGUAGE);
+    auto ref = stackManager_->UpdateConfiguration(globalConfiguration, ORIENTATION);
+    EXPECT_EQ(ERR_OK, ref);
+
+    testing::Mock::AllowLeak(mockAppMgrClient);
+}
+
+/*
+ * Feature: AaFwk
+ * Function: UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints: Notification application attribute change
+ * EnvConditions: NA
+ * CaseDescription: Notify if the system property change notification is registered
+ */
+HWTEST_F(AbilityStackModuleTest, ability_stack_test_020, TestSize.Level1)
+{
+    stackManager_->Init();
+    auto appScheduler = OHOS::DelayedSingleton<AppScheduler>::GetInstance();
+    MockAppMgrClient *mockAppMgrClient = new MockAppMgrClient();
+    appScheduler->appMgrClient_.reset(mockAppMgrClient);
+
+    EXPECT_CALL(*mockAppMgrClient, LoadAbility(_, _, _, _))
+        .Times(AtLeast(2))
+        .WillOnce(Return(AppMgrResultCode::RESULT_OK))
+        .WillOnce(Return(AppMgrResultCode::RESULT_OK));
+
+    auto launcherAbilityRequest_ = GenerateAbilityRequest("device", "LauncherAbility", "launcher", "com.ix.hiworld");
+    auto ref = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(ERR_OK, ref);
+    auto firstTopAbility = stackManager_->GetCurrentTopAbility();
+    firstTopAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    auto musicAbilityRequest_ = GenerateAbilityRequest("device", "MusicSAbility", "music", "com.ix.hiMusic");
+
+    std::vector<std::string> config;
+    config.emplace_back(LANGUAGE);
+    config.emplace_back(ORIENTATION);
+    musicAbilityRequest_.abilityInfo.configChanges = config;
+
+    ref = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(ERR_OK, ref);
+    auto musicAbility = stackManager_->GetCurrentTopAbility();
+    musicAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    // must be Notification should be triggered
+    OHOS::sptr<MockAbilityScheduler> scheduler(new MockAbilityScheduler());
+    musicAbility->SetScheduler(scheduler);
+    EXPECT_CALL(*scheduler, ScheduleUpdateConfiguration(testing::_)).Times(testing::AtLeast(1));
+
+    GlobalConfiguration globalConfiguration(LANGUAGE);
+    ref = stackManager_->UpdateConfiguration(globalConfiguration, ORIENTATION);
+    EXPECT_EQ(ERR_OK, ref);
+
+    testing::Mock::AllowLeak(mockAppMgrClient);
 }
 
 }  // namespace AAFwk

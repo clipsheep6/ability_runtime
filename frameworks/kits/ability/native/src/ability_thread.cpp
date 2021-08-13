@@ -349,24 +349,14 @@ void AbilityThread::HandleRestoreAbilityState(const PacMap &state)
  */
 void AbilityThread::ScheduleSaveAbilityState(PacMap &state)
 {
-    APP_LOGI("AbilityThread::ScheduleSaveAbilityState called");
-
+    APP_LOGI("AbilityThread::ScheduleSaveAbilityState called start");
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleSaveAbilityState abilityImpl_ == nullptr");
         return;
     }
 
-    auto task = [abilityThread = this, &state]() { abilityThread->HandleSaveAbilityState(state); };
-
-    if (abilityHandler_ == nullptr) {
-        APP_LOGE("AbilityThread::ScheduleSaveAbilityState abilityHandler_ == nullptr");
-        return;
-    }
-
-    bool ret = abilityHandler_->PostTask(task);
-    if (!ret) {
-        APP_LOGE("AbilityThread::ScheduleSaveAbilityState PostTask error");
-    }
+    abilityImpl_->DispatchSaveAbilityState(state);
+    APP_LOGI("AbilityThread::ScheduleSaveAbilityState called end");
 }
 
 /**
@@ -375,22 +365,52 @@ void AbilityThread::ScheduleSaveAbilityState(PacMap &state)
  */
 void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
 {
-    APP_LOGI("AbilityThread::ScheduleRestoreAbilityState called");
+    APP_LOGI("AbilityThread::ScheduleRestoreAbilityState called start");
     if (abilityImpl_ == nullptr) {
-        APP_LOGE("ScheduleRestoreAbilityState::failed");
+        APP_LOGE("AbilityThread::ScheduleRestoreAbilityState abilityImpl_ == nullptr");
         return;
     }
-    auto task = [abilityThread = this, state]() { abilityThread->HandleRestoreAbilityState(state); };
+
+    abilityImpl_->DispatchRestoreAbilityState(state);
+    APP_LOGI("AbilityThread::ScheduleRestoreAbilityState called end");
+}
+
+/*
+ * @brief ScheduleUpdateConfiguration, scheduling update configuration.
+ */
+void AbilityThread::ScheduleUpdateConfiguration(const GlobalConfiguration &config)
+{
+    APP_LOGI("AbilityThread::ScheduleUpdateConfiguration called");
+    if (abilityImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::ScheduleUpdateConfiguration abilityImpl_ is nullptr");
+        return;
+    }
+
+    auto task = [abilitThread = this, config]() { abilitThread->HandleUpdateConfiguration(config); };
 
     if (abilityHandler_ == nullptr) {
-        APP_LOGE("AbilityThread::ScheduleRestoreAbilityState abilityHandler_ == nullptr");
+        APP_LOGE("AbilityThread::ScheduleUpdateConfiguration abilityHandler_ is nullptr");
         return;
     }
 
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
-        APP_LOGE("AbilityThread::ScheduleRestoreAbilityState PostTask error");
+        APP_LOGE("AbilityThread::ScheduleUpdateConfiguration PostTask error");
     }
+}
+
+/*
+ * @brief Handle the scheduling update configuration.
+ */
+void AbilityThread::HandleUpdateConfiguration(const GlobalConfiguration &config)
+{
+    APP_LOGI("AbilityThread::HandleUpdateConfiguration called");
+    if (abilityImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::HandleUpdateConfiguration abilityImpl_ is nullptr");
+        return;
+    }
+
+    abilityImpl_->ScheduleUpdateConfiguration(config);
 }
 
 /**

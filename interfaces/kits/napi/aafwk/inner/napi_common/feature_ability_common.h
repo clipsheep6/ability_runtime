@@ -19,7 +19,7 @@
 #include "napi/native_node_api.h"
 #include "ability.h"
 #include "want.h"
-#include "../inner/napi_common/napi_common.h"
+#include "napi_common.h"
 #include "dummy_values_bucket.h"
 #include "dummy_data_ability_predicates.h"
 
@@ -40,7 +40,6 @@ struct CallAbilityParam {
     std::shared_ptr<AbilityStartSetting> setting = nullptr;
 };
 
-
 struct OnAbilityCallback {
     int requestCode = 0;
     int resultCode = 0;
@@ -55,6 +54,8 @@ struct AsyncCallbackInfo {
     CallAbilityParam param;
     CallbackInfo *aceCallback;
     bool native_result;
+    AbilityType abilityType = AbilityType::UNKNOWN;
+    int errCode = 0;
 };
 
 struct CBBase {
@@ -62,6 +63,8 @@ struct CBBase {
     napi_async_work asyncWork;
     napi_deferred deferred;
     Ability *ability = nullptr;
+    AbilityType abilityType = AbilityType::UNKNOWN;
+    int errCode = 0;
 };
 
 struct AppInfo_ {
@@ -197,10 +200,26 @@ struct DAHelperInsertCB {
     int result = 0;
 };
 
+class NAPIAbilityConnection;
+struct AbilityConnectionCB {
+    int resultCode = 0;
+    ElementName elementName;
+    sptr<IRemoteObject> connection;
+    CallbackInfo cbInfo;
+};
+struct ConnectAbilityCB {
+    CBBase cbBase;
+    Want want;
+    sptr<NAPIAbilityConnection> abilityConnection;
+    AbilityConnectionCB abilityConnectionCB;
+    bool result;
+    int errCode = 0;
+};
+
 static inline std::string NapiValueToStringUtf8(napi_env env, napi_value value)
 {
     std::string result = "";
-	return UnwrapStringFromJS(env, value, result);
+    return UnwrapStringFromJS(env, value, result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

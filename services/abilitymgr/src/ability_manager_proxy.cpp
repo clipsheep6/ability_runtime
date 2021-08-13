@@ -863,6 +863,28 @@ int AbilityManagerProxy::GetMissionLockModeState()
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&config)) {
+        return INNER_ERR;
+    }
+    data.WriteString16(Str8ToStr16(changeType));
+    error = Remote()->SendRequest(IAbilityManager::UPDATE_CONFIGURATION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("update configuration, error: %d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 sptr<IWantSender> AbilityManagerProxy::GetWantSender(
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {

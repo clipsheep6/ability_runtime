@@ -19,13 +19,13 @@
 #include "hilog_wrapper.h"
 #include "ability_process.h"
 #include "feature_ability_common.h"
+#include "../inner/napi_common/napi_common_ability.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
-napi_value g_classContext;
 
 CallbackInfo aceCallbackInfoPermission;
 
@@ -82,8 +82,9 @@ void VerifySelfPermissionExecuteCallbackWork(napi_env env, void *data)
         return;
     }
 
-    std::string permission(asyncCallbackInfo->param.paramArgs.GetStringValue("permission"));
-    asyncCallbackInfo->native_data.int32_value = asyncCallbackInfo->ability->VerifySelfPermission(permission);
+    asyncCallbackInfo->native_data.data_type = NVT_INT32;
+    asyncCallbackInfo->native_data.int32_value = asyncCallbackInfo->ability->VerifySelfPermission(
+        asyncCallbackInfo->param.paramArgs.GetStringValue("permission"));
 }
 
 /**
@@ -149,8 +150,7 @@ napi_value NAPI_VerifySelfPermission(napi_env env, napi_callback_info info)
 
     napi_value rev = NAPI_VerifySelfPermissionWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -312,8 +312,7 @@ napi_value NAPI_RequestPermissionsFromUser(napi_env env, napi_callback_info info
 
     napi_value rev = NAPI_RequestPermissionsFromUserWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -396,8 +395,7 @@ napi_value NAPI_OnRequestPermissionsFromUserResult(napi_env env, napi_callback_i
 
     napi_value rev = NAPI_OnRequestPermissionsFromUserResultWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -490,81 +488,6 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
 }
 
 /**
- * @brief GetBundleName asynchronous processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param data Point to asynchronous processing of data.
- */
-void GetBundleNameExecuteCallback(napi_env env, void *data)
-{
-    HILOG_INFO("%{public}s called", __func__);
-    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallbackInfo is null", __func__);
-        return;
-    }
-
-    asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
-    asyncCallbackInfo->native_data.data_type = NVT_NONE;
-    if (asyncCallbackInfo->ability == nullptr) {
-        asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
-        return;
-    }
-
-    asyncCallbackInfo->native_data.data_type = NVT_STRING;
-    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetBundleName();
-    HILOG_INFO("%{public}s called. bundleName=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
-}
-
-/**
- * @brief GetBundleName processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
-{
-    HILOG_INFO("%{public}s called", __func__);
-    size_t argc = ARGS_MAX_COUNT;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value jsthis = 0;
-    void *data = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
-
-    if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
-        return nullptr;
-    }
-
-    if (argc == ARGS_ONE) {
-        if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
-            return nullptr;
-        }
-    }
-
-    AsyncParamEx asyncParamEx;
-    if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
-        asyncParamEx.resource = "NAPI_GetBundleNameCallback";
-        asyncParamEx.execute = GetBundleNameExecuteCallback;
-        asyncParamEx.complete = CompleteAsyncCallbackWork;
-
-        return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
-    } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
-        asyncParamEx.resource = "NAPI_GetBundleNamePromise";
-        asyncParamEx.execute = GetBundleNameExecuteCallback;
-        asyncParamEx.complete = CompletePromiseCallbackWork;
-
-        return ExecutePromiseCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
-    }
-}
-
-/**
  * @brief Get bundle name.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -575,20 +498,7 @@ napi_value NAPI_GetBundleNameWrap(napi_env env, napi_callback_info info, AsyncJS
 napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called", __func__);
-
-    AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
-    if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
-        return WrapVoidToJS(env);
-    }
-
-    napi_value rev = NAPI_GetBundleNameWrap(env, info, asyncCallbackInfo);
-    if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
-        rev = WrapVoidToJS(env);
-    }
-    return rev;
+    return NAPI_GetBundleNameCommon(env, info, AbilityType::PAGE);
 }
 
 void CanRequestPermissionExecuteCallback(napi_env env, void *data)
@@ -659,8 +569,7 @@ napi_value NAPI_CanRequestPermission(napi_env env, napi_callback_info info)
 
     napi_value rev = NAPI_CanRequestPermissionWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -772,8 +681,7 @@ napi_value NAPI_VerifyPermission(napi_env env, napi_callback_info info)
 
     napi_value rev = NAPI_VerifyPermissionWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -848,8 +756,7 @@ napi_value NAPI_VerifyCallingPermission(napi_env env, napi_callback_info info)
 
     napi_value rev = NAPI_VerifyCallingPermissionWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -924,8 +831,7 @@ napi_value NAPI_VerifyCallingOrSelfPermission(napi_env env, napi_callback_info i
 
     napi_value rev = NAPI_VerifyCallingOrSelfPermissionWrap(env, info, asyncCallbackInfo);
     if (rev == nullptr) {
-        delete asyncCallbackInfo;
-        asyncCallbackInfo = nullptr;
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         rev = WrapVoidToJS(env);
     }
     return rev;
@@ -962,7 +868,7 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
             nullptr,
             sizeof(properties) / sizeof(*properties),
             properties,
-            &g_classContext));
+            GetGlobalClassContext()));
 
     return exports;
 }

@@ -81,6 +81,11 @@ public:
         return 0;
     }
 
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+    {
+        return 0;
+    }
+
     MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));

@@ -34,6 +34,7 @@ public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD1(ScheduleSaveAbilityState, void(PacMap &outState));
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap &inState));
+    MOCK_METHOD1(ScheduleUpdateConfiguration, void(const GlobalConfiguration &));
     MOCK_METHOD1(ScheduleNewWant, void(const Want &want));
 
     std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)

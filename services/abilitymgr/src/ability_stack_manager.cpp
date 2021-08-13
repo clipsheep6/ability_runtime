@@ -604,6 +604,9 @@ int AbilityStackManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sche
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetEventId());
 
     abilityRecord->SetScheduler(scheduler);
+    if (abilityRecord->IsRestarting()) {
+        abilityRecord->RestoreAbilityState();
+    }
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token);
 
     return ERR_OK;
@@ -947,7 +950,14 @@ void AbilityStackManager::CompleteInactive(const std::shared_ptr<AbilityRecord> 
         topAbilityRecord->ProcessActivate();
         return;
     }
-    // 2. it may be callback of start ability.
+
+    // 2. it may be callback of restart ability.
+    if (abilityRecord->IsRestarting()) {
+        HILOG_INFO("%{public}s, back ability record: %{public}s", __func__, element.c_str());
+        MoveToBackgroundTask(abilityRecord);
+        return;
+    }
+    // 3. it may be callback of start ability.
     // if next ability has been launched and is in bottom of mission, just resume other than loading ability.
     std::shared_ptr<AbilityRecord> nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
     if (nextAbilityRecord == nullptr) {
@@ -985,6 +995,14 @@ void AbilityStackManager::CompleteBackground(const std::shared_ptr<AbilityRecord
             terminateAbility->Terminate(timeoutTask);
         }
     }
+
+    if (abilityRecord->IsRestarting() && abilityRecord->IsAbilityState(AbilityState::BACKGROUND)) {
+        auto timeoutTask = [abilityRecord, stackManager = shared_from_this()]() {
+            HILOG_WARN("disconnect ability terminate timeout.");
+            stackManager->CompleteTerminate(abilityRecord);
+        };
+        abilityRecord->Terminate(timeoutTask);
+    }
 }
 
 void AbilityStackManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1006,6 +1024,12 @@ void AbilityStackManager::CompleteTerminate(const std::shared_ptr<AbilityRecord>
     auto windowInfo = abilityRecord->GetWindowInfo();
     if (windowInfo != nullptr) {
         windowTokenToAbilityMap_.erase(windowInfo->windowToken_);
+    }
+
+    if (abilityRecord->IsRestarting()) {
+        abilityRecord->SetAbilityState(AbilityState::INITIAL);
+        abilityRecord->SetScheduler(nullptr);
+        abilityRecord->LoadAbility();
     }
     for (auto it : terminateAbilityRecordList_) {
         if (it == abilityRecord) {
@@ -1383,6 +1407,39 @@ int AbilityStackManager::GetMissionLockModeState()
     }
 
     return lockMissionContainer_->GetLockedMissionState();
+}
+
+int AbilityStackManager::UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+{
+    HILOG_INFO("%{public}s called, changeType : %{public}s", __FUNCTION__, changeType.c_str());
+    std::lock_guard<std::recursive_mutex> guard(stackLock_);
+
+    // get top ability or active ability config.json
+    auto abilityRecord = GetCurrentTopAbility();
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+
+    // check abilityInfo whether the ability focus on this changeType ?
+    if (std::find(abilityInfo.configChanges.begin(), abilityInfo.configChanges.end(), changeType) !=
+        abilityInfo.configChanges.end()) {
+        abilityRecord->UpdateConfiguration(config);
+        return ERR_OK;
+    }
+
+    return RestartAbility(abilityRecord);
+}
+
+int AbilityStackManager::RestartAbility(std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_INFO("%{public}s called", __FUNCTION__);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!abilityRecord->IsAbilityState(AbilityState::ACTIVE)) {
+        HILOG_ERROR("target ability can't be restarted.");
+        return ERR_INVALID_VALUE;
+    }
+    abilityRecord->SetRestarting(true);
+    abilityRecord->Inactivate();
+    return ERR_OK;
 }
 
 int AbilityStackManager::MoveMissionToTop(int32_t missionId)

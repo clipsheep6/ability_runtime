@@ -78,6 +78,8 @@ public:
      */
     void ScheduleRestoreAbilityState(const PacMap &inState) override;
 
+    void ScheduleUpdateConfiguration(const GlobalConfiguration &config) override;
+
     /**
      * @brief Obtains the MIME types of files supported.
      *

@@ -316,6 +316,13 @@ int AbilityManagerService::GetMissionLockModeState()
     return currentStackManager_->GetMissionLockModeState();
 }
 
+int AbilityManagerService::UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_INVALID_VALUE);
+    return currentStackManager_->UpdateConfiguration(config, changeType);
+}
+
 int AbilityManagerService::MoveMissionToTop(int32_t missionId)
 {
     HILOG_INFO("%{public}s mission id: %d", __func__, missionId);
@@ -422,7 +429,8 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     }
 
     HILOG_INFO("AbilityManagerService::GetWantSender: bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager_->GetWantSender(callerUid, bundleInfo.uid, wantSenderInfo, callerToken);
+    return pendingWantManager_->GetWantSender(
+        callerUid, bundleInfo.uid, bundleInfo.applicationInfo.isSystemApp, wantSenderInfo, callerToken);
 }
 
 int AbilityManagerService::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
@@ -469,7 +477,7 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
         return;
     }
 
-    pendingWantManager_->CancelWantSender(callerUid, bundleInfo.uid, sender);
+    pendingWantManager_->CancelWantSender(callerUid, bundleInfo.uid, bundleInfo.applicationInfo.isSystemApp, sender);
 }
 
 int AbilityManagerService::GetPendingWantUid(const sptr<IWantSender> &target)
@@ -478,11 +486,11 @@ int AbilityManagerService::GetPendingWantUid(const sptr<IWantSender> &target)
 
     if (pendingWantManager_ == nullptr) {
         HILOG_ERROR("%s, pendingWantManager_ is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     if (target == nullptr) {
         HILOG_ERROR("%s, target is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     return pendingWantManager_->GetPendingWantUid(target);
 }
@@ -493,11 +501,11 @@ int AbilityManagerService::GetPendingWantUserId(const sptr<IWantSender> &target)
 
     if (pendingWantManager_ == nullptr) {
         HILOG_ERROR("%s, pendingWantManager_ is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     if (target == nullptr) {
         HILOG_ERROR("%s, target is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     return pendingWantManager_->GetPendingWantUserId(target);
 }
@@ -523,11 +531,11 @@ int AbilityManagerService::GetPendingWantCode(const sptr<IWantSender> &target)
 
     if (pendingWantManager_ == nullptr) {
         HILOG_ERROR("%s, pendingWantManager_ is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     if (target == nullptr) {
         HILOG_ERROR("%s, target is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     return pendingWantManager_->GetPendingWantCode(target);
 }
@@ -538,11 +546,11 @@ int AbilityManagerService::GetPendingWantType(const sptr<IWantSender> &target)
 
     if (pendingWantManager_ == nullptr) {
         HILOG_ERROR("%s, pendingWantManager_ is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     if (target == nullptr) {
         HILOG_ERROR("%s, target is nullptr", __func__);
-        return ERR_INVALID_VALUE;
+        return -1;
     }
     return pendingWantManager_->GetPendingWantType(target);
 }

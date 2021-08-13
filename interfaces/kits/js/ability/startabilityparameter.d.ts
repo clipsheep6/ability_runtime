@@ -19,8 +19,8 @@ export interface StartAbilityParameter {
    * Indicates the Want containing information about the target ability to start.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   want: Want;
@@ -29,8 +29,8 @@ export interface StartAbilityParameter {
    * Indicates the special start setting used in starting ability.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   abilityStartSetting?: {[key: string]: any};
@@ -41,8 +41,8 @@ export interface StartAbilityForResultParameter extends StartAbilityParameter {
    * Indicates the Want containing information about the target ability to start.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap aafwk
    */
   requestCode: number;

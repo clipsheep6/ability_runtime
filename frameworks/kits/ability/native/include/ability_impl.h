@@ -284,6 +284,11 @@ public:
      */
     void SetCallingContext(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName);
 
+    /*
+     * @brief ScheduleUpdateConfiguration, scheduling update configuration.
+     */
+    void ScheduleUpdateConfiguration(const AAFwk::GlobalConfiguration &config);
+
 protected:
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
@@ -341,6 +346,13 @@ protected:
      */
     void SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info);
 
+    /**
+     * @brief Check if it needs to restore the data to the ability.
+     *
+     * @return Return true if success, otherwise return false.
+     */
+    bool CheckAndRestore();
+
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Ability> ability_;
@@ -358,6 +370,8 @@ private:
     std::shared_ptr<AbilityLifecycleCallbacks> abilityLifecycleCallbacks_;
     std::shared_ptr<ApplicationImpl> applactionImpl_;
     std::shared_ptr<ContextDeal> contextDeal_;
+    bool hasSaveData_ = false;
+    PacMap restoreData_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

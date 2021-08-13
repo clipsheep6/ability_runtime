@@ -18,11 +18,11 @@ import { HapModuleInfo } from './hapmoduleinfo';
 
 /**
  * @name UsedScene
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface UsedScene {
   abilities: Array<string>;
@@ -31,11 +31,11 @@ export interface UsedScene {
 
 /**
  * @name ReqPermissionDetail
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface ReqPermissionDetail {
   name: string;
@@ -45,11 +45,11 @@ export interface ReqPermissionDetail {
 
 /**
  * @name BundleInfo
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface BundleInfo {
   readonly name: string;

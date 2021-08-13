@@ -74,6 +74,7 @@ AbilityManagerStub::AbilityManagerStub()
     requestFuncMap_[GET_PENDING_REQUEST_WANT] = &AbilityManagerStub::GetPendingRequestWantInner;
     requestFuncMap_[SET_MISSION_INFO] = &AbilityManagerStub::SetMissionDescriptionInfoInner;
     requestFuncMap_[GET_MISSION_LOCK_MODE_STATE] = &AbilityManagerStub::GetMissionLockModeStateInner;
+    requestFuncMap_[UPDATE_CONFIGURATION] = &AbilityManagerStub::UpdateConfigurationInner;
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -485,6 +486,22 @@ int AbilityManagerStub::GetMissionLockModeStateInner(MessageParcel &data, Messag
     int result = GetMissionLockModeState();
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("AbilityManagerStub: get mission lock mode state failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply)
+{
+    GlobalConfiguration *config = data.ReadParcelable<GlobalConfiguration>();
+    if (config == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: config is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto changeType = Str16ToStr8(data.ReadString16());
+    int result = UpdateConfiguration(*config, changeType);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("AbilityManagerStub: update configuration failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

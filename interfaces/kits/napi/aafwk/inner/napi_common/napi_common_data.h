@@ -62,10 +62,12 @@ struct CallbackInfo {
 
 struct CallAbilityParamData {
     PacMap paramArgs;
+    Want want;
 };
 
 typedef enum {
     NVT_NONE = 0,
+    NVT_UNDEFINED,
     NVT_INT32,
     NVT_BOOL,
     NVT_STRING,
@@ -87,6 +89,7 @@ typedef struct __AsyncJSCallbackInfo {
     napi_async_work asyncWork;
     napi_deferred deferred;
     Ability *ability;
+    AbilityType abilityType;
     CallAbilityParamData param;
     ThreadReturnData native_data;
     napi_value result;

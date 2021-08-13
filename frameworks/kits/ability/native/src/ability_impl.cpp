@@ -201,8 +201,9 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
         return;
     }
 
-    APP_LOGD("AbilityImpl:: DispatchRestoreAbilityState");
-    ability_->OnRestoreAbilityState(inState);
+    hasSaveData_ = true;
+    restoreData_ = inState;
+    APP_LOGI("AbilityImpl::DispatchRestoreAbilityState save the data");
 }
 
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
@@ -554,6 +555,31 @@ void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 }
 
 /**
+ * @brief Check if it needs to restore the data to the ability.
+ *
+ * @return Return true if need and success, otherwise return false.
+ */
+bool AbilityImpl::CheckAndRestore()
+{
+    APP_LOGI("AbilityImpl::CheckAndRestore called start");
+    if (!hasSaveData_) {
+        APP_LOGE("AbilityImpl::CheckAndRestore hasSaveData_ is false");
+        return false;
+    }
+
+    if (ability_ == nullptr) {
+        APP_LOGE("AbilityImpl::CheckAndRestore ability_ is nullptr");
+        return false;
+    }
+
+    APP_LOGI("AbilityImpl::CheckAndRestore ready to restore");
+    ability_->OnRestoreAbilityState(restoreData_);
+
+    APP_LOGI("AbilityImpl::CheckAndRestore called end");
+    return true;
+}
+
+/**
  * @brief Set deviceId/bundleName/abilityName of the calling ability
  *
  * @param deviceId deviceId of the calling ability
@@ -569,5 +595,20 @@ void AbilityImpl::SetCallingContext(
         ability_->SetCallingContext(deviceId, bundleName, abilityName);
     }
 }
+
+/*
+ * @brief ScheduleUpdateConfiguration, scheduling update configuration.
+ */
+void AbilityImpl::ScheduleUpdateConfiguration(const AAFwk::GlobalConfiguration &config)
+{
+    if (ability_ == nullptr) {
+        APP_LOGE("AbilityImpl::ScheduleUpdateConfiguration ability_ is nullptr");
+    }
+
+    Configuration configtest;
+    ability_->OnConfigurationUpdated(configtest);
+    // ability_->OnConfigurationUpdated(config);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

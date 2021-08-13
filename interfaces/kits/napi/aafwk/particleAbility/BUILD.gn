@@ -13,25 +13,29 @@
 
 # import("//build/config/ohos/rules.gni")
 import("//build/ohos.gni")
-ohos_shared_library("napi_common") {
+ohos_shared_library("particleability") {
   include_dirs = [
     "//foundation/ace/napi/interfaces/kits",
     "//third_party/node/src",
     "//third_party/libuv/include",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/include",
+    "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common",
+    "//foundation/aafwk/standard/services/common/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/ability_manager/include",
   ]
 
   sources = [
-    "napi_common_ability.cpp",
-    "napi_common_util.cpp",
-    "napi_common_want.cpp",
+    "native_module.cpp",
+    "particle_ability.cpp",
   ]
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
+    "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
     "//foundation/ace/napi:ace_napi",
     "//foundation/appexecfwk/standard/kits:appkit_native",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",
   ]
@@ -46,7 +50,8 @@ ohos_shared_library("napi_common") {
     "ipc:ipc_core",
   ]
 
-  relative_install_dir = "module"
+  relative_install_dir = "module/ability"
+
   subsystem_name = "aafwk"
   part_name = "aafwk_standard"
 }

@@ -324,6 +324,8 @@ public:
      */
     int GetMissionLockModeState();
 
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType);
+
     sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
 
     ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);

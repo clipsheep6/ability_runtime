@@ -13,20 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
+#ifndef OHOS_APPEXECFWK_PARTICLE_ABILITY_H
+#define OHOS_APPEXECFWK_PARTICLE_ABILITY_H
+
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+/**
+ * @brief ParticleAbility NAPI module registration.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param exports An empty object via the exports parameter as a convenience.
+ *
+ * @return The return value from Init is treated as the exports object for the module.
+ */
+napi_value ParticleAbilityInit(napi_env env, napi_value exports);
 
-#define NAPI_ERR_NO_ERROR 0
-#define NAPI_ERR_NO_PERMISSION -100
-#define NAPI_ERR_INNER_DATA -101            // Internal data error, data allocation fail
-#define NAPI_ERR_ACE_ABILITY -102           // Failed to acquire ability object
-#define NAPI_ERR_LONG_CALLBACK -103         // Failed to acquire long callack object
-#define NAPI_ERR_PARAM_INVALID -104         // Parameter is invalid
-#define NAPI_ERR_ABILITY_TYPE_INVALID -105  // Type of ability is invalid
-#define NAPI_ERR_ABILITY_CALL_INVALID -106  // Call the ability interface, the return value is wrong
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
+#endif /* OHOS_APPEXECFWK_PARTICLE_ABILITY_H */

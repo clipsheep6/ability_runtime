@@ -25,6 +25,7 @@
 #include "ability_info.h"
 #include "ability_record.h"
 #include "application_info.h"
+#include "global_configuration.h"
 #include "mission_record.h"
 #include "mission_stack.h"
 #include "ability_mission_info.h"
@@ -328,6 +329,12 @@ public:
         const std::shared_ptr<AbilityRecord> &abilityRecord, const MissionDescriptionInfo &missionDescriptionInfo);
     int GetMissionLockModeState();
 
+    /**
+     * update configuration to ability
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType);
+
 private:
     /**
      * dispatch ability life cycle .
@@ -532,6 +539,8 @@ private:
         const AbilityRequest &abilityRequest, const std::shared_ptr<AbilityRecord> &currentTopAbility) const;
     bool CanStopInLockMissionState(const std::shared_ptr<AbilityRecord> &terminateAbility) const;
     void SendUnlockMissionMessage();
+
+    int RestartAbility(std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string MISSION_NAME_MARK_HEAD = "#";

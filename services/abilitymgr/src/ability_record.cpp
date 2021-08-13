@@ -204,6 +204,14 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
     } else {
         HILOG_ERROR("scheduler is nullptr");
         isReady_ = false;
+        isWindowAttached_ = false;
+        if (scheduler_ != nullptr && schedulerDeathRecipient_ != nullptr) {
+            auto schedulerObject = scheduler_->AsObject();
+            if (schedulerObject != nullptr) {
+                schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
+            }
+        }
+        scheduler_ = scheduler;
     }
 }
 
@@ -392,6 +400,12 @@ void AbilityRecord::MoveToBackground(const Closure &task)
         // eventId_ is a unique id of the task.
         handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::BACKGROUND_TIMEOUT);
     }
+
+    if (!IsTerminating() || IsRestarting()) {
+        // schedule save ability state before moving to background.
+        SaveAbilityState();
+    }
+
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     currentState_ = AbilityState::MOVING_BACKGROUND;
@@ -443,11 +457,22 @@ void AbilityRecord::CommandAbility()
 void AbilityRecord::SaveAbilityState()
 {
     HILOG_INFO("%{public}s", __func__);
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->SaveAbilityState(stateDatas_);
 }
 
 void AbilityRecord::RestoreAbilityState()
 {
     HILOG_INFO("%{public}s", __func__);
+    lifecycleDeal_->RestoreAbilityState(stateDatas_);
+    stateDatas_.Clear();
+    isRestarting_ = false;
+}
+
+void AbilityRecord::UpdateConfiguration(const GlobalConfiguration &config)
+{
+    HILOG_INFO("%{public}s", __func__);
+    lifecycleDeal_->UpdateConfiguration(config);
 }
 
 void AbilityRecord::SetWant(const Want &want)
@@ -569,6 +594,7 @@ std::list<std::shared_ptr<CallerRecord>> AbilityRecord::GetCallerRecordList() co
 void AbilityRecord::AddWindowInfo(int windowToken)
 {
     windowInfo_ = std::make_shared<WindowInfo>(windowToken);
+    isWindowAttached_ = true;
 }
 
 void AbilityRecord::RemoveWindowInfo()
@@ -788,6 +814,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     scheduler_.clear();
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->SetScheduler(nullptr);
+    isWindowAttached_ = false;
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
@@ -873,6 +900,15 @@ void AbilityRecord::SetPowerState(const bool isPower)
 bool AbilityRecord::GetPowerState() const
 {
     return isPowerState_;
+}
+
+void AbilityRecord::SetRestarting(const bool isRestart)
+{
+    isRestarting_ = isRestart;
+}
+bool AbilityRecord::IsRestarting() const
+{
+    return isRestarting_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

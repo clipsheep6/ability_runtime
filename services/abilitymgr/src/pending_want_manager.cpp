@@ -37,13 +37,13 @@ PendingWantManager::~PendingWantManager()
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
-sptr<IWantSender> PendingWantManager::GetWantSender(const int32_t callingUid, const int32_t uid,
+sptr<IWantSender> PendingWantManager::GetWantSender(const int32_t callingUid, const int32_t uid, const bool isSystemApp,
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("PendingWantManager::GetWantSender begin.");
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
-    if (callingUid != 0 && callingUid != SYSTEM_UID) {
+    if (callingUid != 0 && callingUid != SYSTEM_UID && !isSystemApp) {
         if (callingUid != uid) {
             HILOG_INFO("is not allowed to send");
             return nullptr;
@@ -180,7 +180,8 @@ int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, cons
     return record->SenderInner(info);
 }
 
-void PendingWantManager::CancelWantSender(const int32_t callingUid, const int32_t uid, const sptr<IWantSender> &sender)
+void PendingWantManager::CancelWantSender(
+    const int32_t callingUid, const int32_t uid, const bool isSystemApp, const sptr<IWantSender> &sender)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
 
@@ -190,9 +191,11 @@ void PendingWantManager::CancelWantSender(const int32_t callingUid, const int32_
     }
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
-    if (callingUid != uid) {
-        HILOG_DEBUG("is not allowed to send");
-        return;
+    if (callingUid != 0 && callingUid != SYSTEM_UID && !isSystemApp) {
+        if (callingUid != uid) {
+            HILOG_INFO("is not allowed to send");
+            return;
+        }
     }
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
     CancelWantSenderLocked(*record, true);
