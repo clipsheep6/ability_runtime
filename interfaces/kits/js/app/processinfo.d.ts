@@ -15,19 +15,19 @@
 
 /**
  * @name This class saves process information about an application
- * @since 3
+ * @since 6
  * @SysCap appexecfwk
  * @import import app from '@system.app'
  * @permission N/A
- * @devices phone, tablet
+ * @devices phone
  */
 export interface ProcessInfo {
   /**
    * The id of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   pid: number;
@@ -36,8 +36,8 @@ export interface ProcessInfo {
    * The name of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    processName: string;
