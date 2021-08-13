@@ -229,6 +229,11 @@ public:
     {
         return 0;
     }
+
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+    {
+        return 0;
+    }
 };
 
 }  // namespace AAFwk

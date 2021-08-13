@@ -41,6 +41,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_GETTYPE] = &AbilitySchedulerStub::GetTypeInner;
     requestFuncMap_[SCHEDULE_RELOAD] = &AbilitySchedulerStub::ReloadInner;
     requestFuncMap_[SCHEDULE_BATCHINSERT] = &AbilitySchedulerStub::BatchInsertInner;
+    requestFuncMap_[SCHEDULE_UPDATE_CONFIGURATION] = &AbilitySchedulerStub::UpdateConfigurationInner;
 }
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
@@ -141,12 +142,24 @@ int AbilitySchedulerStub::CommandAbilityInner(MessageParcel &data, MessageParcel
 
 int AbilitySchedulerStub::SaveAbilityStateInner(MessageParcel &data, MessageParcel &reply)
 {
+    PacMap pacMap;
+    ScheduleSaveAbilityState(pacMap);
+    if (!reply.WriteParcelable(&pacMap)) {
+        HILOG_ERROR("AbilityManagerStub: SaveAbilityState error");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
 int AbilitySchedulerStub::RestoreAbilityStateInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("RestoreAbilityStateInner");
+    PacMap *pacMap = data.ReadParcelable<PacMap>();
+    if (pacMap == nullptr) {
+        HILOG_ERROR("AbilitySchedulerStub RestoreAbilityState is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    ScheduleRestoreAbilityState(*pacMap);
+    delete pacMap;
     return NO_ERROR;
 }
 
@@ -382,6 +395,18 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
         return ERR_INVALID_VALUE;
     }
     delete uri;
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply)
+{
+    GlobalConfiguration *globalConfiguration = data.ReadParcelable<GlobalConfiguration>();
+    if (globalConfiguration == nullptr) {
+        HILOG_ERROR("AbilitySchedulerStub globalConfiguration is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    ScheduleUpdateConfiguration(*globalConfiguration);
+    delete globalConfiguration;
     return NO_ERROR;
 }
 

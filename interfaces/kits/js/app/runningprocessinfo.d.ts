@@ -16,19 +16,19 @@
 import abilityManager from './../@ohos.app.abilitymanager';
 /**
  * @name This class saves process information about an application
- * @since 3
+ * @since 6
  * @SysCap appexecfwk
  * @import import app from '@system.app'
  * @permission N/A
- * @devices phone, tablet
+ * @devices phone
  */
  export interface RunningProcessInfo {
   /**
    * The id of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
   pid: number;
@@ -37,8 +37,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * The name of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    processName: string;
@@ -47,8 +47,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * The list of packaget in the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    pkgList: Array<string>;
@@ -57,8 +57,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * The uid of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    uid: number;
@@ -67,8 +67,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * the memory level of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    lastMemoryLevel: number;
@@ -77,8 +77,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * the weight of the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    weight: number;
@@ -87,8 +87,8 @@ import abilityManager from './../@ohos.app.abilitymanager';
    * the ReasonCode of weight for the current process
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    */
    weightReasonCode: abilityManager.WeightReasonCode;

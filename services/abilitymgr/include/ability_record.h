@@ -409,8 +409,23 @@ public:
      */
     void CommandAbility();
 
+    /**
+     * save ability state.
+     *
+     */
     void SaveAbilityState();
+
+    /**
+     * restore ability state.
+     *
+     */
     void RestoreAbilityState();
+
+    /**
+     * notify ability configuration updated.
+     *
+     */
+    void UpdateConfiguration(const GlobalConfiguration &config);
 
     /**
      * set the want for start ability.
@@ -609,6 +624,9 @@ public:
     void SetPowerState(const bool isPower);
     bool GetPowerState() const;
 
+    void SetRestarting(const bool isRestart);
+    bool IsRestarting() const;
+
 private:
     /**
      * get system time.
@@ -677,6 +695,9 @@ private:
     bool isKernalSystemAbility = false;
     bool isLauncherRoot_ = false;
     bool isPowerState_ = false;  // ability to change state when poweroff and poweron.
+
+    PacMap stateDatas_;          // ability saved ability state data
+    bool isRestarting_ = false;  // is restarting ?
 };
 }  // namespace AAFwk
 }  // namespace OHOS

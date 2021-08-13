@@ -101,6 +101,10 @@ public:
     {
         return 0;
     }
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+    {
+        return 0;
+    }
 
     sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) override

@@ -50,6 +50,8 @@ public:
 
     void ScheduleRestoreAbilityState(const PacMap &inState) override;
 
+    void ScheduleUpdateConfiguration(const GlobalConfiguration &config) override;
+
     std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override;
 
     int OpenFile(const Uri &uri, const std::string &mode) override;

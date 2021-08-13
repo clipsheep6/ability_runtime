@@ -88,5 +88,26 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
     CHECK_POINTER(abilityScheduler_);
     abilityScheduler_->ScheduleCommandAbility(want, reStart, startId);
 }
+
+void LifecycleDeal::SaveAbilityState(PacMap &outState)
+{
+    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    CHECK_POINTER(abilityScheduler_);
+    abilityScheduler_->ScheduleSaveAbilityState(outState);
+}
+
+void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
+{
+    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    CHECK_POINTER(abilityScheduler_);
+    abilityScheduler_->ScheduleRestoreAbilityState(inState);
+}
+
+void LifecycleDeal::UpdateConfiguration(const GlobalConfiguration &config)
+{
+    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    CHECK_POINTER(abilityScheduler_);
+    abilityScheduler_->ScheduleUpdateConfiguration(config);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

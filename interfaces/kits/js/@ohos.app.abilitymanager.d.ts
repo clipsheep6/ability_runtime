@@ -15,14 +15,14 @@
 
 import { AbilityMissionInfo } from './app/abilitymissioninfo';
 import { RunningProcessInfo } from './app/runningprocessinfo';
-import { AsyncCallback } from './.basic';
+import { AsyncCallback } from './basic';
 
 /**
  * Obtains running process and memory information about an application.
  * @name abilityManager
- * @since 3
+ * @since 6
  * @sysCap appexecfwk
- * @devices phone, tablet
+ * @devices phone
  * @permission N/A
  */
 declare namespace abilityManager {
@@ -43,8 +43,8 @@ declare namespace abilityManager {
    * Obtains information about application processes that are running on the device.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @returns Returns a list of running processes.
    */
@@ -54,8 +54,8 @@ declare namespace abilityManager {
    * Obtains information about the application process running on the device through callback.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param callback Specified callback method.
    */
@@ -65,8 +65,8 @@ declare namespace abilityManager {
    * Queries information about the running Ability Mission.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @returns Returns the AbilityMissionInfos.
    */
@@ -76,8 +76,8 @@ declare namespace abilityManager {
    * Queries information about the running Ability Mission through callback.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param callback Specified callback method.
    */
@@ -87,8 +87,8 @@ declare namespace abilityManager {
    * Queries information about the recent Ability Mission.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @returns Returns the AbilityMissionInfos.
    */
@@ -98,8 +98,8 @@ declare namespace abilityManager {
    * Queries information about the recent Ability Mission.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param callback Specified callback method.
    */
@@ -109,8 +109,8 @@ declare namespace abilityManager {
    * Remove the mission associated with the given mission ID.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionId Indicates the mission ID
    * @returns Returns 0 for success, return non-0 for failure.
@@ -121,8 +121,8 @@ declare namespace abilityManager {
    * Remove the mission associated with the given mission ID.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionId Indicates the mission ID
    * @param callback Specified callback method
@@ -133,8 +133,8 @@ declare namespace abilityManager {
    * Remove the missions associated with the given array of the mission ID.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionIds Indicates the array of the mission ID
    * @returns Returns 0 for success, return non-0 for failure.
@@ -145,8 +145,8 @@ declare namespace abilityManager {
    * Remove the missions associated with the given array of the mission ID.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionIds Indicates the array of the mission ID
    * @param callback Specified callback method
@@ -157,8 +157,8 @@ declare namespace abilityManager {
    * Removes all the recent missions
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @returns Returns 0 for success, return non-0 for failure.
    */
@@ -168,8 +168,8 @@ declare namespace abilityManager {
    * Removes all the recent missions
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param callback Specified callback method.
    */
@@ -180,8 +180,8 @@ declare namespace abilityManager {
    * front of the stack.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionId Indicates the mission ID
    * @returns Returns 0 for success, return non-0 for failure.
@@ -193,8 +193,8 @@ declare namespace abilityManager {
    * front of the stack.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param missionId Indicates the mission ID
    * @param callback Specified callback method.
@@ -205,8 +205,8 @@ declare namespace abilityManager {
    * Kills all background processes associated with a specified bundle.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param bundleName Indicates the bundle name
    * @returns Returns 0 for success, return non-0 for failure.
@@ -217,8 +217,8 @@ declare namespace abilityManager {
    * Kills all background processes associated with a specified bundle through callback.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap appexecfwk
    * @param bundleName Indicates the bundle name
    * @param callback Specified callback method

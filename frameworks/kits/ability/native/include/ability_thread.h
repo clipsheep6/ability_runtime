@@ -35,6 +35,7 @@ namespace OHOS {
 namespace AppExecFwk {
 using AbilitySchedulerStub = OHOS::AAFwk::AbilitySchedulerStub;
 using LifeCycleStateInfo = OHOS::AAFwk::LifeCycleStateInfo;
+using GlobalConfiguration = OHOS::AAFwk::GlobalConfiguration;
 class AbilityImpl;
 class Ability;
 class AbilityHandler;
@@ -128,6 +129,11 @@ public:
      * @param state Indicates resotre ability state used to dispatchRestoreAbilityState.
      */
     void ScheduleRestoreAbilityState(const PacMap &state);
+
+    /*
+     * @brief ScheduleUpdateConfiguration, scheduling update configuration.
+     */
+    void ScheduleUpdateConfiguration(const GlobalConfiguration &config);
 
     /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
@@ -322,6 +328,11 @@ private:
      * @param state  Indicates save ability state used to dispatchRestoreAbilityState.
      */
     void HandleRestoreAbilityState(const PacMap &state);
+
+    /*
+     * @brief Handle the scheduling update configuration.
+     */
+    void HandleUpdateConfiguration(const GlobalConfiguration &config);
 
     std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;
     sptr<IRemoteObject> token_;

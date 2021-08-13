@@ -32,6 +32,7 @@
 #include "sender_info.h"
 #include "want_sender_interface.h"
 #include "want_receiver_interface.h"
+#include "global_configuration.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -347,6 +348,14 @@ public:
      */
     virtual int GetMissionLockModeState() = 0;
 
+    /**
+     * Updates the configuration by modifying the configuration.
+     *
+     * @param config Indicates the new configuration
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType) = 0;
+
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) = 0;
 
@@ -455,6 +464,9 @@ public:
 
         // ipc id for get mission lock mode state (36)
         GET_MISSION_LOCK_MODE_STATE,
+
+        // ipc id for update configuration (37)
+        UPDATE_CONFIGURATION,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

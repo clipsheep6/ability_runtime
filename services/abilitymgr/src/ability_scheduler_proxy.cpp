@@ -135,6 +135,12 @@ void AbilitySchedulerProxy::ScheduleSaveAbilityState(PacMap &outState)
     if (err != NO_ERROR) {
         HILOG_ERROR("ScheduleSaveAbilityState fail to SendRequest. err: %d", err);
     }
+    std::unique_ptr<PacMap> pacMap(reply.ReadParcelable<PacMap>());
+    if (!pacMap) {
+        HILOG_ERROR("readParcelableInfo<PacMap> failed");
+        return;
+    }
+    outState = *pacMap;
 }
 
 void AbilitySchedulerProxy::ScheduleRestoreAbilityState(const PacMap &inState)
@@ -145,7 +151,29 @@ void AbilitySchedulerProxy::ScheduleRestoreAbilityState(const PacMap &inState)
     if (!WriteInterfaceToken(data)) {
         return;
     }
+    if (!data.WriteParcelable(&inState)) {
+        HILOG_ERROR("WriteParcelable error");
+        return;
+    }
     int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_RESTORE_ABILITY_STATE, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("ScheduleRestoreAbilityState fail to SendRequest. err: %d", err);
+    }
+}
+
+void AbilitySchedulerProxy::ScheduleUpdateConfiguration(const GlobalConfiguration &config)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(&config)) {
+        HILOG_ERROR("fail to WriteParcelable");
+        return;
+    }
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_UPDATE_CONFIGURATION, data, reply, option);
     if (err != NO_ERROR) {
         HILOG_ERROR("ScheduleRestoreAbilityState fail to SendRequest. err: %d", err);
     }

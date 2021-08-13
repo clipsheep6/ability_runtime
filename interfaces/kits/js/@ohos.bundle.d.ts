@@ -12,21 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AsyncCallback } from './.basic';
+import { AsyncCallback } from './basic';
 import { ApplicationInfo } from './bundle/applicationinfo';
 import { BundleInfo } from './bundle/bundleinfo';
 import { AbilityInfo } from './bundle/abilityinfo';
 import { Want } from './ability/want';
 import { BundleInstaller } from './bundle/bundleinstaller';
-import permission from './@ohos.security.permission';
 
 /**
  * @name BundleFlag
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export declare interface BundleFlag {
   getBundleDefault: boolean;
@@ -46,9 +45,9 @@ export declare interface QueryParameter {
 /**
  * bundle.
  * @name bundle
- * @since 3
+ * @since 6
  * @sysCap appexecfwk
- * @devices phone, tablet
+ * @devices phone
  * @permission N/A
  */
 declare namespace bundle {
@@ -99,11 +98,11 @@ declare namespace bundle {
 
   /**
    * @name AbilityType
-   * @since 3
+   * @since 6
    * @SysCap BMS
-   * @import NA
-   * @permission NA
-   * @devices phone, tablet
+   * @import N/A
+   * @permission N/A
+   * @devices phone
    */
   export enum AbilityType {
     UNKNOWN,
@@ -114,11 +113,11 @@ declare namespace bundle {
 
   /**
    * @name AbilitySubType
-   * @since 3
+   * @since 6
    * @SysCap BMS
-   * @import NA
-   * @permission NA
-   * @devices phone, tablet
+   * @import N/A
+   * @permission N/A
+   * @devices phone
    */
   export enum AbilitySubType {
     UNSPECIFIED = 0,
@@ -127,11 +126,11 @@ declare namespace bundle {
 
   /**
    * @name DisplayOrientation
-   * @since 3
+   * @since 6
    * @SysCap BMS
-   * @import NA
-   * @permission NA
-   * @devices phone, tablet
+   * @import N/A
+   * @permission N/A
+   * @devices phone
    */
   export enum DisplayOrientation {
     UNSPECIFIED,
@@ -142,11 +141,11 @@ declare namespace bundle {
 
   /**
    * @name LaunchMode
-   * @since 3
+   * @since 6
    * @SysCap BMS
-   * @import NA
-   * @permission NA
-   * @devices phone, tablet
+   * @import N/A
+   * @permission N/A
+   * @devices phone
    */
   export enum LaunchMode {
       SINGLETON = 0,
@@ -174,8 +173,8 @@ declare namespace bundle {
   /**
    * Obtains BundleInfo based on a given bundle name.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleName Indicates the bundle name.
    * @param callback Specified callback method.
@@ -185,8 +184,8 @@ declare namespace bundle {
   /**
    * Obtains BundleInfo based on a given bundle name.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleName Indicates the bundle name.
    * @return BundleInfo.
@@ -196,8 +195,8 @@ declare namespace bundle {
   /**
    * Obtains Bundle installer to install or uninstall hap.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @return BundleInstaller.
    */
@@ -206,8 +205,8 @@ declare namespace bundle {
   /**
    * Obtains Bundle installer to install or uninstall hap.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @return BundleInstaller.
    */
@@ -216,8 +215,8 @@ declare namespace bundle {
   /**
    * Obtains the ApplicationInfo based on a given application name.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleName Indicates the application name.
    * @param callback Specified callback method.
@@ -227,8 +226,8 @@ declare namespace bundle {
   /**
    * Obtains the ApplicationInfo based on a given application name.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleName Indicates the application name.
    * @return ApplicationInfo.
@@ -238,8 +237,8 @@ declare namespace bundle {
   /**
    * Query the AbilityInfo by the given Want.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param want Indicates the Want for the ability to be queried.
    * @param callback Specified callback method.
@@ -249,8 +248,8 @@ declare namespace bundle {
   /**
    * Query the AbilityInfo by the given Want.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param want Indicates the Want for the ability to be queried.
    * @return AbilityInfo.
@@ -260,8 +259,8 @@ declare namespace bundle {
   /**
    * Obtains BundleInfo of all bundles available in the system.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param callback Specified callback method.
    */
@@ -270,8 +269,8 @@ declare namespace bundle {
   /**
    * Obtains BundleInfo of all bundles available in the system.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @return Array of BundleInfo.
    */
@@ -280,8 +279,8 @@ declare namespace bundle {
   /**
    * Obtains information about all installed applications.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param callback Specified callback method.
    */
@@ -290,10 +289,10 @@ declare namespace bundle {
   /**
    * Obtains information about all installed applications.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
-   * @param NA
+   * @param N/A
    * @return Array of ApplicationInfo.
    */
   function getApplicationInfos(flags: number, userId: number) : Promise<Array<ApplicationInfo>>;
@@ -301,8 +300,8 @@ declare namespace bundle {
   /**
    * Obtains information about a bundle contained in a HAP.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param hapFilePath Indicates the path of the HAP.
    * @param callback Specified callback method.
@@ -312,34 +311,14 @@ declare namespace bundle {
   /**
    * Obtains information about a bundle contained in a HAP.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param hapFilePath Indicates the path of the HAP.
    * @return BundleInfo.
    */
   function getBundleArchiveInfo(hapFilePath: string, flags: number) : Promise<BundleInfo>;
 
-  /**
-   * Obtains detailed information about a specified permission.
-   *
-   * @devices phone, tablet
-   * @since 3
-   * @SysCap BMS
-   * @param permissionName Indicates the name of the permission.
-   * @param callback Specified callback method.
-   */
-  function getPermissionDef(permissionName: string, callback: AsyncCallback<permission.PermissionDef>) : void;
-  /**
-   * Obtains detailed information about a specified permission.
-   *
-   * @devices phone, tablet
-   * @since 3
-   * @SysCap BMS
-   * @param permissionName Indicates the name of the permission.
-   * @return PermissionDef.
-   */
-  function getPermissionDef(permissionName: string) : Promise<permission.PermissionDef>;
 }
 
 export default bundle;

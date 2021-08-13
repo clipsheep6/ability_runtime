@@ -21,6 +21,7 @@
 #include "dummy_values_bucket.h"
 #include "dummy_data_ability_predicates.h"
 #include "dummy_result_set.h"
+#include "global_configuration.h"
 #include "lifecycle_state_info.h"
 #include "pac_map.h"
 #include "want.h"
@@ -83,6 +84,11 @@ public:
      * ScheduleRestoreAbilityState, scheduling restore ability state.
      */
     virtual void ScheduleRestoreAbilityState(const PacMap &inState) = 0;
+
+    /*
+     * ScheduleUpdateConfiguration, scheduling update configuration.
+     */
+    virtual void ScheduleUpdateConfiguration(const GlobalConfiguration &config) = 0;
 
     /**
      * @brief Obtains the MIME types of files supported.
@@ -248,8 +254,8 @@ public:
         // ipc id for scheduling BatchInsert​
         SCHEDULE_BATCHINSERT,
 
-        // ipc id for display unlock message
-        DISPLAY_UNLOCK_MISSION_MESSAGE
+        // ipc id for scheduling update configuration
+        SCHEDULE_UPDATE_CONFIGURATION,
     };
 };
 }  // namespace AAFwk

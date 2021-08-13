@@ -384,6 +384,14 @@ public:
     virtual int GetMissionLockModeState() override;
 
     /**
+     * Updates the configuration by modifying the configuration.
+     *
+     * @param config Indicates the new configuration
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType) override;
+
+    /**
      * remove all service record.
      *
      */

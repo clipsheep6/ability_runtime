@@ -545,6 +545,7 @@ int AbilityContext::VerifySelfPermission(const std::string &permission)
         APP_LOGE("VerifySelfPermission failed to get bundle manager service");
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
+
     return ptr->CheckPermission(bundle_name, permission);
 }
 
@@ -622,11 +623,7 @@ bool AbilityContext::CanRequestPermission(const std::string &permission)
  */
 int AbilityContext::VerifyCallingOrSelfPermission(const std::string &permission)
 {
-    if (VerifyCallingPermission(permission) != AppExecFwk::Constants::PERMISSION_GRANTED) {
-        return VerifySelfPermission(permission);
-    } else {
-        return AppExecFwk::Constants::PERMISSION_GRANTED;
-    }
+    return VerifySelfPermission(permission);
 }
 
 /**

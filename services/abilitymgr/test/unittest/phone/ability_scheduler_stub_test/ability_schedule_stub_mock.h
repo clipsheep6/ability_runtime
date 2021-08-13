@@ -41,6 +41,8 @@ public:
     {}
     virtual void ScheduleRestoreAbilityState(const PacMap &inState) override
     {}
+    virtual void ScheduleUpdateConfiguration(const GlobalConfiguration &config) override
+    {}
 
     virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override
     {

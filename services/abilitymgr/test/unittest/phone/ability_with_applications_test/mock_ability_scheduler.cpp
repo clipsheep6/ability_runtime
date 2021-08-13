@@ -52,6 +52,9 @@ void AbilityScheduler::ScheduleSaveAbilityState(PacMap &outState)
 void AbilityScheduler::ScheduleRestoreAbilityState(const PacMap &inState)
 {}
 
+void AbilityScheduler::ScheduleUpdateConfiguration(const GlobalConfiguration &config)
+{}
+
 std::vector<std::string> AbilityScheduler::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
     std::vector<std::string> types;

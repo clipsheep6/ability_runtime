@@ -12,8 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AsyncCallback } from './.basic';
-import { Context } from './app/context';
+import { AsyncCallback } from './basic';
 import { Want } from './ability/want';
 import { StartAbilityParameter, StartAbilityForResultParameter } from './ability/startabilityparameter';
 import { AbilityResult, StartAbilityResult } from './ability/abilityresult';
@@ -21,16 +20,16 @@ import { AbilityResult, StartAbilityResult } from './ability/abilityresult';
 /**
  * A Feature Ability represents an ability with a UI and is designed to interact with users.
  * @name featureAbility
- * @since 3
+ * @since 6
  * @sysCap AAFwk
- * @devices phone, tablet
+ * @devices phone
  * @permission N/A
  */
 declare namespace featureAbility {
   /**
    * Checks whether the main window of this ability has window focus.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param -
    * @return Returns true if this ability currently has window focus; returns false otherwise.
@@ -40,8 +39,8 @@ declare namespace featureAbility {
 
   /**
    * Destroys the current ability.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param -
    * @return -
@@ -51,8 +50,8 @@ declare namespace featureAbility {
 
   /**
    * Obtain the want sended from the source ability.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param parameter Indicates the ability to start.
    * @return -
@@ -62,8 +61,8 @@ declare namespace featureAbility {
 
   /**
    * Starts a new ability.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param parameter Indicates the ability to start.
    * @return -
@@ -73,8 +72,8 @@ declare namespace featureAbility {
 
   /**
    * Starts a new ability, onAbilityResult will be called after this new ability is terminated.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param parameter Indicates the ability to start.
    * @return -
@@ -86,8 +85,8 @@ declare namespace featureAbility {
 
    /**
    * Sets the result code and data to be returned by this Feature ability to the caller.
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @sysCap AAFwk
    * @param AbilityResult Indicates the result code returned after the ability is destroyed.
    *           You can define the result code to identify an error.

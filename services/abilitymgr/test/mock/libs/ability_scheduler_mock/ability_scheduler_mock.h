@@ -36,6 +36,7 @@ public:
     MOCK_METHOD1(ScheduleDisconnectAbility, void(const Want &));
     MOCK_METHOD1(ScheduleSaveAbilityState, void(PacMap &));
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap &));
+    MOCK_METHOD1(ScheduleUpdateConfiguration, void(const GlobalConfiguration &));
     MOCK_METHOD1(ScheduleNewWant, void(const Want &));
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
     MOCK_METHOD3(ScheduleCommandAbility, void(const Want &, bool, int));

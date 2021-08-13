@@ -818,6 +818,30 @@ ohos_unittest("task_handler_client_test") {
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
 }
 
+ohos_unittest("ability_thread_for_ability_on_configuration_update") {
+  module_out_path = module_output_path
+
+  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/ability_thread_for_ability_on_configuration_update.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
+    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/appexecfwk/standard/kits:appkit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+}
+
 ohos_unittest("data_ability_result_test") {
   module_out_path = module_output_path
   sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/data_ability_result_test.cpp" ]

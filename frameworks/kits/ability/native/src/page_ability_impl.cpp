@@ -41,6 +41,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
 
     if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
         Start(want);
+        CheckAndRestore();
     }
 
     if (lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE) {

@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-import { AsyncCallback } from './../.basic';
+import { AsyncCallback } from './../basic';
 import bundle from './../@ohos.bundle';
 
 /**
  * @name InstallParam
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface InstallParam {
   userId: number;
@@ -32,11 +32,11 @@ export interface InstallParam {
 
 /**
  * @name InstallStatus
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface InstallStatus {
   status: bundle.InstallErrorCode;
@@ -44,8 +44,8 @@ export interface InstallStatus {
    * The install result string message.
    *
    * @default -
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    */
   statusMessage: string;
@@ -53,18 +53,18 @@ export interface InstallStatus {
 
 /**
  * @name BundleInstaller
- * @since 3
+ * @since 6
  * @SysCap BMS
- * @import NA
- * @permission NA
- * @devices phone, tablet
+ * @import N/A
+ * @permission N/A
+ * @devices phone
  */
 export interface BundleInstaller {
   /**
    * Install an application in a HAP.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleFilePaths Indicates the paths of the HAP.
    * @param InstallParam Indicates the userId and whether keep data.
@@ -75,8 +75,8 @@ export interface BundleInstaller {
   /**
    * Uninstall an application.
    *
-   * @devices phone, tablet
-   * @since 3
+   * @devices phone
+   * @since 6
    * @SysCap BMS
    * @param bundleName Indicates the bundle name.
    * @param InstallParam Indicates the userId and whether keep data.

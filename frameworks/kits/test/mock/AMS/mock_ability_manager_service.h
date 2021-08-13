@@ -111,6 +111,11 @@ public:
         return 0;
     }
 
+    int UpdateConfiguration(const GlobalConfiguration &config, std::string changeType)
+    {
+        return 0;
+    }
+
     AbilityLifeCycleState curstate_ = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
     sptr<IAbilityScheduler> abilityScheduler_;  // kit interface used to schedule ability life
     Want want_;

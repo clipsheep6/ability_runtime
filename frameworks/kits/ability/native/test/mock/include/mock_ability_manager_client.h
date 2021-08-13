@@ -37,6 +37,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using GlobalConfiguration = AAFwk::GlobalConfiguration;
 class MockAbility : public AbilityContext {
 public:
     MockAbility() = default;
@@ -61,6 +62,9 @@ public:
     {}
 
     void ScheduleRestoreAbilityState(const PacMap &inState)
+    {}
+
+    void ScheduleUpdateConfiguration(const GlobalConfiguration &config)
     {}
 
     void ScheduleDisconnectAbility(const Want &want)

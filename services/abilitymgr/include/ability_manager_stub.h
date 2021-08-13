@@ -71,6 +71,7 @@ private:
     int UnlockMissionInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionDescriptionInfoInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionLockModeStateInner(MessageParcel &data, MessageParcel &reply);
+    int UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);

@@ -36,7 +36,6 @@ config("ability_config") {
     "//third_party/node/src",
     "//foundation/multimodalinput/input/interfaces/native/innerkits/event/include",
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
-
     "//foundation/appexecfwk/standard/interfaces/innerkits/task_dispatcher/include/dispatcher",
     "//foundation/appexecfwk/standard/interfaces/innerkits/task_dispatcher/include/task",
     "//foundation/appexecfwk/standard/interfaces/innerkits/task_dispatcher/include/threading",
@@ -96,6 +95,7 @@ ohos_shared_library("abilitykit_native") {
     "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/featureAbility/feature_ability.cpp",
     "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/featureAbility/napi_context.cpp",
     "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/featureAbility/napi_data_ability_helper.cpp",
+    "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_ability.cpp",
     "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_util.cpp",
     "//foundation/aafwk/standard/interfaces/kits/napi/aafwk/inner/napi_common/napi_common_want.cpp",
     "//foundation/appexecfwk/standard/kits/appkit/native/app/src/ability_start_setting.cpp",
@@ -114,6 +114,7 @@ ohos_shared_library("abilitykit_native") {
     "//foundation/ace/napi:ace_napi",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/appexecfwk/standard/interfaces/innerkits/task_dispatcher:appkit_dispatcher_td",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
