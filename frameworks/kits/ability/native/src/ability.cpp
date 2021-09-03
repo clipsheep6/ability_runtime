@@ -75,7 +75,6 @@ void Ability::OnStart(const Want &want)
 
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         sptr<WindowOption> config = WindowOption::Get();
- 
         OHOS::WindowType winType = OHOS::WindowType::WINDOW_TYPE_NORMAL;
         if (abilityInfo_->bundleName == SYSTEM_UI) {
             if (abilityInfo_->name == STATUS_BAR) {
@@ -1289,6 +1288,5 @@ void Ability::TerminateAndRemoveMission()
     }
     AbilityContext::TerminateAndRemoveMission();
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
