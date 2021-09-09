@@ -29,6 +29,9 @@ const std::string SYSTEM_UI_STATUS_BAR = "com.ohos.systemui.statusbar.MainAbilit
 const std::string SYSTEM_UI_NAVIGATION_BAR = "com.ohos.systemui.navigationbar.MainAbility";
 const std::string SYSTEM_DIALOG_NAME = "com.ohos.systemui.systemdialog.MainAbility";
 
+const std::string DEVICE_MANAGER_BUNDLE_NAME = "com.ohos.devicemanagerui";
+const std::string DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
+
 const std::string SYSTEM_DIALOG_REQUEST_PERMISSIONS = "OHOS_RESULT_PERMISSIONS_LIST_YES";
 const std::string SYSTEM_DIALOG_CALLER_BUNDLENAME = "OHOS_RESULT_CALLER_BUNDLERNAME";
 const std::string SYSTEM_DIALOG_KEY = "OHOS_RESULT_PERMISSION_KEY";
