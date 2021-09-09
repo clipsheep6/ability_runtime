@@ -1302,6 +1302,5 @@ void Ability::TerminateAndRemoveMission()
     }
     AbilityContext::TerminateAndRemoveMission();
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
