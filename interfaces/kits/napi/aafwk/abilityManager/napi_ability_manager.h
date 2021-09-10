@@ -111,9 +111,19 @@ struct AsyncClearUpApplicationDataCallbackInfo {
     int32_t result;
 };
 
+struct AsyncPreviousMissionInfosCallbackInfo {
+    napi_env env;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_ref callback[2] = {0};
+    int32_t maxMissionNum = 0;
+    std::vector<AbilityMissionInfo> previousMissionInfo;
+};
+
 napi_value NAPI_GetAllRunningProcesses(napi_env env, napi_callback_info info);
 napi_value NAPI_QueryRunningAbilityMissionInfos(napi_env env, napi_callback_info info);
 napi_value NAPI_QueryRecentAbilityMissionInfos(napi_env env, napi_callback_info info);
+napi_value NAPI_GetPreviousAbilityMissionInfos(napi_env env, napi_callback_info info);
 napi_value NAPI_RemoveMission(napi_env env, napi_callback_info info);
 napi_value NAPI_RemoveMissions(napi_env env, napi_callback_info info);
 napi_value NAPI_ClearMissions(napi_env env, napi_callback_info info);
