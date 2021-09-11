@@ -1,0 +1,141 @@
+{
+    "app":{
+        "bundleName": "com.ix.verify.act",
+        "vendor": "neusoft",
+        "version": {
+            "code": 1,
+            "name": "1.0"
+        },
+       "apiVersion": {
+          "compatible": 3,
+          "target": 3
+       }
+    },
+    "deviceConfig": {
+        "default": {
+        }
+    },
+    "module": {
+        "package":"com.hos.VerifyActAbility.src",
+        "name":"VerifyActFirstAbility",
+        "deviceType": [
+            "tv",
+            "car"
+        ],
+        "distro": {
+            "deliveryWithInstall": true,
+            "moduleName": "testability",
+            "moduleType": "entry"
+        },
+        "abilities": [{
+            "name": "VerifyActFirstAbility",
+            "icon": "$media:snowball",
+            "label": "VerifyActFirstAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+            },
+        {
+            "name": "VerifyActSecondAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActSecondAbility Ability",
+            "launchType": "singletop",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActThirdAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActThirdAbility Ability",
+            "launchType": "singleton",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActFourthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActFourthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActFifthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActFifthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActSixthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActSixthAbility Ability",
+            "launchType": "singleton",
+            "configChanges": ["locale","layout"],
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActSeventhAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActSeventhAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActEighthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActEighthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActNinthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActNinthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyActTenthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyActTenthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyServiceFirstAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyServiceFirstAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "service",
+            "visible": true
+        },
+        {
+            "name": "VerifyActDataFirstAbility",
+            "icon": "$media:snowball",
+            "label": "Data Firs Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "data",
+            "uri": "dataability://com.ix.VerifyActFirstDataAbility",
+            "visible": true
+        }]
+    }
+}

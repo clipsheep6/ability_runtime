@@ -1,0 +1,70 @@
+#
+# Copyright (c) 2021 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+import("//build/ohos.gni")
+SUBDEMOSYSTEM_DIR = "//foundation/aafwk/standard/frameworks/kits/tools/verifyAbility/verifyIOAbility"
+config("verify_io_ability_config") {
+  visibility = [ ":*" ]
+  include_dirs = [ "${SUBDEMOSYSTEM_DIR}/include" ]
+  defines = [
+    "APP_LOG_TAG = \"verifyIoAbility\"",
+    "LOG_DOMAIN = 0xD002200",
+  ]
+}
+config("verify_io_ability_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native/include",
+    "//foundation/aafwk/standard/services/abilitymgr/include",
+    "//foundation/aafwk/standard/interfaces/innerkits/ability_manager/include",
+    "//foundation/event/common/cesfwk/innerkits/include",
+    "//foundation/event/common/cesfwk/kits/native/include",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
+    "//third_party/jsoncpp/include",
+  ]
+}
+ohos_shared_library("verify_io_ability_native") {
+  sources = [
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_eighth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_fifth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_first_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_fourth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_ninth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_second_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_seventh_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_sixth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_tenth_ability.cpp",
+    "${SUBDEMOSYSTEM_DIR}/src/verify_io_third_ability.cpp",
+  ]
+  configs = [ ":verify_io_ability_config" ]
+  public_configs = [ ":verify_io_ability_public_config" ]
+  deps = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
+    "//foundation/appexecfwk/standard/kits:appkit_native",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utilsbase",
+  ]
+  external_deps = [
+    "ces_standard:cesfwk_innerkits",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+  subsystem_name = "abilitydemo"
+}
