@@ -209,7 +209,8 @@ napi_value NAPI_QueryRecentAbilityMissionInfosWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_QueryRecentAbilityMissionInfosCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -260,7 +261,8 @@ napi_value NAPI_QueryRecentAbilityMissionInfosWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -340,6 +342,141 @@ napi_value NAPI_QueryRecentAbilityMissionInfos(napi_env env, napi_callback_info 
     return ((callBackMode) ? (nullptr) : (ret));
 }
 
+napi_value NAPI_GetpreviousAbilityMissionInfosWrap(napi_env env, napi_callback_info info, bool callBackMode,
+    AsyncPreviousMissionInfosCallbackInfo *async_callback_info)
+{
+    HILOG_INFO("NAPI_GetpreviousAbilityMissionInfosWrap called...");
+    if (callBackMode) {
+        napi_value resourceName;
+        napi_create_string_latin1(env, "NAPI_GetpreviousAbilityMissionInfosWrap", NAPI_AUTO_LENGTH, &resourceName);
+
+        napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            [](napi_env env, void *data) {
+                HILOG_INFO("getpreviousAbilityMissionInfos called(CallBack Mode)...");
+                AsyncPreviousMissionInfosCallbackInfo *async_callback_info =
+                    (AsyncPreviousMissionInfosCallbackInfo *)data;
+                HILOG_INFO("maxMissionNum = [%{public}d]", async_callback_info->maxMissionNum);
+
+                GetAbilityManagerInstance()->GetRecentMissions(
+                    async_callback_info->maxMissionNum, 1, async_callback_info->previousMissionInfo);
+            },
+            [](napi_env env, napi_status status, void *data) {
+                HILOG_INFO("getpreviousAbilityMissionInfos compeleted(CallBack Mode)...");
+                AsyncPreviousMissionInfosCallbackInfo *async_callback_info =
+                    (AsyncPreviousMissionInfosCallbackInfo *)data;
+                napi_value result[2] = {0};
+                napi_value callback;
+                napi_value undefined;
+                napi_value callResult = 0;
+
+                result[0] = GetCallbackErrorValue(async_callback_info->env, BUSINESS_ERROR_CODE_OK);
+                napi_create_array(env, &result[1]);
+                GetRecentMissionsForResult(env, async_callback_info->previousMissionInfo, result[1]);
+                napi_get_undefined(env, &undefined);
+                napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+                napi_call_function(env, undefined, callback, 2, &result[0], &callResult);
+
+                if (async_callback_info->callback[0] != nullptr) {
+                    napi_delete_reference(env, async_callback_info->callback[0]);
+                }
+                napi_delete_async_work(env, async_callback_info->asyncWork);
+                delete async_callback_info;
+            },
+            (void *)async_callback_info,
+            &async_callback_info->asyncWork);
+
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info->asyncWork));
+        // create reutrn
+        napi_value ret = 0;
+        NAPI_CALL(env, napi_create_int32(env, 1, &ret));
+        return ret;
+    } else {
+        napi_value resourceName;
+        napi_create_string_latin1(
+            env, "NAPI_GetpreviousAbilityMissionInfosWrapPromise", NAPI_AUTO_LENGTH, &resourceName);
+
+        napi_deferred deferred;
+        napi_value promise;
+        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+        async_callback_info->deferred = deferred;
+
+        napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            [](napi_env env, void *data) {
+                HILOG_INFO("getpreviousAbilityMissionInfos called(Promise Mode)...");
+                AsyncPreviousMissionInfosCallbackInfo *async_callback_info =
+                    (AsyncPreviousMissionInfosCallbackInfo *)data;
+                HILOG_INFO("maxMissionNum = [%{public}d]", async_callback_info->maxMissionNum);
+
+                GetAbilityManagerInstance()->GetRecentMissions(
+                    async_callback_info->maxMissionNum, 1, async_callback_info->previousMissionInfo);
+                HILOG_INFO("size = [%{public}zu]", async_callback_info->previousMissionInfo.size());
+            },
+            [](napi_env env, napi_status status, void *data) {
+                HILOG_INFO("getpreviousAbilityMissionInfos compeleted(Promise Mode)...");
+                AsyncPreviousMissionInfosCallbackInfo *async_callback_info =
+                    (AsyncPreviousMissionInfosCallbackInfo *)data;
+                napi_value result;
+                napi_create_array(env, &result);
+                GetRecentMissionsForResult(env, async_callback_info->previousMissionInfo, result);
+                napi_resolve_deferred(async_callback_info->env, async_callback_info->deferred, result);
+                napi_delete_async_work(env, async_callback_info->asyncWork);
+                delete async_callback_info;
+            },
+            (void *)async_callback_info,
+            &async_callback_info->asyncWork);
+        napi_queue_async_work(env, async_callback_info->asyncWork);
+        return promise;
+    }
+}
+
+napi_value NAPI_GetPreviousAbilityMissionInfos(napi_env env, napi_callback_info info)
+{
+    size_t argc = 2;
+    napi_value argv[argc];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
+    HILOG_INFO("argc = [%{public}zu]", argc);
+
+    napi_valuetype valuetype0;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valuetype0));
+    NAPI_ASSERT(env, valuetype0 == napi_number, "Wrong argument type. Numbers expected.");
+
+    int32_t value0;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &value0));
+
+    bool callBackMode = false;
+    if (argc >= 2) {
+        napi_valuetype valuetype;
+        NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
+        NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        callBackMode = true;
+    }
+
+    AsyncPreviousMissionInfosCallbackInfo *async_callback_info =
+        new (std::nothrow) AsyncPreviousMissionInfosCallbackInfo{.env = env, .asyncWork = nullptr, .deferred = nullptr};
+    if (async_callback_info == nullptr) {
+        return nullptr;
+    }
+
+    async_callback_info->maxMissionNum = value0;
+    if (callBackMode) {
+        napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]);
+    }
+
+    napi_value ret = NAPI_GetpreviousAbilityMissionInfosWrap(env, info, callBackMode, async_callback_info);
+    if (ret == nullptr) {
+        delete async_callback_info;
+        async_callback_info = nullptr;
+    }
+
+    return ((callBackMode) ? (nullptr) : (ret));
+}
+
 napi_value NAPI_QueryRunningAbilityMissionInfosWrap(
     napi_env env, napi_callback_info info, bool callBackMode, AsyncMissionInfosCallbackInfo *async_callback_info)
 {
@@ -348,7 +485,8 @@ napi_value NAPI_QueryRunningAbilityMissionInfosWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_QueryRunningAbilityMissionInfosCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -400,7 +538,8 @@ napi_value NAPI_QueryRunningAbilityMissionInfosWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -483,7 +622,8 @@ napi_value NAPI_GetAllRunningProcessesWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_GetAllRunningProcessesCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -529,7 +669,8 @@ napi_value NAPI_GetAllRunningProcessesWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -596,7 +737,8 @@ napi_value NAPI_RemoveMissionWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_RemoveMissionCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -643,7 +785,8 @@ napi_value NAPI_RemoveMissionWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -717,7 +860,8 @@ napi_value NAPI_RemoveMissionsWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_RemoveMissionsCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -764,7 +908,8 @@ napi_value NAPI_RemoveMissionsWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -849,7 +994,8 @@ napi_value NAPI_ClearMissionsWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_ClearMissionsCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -896,7 +1042,8 @@ napi_value NAPI_ClearMissionsWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -962,7 +1109,8 @@ napi_value NAPI_MoveMissionToTopWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_MoveMissionToTopCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -1009,7 +1157,8 @@ napi_value NAPI_MoveMissionToTopWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -1082,7 +1231,8 @@ napi_value NAPI_KillProcessesByBundleNameWrap(
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -1129,7 +1279,8 @@ napi_value NAPI_KillProcessesByBundleNameWrap(
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -1199,7 +1350,8 @@ napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info
         napi_value resourceName;
         napi_create_string_latin1(env, "NAPI_ClearUpApplicationDataCallBack", NAPI_AUTO_LENGTH, &resourceName);
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -1247,7 +1399,8 @@ napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
         async_callback_info->deferred = deferred;
 
-        napi_create_async_work(env,
+        napi_create_async_work(
+            env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {

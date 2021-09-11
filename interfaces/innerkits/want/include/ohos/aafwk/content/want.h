@@ -790,6 +790,7 @@ private:
     bool ReadFromParcel(Parcel &parcel);
     static bool CheckAndSetParameters(Want &want, const std::string &key, std::string &prop, const std::string &value);
     Uri GetLowerCaseScheme(const Uri &uri);
+    void ToUriStringInner(std::string &uriString) const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
