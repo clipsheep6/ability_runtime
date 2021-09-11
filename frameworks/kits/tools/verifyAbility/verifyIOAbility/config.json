@@ -1,0 +1,121 @@
+{
+    "app":{
+        "bundleName": "com.ix.verify.io",
+        "vendor": "neusoft",
+        "version": {
+            "code": 1,
+            "name": "1.0"
+        },
+       "apiVersion": {
+          "compatible": 3,
+          "target": 3
+       }
+    },
+    "deviceConfig": {
+        "default": {
+        }
+    },
+    "module": {
+        "package":"com.hos.VerifyIOAbility.src",
+        "name":"VerifyIoFirstAbility",
+        "deviceType": [
+            "tv",
+            "car"
+        ],
+        "distro": {
+            "deliveryWithInstall": true,
+            "moduleName": "testability",
+            "moduleType": "entry"
+        },
+        "abilities": [{
+            "name": "VerifyIoFirstAbility",
+            "icon": "$media:snowball",
+            "label": "VerifyIoFirstAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+            },
+        {
+            "name": "VerifyIoSecondAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoSecondAbility Ability",
+            "launchType": "singletop",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoThirdAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoThirdAbility Ability",
+            "launchType": "singleton",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoFourthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoFourthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoFifthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoFifthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoSixthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoSixthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoSeventhAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoSeventhAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoEighthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoEighthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoNinthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoNinthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        },
+        {
+            "name": "VerifyIoTenthAbility",
+            "icon": "$media:snowflakes",
+            "label": "VerifyIoTenthAbility Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        }]
+    }
+}

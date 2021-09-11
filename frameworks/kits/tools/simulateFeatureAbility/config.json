@@ -1,0 +1,49 @@
+{
+    "app":{
+        "bundleName": "com.ix.simulate.feature",
+        "vendor": "neusoft",
+        "version": {
+            "code": 1,
+            "name": "1.0"
+        },
+       "apiVersion": {
+          "compatible": 3,
+          "target": 3
+       }
+    },
+    "deviceConfig": {
+        "default": {
+        }
+    },
+    "module": {
+        "package":"com.hos.SimulateFeatureAbilityFir.src",
+        "name":"SimulateFeatureAbilityFir",
+        "deviceType": [
+            "tv",
+            "car"
+        ],
+        "distro": {
+            "deliveryWithInstall": true,
+            "moduleName": "testability",
+            "moduleType": "entry"
+        },
+        "abilities": [{
+            "name": "SimulateFeatureAbilityFir",
+            "icon": "$media:snowball",
+            "label": "SimulateFeatureAbilityFir Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+            },
+        {
+            "name": "SimulateFeatureAbilitySed",
+            "icon": "$media:snowflakes",
+            "label": "SimulateFeatureAbilitySed Ability",
+            "launchType": "standard",
+            "orientation": "unspecified",
+            "type": "page",
+            "visible": true
+        }]
+    }
+}

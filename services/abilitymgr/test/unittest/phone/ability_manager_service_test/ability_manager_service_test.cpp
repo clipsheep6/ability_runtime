@@ -22,6 +22,7 @@
 #undef private
 #undef protected
 
+#include "app_process_data.h"
 #include "system_ability_definition.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler.h"
@@ -1207,7 +1208,7 @@ HWTEST_F(AbilityManagerServiceTest, AbilityManagerService_AcquireDataAbility_001
     OHOS::Uri dataAbilityUri("dataability:///data.bundle.DataAbility");
 
     // assert ability record
-    ASSERT_TRUE(abilityRecord_);
+    EXPECT_TRUE(abilityRecord_);
 
     EXPECT_EQ(abilityMs_->AcquireDataAbility(dataAbilityUri, true, abilityRecord_->GetToken()), nullptr);
 }
@@ -1224,7 +1225,7 @@ HWTEST_F(AbilityManagerServiceTest, AbilityManagerService_AcquireDataAbility_002
 {
     OHOS::Uri dataAbilityUri("dataability:///data.bundle.DataAbility");
     // assert ability record
-    ASSERT_TRUE(abilityRecord_);
+    EXPECT_TRUE(abilityRecord_);
     EXPECT_EQ(abilityMs_->AcquireDataAbility(dataAbilityUri, true, abilityRecord_->GetToken()), nullptr);
 }
 
@@ -1240,7 +1241,7 @@ HWTEST_F(AbilityManagerServiceTest, AbilityManagerService_AcquireDataAbility_003
 {
     OHOS::Uri dataAbilityUri("mydataability:///data.bundle.DataAbility");
     // assert ability record
-    ASSERT_TRUE(abilityRecord_);
+    EXPECT_TRUE(abilityRecord_);
     EXPECT_EQ(abilityMs_->AcquireDataAbility(dataAbilityUri, true, abilityRecord_->GetToken()), nullptr);
 }
 
@@ -1306,7 +1307,7 @@ HWTEST_F(AbilityManagerServiceTest, AbilityManagerService_AcquireDataAbility_006
 HWTEST_F(AbilityManagerServiceTest, AbilityManagerService_ReleaseDataAbility_001, TestSize.Level1)
 {
     // assert ability record
-    ASSERT_TRUE(abilityRecord_);
+    EXPECT_TRUE(abilityRecord_);
     EXPECT_EQ(abilityMs_->ReleaseDataAbility(nullptr, nullptr), OHOS::ERR_INVALID_STATE);
 }
 
