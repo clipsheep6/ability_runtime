@@ -14,39 +14,31 @@
  */
 
 /**
- * @name This class saves process information about an application
+ * @name This class saves system memory attributes
  * @since 7
  * @SysCap SystemCapability.Appexecfwk
- * @import import app from 'app/activeProcessInfo'
- * @permission N/A
+ * @import import MemoryMapInfo from 'app/systemMemoryAttr'
  * @devices phone, tablet, tv, wearable, car
+ * @systemapi hide this for inner system use
  */
-export interface ActiveProcessInfo {
+ export interface SystemMemoryAttr  {
     /**
-     * @default process id
-     * @since 7
-     * @SysCap SystemCapability.Appexecfwk
+     * @default The available memory on the system
      */
-    pid: number;
-
+    availSysMem: number;
     /**
-     * @default user id
-     * @since 7
-     * @SysCap SystemCapability.Appexecfwk
+     * @default The total memory on the system
      */
-    uid: number;
-
+    totalSysMem: number;
     /**
-     * @default the name of the process
-     * @since 7
-     * @SysCap SystemCapability.Appexecfwk
+     * @default The low memory threshold under which the system
+     * will kill background processes
      */
-    processName: string;
-
+    threshold: number;
     /**
-     * @default an array of the bundleNames running in the process
-     * @since 7
-     * @SysCap SystemCapability.Appexecfwk
+     * @default Whether the system is in low memory status
      */
-    bundleNames: Array<string>;
+    isSysInlowMem: boolean;
 }
+
+

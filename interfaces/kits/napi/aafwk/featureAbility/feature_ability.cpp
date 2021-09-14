@@ -58,13 +58,8 @@ napi_value FeatureAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("hasWindowFocus", NAPI_HasWindowFocus),
         DECLARE_NAPI_FUNCTION("getContext", NAPI_GetContext),
         DECLARE_NAPI_FUNCTION("getWant", NAPI_GetWant),
-        DECLARE_NAPI_FUNCTION("getApplicationInfo", NAPI_GetApplicationInfo),
         DECLARE_NAPI_FUNCTION("getAppType", NAPI_GetAppType),
-        DECLARE_NAPI_FUNCTION("getElementName", NAPI_GetElementName),
         DECLARE_NAPI_FUNCTION("getAbilityName", NAPI_GetAbilityName),
-        DECLARE_NAPI_FUNCTION("getProcessInfo", NAPI_GetProcessInfo),
-        DECLARE_NAPI_FUNCTION("getProcessName", NAPI_GetProcessName),
-        DECLARE_NAPI_FUNCTION("getCallingBundle", NAPI_GetCallingBundle),
         DECLARE_NAPI_FUNCTION("getAbilityInfo", NAPI_GetAbilityInfo),
         DECLARE_NAPI_FUNCTION("getHapModuleInfo", NAPI_GetHapModuleInfo),
         DECLARE_NAPI_FUNCTION("getDataAbilityHelper", NAPI_GetDataAbilityHelper),
@@ -355,6 +350,7 @@ napi_value SetResultAsync(
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
+                asyncCallbackInfo->ability->TerminateAbility();
             } else {
                 HILOG_ERROR("NAPI_SetResult, ability == nullptr");
             }
@@ -413,6 +409,7 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
+                asyncCallbackInfo->ability->TerminateAbility();
             } else {
                 HILOG_ERROR("NAPI_SetResult, ability == nullptr");
             }
@@ -926,9 +923,6 @@ bool InnerUnwrapWant(napi_env env, napi_value args, Want &want)
 napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_value args)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    // unwrap the param
-    napi_valuetype valueType = napi_undefined;
-
     // unwrap the param : want object
     InnerUnwrapWant(env, args, param.want);
 
@@ -942,12 +936,13 @@ napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_valu
         param.forResultOption);
 
     // unwrap the param : abilityStartSetting (optional)
-    napi_value abilityStartSettingProp = nullptr;
-    NAPI_CALL(env, napi_get_named_property(env, args, "abilityStartSetting", &abilityStartSettingProp));
-    NAPI_CALL(env, napi_typeof(env, abilityStartSettingProp, &valueType));
-    if (valueType == napi_object) {
+    napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);
+    if (jsSettingObj != nullptr) {
         param.setting = AbilityStartSetting::GetEmptySetting();
-        HILOG_INFO("%{public}s, abilityStartSetting=%{public}p.", __func__, param.setting.get());
+        if (!UnwrapAbilityStartSetting(env, jsSettingObj, *(param.setting))) {
+            HILOG_ERROR("%{public}s, unwrap abilityStartSetting falied.", __func__);
+        }
+        HILOG_INFO("%{public}s abilityStartSetting = %{public}p.", __func__, param.setting.get());
     }
 
     napi_value result;
@@ -1004,20 +999,6 @@ napi_value NAPI_GetWant(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief Obtains information about the current application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetApplicationInfo(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    return NAPI_GetApplicationInfoCommon(env, info, AbilityType::PAGE);
-}
-
-/**
  * @brief Obtains the type of this application.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -1032,20 +1013,6 @@ napi_value NAPI_GetAppType(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief Obtains the elementName object of the current ability.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetElementName(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_GetElementNameCommon(env, info, AbilityType::PAGE);
-}
-
-/**
  * @brief Obtains the class name in this ability name, without the prefixed bundle name.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -1057,48 +1024,6 @@ napi_value NAPI_GetAbilityName(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called.", __func__);
     return NAPI_GetAbilityNameCommon(env, info, AbilityType::PAGE);
-}
-
-/**
- * @brief Obtains the process Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetProcessInfo(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_GetProcessInfoCommon(env, info, AbilityType::PAGE);
-}
-
-/**
- * @brief Obtains the name of the current process.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetProcessName(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_GetProcessNameCommon(env, info, AbilityType::PAGE);
-}
-
-/**
- * @brief Obtains the bundle name of the ability that called the current ability.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetCallingBundle(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    return NAPI_GetCallingBundleCommon(env, info, AbilityType::PAGE);
 }
 
 /**
@@ -1318,63 +1243,7 @@ void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, voi
 napi_value NAPI_AcquireDataAbilityHelper(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DataAbilityHelperCB *dataAbilityHelperCB = new (std::nothrow) DataAbilityHelperCB;
-    dataAbilityHelperCB->cbBase.cbInfo.env = env;
-    if (dataAbilityHelperCB == nullptr) {
-        HILOG_ERROR("%{public}s, dataAbilityHelperCB == nullptr", __func__);
-        return WrapVoidToJS(env);
-    }
-    napi_value ret = AcquireDataAbilityHelperWrap(env, info, dataAbilityHelperCB);
-    if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
-        if (dataAbilityHelperCB != nullptr) {
-            delete dataAbilityHelperCB;
-            dataAbilityHelperCB = nullptr;
-        }
-        ret = WrapVoidToJS(env);
-    }
-    HILOG_INFO("%{public}s,end", __func__);
-    return ret;
-}
-
-/**
- * @brief acquireDataAbilityHelper processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param dataAbilityHelperCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, DataAbilityHelperCB *dataAbilityHelperCB)
-{
-    HILOG_INFO("%{public}s,called", __func__);
-    if (dataAbilityHelperCB == nullptr) {
-        HILOG_ERROR("%{public}s,dataAbilityHelperCB == nullptr", __func__);
-        return nullptr;
-    }
-
-    size_t requireArgc = ARGS_ONE;
-    size_t argc = ARGS_ONE;
-    napi_value args[ARGS_ONE] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    if (argc > requireArgc) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        return nullptr;
-    }
-
-    napi_valuetype valuetype = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
-    if (valuetype != napi_string) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
-        return nullptr;
-    }
-
-    napi_value result = nullptr;
-    NAPI_CALL(env, napi_new_instance(env, g_dataAbilityHelper, 1, &args[PARAM0], &result));
-    delete dataAbilityHelperCB;
-    dataAbilityHelperCB = nullptr;
-    HILOG_INFO("%{public}s,end", __func__);
-    return result;
+    return NAPI_AcquireDataAbilityHelperCommon(env, info, AbilityType::PAGE);
 }
 
 /**
