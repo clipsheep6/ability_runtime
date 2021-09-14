@@ -115,16 +115,6 @@ napi_value NAPI_GetContext(napi_env env, napi_callback_info info);
 napi_value NAPI_GetWant(napi_env env, napi_callback_info info);
 
 /**
- * @brief Obtains information about the current application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetApplicationInfo(napi_env env, napi_callback_info info);
-
-/**
  * @brief Obtains the type of this application.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -135,16 +125,6 @@ napi_value NAPI_GetApplicationInfo(napi_env env, napi_callback_info info);
 napi_value NAPI_GetAppType(napi_env env, napi_callback_info info);
 
 /**
- * @brief Obtains the elementName object of the current ability.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetElementName(napi_env env, napi_callback_info info);
-
-/**
  * @brief Obtains the class name in this ability name, without the prefixed bundle name.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -153,36 +133,6 @@ napi_value NAPI_GetElementName(napi_env env, napi_callback_info info);
  * @return The return value from NAPI C++ to JS for the module.
  */
 napi_value NAPI_GetAbilityName(napi_env env, napi_callback_info info);
-
-/**
- * @brief Obtains the process Info this application.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetProcessInfo(napi_env env, napi_callback_info info);
-
-/**
- * @brief Obtains the name of the current process.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetProcessName(napi_env env, napi_callback_info info);
-
-/**
- * @brief Obtains the bundle name of the ability that called the current ability.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
-napi_value NAPI_GetCallingBundle(napi_env env, napi_callback_info info);
 
 /**
  * @brief Obtains information about the current ability.
@@ -306,8 +256,7 @@ napi_value StartAbilityForResultPromise(napi_env env, AsyncCallbackInfo *asyncCa
  * @return Return JS data successfully, otherwise return nullptr.
  */
 napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value ContinueAbilityAsync(
-    napi_env env, napi_value *args, AsyncCallbackInfo *asyncCallbackInfo, size_t argc);
+napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInfo *asyncCallbackInfo, size_t argc);
 napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackInfo *asyncCallbackInfo, size_t argc);
 
 /**
@@ -368,17 +317,6 @@ void GetDataAbilityHelperAsyncCompleteCB(napi_env env, napi_status status, void 
  * @param data Point to asynchronous processing of data.
  */
 void GetDataAbilityHelperPromiseCompleteCB(napi_env env, napi_status status, void *data);
-
-/**
- * @brief acquireDataAbilityHelper processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param dataAbilityHelperCB Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value AcquireDataAbilityHelperWrap(
-    napi_env env, napi_callback_info info, DataAbilityHelperCB *dataAbilityHelperCB);
 
 /**
  * @brief FeatureAbility NAPI method : connectAbility.

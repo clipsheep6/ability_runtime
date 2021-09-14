@@ -13,91 +13,104 @@
  * limitations under the License.
  */
 
+import { AbilityInfo } from "./abilityInfo";
+
 /**
- * @name Stores FA usage information.
+ * @name Obtains configuration information about an module.
  * @since 7
  * @SysCap SystemCapability.Appexecfwk
  * @permission NA
  * @devices phone, tablet, tv, wearable, car
- * @systemapi hide this for inner system use
  */
-export interface ModuleUsageRecord {
+export interface HapModuleInfo {
   /**
-    * @default Indicates the name of the bundle containing the module
-    * @since 7
-    * @SysCap SystemCapability.Appexecfwk
-    */
-  readonly bundleName: string;
-  /**
-    * @default Indicates the app label id of this module
-    * @since 7
-    * @SysCap SystemCapability.Appexecfwk
-    */
-  readonly appLabelId: number;
-  /**
-    * @default Indicates the name of this module
+    * @default Indicates the name of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
   readonly name: string;
   /**
-    * @default Indicates the label id of this module
+    * @default Describes the hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly labelId: number;
+  readonly description: string;
   /**
-    * @default Indicates the description id of this module
+    * @default Indicates the description of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
   readonly descriptionId: number;
   /**
-    * @default Indicates the ability name of this module
+    * @default Indicates the icon of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly abilityName: string;
+  readonly icon: string;
   /**
-    * @default Indicates the ability label id of this module
+    * @default Indicates the label of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly abilityLabelId: number;
+  readonly label: string;
   /**
-    * @default Indicates the ability description id of this module
+    * @default Indicates the label id of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly abilityDescriptionId: number;
+  readonly labelId: number;
   /**
-    * @default Indicates the ability icon id of this module
+    * @default Indicates the icon id of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly abilityIconId: number;
+  readonly iconId: number;
   /**
-    * @default Indicates the launched count of this module
+    * @default Indicates the background img of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly launchedCount: number;
+  readonly backgroundImg: string;
   /**
-    * @default Indicates the last launch time of this module
+    * @default Indicates the supported modes of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly lastLaunchTime: number;
+  readonly supportedModes: number;
   /**
-    * @default Indicates whether the module is removed
+    * @default Indicates the req capabilities of this hapmodule
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly isRemoved: boolean;
+  readonly reqCapabilities: Array<string>;
   /**
-    * @default Indicates whether free installation of the module is supported
+    * @default The device types that this hapmodule can run on
     * @since 7
     * @SysCap SystemCapability.Appexecfwk
     */
-  readonly installationFreeSupported: boolean;
+  readonly deviceTypes: Array<string>;
+  /**
+    * @default Obtains configuration information about ability
+    * @since 7
+    * @SysCap SystemCapability.Appexecfwk
+    */
+  readonly abilityInfo: Array<AbilityInfo>;
+  /**
+    * @default Indicates the name of the .hap package to which the capability belongs
+    * @since 7
+    * @SysCap SystemCapability.Appexecfwk
+    */
+  readonly moduleName: string;
+  /**
+    * @default Indicates the main ability name of this hapmodule
+    * @since 7
+    * @SysCap SystemCapability.Appexecfwk
+    */
+  readonly mainAbilityName: string;
+  /**
+    * @default Indicates whether free installation of the hapmodule is supported
+    * @since 7
+    * @SysCap SystemCapability.Appexecfwk
+    */
+  readonly installationFree: boolean;
 }

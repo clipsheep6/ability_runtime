@@ -96,6 +96,15 @@ void AbilityContext::StartAbility(const Want &want, int requestCode, const Abili
         APP_LOGE("AbilityContext::StartAbility AbilityType = %{public}d", type);
         return;
     }
+
+    APP_LOGI("%{public}s. Start calling ams->StartAbility.", __func__);
+    ErrCode err =
+        AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, abilityStartSetting, token_, requestCode);
+    APP_LOGI("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityContext::StartAbility is failed %{public}d", err);
+    }
+
     APP_LOGI("%{public}s end.", __func__);
 }
 

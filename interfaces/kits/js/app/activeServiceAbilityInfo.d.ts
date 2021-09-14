@@ -13,15 +13,17 @@
  * limitations under the License.
  */
 
+import { ElementName } from '../bundle/elementName';
+
 /**
- * @name This class saves process information about an application
+ * @name information corresponding to active service ability
  * @since 7
  * @SysCap SystemCapability.Appexecfwk
- * @import import app from 'app/activeProcessInfo'
+ * @import import AbilityMissionInfo from 'app/activeServiceAbilityInfo'
  * @permission N/A
  * @devices phone, tablet, tv, wearable, car
  */
-export interface ActiveProcessInfo {
+export interface ActiveServiceAbilityInfo {
     /**
      * @default process id
      * @since 7
@@ -44,9 +46,10 @@ export interface ActiveProcessInfo {
     processName: string;
 
     /**
-     * @default an array of the bundleNames running in the process
+     * @default The element name of the service ability
      * @since 7
      * @SysCap SystemCapability.Appexecfwk
      */
-    bundleNames: Array<string>;
+    serviceAbility: ElementName;
 }
+

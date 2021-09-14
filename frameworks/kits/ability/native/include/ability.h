@@ -74,6 +74,8 @@ class Ability : public IAbilityEvent,
                 public IAbilityContinuation,
                 public std::enable_shared_from_this<Ability> {
 public:
+    friend class PageAbilityImpl;
+
     Ability() = default;
     virtual ~Ability() = default;
 
@@ -724,7 +726,6 @@ public:
      */
     virtual ContinuationState GetContinuationState() final;
 
-
     /**
      * @brief Obtains the singleton AbilityPackage object to which this ability belongs.
      *
@@ -1280,6 +1281,13 @@ private:
     bool VerifySupportForContinuation();
     void HandleCreateAsContinuation(const Want &want);
     bool IsFlagExists(int flag, int flagSet);
+    /**
+     * @brief Set the start ability setting.
+     * @param setting the start ability setting.
+     */
+    void SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting);
+
+private:
     std::shared_ptr<ContinuationHandler> continuationHandler_ = nullptr;
     std::shared_ptr<ContinuationManager> continuationManager_ = nullptr;
     std::shared_ptr<ContinuationRegisterManager> continuationRegisterManager_ = nullptr;
@@ -1293,6 +1301,7 @@ private:
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
+    std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     bool bWindowFocus_ = false;
 
     static const std::string SYSTEM_UI;

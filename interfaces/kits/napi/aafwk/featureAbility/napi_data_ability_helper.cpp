@@ -142,16 +142,15 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
 napi_value NAPI_Insert(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperInsertCB *insertCB = new (std::nothrow) DAHelperInsertCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperInsertCB *insertCB = new (std::nothrow) DAHelperInsertCB;
     if (insertCB == nullptr) {
         HILOG_ERROR("%{public}s, insertCB == nullptr.", __func__);
         return WrapVoidToJS(env);
     }
+    insertCB->cbBase.cbInfo.env = env;
+    insertCB->cbBase.asyncWork = nullptr;
+    insertCB->cbBase.deferred = nullptr;
+    insertCB->cbBase.ability = nullptr;
 
     napi_value ret = InsertWrap(env, info, insertCB);
     if (ret == nullptr) {
@@ -366,12 +365,15 @@ napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args)
 napi_value NAPI_GetType(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperGetTypeCB *gettypeCB = new (std::nothrow) DAHelperGetTypeCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperGetTypeCB *gettypeCB = new (std::nothrow) DAHelperGetTypeCB;
+    if (gettypeCB == nullptr) {
+        HILOG_ERROR("%{public}s, gettypeCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    gettypeCB->cbBase.cbInfo.env = env;
+    gettypeCB->cbBase.asyncWork = nullptr;
+    gettypeCB->cbBase.deferred = nullptr;
+    gettypeCB->cbBase.ability = nullptr;
 
     napi_value ret = GetTypeWrap(env, info, gettypeCB);
     if (ret == nullptr) {
@@ -539,12 +541,15 @@ void GetTypePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_GetFileTypes(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperGetFileTypesCB *getfiletypesCB = new (std::nothrow) DAHelperGetFileTypesCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperGetFileTypesCB *getfiletypesCB = new (std::nothrow) DAHelperGetFileTypesCB;
+    if (getfiletypesCB == nullptr) {
+        HILOG_ERROR("%{public}s, getfiletypesCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    getfiletypesCB->cbBase.cbInfo.env = env;
+    getfiletypesCB->cbBase.asyncWork = nullptr;
+    getfiletypesCB->cbBase.deferred = nullptr;
+    getfiletypesCB->cbBase.ability = nullptr;
 
     napi_value ret = GetFileTypesWrap(env, info, getfiletypesCB);
     if (ret == nullptr) {
@@ -738,12 +743,15 @@ void GetFileTypesPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperNormalizeUriCB *normalizeuriCB = new (std::nothrow) DAHelperNormalizeUriCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperNormalizeUriCB *normalizeuriCB = new (std::nothrow) DAHelperNormalizeUriCB;
+    if (normalizeuriCB == nullptr) {
+        HILOG_ERROR("%{public}s, normalizeuriCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    normalizeuriCB->cbBase.cbInfo.env = env;
+    normalizeuriCB->cbBase.asyncWork = nullptr;
+    normalizeuriCB->cbBase.deferred = nullptr;
+    normalizeuriCB->cbBase.ability = nullptr;
 
     napi_value ret = NormalizeUriWrap(env, info, normalizeuriCB);
     if (ret == nullptr) {
@@ -910,12 +918,15 @@ void NormalizeUriPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperDenormalizeUriCB *denormalizeuriCB = new (std::nothrow) DAHelperDenormalizeUriCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperDenormalizeUriCB *denormalizeuriCB = new (std::nothrow) DAHelperDenormalizeUriCB;
+    if (denormalizeuriCB == nullptr) {
+        HILOG_ERROR("%{public}s, denormalizeuriCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    denormalizeuriCB->cbBase.cbInfo.env = env;
+    denormalizeuriCB->cbBase.asyncWork = nullptr;
+    denormalizeuriCB->cbBase.deferred = nullptr;
+    denormalizeuriCB->cbBase.ability = nullptr;
 
     napi_value ret = DenormalizeUriWrap(env, info, denormalizeuriCB);
     if (ret == nullptr) {
@@ -1116,12 +1127,15 @@ napi_value UnwrapDataAbilityPredicates(std::string &value, napi_env env, napi_va
 napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperDeleteCB *deleteCB = new (std::nothrow) DAHelperDeleteCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperDeleteCB *deleteCB = new (std::nothrow) DAHelperDeleteCB;
+    if (deleteCB == nullptr) {
+        HILOG_ERROR("%{public}s, deleteCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    deleteCB->cbBase.cbInfo.env = env;
+    deleteCB->cbBase.asyncWork = nullptr;
+    deleteCB->cbBase.deferred = nullptr;
+    deleteCB->cbBase.ability = nullptr;
 
     napi_value ret = DeleteWrap(env, info, deleteCB);
     if (ret == nullptr) {
@@ -1307,12 +1321,15 @@ void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Update(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperUpdateCB *updateCB = new (std::nothrow) DAHelperUpdateCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperUpdateCB *updateCB = new (std::nothrow) DAHelperUpdateCB;
+    if (updateCB == nullptr) {
+        HILOG_ERROR("%{public}s, updateCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    updateCB->cbBase.cbInfo.env = env;
+    updateCB->cbBase.asyncWork = nullptr;
+    updateCB->cbBase.deferred = nullptr;
+    updateCB->cbBase.ability = nullptr;
 
     napi_value ret = UpdateWrap(env, info, updateCB);
     if (ret == nullptr) {
@@ -1504,12 +1521,15 @@ void UpdatePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperOpenFileCB *openFileCB = new (std::nothrow) DAHelperOpenFileCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperOpenFileCB *openFileCB = new (std::nothrow) DAHelperOpenFileCB;
+    if (openFileCB == nullptr) {
+        HILOG_ERROR("%{public}s, openFileCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    openFileCB->cbBase.cbInfo.env = env;
+    openFileCB->cbBase.asyncWork = nullptr;
+    openFileCB->cbBase.deferred = nullptr;
+    openFileCB->cbBase.ability = nullptr;
 
     napi_value ret = OpenFileWrap(env, info, openFileCB);
     if (ret == nullptr) {
@@ -1695,12 +1715,15 @@ void OpenFilePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_BatchInsert(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperBatchInsertCB *BatchInsertCB = new (std::nothrow) DAHelperBatchInsertCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperBatchInsertCB *BatchInsertCB = new (std::nothrow) DAHelperBatchInsertCB;
+    if (BatchInsertCB == nullptr) {
+        HILOG_ERROR("%{public}s, BatchInsertCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    BatchInsertCB->cbBase.cbInfo.env = env;
+    BatchInsertCB->cbBase.asyncWork = nullptr;
+    BatchInsertCB->cbBase.deferred = nullptr;
+    BatchInsertCB->cbBase.ability = nullptr;
 
     napi_value ret = BatchInsertWrap(env, info, BatchInsertCB);
     if (ret == nullptr) {
@@ -1920,12 +1943,15 @@ void BatchInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Query(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperQueryCB *QueryCB = new (std::nothrow) DAHelperQueryCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-        .cbBase.ability = nullptr,
-    };
+    DAHelperQueryCB *QueryCB = new (std::nothrow) DAHelperQueryCB;
+    if (QueryCB == nullptr) {
+        HILOG_ERROR("%{public}s, QueryCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    QueryCB->cbBase.cbInfo.env = env;
+    QueryCB->cbBase.asyncWork = nullptr;
+    QueryCB->cbBase.deferred = nullptr;
+    QueryCB->cbBase.ability = nullptr;
 
     napi_value ret = QueryWrap(env, info, QueryCB);
     if (ret == nullptr) {
@@ -2134,11 +2160,14 @@ napi_value WrapResultSet(napi_env env, const ResultSet &resultSet)
 napi_value NAPI_Release(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperReleaseCB *releaseCB = new (std::nothrow) DAHelperReleaseCB{
-        .cbBase.cbInfo.env = env,
-        .cbBase.asyncWork = nullptr,
-        .cbBase.deferred = nullptr,
-    };
+    DAHelperReleaseCB *releaseCB = new (std::nothrow) DAHelperReleaseCB;
+    if (releaseCB == nullptr) {
+        HILOG_ERROR("%{public}s, releaseCB == nullptr.", __func__);
+        return WrapVoidToJS(env);
+    }
+    releaseCB->cbBase.cbInfo.env = env;
+    releaseCB->cbBase.asyncWork = nullptr;
+    releaseCB->cbBase.deferred = nullptr;
 
     napi_value ret = ReleaseWrap(env, info, releaseCB);
     if (ret == nullptr) {
