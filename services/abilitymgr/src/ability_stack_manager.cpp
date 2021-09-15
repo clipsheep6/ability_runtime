@@ -296,9 +296,6 @@ void AbilityStackManager::MoveMissionAndAbility(const std::shared_ptr<AbilityRec
             targetMissionRecord->SetIsLauncherCreate();
         }
     }
-
-    // add caller record
-    targetAbilityRecord->SetMissionRecord(targetMissionRecord);
     // check mission window mode.
     if (targetAbilityRecord->GetMissionRecord() == nullptr) {
         auto option = targetMissionRecord->GetMissionOption();
@@ -310,6 +307,9 @@ void AbilityStackManager::MoveMissionAndAbility(const std::shared_ptr<AbilityRec
             targetAbilityRecord->SetStartSetting(setting);
         }
     }
+
+    // add caller record
+    targetAbilityRecord->SetMissionRecord(targetMissionRecord);
     // add ability record to mission record.
     // if this ability record exist this mission record, do not add.
     targetMissionRecord->AddAbilityRecordToTop(targetAbilityRecord);

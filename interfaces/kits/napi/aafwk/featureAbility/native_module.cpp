@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include "feature_ability.h"
+#include "feature_ability_constant.h"
 #include "napi_context.h"
 #include "napi_data_ability_helper.h"
 #include "napi/native_api.h"
@@ -34,6 +35,7 @@ static napi_value Init(napi_env env, napi_value exports)
     FeatureAbilityInit(env, exports);
     ContextPermissionInit(env, exports);
     DataAbilityHelperInit(env, exports);
+    FAConstantInit(env, exports);
     return exports;
 }
 EXTERN_C_END

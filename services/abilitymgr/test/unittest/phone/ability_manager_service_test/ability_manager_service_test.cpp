@@ -2555,5 +2555,51 @@ HWTEST_F(AbilityManagerServiceTest, compelverifypermission_001, TestSize.Level1)
     EXPECT_EQ(resultFunction, ERR_OK);
 }
 
+/*
+ * Feature: AbilityManagerService
+ * Function: AmsConfigurationParameter
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CompelVerifyPermission
+ * EnvConditions: NA
+ * CaseDescription: Already configured
+ */
+HWTEST_F(AbilityManagerServiceTest, AmsConfigurationParameter_001, TestSize.Level1)
+{
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
+    EXPECT_FALSE(abilityMs_->amsConfigResolver_->NonConfigFile());
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: AmsConfigurationParameter
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CompelVerifyPermission
+ * EnvConditions: NA
+ * CaseDescription: Already configured
+ */
+HWTEST_F(AbilityManagerServiceTest, AmsConfigurationParameter_002, TestSize.Level1)
+{
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
+    // At present, all three are started and may be changed later
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_->GetStartLuncherState());
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_->GetStatusBarState());
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_->GetNavigationBarState());
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: AmsConfigurationParameter
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CompelVerifyPermission
+ * EnvConditions: NA
+ * CaseDescription: Already configured
+ */
+HWTEST_F(AbilityManagerServiceTest, AmsConfigurationParameter_003, TestSize.Level1)
+{
+    EXPECT_TRUE(abilityMs_->amsConfigResolver_);
+    auto ref = abilityMs_->amsConfigResolver_->LoadAmsConfiguration(" ");
+    EXPECT_EQ(ref, 1);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
