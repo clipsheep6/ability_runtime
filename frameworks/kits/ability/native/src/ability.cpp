@@ -151,8 +151,7 @@ void Ability::OnStart(const Want &want)
             winType = OHOS::WindowType::WINDOW_TYPE_ALARM_SCREEN;
         }
 
-        if (abilityInfo_->bundleName == DEVICE_MANAGER_BUNDLE_NAME &&
-            abilityInfo_->name == DEVICE_MANAGER_NAME) {
+        if (abilityInfo_->bundleName == DEVICE_MANAGER_BUNDLE_NAME && abilityInfo_->name == DEVICE_MANAGER_NAME) {
             winType = OHOS::WindowType::WINDOW_TYPE_ALARM_SCREEN;
         }
 
@@ -162,6 +161,18 @@ void Ability::OnStart(const Want &want)
             abilityInfo_->name.c_str(),
             winType);
 
+        if (setting_ != nullptr) {
+            auto windowMode = static_cast<AbilityWindowConfiguration>(
+                std::atoi(setting_->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY).c_str()));
+            APP_LOGI("%{public}s windowMode : %{public}d", __func__, windowMode);
+            if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+                APP_LOGI("%{public}s begin SetWindowMode : WINDOW_MODE_FREE.", __func__);
+                config->SetWindowType(WINDOW_TYPE_FLOAT);
+                APP_LOGI("%{public}s end SetWindowMode : WINDOW_MODE_FREE.", __func__);
+            }
+        } else {
+            APP_LOGI("Ability::OnStart setting_ == nullptr.");
+        }
         SetUIContent(config);
 
         if (abilityWindow_ != nullptr) {
@@ -170,7 +181,6 @@ void Ability::OnStart(const Want &want)
             APP_LOGI("%{public}s end abilityWindow_->OnPostAbilityStart.", __func__);
         }
     }
-    // should called in ace ability onStart methord.
 
     SetWant(want);
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -1455,7 +1465,7 @@ bool Ability::OnSaveData(WantParams &saveData)
 }
 
 /**
- * @brief After creating the Ability on the remote device, 
+ * @brief After creating the Ability on the remote device,
  *      immediately restore the user data saved during the migration of the Ability on the remote device.
  * @param restoreData Indicates the user data to be restored.
  * @return If the data is restored successfully, it returns true; otherwise, it returns false .
@@ -1638,7 +1648,7 @@ bool Ability::ReleaseForm(const int64_t formId, const bool isReleaseCache)
     APP_LOGI("%{public}s called.", __func__);
 
     // release form with formId and specifies whether to release the cache
-    return DeleteForm(formId, isReleaseCache ? RELEASE_CACHED_FORM : RELEASE_FORM);  
+    return DeleteForm(formId, isReleaseCache ? RELEASE_CACHED_FORM : RELEASE_FORM);
 }
 
 /**
@@ -1672,12 +1682,12 @@ bool Ability::DeleteForm(const int64_t formId)
  * @brief Cast temp form with formId.
  *
  * @param formId Indicates the form's ID.
- * 
+ *
  * @return Returns {@code true} if the form is successfully casted; returns {@code false} otherwise.
  */
 bool Ability::CastTempForm(const int64_t formId)
 {
-    APP_LOGI("%{public}s start",__func__);
+    APP_LOGI("%{public}s start", __func__);
     if (formId <= 0) {
         APP_LOGE("%{public}s error, passing in form id can't be negative.", __func__);
         return false;
@@ -1694,7 +1704,7 @@ bool Ability::CastTempForm(const int64_t formId)
 
     userReqParams_[formId].SetParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
 
-    APP_LOGI("%{public}s end",__func__);
+    APP_LOGI("%{public}s end", __func__);
     return true;
 }
 
@@ -1741,7 +1751,12 @@ bool Ability::AcquireForm(const int64_t formId, const Want &want, const std::sha
     ElementName elementName = want.GetElement();
     std::string bundleName = elementName.GetBundleName();
     std::string abilityName = elementName.GetAbilityName();
-    APP_LOGI("%{public}s, begin to acquire form, bundleName is %{public}s, abilityName is %{public}s, formId is %{public}" PRId64 ".",__func__, bundleName.c_str(), abilityName.c_str(), formId);
+    APP_LOGI("%{public}s, begin to acquire form, bundleName is %{public}s, abilityName is %{public}s, formId is "
+             "%{public}" PRId64 ".",
+        __func__,
+        bundleName.c_str(),
+        abilityName.c_str(),
+        formId);
 
     // hostClient init
     sptr<FormHostClient> formHostClient = FormHostClient::GetInstance();
@@ -1757,7 +1772,8 @@ bool Ability::AcquireForm(const int64_t formId, const Want &want, const std::sha
         return false;
     }
     APP_LOGI("%{public}s, end to acquire form, the formId returned from the fms is %{public}" PRId64 ".",
-     __func__, formJsInfo.formId);
+        __func__,
+        formJsInfo.formId);
 
     // check for form presence in hostForms
     if (formHostClient->ContainsForm(formJsInfo.formId)) {
@@ -1770,7 +1786,7 @@ bool Ability::AcquireForm(const int64_t formId, const Want &want, const std::sha
     formHostClient->AddForm(thisAbility, formJsInfo.formId);
 
     // post the async task of handleAcquireResult
-    PostTask([this, want, formJsInfo, callback]() {HandleAcquireResult(want, formJsInfo, callback);}, 0L);
+    PostTask([this, want, formJsInfo, callback]() { HandleAcquireResult(want, formJsInfo, callback); }, 0L);
 
     // the acquire form is successfully
     return true;
@@ -1850,14 +1866,14 @@ bool Ability::NotifyInvisibleForms(const std::vector<int64_t> &formIds)
 }
 
 /**
-* @brief Set form next refresh time.
-*
-* <p>This method is called by a form provider to set refresh time.
-*
-* @param formId Indicates the ID of the form to set refresh time.
-* @param nextTime Indicates the next time gap now in seconds, can not be litter than 300 seconds.
-* @return Returns {@code true} if seting succeed; returns {@code false} otherwise.
-*/
+ * @brief Set form next refresh time.
+ *
+ * <p>This method is called by a form provider to set refresh time.
+ *
+ * @param formId Indicates the ID of the form to set refresh time.
+ * @param nextTime Indicates the next time gap now in seconds, can not be litter than 300 seconds.
+ * @return Returns {@code true} if seting succeed; returns {@code false} otherwise.
+ */
 bool Ability::SetFormNextRefreshTime(const int64_t formId, const int64_t nextTime)
 {
     APP_LOGI("%{public}s called.", __func__);
@@ -1909,22 +1925,21 @@ void Ability::ProcessFormUpdate(const FormJsInfo &formJsInfo)
 
     // post the async task of handleFormMessage
     int32_t msgCode = OHOS_FORM_UPDATE_FORM;
-    PostTask([this, msgCode, formJsInfo]() {HandleFormMessage(msgCode, formJsInfo);}, 0L);
+    PostTask([this, msgCode, formJsInfo]() { HandleFormMessage(msgCode, formJsInfo); }, 0L);
 }
 /**
  * @brief Uninstall form.
  *
  * @param formId Indicates the ID of the form to uninstall.
  */
-void Ability::ProcessFormUninstall(const int64_t formId) {
+void Ability::ProcessFormUninstall(const int64_t formId)
+{
     APP_LOGI("%{public}s start.", __func__);
     std::shared_ptr<FormCallback> formCallback = nullptr;
     {
         std::lock_guard<std::mutex> lock(formLock);
         // get callback iterator by formId
-        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = 
-            appCallbacks_.find(formId);
-
+        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = appCallbacks_.find(formId);
 
         // call the callback function when you need to be notified
         if (appCallbackIterator == appCallbacks_.end()) {
@@ -1934,7 +1949,7 @@ void Ability::ProcessFormUninstall(const int64_t formId) {
         formCallback = appCallbackIterator->second;
         CleanFormResource(formId);
     }
-    if ( formCallback == nullptr) {
+    if (formCallback == nullptr) {
         APP_LOGE("%{public}s failed, callback is nullptr.", __func__);
         return;
     }
@@ -1956,7 +1971,7 @@ void Ability::ProcessFormUninstall(const int64_t formId) {
  *               Ability#PARAM_FORM_NAME_KEY, and Ability#PARAM_FORM_DIMENSION_KEY,
  *               respectively. Such form information must be managed as persistent data for further form
  *               acquisition, update, and deletion.
- * 
+ *
  * @return Returns the created FormProviderInfo object.
  */
 FormProviderInfo Ability::OnCreate(const Want &want)
@@ -1983,8 +1998,7 @@ void Ability::OnDelete(const int64_t formId)
  * @return none.
  */
 void Ability::OnUpdate(const int64_t formId)
-{
-}
+{}
 
 /**
  * @brief Called when the form provider is notified that a temporary form is successfully converted to a normal form.
@@ -2005,8 +2019,7 @@ void Ability::OnCastTemptoNormal(const int64_t formId)
  * @return none.
  */
 void Ability::OnVisibilityChanged(const std::map<int64_t, int32_t> &formEventsMap)
-{
-}
+{}
 /**
  * @brief Called to notify the form provider to update a specified form.
  *
@@ -2014,8 +2027,7 @@ void Ability::OnVisibilityChanged(const std::map<int64_t, int32_t> &formEventsMa
  * @param message Form event message.
  */
 void Ability::OnTriggerEvent(const int64_t formId, const std::string &message)
-{
-}
+{}
 /**
  * @brief Delete or release form with formId.
  *
@@ -2031,22 +2043,22 @@ bool Ability::DeleteForm(const int64_t formId, const int32_t deleteType)
         APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
         return false;
     }
-    // check formId 
+    // check formId
     if (formId <= 0) {
         APP_LOGE("%{public}s error, the passed in formId can't be negative or zero.", __func__);
         return false;
     }
 
     APP_LOGI("%{public}s, delete form begin, formId is %{public}" PRId64 " and deleteType is %{public}d.",
-     __func__, formId, deleteType);
+        __func__,
+        formId,
+        deleteType);
     {
         // form lock
         std::lock_guard<std::mutex> lock(formLock);
         // clean form resource when form is temp form
-        if (std::find(
-            lostedByReconnectTempForms_.begin(), 
-            lostedByReconnectTempForms_.end(), 
-            formId) != lostedByReconnectTempForms_.end()) {
+        if (std::find(lostedByReconnectTempForms_.begin(), lostedByReconnectTempForms_.end(), formId) !=
+            lostedByReconnectTempForms_.end()) {
             CleanFormResource(formId);
             // the delete temp form is successfully
             return true;
@@ -2061,9 +2073,7 @@ bool Ability::DeleteForm(const int64_t formId, const int32_t deleteType)
         result = FormMgr::GetInstance().DeleteForm(formId, formHostClient);
     } else {
         result = FormMgr::GetInstance().ReleaseForm(
-            formId, 
-            formHostClient, 
-            (deleteType == RELEASE_CACHED_FORM) ? true : false);
+            formId, formHostClient, (deleteType == RELEASE_CACHED_FORM) ? true : false);
     }
     if (result != ERR_OK) {
         APP_LOGE("%{public}s error, some internal server occurs, error code is %{public}d.", __func__, result);
@@ -2084,11 +2094,11 @@ bool Ability::DeleteForm(const int64_t formId, const int32_t deleteType)
  *
  * @param formId Indicates the form's ID.
  */
-void Ability::CleanFormResource(const int64_t formId) 
+void Ability::CleanFormResource(const int64_t formId)
 {
     APP_LOGI("%{public}s called.", __func__);
     // compatible with int form id
-    int64_t cleanId {-1L};
+    int64_t cleanId{-1L};
     for (auto param : userReqParams_) {
         if ((param.first & 0x00000000ffffffffL) == (formId & 0x00000000ffffffffL)) {
             cleanId = param.first;
@@ -2112,7 +2122,6 @@ void Ability::CleanFormResource(const int64_t formId)
     std::shared_ptr<Ability> thisAbility = this->shared_from_this();
     FormHostClient::GetInstance()->RemoveForm(thisAbility, cleanId);
 
-
     // unregister death callback when appCallbacks is empty
     if (appCallbacks_.empty()) {
         std::shared_ptr<Ability> thisAbility = this->shared_from_this();
@@ -2130,9 +2139,7 @@ void Ability::CleanFormResource(const int64_t formId)
  * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
  */
 void Ability::HandleAcquireResult(
-    const Want &want, 
-    const FormJsInfo &formJsInfo, 
-    const std::shared_ptr<FormCallback> callback)
+    const Want &want, const FormJsInfo &formJsInfo, const std::shared_ptr<FormCallback> callback)
 {
     APP_LOGI("%{public}s called.", __func__);
     {
@@ -2172,9 +2179,8 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
     {
         std::lock_guard<std::mutex> lock(formLock);
         // get callback iterator by formId
-        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = 
+        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
             appCallbacks_.find(formJsInfo.formId);
-
 
         // call the callback function when you need to be notified
         if (appCallbackIterator == appCallbacks_.end()) {
@@ -2183,7 +2189,7 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
         }
         formCallback = appCallbackIterator->second;
     }
-    if ( formCallback == nullptr) {
+    if (formCallback == nullptr) {
         APP_LOGE("%{public}s failed, callback is nullptr.", __func__);
         return;
     }
@@ -2199,7 +2205,7 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
 
 /**
  * @brief Notify the forms visibility change event.
- * 
+ *
  * @param formIds Indicates the IDs of the forms to be made visible or invisible.
  * @param eventType Indicates the form events occurred. FORM_VISIBLE means that the form becomes visible,
  *                  and FORM_INVISIBLE means that the form becomes invisible.
@@ -2219,9 +2225,10 @@ bool Ability::NotifyWhetherVisibleForms(const std::vector<int64_t> &formIds, int
         return false;
     }
 
-    int resultCode = FormMgr::GetInstance().NotifyWhetherVisibleForms(formIds, FormHostClient::GetInstance(), eventType);
+    int resultCode =
+        FormMgr::GetInstance().NotifyWhetherVisibleForms(formIds, FormHostClient::GetInstance(), eventType);
     if (resultCode != ERR_OK) {
-        APP_LOGE("%{public}s error, internal error occurs, error code:%{public}d.",  __func__, resultCode);
+        APP_LOGE("%{public}s error, internal error occurs, error code:%{public}d.", __func__, resultCode);
         return false;
     }
     return true;
@@ -2229,7 +2236,7 @@ bool Ability::NotifyWhetherVisibleForms(const std::vector<int64_t> &formIds, int
 
 /**
  * @brief Check the param of want.
- * 
+ *
  * @param formId Indicates the form's ID.
  * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
  *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
@@ -2299,7 +2306,7 @@ bool Ability::DisableUpdateForm(const std::vector<int64_t> &formIds)
     return LifecycleUpdate(formIds, DISABLE_FORM_UPDATE);
 }
 
-bool Ability::LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType) 
+bool Ability::LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType)
 {
     if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
         APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
@@ -2351,7 +2358,10 @@ bool Ability::RequestForm(const int64_t formId, const Want &want)
     // requestForm request to fms
     int resultCode = FormMgr::GetInstance().RequestForm(formId, FormHostClient::GetInstance(), want);
     if (resultCode != ERR_OK) {
-        APP_LOGE("%{public}s error, failed to notify the form service that the form user's lifecycle is updated, error code is %{public}d.", __func__, resultCode);
+        APP_LOGE("%{public}s error, failed to notify the form service that the form user's lifecycle is updated, error "
+                 "code is %{public}d.",
+            __func__,
+            resultCode);
         return false;
     }
 
@@ -2375,9 +2385,8 @@ void Ability::OnDeathReceived()
         {
             std::lock_guard<std::mutex> lock(formLock);
             want = userReqRaram.second;
-            if (want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false)
-                && std::find(lostedTempForms.begin(), lostedTempForms.end(),
-                    formId) == lostedTempForms.end()) {
+            if (want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false) &&
+                std::find(lostedTempForms.begin(), lostedTempForms.end(), formId) == lostedTempForms.end()) {
                 lostedTempForms.emplace_back(formId);
                 continue;
             }
@@ -2390,18 +2399,21 @@ void Ability::OnDeathReceived()
             {
                 std::lock_guard<std::mutex> lock(formLock);
                 // get callback iterator by formId
-                std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = appCallbacks_.find(formId);
-                
+                std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
+                    appCallbacks_.find(formId);
+
                 if (appCallbackIterator == appCallbacks_.end()) {
-                    APP_LOGW("%{public}s error, lack of form callback for form, formId:%{public}" PRId64 ".", __func__, formId);
+                    APP_LOGW("%{public}s error, lack of form callback for form, formId:%{public}" PRId64 ".",
+                        __func__,
+                        formId);
                     continue;
                 }
                 formCallback = appCallbackIterator->second;
             }
-            if(formCallback == nullptr) {
+            if (formCallback == nullptr) {
                 APP_LOGW("%{public}s failed, callback is nullptr.", __func__);
                 continue;
-            }           
+            }
 
             FormJsInfo formJsInfo;
             formJsInfo.formId = formId;
@@ -2412,7 +2424,7 @@ void Ability::OnDeathReceived()
 
 /**
  * @brief Reacquire a specified form when the death callback is received.
- * 
+ *
  * @param formId Indicates the form ID.
  * @param want Indicates the detailed information about the form to be obtained.
  * @return Returns true if the request is successfully initiated; returns false otherwise.
@@ -2430,8 +2442,8 @@ bool Ability::ReAcquireForm(const int64_t formId, const Want &want)
 
     // reacquire form
     FormJsInfo formJsInfo;
-    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK
-        || formJsInfo.formId <= 0 || formJsInfo.formId != formId) {
+    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK || formJsInfo.formId <= 0 ||
+        formJsInfo.formId != formId) {
         APP_LOGE("%{public}s error, fms reacquire form failed, formId:%{public}" PRId64 ".", __func__, formId);
         return false;
     }
@@ -2452,13 +2464,13 @@ bool Ability::CheckFMSReady()
     APP_LOGI("%{public}s called.", __func__);
 
     sptr<ISystemAbilityManager> systemAbilityManager =
-     SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     auto remoteObject = systemAbilityManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
     if (remoteObject == nullptr) {
         APP_LOGI("%{public}s, form manager service is not ready.", __func__);
         return false;
     }
-    
+
     return true;
 }
 
@@ -2477,7 +2489,7 @@ bool Ability::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
         APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return false;
     }
-    
+
     if (!CheckPermission()) {
         return false;
     }
@@ -2506,21 +2518,20 @@ bool Ability::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &
         APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return IsGetFormsInfoByApp;
     }
-    
+
     if (!CheckPermission()) {
         return IsGetFormsInfoByApp;
     }
-    
+
     IsGetFormsInfoByApp = iBundleMgr->GetFormsInfoByApp(bundleName, formInfos);
-    if (formInfos.size() == 0){
+    if (formInfos.size() == 0) {
         return IsGetFormsInfoByApp;
     }
-    
+
     return IsGetFormsInfoByApp;
 }
 
-
- /**
+/**
  * @brief Get forms info by application name and module name.
  *
  * @param bundleName Application name.
@@ -2547,9 +2558,9 @@ bool Ability::GetFormsInfoByModule(std::string &bundleName, std::string &moduleN
     if (!CheckPermission()) {
         return IsGetFormsInfoByModule;
     }
-    
+
     IsGetFormsInfoByModule = iBundleMgr->GetFormsInfoByModule(bundleName, moduleName, formInfos);
-    
+
     return IsGetFormsInfoByModule;
 }
 
@@ -2563,7 +2574,7 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
 
     if (iBundleMgr_ == nullptr) {
         sptr<ISystemAbilityManager> systemAbilityManager =
-         SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         if (remoteObject == nullptr) {
             APP_LOGE("%{public}s error, failed to get bundle manager service.", __func__);
@@ -2571,12 +2582,12 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
         }
 
         iBundleMgr_ = iface_cast<IBundleMgr>(remoteObject);
-        if (iBundleMgr_ == nullptr) {        
+        if (iBundleMgr_ == nullptr) {
             APP_LOGE("%{public}s error, failed to get bundle manager service", __func__);
-            return nullptr;  
+            return nullptr;
         }
     }
-    
+
     return iBundleMgr_;
 }
 
@@ -2584,7 +2595,8 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
  * @brief check permission of bundle, if it not existed.
  * @return returns the permission is vaild, or false for failed.
  */
-bool Ability::CheckPermission() {
+bool Ability::CheckPermission()
+{
     APP_LOGI("%{public}s called.", __func__);
 
     int32_t uid = IPCSkeleton::GetCallingUid();
@@ -2621,10 +2633,10 @@ void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
 sptr<IRemoteObject> Ability::GetFormRemoteObject()
 {
     APP_LOGI("%{public}s start", __func__);
-    if(providerRemoteObject_ == nullptr) {
+    if (providerRemoteObject_ == nullptr) {
         sptr<FormProviderClient> providerClient = new (std::nothrow) FormProviderClient();
         std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-        if(thisAbility == nullptr) {
+        if (thisAbility == nullptr) {
             APP_LOGE("%{public}s failed, thisAbility is nullptr", __func__);
         }
         providerClient->SetOwner(thisAbility);
@@ -2634,5 +2646,14 @@ sptr<IRemoteObject> Ability::GetFormRemoteObject()
     return providerRemoteObject_;
 }
 
+/**
+ * @brief Set the start ability setting.
+ * @param setting the start ability setting.
+ */
+void Ability::SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting)
+{
+    APP_LOGI("%{public}s called.", __func__);
+    setting_ = setting;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
