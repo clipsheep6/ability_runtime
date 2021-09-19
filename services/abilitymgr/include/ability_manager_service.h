@@ -575,6 +575,8 @@ private:
      */
     void StartingLauncherAbility();
 
+    void StartingPhoneServiceAbility();
+
     /**
      *starting system ui abilites.
      *

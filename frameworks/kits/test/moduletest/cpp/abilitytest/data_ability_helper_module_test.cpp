@@ -232,14 +232,19 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_OpenFile_Test_0100, Func
     int fd = dataAbilityHelper->OpenFile(urivalue, mode);
     std::string result = "123456";
     FILE *file = fdopen(fd, "r");
-    char str[7];
+    EXPECT_NE(file, nullptr);
+
+    int strSize = 7;
+    std::string str("");
+    str.resize(strSize);
     if (!feof(file)) {
-        fgets(str, 7, file);
+        fgets(&str[0], strSize, file);
     }
     string stringstr(str);
     EXPECT_STREQ(stringstr.c_str(), result.c_str());
 
     fclose(file);
+    system("rm /dataability_openfile_test.txt");
 
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityHelper_OpenFile_Test_0100 end";
 }
@@ -264,14 +269,20 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_OpenFile_Test_0200, Func
 
     std::string result = "123456";
     FILE *file = fdopen(fd, "r");
-    char str[7];
+    EXPECT_NE(file, nullptr);
+
+    int strSize = 7;
+    std::string str("");
+    str.resize(strSize);
     if (!feof(file)) {
-        fgets(str, 7, file);
+        fgets(&str[0], strSize, file);
     }
     string stringstr(str);
     EXPECT_STREQ(stringstr.c_str(), result.c_str());
 
     fclose(file);
+    system("rm /dataability_openfile_test.txt");
+    
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityHelper_OpenFile_Test_0200 end";
 }
 
@@ -336,7 +347,7 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_BatchInsert_Test_0100, F
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context, uri);
 
     Uri urivalue("dataability://device_id/com.domainname.dataability.persondata/person/10");
-    std::vector<ValuesBucket> values;
+    std::vector<NativeRdb::ValuesBucket> values;
     int fd = dataAbilityHelper->BatchInsert(urivalue, values);
 
     EXPECT_EQ(fd, 115);
@@ -359,7 +370,7 @@ HWTEST_F(DataAbilityHelperTest, AaFwk_DataAbilityHelper_BatchInsert_Test_0200, F
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = DataAbilityHelper::Creator(context);
 
     Uri urivalue("dataability://device_id/com.domainname.dataability.persondata/person/10");
-    std::vector<ValuesBucket> values;
+    std::vector<NativeRdb::ValuesBucket> values;
     int fd = dataAbilityHelper->BatchInsert(urivalue, values);
 
     EXPECT_EQ(fd, 115);
