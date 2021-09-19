@@ -18,6 +18,9 @@
 
 #include <gtest/gtest.h>
 #include <mutex>
+#include "abs_shared_result_set.h"
+#include "data_ability_predicates.h"
+#include "values_bucket.h"
 #include "ability_connect_callback_interface.h"
 #include "ability_manager_errors.h"
 #include "ability_context.h"
@@ -89,19 +92,19 @@ public:
         return OPENFILENUM;
     }
 
-    int Insert(const Uri &uri, const ValuesBucket &value)
+    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
     {
         GTEST_LOG_(INFO) << "MockAbilityThread::Insert called";
         return INSERTNUM;
     }
 
-    int Update(const Uri &uri, const ValuesBucket &value, const DataAbilityPredicates &predicates)
+    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
     {
         GTEST_LOG_(INFO) << "MockAbilityThread::Update called";
         return UPDATENUM;
     }
 
-    int Delete(const Uri &uri, const DataAbilityPredicates &predicates)
+    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
     {
         GTEST_LOG_(INFO) << "MockAbilityThread::Delete called";
         return DELETENUM;
@@ -119,17 +122,17 @@ public:
         return true;
     }
 
-    int BatchInsert(const Uri &uri, const std::vector<ValuesBucket> &values)
+    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
     {
         GTEST_LOG_(INFO) << "MockAbilityThread::BatchInsert called";
         return BATCHINSERTNUM;
     }
 
-    std::shared_ptr<ResultSet> Query(
-        const Uri &uri, std::vector<std::string> &columns, const DataAbilityPredicates &predicates)
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
+        const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
     {
         GTEST_LOG_(INFO) << "MockAbilityThread::Query called";
-        std::shared_ptr<ResultSet> set = std::make_shared<ResultSet>("resultset");
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> set = std::make_shared<NativeRdb::AbsSharedResultSet>("resultset");
         return set;
     }
 
@@ -155,6 +158,24 @@ public:
 
     void NotifyTopActiveAbilityChanged(bool flag)
     {}
+
+    virtual bool ScheduleRegisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    {
+        return true;
+    }
+    virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver)
+    {
+        return true;
+    }
+    virtual bool ScheduleNotifyChange(const Uri &uri)
+    {
+        return true;
+    }
+    virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
+    {
+        return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
