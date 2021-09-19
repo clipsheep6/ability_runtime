@@ -33,6 +33,10 @@
 #include "page_ability_impl.h"
 #include "uri.h"
 
+#include "abs_shared_result_set.h"
+#include "data_ability_predicates.h"
+#include "values_bucket.h"
+
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
@@ -103,7 +107,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Query_0100, Function | MediumTes
             columns.push_back("string1");
 
             DataAbilityPredicates predicates("test");
-            std::shared_ptr<ResultSet> resultSet = abilitythread->Query(uri, columns, predicates);
+            std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = abilitythread->Query(uri, columns, predicates);
             EXPECT_STREQ(resultSet->testInf_.c_str(), "TestResultSet");
         }
     }
@@ -291,7 +295,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Insert_0100, Function | MediumTe
             std::shared_ptr<MockDataAbility> mockdataability = std::make_shared<MockDataAbility>();
 
             Uri uri("dataabilitytest://com.example.myapplication5.DataAbilityTest");
-            ValuesBucket value;
+            NativeRdb::ValuesBucket value;
 
             EXPECT_EQ(22, abilitythread->Insert(uri, value));
         }
@@ -346,7 +350,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0100, Function | MediumTe
             std::shared_ptr<MockDataAbility> mockdataability = std::make_shared<MockDataAbility>();
 
             Uri uri("dataabilitytest://com.example.myapplication5.DataAbilityTest");
-            ValuesBucket value;
+            NativeRdb::ValuesBucket value;
             DataAbilityPredicates predicates("test");
 
             EXPECT_EQ(33, abilitythread->Update(uri, value, predicates));
@@ -369,7 +373,7 @@ HWTEST_F(AbilityThreadTest, AaFwk_AbilityThread_Update_0200, Function | MediumTe
     if (abilitythread != nullptr) {
         Uri uri("\nullptr");
         int number = -1;
-        ValuesBucket value;
+        NativeRdb::ValuesBucket value;
         DataAbilityPredicates predicates("test");
 
         EXPECT_EQ(number, abilitythread->Update(uri, value, predicates));

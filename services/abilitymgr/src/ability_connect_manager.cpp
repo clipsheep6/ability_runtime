@@ -366,7 +366,7 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
     std::for_each(serviceMap_.begin(), serviceMap_.end(), [&info](ServiceMapType::reference service) {
         if (service.second && service.second->GetApplicationInfo().name == info.appName &&
             (info.processName == service.second->GetAbilityInfo().process ||
-                info.processName == service.second->GetApplicationInfo().bundleName)) {
+            info.processName == service.second->GetApplicationInfo().bundleName)) {
             service.second->SetAppState(info.state);
         }
     });
@@ -840,6 +840,18 @@ void AbilityConnectManager::HandleAbilityDiedTask(const std::shared_ptr<AbilityR
         HILOG_ERROR("Died ability record is not exist in service map.");
         return;
     }
+
+    if (abilityRecord->GetAbilityInfo().name == AbilityConfig::PHONE_SERVICE_ABILITY_NAME) {
+        AbilityRequest requestInfo;
+        requestInfo.want = abilityRecord->GetWant();
+        requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
+        requestInfo.appInfo = abilityRecord->GetApplicationInfo();
+
+        RemoveServiceAbility(abilityRecord);
+        StartAbilityLocked(requestInfo);
+        return;
+    }
+
     ConnectListType connlist = abilityRecord->GetConnectRecordList();
     for (auto &connectRecord : connlist) {
         HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
