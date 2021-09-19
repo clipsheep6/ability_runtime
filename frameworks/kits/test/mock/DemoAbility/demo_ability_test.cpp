@@ -148,19 +148,19 @@ int DemoAbility::OpenFile(const Uri &uri, const std::string &mode)
     return openfileValue;
 }
 
-int DemoAbility::Delete(const Uri &uri, const DataAbilityPredicates &predicates)
+int DemoAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Delete called";
     return deleteValue;
 }
 
-int DemoAbility::Insert(const Uri &uri, const ValuesBucket &value)
+int DemoAbility::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Insert called";
     return insertValue;
 }
 
-int DemoAbility::Update(const Uri &uri, const ValuesBucket &value, const DataAbilityPredicates &predicates)
+int DemoAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Update called";
     return updateValue;
@@ -178,7 +178,7 @@ bool DemoAbility::Reload(const Uri &uri, const PacMap &extras)
     return true;
 }
 
-int DemoAbility::BatchInsert(const Uri &uri, const std::vector<ValuesBucket> &values)
+int DemoAbility::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     GTEST_LOG_(INFO) << "DemoAbility::BatchInsert called";
     return batchInsertValue;
@@ -191,11 +191,11 @@ std::string DemoAbility::GetType(const Uri &uri)
     return type;
 }
 
-std::shared_ptr<ResultSet> DemoAbility::Query(
-    const Uri &uri, const std::vector<std::string> &columns, const DataAbilityPredicates &predicates)
+std::shared_ptr<NativeRdb::AbsSharedResultSet> DemoAbility::Query(
+    const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Query called";
-    std::shared_ptr<ResultSet> resultset = std::make_shared<ResultSet>("resultset");
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = std::make_shared<NativeRdb::AbsSharedResultSet>("resultset");
     return resultset;
 }
 

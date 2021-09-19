@@ -243,7 +243,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_Query_0100, Function | M
     columns.push_back("string1");
 
     DataAbilityPredicates predicates;
-    std::shared_ptr<ResultSet> set = dataabilityimpl->Query(uri, columns, predicates);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> set = dataabilityimpl->Query(uri, columns, predicates);
 
     if (set != nullptr) {
         EXPECT_STREQ("QueryTest", set->testInf_.c_str());
@@ -267,7 +267,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_Query_0200, Function | M
     columns.push_back("string1");
     DataAbilityPredicates predicates;
 
-    std::shared_ptr<ResultSet> set = dataabilityimpl->Query(uri, columns, predicates);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> set = dataabilityimpl->Query(uri, columns, predicates);
     EXPECT_EQ(nullptr, set);
     sleep(1);
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityImplTest_Query_0200 end";
