@@ -43,6 +43,9 @@ const std::string MISSION_NAME_MARK_HEAD = "#";
 const std::string MISSION_NAME_SEPARATOR = ":";
 
 const std::string FLOATING_WINDOW_PERMISSION = "ohos.permission.SYSTEM_FLOAT_WINDOW";
+
+const std::string PHONE_SERVICE_BUNDLE_NAME = "com.ohos.phoneservice";
+const std::string PHONE_SERVICE_ABILITY_NAME = "com.ohos.phoneservice.MainAbility";
 }  // namespace AbilityConfig
 }  // namespace AAFwk
 }  // namespace OHOS
