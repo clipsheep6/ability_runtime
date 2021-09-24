@@ -19,7 +19,6 @@
 
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
-#include "ishared_result_set.h"
 #include "pac_map.h"
 #include "want.h"
 #include "data_ability_observer_interface.h"
@@ -28,7 +27,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 bool AbilitySchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilitySchedulerProxy::GetDescriptor())) {
@@ -501,8 +499,13 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilitySchedulerProxy::Query(
         return nullptr;
     }
 
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> retval(NativeRdb::AbsSharedResultSet::Unmarshalling(reply));
+    if (retval == nullptr) {
+        HILOG_ERROR("AbilitySchedulerProxy::Query retval == nullptr error");
+        return nullptr;
+    }
     HILOG_INFO("AbilitySchedulerProxy::Query end");
-    return OHOS::NativeRdb::ISharedResultSet::ReadFromParcel(reply);
+    return retval;
 }
 
 /**
