@@ -218,9 +218,9 @@ void AbilityWindow::OnPostAbilityInactive()
     }
 
     if (windowNew_ != nullptr) {
-        APP_LOGI("%{public}s begin windowNew_->Hide.", __func__);
-        windowNew_->Hide();
-        APP_LOGI("%{public}s end windowNew_->Hide.", __func__);
+        //APP_LOGI("%{public}s begin windowNew_->Hide.", __func__);
+        //windowNew_->Hide();
+        //APP_LOGI("%{public}s end windowNew_->Hide.", __func__);
     }
 
     APP_LOGI("AbilityWindow::OnPostAbilityInactive end.");
@@ -239,9 +239,9 @@ void AbilityWindow::OnPostAbilityBackground()
     }
 
     if (windowNew_ != nullptr) {
-        APP_LOGI("%{public}s begin windowNew_->Hide.", __func__);
-        windowNew_->Hide();
-        APP_LOGI("%{public}s end windowNew_->Hide.", __func__);
+        //APP_LOGI("%{public}s begin windowNew_->Hide.", __func__);
+        //windowNew_->Hide();
+        //APP_LOGI("%{public}s end windowNew_->Hide.", __func__);
     }
 
     APP_LOGI("AbilityWindow::OnPostAbilityBackground end.");
