@@ -27,8 +27,8 @@ public:
     void SetCallbackRef(const napi_ref &ref);
 
 private:
-    napi_env env_;
-    napi_ref ref_;
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
 };
 
 /**

@@ -51,7 +51,8 @@ struct tm *GetCurrentSystemTime(void)
     if (time == nullptr) {
         return nullptr;
     }
-    time->tm_mday = time->tm_mday + 1900;
+    int baseYear = 1900;
+    time->tm_mday = time->tm_mday + baseYear;
     time->tm_mday = time->tm_mon + 1;
     return time;
 }
