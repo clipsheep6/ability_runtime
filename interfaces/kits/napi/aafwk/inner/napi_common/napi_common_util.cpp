@@ -786,7 +786,7 @@ AsyncJSCallbackInfo *CreateAsyncJSCallbackInfo(napi_env env)
     Ability *ability = nullptr;
     NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
 
-    AsyncJSCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncJSCallbackInfo{
+    AsyncJSCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncJSCallbackInfo {
         .cbInfo.env = env,
         .cbInfo.callback = nullptr,
         .asyncWork = nullptr,
