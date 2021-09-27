@@ -1085,7 +1085,8 @@ void AbilityManagerService::StartingPhoneServiceAbility()
 
     AppExecFwk::AbilityInfo phoneServiceInfo;
     Want phoneServiceWant;
-    phoneServiceWant.SetElementName(AbilityConfig::PHONE_SERVICE_BUNDLE_NAME, AbilityConfig::PHONE_SERVICE_ABILITY_NAME);
+    phoneServiceWant.SetElementName(AbilityConfig::PHONE_SERVICE_BUNDLE_NAME,
+        AbilityConfig::PHONE_SERVICE_ABILITY_NAME);
 
     while (!(iBundleManager_->QueryAbilityInfo(phoneServiceWant, phoneServiceInfo))) {
         HILOG_INFO("Waiting query phone service completed.");
