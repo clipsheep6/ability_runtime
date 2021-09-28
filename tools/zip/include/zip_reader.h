@@ -53,7 +53,6 @@ public:
 class ZipReader {
 public:
     // A callback that is called when the operation is successful.
-    // using SuccessCallback = base::OnceClosure;
     using SuccessCallback = std::function<void()>;
     // A callback that is called when the operation fails.
     using FailureCallback = std::function<void()>;
