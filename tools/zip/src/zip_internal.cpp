@@ -27,7 +27,14 @@ namespace LIBZIP {
 struct tm GetTmDataFromTickts(int64_t sec)
 {
     time_t second = (time_t)sec;
-    struct tm now;
+    struct tm now {
+        .tm_year = 0,
+        .tm_mon = 0,
+        .tm_mday = 0,
+        .tm_hour = 0,
+        .tm_min = 0,
+        .tm_sec = 0,
+    };
     struct tm *tmNow = localtime(&second);
     if (tmNow == nullptr) {
         return now;
@@ -236,8 +243,9 @@ unzFile PrepareMemoryForUnzipping(const std::string &data)
         return NULL;
     }
     ZipBuffer *buffer = static_cast<ZipBuffer *>(malloc(sizeof(ZipBuffer)));
-    if (!buffer)
+    if (!buffer) {
         return NULL;
+    }
     buffer->data = data.data();
     buffer->length = data.length();
     buffer->offset = 0;
