@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ability_distributed_connect_callback.h"
+#include "ability_distributed_connection.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

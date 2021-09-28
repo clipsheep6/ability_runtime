@@ -14,7 +14,7 @@
  */
 
 #include "ability_context.h"
-#include "ability_distributed_connect_callback.h"
+#include "ability_distributed_connection.h"
 #include "ability_manager_client.h"
 #include "distributed_client.h"
 #include "app_log_wrapper.h"

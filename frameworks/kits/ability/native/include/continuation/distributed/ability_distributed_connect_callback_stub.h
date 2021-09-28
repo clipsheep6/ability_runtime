@@ -19,7 +19,7 @@
 #include <iremote_object.h>
 #include <iremote_stub.h>
 
-#include "ability_distributed_connect_callback_interface.h"
+#include "ability_distributed_connection_interface.h"
 #include "nocopyable.h"
 
 namespace OHOS {
