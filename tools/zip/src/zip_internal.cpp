@@ -236,8 +236,9 @@ unzFile PrepareMemoryForUnzipping(const std::string &data)
         return NULL;
     }
     ZipBuffer *buffer = static_cast<ZipBuffer *>(malloc(sizeof(ZipBuffer)));
-    if (!buffer)
+    if (!buffer) {
         return NULL;
+    }
     buffer->data = data.data();
     buffer->length = data.length();
     buffer->offset = 0;
