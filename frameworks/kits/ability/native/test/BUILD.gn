@@ -118,8 +118,8 @@ ohos_unittest("ability_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -149,8 +149,8 @@ ohos_unittest("ability_lifecycle_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -180,8 +180,8 @@ ohos_unittest("ability_lifecycle_executor_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -211,8 +211,8 @@ ohos_unittest("ability_context_for_task_dispacher_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -243,8 +243,8 @@ ohos_unittest("ability_context_interface_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -277,8 +277,8 @@ ohos_unittest("ability_context_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -309,8 +309,8 @@ ohos_unittest("page_ability_impl_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -340,8 +340,8 @@ ohos_unittest("service_ability_impl_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -367,8 +367,8 @@ ohos_unittest("data_ability_helper_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -400,8 +400,8 @@ ohos_unittest("data_ability_operation_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -438,8 +438,8 @@ ohos_unittest("ability_impl_active_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -474,8 +474,8 @@ ohos_unittest("ability_impl_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -522,8 +522,8 @@ ohos_unittest("ability_thread_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -564,8 +564,8 @@ ohos_unittest("form_provider_client_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -606,8 +606,8 @@ ohos_unittest("data_ability_impl_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -651,8 +651,8 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -696,8 +696,8 @@ ohos_unittest("data_ability_impl_file_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -744,8 +744,8 @@ ohos_unittest("ability_thread_dataability_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
@@ -791,8 +791,8 @@ ohos_unittest("data_uri_utils_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -813,8 +813,8 @@ ohos_unittest("pac_map_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -845,8 +845,8 @@ ohos_unittest("ability_permission_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -867,7 +867,7 @@ ohos_unittest("task_handler_client_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client"
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -891,8 +891,8 @@ ohos_unittest("ability_thread_for_ability_on_configuration_update") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -911,8 +911,8 @@ ohos_unittest("data_ability_result_test") {
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
@@ -951,8 +951,8 @@ ohos_unittest("form_host_client_test") {
   external_deps = [
     "appexecfwk_standard:fmskit_native",
     "hiviewdfx_hilog_native:libhilog",
-    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
   ]
 }
 
