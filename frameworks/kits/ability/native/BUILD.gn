@@ -181,11 +181,10 @@ ohos_shared_library("abilitykit_native") {
     "appexecfwk_standard:fmskit_native",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
-
-    "multimodalinput_base:libmmi-client",
   ]
 
   public_deps = [
