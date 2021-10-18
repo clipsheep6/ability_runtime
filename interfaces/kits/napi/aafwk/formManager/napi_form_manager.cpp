@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#include <cinttypes>
 #include "napi_form_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include <cinttypes>
+#include <regex>
 #include <uv.h>
 #include <vector>
-#include <regex>
 
 using namespace OHOS;
 using namespace OHOS::AAFwk;
@@ -48,7 +48,7 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
 {
     bool isConvertOk = false;
     size_t strLength = strInfo.size();
-    if (strLength == ZERO_VALUE ) {
+    if (strLength == ZERO_VALUE) {
         int64Value = ZERO_VALUE;
         return isConvertOk = true;
     }
@@ -59,7 +59,7 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
         HILOG_DEBUG("%{public}s, regex_match successed.", __func__);
 
         // Not negative
-        if(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") {
+        if (strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") {
             // The maximum value: 9223372036854775807
             if (strLength < INT_64_LENGTH) {
                 int64Value = std::stoll(strInfo);
@@ -70,7 +70,8 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
                     isConvertOk = true;
                 } else {
                     // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <= INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
+                    if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <=
+                    INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
                         int64Value = std::stoll(strInfo);
                         isConvertOk = true;
                     }
@@ -89,7 +90,8 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
                     isConvertOk = true;
                 } else {
                     // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <= (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
+                    if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
+                    (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
                         int64Value = std::stoll(strInfo);
                         isConvertOk = true;
                     }
@@ -2737,7 +2739,10 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
                 } else {
                     napi_value getFormsInfoResult;
                     napi_create_int32(env, asyncCallbackInfo->result, &getFormsInfoResult);
-                    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, getFormsInfoResult);               
+                    napi_resolve_deferred(
+                        asyncCallbackInfo->env,
+                        asyncCallbackInfo->deferred,
+                        getFormsInfoResult);
                 }
 
                 napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
