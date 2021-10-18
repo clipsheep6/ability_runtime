@@ -29,6 +29,11 @@ namespace {
     constexpr size_t ARGS_SIZE_ONE = 1;
     constexpr size_t ARGS_SIZE_TWO = 2;
     constexpr size_t ARGS_SIZE_THREE = 3;
+    constexpr int INT_64_LENGTH = 19;
+    constexpr int ZERO_VALUE = 0;
+    constexpr int64_t INT_64_MAX_VALUE = 0x7FFFFFFFFFFFFFFF;
+    constexpr int DECIMAL_VALUE = 10;
+    constexpr int BASE_NUMBER = 9;
 }
 
 /**
@@ -43,9 +48,8 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
 {
     bool isConvertOk = false;
     size_t strLength = strInfo.size();
-
-    if (strLength == 0 ) {
-        int64Value = 0;
+    if (strLength == ZERO_VALUE ) {
+        int64Value = ZERO_VALUE;
         return isConvertOk = true;
     }
 
@@ -55,20 +59,18 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
         HILOG_DEBUG("%{public}s, regex_match successed.", __func__);
 
         // Not negative
-        if(strInfo.substr(0, 1) != "-") {
-
+        if(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") {
             // The maximum value: 9223372036854775807
-            if (strLength < 19) {
+            if (strLength < INT_64_LENGTH) {
                 int64Value = std::stoll(strInfo);
                 isConvertOk = true;
-            } else if (strLength == 19) {
-                if (std::stoi(strInfo.substr(0, 1)) < 9) {
+            } else if (strLength == INT_64_LENGTH) {
+                if (std::stoi(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1)) < BASE_NUMBER) {
                     int64Value = std::stoll(strInfo);
                     isConvertOk = true;
                 } else {
-
                     // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(1, 18)) <= 0x7FFFFFFFFFFFFFFF - 9 * pow(10, 19)) {
+                    if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <= INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
                         int64Value = std::stoll(strInfo);
                         isConvertOk = true;
                     }
@@ -77,25 +79,23 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
                isConvertOk = false; 
             }
         } else {
-
             // The minimum value: -9223372036854775808
-            if (strLength < 20) {
+            if (strLength < INT_64_LENGTH + 1) {
                 int64Value = std::stoll(strInfo);
                 isConvertOk = true;
-            } else if (strLength == 20) {
-                if (std::stoi(strInfo.substr(1, 1)) < 9) {
+            } else if (strLength == INT_64_LENGTH + 1) {
+                if (std::stoi(strInfo.substr(1, 1)) < BASE_NUMBER) {
                     int64Value = std::stoll(strInfo);
                     isConvertOk = true;
                 } else {
-
                     // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(2, 18)) <= (0x7FFFFFFFFFFFFFFF - 9 * pow(10, 19) + 1)) {
+                    if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <= (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
                         int64Value = std::stoll(strInfo);
                         isConvertOk = true;
                     }
                 }
             } else {
-               isConvertOk = false; 
+                isConvertOk = false; 
             }            
         }
     } else {
@@ -262,7 +262,6 @@ static void ParseFormInfoIntoNapi(napi_env env, const FormInfo &formInfo, napi_v
     napi_create_array(env, &customizeDatas);
     int iCustomizeDatasCount = 0;
     for (auto  customizeData : formInfo.customizeDatas) {
-
         napi_value customizeDataOnject = nullptr;
         napi_create_object(env, &customizeDataOnject);
 
@@ -354,7 +353,8 @@ napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of deleteForm is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     AsyncDelFormCallbackInfo *asyncCallbackInfo = new 
     AsyncDelFormCallbackInfo {
@@ -503,7 +503,8 @@ napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of releaseForm is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
@@ -673,7 +674,8 @@ napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of requestForm is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     // get global value
     napi_value global = nullptr;
@@ -834,7 +836,8 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of setFormNextRefreshTime is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     valueType = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
@@ -1012,7 +1015,8 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of updateForm is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
     NAPI_ASSERT(env, valueType == napi_string, "The arguments[1] type of updateForm is incorrect,\
@@ -1181,7 +1185,8 @@ napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info)
     int64_t formId;
     bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
     NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of castTempForm is incorrect,\
-    expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+    expected type is string and the content must be numeric,\
+    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
 
     // get global value
     napi_value global = nullptr;
@@ -1354,7 +1359,8 @@ napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info)
         int64_t formIdValue;
         bool isConversionSucceeded = ConvertStringToInt64(strFormId, formIdValue);
         NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of notifyVisibleForms is incorrect,\
-        expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+        expected type is string and the content must be numeric,\
+        value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
         formIds.push_back(formIdValue);
     }
 
@@ -1539,7 +1545,8 @@ napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info)
         int64_t formIdValue;
         bool isConversionSucceeded = ConvertStringToInt64(strFormId, formIdValue);
         NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of notifyInvisibleForms is incorrect,\
-        expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+        expected type is string and the content must be numeric,\
+        value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
         formIds.push_back(formIdValue);
     }
 
@@ -1724,7 +1731,8 @@ napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info)
         int64_t formIdValue;
         bool isConversionSucceeded = ConvertStringToInt64(strFormId, formIdValue);
         NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of enableFormsUpdate is incorrect,\
-        expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+        expected type is string and the content must be numeric,\
+        value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
         formIds.push_back(formIdValue);
     }
 
@@ -1908,7 +1916,8 @@ napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info)
         int64_t formIdValue;
         bool isConversionSucceeded = ConvertStringToInt64(strFormId, formIdValue);
         NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of disableFormsUpdate is incorrect,\
-        expected type is string and the content must be numeric,value range is: 0x8000000000000000 ~ 0x7FFFFFFFFFFFFFFF.");
+        expected type is string and the content must be numeric,\
+        value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
         formIds.push_back(formIdValue);
     }
 
@@ -2339,7 +2348,6 @@ napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
                 AsyncGetAllFormsCallbackInfo *asyncCallbackInfo = 
                 (AsyncGetAllFormsCallbackInfo *)data;
 
-
                 if (asyncCallbackInfo->result) {
                     napi_value arrayFormInfos;
                     napi_create_array(env, &arrayFormInfos);
@@ -2355,7 +2363,10 @@ napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
                 } else {
                       napi_value getAllFormsInfoResult;
                       napi_create_int32(env, asyncCallbackInfo->result, &getAllFormsInfoResult);
-                      napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, getAllFormsInfoResult);               
+                      napi_resolve_deferred(
+                          asyncCallbackInfo->env,
+                          asyncCallbackInfo->deferred,
+                          getAllFormsInfoResult);
                 }
                 napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
                 delete asyncCallbackInfo;
@@ -2547,7 +2558,6 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
     } else if (argc == ARGS_SIZE_TWO) {
-
         // Check the value type of the arguments
         napi_valuetype valueType;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
@@ -2595,11 +2605,17 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
                         napi_set_element(env, arrayFormInfos, iFormInfoCount, formInfoObject);
                         ++iFormInfoCount;
                     }
-                    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, arrayFormInfos);
+                    napi_resolve_deferred(
+                        asyncCallbackInfo->env,
+                        asyncCallbackInfo->deferred,
+                        arrayFormInfos);
                 } else {
                     napi_value getFormsInfoResult;
                     napi_create_int32(env, asyncCallbackInfo->result, &getFormsInfoResult);
-                    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, getFormsInfoResult);               
+                    napi_resolve_deferred(
+                        asyncCallbackInfo->env,
+                        asyncCallbackInfo->deferred,
+                        getFormsInfoResult);
                 }
 
                 napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
