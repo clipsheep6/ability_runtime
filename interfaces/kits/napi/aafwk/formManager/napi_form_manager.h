@@ -148,18 +148,7 @@ struct AsyncGetAllFormsCallbackInfo {
     int result;
 };
 
-struct AsyncGetFormsInfoByAppCallbackInfo {
-    napi_env env;
-    OHOS::AppExecFwk::Ability *ability;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback;
-    std::vector<OHOS::AppExecFwk::FormInfo> formInfos;
-    std::string bundleName;
-    int result;
-};
-
-struct AsyncGetFormsInfoByModuleCallbackInfo {
+struct AsyncGetFormsInfoCallbackInfo {
     napi_env env;
     OHOS::AppExecFwk::Ability *ability;
     napi_async_work asyncWork;
@@ -183,7 +172,6 @@ napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info);
 napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info);
 napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info);
 napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info);
-napi_value NAPI_GetFormsInfoByApp(napi_env env, napi_callback_info info);
-napi_value NAPI_GetFormsInfoByModule(napi_env env, napi_callback_info info);
+napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info);
 
 #endif /* FORM_ABILITY_H_ */
