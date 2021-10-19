@@ -34,6 +34,7 @@ namespace {
     constexpr int64_t INT_64_MAX_VALUE = 0x7FFFFFFFFFFFFFFF;
     constexpr int DECIMAL_VALUE = 10;
     constexpr int BASE_NUMBER = 9;
+    constexpr int REF_COUNT = 1;
 }
 
 /**
@@ -80,7 +81,7 @@ OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env)
  *
  * @param[in] strInfo The string information
  * @param[out] int64Value Convert string to int64_t
- * 
+ *
  * @return Return the convert result
  */
 static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value)
@@ -106,8 +107,9 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
                     return true;
                 }
                 // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19)
-                if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <=
-                INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
+                int SubValue = std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1));
+                if (std::stoll(SubValue <= INT_64_MAX_VALUE - BASE_NUMBER *
+                pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
                     int64Value = std::stoll(strInfo);
                     return true;
                 }
@@ -323,7 +325,7 @@ static void ParseFormInfoIntoNapi(napi_env env, const FormInfo &formInfo, napi_v
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerDelForm(napi_env env, AsyncDelFormCallbackInfo* const asyncCallbackInfo)
@@ -344,7 +346,7 @@ static void InnerDelForm(napi_env env, AsyncDelFormCallbackInfo* const asyncCall
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info)
@@ -395,7 +397,7 @@ napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of deleteForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -470,7 +472,7 @@ napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerReleaseForm(napi_env env, AsyncReleaseFormCallbackInfo* const asyncCallbackInfo)
@@ -491,7 +493,7 @@ static void InnerReleaseForm(napi_env env, AsyncReleaseFormCallbackInfo* const a
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
@@ -550,7 +552,7 @@ napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of releaseForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[2], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[2], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -625,7 +627,7 @@ napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerRequestForm(napi_env env, AsyncRequestFormCallbackInfo* const asyncCallbackInfo)
@@ -646,7 +648,7 @@ static void InnerRequestForm(napi_env env, AsyncRequestFormCallbackInfo* const a
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
@@ -696,7 +698,7 @@ napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of requestForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -771,7 +773,7 @@ napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerSetFormNextRefreshTime(napi_env env, AsyncNextRefreshTimeFormCallbackInfo* const asyncCallbackInfo)
@@ -792,7 +794,7 @@ static void InnerSetFormNextRefreshTime(napi_env env, AsyncNextRefreshTimeFormCa
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
@@ -851,7 +853,7 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of setFormNextRefreshTime is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -934,7 +936,7 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerUpdateForm(napi_env env, AsyncUpdateFormCallbackInfo* const asyncCallbackInfo)
@@ -955,7 +957,7 @@ static void InnerUpdateForm(napi_env env, AsyncUpdateFormCallbackInfo* const asy
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
@@ -1013,7 +1015,7 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of updateForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1088,7 +1090,7 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerCastTempForm(napi_env env, AsyncCastTempFormCallbackInfo* const asyncCallbackInfo)
@@ -1109,7 +1111,7 @@ static void InnerCastTempForm(napi_env env, AsyncCastTempFormCallbackInfo* const
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info)
@@ -1159,7 +1161,7 @@ napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of castTempForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1234,7 +1236,7 @@ napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerNotifyVisibleForms(napi_env env, AsyncNotifyVisibleFormsCallbackInfo* const asyncCallbackInfo)
@@ -1319,7 +1321,7 @@ napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of notifyVisibleForms is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1404,7 +1406,7 @@ napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerNotifyInvisibleForms(napi_env env, AsyncNotifyInvisibleFormsCallbackInfo* const asyncCallbackInfo)
@@ -1425,7 +1427,7 @@ static void InnerNotifyInvisibleForms(napi_env env, AsyncNotifyInvisibleFormsCal
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info)
@@ -1489,7 +1491,7 @@ napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of notifyInvisibleForms is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1574,7 +1576,7 @@ napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerEnableFormsUpdate(napi_env env, AsyncEnableUpdateFormCallbackInfo* const asyncCallbackInfo)
@@ -1595,7 +1597,7 @@ static void InnerEnableFormsUpdate(napi_env env, AsyncEnableUpdateFormCallbackIn
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info)
@@ -1659,7 +1661,7 @@ napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of enableFormsUpdate \
         is incorrect, expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1743,7 +1745,7 @@ napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerDisableFormsUpdate(napi_env env, AsyncDisableUpdateFormCallbackInfo* const asyncCallbackInfo)
@@ -1760,11 +1762,11 @@ static void InnerDisableFormsUpdate(napi_env env, AsyncDisableUpdateFormCallback
 }
 
 /**
- * @brief  The implementation of Node-API interface: disableFormsUpdate 
+ * @brief  The implementation of Node-API interface: disableFormsUpdate
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info)
@@ -1828,7 +1830,7 @@ napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of disableFormsUpdate \
         is incorrect, expected type is function.");
 
-        napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -1913,7 +1915,7 @@ napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerCheckFMSReady(napi_env env, AsyncCheckFMSReadyCallbackInfo* const asyncCallbackInfo)
@@ -1929,7 +1931,7 @@ static void InnerCheckFMSReady(napi_env env, AsyncCheckFMSReadyCallbackInfo* con
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info)
@@ -1965,7 +1967,7 @@ napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[0] type of checkFMSReady is incorrect,\
         expected type is function.");
         
-        napi_create_reference(env, argv[0], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[0], REF_COUNT, &asyncCallbackInfo->callback);
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
         napi_create_async_work(
@@ -2047,7 +2049,7 @@ napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerGetAllFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo* const asyncCallbackInfo)
@@ -2142,7 +2144,7 @@ auto NAPI_GetFormsInfoPromiseComplete = [](napi_env env, napi_status status, voi
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
@@ -2181,7 +2183,7 @@ napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[0] type of getAllFormsInfo is incorrect,\
         expected type is function.");
         
-        napi_create_reference(env, argv[0], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[0], REF_COUNT, &asyncCallbackInfo->callback);
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
         napi_create_async_work(
@@ -2221,7 +2223,7 @@ napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerGetFormsInfoByApp(napi_env env, AsyncGetFormsInfoCallbackInfo* const asyncCallbackInfo)
@@ -2244,7 +2246,7 @@ static void InnerGetFormsInfoByApp(napi_env env, AsyncGetFormsInfoCallbackInfo* 
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- * 
+ *
  * @return void
  */
 static void InnerGetFormsInfoByModule(napi_env env, AsyncGetFormsInfoCallbackInfo* const asyncCallbackInfo)
@@ -2328,7 +2330,7 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *asyn
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
@@ -2384,7 +2386,7 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of getFormsInfo is incorrect,\
         expected type is function.");
-        napi_create_reference(env, argv[2], 1, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[2], REF_COUNT, &asyncCallbackInfo->callback);
         return GetFormsInfoCallback(env, asyncCallbackInfo, false);
     } else if (argc == ARGS_SIZE_TWO) {
         // Check the value type of the arguments
@@ -2403,7 +2405,7 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
             NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
             NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of getFormsInfo is incorrect,\
             expected type is function.");
-            napi_create_reference(env, argv[1], 1, &asyncCallbackInfo->callback);
+            napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
             return GetFormsInfoCallback(env, asyncCallbackInfo, true);
         } else {
             NAPI_ASSERT(env, false, "The arguments[1] type of getFormsInfo is incorrect,\
