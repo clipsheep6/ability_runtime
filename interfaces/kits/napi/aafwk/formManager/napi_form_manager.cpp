@@ -100,19 +100,17 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
                 int64Value = std::stoll(strInfo);
                 return true;
             }
-            if (strLength == INT_64_LENGTH) {
-                int maxSubValue = std::stoi(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1));
-                if (maxSubValue < BASE_NUMBER) {
-                    int64Value = std::stoll(strInfo);
-                    return true;
-                }
-                // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19)
-                int SubValue = std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1));
-                if (std::stoll(SubValue <= INT_64_MAX_VALUE - BASE_NUMBER *
-                pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
-                    int64Value = std::stoll(strInfo);
-                    return true;
-                }
+            int maxSubValue = std::stoi(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1));
+            if (strLength == INT_64_LENGTH && maxSubValue < BASE_NUMBER) {
+                int64Value = std::stoll(strInfo);
+                return true;
+            }
+            // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19)
+            int SubValue = std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1));
+            if (strLength == INT_64_LENGTH && SubValue <= INT_64_MAX_VALUE - BASE_NUMBER *
+            pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
+                int64Value = std::stoll(strInfo);
+                return true;
             }
         }
         if (strLength < INT_64_LENGTH + 1) { // The minimum value: -9223372036854775808
@@ -552,7 +550,7 @@ napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of releaseForm is incorrect,\
         expected type is function.");
 
-        napi_create_reference(env, argv[2], REF_COUNT, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], REF_COUNT, &asyncCallbackInfo->callback);
 
         napi_value resourceName;
         napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -2386,7 +2384,7 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
         NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of getFormsInfo is incorrect,\
         expected type is function.");
-        napi_create_reference(env, argv[2], REF_COUNT, &asyncCallbackInfo->callback);
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], REF_COUNT, &asyncCallbackInfo->callback);
         return GetFormsInfoCallback(env, asyncCallbackInfo, false);
     } else if (argc == ARGS_SIZE_TWO) {
         // Check the value type of the arguments
