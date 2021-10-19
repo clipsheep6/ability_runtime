@@ -57,7 +57,8 @@ napi_value NapiGetResut(napi_env env, int iResult)
  *
  * @return OHOS::AppExecFwk::Ability*
  */
-OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env) {
+OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env)
+{
     // get global value
     napi_value global = nullptr;
     napi_get_global(env, &global);
@@ -84,66 +85,54 @@ OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env) {
  */
 static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value)
 {
-    bool isConvertOk = false;
     size_t strLength = strInfo.size();
     if (strLength == ZERO_VALUE) {
         int64Value = ZERO_VALUE;
-        return isConvertOk = true;
+        return true;
     }
-
     std::regex pattern("^0|-?[1-9][0-9]{0,18}$"); // "^-?[0-9]{1,19}$"
     std::smatch match;
     if (regex_match(strInfo, match, pattern)) {
         HILOG_DEBUG("%{public}s, regex_match successed.", __func__);
-
-        // Not negative
-        if (strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") {
-            // The maximum value: 9223372036854775807
+        if (strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") { // maximum: 9223372036854775807
             if (strLength < INT_64_LENGTH) {
                 int64Value = std::stoll(strInfo);
-                isConvertOk = true;
-            } else if (strLength == INT_64_LENGTH) {
+                return true;
+            }
+            if (strLength == INT_64_LENGTH) {
                 int maxSubValue = std::stoi(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1));
                 if (maxSubValue < BASE_NUMBER) {
                     int64Value = std::stoll(strInfo);
-                    isConvertOk = true;
-                } else {
-                    // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <=
-                    INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
-                        int64Value = std::stoll(strInfo);
-                        isConvertOk = true;
-                    }
+                    return true;
                 }
-            } else {
-               isConvertOk = false;
-            }
-        } else {
-            // The minimum value: -9223372036854775808
-            if (strLength < INT_64_LENGTH + 1) {
-                int64Value = std::stoll(strInfo);
-                isConvertOk = true;
-            } else if (strLength == INT_64_LENGTH + 1) {
-                int minSubValue = std::stoi(strInfo.substr(1, 1));
-                if ( minSubValue < BASE_NUMBER) {
+                // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19)
+                if (std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1)) <=
+                INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
                     int64Value = std::stoll(strInfo);
-                    isConvertOk = true;
-                } else {
-                    // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19), the value meet demand
-                    if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
-                    (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
-                        int64Value = std::stoll(strInfo);
-                        isConvertOk = true;
-                    }
+                    return true;
                 }
-            } else {
-                isConvertOk = false;
-            }            
+            }
         }
-    } else {
-        HILOG_DEBUG("%{public}s, regex_match failed.", __func__);
+        if (strLength < INT_64_LENGTH + 1) { // The minimum value: -9223372036854775808
+            int64Value = std::stoll(strInfo);
+            return true;
+        }
+        if (strLength == INT_64_LENGTH + 1) {
+            int minSubValue = std::stoi(strInfo.substr(1, 1));
+            if (minSubValue < BASE_NUMBER) {
+                int64Value = std::stoll(strInfo);
+                return true;
+            } else { // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19)
+                if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
+                (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
+                    int64Value = std::stoll(strInfo);
+                    return true;
+                }
+            }
+        }
     }
-    return isConvertOk;
+    HILOG_DEBUG("%{public}s, regex_match failed.", __func__);
+    return false;
 }
 
 /**
@@ -1266,7 +1255,7 @@ static void InnerNotifyVisibleForms(napi_env env, AsyncNotifyVisibleFormsCallbac
  *
  * @param[in] env The environment that the Node-API call is invoked under
  * @param[out] info An opaque datatype that is passed to a callback function
- * 
+ *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info)
