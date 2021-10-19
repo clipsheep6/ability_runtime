@@ -138,16 +138,6 @@ struct AsyncCheckFMSReadyCallbackInfo {
     bool isFMSReady;
 };
 
-struct AsyncGetAllFormsCallbackInfo {
-    napi_env env;
-    OHOS::AppExecFwk::Ability *ability;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback;
-    std::vector<OHOS::AppExecFwk::FormInfo> formInfos; 
-    int result;
-};
-
 struct AsyncGetFormsInfoCallbackInfo {
     napi_env env;
     OHOS::AppExecFwk::Ability *ability;

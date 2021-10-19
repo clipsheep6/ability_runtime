@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
+#include "ability.h"
 #include <cinttypes>
 #include <thread>
 
-#include "ability.h"
 #include "ability_loader.h"
 #include "app_log_wrapper.h"
 #include "display_type.h"
