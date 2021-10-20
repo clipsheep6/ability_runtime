@@ -26,6 +26,7 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace {
+    constexpr size_t ARGS_SIZE_ZERO = 0;
     constexpr size_t ARGS_SIZE_ONE = 1;
     constexpr size_t ARGS_SIZE_TWO = 2;
     constexpr size_t ARGS_SIZE_THREE = 3;
@@ -122,12 +123,12 @@ static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value
             if (minSubValue < BASE_NUMBER) {
                 int64Value = std::stoll(strInfo);
                 return true;
-            } else { // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19)
-                if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
-                (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
-                    int64Value = std::stoll(strInfo);
-                    return true;
-                }
+            }
+            // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19)
+            if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
+            (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
+                int64Value = std::stoll(strInfo);
+                return true;
             }
         }
     }
@@ -2323,6 +2324,61 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *asyn
     return promise;
 }
 
+// GetFormsInfo THREE ARGV
+napi_value GetFormsInfoThreeArgv(napi_env env, napi_value *argv, AsyncGetFormsInfoCallbackInfo* const asyncCallbackInfo)
+{
+    HILOG_INFO("%{public}s.", __func__);
+
+    // Check the value type of the arguments
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ONE], &valueType));
+    NAPI_ASSERT(env, valueType == napi_string, "The arguments[1] type of getFormsInfo is incorrect,\
+    expected type is string.");
+    std::string moduleNameInfo = GetStringFromNAPI(env, argv[ARGS_SIZE_ONE]);
+    HILOG_INFO("%{public}s, moduleNameInfo=%{public}s.", __func__, moduleNameInfo.c_str());
+    asyncCallbackInfo->moduleName = moduleNameInfo;
+
+    // Check the value type of the arguments
+    valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_TWO], &valueType));
+    NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of getFormsInfo is incorrect,\
+    expected type is function.");
+    napi_create_reference(env, argv[ARGS_SIZE_TWO], REF_COUNT, &asyncCallbackInfo->callback);
+    return GetFormsInfoCallback(env, asyncCallbackInfo, false);
+}
+
+// GetFormsInfo TWO ARGV
+napi_value GetFormsInfoTwoArgv(napi_env env, napi_value *argv, AsyncGetFormsInfoCallbackInfo* const asyncCallbackInfo)
+{
+    HILOG_INFO("%{public}s.", __func__);
+
+    // Check the value type of the arguments
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ONE], &valueType));
+
+    // GetFormsInfoByModule promise
+    if (valueType == napi_string) {
+    std::string moduleNameInfo = GetStringFromNAPI(env, argv[ARGS_SIZE_ONE]);
+    HILOG_INFO("%{public}s, moduleNameInfo=%{public}s.", __func__, moduleNameInfo.c_str());
+    asyncCallbackInfo->moduleName = moduleNameInfo;
+    return GetFormsInfoPromise(env, asyncCallbackInfo, false);
+    } else if (valueType == napi_function) { // GetFormsInfoByApp callback
+        HILOG_INFO("%{public}s, asyncCallback.", __func__);
+
+        // Check the value type of the arguments
+        valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ONE], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of getFormsInfo is incorrect,\
+        expected type is function.");
+        napi_create_reference(env, argv[ARGS_SIZE_ONE], REF_COUNT, &asyncCallbackInfo->callback);
+        return GetFormsInfoCallback(env, asyncCallbackInfo, true);
+    } else {
+        NAPI_ASSERT(env, false, "The arguments[1] type of getFormsInfo is incorrect,\
+        expected type is string or function.");
+        return NapiGetResut(env, 1);
+    }
+}
+
 /**
  * @brief  The implementation of Node-API interface: getFormsInfo
  *
@@ -2347,11 +2403,11 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
 
     // Check the value type of the arguments
     napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ZERO], &valueType));
     NAPI_ASSERT(env, valueType == napi_string, "The arguments[0] type of getFormsInfo is incorrect,\
     expected type is string.");
 
-    std::string bundleNameInfo = GetStringFromNAPI(env, argv[0]);
+    std::string bundleNameInfo = GetStringFromNAPI(env, argv[ARGS_SIZE_ZERO]);
     HILOG_INFO("%{public}s, bundleName=%{public}s.", __func__, bundleNameInfo.c_str());
 
     AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = new
@@ -2368,48 +2424,11 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
     };
 
     if (argc == ARGS_SIZE_THREE) { // GetFormsInfoByModule callback
-        HILOG_INFO("%{public}s, asyncCallback.", __func__);
-
-        // Check the value type of the arguments
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
-        NAPI_ASSERT(env, valueType == napi_string, "The arguments[1] type of getFormsInfo is incorrect,\
-        expected type is string.");
-        std::string moduleNameInfo = GetStringFromNAPI(env, argv[1]);
-        HILOG_INFO("%{public}s, moduleNameInfo=%{public}s.", __func__, moduleNameInfo.c_str());
-        asyncCallbackInfo->moduleName = moduleNameInfo;
-
-        // Check the value type of the arguments
-        valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of getFormsInfo is incorrect,\
-        expected type is function.");
-        napi_create_reference(env, argv[ARGS_SIZE_TWO], REF_COUNT, &asyncCallbackInfo->callback);
-        return GetFormsInfoCallback(env, asyncCallbackInfo, false);
+        HILOG_INFO("%{public}s, ARGS_SIZE_THREE.", __func__);
+        return GetFormsInfoThreeArgv(env, argv, asyncCallbackInfo);
     } else if (argc == ARGS_SIZE_TWO) {
-        // Check the value type of the arguments
-        napi_valuetype valueType;
-        NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
-        if (valueType == napi_string) { // GetFormsInfoByModule promise
-        std::string moduleNameInfo = GetStringFromNAPI(env, argv[1]);
-        HILOG_INFO("%{public}s, moduleNameInfo=%{public}s.", __func__, moduleNameInfo.c_str());
-        asyncCallbackInfo->moduleName = moduleNameInfo;
-        return GetFormsInfoPromise(env, asyncCallbackInfo, false);
-        } else if (valueType == napi_function) { // GetFormsInfoByApp callback
-            HILOG_INFO("%{public}s, asyncCallback.", __func__);
-
-            // Check the value type of the arguments
-            valueType = napi_undefined;
-            NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
-            NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of getFormsInfo is incorrect,\
-            expected type is function.");
-            napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
-            return GetFormsInfoCallback(env, asyncCallbackInfo, true);
-        } else {
-            NAPI_ASSERT(env, false, "The arguments[1] type of getFormsInfo is incorrect,\
-            expected type is string or function.");
-            return NapiGetResut(env, 1);
-        }
+        HILOG_INFO("%{public}s, ARGS_SIZE_TWO.", __func__);
+        return GetFormsInfoTwoArgv(env, argv, asyncCallbackInfo);
     } else if (argc == ARGS_SIZE_ONE) { // GetFormsInfoByApp promise
         return GetFormsInfoPromise(env, asyncCallbackInfo, false);
     }
