@@ -169,6 +169,7 @@ public:
     virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) = 0;
     virtual bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) = 0;
     virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) = 0;
+    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) = 0;
     virtual bool QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo) = 0;
     virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) = 0;
     virtual std::string GetAbilityLabel(const std::string &bundleName, const std::string &className) = 0;

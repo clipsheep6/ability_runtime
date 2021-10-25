@@ -596,6 +596,7 @@ void AbilityStackManager::RemoveTerminatingAbility(const std::shared_ptr<Ability
                      abilityRecord->IsAbilityState(AbilityState::INITIAL));
 
     missionRecord->RemoveAbilityRecord(abilityRecord);
+    DelayedSingleton<AppScheduler>::GetInstance()->PrepareTerminate(abilityRecord->GetToken());
     terminateAbilityRecordList_.push_back(abilityRecord);
 
     std::shared_ptr<AbilityRecord> needTopAbility;
@@ -1044,28 +1045,41 @@ void AbilityStackManager::OnAppStateChanged(const AppInfo &info)
 {
     std::lock_guard<std::recursive_mutex> guard(stackLock_);
 
-    for (auto &stack : missionStackList_) {
-        std::vector<MissionRecordInfo> missions;
-        stack->GetAllMissionInfo(missions);
-        for (auto &missionInfo : missions) {
-            auto mission = stack->GetMissionRecordById(missionInfo.id);
-            if (!mission) {
-                HILOG_ERROR("Mission is nullptr.");
+    if (info.state == AppState::TERMINATED || info.state == AppState::END) {
+        for (auto &ability : terminateAbilityRecordList_) {
+            if (!ability) {
                 continue;
             }
-            std::vector<AbilityRecordInfo> abilitys;
-            mission->GetAllAbilityInfo(abilitys);
-            for (auto &abilityInfo : abilitys) {
-                auto ability = mission->GetAbilityRecordById(abilityInfo.id);
-                if (!ability) {
-                    HILOG_ERROR("Ability is nullptr.");
-                    continue;
-                }
-
-                if (ability->GetApplicationInfo().name == info.appName &&
+            if (ability->GetApplicationInfo().name == info.appName &&
                     (info.processName == ability->GetAbilityInfo().process ||
                     info.processName == ability->GetApplicationInfo().bundleName)) {
-                    ability->SetAppState(info.state);
+                ability->SetAppState(info.state);
+            }
+        }
+    } else {
+        for (auto &stack : missionStackList_) {
+            std::vector<MissionRecordInfo> missions;
+            stack->GetAllMissionInfo(missions);
+            for (auto &missionInfo : missions) {
+                auto mission = stack->GetMissionRecordById(missionInfo.id);
+                if (!mission) {
+                    HILOG_ERROR("Mission is nullptr.");
+                    continue;
+                }
+                std::vector<AbilityRecordInfo> abilitys;
+                mission->GetAllAbilityInfo(abilitys);
+                for (auto &abilityInfo : abilitys) {
+                    auto ability = mission->GetAbilityRecordById(abilityInfo.id);
+                    if (!ability) {
+                        HILOG_ERROR("Ability is nullptr.");
+                        continue;
+                    }
+
+                    if (ability->GetApplicationInfo().name == info.appName &&
+                        (info.processName == ability->GetAbilityInfo().process ||
+                        info.processName == ability->GetApplicationInfo().bundleName)) {
+                        ability->SetAppState(info.state);
+                    }
                 }
             }
         }
@@ -2399,8 +2413,10 @@ void AbilityStackManager::OnTimeOut(uint32_t msgId, int64_t eventId)
             ActiveTopAbility(abilityRecord);
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
-        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
             DelayedStartLauncher();
+            break;
+        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
+            CompleteInactive(abilityRecord);
             break;
         default:
             break;
