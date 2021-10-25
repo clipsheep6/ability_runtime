@@ -51,7 +51,7 @@ public:
     void SetUp();
     void TearDown();
     void init();
-
+    void OnStartabilityMs_();
     AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
         const std::string &appName, const std::string &bundleName, const std::vector<std::string> config);
 
@@ -67,7 +67,51 @@ public:
     Want want_{};
     AbilityInfo abilityInfo_{};
     ApplicationInfo appInfo_{};
+public:
+    std::shared_ptr<AbilityManagerService> abilityMs_{nullptr};    
 };
+
+void AbilityStackManagerTest::OnStartabilityMs_()
+{
+    if(abilityMs_){
+
+        if(abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
+            return;
+        }
+   
+        abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
+        
+        abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
+        EXPECT_TRUE(abilityMs_->eventLoop_);
+
+        abilityMs_->handler_ = std::make_shared<AbilityEventHandler>(abilityMs_->eventLoop_, abilityMs_);
+        EXPECT_TRUE(abilityMs_->handler_);
+        EXPECT_TRUE(abilityMs_->connectManager_);
+
+        abilityMs_->connectManager_->SetEventHandler(abilityMs_->handler_);
+
+        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
+        EXPECT_TRUE(abilityMs_->dataAbilityManager_);
+
+        abilityMs_->amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
+        EXPECT_TRUE(abilityMs_->amsConfigResolver_);
+        abilityMs_->amsConfigResolver_->Parse();
+
+        abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
+        EXPECT_TRUE(abilityMs_->pendingWantManager_);
+      
+        int userId = abilityMs_->GetUserId();
+        abilityMs_->SetStackManager(userId);
+        abilityMs_->systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
+        EXPECT_TRUE(abilityMs_->systemAppManager_);
+
+        abilityMs_->eventLoop_->Run();
+
+        return;
+    }
+
+    GTEST_LOG_(INFO) << "OnStart fail";
+}
 
 void AbilityStackManagerTest::SetUpTestCase(void)
 {
@@ -82,17 +126,17 @@ void AbilityStackManagerTest::TearDownTestCase(void)
 void AbilityStackManagerTest::SetUp()
 {
     init();
-
-    auto ams = DelayedSingleton<AbilityManagerService>::GetInstance();
-    ams->Init();
+    abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
+    OnStartabilityMs_();
     stackManager_ = std::make_shared<AbilityStackManager>(0);
-    auto bms = ams->GetBundleManager();
+    auto bms = abilityMs_->GetBundleManager();
     EXPECT_NE(bms, nullptr);
 }
 
 void AbilityStackManagerTest::TearDown()
 {
     stackManager_.reset();
+    abilityMs_->OnStop();
     OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
 }
 
@@ -1457,9 +1501,10 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_042, TestSize.
 
     stackManager_->UninstallApp("com.ix.hiMusic");
     // process died
-    stackManager_->OnAbilityDied(secondTopAbility);
     stackManager_->OnAbilityDied(thirdTopAbility);
+   
     auto topAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(topAbility);
     EXPECT_EQ("MusicAbility", topAbility->GetAbilityInfo().name);
     int size = stackManager_->defaultMissionStack_->GetMissionRecordCount();
     // handle is nullptr, not delete

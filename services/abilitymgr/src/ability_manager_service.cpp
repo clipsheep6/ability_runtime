@@ -1060,6 +1060,7 @@ void AbilityManagerService::StartingLauncherAbility()
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
         HILOG_INFO("bms service is null");
+        return;
     }
 
     /* query if launcher ability has installed */
@@ -1321,6 +1322,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     CHECK_POINTER_RETURN_BOOL(currentStackManager_);
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
     CHECK_POINTER_RETURN_BOOL(connectManager_);
+    CHECK_POINTER_RETURN_BOOL(systemAppManager_);
 
     if (currentStackManager_->GetAbilityRecordByToken(token)) {
         return true;
@@ -1561,6 +1563,7 @@ void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
         HILOG_INFO("bms service is null");
+        return;
     }
 
     AppExecFwk::AbilityInfo statusBarInfo;
