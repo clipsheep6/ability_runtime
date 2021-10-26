@@ -503,5 +503,98 @@ HWTEST_F(MissionStackTest, MS_oprator_018, TestSize.Level1)
     EXPECT_EQ((*iter), missionStack_->FindChild(0));
 }
 
+/*
+ * Feature: MissionStack
+ * Function: GetMissionRecordByWinMode
+ * SubFunction: NA
+ * FunctionPoints: 
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(MissionStackTest, MS_oprator_019, TestSize.Level1)
+{
+    missionStack_->missions_.clear();
+
+    auto missionRecordOne = std::make_shared<MissionRecord>("test_one");
+    auto missionRecordTwo = std::make_shared<MissionRecord>("test_two");
+    
+    MissionOption option;
+    option.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
+    missionRecordOne->SetMissionOption(option);
+
+    option.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING;
+    missionRecordTwo->SetMissionOption(option);
+
+    missionStack_->missions_.push_back(missionRecordOne);
+    missionStack_->missions_.push_back(missionRecordTwo);
+
+    auto missionRecordList = missionStack_->GetMissionRecordByWinMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY);
+    EXPECT_TRUE(missionRecordList.size() == 1);
+    auto mission = missionRecordList.back();
+    EXPECT_EQ(mission->GetMissionOption().winModeKey, AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY);
+}
+
+/*
+ * Feature: MissionStack
+ * Function: AddMissionRecordToEnd
+ * SubFunction: NA
+ * FunctionPoints: 
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(MissionStackTest, MS_oprator_020, TestSize.Level1)
+{
+    missionStack_->missions_.clear();
+
+    auto missionRecordOne = std::make_shared<MissionRecord>("test_one");
+    auto missionRecordTwo = std::make_shared<MissionRecord>("test_two");
+    
+    EXPECT_EQ(0, missionStack_->missions_.size());
+
+    missionStack_->AddMissionRecordToEnd(missionRecordOne);
+    EXPECT_EQ(1, missionStack_->missions_.size());
+
+    missionStack_->AddMissionRecordToEnd(missionRecordTwo);
+    EXPECT_EQ(2, missionStack_->missions_.size());
+
+    auto backMission = missionStack_->missions_.back();
+    EXPECT_TRUE(backMission == missionRecordTwo);
+}
+
+/*
+ * Feature: MissionStack
+ * Function: EmplaceMissionRecord
+ * SubFunction: NA
+ * FunctionPoints: 
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(MissionStackTest, MS_oprator_021, TestSize.Level1)
+{
+    missionStack_->missions_.clear();
+
+    auto missionRecordOne = std::make_shared<MissionRecord>("test_one");
+    auto missionRecordTwo = std::make_shared<MissionRecord>("test_two");
+    
+    MissionOption option;
+    option.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
+    missionRecordOne->SetMissionOption(option);
+    missionRecordTwo->SetMissionOption(option);
+
+    EXPECT_EQ(0, missionStack_->missions_.size());
+
+    auto missionRecord = missionStack_->EmplaceMissionRecord(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY,
+        missionRecordOne);
+    EXPECT_FALSE(missionRecord);
+    EXPECT_EQ(1, missionStack_->missions_.size());
+
+    missionRecord = missionStack_->EmplaceMissionRecord(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY,
+        missionRecordTwo);
+    EXPECT_TRUE(missionRecord);
+    //Just replace
+    EXPECT_EQ(1, missionStack_->missions_.size());
+}
+
+
 }  // namespace AAFwk
 }  // namespace OHOS

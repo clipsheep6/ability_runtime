@@ -723,5 +723,56 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_OnConfigurationChanged_002, TestSize
     EXPECT_EQ(true, abilityRecord_->OnConfigurationChanged(config, CHANGE_CONFIG_LOCALE));
 }
 
+/*
+ * Feature: AbilityRecord
+ * Function: SetMovingBackgroundFlag, IsMovingBackground
+ * SubFunction: 
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetMovingBackgroundFlag_001, TestSize.Level1)
+{
+    EXPECT_EQ(false, abilityRecord_->IsMovingBackground());
+    abilityRecord_->SetMovingBackgroundFlag(true);
+    EXPECT_EQ(true, abilityRecord_->IsMovingBackground());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: IsActiveState
+ * SubFunction: 
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsActiveState_001, TestSize.Level1)
+{
+    abilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::TERMINATING); 
+    EXPECT_EQ(false, abilityRecord_->IsActiveState());
+
+    abilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVE); 
+    EXPECT_EQ(true, abilityRecord_->IsActiveState());
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: SetAbilityState
+ * SubFunction: 
+ * FunctionPoints: NA
+ * EnvConditions:NA
+ * CaseDescription: 
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetAbilityState_001, TestSize.Level1)
+{
+    abilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::TERMINATING); 
+    auto state = abilityRecord_->GetAbilityState();
+    EXPECT_EQ(state, OHOS::AAFwk::AbilityState::TERMINATING);
+    
+    abilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVE); 
+    state = abilityRecord_->GetAbilityState();
+    EXPECT_EQ(state, OHOS::AAFwk::AbilityState::ACTIVE);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS

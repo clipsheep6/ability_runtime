@@ -14,6 +14,7 @@
  */
 
 #include "mock_bundle_manager.h"
+#include "clean_cache_callback_interface.h"
 #include "ability_info.h"
 #include "application_info.h"
 #include "hilog_wrapper.h"
