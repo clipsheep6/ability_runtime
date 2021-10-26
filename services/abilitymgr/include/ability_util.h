@@ -31,10 +31,10 @@ namespace AbilityUtil {
 constexpr int32_t SYSTEM_UID = 1000;
 constexpr int32_t ROOT_UID = 0;
 
-#define CHECK_POINTER_CONTINUE(object)                                                 \
-    if (!object) {                                                                     \
-        HILOG_ERROR("pointer is nullptr, %{public}s, %{public}d", __func__, __LINE__); \
-        continue;                                                                      \
+#define CHECK_POINTER_CONTINUE(object)      \
+    if (!object) {                          \
+        HILOG_ERROR("pointer is nullptr."); \
+        continue;                           \
     }
 
 #define CHECK_POINTER_IS_NULLPTR(object)    \
@@ -125,50 +125,50 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return (int64_t)(t.tv_sec);
 }
 
-static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
-{
-    auto bundleObj =
-        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
-    }
-    return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-}
+// static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
+// {
+//     auto bundleObj =
+//         OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+//     if (bundleObj == nullptr) {
+//         HILOG_ERROR("failed to get bundle manager service");
+//         return nullptr;
+//     }
+//     return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+// }
 
 [[maybe_unused]] static int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
-    if (!abilityInfo.visible) {
-        HILOG_DEBUG("ability visible is false");
-        if (callerUid == -1) {
-            callerUid = IPCSkeleton::GetCallingUid();
-        }
-        if (ROOT_UID == callerUid) {
-            HILOG_ERROR("uid is root,ability cannot be start when the visible is false");
-            return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-        }
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-        auto isSystemApp = bms->CheckIsSystemAppByUid(callerUid);
-        if (callerUid != SYSTEM_UID && !isSystemApp) {
-            HILOG_DEBUG("caller is not systemApp or system");
-            std::string bundleName;
-            bool result = bms->GetBundleNameForUid(callerUid, bundleName);
-            if (!result) {
-                HILOG_ERROR("GetBundleNameForUid fail");
-                return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-            }
-            if (bundleName != abilityInfo.bundleName) {
-                HILOG_ERROR("caller ability bundlename not equal abilityInfo.bundleName bundleName: %{public}s "
-                            "abilityInfo.bundleName: %{public}s",
-                    bundleName.c_str(),
-                    abilityInfo.bundleName.c_str());
-                return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-            }
-        }
-    }
-    HILOG_DEBUG("%{public}s end", __func__);
+    // if (!abilityInfo.visible) {
+    //     HILOG_ERROR("ability visible is false");
+    //     if (callerUid == -1) {
+    //         callerUid = IPCSkeleton::GetCallingUid();
+    //     }
+    //     if (ROOT_UID == callerUid) {
+    //         HILOG_ERROR("uid is root");
+    //         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+    //     }
+    //     auto bms = GetBundleManager();
+    //     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    //     auto isSystemApp = bms->CheckIsSystemAppByUid(callerUid);
+    //     if (callerUid != SYSTEM_UID && !isSystemApp) {
+    //         HILOG_ERROR("caller is not systemAp or system");
+    //         std::string bundleName;
+    //         bool result = bms->GetBundleNameForUid(callerUid, bundleName);
+    //         if (!result) {
+    //             HILOG_ERROR("GetBundleNameForUid fail");
+    //             return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+    //         }
+    //         if (bundleName != abilityInfo.bundleName) {
+    //             HILOG_ERROR("caller ability bundlename not equal abilityInfo.bundleName bundleName: %{public}s "
+    //                         "abilityInfo.bundleName: %{public}s",
+    //                 bundleName.c_str(),
+    //                 abilityInfo.bundleName.c_str());
+    //             return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+    //         }
+    //     }
+    // }
+    // HILOG_DEBUG("%{public}s end", __func__);
     return ERR_OK;
 }
 }  // namespace AbilityUtil

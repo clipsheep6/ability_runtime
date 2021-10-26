@@ -383,5 +383,25 @@ HWTEST_F(MissionRecordTest, stack_Resume_001, TestSize.Level1)
     EXPECT_EQ(true, ability->IsRestarting());
 }
 
+/*
+ * Feature: MissionRecord
+ * Function: UpdateActiveTimestamp, GetActiveTimestamp
+ * SubFunction: NA
+ * FunctionPoints: 
+ * EnvConditions:NAs
+ * CaseDescription: 
+ */
+HWTEST_F(MissionRecordTest, stack_ActiveTimestamp_001, TestSize.Level1)
+{
+    auto missionRecord = std::make_shared<MissionRecord>();
+    int time = 0;
+
+    auto activeTime = missionRecord->GetActiveTimestamp();
+    EXPECT_EQ(activeTime, time);
+    missionRecord->UpdateActiveTimestamp();
+    activeTime = missionRecord->GetActiveTimestamp();
+    EXPECT_TRUE(time < activeTime);
+}
+
 }  // namespace AAFwk
 }  // namespace OHOS
