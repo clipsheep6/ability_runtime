@@ -27,6 +27,7 @@
 #include "ability_stack_manager.h"
 #include "app_scheduler.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "bundle_constants.h"
 #include "data_ability_manager.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
@@ -344,10 +345,11 @@ public:
 
     /**
      * Moving mission to the specified stack by mission option(Enter floating window mode).
-     * @param missionOption, target mission option
+     * @param primary, display primary mission option
+     * @param secondary, display secondary mission option
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int MoveMissionToSplitScreenStack(const MissionOption &missionOption) override;
+    virtual int MoveMissionToSplitScreenStack(const MissionOption &primary, const MissionOption &secondary) override;
 
     /**
      * Change the focus of ability in the mission stack.
@@ -553,6 +555,7 @@ public:
         KEY_DUMP_DATA,
         KEY_DUMP_SYSTEM_UI,
         KEY_DUMP_FOCUS_ABILITY,
+        KEY_DUMP_WINDOW_MODE,
     };
 
     friend class AbilityStackManager;
@@ -621,6 +624,7 @@ private:
     void DataDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void SystemDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DumpFocusMapInner(const std::string &args, std::vector<std::string> &info);
+    void DumpWindowModeInner(const std::string &args, std::vector<std::string> &info);
     void DumpFuncInit();
     bool CheckCallerIsSystemAppByIpc();
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);

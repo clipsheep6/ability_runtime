@@ -43,11 +43,6 @@
 #include "form_provider_info.h"
 #include "form_info.h"
 
-#ifndef MMI_COMPILE
-#include "key_event.h"
-#include "touch_event.h"
-#endif
-
 using Uri = OHOS::Uri;
 
 namespace OHOS {
@@ -56,10 +51,8 @@ class AbsSharedResultSet;
 class DataAbilityPredicates;
 class ValuesBucket;
 }  // namespace NativeRdb
-#ifdef MMI_COMPILE
 class KeyEvent;
 class TouchEvent;
-#endif
 namespace AppExecFwk {
 class DataAbilityResult;
 class DataAbilityOperation;
@@ -1194,19 +1187,6 @@ public:
      * @return returns the bundle manager ipc object, or nullptr for failed.
      */
     sptr<IBundleMgr> GetBundleMgr();
-
-    /**
-     * @brief check permission of bundle, if it not existed.
-     * @return returns the permission is vaild, or false for failed.
-     */
-    bool CheckPermission();
-
-    /**
-     * @brief Permission check.
-     * @param bundleName bundleName.
-     * @return Returns true on success, false on failure.
-     */
-    bool CheckFormPermission(const std::string &bundleName) const;
 
     /**
      * @brief Add the bundle manager instance for debug.
