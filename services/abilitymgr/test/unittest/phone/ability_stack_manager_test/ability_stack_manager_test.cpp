@@ -65,8 +65,8 @@ public:
     AbilityRequest radioAbilityRequest_ {};
     AbilityRequest radioTonAbilityRequest_ {};
     Want want_ {};
-    AbilityInfo abilityInfo_{};
-    ApplicationInfo appInfo_{};
+    AbilityInfo abilityInfo_ {};
+    ApplicationInfo appInfo_ {};
 public:
     std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
 };
@@ -3500,11 +3500,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_094, TestSize.
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_095, TestSize.Level1)
 {
-    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE, 
+    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE,
         stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY));
-    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE, 
+    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE,
         stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY));
-    EXPECT_EQ(SystemWindowMode::FLOATING_WINDOW_MODE, 
+    EXPECT_EQ(SystemWindowMode::FLOATING_WINDOW_MODE,
         stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
 }
 
@@ -3518,7 +3518,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_095, TestSize.
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_096, TestSize.Level1)
 {
-   stackManager_->Init();
+    stackManager_->Init();
 
     // start a ability
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
@@ -3800,23 +3800,18 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0104, TestSize
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0105, TestSize.Level1)
 {
     stackManager_->Init();
-
     auto result = stackManager_->StartAbility(radioAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
     auto topAbilityRecord = topMissionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
-
     std::list<MissionOption> missionOptions;
-
     MissionOption mission;
     mission.missionId = topMissionRecord->GetMissionRecordId();
     mission.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
-
     missionOptions.push_back(mission);
     auto ref = stackManager_->CheckMultiWindowCondition(missionOptions);
     EXPECT_EQ(ERR_OK, ref);
-
 }
 
 /*
@@ -4040,7 +4035,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize
     EXPECT_EQ(ERR_OK, result1);
 
     auto lockState = stackManager_->GetMissionLockModeState();
-    EXPECT_EQ((LockMissionContainer::LockMissionState)lockState, 
+    EXPECT_EQ((LockMissionContainer::LockMissionState)lockState,
         LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 
     stackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, topAbilityRecord->GetEventId());

@@ -2273,8 +2273,7 @@ int AbilityStackManager::MoveMissionToEndLocked(int missionId)
     CHECK_POINTER_AND_RETURN(currentMission, MOVE_MISSION_FAILED);
     auto currentStack = currentMission->GetMissionStack();
     CHECK_POINTER_AND_RETURN(currentStack, MOVE_MISSION_FAILED);
-
-    if (IsSplitScreenStack(requestStack->GetMissionStackId()) || 
+    if (IsSplitScreenStack(requestStack->GetMissionStackId()) ||
             IsSplitScreenStack(currentStack->GetMissionStackId())) {
         requestStack->MoveMissionRecordToBottom(requestMission);
         requestAbility->SetToEnd(true);

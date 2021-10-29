@@ -14,7 +14,7 @@
  */
 
 #include "want.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <regex>
 #include <climits>
 #include <securec.h>
@@ -912,7 +912,20 @@ long Want::GetLongParam(const std::string &key, long defaultValue) const
 
     return defaultValue;
 }
+void ArrayAddData(IInterface *object, std::vector<long> &array)
+{
+    if (object == nullptr) {
+        return;
+    }
 
+    IString *o = IString::Query(object);
+    if (o != nullptr) {
+        std::string str = String::Unbox(o);
+        if (std::regex_match(str, NUMBER_REGEX)) {
+            array.push_back(std::atoll(str.c_str()));
+        }
+    }
+}
 /**
  * @description: Obtains a long array matching the given key.
  * @param key Indicates the key of wantParams.
@@ -936,17 +949,7 @@ std::vector<long> Want::GetLongArrayParam(const std::string &key) const
         Array::ForEach(ao, func);
     } else if (ao != nullptr && Array::IsStringArray(ao)) {
         // Marshalling
-        auto func = [&](IInterface *object) {
-            if (object != nullptr) {
-                IString *o = IString::Query(object);
-                if (o != nullptr) {
-                    std::string str = String::Unbox(o);
-                    if (std::regex_match(str, NUMBER_REGEX)) {
-                        array.push_back(std::atoll(str.c_str()));
-                    }
-                }
-            }
-        };
+        auto func = [&](IInterface *object) { ArrayAddData(object, array); };
         Array::ForEach(ao, func);
     }
 
