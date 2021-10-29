@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
+#include "ability.h"
+
 #include <cinttypes>
 #include <thread>
 
-#include "ability.h"
 #include "ability_loader.h"
 #include "app_log_wrapper.h"
 #include "display_type.h"
@@ -42,14 +43,8 @@
 #include "data_ability_result.h"
 #include "data_ability_operation.h"
 #include "data_uri_utils.h"
-
-#ifdef MMI_COMPILE
-#include "key_events.h"
-#include "touch_events.h"
-#else
 #include "key_event.h"
 #include "touch_event.h"
-#endif
 #include "form_host_client.h"
 #include "form_mgr.h"
 #include "ipc_skeleton.h"
@@ -171,6 +166,18 @@ void Ability::OnStart(const Want &want)
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str(),
             winType);
+        if (setting_ != nullptr) {
+            auto windowMode = static_cast<AbilityWindowConfiguration>(
+                std::atoi(setting_->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY).c_str()));
+            APP_LOGI("%{public}s windowMode : %{public}d", __func__, windowMode);
+            if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+                APP_LOGI("%{public}s begin SetWindowMode : WINDOW_MODE_FREE.", __func__);
+                config->SetWindowType(WINDOW_TYPE_FLOAT);
+                APP_LOGI("%{public}s end SetWindowMode : WINDOW_MODE_FREE.", __func__);
+            }
+        } else {
+            APP_LOGI("Ability::OnStart setting_ == nullptr.");
+        }
         SetUIContent(config);
 
         if (abilityWindow_ != nullptr) {
@@ -411,8 +418,8 @@ void Ability::StartAbilityForResult(const Want &want, int requestCode)
  * number.
  *
  * @param want Indicates the ability to start.
- * @param requestCode Indicates the request code returned after the ability is started. You can define the request code
- * to identify the results returned by abilities. The value ranges from 0 to 65535.
+ * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+ * code to identify the results returned by abilities. The value ranges from 0 to 65535.
  * @param abilityStartSetting Indicates the setting ability used to start.
  */
 void Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
@@ -489,11 +496,7 @@ bool Ability::OnKeyUp(int keyCode, const KeyEvent &keyEvent)
     APP_LOGI("Ability::OnKeyUp called");
     APP_LOGI("Ability::OnKeyUp keyCode: %{public}d.", keyCode);
     switch (keyCode) {
-#ifdef MMI_COMPILE
         case OHOS::KeyEventEnum::KEY_BACK:
-#else
-        case KeyEvent::CODE_BACK:
-#endif
             APP_LOGI("Ability::OnKey Back key pressed.");
             OnBackPressed();
             return true;
@@ -652,8 +655,8 @@ void Ability::OnRequestPermissionsFromUserResult(
 {}
 
 /**
- * @brief Called when this ability is about to leave the foreground and enter the background due to a user operation,
- * for example, when the user touches the Home key.
+ * @brief Called when this ability is about to leave the foreground and enter the background due to a user
+ * operation, for example, when the user touches the Home key.
  *
  */
 void Ability::OnLeaveForeground()
@@ -724,7 +727,8 @@ int Ability::OpenRawFile(const Uri &uri, const std::string &mode)
  *
  * @param uri Indicates the database table storing the data to update.
  * @param value Indicates the data to update. This parameter can be null.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be updated by default.
+ * @param predicates Indicates filter criteria. If this parameter is null, all data records will be updated by
+ * default.
  *
  * @return Returns the number of data records updated.
  */
@@ -777,15 +781,15 @@ bool Ability::IsTerminating()
 }
 
 /**
- * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the result is
- * returned. This method is called only on Page abilities. You can start a new ability to perform some calculations and
- * use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system calls back the current
- * method to use the returned data to execute its own logic.
+ * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
+ * result is returned. This method is called only on Page abilities. You can start a new ability to perform some
+ * calculations and use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system
+ * calls back the current method to use the returned data to execute its own logic.
  *
- * @param requestCode Indicates the request code returned after the ability is started. You can define the request code
- * to identify the results returned by abilities. The value ranges from 0 to 65535.
- * @param resultCode Indicates the result code returned after the ability is started. You can define the result code to
- * identify an error.
+ * @param requestCode Indicates the request code returned after the ability is started. You can define the request
+ * code to identify the results returned by abilities. The value ranges from 0 to 65535.
+ * @param resultCode Indicates the result code returned after the ability is started. You can define the result code
+ * to identify an error.
  * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
  * value can be null.
  *
@@ -825,10 +829,11 @@ void Ability::OnNewWant(const Want &want)
 }
 
 /**
- * @brief Restores data and states of an ability when it is restored by the system. This method should be implemented by
- * a Page ability. This method is called if an ability was destroyed at a certain time due to resource reclaim or was
- * unexpectedly destroyed and the onSaveAbilityState(ohos.utils.PacMap) method was called to save its user data and
- * states. Generally, this method is called after the onStart(ohos.aafwk.content.Want) method.
+ * @brief Restores data and states of an ability when it is restored by the system. This method should be
+ * implemented by a Page ability. This method is called if an ability was destroyed at a certain time due to
+ * resource reclaim or was unexpectedly destroyed and the onSaveAbilityState(ohos.utils.PacMap) method was called to
+ * save its user data and states. Generally, this method is called after the onStart(ohos.aafwk.content.Want)
+ * method.
  *
  *  @param inState Indicates the PacMap object used for storing data and states. This parameter can not be null.
  *
@@ -840,11 +845,12 @@ void Ability::OnRestoreAbilityState(const PacMap &inState)
 
 /**
  * @brief Saves temporary data and states of this ability. This method should be implemented by a Page ability.
- * This method is called when the system determines that the ability may be destroyed in an unexpected situation, for
- * example, when the screen orientation changes or the user touches the Home key. Generally, this method is used only to
- * save temporary states.
+ * This method is called when the system determines that the ability may be destroyed in an unexpected situation,
+ * for example, when the screen orientation changes or the user touches the Home key. Generally, this method is used
+ * only to save temporary states.
  *
- *  @param outState Indicates the PacMap object used for storing user data and states. This parameter cannot be null.
+ *  @param outState Indicates the PacMap object used for storing user data and states. This parameter cannot be
+ * null.
  *
  */
 void Ability::OnSaveAbilityState(PacMap &outState)
@@ -885,12 +891,13 @@ std::shared_ptr<AAFwk::Want> Ability::GetWant()
 /**
  * @brief Sets the result code and data to be returned by this Page ability to the caller.
  * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
- * receive the result set in the current method. This method can be called only after the ability has been initialized.
+ * receive the result set in the current method. This method can be called only after the ability has been
+ * initialized.
  *
- * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result code
- * to identify an error.
- * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned. This
- * parameter can be null.
+ * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result
+ * code to identify an error.
+ * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned.
+ * This parameter can be null.
  */
 void Ability::SetResult(int resultCode, const Want &resultData)
 {
@@ -922,11 +929,11 @@ void Ability::SetVolumeTypeAdjustedByKey(int volumeType)
  * logic.
  *
  * @param want Indicates the want of Service to start.
- * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being destroyed,
- * and the value false indicates a normal startup.
- * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by 1
- * every time the ability is started. For example, if the ability has been started for six times, the value of startId
- * is 6.
+ * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+ * destroyed, and the value false indicates a normal startup.
+ * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by
+ * 1 every time the ability is started. For example, if the ability has been started for six times, the value of
+ * startId is 6.
  */
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
@@ -1027,9 +1034,10 @@ void Ability::CancelBackgroundRunning()
  * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
  * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
  * context has changed. If you implement URI normalization for a Data ability, you must also implement
- * denormalizeUri(ohos.utils.net.Uri) to enable URI denormalization. After this feature is enabled, URIs passed to any
- * method that is called on the Data ability must require normalization verification and denormalization. The default
- * implementation of this method returns null, indicating that this Data ability does not support URI normalization.
+ * denormalizeUri(ohos.utils.net.Uri) to enable URI denormalization. After this feature is enabled, URIs passed to
+ * any method that is called on the Data ability must require normalization verification and denormalization. The
+ * default implementation of this method returns null, indicating that this Data ability does not support URI
+ * normalization.
  *
  * @param uri Indicates the Uri object to normalize.
  *
@@ -1044,7 +1052,8 @@ Uri Ability::NormalizeUri(const Uri &uri)
  * @brief Deletes one or more data records. This method should be implemented by a Data ability.
  *
  * @param uri Indicates the database table storing the data to delete.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be deleted by default.
+ * @param predicates Indicates filter criteria. If this parameter is null, all data records will be deleted by
+ * default.
  *
  * @return Returns the number of data records deleted.
  */
@@ -1062,7 +1071,8 @@ int Ability::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &pred
  * 2. image/ *: Obtains files whose main type is image of any subtype.
  * 3. * /jpg: Obtains files whose subtype is JPG of any main type.
  *
- * @return Returns the MIME type of the matched files; returns null if there is no type that matches the Data ability.
+ * @return Returns the MIME type of the matched files; returns null if there is no type that matches the Data
+ * ability.
  */
 std::vector<std::string> Ability::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
@@ -1091,7 +1101,8 @@ int Ability::OpenFile(const Uri &uri, const std::string &mode)
  * @param uri Indicates the database table storing the data to query.
  * @param columns Indicates the columns to be queried, in array, for example, {"name","age"}. You should define the
  * processing logic when this parameter is null.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be queried by default.
+ * @param predicates Indicates filter criteria. If this parameter is null, all data records will be queried by
+ * default.
  *
  * @return Returns the queried data.
  */
@@ -1138,13 +1149,13 @@ int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBuck
 }
 
 /**
- * @brief Migrates this ability to the given device on the same distributed network in a reversible way that allows this
- * ability to be migrated back to the local device through reverseContinueAbility(). The ability to migrate and its
- * ability slices must implement the IAbilityContinuation interface. Otherwise, an exception is thrown, indicating that
- * the ability does not support migration.
+ * @brief Migrates this ability to the given device on the same distributed network in a reversible way that allows
+ * this ability to be migrated back to the local device through reverseContinueAbility(). The ability to migrate and
+ * its ability slices must implement the IAbilityContinuation interface. Otherwise, an exception is thrown,
+ * indicating that the ability does not support migration.
  *
- * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter is
- * null, this method has the same effect as ContinueAbilityReversibly().
+ * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter
+ * is null, this method has the same effect as ContinueAbilityReversibly().
  *
  */
 void Ability::ContinueAbilityReversibly(const std::string &deviceId)
@@ -1198,9 +1209,9 @@ std::shared_ptr<AbilityPackage> Ability::GetAbilityPackage()
  *
  * @param uri uri Indicates the Uri object to denormalize.
  *
- * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed to
- * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
- * current environment.
+ * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed
+ * to this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found
+ * in the current environment.
  */
 Uri Ability::DenormalizeUri(const Uri &uri)
 {
@@ -1236,9 +1247,9 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 }
 
 /**
- * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target ability
- * from installed abilities based on the value of the intent parameter and then starts it. You can specify the ability
- * to start using the intent parameter.
+ * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
+ * ability from installed abilities based on the value of the intent parameter and then starts it. You can specify
+ * the ability to start using the intent parameter.
  *
  * @param intent Indicates the ability to start.
  */
@@ -1288,8 +1299,8 @@ void Ability::SetMainRoute(const std::string &entry)
 {}
 
 /**
- * @brief By binding an action, you can set different action parameters in Intent to present different initial pages.
- *         You must register actions in the profile file.
+ * @brief By binding an action, you can set different action parameters in Intent to present different initial
+ * pages. You must register actions in the profile file.
  *
  * @param action Indicates the action to bind.
  *
@@ -1358,8 +1369,8 @@ bool Ability::StopAbility(const AAFwk::Want &want)
 
 /**
  * @brief Posts a scheduled Runnable task to a new non-UI thread.
- * The task posted via this method will be executed in a new thread, which allows you to perform certain time-consuming
- * operations. To use this method, you must also override the supportHighPerformanceUI() method.
+ * The task posted via this method will be executed in a new thread, which allows you to perform certain
+ * time-consuming operations. To use this method, you must also override the supportHighPerformanceUI() method.
  *
  * @param task Indicates the Runnable task to post.
  *
@@ -1666,9 +1677,9 @@ bool Ability::CastTempForm(const int64_t formId)
     }
 
     APP_LOGI("%{public}s, castTempForm begin of temp form %{public}" PRId64, __func__, formId);
-    bool result = FormMgr::GetInstance().CastTempForm(formId, FormHostClient::GetInstance());
+    int result = FormMgr::GetInstance().CastTempForm(formId, FormHostClient::GetInstance());
 
-    if (!result) {
+    if (result != ERR_OK) {
         APP_LOGE("%{public}s error, some internal server occurs, error code is %{public}d.", __func__, result);
         return false;
     }
@@ -1970,7 +1981,8 @@ void Ability::OnUpdate(const int64_t formId)
 {}
 
 /**
- * @brief Called when the form provider is notified that a temporary form is successfully converted to a normal form.
+ * @brief Called when the form provider is notified that a temporary form is successfully converted to a normal
+ * form.
  *
  * @param formId Indicates the ID of the form.
  * @return None.
@@ -2424,7 +2436,7 @@ bool Ability::ReAcquireForm(const int64_t formId, const Want &want)
 /**
  * @brief Check form manager service ready.
  *
- * @return Returns true if form manager service ready; returns false otherwise.
+ * @return Return true if form manager service ready; returns false otherwise.
  */
 bool Ability::CheckFMSReady()
 {
@@ -2444,8 +2456,8 @@ bool Ability::CheckFMSReady()
 /**
  * @brief Get All FormsInfo.
  *
- * @param formInfos Returns the forms' information of all forms provided.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
+ * @param formInfos Return the forms' information of all forms provided.
+ * @return Return true if the request is successfully initiated; return false otherwise.
  */
 bool Ability::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
@@ -2455,80 +2467,64 @@ bool Ability::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
         APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return false;
     }
-
-    if (!CheckPermission()) {
-        return false;
+    bool isHaveFormsInfo = iBundleMgr->GetAllFormsInfo(formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    return iBundleMgr->GetAllFormsInfo(formInfos);
+    return isHaveFormsInfo;
 }
 
 /**
- * @brief Get forms info by application name.
+ * @brief Get forms info by bundle name .
  *
  * @param bundleName Application name.
- * @param formInfos Returns the forms' information of the specify application name.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
+ * @param formInfos Return the forms' information of the specify application name.
+ * @return Return true if the request is successfully initiated; return false otherwise.
  */
 bool Ability::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos)
 {
     APP_LOGI("%{public}s called.", __func__);
-    bool IsGetFormsInfoByApp = false;
     if (bundleName.empty()) {
-        APP_LOGW("save info fail, empty bundle name");
-        IsGetFormsInfoByApp = false;
+        APP_LOGW("Failed to Get forms info, because empty bundle name");
+        return false;
     }
-
     sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
     if (iBundleMgr == nullptr) {
         APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
-        return IsGetFormsInfoByApp;
+        return false;
     }
-
-    if (!CheckPermission()) {
-        return IsGetFormsInfoByApp;
+    bool isHaveFormsInfo = iBundleMgr->GetFormsInfoByApp(bundleName, formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    IsGetFormsInfoByApp = iBundleMgr->GetFormsInfoByApp(bundleName, formInfos);
-    if (formInfos.size() == 0) {
-        return IsGetFormsInfoByApp;
-    }
-
-    return IsGetFormsInfoByApp;
+    return isHaveFormsInfo;
 }
 
 /**
- * @brief Get forms info by application name and module name.
+ * @brief Get forms info by bundle name and module name.
  *
- * @param bundleName Application name.
+ * @param bundleName bundle name.
  * @param moduleName Module name of hap.
- * @param formInfos Returns the forms' information of the specify application name and module name.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
+ * @param formInfos Return the forms' information of the specify bundle name and module name.
+ * @return Return true if the request is successfully initiated; return false otherwise.
  */
 bool Ability::GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos)
 {
     APP_LOGI("%{public}s called.", __func__);
-    bool IsGetFormsInfoByModule = false;
     if (bundleName.empty() || moduleName.empty()) {
-        APP_LOGW("save info fail, empty bundle name");
-        return IsGetFormsInfoByModule;
+        APP_LOGW("Failed to Get forms info, because empty bundleName or moduleName");
+        return false;
     }
-
     sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
     if (iBundleMgr == nullptr) {
         APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
-        return IsGetFormsInfoByModule;
+        return false;
     }
-
-    if (!CheckPermission()) {
-        return IsGetFormsInfoByModule;
+    bool isHaveFormsInfo = iBundleMgr->GetFormsInfoByModule(bundleName, moduleName, formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    IsGetFormsInfoByModule = iBundleMgr->GetFormsInfoByModule(bundleName, moduleName, formInfos);
-    if (formInfos.size() == 0) {
-        IsGetFormsInfoByModule = false;
-    }
-    return IsGetFormsInfoByModule;
+    return isHaveFormsInfo;
 }
 
 /**
@@ -2557,29 +2553,6 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
     return iBundleMgr_;
 }
 
-/**
- * @brief check permission of bundle, if it not existed.
- * @return returns the permission is vaild, or false for failed.
- */
-bool Ability::CheckPermission()
-{
-    APP_LOGI("%{public}s called.", __func__);
-    return true;
-}
-
-bool Ability::CheckFormPermission(const std::string &bundleName) const
-{
-    APP_LOGI("%{public}s called.", __func__);
-
-    int result = PermissionKit::VerifyPermission(bundleName, Constants::PERMISSION_REQUIRE_FORM, 0);
-    if (result != PermissionState::PERMISSION_GRANTED) {
-        APP_LOGW("permission = %{public}s, bundleName = %{public}s, result = %{public}d",
-            Constants::PERMISSION_REQUIRE_FORM.c_str(),
-            bundleName.c_str(),
-            result);
-    }
-    return result == PermissionState::PERMISSION_GRANTED;
-}
 /**
  * @brief Add the bundle manager instance for debug.
  * @param bundleManager the bundle manager ipc object.
@@ -2645,7 +2618,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> Ability::ExecuteBatch(
         }
         ExecuteOperation(operation, results, i);
     }
-    APP_LOGI("Ability::ExecuteBatch end");
+    APP_LOGI("Ability::ExecuteBatch end, %{public}zu", results.size());
     return results;
 }
 void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
@@ -2711,7 +2684,11 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
             operation->GetExpectedCount(),
             numRows);
     } else {
-        results.push_back(std::make_shared<DataAbilityResult>(numRows));
+        if (operation->GetUri() != nullptr) {
+            results.push_back(std::make_shared<DataAbilityResult>(*operation->GetUri(), numRows));
+        } else {
+            results.push_back(std::make_shared<DataAbilityResult>(Uri(std::string("")), numRows));
+        }
     }
 }
 
@@ -2797,75 +2774,65 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
             continue;
         }
         switch (obj.GetType()) {
-            case NativeRdb::ValueObjectType::TYPE_INT:
-                {
-                    int val = 0;
-                    if (obj.GetInt(val) != 0) {
-                        APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetInt() error");
-                        break;
-                    }
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutInt(%{public}s, %{public}d)", key.c_str(), val);
-                    retValueBucket.PutInt(key, val);
+            case NativeRdb::ValueObjectType::TYPE_INT: {
+                int val = 0;
+                if (obj.GetInt(val) != 0) {
+                    APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetInt() error");
+                    break;
                 }
-                break;
-            case NativeRdb::ValueObjectType::TYPE_DOUBLE:
-                {
-                    double val = 0.0;
-                    if (obj.GetDouble(val) != 0) {
-                        APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetDouble() error");
-                        break;
-                    }
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutDouble(%{public}s, %{public}f)",
-                        key.c_str(),
-                        val);
-                    retValueBucket.PutDouble(key, val);
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutInt(%{public}s, %{public}d)",
+                    key.c_str(),
+                    val);
+                retValueBucket.PutInt(key, val);
+            } break;
+            case NativeRdb::ValueObjectType::TYPE_DOUBLE: {
+                double val = 0.0;
+                if (obj.GetDouble(val) != 0) {
+                    APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetDouble() error");
+                    break;
                 }
-                break;
-            case NativeRdb::ValueObjectType::TYPE_STRING:
-                {
-                    std::string val = "";
-                    if (obj.GetString(val) != 0) {
-                        APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetString() error");
-                        break;
-                    }
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutString(%{public}s, %{public}s)",
-                        key.c_str(),
-                        val.c_str());
-                    retValueBucket.PutString(key, val);
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutDouble(%{public}s, %{public}f)",
+                    key.c_str(),
+                    val);
+                retValueBucket.PutDouble(key, val);
+            } break;
+            case NativeRdb::ValueObjectType::TYPE_STRING: {
+                std::string val = "";
+                if (obj.GetString(val) != 0) {
+                    APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetString() error");
+                    break;
                 }
-                break;
-            case NativeRdb::ValueObjectType::TYPE_BLOB:
-                {
-                    std::vector<uint8_t> val;
-                    if (obj.GetBlob(val) != 0) {
-                        APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetBlob() error");
-                        break;
-                    }
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutBlob(%{public}s, %{public}zu)",
-                        key.c_str(),
-                        val.size());
-                    retValueBucket.PutBlob(key, val);
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutString(%{public}s, %{public}s)",
+                    key.c_str(),
+                    val.c_str());
+                retValueBucket.PutString(key, val);
+            } break;
+            case NativeRdb::ValueObjectType::TYPE_BLOB: {
+                std::vector<uint8_t> val;
+                if (obj.GetBlob(val) != 0) {
+                    APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetBlob() error");
+                    break;
                 }
-                break;
-            case NativeRdb::ValueObjectType::TYPE_BOOL:
-                {
-                    bool val = false;
-                    if (obj.GetBool(val) != 0) {
-                        APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetBool() error");
-                        break;
-                    }
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutBool(%{public}s, %{public}s)",
-                        key.c_str(),
-                        val ? "true" : "false");
-                    retValueBucket.PutBool(key, val);
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutBlob(%{public}s, %{public}zu)",
+                    key.c_str(),
+                    val.size());
+                retValueBucket.PutBlob(key, val);
+            } break;
+            case NativeRdb::ValueObjectType::TYPE_BOOL: {
+                bool val = false;
+                if (obj.GetBool(val) != 0) {
+                    APP_LOGE("Ability::ParseValuesBucketReference ValueObject->GetBool() error");
+                    break;
                 }
-                break;
-            default:
-                {
-                    APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutNull(%{public}s)", key.c_str());
-                    retValueBucket.PutNull(key);
-                }
-                break;
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutBool(%{public}s, %{public}s)",
+                    key.c_str(),
+                    val ? "true" : "false");
+                retValueBucket.PutBool(key, val);
+            } break;
+            default: {
+                APP_LOGI("Ability::ParseValuesBucketReference retValueBucket->PutNull(%{public}s)", key.c_str());
+                retValueBucket.PutNull(key);
+            } break;
         }
     }
 

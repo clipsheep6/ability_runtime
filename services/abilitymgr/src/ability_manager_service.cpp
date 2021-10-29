@@ -57,6 +57,8 @@ const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerServic
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-u", KEY_DUMP_SYSTEM_UI),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-focus", KEY_DUMP_FOCUS_ABILITY),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-f", KEY_DUMP_FOCUS_ABILITY),
+    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--win-mode", KEY_DUMP_WINDOW_MODE),
+    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-z", KEY_DUMP_WINDOW_MODE),
 };
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
@@ -226,10 +228,15 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         HILOG_ERROR("Generate ability request error.");
         return result;
     }
+    auto abilityInfo = abilityRequest.abilityInfo;
+    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        return result;
+    }
 
     abilityRequest.startSetting = std::make_shared<AbilityStartSetting>(abilityStartSetting);
 
-    auto abilityInfo = abilityRequest.abilityInfo;
     if (abilityInfo.type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot start data ability, use 'AcquireDataAbility()' instead.");
         return ERR_INVALID_VALUE;
@@ -656,7 +663,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s, called. uid %{public}d", __func__, IPCSkeleton::GetCallingUid());
-    bool isSystem = (IPCSkeleton::GetCallingUid() == AbilityUtil::SYSTEM_UID);
+    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
     if (!isSystem) {
         HILOG_INFO("callerToken not system %{public}s", __func__);
         if (!VerificationToken(callerToken)) {
@@ -713,7 +720,7 @@ int AbilityManagerService::ReleaseDataAbility(
     sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s, called.", __func__);
-    bool isSystem = (IPCSkeleton::GetCallingUid() == AbilityUtil::SYSTEM_UID);
+    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
     if (!isSystem) {
         HILOG_INFO("callerToken not system %{public}s", __func__);
         if (!VerificationToken(callerToken)) {
@@ -764,6 +771,7 @@ void AbilityManagerService::DumpFuncInit()
     dumpFuncMap_[KEY_DUMP_DATA] = &AbilityManagerService::DataDumpStateInner;
     dumpFuncMap_[KEY_DUMP_SYSTEM_UI] = &AbilityManagerService::SystemDumpStateInner;
     dumpFuncMap_[KEY_DUMP_FOCUS_ABILITY] = &AbilityManagerService::DumpFocusMapInner;
+    dumpFuncMap_[KEY_DUMP_WINDOW_MODE] = &AbilityManagerService::DumpWindowModeInner;
 }
 
 void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::string> &info)
@@ -779,6 +787,11 @@ void AbilityManagerService::DumpStackListInner(const std::string &args, std::vec
 void AbilityManagerService::DumpFocusMapInner(const std::string &args, std::vector<std::string> &info)
 {
     currentStackManager_->DumpFocusMap(info);
+}
+
+void AbilityManagerService::DumpWindowModeInner(const std::string &args, std::vector<std::string> &info)
+{
+    currentStackManager_->DumpWindowMode(info);
 }
 
 void AbilityManagerService::DumpStackInner(const std::string &args, std::vector<std::string> &info)
@@ -1055,6 +1068,7 @@ void AbilityManagerService::StartingLauncherAbility()
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
         HILOG_INFO("bms service is null");
+        return;
     }
 
     /* query if launcher ability has installed */
@@ -1316,6 +1330,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     CHECK_POINTER_RETURN_BOOL(currentStackManager_);
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
     CHECK_POINTER_RETURN_BOOL(connectManager_);
+    CHECK_POINTER_RETURN_BOOL(systemAppManager_);
 
     if (currentStackManager_->GetAbilityRecordByToken(token)) {
         return true;
@@ -1347,10 +1362,10 @@ int AbilityManagerService::MoveMissionToFloatingStack(const MissionOption &missi
     return currentStackManager_->MoveMissionToFloatingStack(missionOption);
 }
 
-int AbilityManagerService::MoveMissionToSplitScreenStack(const MissionOption &missionOption)
+int AbilityManagerService::MoveMissionToSplitScreenStack(const MissionOption &primary, const MissionOption &secondary)
 {
     HILOG_INFO("Move mission to split screen stack.");
-    return currentStackManager_->MoveMissionToSplitScreenStack(missionOption);
+    return currentStackManager_->MoveMissionToSplitScreenStack(primary, secondary);
 }
 
 int AbilityManagerService::ChangeFocusAbility(
@@ -1556,6 +1571,7 @@ void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
         HILOG_INFO("bms service is null");
+        return;
     }
 
     AppExecFwk::AbilityInfo statusBarInfo;
