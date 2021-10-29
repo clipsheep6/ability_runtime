@@ -114,8 +114,8 @@ bool DumpModuleTest::SearchAbilityNameFromStackInfo(
 
 void DumpModuleTest::OnStartAms()
 {
-    if(g_abilityMs) {
-        if(g_abilityMs->state_ == ServiceRunningState::STATE_RUNNING) {
+    if (g_abilityMs) {
+        if (g_abilityMs->state_ == ServiceRunningState::STATE_RUNNING) {
             return;
         }
    

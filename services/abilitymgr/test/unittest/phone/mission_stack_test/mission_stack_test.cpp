@@ -528,7 +528,7 @@ HWTEST_F(MissionStackTest, MS_oprator_019, TestSize.Level1)
     missionStack_->missions_.push_back(missionRecordOne);
     missionStack_->missions_.push_back(missionRecordTwo);
 
-    auto missionRecordList = 
+    auto missionRecordList =
         missionStack_->GetMissionRecordByWinMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY);
     EXPECT_TRUE(missionRecordList.size() == 1);
     auto mission = missionRecordList.back();
