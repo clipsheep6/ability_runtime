@@ -126,8 +126,13 @@ void TerminateAbilityTest::init()
 
 void TerminateAbilityTest::OnStartAms()
 {
+<<<<<<< HEAD
+    if(g_aams) {
+        if(g_aams->state_ == ServiceRunningState::STATE_RUNNING) {
+=======
     if (g_aams) {
         if (g_aams->state_ == ServiceRunningState::STATE_RUNNING) {
+>>>>>>> upstream/master
             return;
         }
    
@@ -426,7 +431,11 @@ HWTEST_F(TerminateAbilityTest, AAFWK_g_aamsTerminateAbility_006, TestSize.Level1
     EXPECT_TRUE(StartAbility(musicTopAbilityRequest_, tokenB, schedulerB));
     WaitUntilTaskFinished();
     std::shared_ptr<AbilityRecord> testAbilityRecordB = Token::GetAbilityRecordByToken(tokenB);
+<<<<<<< HEAD
+    EXPECT_TRUE(testAbilityRecordB );
+=======
     EXPECT_TRUE(testAbilityRecordB);
+>>>>>>> upstream/master
     std::shared_ptr<MissionRecord> missionRecord = testAbilityRecordB->GetMissionRecord();
     EXPECT_TRUE(missionRecord);
 
@@ -762,7 +771,11 @@ HWTEST_F(TerminateAbilityTest, AAFWK_g_aamsTerminateAbility_014, TestSize.Level1
 
     OHOS::sptr<Token> tokenB;
     OHOS::sptr<AbilityScheduler> schedulerB;
+<<<<<<< HEAD
+    EXPECT_TRUE(StartAbility(musicSAbilityRequest_, tokenB ,schedulerB));
+=======
     EXPECT_TRUE(StartAbility(musicSAbilityRequest_, tokenB, schedulerB));
+>>>>>>> upstream/master
     WaitUntilTaskFinished();
     std::shared_ptr<AbilityStackManager> stackManager = g_aams->GetStackManager();
     EXPECT_TRUE(stackManager != nullptr);
@@ -780,5 +793,6 @@ HWTEST_F(TerminateAbilityTest, AAFWK_g_aamsTerminateAbility_014, TestSize.Level1
     EXPECT_EQ(g_aams->TerminateAbility(tokenB, -1, nullptr), 0);
     EXPECT_EQ(g_aams->TerminateAbility(token, -1, nullptr), 0);
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS
