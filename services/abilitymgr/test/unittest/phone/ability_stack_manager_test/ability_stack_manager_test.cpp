@@ -51,12 +51,17 @@ public:
     void SetUp();
     void TearDown();
     void init();
+<<<<<<< HEAD
     void OnStartabilityMs_();
+=======
+    void OnStartabilityMs();
+>>>>>>> upstream/master
     AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
         const std::string &appName, const std::string &bundleName, const std::vector<std::string> config);
 
     void makeScene(const std::string &abilityName, const std::string &bundleName, AbilityInfo &abilityInfo, Want &want);
 
+<<<<<<< HEAD
     std::shared_ptr<AbilityStackManager> stackManager_{nullptr};
     AbilityRequest launcherAbilityRequest_{};
     AbilityRequest musicAbilityRequest_{};
@@ -79,6 +84,29 @@ void AbilityStackManagerTest::OnStartabilityMs_()
             return;
         }
    
+=======
+    std::shared_ptr<AbilityStackManager> stackManager_ {nullptr};
+    AbilityRequest launcherAbilityRequest_ {};
+    AbilityRequest musicAbilityRequest_ {};
+    AbilityRequest musicTopAbilityRequest_ {};
+    AbilityRequest musicSAbilityRequest_ {};
+    AbilityRequest radioAbilityRequest_ {};
+    AbilityRequest radioTonAbilityRequest_ {};
+    Want want_ {};
+    AbilityInfo abilityInfo_ {};
+    ApplicationInfo appInfo_ {};
+public:
+    std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
+};
+
+void AbilityStackManagerTest::OnStartabilityMs()
+{
+    if (abilityMs_) {
+        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
+            return;
+        }
+
+>>>>>>> upstream/master
         abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
         
         abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
@@ -127,7 +155,11 @@ void AbilityStackManagerTest::SetUp()
 {
     init();
     abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
+<<<<<<< HEAD
     OnStartabilityMs_();
+=======
+    OnStartabilityMs();
+>>>>>>> upstream/master
     stackManager_ = std::make_shared<AbilityStackManager>(0);
     auto bms = abilityMs_->GetBundleManager();
     EXPECT_NE(bms, nullptr);
@@ -231,7 +263,7 @@ AbilityRequest AbilityStackManagerTest::GenerateAbilityRequest(const std::string
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify get ability by token success
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_001, TestSize.Level1)
@@ -249,7 +281,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_001, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify get ability by token fail
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_002, TestSize.Level1)
@@ -273,7 +305,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_002, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify start launcher ability
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_003, TestSize.Level1)
@@ -295,7 +327,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_003, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify repeated start launcher ability
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_004, TestSize.Level1)
@@ -315,7 +347,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_004, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify no launcher ability GetTopMissionRecord
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_005, TestSize.Level1)
@@ -330,7 +362,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_005, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify no launcher ability GetCurrentTopAbility
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_006, TestSize.Level1)
@@ -345,7 +377,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_006, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify repeated start launcher ability, GetTopMissionRecord
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_007, TestSize.Level1)
@@ -371,7 +403,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_007, TestSize.
  * Function: stack operate
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: verify launcher ability RemoveMissionRecordById
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_008, TestSize.Level1)
@@ -782,7 +814,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_017, TestSize.
  * Function: GetAbilityStackManagerUserId
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: Verify get user id value
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_018, TestSize.Level1)
@@ -839,7 +871,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_019, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager TerminateAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: 1. ability record is nullptr cause TerminateAbility failed
  *                  2. Verify TerminateAbility succeeded
  */
@@ -868,7 +900,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_020, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager TerminateAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: isTerminating_ is true cause TerminateAbility success
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_021, TestSize.Level1)
@@ -891,7 +923,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_021, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: NA
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: Terminate other Ability cause fail
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_022, TestSize.Level1)
@@ -921,7 +953,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_022, TestSize.
  * Function: AbilityTransitionDone
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager AbilityTransitionDone
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: handler is nullptr cause dispatchActive failed
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_023, TestSize.Level1)
@@ -957,7 +989,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_023, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager TerminateAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: start ability and remove ability record, verify terminal ability fail
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_024, TestSize.Level1)
@@ -988,7 +1020,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_024, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager TerminateAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: MissionRecord is nullptr cause TerminateAbility fail
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_025, TestSize.Level1)
@@ -1015,7 +1047,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_025, TestSize.
  * Function: TerminateAbility
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager TerminateAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: isLauncherAbility_ is true cause TerminateAbility failed
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_026, TestSize.Level1)
@@ -1039,7 +1071,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_026, TestSize.
  * Function: GetTargetMissionStack
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager GetTargetMissionStack
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: Verify get target mission stack value
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_027, TestSize.Level1)
@@ -1064,7 +1096,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_027, TestSize.
  * Function: AttachAbilityThread
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager AttachAbilityThread
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: handler is nullptr cause AttachAbilityThread fail
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_028, TestSize.Level1)
@@ -1090,7 +1122,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_028, TestSize.
  * Function: AddWindowInfo
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager AddWindowInfo
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: Verify AddWindowInfo operation
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_029, TestSize.Level1)
@@ -1122,7 +1154,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_029, TestSize.
  * Function: MoveMissionStackToTop
  * SubFunction: NA
  * FunctionPoints: AbilityStackManager MoveMissionStackToTop
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: MoveMissionStackToTop UT Exception case
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_030, TestSize.Level1)
@@ -1156,7 +1188,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_030, TestSize.
  * Function: IsLauncherAbility
  * SubFunction: NA
  * FunctionPoints: IsLauncherAbility
- * EnvConditions:NA
+ * EnvConditions: NA
  * CaseDescription: Verify that ability is a launcher
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_031, TestSize.Level1)
@@ -1185,7 +1217,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_031, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  GetRecentMissions
+ * Function: GetRecentMissions
  * SubFunction: NA
  * FunctionPoints: GetRecentMissions
  * EnvConditions: NA
@@ -1207,7 +1239,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_033, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  GetRecentMissions
+ * Function: GetRecentMissions
  * SubFunction: NA
  * FunctionPoints: GetRecentMissions
  * EnvConditions: NA
@@ -1242,7 +1274,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_034, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  GetRecentMissions
+ * Function: GetRecentMissions
  * SubFunction: NA
  * FunctionPoints: GetRecentMissions
  * EnvConditions: NA
@@ -1282,7 +1314,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_035, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToTop
+ * Function: MoveMissionToTop
  * SubFunction: NA
  * FunctionPoints: MoveMissionToTop
  * EnvConditions: NA
@@ -1302,7 +1334,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_036, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToTop
+ * Function: MoveMissionToTop
  * SubFunction: NA
  * FunctionPoints: MoveMissionToTop
  * EnvConditions: NA
@@ -1329,7 +1361,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_037, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToTop
+ * Function: MoveMissionToTop
  * SubFunction: NA
  * FunctionPoints: MoveMissionToTop
  * EnvConditions: NA
@@ -1368,7 +1400,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_038, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  OnAbilityDied
+ * Function: OnAbilityDied
  * SubFunction: NA
  * FunctionPoints: OnAbilityDied
  * EnvConditions: NA
@@ -1407,7 +1439,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_039, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  OnAbilityDied
+ * Function: OnAbilityDied
  * SubFunction: NA
  * FunctionPoints: OnAbilityDied
  * EnvConditions: NA
@@ -1446,7 +1478,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_040, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  OnAbilityDied
+ * Function: OnAbilityDied
  * SubFunction: NA
  * FunctionPoints: OnAbilityDied
  * EnvConditions: NA
@@ -1474,7 +1506,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_041, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  OnAbilityDied
+ * Function: OnAbilityDied
  * SubFunction: NA
  * FunctionPoints: OnAbilityDied
  * EnvConditions: NA
@@ -1513,7 +1545,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_042, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveMissionById
+ * Function: RemoveMissionById
  * SubFunction: NA
  * FunctionPoints: RemoveMissionById
  * EnvConditions: NA
@@ -1553,7 +1585,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_043, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveMissionById
+ * Function: RemoveMissionById
  * SubFunction: NA
  * FunctionPoints: RemoveMissionById
  * EnvConditions: NA
@@ -1587,7 +1619,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_044, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveStack
+ * Function: RemoveStack
  * SubFunction: NA
  * FunctionPoints: RemoveStack
  * EnvConditions: NA
@@ -1622,7 +1654,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_045, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveStack
+ * Function: RemoveStack
  * SubFunction: NA
  * FunctionPoints: RemoveStack
  * EnvConditions: NA
@@ -1652,7 +1684,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_046, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveStack
+ * Function: RemoveStack
  * SubFunction: NA
  * FunctionPoints: RemoveStack
  * EnvConditions: NA
@@ -1677,7 +1709,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_047, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveStack
+ * Function: RemoveStack
  * SubFunction: NA
  * FunctionPoints: RemoveStack
  * EnvConditions: NA
@@ -1742,7 +1774,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_048, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RemoveStack
+ * Function: RemoveStack
  * SubFunction: NA
  * FunctionPoints: RemoveStack
  * EnvConditions: NA
@@ -1815,7 +1847,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_049, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -1833,7 +1865,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_050, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -1864,7 +1896,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_051, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -1901,7 +1933,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_052, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -1945,7 +1977,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_053, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -1969,7 +2001,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_054, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -2000,7 +2032,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_055, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -2031,7 +2063,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_056, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartLockMission
+ * Function: StartLockMission
  * SubFunction: NA
  * FunctionPoints: StartLockMission
  * EnvConditions: NA
@@ -2062,7 +2094,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_057, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  SetMissionDescriptionInfo
+ * Function: SetMissionDescriptionInfo
  * SubFunction: NA
  * FunctionPoints: SetMissionDescriptionInfo
  * EnvConditions: NA
@@ -2105,7 +2137,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_058, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  SetMissionDescriptionInfo
+ * Function: SetMissionDescriptionInfo
  * SubFunction: NA
  * FunctionPoints: SetMissionDescriptionInfo
  * EnvConditions: NA
@@ -2150,7 +2182,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_059, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  SetMissionDescriptionInfo
+ * Function: SetMissionDescriptionInfo
  * SubFunction: NA
  * FunctionPoints: SetMissionDescriptionInfo
  * EnvConditions: NA
@@ -2190,7 +2222,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_060, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartAbility
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: Start the floating window according to the parameters
  * EnvConditions: NA
@@ -2221,7 +2253,12 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_061, TestSize.
 
     // promary mission id
     abilityStartSetting->AddProperty(
+<<<<<<< HEAD
         AbilityStartSetting::WINDOW_MODE_KEY, std::to_string(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
+=======
+        AbilityStartSetting::WINDOW_MODE_KEY, std::to_string(
+            AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
+>>>>>>> upstream/master
     EXPECT_TRUE(abilityStartSetting);
 
     musicAbilityRequest_.startSetting = abilityStartSetting;
@@ -2240,7 +2277,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_061, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartAbility
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: Start the floating window according to the parameters
  * EnvConditions: NA
@@ -2286,7 +2323,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_062, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartAbility
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: Start the floating window according to the parameters
  * EnvConditions: NA
@@ -2332,7 +2369,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_063, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartAbility
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: Start the floating window according to the parameters
  * EnvConditions: NA
@@ -2376,7 +2413,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_064, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  StartAbility
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: Start the floating window according to the parameters
  * EnvConditions: NA
@@ -2421,7 +2458,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_065, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToFloatingStack
+ * Function: MoveMissionToFloatingStack
  * SubFunction: NA
  * FunctionPoints: Move misson to floating window stack
  * EnvConditions: NA
@@ -2465,7 +2502,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_066, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToFloatingStack
+ * Function: MoveMissionToFloatingStack
  * SubFunction: NA
  * FunctionPoints: Move misson to floating window stack
  * EnvConditions: NA
@@ -2496,7 +2533,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_067, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToFloatingStack
+ * Function: MoveMissionToFloatingStack
  * SubFunction: NA
  * FunctionPoints: Move misson to floating window stack
  * EnvConditions: NA
@@ -2527,7 +2564,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_068, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  ChangeFocusAbility
+ * Function: ChangeFocusAbility
  * SubFunction: NA
  * FunctionPoints: Change Focus Ability
  * EnvConditions: NA
@@ -2581,7 +2618,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_069, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  ChangeFocusAbility
+ * Function: ChangeFocusAbility
  * SubFunction: NA
  * FunctionPoints: Change Focus Ability
  * EnvConditions: NA
@@ -2606,7 +2643,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_070, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToSplitScreenStack
+ * Function: MoveMissionToSplitScreenStack
  * SubFunction: NA
  * FunctionPoints: Move misson to Split window stack
  * EnvConditions: NA
@@ -2656,7 +2693,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_071, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToSplitScreenStack
+ * Function: MoveMissionToSplitScreenStack
  * SubFunction: NA
  * FunctionPoints: Move misson to Split window stack
  * EnvConditions: NA
@@ -2698,7 +2735,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_072, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToSplitScreenStack
+ * Function: MoveMissionToSplitScreenStack
  * SubFunction: NA
  * FunctionPoints: Move misson to Split window stack
  * EnvConditions: NA
@@ -2740,7 +2777,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_073, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MoveMissionToSplitScreenStack
+ * Function: MoveMissionToSplitScreenStack
  * SubFunction: NA
  * FunctionPoints: Move misson to Split window stack
  * EnvConditions: NA
@@ -2748,6 +2785,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_073, TestSize.
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_074, TestSize.Level1)
 {
+<<<<<<< HEAD
     // stackManager_->Init();
 
     // auto result = stackManager_->StartAbility(launcherAbilityRequest_);
@@ -2766,11 +2804,32 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_074, TestSize.
 
     // auto stack = launcherMissionRecord->GetMissionStack();
     // EXPECT_EQ(stack->GetMissionStackId(), LAUNCHER_MISSION_STACK_ID);
+=======
+    stackManager_->Init();
+
+    auto result = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto launcherMissionRecord = stackManager_->GetTopMissionRecord();
+    auto launcherAbilityRecord = launcherMissionRecord->GetTopAbilityRecord();
+    EXPECT_TRUE(launcherMissionRecord);
+    EXPECT_TRUE(launcherAbilityRecord);
+    launcherAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    MissionOption missionOption;
+    missionOption.missionId = launcherMissionRecord->GetMissionRecordId();
+    missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY;
+    MissionOption primary;
+    auto ref = stackManager_->MoveMissionToSplitScreenStack(primary, missionOption);
+    EXPECT_EQ(ref, MOVE_MISSION_TO_STACK_NOT_SUPPORT_MULTI_WIN);
+
+    auto stack = launcherMissionRecord->GetMissionStack();
+    EXPECT_EQ(stack->GetMissionStackId(), LAUNCHER_MISSION_STACK_ID);
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
- * Function:  MinimizeMultiWindow
+ * Function: MinimizeMultiWindow
  * SubFunction: NA
  * FunctionPoints: Move the floating window to the background
  * EnvConditions: NA
@@ -2797,7 +2856,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_075, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MinimizeMultiWindow
+ * Function: MinimizeMultiWindow
  * SubFunction: NA
  * FunctionPoints: Move the floating window to the background
  * EnvConditions: NA
@@ -2850,7 +2909,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_076, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MinimizeMultiWindow
+ * Function: MinimizeMultiWindow
  * SubFunction: NA
  * FunctionPoints: Move the floating window to the background
  * EnvConditions: NA
@@ -2914,7 +2973,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_077, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MaximizeMultiWindow
+ * Function: MaximizeMultiWindow
  * SubFunction: NA
  * FunctionPoints: Move the floating window to the default stack
  * EnvConditions: NA
@@ -2941,7 +3000,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_078, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  MaximizeMultiWindow
+ * Function: MaximizeMultiWindow
  * SubFunction: NA
  * FunctionPoints: Move the floating window to the background
  * EnvConditions: NA
@@ -3012,7 +3071,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_079, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  CloseMultiWindow
+ * Function: CloseMultiWindow
  * SubFunction: NA
  * FunctionPoints: Close multiple windows
  * EnvConditions: NA
@@ -3050,7 +3109,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_080, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  CloseMultiWindow
+ * Function: CloseMultiWindow
  * SubFunction: NA
  * FunctionPoints: Close multiple windows
  * EnvConditions: NA
@@ -3110,7 +3169,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_081, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RestartAbility
+ * Function: RestartAbility
  * SubFunction: NA
  * FunctionPoints: Restart ability
  * EnvConditions: NA
@@ -3134,7 +3193,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_082, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RestartAbility
+ * Function: RestartAbility
  * SubFunction: NA
  * FunctionPoints: Restart ability
  * EnvConditions: NA
@@ -3157,7 +3216,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_083, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  RestartAbility
+ * Function: RestartAbility
  * SubFunction: NA
  * FunctionPoints: Restart ability
  * EnvConditions: NA
@@ -3180,7 +3239,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_084, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  ProcessConfigurationChange
+ * Function: ProcessConfigurationChange
  * SubFunction: NA
  * FunctionPoints: Process Configuration Change
  * EnvConditions: NA
@@ -3198,7 +3257,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_085, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function:  ProcessConfigurationChange
+ * Function: ProcessConfigurationChange
  * SubFunction: NA
  * FunctionPoints: Process Configuration Change
  * EnvConditions: NA
@@ -3232,11 +3291,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_086, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GenerateMissinOptionsOfSplitScreen
  * SubFunction: NA
  * FunctionPoints: creat splitscerenn mission option
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GenerateMissinOptionsOfSplitScreen
+ * SubFunction: NA
+ * FunctionPoints: creat splitscerenn mission option
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_087, TestSize.Level1)
 {
@@ -3254,11 +3321,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_087, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GenerateMissinOptionsOfSplitScreen
  * SubFunction: NA
  * FunctionPoints: creat splitscerenn mission option
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GenerateMissinOptionsOfSplitScreen
+ * SubFunction: NA
+ * FunctionPoints: creat splitscerenn mission option
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_088, TestSize.Level1)
 {
@@ -3293,7 +3368,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_088, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MoveMissionToSplitScreenStack
+=======
+ * Function: MoveMissionToSplitScreenStack
+>>>>>>> upstream/master
  * SubFunction: NA
  * FunctionPoints: Move full screen application to split screen stack
  * EnvConditions: NA
@@ -3320,16 +3399,27 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_089, TestSize.
     MissionOption secondary;
     auto ref = stackManager_->MoveMissionToSplitScreenStack(primary, secondary);
     EXPECT_EQ(ERR_INVALID_DATA, ref);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  EmplaceMissionToStack
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: EmplaceMissionToStack
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_090, TestSize.Level1)
 {
@@ -3352,11 +3442,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_090, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  UpdateMissionOption, GetFriendMissionBySplitScreen
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: UpdateMissionOption, GetFriendMissionBySplitScreen
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.Level1)
 {
@@ -3371,7 +3469,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
     auto musicAbility = stackManager_->GetCurrentTopAbility();
     musicAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
  
+<<<<<<< HEAD
     //start split screen
+=======
+    // start split screen
+>>>>>>> upstream/master
     auto abilityStartSetting = AbilityStartSetting::GetEmptySetting();
     // Set floating window identification
     abilityStartSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY,
@@ -3389,7 +3491,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
     EXPECT_TRUE(stack);
     EXPECT_EQ(stack->GetMissionStackId(), SPLIT_SCREEN_MISSION_STACK_ID);
 
+<<<<<<< HEAD
     //radio move to the split screen
+=======
+    // radio move to the split screen
+>>>>>>> upstream/master
     auto  radioStack = firstTopAbility->GetMissionRecord()->GetMissionStack();
     EXPECT_TRUE(radioStack);
     EXPECT_EQ(radioStack->GetMissionStackId(), SPLIT_SCREEN_MISSION_STACK_ID);
@@ -3407,11 +3513,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetLatestSystemWindowMode
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetLatestSystemWindowMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_092, TestSize.Level1)
 {
@@ -3422,11 +3536,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_092, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetLatestSystemWindowMode
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetLatestSystemWindowMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_093, TestSize.Level1)
 {
@@ -3468,11 +3590,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_093, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetLatestSystemWindowMode
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetLatestSystemWindowMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_094, TestSize.Level1)
 {
@@ -3484,14 +3614,22 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_094, TestSize.
     stackManager_->DumpWindowMode(infos);
 
     std::string::size_type index;
+<<<<<<< HEAD
     for(auto &mode : infos){
         index = mode.find(split);
         EXPECT_TRUE(index != std::string::npos);
     } 
+=======
+    for (auto &mode : infos) {
+        index = mode.find(split);
+        EXPECT_TRUE(index != std::string::npos);
+    }
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  JudgingTargetSystemWindowMode
  * SubFunction: NA
  * FunctionPoints: 
@@ -3506,10 +3644,27 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_095, TestSize.
         stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY));
     EXPECT_EQ(SystemWindowMode::FLOATING_WINDOW_MODE, 
         stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));    
+=======
+ * Function: JudgingTargetSystemWindowMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_095, TestSize.Level1)
+{
+    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE,
+        stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY));
+    EXPECT_EQ(SystemWindowMode::SPLITSCREEN_WINDOW_MODE,
+        stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY));
+    EXPECT_EQ(SystemWindowMode::FLOATING_WINDOW_MODE,
+        stackManager_->JudgingTargetSystemWindowMode(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CheckSplitSrceenCondition
  * SubFunction: NA
  * FunctionPoints: 
@@ -3519,6 +3674,17 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_095, TestSize.
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_096, TestSize.Level1)
 {
    stackManager_->Init();
+=======
+ * Function: CheckSplitSrceenCondition
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_096, TestSize.Level1)
+{
+    stackManager_->Init();
+>>>>>>> upstream/master
 
     // start a ability
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
@@ -3538,18 +3704,30 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_096, TestSize.
     auto topAbilityRecord2 = topMissionRecord->GetTopAbilityRecord();
     topAbilityRecord2->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //return false
+=======
+    // return false
+>>>>>>> upstream/master
     canMove = stackManager_->CheckSplitSrceenCondition(musicAbilityRequest_, topAbilityRecord2);
     EXPECT_FALSE(canMove);
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CheckSplitSrceenCondition
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CheckSplitSrceenCondition
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_097, TestSize.Level1)
 {
@@ -3561,11 +3739,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_097, TestSize.
     auto topAbilityRecord = topMissionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //return true
     auto canMove = stackManager_->CheckSplitSrceenCondition(radioAbilityRequest_, topAbilityRecord);
     EXPECT_TRUE(canMove);
 
     //start singleton ability
+=======
+    // return true
+    auto canMove = stackManager_->CheckSplitSrceenCondition(radioAbilityRequest_, topAbilityRecord);
+    EXPECT_TRUE(canMove);
+
+    // start singleton ability
+>>>>>>> upstream/master
     result = stackManager_->StartAbility(musicSAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord2 = stackManager_->GetTopMissionRecord();
@@ -3578,6 +3764,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_097, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  HandleAbilityDied
  * SubFunction: NA
  * FunctionPoints: 
@@ -3586,6 +3773,16 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_097, TestSize.
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_098, TestSize.Level1)
 {   
+=======
+ * Function: HandleAbilityDied
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_098, TestSize.Level1)
+{
+>>>>>>> upstream/master
     stackManager_->Init();
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
     EXPECT_EQ(0, result);
@@ -3601,7 +3798,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_098, TestSize.
     auto musicAbilityRecord = musicMissionRecord->GetTopAbilityRecord();
     musicAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //get setting
+=======
+    // get setting
+>>>>>>> upstream/master
     auto abilityStartSetting = AbilityStartSetting::GetEmptySetting();
     abilityStartSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY,
         std::to_string(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY));
@@ -3627,28 +3828,48 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_098, TestSize.
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MakeTerminatingAbility
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: MakeTerminatingAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_099, TestSize.Level1)
 {
     auto musicAbilityRecord = AbilityRecord::CreateAbilityRecord(musicAbilityRequest_);
 
+<<<<<<< HEAD
     TerminatingAbility unit{nullptr, -1, nullptr};
+=======
+    TerminatingAbility unit {nullptr, -1, nullptr};
+>>>>>>> upstream/master
     stackManager_->MakeTerminatingAbility(unit, musicAbilityRecord, DEFAULT_INVAL_VALUE, nullptr);
     EXPECT_EQ(unit.abilityRecord, musicAbilityRecord);
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  ConvertWindowModeState
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: ConvertWindowModeState
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0100, TestSize.Level1)
 {
@@ -3660,11 +3881,16 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0100, TestSize
     str = stackManager_->ConvertWindowModeState(SystemWindowMode::FLOATING_WINDOW_MODE);
     EXPECT_EQ(str, "floating window mode");
     str = stackManager_->ConvertWindowModeState(SystemWindowMode::FLOATING_AND_SPLITSCREEN_WINDOW_MODE);
+<<<<<<< HEAD
     EXPECT_EQ(str, "floating and split screen window mode"); 
+=======
+    EXPECT_EQ(str, "floating and split screen window mode");
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  SortPreMission
  * SubFunction: NA
  * FunctionPoints: 
@@ -3675,6 +3901,18 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0101, TestSize
 {
     auto mission = std::make_shared<MissionRecord>("test_one"); 
     auto nextMission = std::make_shared<MissionRecord>("test_two"); 
+=======
+ * Function: SortPreMission
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0101, TestSize.Level1)
+{
+    auto mission = std::make_shared<MissionRecord>("test_one");
+    auto nextMission = std::make_shared<MissionRecord>("test_two");
+>>>>>>> upstream/master
 
     auto preMission = nextMission->GetPreMissionRecord();
     EXPECT_TRUE(nullptr == preMission);
@@ -3687,11 +3925,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0101, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetRecordBySplitScreenMode
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetRecordBySplitScreenMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0102, TestSize.Level1)
 {
@@ -3717,22 +3963,37 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0102, TestSize
 
     EXPECT_TRUE(targetAbilityRecord);
     EXPECT_TRUE(targetMissionRecord);
+<<<<<<< HEAD
     
+=======
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetRecordBySplitScreenMode
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetRecordBySplitScreenMode
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0103, TestSize.Level1)
 {
     stackManager_->Init();
 
+<<<<<<< HEAD
     //start sa ability
+=======
+    // start sa ability
+>>>>>>> upstream/master
     auto result = stackManager_->StartAbility(musicSAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
@@ -3753,16 +4014,27 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0103, TestSize
 
     EXPECT_TRUE(targetAbilityRecord);
     EXPECT_TRUE(targetMissionRecord);
+<<<<<<< HEAD
     
+=======
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CheckMultiWindowCondition
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CheckMultiWindowCondition
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0104, TestSize.Level1)
 {
@@ -3793,21 +4065,33 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0104, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CheckMultiWindowCondition
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CheckMultiWindowCondition
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0105, TestSize.Level1)
 {
     stackManager_->Init();
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
     auto result = stackManager_->StartAbility(radioAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
     auto topAbilityRecord = topMissionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+<<<<<<< HEAD
 
     std::list<MissionOption> missionOptions;
 
@@ -3819,15 +4103,32 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0105, TestSize
     auto ref = stackManager_->CheckMultiWindowCondition(missionOptions);
     EXPECT_EQ(ERR_OK, ref);
 
+=======
+    std::list<MissionOption> missionOptions;
+    MissionOption mission;
+    mission.missionId = topMissionRecord->GetMissionRecordId();
+    mission.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
+    missionOptions.push_back(mission);
+    auto ref = stackManager_->CheckMultiWindowCondition(missionOptions);
+    EXPECT_EQ(ERR_OK, ref);
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  EmplaceMissionToStack
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: EmplaceMissionToStack
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0106, TestSize.Level1)
 {
@@ -3855,17 +4156,29 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0106, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  SortRecentMissions
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: SortRecentMissions
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0107, TestSize.Level1)
 {
     stackManager_->Init();
 
+<<<<<<< HEAD
     //Start two singleton applications in the floating window stack
+=======
+    // Start two singleton applications in the floating window stack
+>>>>>>> upstream/master
     auto result = stackManager_->StartAbility(musicSAbilityRequest_);
     EXPECT_EQ(0, result);
     auto musicMissionRecord = stackManager_->GetTopMissionRecord();
@@ -3878,7 +4191,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0107, TestSize
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //Music application at the bottom of the stack
+=======
+    // Music application at the bottom of the stack
+>>>>>>> upstream/master
     std::vector<MissionRecordInfo> missionInfos;
     for (auto &stack : stackManager_->missionStackList_) {
         EXPECT_TRUE(stack);
@@ -3888,24 +4205,40 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0107, TestSize
     auto frontMission = missionInfos.back();
     EXPECT_EQ(frontMission.id, musicMissionRecord->GetMissionRecordId());
 
+<<<<<<< HEAD
     //The value of who updates first is small
+=======
+    // The value of who updates first is small
+>>>>>>> upstream/master
     radioMissionRecord->UpdateActiveTimestamp();
     musicMissionRecord->UpdateActiveTimestamp();
 
     stackManager_->SortRecentMissions(missionInfos);
 
+<<<<<<< HEAD
     //The radio application is at the bottom of the stack
+=======
+    // The radio application is at the bottom of the stack
+>>>>>>> upstream/master
     frontMission = missionInfos.front();
     EXPECT_EQ(frontMission.id, radioMissionRecord->GetMissionRecordId());
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  SortAndGetLastActiveAbility
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: SortAndGetLastActiveAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0108, TestSize.Level1)
 {
@@ -3945,34 +4278,55 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0108, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MakeTerminatingAbility
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: MakeTerminatingAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0109, TestSize.Level1)
 {
     auto musicAbilityRecord = AbilityRecord::CreateAbilityRecord(musicAbilityRequest_);
 
+<<<<<<< HEAD
     TerminatingAbility unit{nullptr, -1, nullptr};
+=======
+    TerminatingAbility unit {nullptr, -1, nullptr};
+>>>>>>> upstream/master
     stackManager_->MakeTerminatingAbility(unit, musicAbilityRecord, DEFAULT_INVAL_VALUE, nullptr);
     EXPECT_EQ(unit.abilityRecord, musicAbilityRecord);
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetTargetChangeType
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetTargetChangeType
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize.Level1)
 {
     stackManager_->Init();
 
     int ACTIVE = 0;
+<<<<<<< HEAD
     // int CHANGE = 1;
     int DEFAULT = 2;
 
@@ -3984,6 +4338,17 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize
     std::shared_ptr<AbilityRecord> needBackgroundAbility{nullptr};
 
     //1
+=======
+    int DEFAULT = 2;
+
+    bool isMissionChanged {false};
+    bool isStackChanged {false};
+    bool isCurrentFull {false};
+    bool isTargetFull {false};
+
+    std::shared_ptr<AbilityRecord> needBackgroundAbility {nullptr};
+
+>>>>>>> upstream/master
     auto ref = stackManager_->GetTargetChangeType(isMissionChanged, isStackChanged, isCurrentFull, isTargetFull,
         nullptr, nullptr, needBackgroundAbility);
     EXPECT_EQ(DEFAULT, ref);
@@ -4002,7 +4367,10 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize
 
     auto targetAbility = AbilityRecord::CreateAbilityRecord(musicAbilityRequest_);
 
+<<<<<<< HEAD
     //2
+=======
+>>>>>>> upstream/master
     isMissionChanged = true;
     isStackChanged = true;
     ref = stackManager_->GetTargetChangeType(isMissionChanged, isStackChanged, isCurrentFull, isTargetFull,
@@ -4010,7 +4378,10 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize
     EXPECT_EQ(ACTIVE, ref);
     EXPECT_FALSE(needBackgroundAbility);
 
+<<<<<<< HEAD
     //3
+=======
+>>>>>>> upstream/master
     isMissionChanged = true;
     isStackChanged = true;
     isCurrentFull = true;
@@ -4018,17 +4389,28 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize
         nullptr, targetAbility, needBackgroundAbility);
     EXPECT_EQ(ACTIVE, ref);
     EXPECT_FALSE(needBackgroundAbility);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
 }
 
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  OnTimeOut
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: OnTimeOut
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize.Level1)
 {
@@ -4047,20 +4429,35 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize
     EXPECT_EQ(ERR_OK, result1);
 
     auto lockState = stackManager_->GetMissionLockModeState();
+<<<<<<< HEAD
     EXPECT_EQ((LockMissionContainer::LockMissionState)lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 
     stackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, topAbilityRecord->GetEventId());
 
     //EXPECT_NE((LockMissionContainer::LockMissionState)lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
+=======
+    EXPECT_EQ((LockMissionContainer::LockMissionState)lockState,
+        LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
+
+    stackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, topAbilityRecord->GetEventId());
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  TerminateAbilityLocked, RemoveTerminatingAbility
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: TerminateAbilityLocked, RemoveTerminatingAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0112, TestSize.Level1)
 {
@@ -4083,7 +4480,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0112, TestSize
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //start split screen
+=======
+    // start split screen
+>>>>>>> upstream/master
     MissionOption missionOption;
     missionOption.missionId = musicMissionRecord->GetMissionRecordId();
     missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
@@ -4115,17 +4516,28 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0112, TestSize
     int terminalNum = 2;
     int size = terminateLists.size();
     EXPECT_EQ(terminalNum, size);
+<<<<<<< HEAD
 
     //Supplement others
+=======
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CompleteMoveMissionToStack
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CompleteMoveMissionToStack
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0113, TestSize.Level1)
 {
@@ -4157,11 +4569,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0113, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetRecentMissionsLocked
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetRecentMissionsLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0114, TestSize.Level1)
 {
@@ -4183,16 +4603,27 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0114, TestSize
     auto radioMissionRecord = stackManager_->GetTopMissionRecord();
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MoveMissionToEnd
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: MoveMissionToEnd
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0115, TestSize.Level1)
 {
@@ -4215,8 +4646,13 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0115, TestSize
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //start split screen
      MissionOption missionOption;
+=======
+    // start split screen
+    MissionOption missionOption;
+>>>>>>> upstream/master
     missionOption.missionId = musicMissionRecord->GetMissionRecordId();
     missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
 
@@ -4239,11 +4675,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0115, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MoveMissionToEnd
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: MoveMissionToEnd
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0116, TestSize.Level1)
 {
@@ -4266,7 +4710,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0116, TestSize
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //start split screen
+=======
+    // start split screen
+>>>>>>> upstream/master
     MissionOption missionOption;
     missionOption.missionId = musicMissionRecord->GetMissionRecordId();
     missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
@@ -4288,11 +4736,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0116, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  DispatchLifecycle
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: DispatchLifecycle
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0117, TestSize.Level1)
 {
@@ -4315,20 +4771,34 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0117, TestSize
     auto radioAbility = stackManager_->GetCurrentTopAbility();
     EXPECT_TRUE(radioAbility);
 
+<<<<<<< HEAD
        musicTopAbility->SetAbilityState(OHOS::AAFwk::BACKGROUND);
     auto ref = stackManager_->DispatchLifecycle(musicTopAbility, radioAbility, false);
     EXPECT_EQ(ERR_OK, ref);
 
     // EXPECT_EQ(musicTopAbility->GetInMovingState(), true);
+=======
+    musicTopAbility->SetAbilityState(OHOS::AAFwk::BACKGROUND);
+    auto ref = stackManager_->DispatchLifecycle(musicTopAbility, radioAbility, false);
+    EXPECT_EQ(ERR_OK, ref);
+>>>>>>> upstream/master
 }
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  DispatchLifecycle
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: DispatchLifecycle
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0118, TestSize.Level1)
 {
@@ -4359,11 +4829,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0118, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetRecentMissionsLocked
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetRecentMissionsLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0119, TestSize.Level1)
 {
@@ -4386,7 +4864,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0119, TestSize
     auto radioAbilityRecord = radioMissionRecord->GetTopAbilityRecord();
     radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
+<<<<<<< HEAD
     //start split screen
+=======
+    // start split screen
+>>>>>>> upstream/master
     MissionOption missionOption;
     missionOption.missionId = musicMissionRecord->GetMissionRecordId();
     missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
@@ -4407,7 +4889,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0119, TestSize
     auto currentStack = stackManager_->GetCurrentMissionStack();
     EXPECT_EQ(LAUNCHER_MISSION_STACK_ID, currentStack->GetMissionStackId());
 
+<<<<<<< HEAD
     //get recent list
+=======
+    // get recent list
+>>>>>>> upstream/master
     std::vector<AbilityMissionInfo> recentList;
     int getMaxNum = 1;
     int flag = RECENT_WITH_EXCLUDED;
@@ -4419,11 +4905,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0119, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetMissionRecordAndAbilityRecord
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetMissionRecordAndAbilityRecord
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0120, TestSize.Level1)
 {
@@ -4445,7 +4939,12 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0120, TestSize
 
     musicAbilityRequest_.startSetting = abilityStartSetting;
 
+<<<<<<< HEAD
     stackManager_->GetMissionRecordAndAbilityRecord(musicAbilityRequest_, topAbilityRecord, targetAbilityRecord, targetMissionRecord);
+=======
+    stackManager_->GetMissionRecordAndAbilityRecord(
+        musicAbilityRequest_, topAbilityRecord, targetAbilityRecord, targetMissionRecord);
+>>>>>>> upstream/master
 
     EXPECT_TRUE(targetAbilityRecord);
     EXPECT_TRUE(targetMissionRecord);
@@ -4453,11 +4952,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0120, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetMissionRecordAndAbilityRecord
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetMissionRecordAndAbilityRecord
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0121, TestSize.Level1)
 {
@@ -4479,7 +4986,12 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0121, TestSize
 
     musicAbilityRequest_.startSetting = abilityStartSetting;
 
+<<<<<<< HEAD
     stackManager_->GetMissionRecordAndAbilityRecord(musicAbilityRequest_, topAbilityRecord, targetAbilityRecord, targetMissionRecord);
+=======
+    stackManager_->GetMissionRecordAndAbilityRecord(
+        musicAbilityRequest_, topAbilityRecord, targetAbilityRecord, targetMissionRecord);
+>>>>>>> upstream/master
 
     EXPECT_TRUE(targetAbilityRecord);
     EXPECT_TRUE(targetMissionRecord);
@@ -4487,11 +4999,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0121, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetTargetMissionStackBySetting
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetTargetMissionStackBySetting
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0122, TestSize.Level1)
 {
@@ -4504,11 +5024,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0122, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetTargetMissionStackBySetting
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetTargetMissionStackBySetting
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0123, TestSize.Level1)
 {
@@ -4528,11 +5056,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0123, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetTargetMissionStackBySetting
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetTargetMissionStackBySetting
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0124, TestSize.Level1)
 {
@@ -4552,11 +5088,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0124, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  MoveMissionAndAbility
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: MoveMissionAndAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0125, TestSize.Level1)
 {
@@ -4582,17 +5126,29 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0125, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  StartAbilityAsSpecialLocked
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: StartAbilityAsSpecialLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0126, TestSize.Level1)
 {
     stackManager_->Init();
 
+<<<<<<< HEAD
      // start a luncher
+=======
+    // start a luncher
+>>>>>>> upstream/master
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
@@ -4618,11 +5174,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0126, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  StartAbility, StartAbilityAsSpecialLocked
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: StartAbility, StartAbilityAsSpecialLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0127, TestSize.Level1)
 {
@@ -4656,17 +5220,29 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0127, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  StartAbility, StartAbilityLifeCycle
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: StartAbility, StartAbilityLifeCycle
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0128, TestSize.Level1)
 {
     stackManager_->Init();
 
+<<<<<<< HEAD
      // start a luncher
+=======
+    // start a luncher
+>>>>>>> upstream/master
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
@@ -4702,11 +5278,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0128, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CompleteActive
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CompleteActive
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0129, TestSize.Level1)
 {
@@ -4730,11 +5314,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0129, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CompleteInactive
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CompleteInactive
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0130, TestSize.Level1)
 {
@@ -4760,11 +5352,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0130, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  CompleteBackground
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: CompleteBackground
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0131, TestSize.Level1)
 {
@@ -4791,11 +5391,19 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0131, TestSize
 
 /*
  * Feature: AbilityStackManager
+<<<<<<< HEAD
  * Function:  GetMaxHoldMissionsByStackId
  * SubFunction: NA
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+ * Function: GetMaxHoldMissionsByStackId
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0132, TestSize.Level1)
 {
@@ -4822,6 +5430,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0132, TestSize
     EXPECT_EQ(11, stackManager_->GetMaxHoldMissionsByStackId(stackTwo.stackId));
     EXPECT_EQ(10, stackManager_->GetMaxHoldMissionsByStackId(stackOne.stackId));
     EXPECT_EQ(DEFAULT_INVAL_VALUE, stackManager_->GetMaxHoldMissionsByStackId(-1));
+<<<<<<< HEAD
 
 }
 
@@ -4833,6 +5442,17 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0132, TestSize
  * FunctionPoints: 
  * EnvConditions: NA
  * CaseDescription: 
+=======
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: SupportSyncVisualByStackId
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+>>>>>>> upstream/master
  */
 HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0133, TestSize.Level1)
 {
@@ -4855,8 +5475,12 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0133, TestSize
     EXPECT_TRUE(stackManager_->SupportSyncVisualByStackId(stackThree.stackId));
     EXPECT_TRUE(stackManager_->SupportSyncVisualByStackId(stackTwo.stackId));
     EXPECT_FALSE(stackManager_->SupportSyncVisualByStackId(stackOne.stackId));
+<<<<<<< HEAD
 
 }
 
+=======
+}
+>>>>>>> upstream/master
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -114,9 +114,14 @@ public:
 
 void AbilityDumpTest::OnStartAms()
 {
+<<<<<<< HEAD
     if(g_abilityMs){
 
         if(g_abilityMs->state_ == ServiceRunningState::STATE_RUNNING) {
+=======
+    if (g_abilityMs) {
+        if (g_abilityMs->state_ == ServiceRunningState::STATE_RUNNING) {
+>>>>>>> upstream/master
             return;
         }
    
@@ -187,7 +192,11 @@ void AbilityDumpTest::StartAbilityes()
 {
     EXPECT_TRUE(g_abilityMs->currentStackManager_);
     auto currentTopAbilityRecord = g_abilityMs->currentStackManager_->GetCurrentTopAbility();
+<<<<<<< HEAD
     if(currentTopAbilityRecord) {
+=======
+    if (currentTopAbilityRecord) {
+>>>>>>> upstream/master
         currentTopAbilityRecord->SetAbilityState(AbilityState::ACTIVE);
     }
     

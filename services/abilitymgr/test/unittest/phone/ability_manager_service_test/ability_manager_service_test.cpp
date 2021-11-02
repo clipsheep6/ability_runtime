@@ -115,9 +115,14 @@ int AbilityManagerServiceTest::StartAbility(const Want &want)
 
 void AbilityManagerServiceTest::OnStartAms()
 {
+<<<<<<< HEAD
     if(abilityMs_){
 
         if(abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
+=======
+    if (abilityMs_) {
+        if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
+>>>>>>> upstream/master
             return;
         }
    
@@ -706,7 +711,11 @@ HWTEST_F(AbilityManagerServiceTest, Interface_016, TestSize.Level1)
     GTEST_LOG_(INFO) << "topMissionId " << topMissionId;
     EXPECT_FALSE(abilityMs_->GetStackManager()->IsLauncherMission(topMissionId));
 
+<<<<<<< HEAD
     //remove current music mission 
+=======
+    // remove current music mission
+>>>>>>> upstream/master
     EXPECT_EQ(abilityMs_->RemoveMission(topMissionId), ERR_OK);
 
     auto result1 = StartAbility(launcherWant);
@@ -1910,7 +1919,11 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_008, TestSize.Level1)
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
     
+<<<<<<< HEAD
     //helloAbility inactive
+=======
+    // helloAbility inactive
+>>>>>>> upstream/master
     stackManager->CompleteInactive(ability);
 
     auto stackManagerTv = abilityMs_->GetStackManager();
@@ -1956,7 +1969,11 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_009, TestSize.Level1)
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
     
+<<<<<<< HEAD
     //helloAbility inactive
+=======
+    // helloAbility inactive
+>>>>>>> upstream/master
     stackManager->CompleteInactive(ability);
 
     auto stackManagerTv = abilityMs_->GetStackManager();
@@ -2001,7 +2018,11 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_010, TestSize.Level1)
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
 
+<<<<<<< HEAD
     //helloAbility inactive
+=======
+    // helloAbility inactive
+>>>>>>> upstream/master
     stackManager->CompleteInactive(ability);
 
     auto stackManagerTv = abilityMs_->GetStackManager();
@@ -2046,7 +2067,11 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_011, TestSize.Level1)
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
 
+<<<<<<< HEAD
     //helloAbility inactive
+=======
+    // helloAbility inactive
+>>>>>>> upstream/master
     stackManager->DispatchInactive(ability, INACTIVE);
 
     auto stackManagerTv = abilityMs_->GetStackManager();
@@ -2086,7 +2111,11 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_012, TestSize.Level1)
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
 
+<<<<<<< HEAD
     //helloAbility inactive
+=======
+    // helloAbility inactive
+>>>>>>> upstream/master
     stackManager->DispatchInactive(ability, INACTIVE);
 
     auto stackManagerTv = abilityMs_->GetStackManager();
