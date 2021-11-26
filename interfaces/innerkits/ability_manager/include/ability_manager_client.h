@@ -337,7 +337,7 @@ public:
      */
     int GetMissionLockModeState();
 
-    int UpdateConfiguration(const DummyConfiguration &config);
+    int UpdateConfiguration(const AppExecFwk::Configuration &config);
 
     sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
 

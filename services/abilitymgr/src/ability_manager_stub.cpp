@@ -636,7 +636,7 @@ int AbilityManagerStub::GetMissionLockModeStateInner(MessageParcel &data, Messag
 
 int AbilityManagerStub::UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<DummyConfiguration> config(data.ReadParcelable<DummyConfiguration>());
+    std::unique_ptr<AppExecFwk::Configuration> config(data.ReadParcelable<AppExecFwk::Configuration>());
     if (config == nullptr) {
         HILOG_ERROR("AbilityManagerStub: config is nullptr");
         return ERR_INVALID_VALUE;

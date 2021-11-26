@@ -12,19 +12,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_CONFIGURATION_HOLDER_H
-#define OHOS_AAFWK_CONFIGURATION_HOLDER_H
 
-#include "configuration.h"
+#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_GLOBAL_CONFIGURATION_KEY_H
+#define OHOS_AAFWK_INTERFACES_INNERKITS_GLOBAL_CONFIGURATION_KEY_H
+
+#include <string>
 
 namespace OHOS {
 namespace AAFwk {
-class ConfigurationHolder {
-public:
-    virtual ~ConfigurationHolder(){};
-    virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
-    virtual int GetId() = 0;
-};
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_AAFWK_CONFIGURATION_HOLDER_H
+namespace GlobalConfigurationKey {
+
+    /* For the time being, there is no uniform standard */
+    static const std::string SYSTEM_LANGUAGE {"ohos.system.language"};
+
+} // namespace GlobalConfigurationKey
+} // namespace AAFwk
+} // namespace OHOS
+
+#endif // OHOS_AAFWK_INTERFACES_INNERKITS_GLOBAL_CONFIGURATION_KEY_H

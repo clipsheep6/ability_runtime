@@ -404,7 +404,7 @@ ErrCode AbilityManagerClient::GetMissionLockModeState()
     return abms->GetMissionLockModeState();
 }
 
-ErrCode AbilityManagerClient::UpdateConfiguration(const DummyConfiguration &config)
+ErrCode AbilityManagerClient::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);

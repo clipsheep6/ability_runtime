@@ -13,43 +13,43 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
-#define OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
-
-#include "gmock/gmock.h"
-#include "ability_manager_interface.h"
+#ifndef ABILITY_UNITTEST_ABILITY_MANAGER_STUB_MOCK_H
+#define ABILITY_UNITTEST_ABILITY_MANAGER_STUB_MOCK_H
+#include <gmock/gmock.h>
+#include <iremote_object.h>
+#include <iremote_stub.h>
 #include "hilog_wrapper.h"
-#include "iremote_proxy.h"
+#include "ability_manager_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
-class MockAbilityManagerProxy : public IRemoteProxy<IAbilityManager> {
+class AbilityManagerStubMock : public IRemoteStub<IAbilityManager> {
 public:
-    explicit MockAbilityManagerProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAbilityManager>(impl)
+    DECLARE_INTERFACE_DESCRIPTOR(u"IAbilityManagerMock");
+
+    AbilityManagerStubMock()
     {}
-    virtual ~MockAbilityManagerProxy()
+    virtual ~AbilityManagerStubMock()
     {}
 
-    MOCK_METHOD2(StartAbility, int(const Want &want, int requestCode));
-    MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant));
-    MOCK_METHOD3(ConnectAbility,
-        int(const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken));
-    MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &connect));
+    MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
+    MOCK_METHOD2(StartAbility, int(const Want &, int));
+    MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &, int, const Want *));
+    MOCK_METHOD3(ConnectAbility, int(const Want &, const sptr<IAbilityConnection> &, const sptr<IRemoteObject> &));
+
+    MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &));
     MOCK_METHOD3(AcquireDataAbility, sptr<IAbilityScheduler>(const Uri &, bool, const sptr<IRemoteObject> &));
     MOCK_METHOD2(ReleaseDataAbility, int(sptr<IAbilityScheduler>, const sptr<IRemoteObject> &));
-    MOCK_METHOD2(AddWindowInfo, void(const sptr<IRemoteObject> &token, int32_t windowToken));
-    MOCK_METHOD2(AttachAbilityThread, int(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token));
-    MOCK_METHOD2(AbilityTransitionDone, int(const sptr<IRemoteObject> &token, int state));
-    MOCK_METHOD2(
-        ScheduleConnectAbilityDone, int(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject));
-    MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject> &token));
+    MOCK_METHOD2(AddWindowInfo, void(const sptr<IRemoteObject> &, int32_t));
+    MOCK_METHOD2(AttachAbilityThread, int(const sptr<IAbilityScheduler> &, const sptr<IRemoteObject> &));
+    MOCK_METHOD3(AbilityTransitionDone, int(const sptr<IRemoteObject> &, int, const PacMap &));
+    MOCK_METHOD2(ScheduleConnectAbilityDone, int(const sptr<IRemoteObject> &, const sptr<IRemoteObject> &));
+    MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject> &));
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject> &));
-    MOCK_METHOD2(DumpState, void(const std::string &args, std::vector<std::string> &state));
-    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject> &, int startId));
+    MOCK_METHOD2(DumpState, void(const std::string &, std::vector<std::string> &));
+    MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject> &, int));
     MOCK_METHOD1(StopServiceAbility, int(const Want &));
-    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
+    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &));
     MOCK_METHOD3(GetRecentMissions, int(const int32_t, const int32_t, std::vector<AbilityMissionInfo> &));
     MOCK_METHOD2(GetMissionSnapshot, int(const int32_t, MissionSnapshotInfo &));
     MOCK_METHOD1(RemoveMission, int(int));
@@ -57,7 +57,6 @@ public:
     MOCK_METHOD1(MoveMissionToTop, int(int32_t));
     MOCK_METHOD1(KillProcess, int(const std::string &));
     MOCK_METHOD1(UninstallApp, int(const std::string &));
-    MOCK_METHOD4(OnRemoteRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD2(MoveMissionToEnd, int(const sptr<IRemoteObject> &token, const bool nonFirst));
@@ -75,6 +74,7 @@ public:
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender> &sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender> &target));
+    MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender> &target));
     MOCK_METHOD1(GetPendingWantBundleName, std::string(const sptr<IWantSender> &target));
     MOCK_METHOD1(GetPendingWantCode, int(const sptr<IWantSender> &target));
     MOCK_METHOD1(GetPendingWantType, int(const sptr<IWantSender> &target));
@@ -82,15 +82,22 @@ public:
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
 
-    MOCK_METHOD2(MoveMissionToEnd, int(const sptr<IRemoteObject> &token, const bool nonFirst));
-    MOCK_METHOD1(IsFirstInMission, bool(const sptr<IRemoteObject> &token));
-    MOCK_METHOD4(CompelVerifyPermission, int(const std::string &permission, int pid, int uid, std::string &message));
-    MOCK_METHOD0(PowerOff, int());
-    MOCK_METHOD0(PowerOn, int());
-    MOCK_METHOD1(GetPendingWantUserId, int(const sptr<IWantSender> &target));
-public:
-    int id_;
+    MOCK_METHOD4(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
+                                   const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD1(MoveMissionToFloatingStack, int(const MissionOption &missionOption));
+    MOCK_METHOD2(MoveMissionToSplitScreenStack, int(const MissionOption &primary, const MissionOption &secondary));
+    MOCK_METHOD2(
+        ChangeFocusAbility, int(const sptr<IRemoteObject> &lostFocusToken, const sptr<IRemoteObject> &getFocusToken));
+    MOCK_METHOD1(MinimizeMultiWindow, int(int missionId));
+    MOCK_METHOD1(GetFloatingMissions, int(std::vector<AbilityMissionInfo> &list));
+    MOCK_METHOD1(CloseMultiWindow, int(int missionId));
+    MOCK_METHOD1(SetMissionStackSetting, int(const StackSetting &stackSetting));
+    MOCK_METHOD1(MaximizeMultiWindow, int(int missionId));
+    MOCK_METHOD1(ChangeFocusTest, void(const std::vector<int> missionId));
+    MOCK_METHOD1(TerminateAbilityTest, void(int id));
+    MOCK_METHOD1(MoveMissionToEnd, int(int id));
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
+
+#endif

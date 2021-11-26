@@ -14,31 +14,26 @@
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
 
-module_output_path = "aafwk_standard/mstabilitymgrservice"
+module_output_path = "aafwk_standard/abilitymgr"
 
-ohos_moduletest("IpcAbilitySchedulerModuleTest") {
+ohos_unittest("configuration_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "//third_party/jsoncpp/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager/include",
+    "${services_path}/abilitymgr/test/mock/libs/system_ability_mock",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/aafwk/standard/services/abilitymgr/test/mock/libs/ability_scheduler_mock",
+    "//foundation/aafwk/standard/services/abilitymgr/test/mock/include",
   ]
 
   sources = [
-    "${services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${services_path}/abilitymgr/src/caller_info.cpp",
-    "${services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "//foundation/aafwk/standard/frameworks/kits/content/cpp/src/ohos/aafwk/content/pac_map.cpp",
-    "//foundation/appexecfwk/standard/common/log/src/app_log_wrapper.cpp",
+    "//foundation/aafwk/standard/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
+    "configuration_test.cpp",  # add mock file
   ]
 
-  sources += [ "ipc_ability_scheduler_module_test.cpp" ]
-
   configs = [
-    "${services_path}/test:aafwk_module_test_config",
-    "//foundation/appexecfwk/standard/common:appexecfwk_common_config",
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want_public_config",
+    "${services_path}/abilitymgr:abilityms_config",
+    "${services_path}/abilitymgr/test/mock:aafwk_mock_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -46,29 +41,30 @@ ohos_moduletest("IpcAbilitySchedulerModuleTest") {
   }
   deps = [
     "${innerkits_path}/want:want",
+    "${services_path}/abilitymgr/test:abilityms_test_source",
+    "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
+    "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
+    "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
+    "//foundation/aafwk/standard/services/abilitymgr:abilityms",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utilsbase",
+    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "native_appdatamgr:native_appdatafwk",
-    "native_appdatamgr:native_dataability",
-    "native_appdatamgr:native_rdb",
   ]
 }
 
-group("moduletest") {
+group("unittest") {
   testonly = true
 
-  deps = [ ":IpcAbilitySchedulerModuleTest" ]
+  deps = [ ":configuration_test" ]
 }
