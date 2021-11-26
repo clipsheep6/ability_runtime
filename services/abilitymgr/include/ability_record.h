@@ -667,20 +667,14 @@ public:
     void SetAppState(const AppState &state);
     AppState GetAppState() const;
 
-    unsigned int GetIntConfigChanges();
     void ClearFlag();
 
     void SetMovingBackgroundFlag(bool isMoving);
     bool IsMovingBackground() const;
 
-    void SetConfiguration(const std::shared_ptr<DummyConfiguration> &config);
+    void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
-protected:
-    virtual bool OnConfigurationChanged(const DummyConfiguration &config, unsigned int configChanges) override;
-    virtual std::shared_ptr<ConfigurationHolder> GetParent() override;
-    virtual unsigned int GetChildSize() override;
-    virtual std::shared_ptr<ConfigurationHolder> FindChild(unsigned int index) override;
-
+    int GetId() override;
 private:
     /**
      * get the type of ability.

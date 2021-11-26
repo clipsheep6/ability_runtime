@@ -3182,58 +3182,6 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_084, TestSize.
 
 /*
  * Feature: AbilityStackManager
- * Function: ProcessConfigurationChange
- * SubFunction: NA
- * FunctionPoints: Process Configuration Change
- * EnvConditions: NA
- * CaseDescription: Process Configuration Change
- */
-HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_085, TestSize.Level1)
-{
-    stackManager_->Init();
-    EXPECT_TRUE(stackManager_);
-    stackManager_->missionStackList_.clear();
-    std::shared_ptr<MissionStack> mission = nullptr;
-    stackManager_->missionStackList_.push_back(mission);
-    EXPECT_EQ(ERR_INVALID_VALUE, stackManager_->ProcessConfigurationChange());
-}
-
-/*
- * Feature: AbilityStackManager
- * Function: ProcessConfigurationChange
- * SubFunction: NA
- * FunctionPoints: Process Configuration Change
- * EnvConditions: NA
- * CaseDescription: Process Configuration Change
- */
-HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_086, TestSize.Level1)
-{
-    stackManager_->Init();
-    EXPECT_TRUE(stackManager_);
-    stackManager_->missionStackList_.clear();
-    stackManager_->missionStackList_.push_back(stackManager_->launcherMissionStack_);
-
-    std::string bundleName = "ddddd";
-    auto mission = std::make_shared<MissionRecord>(bundleName);
-    EXPECT_TRUE(mission);
-    mission->RemoveAll();
-    Want want_;
-    AbilityInfo abilityInfo_;
-    ApplicationInfo appInfo_;
-    auto ability = std::make_shared<AbilityRecord>(want_, abilityInfo_, appInfo_);
-    EXPECT_TRUE(ability);
-    mission->abilities_.push_back(ability);
-    stackManager_->launcherMissionStack_->RemoveAll();
-    stackManager_->launcherMissionStack_->AddMissionRecordToTop(mission);
-    AbilityRecordInfo abilityInfo;
-    ability->GetAbilityRecordInfo(abilityInfo);
-    auto abilityRecord = mission->GetAbilityRecordById(abilityInfo.id);
-    EXPECT_TRUE(abilityRecord);
-    abilityRecord->SetAbilityState(AbilityState::ACTIVE);
-}
-
-/*
- * Feature: AbilityStackManager
  * Function: GenerateMissinOptionsOfSplitScreen
  * SubFunction: NA
  * FunctionPoints: creat splitscerenn mission option

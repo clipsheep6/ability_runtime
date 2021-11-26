@@ -1337,5 +1337,16 @@ bool AbilityContext::SetMissionInformation(const MissionInformation &missionInfo
     return ContextContainer::SetMissionInformation(missionInformation);
 }
 
+/**
+ * set lock screen white list
+ *
+ * @param isAwakenScreen is it allow wake up screen.
+ *
+ */
+void AbilityContext::SetShowOnLockScreen(bool isAwakenScreen)
+{
+    ContextContainer::SetShowOnLockScreen(isAwakenScreen);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

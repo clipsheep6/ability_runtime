@@ -12,19 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_CONFIGURATION_HOLDER_H
-#define OHOS_AAFWK_CONFIGURATION_HOLDER_H
+#ifndef OHOS_APPEXECFWK_MOCK_CONTEXT_DEAL_H
+#define OHOS_APPEXECFWK_MOCK_CONTEXT_DEAL_H
 
-#include "configuration.h"
+#include "gmock/gmock.h"
+
+#include "context_deal.h"
 
 namespace OHOS {
-namespace AAFwk {
-class ConfigurationHolder {
+namespace AppExecFwk {
+
+class MockContextDeal : public ContextDeal {
 public:
-    virtual ~ConfigurationHolder(){};
-    virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
-    virtual int GetId() = 0;
+    MockContextDeal() = default;
+    virtual ~MockContextDeal() = default;
+
+    MOCK_METHOD1(SetShowOnLockScreen, void(bool));
+
 };
-}  // namespace AAFwk
+
+}  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_CONFIGURATION_HOLDER_H
+
+#endif /* OHOS_APPEXECFWK_MOCK_CONTEXT_DEAL_H */

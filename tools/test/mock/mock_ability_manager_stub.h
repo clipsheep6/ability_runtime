@@ -98,7 +98,7 @@ public:
     MOCK_METHOD1(UnlockMission, int(int));
     MOCK_METHOD2(SetMissionDescriptionInfo, int(const sptr<IRemoteObject> &token, const MissionDescriptionInfo &info));
     MOCK_METHOD0(GetMissionLockModeState, int());
-    MOCK_METHOD1(UpdateConfiguration, int(const DummyConfiguration &));
+    MOCK_METHOD1(UpdateConfiguration, int(const AppExecFwk::Configuration &));
     MOCK_METHOD4(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
                                    const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD1(MoveMissionToFloatingStack, int(const MissionOption &missionOption));

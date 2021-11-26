@@ -30,7 +30,7 @@ class MissionStack;
  * @class MissionRecord
  * MissionRecord records mission info and ability records.
  */
-class MissionRecord : public ConfigurationHolder {
+class MissionRecord {
 public:
     MissionRecord(const std::string &bundleName = "");
     MissionRecord(const std::shared_ptr<MissionRecord> &mission);
@@ -224,11 +224,6 @@ public:
 
     void UpdateActiveTimestamp();
     int64_t GetActiveTimestamp() const;
-
-protected:
-    virtual std::shared_ptr<ConfigurationHolder> GetParent() override;
-    virtual unsigned int GetChildSize() override;
-    virtual std::shared_ptr<ConfigurationHolder> FindChild(unsigned int index) override;
 
 private:
     static int nextMissionId_;

@@ -1068,7 +1068,7 @@ int AbilityManagerProxy::GetMissionLockModeState()
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::UpdateConfiguration(const DummyConfiguration &config)
+int AbilityManagerProxy::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     int error;
     MessageParcel data;

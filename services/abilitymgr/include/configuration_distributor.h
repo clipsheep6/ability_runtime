@@ -12,19 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_CONFIGURATION_HOLDER_H
-#define OHOS_AAFWK_CONFIGURATION_HOLDER_H
+#ifndef OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
+#define OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
 
+#include <mutex>
+#include <list>
+#include "configuration_holder.h"
 #include "configuration.h"
+#include "nocopyable.h"
 
 namespace OHOS {
 namespace AAFwk {
-class ConfigurationHolder {
+class ConfigurationDistributor final : public NoCopyable{
 public:
-    virtual ~ConfigurationHolder(){};
-    virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
-    virtual int GetId() = 0;
+    ConfigurationDistributor();
+    ~ConfigurationDistributor();
+    void Atach(const std::weak_ptr<ConfigurationHolder> &ob); 
+    void Detach(const std::weak_ptr<ConfigurationHolder> &ob);
+    void UpdateConfiguration(const AppExecFwk::Configuration &newConfig);
+private:
+    std::list<std::weak_ptr<ConfigurationHolder>> observerList_;
+    std::mutex configLock_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_CONFIGURATION_HOLDER_H
+#endif  // OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
