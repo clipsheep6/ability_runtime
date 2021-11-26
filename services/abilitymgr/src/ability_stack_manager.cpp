@@ -2051,49 +2051,6 @@ int AbilityStackManager::GetMissionLockModeState()
     return lockMissionContainer_->GetLockedMissionState();
 }
 
-int AbilityStackManager::UpdateConfiguration(const DummyConfiguration &config)
-{
-    HILOG_INFO("%{public}s called", __FUNCTION__);
-    std::lock_guard<std::recursive_mutex> guard(stackLock_);
-
-    // update all stack configuration.
-    for (auto &stack : missionStackList_) {
-        CHECK_POINTER_AND_RETURN(stack, ERR_INVALID_VALUE);
-        HILOG_DEBUG("stack id : %{public}d", stack->GetMissionStackId());
-        std::shared_ptr<DummyConfiguration> configSptr = std::make_shared<DummyConfiguration>(config);
-        stack->UpdateConfiguration(configSptr);
-    }
-
-    return ProcessConfigurationChange();
-}
-
-int AbilityStackManager::ProcessConfigurationChange()
-{
-    HILOG_INFO("%{public}s called.", __FUNCTION__);
-
-    // all active ability check whether process onconfigurationchanged
-    for (auto &stack : missionStackList_) {
-        CHECK_POINTER_AND_RETURN(stack, ERR_INVALID_VALUE);
-        HILOG_DEBUG("stack id : %{public}d", stack->GetMissionStackId());
-        std::vector<MissionRecordInfo> missionInfos;
-        stack->GetAllMissionInfo(missionInfos);
-        for (auto &mission : missionInfos) {
-            auto missionRecord = stack->GetMissionRecordById(mission.id);
-            if (!missionRecord) {
-                continue;
-            }
-            for (auto &it : mission.abilityRecordInfos) {
-                auto abilityRecord = missionRecord->GetAbilityRecordById(it.id);
-                if (abilityRecord && abilityRecord->IsAbilityState(AbilityState::ACTIVE)) {
-                    abilityRecord->ProcessConfigurationChange();
-                }
-            }
-        }
-    }
-
-    return ERR_OK;
-}
-
 void AbilityStackManager::RestartAbility(const std::shared_ptr<AbilityRecord> abilityRecord)
 {
     HILOG_INFO("%{public}s called", __FUNCTION__);

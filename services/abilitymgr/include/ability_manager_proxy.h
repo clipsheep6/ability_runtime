@@ -416,7 +416,7 @@ public:
      * @param config Indicates the new configuration
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UpdateConfiguration(const DummyConfiguration &config) override;
+    virtual int UpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) override;

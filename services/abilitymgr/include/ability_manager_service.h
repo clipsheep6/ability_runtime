@@ -463,7 +463,7 @@ public:
      * @param config Indicates the new configuration
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UpdateConfiguration(const DummyConfiguration &config) override;
+    virtual int UpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
     /**
      * remove all service record.
@@ -528,8 +528,10 @@ public:
 
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 
-    int GetMissionSaveTime() const;
+    std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
+    int GetMissionSaveTime() const;
+    
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -608,6 +610,10 @@ private:
      *
      */
     int GetUserId();
+    /**
+     * Determine whether it is a system APP 
+     *
+     */
     bool IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const;
 
     /**
@@ -621,6 +627,11 @@ private:
      *
      */
     void StartSystemApplication();
+    /**
+     * Get parameters from the global
+     *
+     */
+    void GetGlobalConfiguration();
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     int PreLoadAppDataAbilities(const std::string &bundleName);
@@ -659,6 +670,7 @@ private:
     std::shared_ptr<PendingWantManager> pendingWantManager_;
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
+    std::shared_ptr<AppExecFwk::Configuration> configuration_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 };
 

@@ -32,7 +32,7 @@ namespace AAFwk {
  * @class MissionStack
  * MissionStack records mission info.
  */
-class MissionStack : public ConfigurationHolder {
+class MissionStack {
 public:
     MissionStack(int id, int userId);
     virtual ~MissionStack();
@@ -174,12 +174,6 @@ public:
     bool IsEmpty();
 
     std::shared_ptr<MissionRecord> EmplaceMissionRecord(int winModeKey, std::shared_ptr<MissionRecord> mission);
-
-protected:
-    virtual std::shared_ptr<ConfigurationHolder> GetParent() override;
-    virtual unsigned int GetChildSize() override;
-    virtual std::shared_ptr<ConfigurationHolder> FindChild(unsigned int index) override;
-
 private:
     int missionStackId_;
     int userId_;
