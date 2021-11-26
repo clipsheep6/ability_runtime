@@ -30,6 +30,8 @@
 #include "ipc_skeleton.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
+#include "configuration_distributor.h"
+#include "locale_config.h"
 
 using OHOS::AppExecFwk::ElementName;
 
@@ -116,6 +118,9 @@ bool AbilityManagerService::Init()
     CHECK_POINTER_RETURN_BOOL(connectManager_);
     connectManager_->SetEventHandler(handler_);
 
+    // init ConfigurationDistributor
+    DelayedSingleton<ConfigurationDistributor>::GetInstance();
+
     auto dataAbilityManager = std::make_shared<DataAbilityManager>();
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager);
 
@@ -130,6 +135,9 @@ bool AbilityManagerService::Init()
         HILOG_ERROR("Failed to init pending want ability manager.");
         return false;
     }
+
+    configuration_ = std::make_shared<AppExecFwk::Configuration>();
+    GetGlobalConfiguration();
 
     int userId = GetUserId();
     SetStackManager(userId);
@@ -150,6 +158,7 @@ void AbilityManagerService::OnStop()
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
+    DelayedSingleton<ConfigurationDistributor>::DestroyInstance();
 }
 
 ServiceRunningState AbilityManagerService::QueryServiceState() const
@@ -398,15 +407,59 @@ int AbilityManagerService::GetMissionLockModeState()
     return currentStackManager_->GetMissionLockModeState();
 }
 
-int AbilityManagerService::UpdateConfiguration(const DummyConfiguration &config)
+int AbilityManagerService::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     HILOG_INFO("%{public}s called", __func__);
-    CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_INVALID_VALUE);
-    CHECK_POINTER_AND_RETURN(systemAppManager_, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(configuration_, ERR_INVALID_VALUE);
 
-    systemAppManager_->UpdateConfiguration(config);
+    std::vector<std::string> changeKeyV;
+    configuration_->CompareDifferent(changeKeyV, config);
+    HILOG_INFO("changeKeyV size :%{public}d", changeKeyV.size());
+    if (!changeKeyV.empty()) {
+        for (const auto &iter : changeKeyV) {
+            configuration_->Merge(iter, config);
+        }
+        auto FindKeyFromKeychain = [](const std::string &findItemKey, const std::vector<std::string> &keychain) -> int {
+                int amount = 0;
+                if (findItemKey.empty()) {
+                    return amount;
+                }
 
-    return currentStackManager_->UpdateConfiguration(config);
+                for (const auto &it :keychain) {
+                    if (it.find(findItemKey) != std::string::npos) {
+                        ++amount;
+                    }
+                }
+                HILOG_INFO("amount :%{public}d", amount);
+                return amount;
+        };
+        // the part that currently focuses on language 
+        if (FindKeyFromKeychain(GlobalConfigurationKey::SYSTEM_LANGUAGE, changeKeyV) > 0) {
+            DelayedSingleton<ConfigurationDistributor>::GetInstance()->UpdateConfiguration(*configuration_);
+        }
+
+        return ERR_OK;
+    }
+    return ERR_INVALID_VALUE;
+}
+
+void AbilityManagerService::GetGlobalConfiguration()
+{   
+    if (!GetConfiguration()) {
+        HILOG_INFO("configuration_ is null");
+        return;
+    }
+    // Currently only this interface is known 
+    // At present, it only focuses on the language part
+    auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
+    HILOG_INFO("current global language is : %{public}s", language.c_str());
+    // 得有个接口获取 display id.然后才能初始化, 目前默认0
+    GetConfiguration()->AddItem(GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
+}
+
+std::shared_ptr<AppExecFwk::Configuration> AbilityManagerService::GetConfiguration()
+{
+    return configuration_;
 }
 
 int AbilityManagerService::MoveMissionToTop(int32_t missionId)
@@ -749,6 +802,11 @@ int AbilityManagerService::AttachAbilityThread(
 
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     auto type = abilityInfo.type;
+
+    if (type != AppExecFwk::AbilityType::DATA){
+        DelayedSingleton<ConfigurationDistributor>::GetInstance()->Atach(abilityRecord);
+    }
+    
     if (type == AppExecFwk::AbilityType::SERVICE) {
         return connectManager_->AttachAbilityThreadLocked(scheduler, token);
     }
@@ -758,6 +816,7 @@ int AbilityManagerService::AttachAbilityThread(
     if (IsSystemUiApp(abilityInfo)) {
         return systemAppManager_->AttachAbilityThread(scheduler, token);
     }
+
     return currentStackManager_->AttachAbilityThread(scheduler, token);
 }
 
@@ -913,6 +972,14 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     HILOG_DEBUG("state:%{public}d  name:%{public}s", state, abilityInfo.name.c_str());
     auto type = abilityInfo.type;
+
+    if (type != AppExecFwk::AbilityType::DATA) {
+        int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+        if (targetState == AbilityState::INITIAL) {
+            DelayedSingleton<ConfigurationDistributor>::GetInstance()->Detach(abilityRecord);
+        }
+    }
+
     if (type == AppExecFwk::AbilityType::SERVICE) {
         return connectManager_->AbilityTransitionDone(token, state);
     }

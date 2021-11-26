@@ -686,6 +686,14 @@ public:
      */
     bool SetMissionInformation(const MissionInformation &missionInformation) override;
 
+    /**
+     * set lock screen white list
+     *
+     * @param isAwakenScreen is it allow wake up screen.
+     *
+     */
+    void SetShowOnLockScreen(bool isAwakenScreen) override;
+
     friend DataAbilityHelper;
 
 public:

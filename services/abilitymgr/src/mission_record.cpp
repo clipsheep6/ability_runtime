@@ -141,7 +141,7 @@ void MissionRecord::AddAbilityRecordToTop(std::shared_ptr<AbilityRecord> ability
     auto iter = std::find_if(abilities_.begin(), abilities_.end(), isExist);
     if (iter == abilities_.end()) {
         abilities_.push_front(ability);
-        ability->ForceProcessConfigurationChange(GetConfiguration());
+        // ability->ForceProcessConfigurationChange(GetConfiguration());
     }
 }
 
@@ -257,7 +257,6 @@ void MissionRecord::SetMissionStack(const std::shared_ptr<MissionStack> &mission
 {
     CHECK_POINTER(missionStack);
     parentMissionStack_ = missionStack;
-    ConfigurationHolder::Init(missionStack->GetConfiguration());
     for (auto &it : abilities_) {
         it->SetMissionStackId(stackId);
     }
@@ -297,26 +296,6 @@ const MissionOption &MissionRecord::GetMissionOption() const
 bool MissionRecord::IsEmpty()
 {
     return abilities_.empty();
-}
-
-std::shared_ptr<ConfigurationHolder> MissionRecord::GetParent()
-{
-    return parentMissionStack_.lock();
-}
-
-unsigned int MissionRecord::GetChildSize()
-{
-    return abilities_.size();
-}
-
-std::shared_ptr<ConfigurationHolder> MissionRecord::FindChild(unsigned int index)
-{
-    if (index < abilities_.size() && index >= 0) {
-        auto iter = abilities_.begin();
-        std::advance(iter, index);
-        return (*iter);
-    }
-    return nullptr;
 }
 
 void MissionRecord::Resume(const std::shared_ptr<MissionRecord> &backup)

@@ -35,8 +35,10 @@
 #include "sender_info.h"
 #include "want_sender_interface.h"
 #include "want_receiver_interface.h"
-#include "aafwk_dummy_configuration.h"
 #include "system_memory_attr.h"
+#include "configuration.h"
+#include "system_memory_attr.h"
+
 
 namespace OHOS {
 namespace AAFwk {
@@ -430,7 +432,7 @@ public:
      * @param config Indicates the new configuration
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UpdateConfiguration(const DummyConfiguration &config) = 0;
+    virtual int UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
 
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) = 0;

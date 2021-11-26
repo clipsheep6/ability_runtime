@@ -25,7 +25,6 @@
 #include "ability_info.h"
 #include "ability_record.h"
 #include "application_info.h"
-#include "aafwk_dummy_configuration.h"
 #include "mission_record.h"
 #include "mission_stack.h"
 #include "mission_option.h"
@@ -418,12 +417,6 @@ public:
         const std::shared_ptr<AbilityRecord> &abilityRecord, const MissionDescriptionInfo &description);
     int GetMissionLockModeState();
 
-    /**
-     * update configuration to ability
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int UpdateConfiguration(const DummyConfiguration &config);
-
     void RestartAbility(const std::shared_ptr<AbilityRecord> abilityRecord);
 
 private:
@@ -692,8 +685,6 @@ private:
     int ChangeFocusAbilityLocked(const std::shared_ptr<AbilityRecord> &targetAbility);
 
     void NotifyWindowModeChanged(const SystemWindowMode &windowMode);
-
-    int ProcessConfigurationChange();
 
     void UpdateFocusAbilityRecord(
         int displayId, const std::shared_ptr<AbilityRecord> &focusAbility, bool isNotify = false);
