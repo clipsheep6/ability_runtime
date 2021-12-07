@@ -128,8 +128,8 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
             Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_NAVIGATION_BAR).get<bool>();
         canStartPhoneService_ =
             Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_PHONE_SERVICE).get<bool>();
-        canStartContacts = amsJson.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_CONTACTS).get<bool>();
-        canStartMms = amsJson.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_MMS).get<bool>();
+        canStartContacts = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_CONTACTS).get<bool>();
+        canStartMms = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_MMS).get<bool>();
         missionSaveTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
         HILOG_INFO("get ams service config succes!");
         ret = 0;
