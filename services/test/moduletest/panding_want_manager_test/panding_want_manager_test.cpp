@@ -118,14 +118,14 @@ void PandingWantManagerTest::TearDown()
 std::shared_ptr<AAFwk::Want> PandingWantManagerTest::GetWant(std::string abilityName, std::string bundleName)
 {
     if (abilityName == "") {
-        abilityName = "hiMusic";
+        abilityName = "MusicAbility";
     }
     if (bundleName == "") {
         bundleName = "com.ix.hiMusic";
     }
 
     ElementName element;
-    element.SetDeviceID("devices");
+    element.SetDeviceID("deviceId");
     element.SetAbilityName(abilityName);
     element.SetBundleName(bundleName);
     Want want;
@@ -137,7 +137,7 @@ WantSenderInfo PandingWantManagerTest::GetAbility()
 {
     int32_t flags = FLAG_ONE_SHOT;
     WantsInfo wantsInfo;
-    wantsInfo.want = *(GetWant("hiMusic", "com.ix.hiMusic"));
+    wantsInfo.want = *(GetWant("MusicAbility", "com.ix.hiMusic"));
     wantsInfo.resolvedTypes = wantsInfo.want.GetType();
 
     WantSenderInfo wantSenderInfo;
@@ -157,11 +157,11 @@ WantSenderInfo PandingWantManagerTest::GetAbilities()
     int32_t flags = (int32_t)FLAG_ONE_SHOT;
 
     WantsInfo wantsInfo;
-    wantsInfo.want = *(GetWant("hiMusic", "com.ix.hiMusic"));
+    wantsInfo.want = *(GetWant("MusicAbility", "com.ix.hiMusic"));
     wantsInfo.resolvedTypes = wantsInfo.want.GetType();
 
     WantsInfo wantsInfo2;
-    wantsInfo2.want = *(GetWant("hiRadio", "com.ix.hiRadio"));
+    wantsInfo2.want = *(GetWant("RadioAbility", "com.ix.hiRadio"));
     wantsInfo2.resolvedTypes = wantsInfo2.want.GetType();
 
     WantSenderInfo wantSenderInfo;
@@ -221,7 +221,7 @@ WantSenderInfo PandingWantManagerTest::GetCommonEvent()
     int32_t flags = FLAG_ONE_SHOT;
 
     WantsInfo wantsInfo;
-    wantsInfo.want = *(GetWant("hiMusic", "com.ix.hiMusic"));
+    wantsInfo.want = *(GetWant("MusicAbility", "com.ix.hiMusic"));
     wantsInfo.resolvedTypes = wantsInfo.want.GetType();
 
     WantSenderInfo wantSenderInfo;
@@ -263,7 +263,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_001, TestSize.Level1)
     std::vector<WantAgentConstant::Flags> flags;
     flags.push_back(flag);
 
-    auto abilityWant = GetWant("hiMusic", "com.ix.hiMusic");
+    auto abilityWant = GetWant("MusicAbility", "com.ix.hiMusic");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
 
@@ -311,7 +311,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_001, TestSize.Level1)
     Want topAbilityWant = topAbility->GetWant();
     ElementName element = topAbilityWant.GetElement();
 
-    EXPECT_EQ(element.GetAbilityName(), "hiMusic");
+    EXPECT_EQ(element.GetAbilityName(), "MusicAbility");
     EXPECT_EQ(element.GetBundleName(), "com.ix.hiMusic");
 }
 
@@ -333,8 +333,8 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_002, TestSize.Level1)
     flags.push_back(flag);
     flags.push_back(flag1);
 
-    auto abilityWant = GetWant("hiMusic", "com.ix.hiMusic");
-    auto abilityWant1 = GetWant("hiRedio", "com.ix.hiRedio");
+    auto abilityWant = GetWant("MusicAbility", "com.ix.hiMusic");
+    auto abilityWant1 = GetWant("RadioAbility", "com.ix.hiRadio");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
     wants.push_back(abilityWant1);
@@ -437,7 +437,8 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_003, TestSize.Level1)
     WantAgentHelper::TriggerWantAgent(context, wantAgent, callback, paramsInfo);
 
     // An ability should be activated
-    auto serviceRecord = ams->connectManager_->GetServiceRecordByElementName(abilityWant->GetElement().GetURI());
+    auto serviceRecord = ams->connectManager_->GetServiceRecordByElementName(std::to_string(10004) + "/" +
+        abilityWant->GetElement().GetURI());
     EXPECT_TRUE(serviceRecord);
     Want serviceWant = serviceRecord->GetWant();
     ElementName element = serviceWant.GetElement();
@@ -462,7 +463,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_004, TestSize.Level1)
     std::vector<WantAgentConstant::Flags> flags;
     flags.push_back(flag);
 
-    auto abilityWant = GetWant("hiServiceForground", "com.ix.hiService");
+    auto abilityWant = GetWant("hiService", "com.ix.hiService");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
 
@@ -503,11 +504,12 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_004, TestSize.Level1)
     WantAgentHelper::TriggerWantAgent(context, wantAgent, callback, paramsInfo);
 
     // An ability should be activated
-    auto serviceRecord = ams->connectManager_->GetServiceRecordByElementName(abilityWant->GetElement().GetURI());
+    auto serviceRecord = ams->connectManager_->GetServiceRecordByElementName(std::to_string(10004) + "/" +
+        abilityWant->GetElement().GetURI());
     EXPECT_TRUE(serviceRecord);
     Want serviceWant = serviceRecord->GetWant();
     ElementName element = serviceWant.GetElement();
-    EXPECT_EQ(element.GetAbilityName(), "hiServiceForground");
+    EXPECT_EQ(element.GetAbilityName(), "hiService");
     EXPECT_EQ(element.GetBundleName(), "com.ix.hiService");
 }
 
@@ -527,7 +529,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_005, TestSize.Level1)
     std::vector<WantAgentConstant::Flags> flags;
     flags.push_back(flag);
 
-    auto abilityWant = GetWant("hiRedio", "com.ix.hiRedio");
+    auto abilityWant = GetWant("RadioAbility", "com.ix.hiRadio");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
 
@@ -581,7 +583,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_006, TestSize.Level1)
     std::vector<WantAgentConstant::Flags> flags;
     flags.push_back(flag);
 
-    auto abilityWant = GetWant("hiMusic", "com.ix.hiMusic");
+    auto abilityWant = GetWant("MusicTon", "com.ix.hiMusic");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
 
@@ -648,7 +650,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
     std::vector<WantAgentConstant::Flags> flags;
     flags.push_back(flag);
 
-    auto abilityWant = GetWant("Netease music", "com.ix.hiMusic");
+    auto abilityWant = GetWant("MusicAbility", "com.ix.hiMusic");
     std::vector<std::shared_ptr<AAFwk::Want>> wants;
     wants.push_back(abilityWant);
 
@@ -695,7 +697,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
     flags.push_back(flag2);
 
     requsetCode = 24;
-    abilityWant = GetWant("redio", "com.ix.hiRedio");
+    abilityWant = GetWant("RadioAbility", "com.ix.hiRadio");
     wants.clear();
     wants.push_back(abilityWant);
     info = MakeWantAgentInfo(type, requsetCode, flags, wants);
@@ -710,8 +712,8 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
     sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
 
     auto requestWant = targetRecord->GetKey()->GetRequestWant();
-    EXPECT_EQ(requestWant.GetElement().GetAbilityName(), "redio");
-    EXPECT_EQ(requestWant.GetElement().GetBundleName(), "com.ix.hiRedio");
+    EXPECT_EQ(requestWant.GetElement().GetAbilityName(), "RadioAbility");
+    EXPECT_EQ(requestWant.GetElement().GetBundleName(), "com.ix.hiRadio");
 
     // cancal
     WantAgentConstant::Flags flag3 = WantAgentConstant::Flags::CANCEL_PRESENT_FLAG;

@@ -157,7 +157,9 @@ void AbilityStackManagerTest::init()
 
 void AbilityStackManagerTest::makeScene(
     const std::string &abilityName, const std::string &bundleName, AbilityInfo &abilityInfo, Want &want)
-{
+{   
+    abilityInfo.applicationInfo.uid = 110;
+
     if (bundleName == "com.ix.hiworld") {
         std::string entity = Want::ENTITY_HOME;
         want.AddEntity(entity);
@@ -1499,7 +1501,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_042, TestSize.
     thirdTopAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
     auto mission = thirdTopAbility->GetMissionRecord();
 
-    stackManager_->UninstallApp("com.ix.hiMusic");
+    stackManager_->UninstallApp("com.ix.hiMusic", 2);
     // process died
     stackManager_->OnAbilityDied(thirdTopAbility);
    
@@ -1851,11 +1853,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_051, TestSize.
     auto topAbilityRecord = topMisionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
-    auto result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     // can't repeat the lock
-    auto resul2 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto resul2 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(LOCK_MISSION_DENY_FAILED, resul2);
 
     auto lockState = stackManager_->GetMissionLockModeState();
@@ -1889,7 +1891,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_052, TestSize.
     auto topAbilityRecord = stackManager_->GetCurrentTopAbility();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
-    auto result1 = stackManager_->StartLockMission(1000, luncherMisionRecordId, true, true);
+    auto result1 = stackManager_->StartLockMission(110, luncherMisionRecordId, true, true);
     EXPECT_EQ(ERR_OK, result1);
 
     auto missionRecord = stackManager_->GetTopMissionRecord();
@@ -1932,7 +1934,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_053, TestSize.
     topAbilityRecord = stackManager_->GetCurrentTopAbility();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
-    auto result1 = stackManager_->StartLockMission(1000, musicMisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, musicMisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     auto topRecord = stackManager_->GetCurrentTopAbility();
@@ -1987,14 +1989,14 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_055, TestSize.
     auto topAbilityRecord = topMisionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
-    auto result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     auto lockState = stackManager_->GetMissionLockModeState();
     EXPECT_EQ(lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 
     // unlock
-    auto result2 = stackManager_->StartLockMission(1000, MisionRecordId, false, false);
+    auto result2 = stackManager_->StartLockMission(110, MisionRecordId, false, false);
     EXPECT_EQ(ERR_OK, result2);
 }
 
@@ -2049,14 +2051,14 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_057, TestSize.
     auto topAbilityRecord = topMisionRecord->GetTopAbilityRecord();
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
 
-    auto result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     auto lockState = stackManager_->GetMissionLockModeState();
     EXPECT_EQ(lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 
     // unlock
-    auto result2 = stackManager_->StartLockMission(1000, MisionRecordId, false, false);
+    auto result2 = stackManager_->StartLockMission(110, MisionRecordId, false, false);
     EXPECT_EQ(ERR_OK, result2);
 }
 
@@ -2129,7 +2131,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_059, TestSize.
 
     // LOCK
     auto MisionRecordId = topMissionRecord->GetMissionRecordId();
-    auto result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     // check can terminal
@@ -2141,7 +2143,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_059, TestSize.
     EXPECT_FALSE(isCanStart);
 
     // unlock
-    result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, false);
+    result1 = stackManager_->StartLockMission(110, MisionRecordId, false, false);
     EXPECT_EQ(ERR_OK, result1);
 
     isCanStop = stackManager_->CanStopInLockMissionState(topAbilityRecord);
@@ -2177,14 +2179,14 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_060, TestSize.
     auto result1 = stackManager_->StartLockMission(99, MisionRecordId, false, true);
     EXPECT_EQ(LOCK_MISSION_DENY_FAILED, result1);
 
-    result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     // unlock defferent uid(99)
     result1 = stackManager_->StartLockMission(99, MisionRecordId, false, false);
     EXPECT_EQ(UNLOCK_MISSION_DENY_FAILED, result1);
 
-    result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, false);
+    result1 = stackManager_->StartLockMission(110, MisionRecordId, false, false);
     EXPECT_EQ(ERR_OK, result1);
 }
 
@@ -3299,7 +3301,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_089, TestSize.
     firstTopAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
     auto radioMissionId = firstTopAbility->GetMissionRecord()->GetMissionRecordId();
 
-    result = stackManager_->StartLockMission(1000, radioMissionId, false, true);
+    result = stackManager_->StartLockMission(110, radioMissionId, false, true);
     EXPECT_EQ(ERR_OK, result);
 
     MissionOption primary;
@@ -3448,7 +3450,6 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_093, TestSize.
     EXPECT_TRUE(topMissionRecord2);
     EXPECT_TRUE(topAbilityRecord2);
     topAbilityRecord2->SetAbilityState(OHOS::AAFwk::ACTIVE);
-
 
     auto ref = stackManager_->GetLatestSystemWindowMode();
     EXPECT_EQ(ref, AAFwk::SystemWindowMode::FLOATING_WINDOW_MODE);
@@ -3997,7 +3998,6 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0110, TestSize
     EXPECT_FALSE(needBackgroundAbility);
 }
 
-
 /*
  * Feature: AbilityStackManager
  * Function: OnTimeOut
@@ -4019,7 +4019,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize
     topAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
     topAbilityRecord->SetEventId(17);
 
-    auto result1 = stackManager_->StartLockMission(1000, MisionRecordId, false, true);
+    auto result1 = stackManager_->StartLockMission(110, MisionRecordId, false, true);
     EXPECT_EQ(ERR_OK, result1);
 
     auto lockState = stackManager_->GetMissionLockModeState();
@@ -4027,6 +4027,9 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize
         LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 
     stackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, topAbilityRecord->GetEventId());
+
+    lockState = stackManager_->GetMissionLockModeState();
+    EXPECT_NE((LockMissionContainer::LockMissionState)lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 }
 
 /*
@@ -4825,6 +4828,343 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0133, TestSize
     EXPECT_TRUE(stackManager_->SupportSyncVisualByStackId(stackThree.stackId));
     EXPECT_TRUE(stackManager_->SupportSyncVisualByStackId(stackTwo.stackId));
     EXPECT_FALSE(stackManager_->SupportSyncVisualByStackId(stackOne.stackId));
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: CompleteInactive
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Test application selector CompleteInactive
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0134, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto luncerAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(luncerAbility);
+    luncerAbility->SetAbilityState(AbilityState::ACTIVE);
+    // start selector ability
+    
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto ref = stackManager_->StartAbility(selector);
+    EXPECT_EQ(ref, ERR_OK);
+
+    auto selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(selectorAbility);
+    selectorAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    musicAbilityRequest_.callType = AbilityCallType::START_ABILITY_TYPE;
+    auto selectAbilityRequest = std::make_shared<AbilityRequest>(musicAbilityRequest_);
+    EXPECT_TRUE(selectAbilityRequest);
+    selectorAbility->SetWillSatrtAbilityRequest(selectAbilityRequest);
+
+    stackManager_->CompleteInactive(selectorAbility);
+
+    auto topAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(topAbility);
+
+    auto topAbilityName = topAbility->GetAbilityInfo().name;
+    EXPECT_EQ(topAbilityName, musicAbilityRequest_.abilityInfo.name);
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: CompleteInactive
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Test application selector CompleteInactive
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0135, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto luncerAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(luncerAbility);
+    luncerAbility->SetAbilityState(AbilityState::ACTIVE);
+    // start selector ability
+    
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto ref = stackManager_->StartAbility(selector);
+    EXPECT_EQ(ref, ERR_OK);
+
+    auto selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_EQ(selectorAbility->GetAbilityInfo().name, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+    selectorAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(selectorAbility);
+
+    // need to back luncer
+    stackManager_->CompleteInactive(selectorAbility);
+
+    auto topAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(topAbility);
+    EXPECT_EQ(AbilityState::MOVING_BACKGROUND, selectorAbility->GetAbilityState());
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: MultiApplicationSelectorStartTargetAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0136, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto luncerAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(luncerAbility);
+    luncerAbility->SetAbilityState(AbilityState::ACTIVE);
+    // start selector ability
+    
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto ref = stackManager_->StartAbility(selector);
+    EXPECT_EQ(ref, ERR_OK);
+
+    auto selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_EQ(selectorAbility->GetAbilityInfo().name, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(selectorAbility);
+
+    musicAbilityRequest_.callType = AbilityCallType::START_ABILITY_TYPE;
+    auto selectAbilityRequest = std::make_shared<AbilityRequest>(musicAbilityRequest_);
+    EXPECT_TRUE(selectAbilityRequest);
+    selectorAbility->SetWillSatrtAbilityRequest(selectAbilityRequest);
+
+    stackManager_->MultiApplicationSelectorStartTargetAbility(selectorAbility);
+
+    auto topAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(topAbility);
+
+    auto topAbilityName = topAbility->GetAbilityInfo().name;
+    EXPECT_EQ(topAbilityName, musicAbilityRequest_.abilityInfo.name);
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: MultiApplicationSelectorStartTargetAbility
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0137, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(launcherAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto luncerAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(luncerAbility);
+    luncerAbility->SetAbilityState(AbilityState::ACTIVE);
+    // start selector ability
+    
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto ref = stackManager_->StartAbility(selector);
+    EXPECT_EQ(ref, ERR_OK);
+
+    auto selectorAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(selectorAbility);
+    EXPECT_EQ(selectorAbility->GetAbilityInfo().name, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    stackManager_->MultiApplicationSelectorStartTargetAbility(selectorAbility);
+
+    auto topAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(topAbility);
+    EXPECT_EQ(AbilityState::MOVING_BACKGROUND, selectorAbility->GetAbilityState());
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: BackAbilityRecordMoveToBackGround
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0138, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto musicAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(musicAbility);
+    musicAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    result = stackManager_->StartAbility(radioAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto radioAbilityRecord = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(radioAbilityRecord);
+    radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    radioAbilityRecord->SetBackAbilityRecord(musicAbility);
+
+    musicAbility->SetTerminatingState();
+    musicAbility->SetAbilityState(AbilityState::INACTIVE);
+
+    stackManager_->BackAbilityRecordMoveToBackGround(radioAbilityRecord);
+
+    EXPECT_NE(musicAbility->GetAbilityState(), OHOS::AAFwk::INITIAL);
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: StartAbilityAsDefaultLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0139, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto musicAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(musicAbility);
+    musicAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto ref = stackManager_->StartAbility(selector);
+    EXPECT_EQ(ref, ERR_OK);
+    auto selectorAbilityRecord = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(selectorAbilityRecord);
+    selectorAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    radioAbilityRequest_.multiApplicationToken = selectorAbilityRecord->GetToken();
+
+    result = stackManager_->StartAbility(radioAbilityRequest_);
+
+    EXPECT_NE(result, ERR_OK);
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: StartAbilityAsMultiWindowLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0140, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto musicAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(musicAbility);
+    musicAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    auto abilityStartSetting = AbilityStartSetting::GetEmptySetting();
+    abilityStartSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY,
+        std::to_string(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
+    EXPECT_TRUE(abilityStartSetting);
+
+    Want want;
+    want.SetElementName(
+        AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
+
+    AbilityRequest selector;
+    selector.want = want;
+    selector.callerUid = -1;
+    selector.startSetting = abilityStartSetting;
+    selector.abilityInfo.bundleName = AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME;
+    selector.abilityInfo.name = AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME;
+
+    auto selectorAbility = AbilityRecord::CreateAbilityRecord(selector);
+    EXPECT_TRUE(selectorAbility);
+
+    radioAbilityRequest_.multiApplicationToken = selectorAbility->GetToken();
+    result = stackManager_->StartAbility(radioAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto radioAbilityRecord = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(radioAbilityRecord);
+    radioAbilityRecord->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    EXPECT_TRUE(radioAbilityRecord->GetBackAbilityRecord());
+}
+
+/*
+ * Feature: AbilityStackManager
+ * Function: StartAbilityAsMultiWindowLocked
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: NA
+ */
+HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0141, TestSize.Level1)
+{
+    stackManager_->Init();
+    // start a luncher
+    auto result = stackManager_->StartAbility(musicAbilityRequest_);
+    EXPECT_EQ(0, result);
+    auto musicAbility = stackManager_->GetCurrentTopAbility();
+    EXPECT_TRUE(musicAbility);
+    musicAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
+
+    auto stack = stackManager_->GetTargetMissionStackByDefault(radioAbilityRequest_);
+    EXPECT_TRUE(stack);
+    EXPECT_EQ(stack->GetMissionStackId(), 1);
 }
 
 /*

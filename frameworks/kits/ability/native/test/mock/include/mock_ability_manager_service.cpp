@@ -143,7 +143,7 @@ int MockAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> 
     return ERR_OK;
 }
 
-int MockAbilityManagerService::StopServiceAbility(const Want &want)
+int MockAbilityManagerService::StopServiceAbility(const Want &want, const sptr<IRemoteObject> &callerToken)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::StopServiceAbility";
     return ERR_OK;
@@ -169,7 +169,7 @@ int MockAbilityManagerService::KillProcess(const std::string &bundleName)
     return 0;
 }
 
-int MockAbilityManagerService::UninstallApp(const std::string &bundleName)
+int MockAbilityManagerService::UninstallApp(const std::string &bundleName, const int uid)
 {
     return 0;
 }
