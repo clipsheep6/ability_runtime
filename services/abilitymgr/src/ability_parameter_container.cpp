@@ -17,36 +17,34 @@
 
 namespace OHOS {
 namespace AAFwk {
-
-void AbilityParameterContaier::AddParameter(int abilityRecordId, const AbilityRequest &abilityRequest)
+void AbilityParameterContainer::AddParameter(int abilityRecordId, const AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    parameterContaier_.emplace(abilityRecordId, abilityRequest);
+    parameterContainer_.emplace(abilityRecordId, abilityRequest);
 }
 
-void AbilityParameterContaier::RemoveParameterByID(int abilityRecordId)
+void AbilityParameterContainer::RemoveParameterByID(int abilityRecordId)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    parameterContaier_.erase(abilityRecordId);
-    HILOG_INFO("parameterContaier_ size %{public}zu", parameterContaier_.size());
+    parameterContainer_.erase(abilityRecordId);
+    HILOG_INFO("parameterContainer_ size %{public}zu", parameterContainer_.size());
 }
 
-AbilityRequest AbilityParameterContaier::GetAbilityRequestFromContaier(int abilityRecordId)
+AbilityRequest AbilityParameterContainer::GetAbilityRequestFromContainer(int abilityRecordId)
 {
     std::lock_guard<std::mutex> guard(lock_);
     AbilityRequest abilityRequest;
-    auto iter = parameterContaier_.find(abilityRecordId);
-    if (iter != parameterContaier_.end()) {
+    auto iter = parameterContainer_.find(abilityRecordId);
+    if (iter != parameterContainer_.end()) {
         return iter->second;
     }
     return abilityRequest;
 }
 
-bool AbilityParameterContaier::IsExist(int abilityRecordId)
+bool AbilityParameterContainer::IsExist(int abilityRecordId)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    return (parameterContaier_.find(abilityRecordId) != parameterContaier_.end());
+    return (parameterContainer_.find(abilityRecordId) != parameterContainer_.end());
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

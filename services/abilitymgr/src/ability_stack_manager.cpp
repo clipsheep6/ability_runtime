@@ -232,7 +232,7 @@ int AbilityStackManager::StartAbilityLifeCycle(std::shared_ptr<AbilityRecord> la
 
     if ((isStackChanged &&
         ((IsSplitScreenStack(currentTopAbility->GetMissionStackId()) && isTargetFull) ||
-        IsSplitScreenStack(targetAbility->GetMissionStackId()) || 
+        IsSplitScreenStack(targetAbility->GetMissionStackId()) ||
         (isTopSplitScreen && isTargetFull))) || (isTopSplitScreen && isSplitAbilityInActive)) {
             if (isTopSplitScreen && AbilityUtil::IsMultiApplicationSelectorAbility(
                 targetAbility->GetAbilityInfo().bundleName, targetAbility->GetAbilityInfo().name)) {
@@ -399,7 +399,8 @@ int AbilityStackManager::StartAbilityAsMultiWindowLocked(
         MoveMissionStackToTop(targetStack);
         MoveMissionAndAbility(currentTopAbility, targetAbilityRecord, targetMissionRecord);
         HILOG_DEBUG("First create mission record ,missionId:%{public}d", targetMissionRecord->GetMissionRecordId());
-        CHECK_RET_RETURN_RET(StartAbilityLifeCycle(lastTopAbility, currentTopAbility, targetAbilityRecord, isTopSplitScreen),
+        CHECK_RET_RETURN_RET(
+            StartAbilityLifeCycle(lastTopAbility, currentTopAbility, targetAbilityRecord, isTopSplitScreen),
             "Start ability lifecycle error.");
         NotifyWindowModeChanged(GetLatestSystemWindowMode());
         return ERR_OK;
@@ -1592,10 +1593,10 @@ void AbilityStackManager::CompleteActive(const std::shared_ptr<AbilityRecord> &a
                     !SupportSyncVisualByStackId(FLOATING_MISSION_STACK_ID) && preMissionId != currentMissionId));
 
         if (isBackground && preAbilityRecord->IsAbilityState(AbilityState::INACTIVE) &&
-            (!AbilityUtil::IsSystemDialogAbility(
-            abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
-            !AbilityUtil::IsMultiApplicationSelectorAbility(
-                abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name))) {
+                (!AbilityUtil::IsSystemDialogAbility(
+                    abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
+                    !AbilityUtil::IsMultiApplicationSelectorAbility(
+                        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name))) {
             std::string preElement = preAbilityRecord->GetWant().GetElement().GetURI();
             HILOG_INFO("Pre ability record: %{public}s", preElement.c_str());
             // preAbility was inactive ,resume new want flag to false
@@ -1663,7 +1664,7 @@ void AbilityStackManager::CompleteInactive(const std::shared_ptr<AbilityRecord> 
             return;
         }
         if (!AbilityUtil::IsMultiApplicationSelectorAbility(
-                GetCurrentTopAbility()->GetAbilityInfo().bundleName, GetCurrentTopAbility()->GetAbilityInfo().name)) {
+            GetCurrentTopAbility()->GetAbilityInfo().bundleName, GetCurrentTopAbility()->GetAbilityInfo().name)) {
             HILOG_INFO("GetCurrentTopAbility Isnot MultiApplicationSelectorAbility");
             MoveToBackgroundTask(abilityRecord);
         }
@@ -3393,9 +3394,9 @@ int AbilityStackManager::CheckMultiWindowCondition(const std::list<MissionOption
     auto currentTopAbilityRecord = GetCurrentTopAbility();
     if (currentTopAbilityRecord &&
         (AbilityUtil::IsSystemDialogAbility(
-        currentTopAbilityRecord->GetAbilityInfo().bundleName, currentTopAbilityRecord->GetAbilityInfo().name) ||
-        AbilityUtil::IsMultiApplicationSelectorAbility(currentTopAbilityRecord->GetAbilityInfo().bundleName,
-        currentTopAbilityRecord->GetAbilityInfo().name))) {
+            currentTopAbilityRecord->GetAbilityInfo().bundleName, currentTopAbilityRecord->GetAbilityInfo().name) ||
+            AbilityUtil::IsMultiApplicationSelectorAbility(currentTopAbilityRecord->GetAbilityInfo().bundleName,
+                currentTopAbilityRecord->GetAbilityInfo().name))) {
         HILOG_ERROR("Top page ability is dialog type, cannot return to launcher");
         return MOVE_MISSION_TO_STACK_MOVING_DENIED;
     }
@@ -3459,9 +3460,9 @@ int AbilityStackManager::CheckMultiWindowCondition(const std::shared_ptr<Ability
 
     if (currentTopAbility &&
         (AbilityUtil::IsSystemDialogAbility(
-        currentTopAbility->GetAbilityInfo().bundleName, currentTopAbility->GetAbilityInfo().name) ||
-        AbilityUtil::IsMultiApplicationSelectorAbility(
-        currentTopAbility->GetAbilityInfo().bundleName, currentTopAbility->GetAbilityInfo().name))) {
+            currentTopAbility->GetAbilityInfo().bundleName, currentTopAbility->GetAbilityInfo().name) ||
+            AbilityUtil::IsMultiApplicationSelectorAbility(
+                currentTopAbility->GetAbilityInfo().bundleName, currentTopAbility->GetAbilityInfo().name))) {
         HILOG_ERROR("Top page ability is dialog type, cannot return to launcher.");
         return START_ABILITY_SETTING_FAILED;
     }
@@ -3507,14 +3508,16 @@ bool AbilityStackManager::CheckSplitSrceenCondition(
             if (topFullAbility->GetAbilityInfo().launchMode == AppExecFwk::LaunchMode::SINGLETON) {
                 if (topFullAbility->GetAbilityInfo().bundleName == abilityRequest.abilityInfo.bundleName &&
                     topFullAbility->GetAbilityInfo().name == abilityRequest.abilityInfo.name &&
-                    topFullAbility->GetAbilityInfo().applicationInfo.uid == abilityRequest.abilityInfo.applicationInfo.uid) {
+                    topFullAbility->GetAbilityInfo().applicationInfo.uid ==
+                    abilityRequest.abilityInfo.applicationInfo.uid) {
                     HILOG_ERROR("can't only move full screen ability to splitscreen stack.");
                     return false;
                 }
             } else {
                 if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON &&
                     topFullAbility->GetAbilityInfo().name == abilityRequest.abilityInfo.name &&
-                    topFullAbility->GetAbilityInfo().applicationInfo.uid == abilityRequest.abilityInfo.applicationInfo.uid) {
+                    topFullAbility->GetAbilityInfo().applicationInfo.uid ==
+                    abilityRequest.abilityInfo.applicationInfo.uid) {
                     HILOG_ERROR("can't only move full screen ability to splitscreen stack.");
                     return false;
                 }
@@ -4108,7 +4111,7 @@ bool AbilityStackManager::CanStartInLockMissionState(
     // current ability singeton mode
     if (currentTopAbility->GetAbilityInfo().launchMode == AppExecFwk::LaunchMode::SINGLETON) {
         if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-            std::string bundleName = 
+            std::string bundleName =
             AbilityConfig::MISSION_NAME_MARK_HEAD + std::to_string(abilityRequest.abilityInfo.applicationInfo.uid) +
             AbilityConfig::MISSION_NAME_SEPARATOR + abilityRequest.abilityInfo.bundleName +
             AbilityConfig::MISSION_NAME_SEPARATOR + abilityRequest.abilityInfo.name;

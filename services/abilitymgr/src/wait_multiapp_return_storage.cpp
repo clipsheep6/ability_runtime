@@ -18,7 +18,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 WaitMultiAppReturnRecord::WaitMultiAppReturnRecord(const sptr<IRemoteObject> &callerToken)
 {
     callerToken_ = callerToken;
@@ -92,6 +91,5 @@ std::shared_ptr<WaitMultiAppReturnRecord> WaitMultiAppReturnStorage::GetRecord(c
     }
     return nullptr;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

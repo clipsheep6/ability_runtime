@@ -775,7 +775,8 @@ private:
     bool isLockScreenRoot_ = false;
     bool isPowerStateLockScreen_ = false;
     AppState appState_ = AppState::BEGIN;
-    std::shared_ptr<AbilityRequest> abilityRequestPtr_ = {}; // the abilityRequest that the multi application selector will start
+    std::shared_ptr<AbilityRequest> abilityRequestPtr_ = {};
+    // the abilityRequest that the multi application selector will start
 };
 }  // namespace AAFwk
 }  // namespace OHOS

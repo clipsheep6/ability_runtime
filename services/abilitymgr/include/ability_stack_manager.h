@@ -659,7 +659,7 @@ private:
     SystemWindowMode GetLatestSystemWindowMode();
     int JudgingTargetStackId(AbilityWindowConfiguration config) const;
     int StartAbilityLifeCycle(std::shared_ptr<AbilityRecord> lastTopAbility,
-        std::shared_ptr<AbilityRecord> currentTopAbility, std::shared_ptr<AbilityRecord> targetAbility, 
+        std::shared_ptr<AbilityRecord> currentTopAbility, std::shared_ptr<AbilityRecord> targetAbility,
         bool isTopSplitScreen = false);
 
     void ActiveTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);

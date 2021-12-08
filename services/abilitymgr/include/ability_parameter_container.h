@@ -13,28 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_PARAMETER_CONTAIER_H
-#define OHOS_AAFWK_ABILITY_PARAMETER_CONTAIER_H
+#ifndef OHOS_AAFWK_ABILITY_PARAMETER_CONTAINER_H
+#define OHOS_AAFWK_ABILITY_PARAMETER_CONTAINER_H
 #include <mutex>
 #include "ability_record.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
-class AbilityParameterContaier {
+class AbilityParameterContainer {
 public:
-    AbilityParameterContaier() = default;
-    virtual ~AbilityParameterContaier() = default;
+    AbilityParameterContainer() = default;
+    virtual ~AbilityParameterContainer() = default;
 
     void AddParameter(int abilityRecordId, const AbilityRequest &abilityRequest);
     void RemoveParameterByID(int abilityRecordId);
-    AbilityRequest GetAbilityRequestFromContaier(int abilityRecordId);
+    AbilityRequest GetAbilityRequestFromContainer(int abilityRecordId);
     bool IsExist(int abilityRecordId);
 
 private:
     std::mutex lock_;
-    std::map<int, AbilityRequest> parameterContaier_;
+    std::map<int, AbilityRequest> parameterContainer_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_PARAMETER_CONTAIER_H
+#endif  // OHOS_AAFWK_ABILITY_PARAMETER_CONTAINER_H

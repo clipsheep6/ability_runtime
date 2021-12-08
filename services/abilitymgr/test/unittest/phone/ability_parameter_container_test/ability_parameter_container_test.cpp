@@ -27,8 +27,7 @@ using namespace testing;
 
 namespace OHOS {
 namespace AAFwk {
-
-class AbilityParameterContaierTest : public testing::Test {
+class AbilityParameterContainerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
@@ -36,128 +35,124 @@ public:
     void TearDown();
 };
 
-void AbilityParameterContaierTest::SetUpTestCase(void)
+void AbilityParameterContainerTest::SetUpTestCase(void)
 {}
-void AbilityParameterContaierTest::TearDownTestCase(void)
+void AbilityParameterContainerTest::TearDownTestCase(void)
 {}
-void AbilityParameterContaierTest::SetUp()
+void AbilityParameterContainerTest::SetUp()
 {}
-void AbilityParameterContaierTest::TearDown()
+void AbilityParameterContainerTest::TearDown()
 {}
 
 /*
- * Feature: AbilityParameterContaier
+ * Feature: AbilityParameterContainer
  * Function: AddParameter
  * SubFunction: NA
- * FunctionPoints: AbilityParameterContaier AddParameter
+ * FunctionPoints: AbilityParameterContainer AddParameter
  * EnvConditions: NA
  * CaseDescription: Verify that AddParameter is normal and abnormal
  */
-HWTEST_F(AbilityParameterContaierTest, AbilityParameterContaier_001, TestSize.Level1)
+HWTEST_F(AbilityParameterContainerTest, AbilityParameterContainer_001, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_001 start";
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_001 start";
 
-    std::unique_ptr<AbilityParameterContaier> abilityParameterContaier = std::make_unique<AbilityParameterContaier>();
+    std::unique_ptr<AbilityParameterContainer> abilityParameterContainer = std::make_unique<AbilityParameterContainer>();
     int abilityRecordId = 1;
-    EXPECT_EQ(false, abilityParameterContaier->IsExist(abilityRecordId));    
+    EXPECT_EQ(false, abilityParameterContainer->IsExist(abilityRecordId));
 
     AbilityRequest abilityRequest;
     abilityRequest.callerUid = 1;
     abilityRequest.restart = true;
     abilityRequest.requestCode = 10;
 
-    abilityParameterContaier->AddParameter(abilityRecordId, abilityRequest);
+    abilityParameterContainer->AddParameter(abilityRecordId, abilityRequest);
 
-    EXPECT_EQ(true, abilityParameterContaier->IsExist(abilityRecordId));
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_001 end";
+    EXPECT_EQ(true, abilityParameterContainer->IsExist(abilityRecordId));
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_001 end";
 }
 
 /*
- * Feature: AbilityParameterContaier
+ * Feature: AbilityParameterContainer
  * Function: RemoveParameterByID
  * SubFunction: NA
- * FunctionPoints: AbilityParameterContaier RemoveParameterByID
+ * FunctionPoints: AbilityParameterContainer RemoveParameterByID
  * EnvConditions: NA
  * CaseDescription: Verify that RemoveParameterByID is normal and abnormal
  */
-HWTEST_F(AbilityParameterContaierTest, AbilityParameterContaier_002, TestSize.Level1)
+HWTEST_F(AbilityParameterContainerTest, AbilityParameterContainer_002, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_002 start";
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_002 start";
 
-    std::unique_ptr<AbilityParameterContaier> abilityParameterContaier = std::make_unique<AbilityParameterContaier>(); 
+    std::unique_ptr<AbilityParameterContainer> abilityParameterContainer = std::make_unique<AbilityParameterContainer>();
     AbilityRequest abilityRequest;
     abilityRequest.callerUid = 1;
     abilityRequest.restart = true;
     abilityRequest.requestCode = 10;
     int abilityRecordId = 1;
-    abilityParameterContaier->AddParameter(abilityRecordId, abilityRequest);
+    abilityParameterContainer->AddParameter(abilityRecordId, abilityRequest);
 
-    EXPECT_EQ(true, abilityParameterContaier->IsExist(abilityRecordId));
+    EXPECT_EQ(true, abilityParameterContainer->IsExist(abilityRecordId));
 
-    abilityParameterContaier->RemoveParameterByID(abilityRecordId);
+    abilityParameterContainer->RemoveParameterByID(abilityRecordId);
 
-    EXPECT_EQ(false, abilityParameterContaier->IsExist(abilityRecordId));
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_002 end";
+    EXPECT_EQ(false, abilityParameterContainer->IsExist(abilityRecordId));
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_002 end";
 }
 
 /*
- * Feature: AbilityParameterContaier
- * Function: GetAbilityRequestFromContaier
+ * Feature: AbilityParameterContainer
+ * Function: GetAbilityRequestFromContainer
  * SubFunction: NA
- * FunctionPoints: AbilityParameterContaier GetAbilityRequestFromContaier
+ * FunctionPoints: AbilityParameterContainer GetAbilityRequestFromContainer
  * EnvConditions: NA
- * CaseDescription: Verify that GetAbilityRequestFromContaier is normal and abnormal
+ * CaseDescription: Verify that GetAbilityRequestFromContainer is normal and abnormal
  */
-HWTEST_F(AbilityParameterContaierTest, AbilityParameterContaier_003, TestSize.Level1)
+HWTEST_F(AbilityParameterContainerTest, AbilityParameterContainer_003, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_003 start";
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_003 start";
 
-    std::unique_ptr<AbilityParameterContaier> abilityParameterContaier = std::make_unique<AbilityParameterContaier>();
+    std::unique_ptr<AbilityParameterContainer> abilityParameterContainer = std::make_unique<AbilityParameterContainer>();
     AbilityRequest abilityRequest;
     AbilityRequest abilityResult;
     abilityRequest.callerUid = 1;
     abilityRequest.restart = true;
     abilityRequest.requestCode = 10;
     int abilityRecordId = 1;
-    abilityParameterContaier->AddParameter(abilityRecordId, abilityRequest);
+    abilityParameterContainer->AddParameter(abilityRecordId, abilityRequest);
 
-    EXPECT_EQ(true, abilityParameterContaier->IsExist(abilityRecordId));
+    EXPECT_EQ(true, abilityParameterContainer->IsExist(abilityRecordId));
 
-    abilityResult = abilityParameterContaier->GetAbilityRequestFromContaier(abilityRecordId);
+    abilityResult = abilityParameterContainer->GetAbilityRequestFromContainer(abilityRecordId);
 
     EXPECT_EQ(abilityResult.callerUid, abilityRequest.callerUid);
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_003 end";
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_003 end";
 }
 
 /*
- * Feature: AbilityParameterContaier
+ * Feature: AbilityParameterContainer
  * Function: IsExist
  * SubFunction: NA
- * FunctionPoints: AbilityParameterContaier IsExist
+ * FunctionPoints: AbilityParameterContainer IsExist
  * EnvConditions: NA
  * CaseDescription: Verify that IsExist is normal and abnormal
  */
-HWTEST_F(AbilityParameterContaierTest, AbilityParameterContaier_004, TestSize.Level1)
+HWTEST_F(AbilityParameterContainerTest, AbilityParameterContainer_004, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_004 start";
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_004 start";
 
-    std::unique_ptr<AbilityParameterContaier> abilityParameterContaier = std::make_unique<AbilityParameterContaier>();
+    std::unique_ptr<AbilityParameterContainer> abilityParameterContainer = std::make_unique<AbilityParameterContainer>();
     AbilityRequest abilityRequest;
     abilityRequest.callerUid = 1;
     abilityRequest.restart = true;
     abilityRequest.requestCode = 10;
     int abilityRecordId = 1;
 
-    EXPECT_EQ(false, abilityParameterContaier->IsExist(abilityRecordId));
+    EXPECT_EQ(false, abilityParameterContainer->IsExist(abilityRecordId));
 
-    abilityParameterContaier->AddParameter(abilityRecordId, abilityRequest);
+    abilityParameterContainer->AddParameter(abilityRecordId, abilityRequest);
 
-    EXPECT_EQ(true, abilityParameterContaier->IsExist(abilityRecordId));
-    GTEST_LOG_(INFO) << "AbilityParameterContaier_004 end";
+    EXPECT_EQ(true, abilityParameterContainer->IsExist(abilityRecordId));
+    GTEST_LOG_(INFO) << "AbilityParameterContainer_004 end";
 }
-
-
 }  // namespace AAFwk
 }  // namespace OHOS
-
-

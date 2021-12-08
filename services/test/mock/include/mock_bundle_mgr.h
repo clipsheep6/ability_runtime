@@ -42,6 +42,23 @@ const std::string COM_IX_EGC = "com.ix.egc";
 const std::string COM_IX_SELECTOR = "com.ohos.selector";
 constexpr int32_t MAX_SYS_UID = 2899;
 constexpr int32_t ROOT_UID = 0;
+constexpr int32_t HIWORLD_APP_UID = 10001;
+constexpr int32_t HIMUSIC_APP_UID = 10002;
+constexpr int32_t HIRADIO_APP_UID = 10003;
+constexpr int32_t HISERVICE_APP_UID = 10004;
+constexpr int32_t MUSICSERVICE_APP_UID = 10005;
+constexpr int32_t HIDATA_APP_UID = 10006;
+constexpr int32_t HIDATA_APP_CLONE_UID = 100061;
+constexpr int32_t PHONE_APP_UID = 10007;
+constexpr int32_t TV_APP_UID = 10008;
+constexpr int32_t FILM_APP_UID = 10009;
+constexpr int32_t CLOCK_SERVICE_CLONE_UID = 10010;
+constexpr int32_t CLOCK_SERVICE_UID = 10011;
+constexpr int32_t CLOCK_APP_UID = 10012;
+constexpr int32_t CLOCK_APP_CLONE_UID = 10013;
+constexpr int32_t EGC_DATA_UID = 10014;
+constexpr int32_t EGC_DATA_CLONE_UID = 10015;
+constexpr int32_t SELECTOR_APP_UID = 10016;
 }  // namespace
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -69,7 +86,8 @@ public:
     MOCK_METHOD2(GetLaunchWantForBundle, bool(const std::string &bundleName, Want &want));
     MOCK_METHOD2(CheckPublicKeys, int(const std::string &firstBundleName, const std::string &secondBundleName));
     MOCK_METHOD2(CheckPermission, int(const std::string &bundleName, const std::string &permission));
-    MOCK_METHOD3(CheckPermissionByUid, int(const std::string &bundleName, const std::string &permission, const int userId));
+    MOCK_METHOD3(
+        CheckPermissionByUid, int(const std::string &bundleName, const std::string &permission, const int userId));
     MOCK_METHOD2(GetPermissionDef, bool(const std::string &permissionName, PermissionDef &permissionDef));
     MOCK_METHOD1(GetAllPermissionGroupDefs, bool(std::vector<PermissionDef> &permissionDefs));
     MOCK_METHOD2(GetAppsGrantedPermissions,
@@ -114,7 +132,7 @@ public:
     MOCK_METHOD1(BundleClone, bool(const std::string &bundleName));
     MOCK_METHOD3(GetBundleGidsByUid, bool(const std::string &bundleName, const int &uid, std::vector<int> &gids));
 
-    bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override; 
+    bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override;
     bool GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo) override;
     bool GetBundleInfos(const BundleFlag flag, std::vector<BundleInfo> &bundleInfos) override;
     bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
@@ -125,8 +143,8 @@ public:
     bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
     bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
-    bool NotifyActivityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
+    bool NotifyActivityLifeStatus(const std::string &bundleName,
+        const std::string &abilityName, const int64_t launchTime, const int uid) override;
     virtual bool CheckIsSystemAppByUid(const int uid) override;
 
     BundleMgrService();

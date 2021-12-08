@@ -243,7 +243,8 @@ public:
      * @param userId Indicates the user id.
      * @return Returns 0 if the bundle has the permission; returns -1 otherwise.
      */
-    virtual int CheckPermissionByUid(const std::string &bundleName, const std::string &permission, const int userId) = 0;
+    virtual int CheckPermissionByUid(const std::string &bundleName,
+        const std::string &permission, const int userId) = 0;
     /**
      * @brief Obtains detailed information about a specified permission.
      * @param permissionName Indicates the name of the ohos permission.

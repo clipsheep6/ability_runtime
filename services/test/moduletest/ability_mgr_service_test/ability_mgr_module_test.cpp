@@ -132,18 +132,17 @@ void AbilityMgrModuleTest::ClearStack()
 
 void AbilityMgrModuleTest::OnStartAms()
 {
-    if(abilityMgrServ_){
+    if(abilityMgrServ_) {
 
         if(abilityMgrServ_->state_ == ServiceRunningState::STATE_RUNNING) {
             return;
         }
-   
         abilityMgrServ_->state_ = ServiceRunningState::STATE_RUNNING;
         
         abilityMgrServ_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
         EXPECT_TRUE(abilityMgrServ_->eventLoop_);
 
-        abilityMgrServ_->handler_ = std::make_shared<AbilityEventHandler>(abilityMgrServ_->eventLoop_, 
+        abilityMgrServ_->handler_ = std::make_shared<AbilityEventHandler>(abilityMgrServ_->eventLoop_,
                                                                 abilityMgrServ_);
         EXPECT_TRUE(abilityMgrServ_->handler_);
         EXPECT_TRUE(abilityMgrServ_->connectManager_);
@@ -160,8 +159,8 @@ void AbilityMgrModuleTest::OnStartAms()
         abilityMgrServ_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMgrServ_->pendingWantManager_);
 
-        abilityMgrServ_->parameterContaier_ = std::make_shared<AbilityParameterContaier>();
-        EXPECT_TRUE(abilityMgrServ_->parameterContaier_);
+        abilityMgrServ_->parameterContainer_ = std::make_shared<AbilityParameterContainer>();
+        EXPECT_TRUE(abilityMgrServ_->parameterContainer_);
         
         abilityMgrServ_->waitmultiAppReturnStorage_ = std::make_shared<WaitMultiAppReturnStorage>();
         EXPECT_TRUE(abilityMgrServ_->waitmultiAppReturnStorage_);
@@ -193,7 +192,7 @@ void AbilityMgrModuleTest::TearDownTestCase(void)
 {
 }
 void AbilityMgrModuleTest::SetUp(void)
-{   
+{
     abilityMgrServ_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     OnStartAms();
 
@@ -1706,7 +1705,7 @@ HWTEST_F(AbilityMgrModuleTest, UpdateConfiguration_029, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: StartSelectedApplication 
+ * Function: StartSelectedApplication
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
@@ -1781,7 +1780,7 @@ HWTEST_F(AbilityMgrModuleTest, StartSelectedApplication_028, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: StartSelectedApplication 
+ * Function: StartSelectedApplication
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
@@ -2293,23 +2292,23 @@ HWTEST_F(AbilityMgrModuleTest, StartSelectedApplication_039, TestSize.Level1)
     AbilityRequest needToStartRequest;
     needToStartRequest.appInfo.name = "hiData";
 
-    auto ams = abilityMgrServ_.get();
-    auto task = [ams, dataAbilityUri, callerToken, &needToStartRequest]() -> void {
+    auto abilityMgr = abilityMgrServ_.get();
+    auto task = [abilityMgr, dataAbilityUri, callerToken, &needToStartRequest]() -> void {
         std::cout<<"=========================================task start==================================="<<std::endl;
-        EXPECT_TRUE(ams);
+        EXPECT_TRUE(abilityMgr);
         std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-        auto bms = ams->GetBundleManager();
+        auto bms = abilityMgr->GetBundleManager();
         EXPECT_TRUE(bms);
         bms->QueryAbilityInfosByUri(dataAbilityUri, abilityInfos);
 
         // wait
-        auto waitMultiAppReturnRecord = 
-            ams->waitmultiAppReturnStorage_->AddRecord(callerToken);
+        auto waitMultiAppReturnRecord =
+            abilityMgr->waitmultiAppReturnStorage_->AddRecord(callerToken);
         EXPECT_TRUE(waitMultiAppReturnRecord);
         auto requestUid = waitMultiAppReturnRecord->WaitForMultiAppSelectorReturn();
 
         // Get information about the application that needs to be started (needToStartRequest)
-        ams->GetAbilityInfoFromBms(abilityInfos, callerToken,
+        abilityMgr->GetAbilityInfoFromBms(abilityInfos, callerToken,
             needToStartRequest, requestUid);
         std::cout<<"=========================================task end===================================="<<std::endl;
     };
@@ -2918,7 +2917,7 @@ HWTEST_F(AbilityMgrModuleTest, StartSelectedApplication_045, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: StartSelectedApplication 
+ * Function: StartSelectedApplication
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA

@@ -713,12 +713,11 @@ private:
     std::shared_ptr<PendingWantManager> pendingWantManager_;
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
-    std::shared_ptr<AbilityParameterContaier> parameterContaier_;
+    std::shared_ptr<AbilityParameterContainer> parameterContainer_;
     std::shared_ptr<WaitMultiAppReturnStorage> waitmultiAppReturnStorage_;
     std::shared_ptr<AppExecFwk::Configuration> configuration_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 };
-
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H

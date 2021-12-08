@@ -754,7 +754,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetAbilityState_001, TestSize.Level1
  * CaseDescription: NA
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_WillSatrtAbilityRequest_001, TestSize.Level1)
-{   
+{
     auto record = abilityRecord_->GetWillSatrtAbilityRequest();
     EXPECT_FALSE(record);
 

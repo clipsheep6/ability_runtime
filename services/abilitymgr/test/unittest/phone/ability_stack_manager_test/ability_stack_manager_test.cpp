@@ -79,7 +79,7 @@ void AbilityStackManagerTest::OnStartabilityMs()
         }
 
         abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
-        
+
         abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
         EXPECT_TRUE(abilityMs_->eventLoop_);
 
@@ -98,7 +98,7 @@ void AbilityStackManagerTest::OnStartabilityMs()
 
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs_->pendingWantManager_);
-      
+
         int userId = abilityMs_->GetUserId();
         abilityMs_->SetStackManager(userId);
         abilityMs_->systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
@@ -157,7 +157,7 @@ void AbilityStackManagerTest::init()
 
 void AbilityStackManagerTest::makeScene(
     const std::string &abilityName, const std::string &bundleName, AbilityInfo &abilityInfo, Want &want)
-{   
+{
     abilityInfo.applicationInfo.uid = 110;
 
     if (bundleName == "com.ix.hiworld") {
@@ -1504,7 +1504,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_042, TestSize.
     stackManager_->UninstallApp("com.ix.hiMusic", 2);
     // process died
     stackManager_->OnAbilityDied(thirdTopAbility);
-   
+
     auto topAbility = stackManager_->GetCurrentTopAbility();
     EXPECT_TRUE(topAbility);
     EXPECT_EQ("MusicAbility", topAbility->GetAbilityInfo().name);
@@ -2222,9 +2222,8 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_061, TestSize.
     EXPECT_EQ(stact->GetMissionStackId(), DEFAULT_MISSION_STACK_ID);
 
     // promary mission id
-    abilityStartSetting->AddProperty(
-        AbilityStartSetting::WINDOW_MODE_KEY, std::to_string(
-            AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
+    abilityStartSetting->AddProperty(AbilityStartSetting::WINDOW_MODE_KEY,
+        std::to_string(AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING));
     EXPECT_TRUE(abilityStartSetting);
 
     musicAbilityRequest_.startSetting = abilityStartSetting;
@@ -2489,7 +2488,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_067, TestSize.
     MissionOption missionOption;
     missionOption.missionId = musicMissionRecord->GetMissionRecordId();
     missionOption.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING;
-    
+
     auto ref = stackManager_->MoveMissionToFloatingStack(missionOption);
     EXPECT_EQ(ref, ERR_NONE);
 
@@ -3242,7 +3241,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_087, TestSize.
     auto ref = stackManager_->GenerateMissinOptionsOfSplitScreen(primary, secondary, options);
     EXPECT_EQ(ERR_INVALID_DATA, ref);
 }
- 
+
 /*
  * Feature: AbilityStackManager
  * Function: GenerateMissinOptionsOfSplitScreen
@@ -3255,7 +3254,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_088, TestSize.
 {
     stackManager_->Init();
 
-     // start top ability
+    // start top ability
     auto result = stackManager_->StartAbility(radioAbilityRequest_);
     EXPECT_EQ(0, result);
     auto firstTopAbility = stackManager_->GetCurrentTopAbility();
@@ -3294,7 +3293,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_089, TestSize.
 {
     stackManager_->Init();
 
-     // start top ability
+    // start top ability
     auto result = stackManager_->StartAbility(radioAbilityRequest_);
     EXPECT_EQ(0, result);
     auto firstTopAbility = stackManager_->GetCurrentTopAbility();
@@ -3355,12 +3354,12 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
     EXPECT_EQ(0, result);
     auto firstTopAbility = stackManager_->GetCurrentTopAbility();
     firstTopAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
-   
+
     result = stackManager_->StartAbility(musicAbilityRequest_);
     EXPECT_EQ(0, result);
     auto musicAbility = stackManager_->GetCurrentTopAbility();
     musicAbility->SetAbilityState(OHOS::AAFwk::ACTIVE);
- 
+
     // start split screen
     auto abilityStartSetting = AbilityStartSetting::GetEmptySetting();
     // Set floating window identification
@@ -3380,7 +3379,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
     EXPECT_EQ(stack->GetMissionStackId(), SPLIT_SCREEN_MISSION_STACK_ID);
 
     // radio move to the split screen
-    auto  radioStack = firstTopAbility->GetMissionRecord()->GetMissionStack();
+    auto radioStack = firstTopAbility->GetMissionRecord()->GetMissionStack();
     EXPECT_TRUE(radioStack);
     EXPECT_EQ(radioStack->GetMissionStackId(), SPLIT_SCREEN_MISSION_STACK_ID);
 
@@ -3390,7 +3389,8 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_091, TestSize.
 
     EXPECT_TRUE(stackManager_->defaultMissionStack_);
     stackManager_->UpdateMissionOption(friendMission,
-        stackManager_->defaultMissionStack_, AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN);
+        stackManager_->defaultMissionStack_,
+        AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN);
 
     EXPECT_EQ(radioStack->GetMissionStackId(), SPLIT_SCREEN_MISSION_STACK_ID);
 }
@@ -3905,7 +3905,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0108, TestSize
 
     TerminatingAbility musicTerminateAbility;
     musicTerminateAbility.abilityRecord = musicAbilityRecord;
-    
+
     TerminatingAbility musicSaTerminateAbility;
     musicSaTerminateAbility.abilityRecord = musicSaAbilityRecord;
 
@@ -4029,7 +4029,8 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0111, TestSize
     stackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, topAbilityRecord->GetEventId());
 
     lockState = stackManager_->GetMissionLockModeState();
-    EXPECT_NE((LockMissionContainer::LockMissionState)lockState, LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
+    EXPECT_NE((LockMissionContainer::LockMissionState)lockState,
+        LockMissionContainer::LockMissionState::LOCK_MISSION_STATE_LOCKED);
 }
 
 /*
@@ -4080,7 +4081,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0112, TestSize
 
     TerminatingAbility musicTerminateAbility;
     musicTerminateAbility.abilityRecord = musicAbilityRecord;
-    
+
     TerminatingAbility radioSaTerminateAbility;
     radioSaTerminateAbility.abilityRecord = radioAbilityRecord;
 
@@ -4284,7 +4285,6 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0117, TestSize
     EXPECT_TRUE(abilityStartSetting);
     radioAbilityRequest_.startSetting = abilityStartSetting;
 
-    
     result = stackManager_->StartAbility(radioTonAbilityRequest_);
     EXPECT_EQ(0, result);
     auto radioAbility = stackManager_->GetCurrentTopAbility();
@@ -4537,7 +4537,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0125, TestSize
 {
     stackManager_->Init();
 
-    auto currentAbility =  AbilityRecord::CreateAbilityRecord(musicAbilityRequest_);
+    auto currentAbility = AbilityRecord::CreateAbilityRecord(musicAbilityRequest_);
     auto targetAbility = AbilityRecord::CreateAbilityRecord(radioAbilityRequest_);
     auto targetMissionRecord = std::make_shared<MissionRecord>("test");
 
@@ -4545,7 +4545,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0125, TestSize
     option.missionId = 2;
     option.winModeKey = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY;
     targetMissionRecord->SetMissionOption(option);
-    
+
     stackManager_->MoveMissionAndAbility(currentAbility, targetAbility, targetMissionRecord);
 
     auto ability = targetMissionRecord->GetTopAbilityRecord();
@@ -4603,7 +4603,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0127, TestSize
 {
     stackManager_->Init();
 
-     // start a luncher
+    // start a luncher
     auto result = stackManager_->StartAbility(launcherAbilityRequest_);
     EXPECT_EQ(0, result);
     auto topMissionRecord = stackManager_->GetTopMissionRecord();
@@ -4698,7 +4698,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0129, TestSize
     EXPECT_TRUE(ability);
 
     ability->SetMovingBackgroundFlag(true);
-    
+
     stackManager_->CompleteActive(ability);
     EXPECT_EQ(ability->GetAbilityState(), AbilityState::ACTIVE);
 }
@@ -4726,12 +4726,11 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0130, TestSize
     EXPECT_TRUE(ability);
 
     ability->SetMovingBackgroundFlag(true);
-    
+
     stackManager_->CompleteInactive(ability);
 
     EXPECT_EQ(ability->GetAbilityState(), AbilityState::MOVING_BACKGROUND);
 }
-
 
 /*
  * Feature: AbilityStackManager
@@ -4758,9 +4757,9 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0131, TestSize
     ability->SetAbilityState(AbilityState::MOVING_BACKGROUND);
 
     ability->SetMovingBackgroundFlag(true);
-    
+
     stackManager_->CompleteBackground(ability);
-    
+
     EXPECT_EQ(ability->GetAbilityState(), AbilityState::BACKGROUND);
 }
 
@@ -4848,7 +4847,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0134, TestSize
     EXPECT_TRUE(luncerAbility);
     luncerAbility->SetAbilityState(AbilityState::ACTIVE);
     // start selector ability
-    
+
     Want want;
     want.SetElementName(
         AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
@@ -4898,7 +4897,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0135, TestSize
     EXPECT_TRUE(luncerAbility);
     luncerAbility->SetAbilityState(AbilityState::ACTIVE);
     // start selector ability
-    
+
     Want want;
     want.SetElementName(
         AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
@@ -4945,7 +4944,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0136, TestSize
     EXPECT_TRUE(luncerAbility);
     luncerAbility->SetAbilityState(AbilityState::ACTIVE);
     // start selector ability
-    
+
     Want want;
     want.SetElementName(
         AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
@@ -4997,7 +4996,7 @@ HWTEST_F(AbilityStackManagerTest, ability_stack_manager_operating_0137, TestSize
     EXPECT_TRUE(luncerAbility);
     luncerAbility->SetAbilityState(AbilityState::ACTIVE);
     // start selector ability
-    
+
     Want want;
     want.SetElementName(
         AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);

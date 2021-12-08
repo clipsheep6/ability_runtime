@@ -75,8 +75,9 @@ public:
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
     MOCK_METHOD4(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
-                                   const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int uid));                               
+                                const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD4(
+        StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int uid));
     MOCK_METHOD1(MoveMissionToFloatingStack, int(const MissionOption &missionOption));
     MOCK_METHOD2(MoveMissionToSplitScreenStack, int(const MissionOption &primary, const MissionOption &secondary));
     MOCK_METHOD2(

@@ -144,7 +144,8 @@ public:
         return 0;
     }
 
-    int StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = -1, int requestUid = -1) override
+    int StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int requestCode = -1, int requestUid = -1) override
     {
         return 0;
     }

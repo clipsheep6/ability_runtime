@@ -111,40 +111,40 @@ bool BundleMgrService::GetBundleInfos(const BundleFlag flag, std::vector<BundleI
 {
     BundleInfo worldInfo;
     worldInfo.name = COM_IX_HIWORLD;
-    worldInfo.uid = 1;
+    worldInfo.uid = HIWORLD_APP_UID;
     BundleInfo musicInfo;
     musicInfo.name = COM_IX_HIMUSIC;
-    musicInfo.uid = 2;
+    musicInfo.uid = HIMUSIC_APP_UID;
     BundleInfo radioInfo;
     radioInfo.name = COM_IX_HIRADIO;
-    radioInfo.uid = 3;
+    radioInfo.uid = HIRADIO_APP_UID;
     BundleInfo serviceInfo;
     serviceInfo.name = COM_IX_HISERVICE;
-    serviceInfo.uid = 4;
+    serviceInfo.uid = HISERVICE_UID;
     BundleInfo musicServiceInfo;
     musicServiceInfo.name = COM_IX_MUSICSERVICE;
-    musicServiceInfo.uid = 5;
+    musicServiceInfo.uid = MUSICSERVICE_UID;
     BundleInfo systemUiInfo;
     systemUiInfo.name = SYSTEM_UI_BUNDLE_NAME;
-    systemUiInfo.uid = 7;
+    systemUiInfo.uid = SYSTEM_UI_UID;
     BundleInfo phoneInfo;
     phoneInfo.name = COM_IX_HIPHONE;
-    phoneInfo.uid = 8;
+    phoneInfo.uid = HIPHONE_UID;
     BundleInfo selectorInfo;
     selectorInfo.name = COM_IX_HISELECTOR;
-    selectorInfo.uid = 9;
+    selectorInfo.uid = HISELECTOR_UID;
     BundleInfo test1Info;
     test1Info.name = COM_IX_TEST1;
-    test1Info.uid = 10;
+    test1Info.uid = TEST1_UID;
     BundleInfo test2Info;
     test2Info.name = COM_IX_TEST2;
-    test2Info.uid = 11;
+    test2Info.uid = TEST2_UID;
     BundleInfo test3Info;
     test3Info.name = COM_IX_TEST3;
-    test3Info.uid = 12;
+    test3Info.uid = TEST3_UID;
     BundleInfo test4Info;
     test4Info.name = COM_IX_TEST4;
-    test4Info.uid = 13;
+    test4Info.uid = TEST4_UID;
 
     bundleInfos.emplace_back(worldInfo);
     bundleInfos.emplace_back(musicInfo);
@@ -225,7 +225,7 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -242,10 +242,10 @@ bool BundleMgrService::QueryAbilityInfosByUri(const std::string &abilityUri, std
             call(bundleName, info, element);
             abilityInfos.emplace_back(info);
             return true;
-        }    
+        }
     }
     return false;
-}   
+}
 
 bool BundleMgrService::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
 {
@@ -269,7 +269,7 @@ bool BundleMgrService::GetApplicationInfo(
 bool BundleMgrService::CheckIsSystemAppByUid(const int uid)
 {
     int maxSysUid {MAX_SYS_UID};
-    int baseSysUid{ROOT_UID};
+    int baseSysUid {ROOT_UID};
     if (uid >= baseSysUid && uid <= maxSysUid) {
         return true;
     }
@@ -297,8 +297,8 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
     auto bundleName = element.GetBundleName();
     auto abilityName = element.GetAbilityName();
     if (find || (bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME &&
-        (abilityName == AbilityConfig::SYSTEM_UI_STATUS_BAR ||
-        abilityName == AbilityConfig::SYSTEM_UI_NAVIGATION_BAR))) {
+                    (abilityName == AbilityConfig::SYSTEM_UI_STATUS_BAR ||
+                        abilityName == AbilityConfig::SYSTEM_UI_NAVIGATION_BAR))) {
         return true;
     }
 
@@ -316,6 +316,5 @@ bool BundleMgrService::NotifyActivityLifeStatus(
     GTEST_LOG_(INFO) << "BundleMgrService::NotifyActivityLifeStatus()";
     return true;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

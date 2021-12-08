@@ -119,9 +119,9 @@ void AbilityManagerServiceTest::OnStartAms()
         if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
             return;
         }
-   
+
         abilityMs_->state_ = ServiceRunningState::STATE_RUNNING;
-        
+
         abilityMs_->eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
         EXPECT_TRUE(abilityMs_->eventLoop_);
 
@@ -141,8 +141,8 @@ void AbilityManagerServiceTest::OnStartAms()
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs_->pendingWantManager_);
 
-        abilityMs_->parameterContaier_ = std::make_shared<AbilityParameterContaier>();
-        EXPECT_TRUE(abilityMs_->parameterContaier_);
+        abilityMs_->parameterContainer_ = std::make_shared<AbilityParameterContainer>();
+        EXPECT_TRUE(abilityMs_->parameterContainer_);
         abilityMs_->configuration_ = std::make_shared<AppExecFwk::Configuration>();
         EXPECT_TRUE(abilityMs_->configuration_);
         abilityMs_->GetGlobalConfiguration();
@@ -189,7 +189,6 @@ void AbilityManagerServiceTest::SetUp()
         abilityRequest_.abilityInfo.type = AbilityType::DATA;
         abilityRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
     }
-
 }
 
 void AbilityManagerServiceTest::TearDown()
@@ -735,7 +734,7 @@ HWTEST_F(AbilityManagerServiceTest, Interface_017, TestSize.Level1)
     wantLuncher.SetElement(elementLun);
     abilityMs_->StartAbility(wantLuncher);
     WaitUntilTaskFinished();
-    
+
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -853,7 +852,6 @@ HWTEST_F(AbilityManagerServiceTest, Interface_020, TestSize.Level1)
 
     EXPECT_EQ(stackManage->GetCurrentMissionStack()->GetMissionRecordCount(), 1);
     EXPECT_EQ(abilityMs_->RemoveStack(1), ERR_OK);
-
 }
 
 /*
@@ -1048,7 +1046,7 @@ HWTEST_F(AbilityManagerServiceTest, Interface_025, TestSize.Level1)
     ElementName element("device", "com.ix.musicService", "MusicService");
     want.SetElement(element);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-    
+
     auto result = abilityMs_->ConnectAbility(want, callback, nullptr);
     WaitUntilTaskFinished();
     EXPECT_EQ(result, ERR_OK);
@@ -1676,7 +1674,7 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_001, TestSize.Level1)
     AbilityRecordInfo barAbilityInfo;
     barAbility->GetAbilityRecordInfo(barAbilityInfo);
     auto dialogtoken = barAbility->GetToken();
-    
+
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
     EXPECT_EQ(abilityMs_->AttachAbilityThread(scheduler, dialogtoken), OHOS::ERR_OK);
     EXPECT_TRUE(barAbility->GetAbilityInfo().bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME);
@@ -1917,12 +1915,12 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_008, TestSize.Level1)
     auto abilityToken = ability->GetToken();
 
     EXPECT_TRUE(ability->GetAbilityInfo().bundleName == COM_IX_HIWORLD);
- 
+
     ElementName elementTv("device", "com.ix.hiRadio", "hiRadio");
     want.SetElement(elementTv);
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
-    
+
     // helloAbility inactive
     stackManager->CompleteInactive(ability);
 
@@ -1968,7 +1966,7 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_009, TestSize.Level1)
     want.SetElement(elementTv);
     auto resultTv = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultTv);
-    
+
     // helloAbility inactive
     stackManager->CompleteInactive(ability);
 
@@ -2066,7 +2064,7 @@ HWTEST_F(AbilityManagerServiceTest, handleloadtimeout_011, TestSize.Level1)
     auto abilityTv = stackManagerTv->GetCurrentTopAbility();
 
     abilityMs_->HandleLoadTimeOut(INT32_MAX);
-  
+
     auto newStackManager = abilityMs_->GetStackManager();
     auto newAbility = newStackManager->GetCurrentTopAbility();
     EXPECT_TRUE(newAbility->GetAbilityInfo().bundleName == "com.ix.hiRadio");
@@ -2614,7 +2612,7 @@ HWTEST_F(AbilityManagerServiceTest, movemissiontoend_011, TestSize.Level1)
     want.SetElement(elementPhone);
     auto resultPhone = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, resultPhone);
-    
+
     auto abilityPhone = stackManager->GetCurrentTopAbility();
     abilityPhone->SetAbilityState(AbilityState::ACTIVE);
     AbilityRequest requestInfo;
@@ -2840,8 +2838,8 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityInfoFromBms_004, TestSize.Level1)
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, StartMultiApplicationSelector_001, TestSize.Level1)
-{   
-   std::vector<AppExecFwk::AbilityInfo> abilityInfos;
+{
+    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
 
     int uid = 10;
     AppExecFwk::AbilityInfo theOne;
@@ -2872,7 +2870,7 @@ HWTEST_F(AbilityManagerServiceTest, StartMultiApplicationSelector_001, TestSize.
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, StartMultiApplicationSelector_002, TestSize.Level1)
-{   
+{
     Want want;
     ElementName element("device", "com.ix.hiworld", "luncher");
     want.SetElement(element);
@@ -2883,7 +2881,7 @@ HWTEST_F(AbilityManagerServiceTest, StartMultiApplicationSelector_002, TestSize.
     auto topAbility = stackManager->GetCurrentTopAbility();
     EXPECT_TRUE(topAbility);
     topAbility->SetAbilityState(AbilityState::ACTIVE);
-    
+
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
 
     int uid = 10;
@@ -2917,7 +2915,7 @@ HWTEST_F(AbilityManagerServiceTest, StartMultiApplicationSelector_002, TestSize.
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_001, TestSize.Level1)
-{   
+{
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
     abilityInfo.name = "luncher";
@@ -2944,7 +2942,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_001, TestSize.Lev
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_002, TestSize.Level1)
-{   
+{
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
     abilityInfo.name = "hiMusic";
@@ -2971,7 +2969,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_002, TestSize.Lev
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_003, TestSize.Level1)
-{   
+{
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
     abilityInfo.name = "hiMusic";
@@ -3000,7 +2998,7 @@ HWTEST_F(AbilityManagerServiceTest, CheckStartAbilityCondition_003, TestSize.Lev
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, GetAbilityRequestWhenStartAbility_001, TestSize.Level1)
-{   
+{
     int uid = 2;
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
@@ -3030,7 +3028,7 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRequestWhenStartAbility_001, TestS
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, GetAbilityRequestWhenStartAbilitySetting_001, TestSize.Level1)
-{   
+{
     int uid = 2;
     AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.visible = true;
@@ -3053,14 +3051,14 @@ HWTEST_F(AbilityManagerServiceTest, GetAbilityRequestWhenStartAbilitySetting_001
 
 /*
  * Feature: AbilityManagerService
- * Function: StartAbility 
+ * Function: StartAbility
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
  * CaseDescription: start ability by uid
  */
 HWTEST_F(AbilityManagerServiceTest, StartAbility_uid_001, TestSize.Level1)
-{   
+{
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     Want want;
     want.SetElement(element);
@@ -3079,14 +3077,14 @@ HWTEST_F(AbilityManagerServiceTest, StartAbility_uid_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: ConnectAbility 
+ * Function: ConnectAbility
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
  * CaseDescription: start ability by uid
  */
 HWTEST_F(AbilityManagerServiceTest, ConnectAbility_001, TestSize.Level1)
-{   
+{
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     Want want;
     want.SetElement(element);
@@ -3117,14 +3115,14 @@ HWTEST_F(AbilityManagerServiceTest, ConnectAbility_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: StopServiceAbility 
+ * Function: StopServiceAbility
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
  * CaseDescription: start ability by uid
  */
 HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
-{   
+{
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     Want want;
     want.SetElement(element);
@@ -3161,7 +3159,7 @@ HWTEST_F(AbilityManagerServiceTest, StopServiceAbility_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: StartSelectedApplication 
+ * Function: StartSelectedApplication
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
@@ -3175,14 +3173,14 @@ HWTEST_F(AbilityManagerServiceTest, StartSelectedApplication_001, TestSize.Level
 
 /*
  * Feature: AbilityManagerService
- * Function: StartSelectedApplication 
+ * Function: StartSelectedApplication
  * SubFunction: NA
  * FunctionPoints: NA
  * EnvConditions: NA
  * CaseDescription: NA
  */
 HWTEST_F(AbilityManagerServiceTest, StartSelectedApplication_00, TestSize.Level1)
-{   
+{
     Want want;
     Want *requestWnat = &want;
     auto abilityRequest = abilityMs_->StartSelectedApplication(requestWnat, nullptr);

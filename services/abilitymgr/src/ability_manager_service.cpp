@@ -128,8 +128,8 @@ bool AbilityManagerService::Init()
     auto dataAbilityManager = std::make_shared<DataAbilityManager>();
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager);
 
-    auto parameterContaier = std::make_shared<AbilityParameterContaier>();
-    CHECK_POINTER_RETURN_BOOL(parameterContaier);
+    auto parameterContainer = std::make_shared<AbilityParameterContainer>();
+    CHECK_POINTER_RETURN_BOOL(parameterContainer);
 
     auto waitmultiAppReturnStorage = std::make_shared<WaitMultiAppReturnStorage>();
     CHECK_POINTER_RETURN_BOOL(waitmultiAppReturnStorage);
@@ -158,24 +158,24 @@ bool AbilityManagerService::Init()
     auto startLauncherAbilityTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startLauncherAbilityTask, "startLauncherAbility");
     auto creatWhiteListTask = [aams = shared_from_this()]() {
-        if (access(AmsWhiteList::AMS_WHITE_LIST_DIR_PATH.c_str(), F_OK) != 0) {
-            if (mkdir(AmsWhiteList::AMS_WHITE_LIST_DIR_PATH.c_str(), S_IRWXO|S_IRWXG|S_IRWXU)) {
-                HILOG_ERROR("mkdir AmsWhiteList::AMS_WHITE_LIST_DIR_PATH Fail");
+        if (access(AmsWhiteList::WHITE_LIST_DIR_PATH.c_str(), F_OK) != 0) {
+            if (mkdir(AmsWhiteList::WHITE_LIST_DIR_PATH.c_str(), S_IRWXO|S_IRWXG|S_IRWXU)) {
+                HILOG_ERROR("mkdir AmsWhiteList::WHITE_LIST_DIR_PATH Fail");
                 return;
             }
         }
-        if (aams->IsExistFile(AmsWhiteList::AMS_WHITE_LIST_FILE_PATH)) {
+        if (aams->IsExistFile(AmsWhiteList::WHITE_LIST_FILE_PATH)) {
             HILOG_INFO("file exists");
             return;
         }
         HILOG_INFO("no such file,creat...");
-        std::ofstream outFile(AmsWhiteList::AMS_WHITE_LIST_FILE_PATH, std::ios::out);
+        std::ofstream outFile(AmsWhiteList::WHITE_LIST_FILE_PATH, std::ios::out);
         outFile.close();
     };
     handler_->PostTask(creatWhiteListTask, "creatWhiteList");
     dataAbilityManager_ = dataAbilityManager;
     pendingWantManager_ = pendingWantManager;
-    parameterContaier_ = parameterContaier;
+    parameterContainer_ = parameterContainer;
     waitmultiAppReturnStorage_ = waitmultiAppReturnStorage;
     HILOG_INFO("Init success.");
     return true;
@@ -1857,7 +1857,7 @@ int AbilityManagerService::GetAbilityInfoFromBms(const std::vector<AppExecFwk::A
         auto iter = std::find_if(abilityInfos.begin(), abilityInfos.end(), isExist);
         if (iter != abilityInfos.end()) {
             HILOG_DEBUG("Get target success.");
-            if (!(bms->CheckBundleNameInAllowList((*iter).bundleName)) && true == (*iter).applicationInfo.isCloned) {
+            if (!(bms->CheckBundleNameInAllowList((*iter).bundleName)) && (*iter).applicationInfo.isCloned) {
                 HILOG_DEBUG("start split app, this app not in allow list");
                 return RESOLVE_ABILITY_ERR;
             }
@@ -1884,7 +1884,7 @@ int AbilityManagerService::GetAbilityInfoFromBms(const std::vector<AppExecFwk::A
         if (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID) {
             HILOG_DEBUG("caller is system");
             auto isExist = [](const AppExecFwk::AbilityInfo &abilityInfo) {
-                return false == abilityInfo.applicationInfo.isCloned;
+                return (false == abilityInfo.applicationInfo.isCloned);
             };
             auto iter = std::find_if(abilityInfos.begin(), abilityInfos.end(), isExist);
             if (iter != abilityInfos.end()) {
@@ -1918,7 +1918,7 @@ int AbilityManagerService::GetAbilityInfoFromBms(const std::vector<AppExecFwk::A
                 return RESOLVE_ABILITY_ERR;
             } else {
                 auto isExist = [](const AppExecFwk::AbilityInfo &abilityInfo) {
-                    return false == abilityInfo.applicationInfo.isCloned;
+                    return (false == abilityInfo.applicationInfo.isCloned);
                 };
                 auto iter = std::find_if(abilityInfos.begin(), abilityInfos.end(), isExist);
                 if (iter != abilityInfos.end()) {
@@ -1940,21 +1940,24 @@ int AbilityManagerService::StartMultiApplicationSelector(const std::vector<AppEx
     HILOG_INFO("Starting Application Selector.");
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     int abilityID = abilityRecord->GetRecordId();
-    CHECK_POINTER_AND_RETURN(parameterContaier_, ERR_INVALID_VALUE);
-    parameterContaier_->AddParameter(abilityID, request);
+    CHECK_POINTER_AND_RETURN(parameterContainer_, ERR_INVALID_VALUE);
+    parameterContainer_->AddParameter(abilityID, request);
     Want want;
     want.SetParam(AbilityConfig::APPLICATION_SELECTOR_CALLER_ABILITY_RECORD_ID, abilityID);
     std::vector<int> uidInfos;
     std::vector<std::string> lableInfos;
     std::vector<std::string> iconPathInfos;
+    std::vector<bool> isClonedInfos;
     for (auto &abilityInfo : abilityInfos) {
         uidInfos.push_back(abilityInfo.applicationInfo.uid);
         lableInfos.push_back(abilityInfo.label);
         iconPathInfos.push_back(abilityInfo.iconPath);
+        isClonedInfos.push_back(abilityInfo.applicationInfo.isCloned);
     }
     want.SetParam(AbilityConfig::APPLICATION_SELECTOR_REQUEST_UID_LIST, uidInfos);
     want.SetParam(AbilityConfig::APPLICATION_SELECTOR_ABILITY_LABLE_LIST, lableInfos);
     want.SetParam(AbilityConfig::APPLICATION_SELECTOR_ABILITY_ICON_PATH_LIST, iconPathInfos);
+    want.SetParam(AbilityConfig::APPLICATION_SELECTOR_ABILITY_ISCLONED_LIST, isClonedInfos);
     want.SetElementName(
         AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME, AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME);
     HILOG_INFO("Ability name: %{public}s.", AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME.c_str());
@@ -1968,18 +1971,25 @@ std::shared_ptr<AbilityRequest> AbilityManagerService::StartSelectedApplication(
     CHECK_POINTER_AND_RETURN_LOG(resultWant, nullptr, "resultWant is nullptr");
     auto callerAbilityID =
         resultWant->GetIntParam(AbilityConfig::APPLICATION_SELECTOR_CALLER_ABILITY_RECORD_ID, DEFAULT_INVAL_VALUE);
-    CHECK_POINTER_AND_RETURN_LOG(parameterContaier_, nullptr, "parameterContaier_ is nullptr");
-    AbilityRequest abilityRequest = parameterContaier_->GetAbilityRequestFromContaier(callerAbilityID);
-    parameterContaier_->RemoveParameterByID(callerAbilityID);
+    CHECK_POINTER_AND_RETURN_LOG(parameterContainer_, nullptr, "parameterContainer_ is nullptr");
+    AbilityRequest abilityRequest = parameterContainer_->GetAbilityRequestFromContainer(callerAbilityID);
+    parameterContainer_->RemoveParameterByID(callerAbilityID);
     auto requestUid = resultWant->GetIntParam(AbilityConfig::APPLICATION_SELECTOR_RESULT_UID, DEFAULT_INVAL_VALUE);
     HILOG_DEBUG("requestUid value %{public}d.", requestUid);
     if (requestUid == DEFAULT_INVAL_VALUE) {
         HILOG_DEBUG("The application selector does not select data.");
+        if (ACQUIRE_DATA_ABILITY_TYPE == abilityRequest.callType) {
+            CHECK_POINTER_AND_RETURN(waitmultiAppReturnStorage_, nullptr);
+            auto waitMultiAppReturnRecord = waitmultiAppReturnStorage_->GetRecord(abilityRequest.callerToken);
+            waitmultiAppReturnStorage_->RemoveRecord(abilityRequest.callerToken);
+            CHECK_POINTER_AND_RETURN(waitMultiAppReturnRecord, nullptr);
+            waitMultiAppReturnRecord->multiAppSelectorReturn(DEFAULT_INVAL_VALUE);
+        }
         return nullptr;
     }
     switch (abilityRequest.callType) {
         case AbilityCallType::INVALID_TYPE: {
-            HILOG_ERROR("No get abilityRequest from parameterContaier_");
+            HILOG_ERROR("No get abilityRequest from parameterContainer_");
             return nullptr;
         }
         case AbilityCallType::START_ABILITY_TYPE: {
@@ -2003,7 +2013,7 @@ std::shared_ptr<AbilityRequest> AbilityManagerService::StartSelectedApplication(
         }
         case AbilityCallType::ACQUIRE_DATA_ABILITY_TYPE: {
             HILOG_DEBUG("AbilityCallType::ACQUIRE_DATA_ABILITY_TYPE Task");
-            auto acquirDataAbilityTask = [aams = shared_from_this(),abilityRequest, requestUid]() {
+            auto acquirDataAbilityTask = [aams = shared_from_this(), abilityRequest, requestUid]() {
                 CHECK_POINTER(aams->waitmultiAppReturnStorage_);
                 auto waitMultiAppReturnRecord = aams->waitmultiAppReturnStorage_->GetRecord(abilityRequest.callerToken);
                 aams->waitmultiAppReturnStorage_->RemoveRecord(abilityRequest.callerToken);
@@ -2134,9 +2144,9 @@ void AbilityManagerService::MultiAppSelectorDiedClearData(std::shared_ptr<Abilit
         auto want = abilityRecord->GetWant();
         auto callerAbilityID =
         want.GetIntParam(AbilityConfig::APPLICATION_SELECTOR_CALLER_ABILITY_RECORD_ID, DEFAULT_INVAL_VALUE);
-        CHECK_POINTER_LOG(parameterContaier_, "parameterContaier_ is nullptr");
-        AbilityRequest abilityRequest = parameterContaier_->GetAbilityRequestFromContaier(callerAbilityID);
-        parameterContaier_->RemoveParameterByID(callerAbilityID);
+        CHECK_POINTER_LOG(parameterContainer_, "parameterContainer_ is nullptr");
+        AbilityRequest abilityRequest = parameterContainer_->GetAbilityRequestFromContainer(callerAbilityID);
+        parameterContainer_->RemoveParameterByID(callerAbilityID);
         if (ACQUIRE_DATA_ABILITY_TYPE == abilityRequest.callType) {
             CHECK_POINTER(waitmultiAppReturnStorage_);
             auto waitMultiAppReturnRecord = waitmultiAppReturnStorage_->GetRecord(abilityRequest.callerToken);

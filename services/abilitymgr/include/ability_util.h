@@ -107,9 +107,10 @@ static constexpr unsigned int CHANGE_CONFIG_DENSITY = 0x00000010;
     return false;
 }
 
-[[maybe_unused]] static bool IsMultiApplicationSelectorAbility(const std::string &bundleName, const std::string &abilityName)
+[[maybe_unused]] static bool IsMultiApplicationSelectorAbility
+    (const std::string &bundleName, const std::string &abilityName)
 {
-    if (abilityName == AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME && 
+    if (abilityName == AbilityConfig::APPLICATION_SELECTOR_ABILITY_NAME &&
         bundleName == AbilityConfig::APPLICATION_SELECTOR_BUNDLE_NAME) {
         return true;
     }

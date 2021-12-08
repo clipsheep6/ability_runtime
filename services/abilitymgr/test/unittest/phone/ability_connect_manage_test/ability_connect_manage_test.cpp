@@ -1410,7 +1410,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_029, TestSize.Level1)
  * SubFunction: NA
  * FunctionPoints: StartAbility and StopServiceAbility
  * EnvConditions:NA
- * CaseDescription: Stop the application with uid 
+ * CaseDescription: Stop the application with uid
  */
 HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_030, TestSize.Level1)
 {

@@ -146,7 +146,7 @@ bool BundleMgrService::NotifyActivityLifeStatus(
 
 bool BundleMgrService::QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos)
 {
-    if(abilityUri.find(COM_IX_HIDATA) == std::string::npos){
+    if(abilityUri.find(COM_IX_HIDATA) == std::string::npos) {
         GTEST_LOG_(INFO) << "QueryAbilityInfosByUri false";
         return false;
     }
@@ -160,12 +160,12 @@ bool BundleMgrService::QueryAbilityInfosByUri(const std::string &abilityUri, std
     }
     GTEST_LOG_(INFO) << "QueryAbilityInfosByUri size : "<<abilityInfos.size();
     return true;
-}  
+}
 
 bool BundleMgrService::CheckIsSystemAppByUid(const int uid)
 {
-    int maxSysUid{MAX_SYS_UID};
-    int baseSysUid{ROOT_UID};
+    int maxSysUid {MAX_SYS_UID};
+    int baseSysUid {ROOT_UID};
     if (uid >= baseSysUid && uid <= maxSysUid) {
         return true;
     }
@@ -200,7 +200,7 @@ void BundleMgrService::PushHiWorldAbility()
     info.applicationInfo.name = "Helloworld";
     info.type = AbilityType::PAGE;
     info.applicationInfo.isLauncherApp = true;
-    info.applicationInfo.uid = 10001;
+    info.applicationInfo.uid = HIWORLD_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -208,7 +208,7 @@ void BundleMgrService::PushHiWorldAbility()
 
     BundleInfo bundleInfo;
     bundleInfo.name = COM_IX_HIWORLD;
-    bundleInfo.uid = 10001;
+    bundleInfo.uid = HIWORLD_APP_UID;
     bundleInfo.abilityInfos.emplace_back(info);
     bundleInfo.applicationInfo = info.applicationInfo;
     bundleInfos_.emplace_back(bundleInfo);
@@ -224,7 +224,7 @@ void BundleMgrService::PushHiMusicAbility()
     info1.applicationInfo.name = "hiMusic";
     info1.type = AbilityType::PAGE;
     info1.applicationInfo.isLauncherApp = false;
-    info1.applicationInfo.uid = 10002;
+    info1.applicationInfo.uid = HIMUSIC_APP_UID;
     info1.applicationInfo.isCloned = false;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -239,7 +239,7 @@ void BundleMgrService::PushHiMusicAbility()
     info2.applicationInfo.name = "hiMusic";
     info2.type = AbilityType::PAGE;
     info2.applicationInfo.isLauncherApp = false;
-    info2.applicationInfo.uid = 10002;
+    info2.applicationInfo.uid = HIMUSIC_APP_UID;
     info2.applicationInfo.isCloned = false;
     info2.deviceId = "deviceId";
     info2.visible = true;
@@ -254,7 +254,7 @@ void BundleMgrService::PushHiMusicAbility()
     info3.applicationInfo.name = "hiMusic";
     info3.type = AbilityType::PAGE;
     info3.applicationInfo.isLauncherApp = false;
-    info3.applicationInfo.uid = 10002;
+    info3.applicationInfo.uid = HIMUSIC_APP_UID;
     info3.applicationInfo.isCloned = false;
     info3.deviceId = "deviceId";
     info3.visible = true;
@@ -269,7 +269,7 @@ void BundleMgrService::PushHiMusicAbility()
     info4.applicationInfo.name = "hiMusic";
     info4.type = AbilityType::PAGE;
     info4.applicationInfo.isLauncherApp = false;
-    info4.applicationInfo.uid = 10002;
+    info4.applicationInfo.uid = HIMUSIC_APP_UID;
     info4.applicationInfo.isCloned = false;
     info4.deviceId = "deviceId";
     info4.visible = true;
@@ -285,7 +285,7 @@ void BundleMgrService::PushHiMusicAbility()
     info5.applicationInfo.name = "hiMusic";
     info5.type = AbilityType::PAGE;
     info5.applicationInfo.isLauncherApp = false;
-    info5.applicationInfo.uid = 10002;
+    info5.applicationInfo.uid = HIMUSIC_APP_UID;
     info5.applicationInfo.isCloned = false;
     info5.deviceId = "deviceId";
     info5.visible = true;
@@ -295,7 +295,7 @@ void BundleMgrService::PushHiMusicAbility()
 
     BundleInfo bundleInfo;
     bundleInfo.name = COM_IX_HIMUSIC;
-    bundleInfo.uid = 10002;
+    bundleInfo.uid = HIMUSIC_APP_UID;
     bundleInfo.abilityInfos.emplace_back(info1);
     bundleInfo.abilityInfos.emplace_back(info2);
     bundleInfo.abilityInfos.emplace_back(info3);
@@ -316,7 +316,7 @@ void BundleMgrService::PushHiRadioAbility()
     info.applicationInfo.name = "hiRadio";
     info.type = AbilityType::PAGE;
     info.process = "p3";
-    info.applicationInfo.uid = 10003;
+    info.applicationInfo.uid = HIRADIO_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -330,7 +330,7 @@ void BundleMgrService::PushHiRadioAbility()
     info1.applicationInfo.name = "hiRadio";
     info1.type = AbilityType::PAGE;
     info1.process = "p3";
-    info1.applicationInfo.uid = 10003;
+    info1.applicationInfo.uid = HIRADIO_APP_UID;
     info1.applicationInfo.isCloned = false;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -344,7 +344,7 @@ void BundleMgrService::PushHiRadioAbility()
     info2.applicationInfo.name = "hiRadio";
     info2.type = AbilityType::PAGE;
     info2.process = "p3";
-    info2.applicationInfo.uid = 10003;
+    info2.applicationInfo.uid = HIRADIO_APP_UID;
     info2.applicationInfo.isCloned = false;
     info2.deviceId = "deviceId";
     info2.visible = true;
@@ -371,7 +371,7 @@ void BundleMgrService::PushHiServiceAbility()
     info.applicationInfo.name = "hiService";
     info.type = AbilityType::SERVICE;
     info.process = "p4";
-    info.applicationInfo.uid = 10004;
+    info.applicationInfo.uid = HISERVICE_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -394,7 +394,7 @@ void BundleMgrService::PushHiMusicServiceAbility()
     info.applicationInfo.name = "musicService";
     info.type = AbilityType::SERVICE;
     info.process = "p5";
-    info.applicationInfo.uid = 10005;
+    info.applicationInfo.uid = MUSICSERVICE_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -417,7 +417,7 @@ void BundleMgrService::PushHiDataAbility()
     info.applicationInfo.name = "hiData";
     info.type = AbilityType::DATA;
     info.process = "p6";
-    info.applicationInfo.uid = 10006;
+    info.applicationInfo.uid = HIDATA_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -430,7 +430,7 @@ void BundleMgrService::PushHiDataAbility()
     info1.applicationInfo.name = "hiData";
     info1.type = AbilityType::DATA;
     info1.process = "p6";
-    info1.applicationInfo.uid = 100061;
+    info1.applicationInfo.uid = HIDATA_APP_CLONE_UID;
     info1.applicationInfo.isCloned = true;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -463,7 +463,7 @@ void BundleMgrService::PushPhoneAbility()
     info.type = AbilityType::PAGE;
     info.applicationInfo.isLauncherApp = false;
     info.process = "p7";
-    info.applicationInfo.uid = 10007;
+    info.applicationInfo.uid = PHONE_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -478,7 +478,7 @@ void BundleMgrService::PushPhoneAbility()
     info1.type = AbilityType::PAGE;
     info1.applicationInfo.isLauncherApp = false;
     info1.process = "p7";
-    info1.applicationInfo.uid = 10007;
+    info1.applicationInfo.uid = PHONE_APP_UID;
     info1.applicationInfo.isCloned = false;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -503,7 +503,7 @@ void BundleMgrService::PushTVAbility()
     info.applicationInfo.name = "hiTV";
     info.type = AbilityType::PAGE;
     info.applicationInfo.isLauncherApp = false;
-    info.applicationInfo.uid = 10008;
+    info.applicationInfo.uid = TV_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -528,7 +528,7 @@ void BundleMgrService::PushFilmAbility()
     info.applicationInfo.name = "hiFilm";
     info.type = AbilityType::PAGE;
     info.applicationInfo.isLauncherApp = false;
-    info.applicationInfo.uid = 10009;
+    info.applicationInfo.uid = FILM_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -553,7 +553,7 @@ void BundleMgrService::PushClockAbility()
     info.applicationInfo.name = "clock";
     info.type = AbilityType::SERVICE;
     info.applicationInfo.isLauncherApp = false;
-    info.applicationInfo.uid = 10010;
+    info.applicationInfo.uid = CLOCK_SERVICE_CLONE_UID;
     info.applicationInfo.isCloned = true;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -568,7 +568,7 @@ void BundleMgrService::PushClockAbility()
     info1.applicationInfo.name = "clock";
     info1.type = AbilityType::SERVICE;
     info1.process = "p10";
-    info1.applicationInfo.uid = 10011;
+    info1.applicationInfo.uid = CLOCK_SERVICE_UID;
     info1.applicationInfo.isCloned = false;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -597,7 +597,7 @@ void BundleMgrService::PushClockCloneAbility()
     info.applicationInfo.name = "clock";
     info.type = AbilityType::PAGE;
     info.applicationInfo.isLauncherApp = false;
-    info.applicationInfo.uid = 10012;
+    info.applicationInfo.uid = CLOCK_APP_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -612,7 +612,7 @@ void BundleMgrService::PushClockCloneAbility()
     info1.applicationInfo.name = "clock";
     info1.type = AbilityType::PAGE;
     info1.process = "p10";
-    info1.applicationInfo.uid = 10013;
+    info1.applicationInfo.uid = CLOCK_APP_CLONE_UID;
     info1.applicationInfo.isCloned = true;
     info1.deviceId = "deviceId";
     info1.visible = true;
@@ -641,7 +641,7 @@ void BundleMgrService::PushEgcbility()
     info.applicationInfo.name = "egc";
     info.type = AbilityType::DATA;
     info.process = "p12";
-    info.applicationInfo.uid = 10014;
+    info.applicationInfo.uid = EGC_DATA_UID;
     info.applicationInfo.isCloned = false;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -664,7 +664,7 @@ void BundleMgrService::PushEgcClonebility()
     info.applicationInfo.name = "egc";
     info.type = AbilityType::DATA;
     info.process = "p12";
-    info.applicationInfo.uid = 10015;
+    info.applicationInfo.uid = EGC_DATA_CLONE_UID;
     info.applicationInfo.isCloned = true;
     info.deviceId = "deviceId";
     info.visible = true;
@@ -686,7 +686,7 @@ void BundleMgrService::PushSelectorAbility()
     info.applicationName = "selector";
     info.applicationInfo.name = "selector";
     info.process = "p12";
-    info.applicationInfo.uid = 10016;
+    info.applicationInfo.uid = SELECTOR_APP_UID;
     info.deviceId = "deviceId";
     info.visible = true;
 
