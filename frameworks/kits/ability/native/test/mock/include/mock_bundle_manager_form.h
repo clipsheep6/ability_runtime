@@ -267,6 +267,10 @@ public:
     {
         return true;
     };
+    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
+    {
+        return true;
+    };
     virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
         bundleName = "com.form.provider.service";
