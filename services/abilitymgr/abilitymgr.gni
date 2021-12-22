@@ -78,7 +78,4 @@ abilityms_files = [
   "${services_path}/abilitymgr/src/ability_running_record.cpp",
   "${services_path}/abilitymgr/src/mission_list.cpp",
   "${services_path}/abilitymgr/src/mission.cpp",
-  "${services_path}/abilitymgr/src/mission_index_info.cpp",
-  "${services_path}/abilitymgr/src/lock_screen_event_subscriber.cpp",
-  "${services_path}/abilitymgr/src/configuration_distributor.cpp",
 ]
