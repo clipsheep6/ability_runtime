@@ -5004,7 +5004,8 @@ void AbilityStackManager::CompleteForegroundNew(const std::shared_ptr<AbilityRec
     DelayedSingleton<AbilityManagerService>::GetInstance()->NotifyBmsAbilityLifeStatus(
         abilityRecord->GetAbilityInfo().bundleName,
         abilityRecord->GetAbilityInfo().name,
-        AbilityUtil::UTCTimeSeconds());
+        AbilityUtil::UTCTimeSeconds(),
+        abilityRecord->GetAbilityInfo().applicationInfo.uid);
 #if BINDER_IPC_32BIT
     HILOG_INFO("notify bms ability life status, bundle name:%{public}s, ability name:%{public}s, time:%{public}lld",
         abilityRecord->GetAbilityInfo().bundleName.c_str(),
