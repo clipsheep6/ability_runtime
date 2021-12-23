@@ -411,8 +411,6 @@ class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:
     WindowLifeCycleImpl(const sptr<IRemoteObject>& token) : token_(token) {}
     virtual ~WindowLifeCycleImpl() {}
-    void AfterCreated() override;
-    void BeforeDestroy() override;
     void AfterForeground() override;
     void AfterBackground() override;
     void AfterFocused() override;
