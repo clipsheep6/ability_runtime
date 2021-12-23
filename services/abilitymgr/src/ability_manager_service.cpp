@@ -2094,7 +2094,7 @@ void AbilityManagerService::StartSystemApplication()
         HILOG_INFO("start mms");
         StartingMmsAbility();
     }
-    
+
     // Location may change
     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }

@@ -5069,8 +5069,8 @@ void AbilityStackManager::CompleteForegroundNew(const std::shared_ptr<AbilityRec
         MoveToBackgroundTask(nextAbilityRecord);
     }
 
-    // 3. when the mission ends and returns to lanucher directly, the next and back are inconsistent.
-    // shoukd move back ability to background and then terminate.
+    // 3. when the mission ends and returns to launcher directly, the next and back are inconsistent.
+    // should move back ability to background and then terminate.
     std::shared_ptr<AbilityRecord> backAbilityRecord = abilityRecord->GetBackAbilityRecord();
     if (backAbilityRecord != nullptr &&
         backAbilityRecord->IsTerminating() &&
