@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include "ability_impl.h"
+#include <gtest/gtest.h>
 #include "ability_local_record.h"
 #include "app_log_wrapper.h"
 

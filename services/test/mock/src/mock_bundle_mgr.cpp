@@ -44,6 +44,12 @@ bool BundleMgrService::GetBundleInfos(const BundleFlag flag, std::vector<BundleI
     return true;
 }
 
+bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags, int32_t userId,
+    AbilityInfo &abilityInfo)
+{
+    return QueryAbilityInfo(want, abilityInfo);
+}
+
 bool BundleMgrService::QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos)
 {
     ElementName elementTemp = want.GetElement();
@@ -434,6 +440,7 @@ void BundleMgrService::PushHiDataAbility()
     info1.applicationInfo.isCloned = true;
     info1.deviceId = "deviceId";
     info1.visible = true;
+
 
     BundleInfo bundleInfo;
     bundleInfo.name = COM_IX_HIDATA;
