@@ -214,8 +214,7 @@ public:
      *
      * @return Returns the number of data records updated.
      */
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates);
+    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates);
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -327,6 +326,15 @@ public:
     virtual std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
+    /**
+     * @brief Notify continuation result to ability.
+     *
+     * @param result Continuaton result.
+     *
+     * @return
+     */
+    virtual void NotifyContinuationResult(const int32_t result);
+
 protected:
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
@@ -405,6 +413,17 @@ protected:
     std::shared_ptr<Ability> ability_;
 
 private:
+class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
+public:
+    WindowLifeCycleImpl(const sptr<IRemoteObject>& token) : token_(token) {}
+    virtual ~WindowLifeCycleImpl() {}
+    void AfterForeground() override;
+    void AfterBackground() override;
+    void AfterFocused() override;
+    void AfterUnFocused() override;
+private:
+    sptr<IRemoteObject> token_ = nullptr;
+};
     typedef enum {
         START,
         INACTIVE,
