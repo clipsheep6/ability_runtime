@@ -14,9 +14,10 @@
  */
 
 #include "ability_keyevent.h"
+
 #include "ability_impl.h"
-#include "app_log_wrapper.h"
 #include "ability_post_event_timeout.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

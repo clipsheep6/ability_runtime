@@ -14,18 +14,23 @@
  */
 
 #include "ability_impl.h"
-#include "app_log_wrapper.h"
-#include "data_ability_predicates.h"
-#include "values_bucket.h"
+
 #include "ability_keyevent.h"
 #include "ability_touchevent.h"
+#include "app_log_wrapper.h"
+#include "bytrace.h"
+#include "data_ability_predicates.h"
+#include "values_bucket.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+const int TARGET_VERSION_THRESHOLDS = 8;
+
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
     std::shared_ptr<ContextDeal> &contextDeal)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityImpl::init begin");
 
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
@@ -39,6 +44,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     record->SetAbilityImpl(shared_from_this());
     ability_ = ability;
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
+    ability_->SetSceneListener(sptr<WindowLifeCycleImpl>(new (std::nothrow) WindowLifeCycleImpl(token_)));
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
     contextDeal_ = contextDeal;
@@ -71,10 +77,15 @@ void AbilityImpl::Start(const Want &want)
 
     APP_LOGI("AbilityImpl::Start");
     ability_->OnStart(want);
-    if (ability_->GetAbilityInfo()->type == AbilityType::DATA) {
-        lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+    if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
+        (ability_->GetTargetVersion() >= TARGET_VERSION_THRESHOLDS)) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_STARTED_NEW;
     } else {
-        lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+        if (ability_->GetAbilityInfo()->type == AbilityType::DATA) {
+            lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
+        } else {
+            lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+        }
     }
 
     abilityLifecycleCallbacks_->OnAbilityStart(ability_);
@@ -99,7 +110,12 @@ void AbilityImpl::Stop()
 
     APP_LOGI("AbilityImpl::Stop");
     ability_->OnStop();
-    lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
+        (ability_->GetTargetVersion() >= TARGET_VERSION_THRESHOLDS)) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_STOPED_NEW;
+    } else {
+        lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
+    }
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
 
     // Multimodal Events UnRegister
@@ -159,6 +175,28 @@ void AbilityImpl::Inactive()
     APP_LOGI("%{public}s end.", __func__);
 }
 
+void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
+{
+    PacMap restoreData;
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+        AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
+}
+
+void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
+{
+    PacMap restoreData;
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+        AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
+}
+
+void AbilityImpl::WindowLifeCycleImpl::AfterFocused()
+{
+}
+
+void AbilityImpl::WindowLifeCycleImpl::AfterUnFocused()
+{
+}
+
 /**
  * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
  * that it belongs to of the lifecycle status.
@@ -175,7 +213,12 @@ void AbilityImpl::Foreground(const Want &want)
 
     APP_LOGI("AbilityImpl::Foreground");
     ability_->OnForeground(want);
-    lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+    if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
+        (ability_->GetTargetVersion() >= TARGET_VERSION_THRESHOLDS)) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    } else {
+        lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
+    }
     abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
     APP_LOGI("%{public}s end.", __func__);
 }
@@ -196,7 +239,12 @@ void AbilityImpl::Background()
     APP_LOGI("AbilityImpl::Background");
     ability_->OnLeaveForeground();
     ability_->OnBackground();
-    lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
+    if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
+        (ability_->GetTargetVersion() >= TARGET_VERSION_THRESHOLDS)) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
+    } else {
+        lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
+    }
     abilityLifecycleCallbacks_->OnAbilityBackground(ability_);
     APP_LOGI("%{public}s end.", __func__);
 }
@@ -382,6 +430,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
 
     if (resultData.HasParameter(OHOS_RESULT_PERMISSION_KEY) && resultData.HasParameter(OHOS_RESULT_PERMISSIONS_LIST) &&
         resultData.HasParameter(OHOS_RESULT_CALLER_BUNDLERNAME)) {
+
         if (resultCode > 0) {
             std::vector<std::string> permissions = resultData.GetStringArrayParam(OHOS_RESULT_PERMISSIONS_LIST);
             std::vector<std::string> grantYes = resultData.GetStringArrayParam(OHOS_RESULT_PERMISSIONS_LIST_YES);
@@ -740,6 +789,7 @@ void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
     ability_->OnConfigurationUpdated(config);
     APP_LOGI("%{public}s end.", __func__);
 }
+
 /**
  * @brief Multimodal Events Register.
  */
@@ -814,6 +864,15 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
     APP_LOGI("AbilityImpl::ExecuteBatch");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     return results;
+}
+
+void AbilityImpl::NotifyContinuationResult(const int32_t result)
+{
+    if (ability_ == nullptr) {
+        APP_LOGE("AbilityImpl::NotifyContinuationResult ability_ is nullptr");
+        return;
+    }
+    ability_->OnCompleteContinuation(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
