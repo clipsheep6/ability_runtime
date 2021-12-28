@@ -25,6 +25,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${EVENT_DIR}/interfaces/innerkits/native/include",
     "//third_party/jsoncpp/include",
     "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager/include",
+    "//foundation/graphic/standard/interfaces/innerkits/wmclient",
   ]
 
   sources = [
