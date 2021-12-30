@@ -26,6 +26,7 @@ ohos_moduletest("PandingWantMgrTest") {
     "//foundation/appexecfwk/standard/kits/appkit/native/app/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include/",
+    "//foundation/graphic/standard/interfaces/innerkits/wmclient",
     "//third_party/jsoncpp/include",
   ]
 

@@ -290,10 +290,10 @@ group("moduletest") {
 
   if (is_phone_product) {
     deps += [
-      #":ability_conetxt_test",
-      #":ability_moduletest",
-      #":data_ability_helper_module_test",
-      #":data_ability_operation_moduletest",
+      ":ability_conetxt_test",
+      ":ability_moduletest",
+      ":data_ability_helper_module_test",
+      ":data_ability_operation_moduletest",
     ]
   }
 }
