@@ -82,7 +82,10 @@ void AbilityImpl::Start(const Want &want)
     abilityLifecycleCallbacks_->OnAbilityStart(ability_);
 
     // Multimodal Events Register
-    WindowEventRegister();
+    if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
+        (ability_->GetTargetVersion() < TARGET_VERSION_THRESHOLDS)) {
+        WindowEventRegister();
+    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -799,12 +802,13 @@ void AbilityImpl::WindowEventRegister()
     APP_LOGI("%{public}s called.", __func__);
     if (ability_->GetTargetVersion() < TARGET_VERSION_THRESHOLDS) {
         auto window = ability_->GetWindow();
-        std::shared_ptr<MMI::IInputEventConsumer> inputEventListener =
-            std::make_shared<AbilityImpl::InputEventConsumerImpl>(shared_from_this());
-        window->AddInputEventListener(inputEventListener);
+        if (window) {
+            std::shared_ptr<MMI::IInputEventConsumer> inputEventListener =
+                std::make_shared<AbilityImpl::InputEventConsumerImpl>(shared_from_this());
+            window->AddInputEventListener(inputEventListener);
+        }
     }
 }
-
 
 /**
  * @brief Create a PostEvent timeout task. The default delay is 5000ms
