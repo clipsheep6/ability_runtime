@@ -747,6 +747,7 @@ private:
     void BackAbilityRecordMoveToBackGround(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void MoveMissionStackToFullStackTop(const std::shared_ptr<MissionStack> &stack);
     void RemoveMultiAppSelectorAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void HandleActiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
 
 private:
     static constexpr int MIN_MISSION_STACK_ID = LAUNCHER_MISSION_STACK_ID;
