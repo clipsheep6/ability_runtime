@@ -2306,7 +2306,7 @@ void AbilityManagerService::StartingSettingsDataAbility()
         waitCnt++;
     }
 
-    //node: do not use abilityInfo.uri directly, need check uri first.
+    // node: do not use abilityInfo.uri directly, need check uri first.
     auto GetValidUri = [&]() -> std::string {
         int32_t firstSeparator = abilityInfo.uri.find_first_of('/');
         int32_t lastSeparator = abilityInfo.uri.find_last_of('/');
