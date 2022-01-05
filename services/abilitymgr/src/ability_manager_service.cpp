@@ -1802,7 +1802,8 @@ void AbilityManagerService::StartSystemApplication()
         StartingLauncherAbility();
     }
 
-    for (uint32 i = 0; i < 20; i++) {
+    constexpr uint32 delayTime = 15;
+    for (uint32 i = 0; i < delayTime; i++) {
         i++;
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
@@ -1812,7 +1813,7 @@ void AbilityManagerService::StartSystemApplication()
         StartingSettingsDataAbility();
     }
 
-    for (uint32 i = 0; i < 10; i++) {
+    for (uint32 i = 0; i < delayTime; i++) {
         i++;
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
