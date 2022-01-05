@@ -1802,9 +1802,19 @@ void AbilityManagerService::StartSystemApplication()
         StartingLauncherAbility();
     }
 
+    for (uint32 i = 0; i < 20; i++) {
+        i++;
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+    }
+
     if (amsConfigResolver_->GetStartSettingsDataState()) {
         HILOG_INFO("start settings data");
         StartingSettingsDataAbility();
+    }
+
+    for (uint32 i = 0; i < 10; i++) {
+        i++;
+        usleep(REPOLL_TIME_MICRO_SECONDS);
     }
 
     if (amsConfigResolver_->GetStatusBarState()) {
