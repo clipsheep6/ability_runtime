@@ -31,12 +31,13 @@
 
 namespace OHOS {
 namespace AAFwk {
+
 class DemoAbilityManagerClientData {
 public:
-    DemoAbilityManagerClientData() {};
-    virtual ~DemoAbilityManagerClientData() {};
+    DemoAbilityManagerClientData(){};
+    virtual ~DemoAbilityManagerClientData(){};
 
-    std::map<std::string, sptr<AAFwk::IAbilityScheduler>> data;
+    std::map<std::string, sptr<AAFwk::IAbilityScheduler>> data;   
 };
 
 static DemoAbilityManagerClientData demoAbilityMgrClientData;
@@ -70,6 +71,9 @@ ErrCode AbilityManagerClient::ReleaseDataAbility(
 {
     return ERR_OK;
 }
+
+
+
 }  // namespace AAFwk
 }  // namespace OHOS
 

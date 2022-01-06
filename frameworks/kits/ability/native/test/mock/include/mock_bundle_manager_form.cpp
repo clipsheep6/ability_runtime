@@ -30,7 +30,8 @@ const std::string FORM_JS_COMPOMENT_NAME = "jsComponentName";
 const std::string PARAM_FORM_NAME = "com.form.name.test";
 const std::string DEVICE_ID = "ohos-phone1";
 
-bool BundleMgrProxy::GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo)
+bool BundleMgrProxy::GetBundleInfo(
+    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
 {
     return true;
 }
@@ -52,8 +53,8 @@ bool BundleMgrProxy::GetFormsInfoByApp(const std::string &bundleName, std::vecto
     return true;
 }
 bool BundleMgrProxy::GetFormsInfoByModule(
-    const std::string &bundleName,
-    const std::string &moduleName,
+    const std::string &bundleName, 
+    const std::string &moduleName, 
     std::vector<FormInfo> &formInfo)
 {
     return true;
@@ -85,12 +86,13 @@ std::string BundleMgrService::GetAppType(const std::string &bundleName)
     return "system";
 }
 
-bool BundleMgrService::GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo)
+bool BundleMgrService::GetBundleInfo(
+    const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
 {
     std::vector<AbilityInfo> abilityInfos;
     ApplicationInfo applicationInfo;
     ModuleInfo moduleInfo;
-    
+
     moduleInfo.moduleSourceDir = FORM_PROVIDER_MODULE_SOURCE_DIR;
     moduleInfo.moduleName = PARAM_PROVIDER_MODULE_NAME;
     bundleInfo.name = bundleName;
@@ -148,8 +150,8 @@ bool BundleMgrService::GetFormsInfoByApp(const std::string &bundleName, std::vec
     return true;
 }
 bool BundleMgrService::GetFormsInfoByModule(
-    const std::string &bundleName,
-    const std::string &moduleName,
+    const std::string &bundleName, 
+    const std::string &moduleName, 
     std::vector<FormInfo> &formInfo)
 {
     FormInfo form;

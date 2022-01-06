@@ -33,8 +33,8 @@ public:
     void SetUp();
     void TearDown();
 
-    std::shared_ptr<WantSenderProxy> proxy_ {nullptr};
-    sptr<WantSenderStubMock> mock_ {nullptr};
+    std::shared_ptr<WantSenderProxy> proxy_{nullptr};
+    sptr<WantSenderStubMock> mock_{nullptr};
 };
 
 void WantSenderProxyTest::SetUpTestCase(void)
@@ -57,7 +57,7 @@ void WantSenderProxyTest::SetUp()
  * EnvConditions: NA
  * CaseDescription: Verify that the return value of Send is normal
  */
-HWTEST_F(WantSenderProxyTest, WantSenderProxyTest_001, TestSize.Level1)
+HWTEST_F(WantSenderProxyTest, WantSenderProxyTest_001, TestSize.Level0)
 {
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)

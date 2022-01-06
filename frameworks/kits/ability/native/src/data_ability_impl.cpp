@@ -331,5 +331,6 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     APP_LOGI("DataAbilityImpl::ExecuteBatch end, results size:%{public}zu", results.size());
     return results;
 }
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
