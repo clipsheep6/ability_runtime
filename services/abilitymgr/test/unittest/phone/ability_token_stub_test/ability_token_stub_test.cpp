@@ -26,8 +26,8 @@ public:
     void SetUp();
     void TearDown();
 
-    OHOS::sptr<AbilityTokenStub> abilityTokenStub_ {nullptr};
-    OHOS::sptr<AbilityTokenRecipient> abilityTokenRecipient_ {nullptr};
+    OHOS::sptr<AbilityTokenStub> abilityTokenStub_{nullptr};
+    OHOS::sptr<AbilityTokenRecipient> abilityTokenRecipient_{nullptr};
 };
 
 void AbilityTokenStubTest::SetUpTestCase(void)
@@ -51,7 +51,7 @@ void AbilityTokenStubTest::SetUp(void)
  * EnvConditions:NA
  * CaseDescription: verify AbilityTokenStub is create success
  */
-HWTEST_F(AbilityTokenStubTest, ability_token_stub_operating_001, TestSize.Level1)
+HWTEST_F(AbilityTokenStubTest, ability_token_stub_operating_001, TestSize.Level0)
 {
     EXPECT_NE(abilityTokenStub_, nullptr);
 }
@@ -64,7 +64,7 @@ HWTEST_F(AbilityTokenStubTest, ability_token_stub_operating_001, TestSize.Level1
  * EnvConditions:NA
  * CaseDescription: verify AbilityTokenRecipient is create success
  */
-HWTEST_F(AbilityTokenStubTest, ability_token_stub_operating_002, TestSize.Level1)
+HWTEST_F(AbilityTokenStubTest, ability_token_stub_operating_002, TestSize.Level0)
 {
     EXPECT_NE(abilityTokenRecipient_, nullptr);
 }

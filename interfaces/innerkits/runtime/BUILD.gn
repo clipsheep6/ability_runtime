@@ -42,8 +42,8 @@ config("runtime_public_config") {
 ohos_shared_library("runtime") {
   sources = [
     "//foundation/aafwk/standard/frameworks/kits/runtime/native/js_data_struct_converter.cpp",
-    "//foundation/aafwk/standard/frameworks/kits/runtime/native/js_runtime.cpp",
     "//foundation/aafwk/standard/frameworks/kits/runtime/native/js_runtime_utils.cpp",
+    "//foundation/aafwk/standard/frameworks/kits/runtime/native/js_runtime.cpp",
     "//foundation/aafwk/standard/frameworks/kits/runtime/native/runtime.cpp",
   ]
 
@@ -65,6 +65,7 @@ ohos_shared_library("runtime") {
   external_deps = [
     "aafwk_standard:want",
     "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
   ]
 
