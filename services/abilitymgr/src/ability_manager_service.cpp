@@ -1802,20 +1802,9 @@ void AbilityManagerService::StartSystemApplication()
         StartingLauncherAbility();
     }
 
-    constexpr uint32_t delayTime = 15;
-    for (uint32_t i = 0; i < delayTime; i++) {
-        i++;
-        usleep(REPOLL_TIME_MICRO_SECONDS);
-    }
-
     if (amsConfigResolver_->GetStartSettingsDataState()) {
         HILOG_INFO("start settings data");
         StartingSettingsDataAbility();
-    }
-
-    for (uint32_t i = 0; i < delayTime; i++) {
-        i++;
-        usleep(REPOLL_TIME_MICRO_SECONDS);
     }
 
     if (amsConfigResolver_->GetStatusBarState()) {
