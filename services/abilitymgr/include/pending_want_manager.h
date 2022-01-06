@@ -128,7 +128,7 @@ constexpr int32_t SYSTEM_UID = 1000;
 class PendingWantManager : public std::enable_shared_from_this<PendingWantManager>, public NoCopyable {
 public:
     PendingWantManager();
-    explicit PendingWantManager(const std::shared_ptr<PendingWantManager> &manager) {};
+    explicit PendingWantManager(const std::shared_ptr<PendingWantManager> &manager){};
     virtual ~PendingWantManager();
 
 public:
@@ -146,7 +146,6 @@ public:
     void RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
     void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
     int32_t GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
-    int32_t GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 
     void CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility);
     int32_t PendingWantStartAbility(

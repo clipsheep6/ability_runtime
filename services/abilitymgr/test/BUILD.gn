@@ -26,7 +26,6 @@ ohos_source_set("abilityms_test_source") {
     "${services_path}/abilitymgr/src/ability_manager_service.cpp",
     "${services_path}/abilitymgr/src/ability_manager_stub.cpp",
     "${services_path}/abilitymgr/src/ability_mission_info.cpp",
-    "${services_path}/abilitymgr/src/ability_parameter_container.cpp",
     "${services_path}/abilitymgr/src/ability_record.cpp",
     "${services_path}/abilitymgr/src/ability_record_info.cpp",
     "${services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
@@ -54,7 +53,7 @@ ohos_source_set("abilityms_test_source") {
     "${services_path}/abilitymgr/src/mission_option.cpp",
     "${services_path}/abilitymgr/src/mission_record.cpp",
     "${services_path}/abilitymgr/src/mission_record_info.cpp",
-    "${services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${services_path}/abilitymgr/src/mission_snapshot_info.cpp",
     "${services_path}/abilitymgr/src/mission_stack.cpp",
     "${services_path}/abilitymgr/src/mission_stack_info.cpp",
     "${services_path}/abilitymgr/src/pending_want_common_event.cpp",
@@ -63,19 +62,29 @@ ohos_source_set("abilityms_test_source") {
     "${services_path}/abilitymgr/src/pending_want_record.cpp",
     "${services_path}/abilitymgr/src/power_storage.cpp",
     "${services_path}/abilitymgr/src/resume_mission_container.cpp",
-    "${services_path}/abilitymgr/src/screenshot_handler.cpp",
-    "${services_path}/abilitymgr/src/screenshot_response.cpp",
     "${services_path}/abilitymgr/src/sender_info.cpp",
-    "${services_path}/abilitymgr/src/shared_memory.cpp",
     "${services_path}/abilitymgr/src/stack_info.cpp",
     "${services_path}/abilitymgr/src/stack_setting.cpp",
-    "${services_path}/abilitymgr/src/wait_multiapp_return_storage.cpp",
     "${services_path}/abilitymgr/src/want_receiver_proxy.cpp",
     "${services_path}/abilitymgr/src/want_receiver_stub.cpp",
     "${services_path}/abilitymgr/src/want_sender_info.cpp",
     "${services_path}/abilitymgr/src/want_sender_proxy.cpp",
     "${services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${services_path}/abilitymgr/src/wants_info.cpp",
+
+    "${services_path}/abilitymgr/src/inner_mission_info.cpp",
+    "${services_path}/abilitymgr/src/kernal_ability_manager.cpp",
+    "${services_path}/abilitymgr/src/mission.cpp",
+    "${services_path}/abilitymgr/src/mission_data_storage.cpp",
+    "${services_path}/abilitymgr/src/mission_info.cpp",
+    "${services_path}/abilitymgr/src/mission_info_mgr.cpp",
+    "${services_path}/abilitymgr/src/mission_listener_controller.cpp",
+    "${services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+    "${services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${services_path}/abilitymgr/src/mission_list_manager.cpp",
+    "${services_path}/abilitymgr/src/mission_list.cpp",
+    "${services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
   ]
 
   include_dirs = [
@@ -114,12 +123,12 @@ ohos_source_set("abilityms_test_source") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-    "//foundation/graphic/standard:libwmservice",
     "//utils/native/base:utils",
+    "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
+    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]
 
   external_deps = [
-    "bytrace_standard:bytrace_core",
     "ces_standard:cesfwk_core",
     "ces_standard:cesfwk_innerkits",
     "dsoftbus_standard:softbus_client",
@@ -128,6 +137,7 @@ ohos_source_set("abilityms_test_source") {
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
+    "bytrace_standard:bytrace_core",
   ]
 }
 
@@ -167,7 +177,6 @@ group("unittest") {
     "unittest/phone/pending_want_manager_test:unittest",
     "unittest/phone/pending_want_record_test:unittest",
     "unittest/phone/resume_mission_container_test:unittest",
-    "unittest/phone/screenshot_handler_test:unittest",
     "unittest/phone/sender_info_test:unittest",
     "unittest/phone/terminate_ability_test:unittest",
     "unittest/phone/want_receiver_proxy_test:unittest",
