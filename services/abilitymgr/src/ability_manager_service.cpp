@@ -2445,7 +2445,7 @@ int AbilityManagerService::StartUser(int userId)
     return 0;
 }
 
-int AbilityManagerService::StopUser(int userId, const sptr<IUserStopCallback> &callback)
+int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
     return 0;

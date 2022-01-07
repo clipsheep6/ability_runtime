@@ -512,7 +512,7 @@ public:
 
     virtual int StartUser(int userId) override;
 
-    virtual int StopUser(int userId, const sptr<IUserStopCallback> &callback) override;
+    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
 private:
     template<typename T>

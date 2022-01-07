@@ -41,7 +41,7 @@
 #include "mission_listener_interface.h"
 #include "mission_info.h"
 #include "start_options.h"
-#include "user_stop_callback.h"
+#include "stop_user_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -530,7 +530,7 @@ public:
 
     virtual int StartUser(int userId) = 0;
 
-    virtual int StopUser(int userId, const sptr<IUserStopCallback> &callback) = 0;
+    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
     enum {
         // ipc id 1-1000 for kit

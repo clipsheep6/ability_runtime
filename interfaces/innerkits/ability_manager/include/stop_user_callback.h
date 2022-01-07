@@ -13,23 +13,23 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_USER_STOP_CALLBACK_H
-#define OHOS_AAFWK_USER_STOP_CALLBACK_H
+#ifndef OHOS_AAFWK_STOP_USER_CALLBACK_H
+#define OHOS_AAFWK_STOP_USER_CALLBACK_H
 
 #include "iremote_broker.h"
 
 namespace OHOS {
 namespace AAFwk {
 /**
- * @class IUserStopCallback
- * user stop callback.
+ * @class IStopUserCallback
+ * stop user callback.
  */
-class IUserStopCallback : public OHOS::IRemoteBroker {
+class IStopUserCallback : public OHOS::IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.UserStopCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.StopUserCallback");
 
     virtual void OnStopUserDone(int userId, int errcode) = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_USER_STOP_CALLBACK_H
+#endif  // OHOS_AAFWK_STOP_USER_CALLBACK_H
