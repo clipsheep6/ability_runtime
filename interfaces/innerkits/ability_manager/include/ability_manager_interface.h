@@ -25,7 +25,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
 #include "foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/appmgr/configuration.h"
-#include "mission_snapshot_info.h"
+#include "mission_snapshot.h"
 #include "ability_mission_info.h"
 #include "mission_option.h"
 #include "stack_info.h"
@@ -277,7 +277,7 @@ public:
      * @param missionId the id of the mission to retrieve the sAutoapshots
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot) = 0;
+    virtual int GetMissionSnapshot(const int32_t missionId, MissionPixelMap &missionPixelMap) = 0;
 
     /**
      * Ask that the mission associated with a given mission ID be moved to the
@@ -320,6 +320,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int KillProcess(const std::string &bundleName) = 0;
+
+    /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @return
+     */
+    virtual int ClearUpApplicationData(const std::string &bundleName) = 0;
 
     /**
      * Uninstall app
@@ -480,6 +489,7 @@ public:
 
     virtual int GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want) = 0;
 
+    virtual int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) = 0;
     /**
      * set lock screen white list
      *
@@ -712,12 +722,17 @@ public:
 
         GET_PENDING_REQUEST_WANT,
 
+        GET_PENDING_WANT_SENDER_INFO,
         SET_SHOW_ON_LOCK_SCREEN,
 
         // ipc id for starting ability by settings(1018)
         START_ABILITY_FOR_SETTINGS,
 
+        GET_ABILITY_MISSION_SNAPSHOT,
+
         GET_SYSTEM_MEMORY_ATTR,
+
+        CLEAR_UP_APPLICATION_DATA,
 
         START_ABILITY_FOR_OPTIONS,
 

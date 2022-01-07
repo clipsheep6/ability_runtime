@@ -16,7 +16,10 @@
 #include "ability_stack_manager.h"
 
 #include <map>
-#include <singleton.h>
+#include <fstream>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
@@ -25,7 +28,7 @@
 #include "bytrace.h"
 #include "common_event.h"
 #include "common_event_manager.h"
-#include "hilog_wrapper.h"
+#include "shared_memory.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -49,6 +52,7 @@ void AbilityStackManager::Init()
 
     resumeMissionContainer_ = std::make_shared<ResumeMissionContainer>(
         DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler());
+    screenshotHandler_ = std::make_shared<ScreenshotHandler>();
     powerStorage_ = std::make_shared<PowerStorage>();
     if (!SubscribeEvent()) {
         HILOG_ERROR("SubscribeEvent Error.");
@@ -2770,8 +2774,7 @@ void AbilityStackManager::BackToLauncher()
     auto fullScreenStack = GetTopFullScreenStackIncludeSplitScreen();
     CHECK_POINTER(fullScreenStack);
     auto currentTopAbility = fullScreenStack->GetTopAbilityRecord();
-    if (currentTopAbility && (currentTopAbility->IsAbilityState(AbilityState::ACTIVE) ||
-        currentTopAbility->IsAbilityState(AbilityState::ACTIVATING))) {
+    if (currentTopAbility && (currentTopAbility->IsAbilityState(AbilityState::ACTIVE))) {
         HILOG_WARN("Current top ability is active, no need to start launcher.");
         return;
     }
@@ -2938,7 +2941,7 @@ void AbilityStackManager::OnTimeOut(uint32_t msgId, int64_t eventId)
             ActiveTopAbility(abilityRecord);
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
-            DelayedStartLauncher();
+            HandleActiveTimeout(abilityRecord);
             break;
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
         case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG:
@@ -2947,6 +2950,31 @@ void AbilityStackManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         default:
             break;
     }
+}
+
+void AbilityStackManager::HandleActiveTimeout(const std::shared_ptr<AbilityRecord> &ability)
+{
+    HILOG_DEBUG("Handle active timeout");
+    CHECK_POINTER(ability);
+    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
+
+    if (ability->IsLauncherRoot()) {
+        HILOG_INFO("Launcher root load timeout, restart.");
+        BackToLauncher();
+        return;
+    }
+
+    auto missionRecord = ability->GetMissionRecord();
+    CHECK_POINTER(missionRecord);
+    auto stack = missionRecord->GetMissionStack();
+    CHECK_POINTER(stack);
+    missionRecord->RemoveAbilityRecord(ability);
+    if (missionRecord->IsEmpty()) {
+        RemoveMissionRecordById(missionRecord->GetMissionRecordId());
+        JudgingIsRemoveMultiScreenStack(stack);
+    }
+
+    BackToLauncher();
 }
 
 int AbilityStackManager::MoveMissionToFloatingStack(const MissionOption &missionOption)
@@ -3620,7 +3648,7 @@ void AbilityStackManager::ActiveTopAbility(const std::shared_ptr<AbilityRecord> 
 
     if (abilityRecord->IsLauncherRoot()) {
         HILOG_INFO("Launcher root load timeout, restart.");
-        DelayedStartLauncher();
+        BackToLauncher();
         return;
     }
     if (abilityRecord->IsLockScreenRoot()) {
@@ -4376,6 +4404,42 @@ void AbilityStackManager::CheckMissionRecordIsResume(const std::shared_ptr<Missi
     if (resumeMissionContainer_ && resumeMissionContainer_->IsResume(mission->GetMissionRecordId())) {
         resumeMissionContainer_->Resume(mission);
     }
+}
+
+int AbilityStackManager::GetMissionSnapshot(int32_t missionId, MissionPixelMap &missionPixelMap)
+{
+    HILOG_INFO("Get mission snapshot.");
+
+    std::lock_guard<std::recursive_mutex> guard(stackLock_);
+
+    auto missionRecord = GetMissionRecordFromAllStacks(missionId);
+    CHECK_POINTER_AND_RETURN_LOG(missionRecord, REMOVE_MISSION_ID_NOT_EXIST, "mission is invalid.");
+    auto topAbilityRecord = missionRecord->GetTopAbilityRecord();
+    CHECK_POINTER_AND_RETURN_LOG(topAbilityRecord, REMOVE_MISSION_ID_NOT_EXIST, "top ability is invalid.");
+    auto windowInfo = topAbilityRecord->GetWindowInfo();
+    int windowID = 0;
+    if(windowInfo){
+        windowID = windowInfo->windowToken_;
+        HILOG_INFO("windowID is %{public}d", windowID);
+    }
+    screenshotHandler_->StartScreenshot(missionId, windowID);
+    auto topAbility = missionRecord->GetTopAbilityRecord();
+    if (topAbility) {
+        OHOS::AppExecFwk::ElementName topElement(topAbility->GetAbilityInfo().deviceId,
+            topAbility->GetAbilityInfo().bundleName,
+            topAbility->GetAbilityInfo().name);
+        missionPixelMap.topAbility = topElement;
+    }
+
+    auto imageInfo = screenshotHandler_->GetImageInfo(missionId);
+    screenshotHandler_->RemoveImageInfo(missionId);
+    HILOG_INFO("width : %{public}d, height: %{public}d", imageInfo.width, imageInfo.height);
+    missionPixelMap.imageInfo.width = imageInfo.width;
+    missionPixelMap.imageInfo.height = imageInfo.height;
+    missionPixelMap.imageInfo.format = imageInfo.format;
+    missionPixelMap.imageInfo.size = imageInfo.size;
+    missionPixelMap.imageInfo.shmKey = SharedMemory::PushSharedMemory(imageInfo.data, imageInfo.size);
+    return ERR_OK;
 }
 
 bool AbilityStackManager::IsLockScreenState()

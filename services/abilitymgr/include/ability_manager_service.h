@@ -326,7 +326,7 @@ public:
      * @param missionId the id of the mission to retrieve the sAutoapshots
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot) override;
+    virtual int GetMissionSnapshot(const int32_t missionId, MissionPixelMap &missionPixelMap) override;
 
     /**
      * Ask that the mission associated with a given mission ID be moved to the
@@ -369,6 +369,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int KillProcess(const std::string &bundleName) override;
+
+    /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int ClearUpApplicationData(const std::string &bundleName) override;
 
     /**
      * Uninstall app
@@ -544,6 +553,8 @@ public:
 
     virtual int GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want) override;
 
+    virtual int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) override;
+
     /**
      * set lock screen white list
      *
@@ -716,6 +727,18 @@ private:
      *
      */
     void StartingSystemUiAbility(const SatrtUiMode &mode);
+
+    /**
+     * starting contacts ability.
+     *
+     */
+    void StartingContactsAbility();
+
+    /**
+     * starting mms ability.
+     *
+     */
+    void StartingMmsAbility();
 
     /**
      * connet bms.

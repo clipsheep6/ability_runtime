@@ -12,30 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
-#define OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
 
+#ifndef OHOS_AAFWK_SCREEN_SHOT_HANDLER_H
+#define OHOS_AAFWK_SCREEN_SHOT_HANDLER_H
+
+#include <map>
+#include <memory>
 #include <mutex>
-#include <list>
-#include "configuration_holder.h"
-#include "configuration.h"
+#include <string>
 #include "nocopyable.h"
+#include "screenshot_response.h"
+#include "window_manager_service_client.h"
 
 namespace OHOS {
 namespace AAFwk {
-class ConfigurationDistributor final : public NoCopyable {
+class ScreenshotHandler {
 public:
-    ConfigurationDistributor();
-    ~ConfigurationDistributor();
-    void Atach(const std::weak_ptr<ConfigurationHolder> &ob);
-    void Detach(const std::weak_ptr<ConfigurationHolder> &ob);
-    void UpdateConfiguration(const AppExecFwk::Configuration &newConfig);
-    void InitConfiguration(const AppExecFwk::Configuration &);
+    ScreenshotHandler();
+    virtual ~ScreenshotHandler() = default;
+
+    void StartScreenshot(int32_t missionId, int32_t winId);
+    WMImageInfo GetImageInfo(int32_t missionId);
+    void RemoveImageInfo(int32_t missionId);
+
 private:
-    std::list<std::weak_ptr<ConfigurationHolder>> observerList_;
-    std::mutex configLock_;
-    AppExecFwk::Configuration config_;
+    std::map<int32_t, WMImageInfo> screenShot_;
+    sptr<IWindowManagerService> windowMS_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_CONFIGURATION_DISTRIBUTOR_H
+
+#endif  // OHOS_AAFWK_SCREEN_SHOT_HANDLER_H

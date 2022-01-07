@@ -598,9 +598,13 @@ int AbilityManagerService::GetRecentMissions(
     return currentStackManager_->GetRecentMissions(numMax, flags, recentList);
 }
 
-int AbilityManagerService::GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot)
+int AbilityManagerService::GetMissionSnapshot(const int32_t missionId, MissionPixelMap &missionPixelMap)
 {
-    return 0;
+    if (missionId < 0) {
+        HILOG_ERROR("GetMissionSnapshot failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return currentStackManager_->GetMissionSnapshot(missionId, missionPixelMap);
 }
 
 int AbilityManagerService::SetMissionDescriptionInfo(
@@ -676,6 +680,8 @@ void AbilityManagerService::GetGlobalConfiguration()
     std::string direction = amsConfigResolver_->GetOrientation();
     HILOG_INFO("current global direction is : %{public}s", direction.c_str());
     GetConfiguration()->AddItem(GlobalConfigurationKey::SYSTEM_ORIENTATION, direction);
+
+    DelayedSingleton<ConfigurationDistributor>::GetInstance()->InitConfiguration(*GetConfiguration());
 }
 
 std::shared_ptr<AppExecFwk::Configuration> AbilityManagerService::GetConfiguration()
@@ -1258,21 +1264,23 @@ int AbilityManagerService::AttachAbilityThread(
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     auto type = abilityInfo.type;
 
-    if (type != AppExecFwk::AbilityType::DATA) {
+    int returnCode = -1;
+    if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
+        returnCode = connectManager_->AttachAbilityThreadLocked(scheduler, token);
+    } else if (type == AppExecFwk::AbilityType::DATA) {
+        returnCode = dataAbilityManager_->AttachAbilityThread(scheduler, token);
+    } else if (IsSystemUiApp(abilityInfo)) {
+        returnCode = kernalAbilityManager_->AttachAbilityThread(scheduler, token);
+    } else {
+        returnCode = currentMissionListManager_->AttachAbilityThread(scheduler, token);
+    }
+
+    HILOG_INFO("attach ability type [%{public}d] | returnCode [%{public}d]", type, returnCode);
+    if (SUCCEEDED(returnCode) && type != AppExecFwk::AbilityType::DATA) {
         DelayedSingleton<ConfigurationDistributor>::GetInstance()->Atach(abilityRecord);
     }
 
-    if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
-        return connectManager_->AttachAbilityThreadLocked(scheduler, token);
-    }
-    if (type == AppExecFwk::AbilityType::DATA) {
-        return dataAbilityManager_->AttachAbilityThread(scheduler, token);
-    }
-    if (IsSystemUiApp(abilityInfo)) {
-        return kernalAbilityManager_->AttachAbilityThread(scheduler, token);
-    }
-
-    return currentMissionListManager_->AttachAbilityThread(scheduler, token);
+    return returnCode;
 }
 
 void AbilityManagerService::DumpFuncInit()
@@ -1682,6 +1690,46 @@ void AbilityManagerService::StartingPhoneServiceAbility()
     (void)StartAbility(phoneServiceWant, DEFAULT_INVAL_VALUE);
 }
 
+void AbilityManagerService::StartingContactsAbility()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    if (!iBundleManager_) {
+        HILOG_INFO("bms service is null");
+        return;
+    }
+
+    AppExecFwk::AbilityInfo contactsInfo;
+    Want contactsWant;
+    contactsWant.SetElementName(AbilityConfig::CONTACTS_BUNDLE_NAME, AbilityConfig::CONTACTS_ABILITY_NAME);
+
+    while (!(iBundleManager_->QueryAbilityInfo(contactsWant, contactsInfo))) {
+        HILOG_INFO("Waiting query contacts service completed.");
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+    }
+
+    (void)StartAbility(contactsWant, DEFAULT_INVAL_VALUE);
+}
+
+void AbilityManagerService::StartingMmsAbility()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    if (!iBundleManager_) {
+        HILOG_INFO("bms service is null");
+        return;
+    }
+
+    AppExecFwk::AbilityInfo mmsInfo;
+    Want mmsWant;
+    mmsWant.SetElementName(AbilityConfig::MMS_BUNDLE_NAME, AbilityConfig::MMS_ABILITY_NAME);
+
+    while (!(iBundleManager_->QueryAbilityInfo(mmsWant, mmsInfo))) {
+        HILOG_INFO("Waiting query mms service completed.");
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+    }
+
+    (void)StartAbility(mmsWant, DEFAULT_INVAL_VALUE);
+}
+
 void AbilityManagerService::StartSystemUi(const std::string abilityName)
 {
     HILOG_INFO("Starting system ui app.");
@@ -1840,6 +1888,16 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
     int ret = DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
     if (ret != ERR_OK) {
         return KILL_PROCESS_FAILED;
+    }
+    return ERR_OK;
+}
+
+int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName)
+{
+    HILOG_DEBUG("ClearUpApplicationData, bundleName: %{public}s", bundleName.c_str());
+    int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName);
+    if (ret != ERR_OK) {
+        return CLEAR_APPLICATION_DATA_FAIL;
     }
     return ERR_OK;
 }
@@ -2207,6 +2265,19 @@ void AbilityManagerService::StartSystemApplication()
         HILOG_INFO("start navigation bar");
         StartingSystemUiAbility(SatrtUiMode::NAVIGATIONBAR);
     }
+
+    if (amsConfigResolver_->GetStartContactsState()) {
+        HILOG_INFO("start contacts");
+        StartingContactsAbility();
+    }
+
+    if (amsConfigResolver_->GetStartMmsState()) {
+        HILOG_INFO("start mms");
+        StartingMmsAbility();
+    }
+    
+    // Location may change
+    DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }
 
 void AbilityManagerService::ConnectBmsService()
@@ -2284,6 +2355,15 @@ bool AbilityManagerService::CheckCallerIsSystemAppByIpc()
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     HILOG_ERROR("callerUid %{public}d", callerUid);
     return bms->CheckIsSystemAppByUid(callerUid);
+}
+
+int AbilityManagerService::GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info)
+{
+    HILOG_INFO("Get pending request info.");
+    CHECK_POINTER_AND_RETURN(pendingWantManager_, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(target, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(info, ERR_INVALID_VALUE);
+    return pendingWantManager_->GetWantSenderInfo(target, info);
 }
 
 void AbilityManagerService::UpdateLockScreenState(bool isLockScreen)

@@ -168,7 +168,7 @@ public:
         return 0;
     }
 
-    int GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot)
+    int GetMissionSnapshot(const int32_t missionId, MissionPixelMap &missionPixelMap)
     {
         return 0;
     }
@@ -294,6 +294,11 @@ public:
         return 0;
     }
 
+    virtual int ClearUpApplicationData(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD2(
@@ -322,6 +327,7 @@ public:
     MOCK_METHOD1(CleanMission, int(int32_t missionId));
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
+    MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

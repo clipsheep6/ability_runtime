@@ -105,6 +105,8 @@ public:
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
 
+    MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
+    
     int MoveMissionToEnd(const sptr<IRemoteObject> &token, const bool nonFirst) override;
     bool IsFirstInMission(const sptr<IRemoteObject> &token) override;
     int CompelVerifyPermission(const std::string &permission, int pid, int uid, std::string &message) override;
@@ -154,12 +156,17 @@ public:
         return 0;
     }
 
-    int GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot)
+    int GetMissionSnapshot(const int32_t missionId, MissionPixelMap &missionPixelMap)
     {
         return 0;
     }
 
     virtual int SetShowOnLockScreen(bool isAllow) override
+    {
+        return 0;
+    }
+
+    virtual int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;
     }

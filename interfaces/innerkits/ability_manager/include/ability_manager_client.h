@@ -262,7 +262,7 @@ public:
      * @param missionId the id of the mission to retrieve the sAutoapshots
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode GetMissionSnapshot(const int32_t missionId, MissionSnapshotInfo &snapshot);
+    ErrCode GetMissionSnapshot(const int32_t missionId, MissionSnapshot &missionSnapshot);
 
     /**
      * Ask that the mission associated with a given mission ID be moved to the
@@ -305,6 +305,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode KillProcess(const std::string &bundleName);
+
+    /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @return
+     */
+    ErrCode ClearUpApplicationData(const std::string &bundleName);
 
     /**
      * @brief Checks whether this ability is the first ability in a mission.
@@ -381,6 +390,8 @@ public:
     void UnregisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
 
     ErrCode GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want);
+
+    ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 
     /**
      * Moving mission to the specified stack by mission option(Enter floating window mode).

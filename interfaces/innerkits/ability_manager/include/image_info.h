@@ -18,53 +18,20 @@
 
 #include <string>
 
-#include "ability_record_info.h"
-#include "mission_description_info.h"
 #include "parcel.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
 /**
  * @struct ImageInfo
- * Defines image header information.
- */
-struct ImageHeader : public Parcelable {
-    /**
-     * Color format, which is used to match image type. This variable is important.
-     */
-    uint32_t colorMode = 8;
-
-    uint32_t reserved = 24;
-
-    uint16_t width;
-
-    uint16_t height;
-
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static ImageHeader *Unmarshalling(Parcel &parcel);
-};
-
-/**
- * @struct ImageInfo
- * Defines image information.
+ * ImageInfo is used to save informations about sanpshot.
  */
 struct ImageInfo : public Parcelable {
-    ImageHeader header;
-
-    /**
-     * Size of the image data (in bytes)
-     */
-    uint32_t dataSize;
-
-    uint8_t *data;
-
-    uint32_t userDataSize;
-    /**
-     * User-defined data
-     */
-    void *userData;
+    uint32_t width;
+    uint32_t height;
+    uint32_t format;
+    uint32_t size;
+    int32_t shmKey;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
