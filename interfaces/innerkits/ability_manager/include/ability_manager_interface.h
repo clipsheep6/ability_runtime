@@ -681,7 +681,7 @@ public:
         // ipc id for move mission to front (49)
         START_USER,
 
-        // ipc id for move mission to front (49)
+        // ipc id for move mission to front (50)
         STOP_USER,
 
         // ipc id 1001-2000 for DMS
