@@ -18,6 +18,7 @@
 
 #include "ability.h"
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,6 +30,8 @@ public:
     virtual ~MockPageAbility() = default;
 
     enum Event { ON_ACTIVE = 0, ON_BACKGROUND, ON_FOREGROUND, ON_INACTIVE, ON_START, ON_STOP, UNDEFINED };
+
+    //MOCK_METHOD1(OnConfigurationUpdated, void(const Configuration &));
 
     void OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
     {
@@ -160,8 +163,15 @@ public:
         GTEST_LOG_(INFO) << "Mock Ability::OnSaveAbilityState called";
     }
 
+    void OnConfigurationUpdated(const Configuration &config)
+    {
+        GTEST_LOG_(INFO) << "Mock Ability::OnConfigurationUpdated called";
+        OnConfigurationUpdated_++;
+    }
+
     MockPageAbility::Event state_ = UNDEFINED;
     bool onNewWantCalled_ = false;
+    int OnConfigurationUpdated_ = 0;
     std::vector<std::string> value;
 };
 }  // namespace AppExecFwk

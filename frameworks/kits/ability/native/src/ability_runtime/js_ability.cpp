@@ -24,6 +24,8 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "string_wrapper.h"
+#include <regex>
+#include "ability_start_setting.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -249,8 +251,22 @@ void JsAbility::DoOnForeground(const Want& want)
             HILOG_ERROR("%{public}s error. failed to create WindowScene instance!", __func__);
             return;
         }
+
+        int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        if (setting_ != nullptr) {
+            std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+            std::regex formatRegex("[0-9]{0,9}$");
+            std::smatch sm;
+            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+            if (flag) {
+                displayId = std::stoi(strDisplayId);
+                HILOG_INFO("%{public}s success. displayId is %{public}d", __func__, displayId);
+            } else {
+                HILOG_INFO("%{public}s error. failed to formatRegex str", __func__);
+            }
+        }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(Rosen::WindowScene::DEFAULT_DISPLAY_ID, abilityContext_, sceneListener_);
+        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_);
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;

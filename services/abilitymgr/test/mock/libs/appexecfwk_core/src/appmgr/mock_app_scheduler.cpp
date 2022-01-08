@@ -159,5 +159,10 @@ void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const 
 {
     HILOG_INFO("Test AppScheduler::UpdateExtensionState()");
 }
+
+void AppScheduler::StartupResidentProcess()
+{
+    HILOG_INFO("Test AppScheduler::StartupResidentProcess()");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
