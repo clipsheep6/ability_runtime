@@ -862,7 +862,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
 
     // Notify ResourceManager
     std::string language = differ.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
-    while(language.compare("") != 0) {
+    while (language.compare("") != 0) {
         std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
         if (resConfig == nullptr) {
             APP_LOGE("%{public}s resConfig is nullptr.", __func__);

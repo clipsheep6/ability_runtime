@@ -16,9 +16,9 @@
 #ifndef FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
 #define FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
 
-#include "ability.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include "ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,8 +30,6 @@ public:
     virtual ~MockPageAbility() = default;
 
     enum Event { ON_ACTIVE = 0, ON_BACKGROUND, ON_FOREGROUND, ON_INACTIVE, ON_START, ON_STOP, UNDEFINED };
-
-    //MOCK_METHOD1(OnConfigurationUpdated, void(const Configuration &));
 
     void OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
     {

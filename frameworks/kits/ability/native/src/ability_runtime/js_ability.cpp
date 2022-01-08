@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <regex>
 #include "ability_runtime/js_ability.h"
 
 #include "ability_runtime/js_ability_context.h"
 #include "ability_runtime/js_window_stage.h"
+#include "ability_start_setting.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -24,8 +25,6 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "string_wrapper.h"
-#include <regex>
-#include "ability_start_setting.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -254,7 +253,8 @@ void JsAbility::DoOnForeground(const Want& want)
 
         int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         if (setting_ != nullptr) {
-            std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+            std::string strDisplayId = setting_->GetProperty(
+                OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
             std::regex formatRegex("[0-9]{0,9}$");
             std::smatch sm;
             bool flag = std::regex_match(strDisplayId, sm, formatRegex);

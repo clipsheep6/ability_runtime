@@ -38,7 +38,6 @@ namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
-//const int TARGET_VERSION_THRESHOLDS = 8;
 
 class AbilityImplTest : public testing::Test {
 public:
@@ -98,7 +97,8 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001, Tes
             std::shared_ptr<Ability> ability = pMocKPageAbility ;
             if (pMocKPageAbility != nullptr) {
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                    Global::Resource::CreateResourceManager());
                 if (resourceManager == nullptr) {
                     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001 resourceManager is nullptr";
                 }
@@ -149,7 +149,8 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002, Tes
             std::shared_ptr<Ability> ability = pMocKPageAbility;
             if (pMocKPageAbility != nullptr) {
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                    Global::Resource::CreateResourceManager());
                 if (resourceManager == nullptr) {
                     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 resourceManager is nullptr";
                 }
@@ -206,7 +207,8 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003, Tes
             std::shared_ptr<Ability> ability = pMocKPageAbility;
             if (pMocKPageAbility != nullptr) {
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                    Global::Resource::CreateResourceManager());
                 if (resourceManager == nullptr) {
                     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 resourceManager is nullptr";
                 }
@@ -633,8 +635,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Foreground_001, TestSize.Level1)
 
                 Want want;
                 AbilityLifecycleExecutor AbilityLifecycleExecutor_;
-                //mockAbilityimpl->ImplForeground(want);
-
                 EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
                 EXPECT_EQ(AAFwk::ABILITY_STATE_INACTIVE, mockAbilityimpl->GetCurrentState());
             }
@@ -791,13 +791,10 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_001, TestSize.Level1)
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-
                 Want want;
                 mockAbilityimpl->ImplForeground(want);
-
                 EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
                 EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
             }
@@ -835,15 +832,12 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_002, TestSize.Level1)
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-
                 Want want;
                 mockAbilityimpl->ImplForeground(want);
                 mockAbilityimpl->ImplForeground(want);
                 mockAbilityimpl->ImplForeground(want);
-
                 EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
                 EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
             }
@@ -881,7 +875,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_001, TestSize.Level1)
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
@@ -924,7 +917,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_002, TestSize.Level1)
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
@@ -969,7 +961,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_001, TestS
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
@@ -1014,7 +1005,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_002, TestS
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
@@ -1060,7 +1050,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_003, TestS
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
@@ -1105,7 +1094,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_004, TestS
             EXPECT_NE(pMocKPageAbility, nullptr);
             if (pMocKPageAbility != nullptr) {
                 ability.reset(pMocKPageAbility);
-                //ability->SetTargetVersion(TARGET_VERSION_THRESHOLDS);
                 std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
                 mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
