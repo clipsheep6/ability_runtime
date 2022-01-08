@@ -139,11 +139,6 @@ void AppScheduler::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo,
     memoryInfo.threshold_ = testValue;
 }
 
-void AppScheduler::StartupResidentProcess()
-{
-    HILOG_INFO("Test AppScheduler::StartupResidentProcess()");
-}
-
 int AppScheduler::ClearUpApplicationData(const std::string &bundleName)
 {
     HILOG_INFO("Test AppScheduler::ClearUpApplicationData()");

@@ -17,7 +17,6 @@
 #define FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 #include "ability.h"
 
 namespace OHOS {
