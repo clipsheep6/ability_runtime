@@ -18,9 +18,10 @@
 #include "string_ex.h"
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
-#include "if_system_ability_manager.h"
+#include "string_ex.h"
 #include "system_ability_definition.h"
 #include "shared_memory.h"
 
@@ -120,20 +121,20 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const sptr<IRemoteO
     return abms->StartAbility(want, callerToken, requestCode);
 }
 
-ErrCode AbilityManagerClient::StartAbility(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int requestUid)
-{
-    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
-    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StartAbility(want, callerToken, requestCode, requestUid);
-}
-
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int requestCode)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->StartAbility(want, abilityStartSetting, callerToken, requestCode);
+}
+
+ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int requestCode)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StartAbility(want, startOptions, callerToken, requestCode);
 }
 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
@@ -155,6 +156,13 @@ ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->TerminateAbilityResult(token, startId);
+}
+
+ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->MinimizeAbility(token);
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(
@@ -223,11 +231,11 @@ ErrCode AbilityManagerClient::GetAllStackInfo(StackInfo &stackInfo)
     return abms->GetAllStackInfo(stackInfo);
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, const sptr<IRemoteObject> &callerToken)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want &want)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StopServiceAbility(want, callerToken);
+    return abms->StopServiceAbility(want);
 }
 
 ErrCode AbilityManagerClient::GetRecentMissions(
@@ -246,7 +254,7 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const int32_t missionId, Missio
     int ret = abms->GetMissionSnapshot(missionId, missionPixelMap);
     if (ret == ERR_OK) {
         HILOG_INFO("missionPixelMap.imageInfo.shmKey: %{public}d", missionPixelMap.imageInfo.shmKey);
-        if (missionPixelMap.imageInfo.size == 0) {
+        if (0 == missionPixelMap.imageInfo.size) {
             HILOG_INFO("size is 0.");
             return -1;
         }
@@ -260,8 +268,8 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const int32_t missionId, Missio
         mediaOption.size.height = missionPixelMap.imageInfo.height;
         mediaOption.pixelFormat = Media::PixelFormat::BGRA_8888;
         mediaOption.editable = true;
-        auto pixel = Media::PixelMap::Create(
-            (const uint32_t *)data, missionPixelMap.imageInfo.size / sizeof(uint32_t), mediaOption);
+        auto pixel =
+            Media::PixelMap::Create((const uint32_t *)data, missionPixelMap.imageInfo.size / sizeof(uint32_t), mediaOption);
         if (!pixel) {
             HILOG_INFO(" Media::PixelMap::Create return value is nullptr.");
             return -1;
@@ -314,6 +322,7 @@ ErrCode AbilityManagerClient::RemoveStack(int id)
 
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 {
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->KillProcess(bundleName);
@@ -617,6 +626,157 @@ void AbilityManagerClient::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &mem
     auto abms = iface_cast<IAbilityManager>(remoteObject_);
     abms->GetSystemMemoryAttr(memoryInfo);
     return;
+}
+
+ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    int32_t missionId, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams)
+{
+    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+        HILOG_ERROR("srcDeviceId or dstDeviceId or callback is null!");
+        return ERR_INVALID_VALUE;
+    }
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    int result = abms->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+    return result;
+}
+
+ErrCode AbilityManagerClient::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken,
+    int32_t status)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    int result = abms->StartContinuation(want, abilityToken, status);
+    return result;
+}
+
+void AbilityManagerClient::NotifyCompleteContinuation(const std::string &deviceId,
+    int32_t sessionId, bool isSuccess)
+{
+    CHECK_REMOTE_OBJECT(remoteObject_);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+}
+
+ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->LockMissionForCleanup(missionId);
+}
+
+ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->UnlockMissionForCleanup(missionId);
+}
+
+ErrCode AbilityManagerClient::RegisterMissionListener(const sptr<IMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->RegisterMissionListener(listener);
+}
+
+ErrCode AbilityManagerClient::UnRegisterMissionListener(const sptr<IMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->UnRegisterMissionListener(listener);
+}
+
+ErrCode AbilityManagerClient::RegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, REGISTER_REMOTE_MISSION_LISTENER_FAIL);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->RegisterMissionListener(deviceId, listener);
+}
+
+ErrCode AbilityManagerClient::UnRegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, UNREGISTER_REMOTE_MISSION_LISTENER_FAIL);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->UnRegisterMissionListener(deviceId, listener);
+}
+
+ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32_t numMax,
+    std::vector<MissionInfo> &missionInfos)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->GetMissionInfos(deviceId, numMax, missionInfos);
+}
+
+ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_t missionId,
+    MissionInfo &missionInfo)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->GetMissionInfo(deviceId, missionId, missionInfo);
+}
+
+ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->CleanMission(missionId);
+}
+
+ErrCode AbilityManagerClient::CleanAllMissions()
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->CleanAllMissions();
+}
+
+ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->MoveMissionToFront(missionId);
+}
+
+/**
+ * Start synchronizing remote device mission
+ * @param devId, deviceId.
+ * @param fixConflict, resolve synchronizing conflicts flag.
+ * @param tag, call tag.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+ErrCode AbilityManagerClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    auto abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StartSyncRemoteMissions(devId, fixConflict, tag);
+}
+
+/**
+ * Stop synchronizing remote device mission
+ * @param devId, deviceId.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string& devId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    auto abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StopSyncRemoteMissions(devId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

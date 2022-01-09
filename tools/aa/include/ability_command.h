@@ -26,10 +26,11 @@ const std::string TOOL_NAME = "aa";
 
 const std::string HELP_MSG = "usage: aa <command> <options>\n"
                              "These are common aa commands list:\n"
-                             "  help                 list available commands\n"
-                             "  start                start ability with options\n"
-                             "  stop-service         stop service with options\n"
-                             "  dump                 dump the ability stack info\n";
+                             "  help                        list available commands\n"
+                             "  start                       start ability with options\n"
+                             "  stop-service                stop service with options\n"
+                             "  dump                        dump the ability stack info\n"
+                             "  force-stop <bundle-name>    force stop the process with bundle name\n";
 
 const std::string HELP_MSG_SCREEN =
     "usage: aa screen <options>\n"
@@ -60,6 +61,8 @@ const std::string HELP_MSG_DUMP = "usage: aa dump <options>\n"
                                   "  -e, --serv                   dump the service abilities\n"
                                   "  -d, --data                   dump the data abilities\n";
 
+const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
+
 const std::string HELP_MSG_NO_ABILITY_NAME_OPTION = "error: -a <ability-name> is expected";
 const std::string HELP_MSG_NO_BUNDLE_NAME_OPTION = "error: -b <bundle-name> is expected";
 
@@ -75,6 +78,9 @@ const std::string STRING_SCREEN_POWER_ON_OK = "power on screen successfully.";
 const std::string STRING_SCREEN_POWER_ON_NG = "error: failed to power on screen.";
 const std::string STRING_SCREEN_POWER_OFF_OK = "power off screen successfully.";
 const std::string STRING_SCREEN_POWER_OFF_NG = "error: failed to power off screen.";
+
+const std::string STRING_FORCE_STOP_OK = "force stop process successfully.";
+const std::string STRING_FORCE_STOP_NG = "error: failed to force stop process.";
 }  // namespace
 
 class AbilityManagerShellCommand : public ShellCommand {
@@ -93,9 +99,12 @@ private:
     ErrCode RunAsStartAbility();
     ErrCode RunAsStopService();
     ErrCode RunAsDumpCommand();
+    ErrCode RunAsForceStop();
+
     ErrCode RunAsDumpCommandOptopt();
     ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);
 };
+
 }  // namespace AAFwk
 }  // namespace OHOS
 

@@ -13,14 +13,13 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_DISTRIBUTED_CONTINUATION_HANDLER_H
-#define FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_DISTRIBUTED_CONTINUATION_HANDLER_H
+#ifndef FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_CONTINUATION_DISTRIBUTED_CONTINUATION_HANDLER_H
+#define FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_CONTINUATION_DISTRIBUTED_CONTINUATION_HANDLER_H
 
 #include <string>
 
 #include "distribute_schedule_handler_interface.h"
 #include "continuation_manager.h"
-#include "distributed_client.h"
 #include "reverse_continuation_scheduler_primary_proxy.h"
 #include "reverse_continuation_scheduler_replica_proxy.h"
 #include "reverse_continuation_scheduler_primary_stub.h"
@@ -57,6 +56,7 @@ public:
     void SetAbilityInfo(std::shared_ptr<AbilityInfo> &abilityInfo);
     void SetPrimaryStub(const sptr<IRemoteObject> &Primary);
     bool ReverseContinueAbility();
+    bool HandleStartContinuationWithStack(const sptr<IRemoteObject> &token, const std::string &deviceId);
 
     static const std::string ORIGINAL_DEVICE_ID;
 
@@ -75,6 +75,7 @@ private:
     sptr<IRemoteObject> remotePrimaryStub_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> schedulerDeathRecipient_ = nullptr;
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_DISTRIBUTED_CONTINUATION_HANDLER_H
+#endif  // FOUNDATION_AAFWK_STANDARD_FRAMEWORKS_KITS_ABILITY_NATIVE_INCLUDE_CONTINUATION_DISTRIBUTED_CONTINUATION_HANDLER_H

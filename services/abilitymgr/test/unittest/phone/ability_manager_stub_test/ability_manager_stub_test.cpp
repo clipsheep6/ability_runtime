@@ -18,6 +18,7 @@
 #include "ability_manager_stub_impl_mock.h"
 #include "ability_scheduler.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_ability_token.h"
 
 using namespace testing::ext;
 using namespace testing;

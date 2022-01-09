@@ -14,27 +14,36 @@
  */
 
 #include "ability_thread.h"
-#include "ohos_application.h"
+
+#include <functional>
+
+#include "ability_context_impl.h"
+#include "ability_impl_factory.h"
 #include "ability_loader.h"
 #include "ability_state.h"
-#include "ability_impl_factory.h"
-#include "page_ability_impl.h"
-#include "application_impl.h"
-#include "app_log_wrapper.h"
-#include "context_deal.h"
 #include "abs_shared_result_set.h"
+#include "app_log_wrapper.h"
+#include "application_impl.h"
+#include "bytrace.h"
+#include "context_deal.h"
 #include "data_ability_predicates.h"
-#include "values_bucket.h"
 #include "dataobs_mgr_client.h"
+#include "ohos_application.h"
+#include "page_ability_impl.h"
+#include "values_bucket.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
+constexpr static char ABILITY_NAME[] = "Ability";
 constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_SERVICE_ABILITY_NAME[] = "AceServiceAbility";
 constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
+constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
+constexpr static char FORM_EXTENSION[] = "FormExtension";
+constexpr int TARGET_VERSION_THRESHOLDS = 8;
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -76,7 +85,11 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
 
     if (abilityInfo->isNativeAbility == false) {
         if (abilityInfo->type == AbilityType::PAGE) {
-            abilityName = ACE_ABILITY_NAME;
+            if (abilityRecord->GetCompatibleVersion() >= TARGET_VERSION_THRESHOLDS) {
+                abilityName = ABILITY_NAME;
+            } else {
+                abilityName = ACE_ABILITY_NAME;
+            }
         } else if (abilityInfo->type == AbilityType::SERVICE) {
             if (abilityInfo->formEnabled == true) {
                 abilityName = ACE_FORM_ABILITY_NAME;
@@ -85,6 +98,12 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
             }
         } else if (abilityInfo->type == AbilityType::DATA) {
             abilityName = ACE_DATA_ABILITY_NAME;
+        } else if (abilityInfo->type == AbilityType::EXTENSION) {
+            abilityName = BASE_SERVICE_EXTENSION;
+            if (abilityInfo->formEnabled == true) {
+                abilityName = FORM_EXTENSION;
+            }
+            APP_LOGI("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
         } else {
             abilityName = abilityInfo->name;
         }
@@ -144,8 +163,10 @@ std::shared_ptr<ContextDeal> AbilityThread::CreateAndInitContextDeal(std::shared
  * @param mainRunner The runner which main_thread holds.
  */
 void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
-    const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner)
+    const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
+    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::Attach begin");
     if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
         APP_LOGE("AbilityThread::ability attach failed,context or record is nullptr");
@@ -166,6 +187,7 @@ void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
         APP_LOGE("AbilityThread::ability attach failed,load ability failed");
         return;
     }
+    ability->SetCompatibleVersion(abilityRecord->GetCompatibleVersion());
 
     APP_LOGI("AbilityThread::new ability success.");
     currentAbility_.reset(ability);
@@ -177,9 +199,14 @@ void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
     std::shared_ptr<ContextDeal> contextDeal = CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
+    // new hap requires
+    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_,
+        stageContext));
+
     // 3.new abilityImpl
     abilityImpl_ =
-        DelayedSingleton<AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo());
+        DelayedSingleton<AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo(),
+            abilityRecord->GetCompatibleVersion());
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::ability abilityImpl_ == nullptr");
         return;
@@ -203,10 +230,126 @@ void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
  * @description: Attach The ability thread to the main process.
  * @param application Indicates the main process.
  * @param abilityRecord Indicates the abilityRecord.
+ * @param mainRunner The runner which main_thread holds.
+ */
+void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &application,
+    const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::AttachExtension begin");
+    if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
+        APP_LOGE("AbilityThread::AttachExtension attach failed,context or record is nullptr");
+        return;
+    }
+
+    // 1.new AbilityHandler
+    std::string abilityName = CreateAbilityName(abilityRecord);
+    abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner, this);
+    if (abilityHandler_ == nullptr) {
+        APP_LOGE("AbilityThread::AttachExtension attach failed,abilityHandler_ is nullptr");
+        return;
+    }
+
+    // 2.new ability
+    auto extension = AbilityLoader::GetInstance().GetExtensionByName(abilityName);
+    if (extension == nullptr) {
+        APP_LOGE("AbilityThread::AttachExtension attach failed,load ability failed");
+        return;
+    }
+
+    APP_LOGI("AbilityThread::new extension success.");
+    currentExtension_.reset(extension);
+    token_ = abilityRecord->GetToken();
+    abilityRecord->SetEventHandler(abilityHandler_);
+    abilityRecord->SetEventRunner(mainRunner);
+    abilityRecord->SetAbilityThread(this);
+    extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::extension extensionImpl_ == nullptr");
+        return;
+    }
+    // 3.new init
+    APP_LOGI("AbilityThread::extensionImpl_ init.");
+    extensionImpl_->Init(application, abilityRecord, currentExtension_, abilityHandler_, token_);
+    // 4.ipc attach init
+    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
+    APP_LOGI("AbilityThread::AttachExtension after AttachAbilityThread");
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityThread:: attach extension success faile err = %{public}d", err);
+        return;
+    }
+    APP_LOGI("AbilityThread::AttachExtension end");
+}
+
+/**
+ * @description: Attach The ability thread to the main process.
+ * @param application Indicates the main process.
+ * @param abilityRecord Indicates the abilityRecord.
+ * @param mainRunner The runner which main_thread holds.
+ */
+void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &application,
+    const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::AttachExtension begin");
+    if ((application == nullptr) || (abilityRecord == nullptr)) {
+        APP_LOGE("AbilityThread::AttachExtension failed,context or record is nullptr");
+        return;
+    }
+
+    // 1.new AbilityHandler
+    std::string abilityName = CreateAbilityName(abilityRecord);
+    runner_ = EventRunner::Create(abilityName);
+    if (runner_ == nullptr) {
+        APP_LOGE("AbilityThread::AttachExtension failed,create runner failed");
+        return;
+    }
+    abilityHandler_ = std::make_shared<AbilityHandler>(runner_, this);
+    if (abilityHandler_ == nullptr) {
+        APP_LOGE("AbilityThread::AttachExtension failed,abilityHandler_ is nullptr");
+        return;
+    }
+
+    // 2.new ability
+    auto extension = AbilityLoader::GetInstance().GetExtensionByName(abilityName);
+    if (extension == nullptr) {
+        APP_LOGE("AbilityThread::AttachExtension failed,load extension failed");
+        return;
+    }
+
+    APP_LOGI("AbilityThread::new extension success.");
+    currentExtension_.reset(extension);
+    token_ = abilityRecord->GetToken();
+    abilityRecord->SetEventHandler(abilityHandler_);
+    abilityRecord->SetEventRunner(runner_);
+    abilityRecord->SetAbilityThread(this);
+    extensionImpl_ = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::extension extensionImpl_ == nullptr");
+        return;
+    }
+    // 3.new init
+    extensionImpl_->Init(application, abilityRecord, currentExtension_, abilityHandler_, token_);
+    // 4.ipc attach init
+    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
+    APP_LOGI("AbilityThread::Attach after AttachAbilityThread");
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityThread:: AttachExtension failed err = %{public}d", err);
+        return;
+    }
+    APP_LOGI("AbilityThread::AttachExtension end");
+}
+
+/**
+ * @description: Attach The ability thread to the main process.
+ * @param application Indicates the main process.
+ * @param abilityRecord Indicates the abilityRecord.
  */
 void AbilityThread::Attach(
-    std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+    std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::Attach begin");
     if ((application == nullptr) || (abilityRecord == nullptr)) {
         APP_LOGE("AbilityThread::ability attach failed,context or record is nullptr");
@@ -231,6 +374,7 @@ void AbilityThread::Attach(
         APP_LOGE("AbilityThread::ability attach failed,load ability failed");
         return;
     }
+    ability->SetCompatibleVersion(abilityRecord->GetCompatibleVersion());
 
     APP_LOGI("AbilityThread::new ability success.");
     currentAbility_.reset(ability);
@@ -242,9 +386,14 @@ void AbilityThread::Attach(
     std::shared_ptr<ContextDeal> contextDeal = CreateAndInitContextDeal(application, abilityRecord, abilityObject);
     ability->AttachBaseContext(contextDeal);
 
+    // new hap requires
+    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_,
+        stageContext));
+
     // 3.new abilityImpl
     abilityImpl_ =
-        DelayedSingleton<AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo());
+        DelayedSingleton<AbilityImplFactory>::GetInstance()->MakeAbilityImplObject(abilityRecord->GetAbilityInfo(),
+            abilityRecord->GetCompatibleVersion());
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::ability abilityImpl_ == nullptr");
         return;
@@ -271,6 +420,7 @@ void AbilityThread::Attach(
  */
 void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::HandleAbilityTransaction begin");
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::HandleAbilityTransaction abilityImpl_ == nullptr");
@@ -289,11 +439,30 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
 }
 
 /**
+ * @brief Handle the life cycle of Extension.
+ *
+ * @param want  Indicates the structure containing lifecycle information about the extension.
+ * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
+ */
+void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::HandleExtensionTransaction begin");
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::HandleExtensionTransaction extensionImpl_ == nullptr");
+        return;
+    }
+    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo);
+    APP_LOGI("AbilityThread::HandleAbilityTransaction end");
+}
+
+/**
  * @description:  Handle the current connection of Ability.
  * @param want  Indicates the structure containing connection information about the ability.
  */
 void AbilityThread::HandleConnectAbility(const Want &want)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::HandleConnectAbility begin");
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::HandleConnectAbility abilityImpl_ == nullptr");
@@ -317,6 +486,7 @@ void AbilityThread::HandleConnectAbility(const Want &want)
  */
 void AbilityThread::HandleDisconnectAbility(const Want &want)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::HandleDisconnectAbility begin");
     if (abilityImpl_ == nullptr) {
         APP_LOGE("AbilityThread::HandleDisconnectAbility abilityImpl_ == nullptr");
@@ -349,6 +519,7 @@ void AbilityThread::HandleDisconnectAbility(const Want &want)
  */
 void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int startId)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("AbilityThread::HandleCommandAbility begin");
     APP_LOGI("AbilityThread::HandleCommandAbility before abilityImpl_->CommandAbility");
     abilityImpl_->CommandAbility(want, restart, startId);
@@ -360,6 +531,72 @@ void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int sta
         APP_LOGE("AbilityThread:: HandleCommandAbility  faile err = %{public}d", err);
     }
     APP_LOGI("AbilityThread::HandleCommandAbility end");
+}
+
+/**
+ * @brief Handle the current connection of Extension.
+ *
+ * @param want  Indicates the structure containing connection information about the extension.
+ */
+void AbilityThread::HandleConnectExtension(const Want &want)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::HandleConnectExtension begin");
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::HandleConnectExtension extensionImpl_ == nullptr");
+        return;
+    }
+    sptr<IRemoteObject> service = extensionImpl_->ConnectExtension(want);
+    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleConnectAbilityDone(token_, service);
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityThread::HandleConnectExtension failed err = %{public}d", err);
+    }
+    APP_LOGI("AbilityThread::HandleConnectExtension end");
+}
+
+/**
+ * @brief Handle the current disconnection of Extension.
+ */
+void AbilityThread::HandleDisconnectExtension(const Want &want)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::HandleDisconnectExtension begin");
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::HandleDisconnectExtension extensionImpl_ == nullptr");
+        return;
+    }
+    extensionImpl_->DisconnectExtension(want);
+    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleDisconnectAbilityDone(token_);
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityThread:: HandleDisconnectExtension failed err = %{public}d", err);
+    }
+    APP_LOGI("AbilityThread::HandleDisconnectExtension end");
+}
+
+/**
+ * @brief Handle the current command of Extension.
+ *
+ * @param want The Want object to command to.
+ * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+ * destroyed, and the value false indicates a normal startup.
+ * @param startId Indicates the number of times the Service Extension has been started. The startId is incremented by 1
+ * every time the Extension is started. For example, if the Extension has been started for six times,
+ * the value of startId is 6.
+ */
+void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int startId)
+{
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    APP_LOGI("AbilityThread::HandleCommandExtension begin");
+    if (extensionImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::HandleCommandExtension extensionImpl_ == nullptr");
+        return;
+    }
+    extensionImpl_->CommandExtension(want, restart, startId);
+    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleCommandAbilityDone(token_);
+    if (err != ERR_OK) {
+        APP_LOGE("AbilityThread::HandleCommandExtension failed err = %{public}d", err);
+    }
+    APP_LOGI("AbilityThread::HandleCommandExtension end");
 }
 
 /**
@@ -471,13 +708,17 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
 
     want.DumpInfo(0);
 
-    if ((token_ == nullptr) || abilityImpl_ == nullptr) {
-        APP_LOGE("ScheduleAbilityTransaction::failed");
+    if (token_ == nullptr) {
+        APP_LOGE("ScheduleAbilityTransaction::failed, token_  nullptr");
         return;
     }
     auto task = [abilityThread = this, want, lifeCycleStateInfo]() {
-        abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
-    };
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
+            } else {
+                abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleAbilityTransaction abilityHandler_ == nullptr");
@@ -497,8 +738,14 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
  */
 void AbilityThread::ScheduleConnectAbility(const Want &want)
 {
-    APP_LOGI("AbilityThread::ScheduleConnectAbility begin");
-    auto task = [abilityThread = this, want]() { abilityThread->HandleConnectAbility(want); };
+    APP_LOGI("AbilityThread::ScheduleConnectAbility begin, isExtension_：%{public}d", isExtension_);
+    auto task = [abilityThread = this, want]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleConnectExtension(want);
+            } else {
+                abilityThread->HandleConnectAbility(want);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleConnectAbility abilityHandler_ == nullptr");
@@ -518,8 +765,14 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
  */
 void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
-    APP_LOGI("AbilityThread::ScheduleDisconnectAbility begin");
-    auto task = [abilityThread = this, want]() { abilityThread->HandleDisconnectAbility(want); };
+    APP_LOGI("AbilityThread::ScheduleDisconnectAbility begin, isExtension_：%{public}d", isExtension_);
+    auto task = [abilityThread = this, want]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleDisconnectExtension(want);
+            } else {
+                abilityThread->HandleDisconnectAbility(want);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleDisconnectAbility abilityHandler_ == nullptr");
@@ -547,10 +800,14 @@ void AbilityThread::ScheduleDisconnectAbility(const Want &want)
  */
 void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
-    APP_LOGI("AbilityThread::ScheduleCommandAbility begin");
+    APP_LOGI("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
     auto task = [abilityThread = this, want, restart, startId]() {
-        abilityThread->HandleCommandAbility(want, restart, startId);
-    };
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleCommandExtension(want, restart, startId);
+            } else {
+                abilityThread->HandleCommandAbility(want, restart, startId);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleCommandAbility abilityHandler_ == nullptr");
@@ -583,12 +840,25 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
         return;
     }
 
-    if (requestCode != -1) {
-        APP_LOGI("AbilityThread::SendResult before abilityImpl_->SendResult");
-        abilityImpl_->SendResult(requestCode, resultCode, want);
-        APP_LOGI("AbilityThread::SendResult after abilityImpl_->SendResult");
+    auto task = [this, requestCode, resultCode, want]() {
+        if (requestCode != -1) {
+            APP_LOGI("AbilityThread::SendResult before abilityImpl_->SendResult");
+            abilityImpl_->SendResult(requestCode, resultCode, want);
+            APP_LOGI("AbilityThread::SendResult after abilityImpl_->SendResult");
+        }
+    };
+
+    if (abilityHandler_ == nullptr) {
+        APP_LOGE("AbilityThread::SendResult abilityHandler_ == nullptr");
+        return;
+    }
+
+    bool ret = abilityHandler_->PostTask(task);
+    if (!ret) {
+        APP_LOGE("AbilityThread::SendResult PostTask error");
     }
     APP_LOGI("AbilityThread::SendResult end");
+
 }
 
 /**
@@ -845,7 +1115,7 @@ int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Valu
 void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 {
     APP_LOGI("NotifyMultiWinModeChanged.key:%{public}d,flag:%{public}d", winModeKey, flag);
-    sptr<Window> window = currentAbility_->GetWindow();
+    auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
         APP_LOGE("NotifyMultiWinModeChanged window == nullptr");
         return;
@@ -855,7 +1125,7 @@ void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
         // true: normal windowMode -> free windowMode
         if (winModeKey == MULTI_WINDOW_DISPLAY_FLOATING) {
             APP_LOGI("NotifyMultiWinModeChanged.SetWindowMode:WINDOW_MODE_FREE begin.");
-            window->SetWindowType(WINDOW_TYPE_FLOAT);
+            window->SetWindowType(Rosen::WindowType::WINDOW_TYPE_FLOAT);
             APP_LOGI("NotifyMultiWinModeChanged.SetWindowMode:WINDOW_MODE_FREE end.");
         } else {
             APP_LOGI("NotifyMultiWinModeChanged.key:%{public}d", winModeKey);
@@ -863,7 +1133,7 @@ void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
     } else {
         // false: free windowMode -> normal windowMode
         APP_LOGI("NotifyMultiWinModeChanged.SetWindowMode:WINDOW_MODE_TOP begin.");
-        window->SetWindowType(WINDOW_TYPE_NORMAL);
+        window->SetWindowType(Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW);
         APP_LOGI("NotifyMultiWinModeChanged.SetWindowMode:WINDOW_MODE_TOP end.");
     }
 
@@ -873,15 +1143,35 @@ void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
 {
     APP_LOGI("NotifyTopActiveAbilityChanged,flag:%{public}d", flag);
-    sptr<Window> window = currentAbility_->GetWindow();
+    auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
         APP_LOGE("NotifyMultiWinModeChanged window == nullptr");
         return;
     }
     if (flag) {
-        window->SwitchTop();
+        window->RequestFocus();
     }
     return;
+}
+
+void AbilityThread::ContinueAbility(const std::string& deviceId)
+{
+    APP_LOGI("ContinueAbility, deviceId:%{public}s", deviceId.c_str());
+    if (abilityImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::ContinueAbility abilityImpl_ is nullptr");
+        return;
+    }
+    abilityImpl_->ContinueAbility(deviceId);
+}
+
+void AbilityThread::NotifyContinuationResult(const int32_t result)
+{
+    APP_LOGI("NotifyContinuationResult, result:%{public}d", result);
+    if (abilityImpl_ == nullptr) {
+        APP_LOGE("AbilityThread::NotifyContinuationResult abilityImpl_ is nullptr");
+        return;
+    }
+    abilityImpl_->NotifyContinuationResult(result);
 }
 
 /**
@@ -889,9 +1179,11 @@ void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
  * @param application Indicates the main process.
  * @param abilityRecord Indicates the abilityRecord.
  * @param mainRunner The runner which main_thread holds.
+ * @param stageContext the AbilityStage context
  */
 void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
-    const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner)
+    const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
+    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     APP_LOGI("AbilityThread::AbilityThreadMain begin");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
@@ -899,7 +1191,12 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
         APP_LOGE("AbilityThread::AbilityThreadMain failed,thread  is nullptr");
         return;
     }
-    thread->Attach(application, abilityRecord, mainRunner);
+    thread->InitExtensionFlag(abilityRecord);
+    if (thread->isExtension_) {
+        thread->AttachExtension(application, abilityRecord, mainRunner);
+    } else {
+        thread->Attach(application, abilityRecord, mainRunner, stageContext);
+    }
     APP_LOGI("AbilityThread::AbilityThreadMain end");
 }
 
@@ -907,9 +1204,11 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
  * @description: Attach The ability thread to the main process.
  * @param application Indicates the main process.
  * @param abilityRecord Indicates the abilityRecord.
+ * @param stageContext the AbilityStage context
  */
 void AbilityThread::AbilityThreadMain(
-    std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+    std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+    const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     APP_LOGI("AbilityThread::AbilityThreadMain begin");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
@@ -917,9 +1216,34 @@ void AbilityThread::AbilityThreadMain(
         APP_LOGE("AbilityThread::AbilityThreadMain failed,thread  is nullptr");
         return;
     }
-    thread->Attach(application, abilityRecord);
+    thread->InitExtensionFlag(abilityRecord);
+    if (thread->isExtension_) {
+        thread->AttachExtension(application, abilityRecord);
+    } else {
+        thread->Attach(application, abilityRecord, stageContext);
+    }
     APP_LOGI("AbilityThread::AbilityThreadMain end");
 }
+
+void AbilityThread::InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
+{
+    APP_LOGI("AbilityThread::InitExtensionFlag start");
+    if (abilityRecord == nullptr) {
+        APP_LOGE("AbilityThread::InitExtensionFlag abilityRecord null");
+    }
+    std::shared_ptr<AbilityInfo> abilityInfo = abilityRecord->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        APP_LOGE("AbilityThread::InitExtensionFlag abilityInfo null");
+    }
+    APP_LOGI("AbilityThread::InitExtensionFlag:%{public}d", abilityInfo->type);
+    if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
+        APP_LOGI("AbilityThread::InitExtensionFlag true");
+        isExtension_ = true;
+    } else {
+        isExtension_ = false;
+    }
+}
+
 /**
  * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
  * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
@@ -1143,6 +1467,7 @@ bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
+
     APP_LOGI("AbilityThread::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityImpl_ == nullptr) {
@@ -1155,6 +1480,17 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityThread::ExecuteBatch(
     APP_LOGI("AbilityThread::ExecuteBatch after abilityImpl_->ExecuteBatch");
     APP_LOGI("AbilityThread::ExecuteBatch end");
     return results;
+}
+
+std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityContext(
+    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
+    const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityRuntime::Context> &stageContext)
+{
+    auto abilityContextImpl = std::make_shared<AbilityRuntime::AbilityContextImpl>();
+    abilityContextImpl->SetStageContext(stageContext);
+    abilityContextImpl->SetToken(token);
+    abilityContextImpl->SetAbilityInfo(abilityInfo);
+    return abilityContextImpl;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

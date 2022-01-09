@@ -89,6 +89,11 @@ public:
         return 0;
     }
 
+    virtual int MinimizeAbility(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
     virtual int ConnectAbility(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
     {
@@ -147,7 +152,7 @@ public:
         return 0;
     }
 
-    virtual int StopServiceAbility(const Want &want, const sptr<IRemoteObject> &callerToken)
+    virtual int StopServiceAbility(const Want &want)
     {
         return 0;
     }
@@ -183,7 +188,7 @@ public:
         return 0;
     }
 
-    virtual int UninstallApp(const std::string &bundleName, const int uid)
+    virtual int UninstallApp(const std::string &bundleName)
     {
         return 0;
     }
@@ -294,9 +299,35 @@ public:
         return 0;
     }
 
+    virtual int StartUser(int userId) override
+    {
+        return 0;
+    }
+
+    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    {
+        return 0;
+    }
+    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    {
+        return 0;
+    }
+    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    {
+        return 0;
+    }
+    virtual int RegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
+    {
+        return 0;
+    }
+    virtual int UnRegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
+    {
+        return 0;
+    }
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int uid));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));
@@ -310,6 +341,23 @@ public:
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
     MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
+    MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
+    MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, const int32_t result));
+    MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams));
+    MOCK_METHOD2(ContinueAbility, int(const std::string &deviceId, int32_t missionId));
+    MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string &deviceId, int32_t sessionId, bool isSuccess));
+
+    MOCK_METHOD1(LockMissionForCleanup, int(int32_t missionId));
+    MOCK_METHOD1(UnlockMissionForCleanup, int(int32_t missionId));
+    MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener> &listener));
+    MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener> &listener));
+    MOCK_METHOD3(
+        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo> &missionInfos));
+    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo &missionInfo));
+    MOCK_METHOD1(CleanMission, int(int32_t missionId));
+    MOCK_METHOD0(CleanAllMissions, int());
+    MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
 };
 }  // namespace AAFwk

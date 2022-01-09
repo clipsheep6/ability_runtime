@@ -59,8 +59,7 @@ public:
         return -1;
     }
 
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-    const NativeRdb::DataAbilityPredicates &predicates) override
+    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) override
     {
         return -1;
     }
@@ -130,6 +129,10 @@ public:
     {
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     }
+    virtual void NotifyContinuationResult(const int32_t result) override
+    {}
+    virtual void ContinueAbility(const std::string& deviceId) override
+    {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

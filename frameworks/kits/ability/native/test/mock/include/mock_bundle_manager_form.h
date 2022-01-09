@@ -63,7 +63,8 @@ public:
         return true;
     }
 
-    virtual bool GetBundleInfos(const BundleFlag flag, std::vector<BundleInfo> &bundleInfos) override
+    virtual bool GetBundleInfos(
+        const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId) override
     {
         return true;
     }
@@ -168,7 +169,8 @@ public:
     {
         return true;
     }
-    virtual bool DumpInfos(const DumpFlag flag, const std::string &bundleName, std::string &result) override
+    virtual bool DumpInfos(
+        const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override
     {
         return true;
     }
@@ -176,6 +178,10 @@ public:
     {
         return nullptr;
     }
+    virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
+    {
+        return nullptr;
+    };
 
     /**
 	 *  @brief Obtains information about the shortcuts of the application.
@@ -183,7 +189,7 @@ public:
      *  @param form Indicates the callback a list to shortcutinfo.
      *  @return Returns true if shortcutinfo get success
      */
-    virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
+    virtual bool GetShortcutInfos(const std::string &bundleName,std::vector<ShortcutInfo> &shortcut) override
     {
         return true;
     }
@@ -214,7 +220,8 @@ public:
         return true;
     }
 
-    virtual bool GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo) override;
+    virtual bool GetBundleInfo(
+        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
     virtual bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
     virtual bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
     virtual bool GetFormsInfoByModule(
@@ -263,8 +270,14 @@ public:
     {
         return true;
     };
-    virtual bool GetBundleInfo(const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo) override;
-    virtual bool GetBundleInfos(const BundleFlag flag, std::vector<BundleInfo> &bundleInfos) override
+    virtual bool GetBundleInfo(
+        const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
+    virtual bool GetBundleInfos(
+        const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId) override
+    {
+        return true;
+    };
+    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
     {
         return true;
     };
@@ -352,11 +365,16 @@ public:
     {
         return true;
     };
-    virtual bool DumpInfos(const DumpFlag flag, const std::string &bundleName, std::string &result) override
+    virtual bool DumpInfos(
+        const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override
     {
         return true;
     };
     virtual sptr<IBundleInstaller> GetBundleInstaller() override
+    {
+        return nullptr;
+    };
+    virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
     {
         return nullptr;
     };
@@ -383,7 +401,7 @@ public:
      *  @param form Indicates the callback a list to shortcutinfo.
      *  @return Returns true if shortcutinfo get success
      */
-    virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
+    virtual bool GetShortcutInfos(const std::string &bundleName,std::vector<ShortcutInfo> &shortcut) override
     {
         return true;
     }
@@ -407,7 +425,39 @@ public:
     {
         return true;
     }
+    virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
+    {
+        return true;
+    }
+    virtual bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override
+    {
+        return true;
+    }
+    virtual int CheckPermissionByUid(
+        const std::string &bundleName, const std::string &permission, const int userId) override
+    {
+        return true;
+    }
+    virtual bool GetAllCommonEventInfo(const std::string &eventKey,
+        std::vector<CommonEventInfo> &commonEventInfos) override
+    {
+        return true;
+    }
+    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
+    {
+        return true;
+    }
+    virtual bool BundleClone(const std::string &bundleName) override
+    {
+        return true;
+    }
+    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
+    {
+        return true;
+    }
+
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

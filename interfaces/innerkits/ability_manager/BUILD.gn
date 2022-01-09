@@ -53,16 +53,23 @@ ohos_shared_library("ability_manager") {
     "${services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${services_path}/abilitymgr/src/caller_info.cpp",
     "${services_path}/abilitymgr/src/image_info.cpp",
+    "${services_path}/abilitymgr/src/launch_param.cpp",
     "${services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "${services_path}/abilitymgr/src/mission_description_info.cpp",
+    "${services_path}/abilitymgr/src/mission_info.cpp",
+    "${services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+    "${services_path}/abilitymgr/src/mission_listener_stub.cpp",
     "${services_path}/abilitymgr/src/mission_option.cpp",
     "${services_path}/abilitymgr/src/mission_record_info.cpp",
     "${services_path}/abilitymgr/src/mission_snapshot.cpp",
     "${services_path}/abilitymgr/src/mission_stack_info.cpp",
+    "${services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+    "${services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
     "${services_path}/abilitymgr/src/sender_info.cpp",
     "${services_path}/abilitymgr/src/shared_memory.cpp",
     "${services_path}/abilitymgr/src/stack_info.cpp",
     "${services_path}/abilitymgr/src/stack_setting.cpp",
+    "${services_path}/abilitymgr/src/start_options.cpp",
     "${services_path}/abilitymgr/src/want_sender_info.cpp",
     "${services_path}/abilitymgr/src/wants_info.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/src/data_ability_operation.cpp",
@@ -78,6 +85,7 @@ ohos_shared_library("ability_manager") {
   ]
 
   deps = [
+    "${innerkits_path}/base:base",
     "${innerkits_path}/want:want",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
@@ -94,6 +102,7 @@ ohos_shared_library("ability_manager") {
   ]
 
   external_deps = [
+    "bytrace_standard:bytrace_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "native_appdatamgr:native_appdatafwk",

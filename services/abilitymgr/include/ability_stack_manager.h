@@ -84,11 +84,9 @@ public:
      * @param token, the token of service type's ability to terminate.
      * @param resultCode, the result code of service type's ability to terminate.
      * @param resultWant, the result want for service type's ability to terminate.
-     * @param abilityRequestPtr, passed in when the application selector starts selecting ability
      * @return Returns ERR_OK on success, others on failure.
      */
-    int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant,
-        const std::shared_ptr<AbilityRequest> &abilityRequestPtr = nullptr);
+    int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -98,6 +96,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode);
+
+    /**
+     * MinimizeAbility, minimize the special ability.
+     *
+     * @param token, ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int MinimizeAbility(const sptr<IRemoteObject> &token);
 
     /**
      * get ability stack manager's user id.
@@ -348,9 +354,8 @@ public:
      * Uninstall app
      *
      * @param bundleName.
-     * @param uid.
      */
-    void UninstallApp(const std::string &bundleName, const int uid);
+    void UninstallApp(const std::string &bundleName);
 
     void OnTimeOut(uint32_t msgId, int64_t eventId);
     bool IsFirstInMission(const sptr<IRemoteObject> &token);
@@ -485,6 +490,14 @@ private:
     int TerminateAbilityLocked(std::list<TerminatingAbility> &terminateLists);
 
     /**
+     * MinimizeAbilityLocked.
+     *
+     * @param abilityRecord, target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int MinimizeAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    /**
      * Remove the specified mission from the stack by mission id.
      *
      * @param missionId, target mission id.
@@ -599,9 +612,8 @@ private:
      * Add uninstall tags to ability
      *
      * @param bundleName
-     * @param userId
      */
-    void AddUninstallTags(const std::string &bundleName, const int uid);
+    void AddUninstallTags(const std::string &bundleName);
 
     /**
      * Get target record by start mode.
@@ -659,8 +671,7 @@ private:
     SystemWindowMode GetLatestSystemWindowMode();
     int JudgingTargetStackId(AbilityWindowConfiguration config) const;
     int StartAbilityLifeCycle(std::shared_ptr<AbilityRecord> lastTopAbility,
-        std::shared_ptr<AbilityRecord> currentTopAbility, std::shared_ptr<AbilityRecord> targetAbility,
-        bool isTopSplitScreen = false);
+        std::shared_ptr<AbilityRecord> currentTopAbility, std::shared_ptr<AbilityRecord> targetAbility);
 
     void ActiveTopAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void MoveMissionAndAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -712,6 +723,7 @@ private:
     void CheckMissionRecordIsResume(const std::shared_ptr<MissionRecord> &mission);
     int ChangedPowerStorageAbilityToActive(std::shared_ptr<PowerStorage> &powerStorage,
         bool isPowerStateLockScreen = false);
+    void HandleActiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     bool IsLockScreenState();
     bool CheckMissionRecordInWhiteList(const std::shared_ptr<MissionRecord> &mission);
     bool DeleteMissionRecordInStackOnLockScreen(const std::shared_ptr<MissionRecord> &missionRecord);
@@ -740,13 +752,14 @@ private:
 
     std::string ConvertWindowModeState(const SystemWindowMode &mode);
 
-    void MultiApplicationSelectorStartTargetAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void MultiAppSelectorStartTargetAbilityFail(const std::shared_ptr<AbilityRecord> &topAbilityRecord,
-        const std::shared_ptr<AbilityRecord> &abilityRecord);
     void ProcessInactivateInMoving(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void BackAbilityRecordMoveToBackGround(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void MoveMissionStackToFullStackTop(const std::shared_ptr<MissionStack> &stack);
-    void RemoveMultiAppSelectorAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    void CompleteInactiveByNewVersion(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
+    void CompleteForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
+
+    int DispatchBackgroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
+    void CompleteBackgroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     static constexpr int MIN_MISSION_STACK_ID = LAUNCHER_MISSION_STACK_ID;

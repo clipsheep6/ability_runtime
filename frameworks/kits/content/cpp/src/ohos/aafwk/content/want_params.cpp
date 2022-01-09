@@ -14,23 +14,24 @@
  */
 
 #include "want_params.h"
-#include "parcel.h"
-#include "string_ex.h"
-#include "ohos/aafwk/base/base_interfaces.h"
+
+#include "app_log_wrapper.h"
 #include "ohos/aafwk/base/array_wrapper.h"
+#include "ohos/aafwk/base/base_interfaces.h"
 #include "ohos/aafwk/base/base_object.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
 #include "ohos/aafwk/base/byte_wrapper.h"
-#include "ohos/aafwk/base/short_wrapper.h"
+#include "ohos/aafwk/base/double_wrapper.h"
+#include "ohos/aafwk/base/float_wrapper.h"
 #include "ohos/aafwk/base/int_wrapper.h"
 #include "ohos/aafwk/base/long_wrapper.h"
-#include "ohos/aafwk/base/float_wrapper.h"
-#include "ohos/aafwk/base/double_wrapper.h"
+#include "ohos/aafwk/base/short_wrapper.h"
 #include "ohos/aafwk/base/string_wrapper.h"
-#include "want_params_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
-#include "app_log_wrapper.h"
+#include "parcel.h"
 #include "securec.h"
+#include "string_ex.h"
+#include "want_params_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 
@@ -134,7 +135,7 @@ std::string WantParams::GetStringByType(const sptr<IInterface> iIt, int typeId)
     }
     return "";
 }
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 static void SetNewArray(const AAFwk::InterfaceID &id, AAFwk::IArray *orgIArray, sptr<AAFwk::IArray> &ao);
 /**
  * @description: A constructor used to create an IntentParams instance by using the parameters of an existing
@@ -542,6 +543,8 @@ bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
         return WriteToParcelFloat(parcel, o);
     } else if (IDouble::Query(o) != nullptr) {
         return WriteToParcelDouble(parcel, o);
+    } else if (IWantParams::Query(o) != nullptr) {
+        return WriteToParcelWantParams(parcel, o);
     } else {
         IArray *ao = IArray::Query(o);
         if (ao != nullptr) {
@@ -633,7 +636,7 @@ bool WantParams::Marshalling(Parcel &parcel) const
     return true;
 }
 
-template <typename dataType, typename className>
+template<typename dataType, typename className>
 static bool SetArray(const InterfaceID &id, const std::vector<dataType> &value, sptr<IArray> &ao)
 {
     typename std::vector<dataType>::size_type size = value.size();
@@ -647,7 +650,7 @@ static bool SetArray(const InterfaceID &id, const std::vector<dataType> &value, 
     return false;
 }
 
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 static void FillArray(IArray *ao, std::vector<T1> &array)
 {
     auto func = [&](IInterface *object) {
@@ -661,7 +664,7 @@ static void FillArray(IArray *ao, std::vector<T1> &array)
     Array::ForEach(ao, func);
 }
 // inner use template function
-template <typename T1, typename T2, typename T3>
+template<typename T1, typename T2, typename T3>
 static void SetNewArray(const AAFwk::InterfaceID &id, AAFwk::IArray *orgIArray, sptr<AAFwk::IArray> &ao)
 {
     if (orgIArray == nullptr) {
@@ -1301,6 +1304,8 @@ bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int
             return ReadFromParcelFloat(parcel, key);
         case VALUE_TYPE_DOUBLE:
             return ReadFromParcelDouble(parcel, key);
+        case VALUE_TYPE_WANTPARAMS:
+            return ReadFromParcelWantParamWrapper(parcel, key);
         case VALUE_TYPE_NULL:
             break;
         case VALUE_TYPE_PARCELABLE:

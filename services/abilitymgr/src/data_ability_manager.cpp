@@ -18,8 +18,8 @@
 #include <chrono>
 #include <thread>
 
-#include "hilog_wrapper.h"
 #include "ability_util.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -57,8 +57,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     }
 
     std::shared_ptr<AbilityRecord> clientAbilityRecord;
-    const std::string dataAbilityName(std::to_string(abilityRequest.abilityInfo.applicationInfo.uid) + '.' +
-        abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
 
     if (client && !isSystem) {
         clientAbilityRecord = Token::GetAbilityRecordByToken(client);
@@ -309,7 +308,6 @@ void DataAbilityManager::OnAppStateChanged(const AppInfo &info)
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
         auto abilityRecord = it->second->GetAbilityRecord();
         if (abilityRecord && abilityRecord->GetApplicationInfo().name == info.appName &&
-            abilityRecord->GetAbilityInfo().applicationInfo.uid == info.uid &&
             (info.processName == abilityRecord->GetAbilityInfo().process ||
             info.processName == abilityRecord->GetApplicationInfo().bundleName)) {
             abilityRecord->SetAppState(info.state);
@@ -319,7 +317,6 @@ void DataAbilityManager::OnAppStateChanged(const AppInfo &info)
     for (auto it = dataAbilityRecordsLoading_.begin(); it != dataAbilityRecordsLoading_.end(); ++it) {
         auto abilityRecord = it->second->GetAbilityRecord();
         if (abilityRecord && abilityRecord->GetApplicationInfo().name == info.appName &&
-            abilityRecord->GetAbilityInfo().applicationInfo.uid == info.uid &&
             (info.processName == abilityRecord->GetAbilityInfo().process ||
             info.processName == abilityRecord->GetApplicationInfo().bundleName)) {
             abilityRecord->SetAppState(info.state);
@@ -415,7 +412,7 @@ DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
             return nullptr;
         }
 
-        auto insertResult = dataAbilityRecordsLoading_.insert({ name, dataAbilityRecord });
+        auto insertResult = dataAbilityRecordsLoading_.insert({name, dataAbilityRecord});
         if (!insertResult.second) {
             HILOG_ERROR("Failed to insert data ability to loading map.");
             return nullptr;

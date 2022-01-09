@@ -61,7 +61,6 @@ const std::string APPLICATION_SELECTOR_ABILITY_ISCLONED_LIST = "OHOS_ABILITY_ISC
 
 const std::string PHONE_SERVICE_BUNDLE_NAME = "com.ohos.callui";
 const std::string PHONE_SERVICE_ABILITY_NAME = "com.ohos.callui.ServiceAbility";
-
 const std::string LOCK_SCREEN_EVENT_NAME = "lock_screen";
 
 const std::string CONTACTS_ABILITY_NAME = "com.ohos.contacts.ServiceAbility";

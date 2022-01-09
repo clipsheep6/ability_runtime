@@ -13,15 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef SERVICES_ABILITYMGR_TEST_MOCK_LIBS_ABILITY_SCHEDULER_MOCK_ABILITY_SCHEDULER_MOCK_H
-#define SERVICES_ABILITYMGR_TEST_MOCK_LIBS_ABILITY_SCHEDULER_MOCK_ABILITY_SCHEDULER_MOCK_H
-
 #pragma once
+#include "ability_scheduler_interface.h"
 #include <iremote_object.h>
 #include <iremote_stub.h>
-#include <gmock/gmock.h>
-#include "ability_scheduler_interface.h"
 #include "hilog_wrapper.h"
+#include <gmock/gmock.h>
 
 namespace OHOS {
 namespace AAFwk {
@@ -44,6 +41,8 @@ public:
     MOCK_METHOD3(ScheduleCommandAbility, void(const Want &, bool, int));
     MOCK_METHOD1(NotifyTopActiveAbilityChanged, void(bool flag));
     MOCK_METHOD2(NotifyMultiWinModeChanged, void(int32_t winModeKey, bool flag));
+    MOCK_METHOD1(NotifyContinuationResult, void(const int32_t result));
+    MOCK_METHOD1(ContinueAbility, void(const std::string& deviceId));
 
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
@@ -146,4 +145,3 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // SERVICES_ABILITYMGR_TEST_MOCK_LIBS_ABILITY_SCHEDULER_MOCK_ABILITY_SCHEDULER_MOCK_H

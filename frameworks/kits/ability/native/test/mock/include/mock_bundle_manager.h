@@ -70,11 +70,12 @@ public:
     virtual bool IsSafeMode() override;
     virtual bool CleanBundleCacheFiles(
         const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override;
-    virtual bool CleanBundleDataFiles(const std::string &bundleName) override;
+    virtual bool CleanBundleDataFiles(const std::string &bundleName, const int userId) override;
     virtual bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override;
     virtual bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override;
     virtual bool UnregisterBundleStatusCallback() override;
-    virtual bool DumpInfos(const DumpFlag flag, const std::string &bundleName, std::string &result) override;
+    virtual bool DumpInfos(
+        const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override;
     virtual bool IsApplicationEnabled(const std::string &bundleName) override;
     virtual bool SetApplicationEnabled(const std::string &bundleName, bool isEnable) override;
     virtual bool IsAbilityEnabled(const AbilityInfo &abilityInfo) override;
@@ -97,7 +98,7 @@ public:
         const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime) override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -145,11 +146,12 @@ public:
     virtual bool IsSafeMode() override;
     virtual bool CleanBundleCacheFiles(
         const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override;
-    virtual bool CleanBundleDataFiles(const std::string &bundleName) override;
+    virtual bool CleanBundleDataFiles(const std::string &bundleName, const int userId) override;
     virtual bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override;
     virtual bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override;
     virtual bool UnregisterBundleStatusCallback() override;
-    virtual bool DumpInfos(const DumpFlag flag, const std::string &bundleName, std::string &result) override;
+    virtual bool DumpInfos(
+        const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override;
     virtual bool IsApplicationEnabled(const std::string &bundleName) override;
     virtual bool SetApplicationEnabled(const std::string &bundleName, bool isEnable) override;
     virtual bool IsAbilityEnabled(const AbilityInfo &abilityInfo) override;
@@ -172,7 +174,37 @@ public:
         const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime) override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
+    virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
+    {
+        return true;
+    }
+    virtual bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override
+    {
+        return true;
+    }
+    virtual int CheckPermissionByUid(
+        const std::string &bundleName, const std::string &permission, const int userId) override
+    {
+        return true;
+    }
+    virtual bool GetAllCommonEventInfo(const std::string &eventKey,
+        std::vector<CommonEventInfo> &commonEventInfos) override
+    {
+        return true;
+    }
+    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
+    {
+        return true;
+    }
+    virtual bool BundleClone(const std::string &bundleName) override
+    {
+        return true;
+    }
+    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
+    {
+        return true;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

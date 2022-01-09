@@ -50,7 +50,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         Inactive();
     }
 
-    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND) {
+    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
         CheckAndSave();
     }
 
@@ -85,14 +85,8 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             Stop();
             break;
         }
-        case AAFwk::ABILITY_STATE_INACTIVE: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
-                Foreground(want);
-            }
-            break;
-        }
-        case AAFwk::ABILITY_STATE_ACTIVE: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
+        case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
+            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
                 Foreground(want);
             }
             if (targetState.isNewWant) {
@@ -103,10 +97,11 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
             Active();
             break;
         }
-        case AAFwk::ABILITY_STATE_BACKGROUND: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) {
-                Background();
+        case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
+            if (lifecycleState_ != AAFwk::ABILITY_STATE_INACTIVE) {
+                Inactive();
             }
+            Background();
             break;
         }
         default: {
@@ -121,52 +116,50 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
 
 /**
  * @brief Execution the KeyDown callback of the ability
- * @param keyCode Indicates the code of the key pressed.
  * @param keyEvent Indicates the key-down event.
  *
  * @return Returns true if this event is handled and will not be passed further; returns false if this event is
  * not handled and should be passed to other handlers.
  *
  */
-bool PageAbilityImpl::DoKeyDown(int keyCode, const KeyEvent &keyEvent)
+void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     APP_LOGI("PageAbilityImpl::DoKeyDown begin");
     if (ability_ == nullptr) {
         APP_LOGE("PageAbilityImpl::DoKeyDown ability_ == nullptr");
-        return false;
+        return;
     }
     auto abilitInfo = ability_->GetAbilityInfo();
     APP_LOGI("PageAbilityImpl::DoKeyDown called %{public}s And Focus is %{public}s",
         abilitInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
+    ability_->OnKeyDown(keyEvent);
     APP_LOGI("PageAbilityImpl::DoKeyDown end");
-    return ability_->OnKeyDown(keyCode, keyEvent);
 }
 
 /**
  * @brief Execution the KeyUp callback of the ability
- * @param keyCode Indicates the code of the key released.
  * @param keyEvent Indicates the key-up event.
  *
  * @return Returns true if this event is handled and will not be passed further; returns false if this event is
  * not handled and should be passed to other handlers.
  *
  */
-bool PageAbilityImpl::DoKeyUp(int keyCode, const KeyEvent &keyEvent)
+void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     APP_LOGI("PageAbilityImpl::DoKeyUp begin");
     if (ability_ == nullptr) {
         APP_LOGE("PageAbilityImpl::DoKeyUp ability_ == nullptr");
-        return false;
+        return;
     }
     auto abilitInfo = ability_->GetAbilityInfo();
     APP_LOGI("PageAbilityImpl::DoKeyUp called %{public}s And Focus is %{public}s",
         abilitInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
+    ability_->OnKeyUp(keyEvent);
     APP_LOGI("PageAbilityImpl::DoKeyUp end");
-    return ability_->OnKeyUp(keyCode, keyEvent);
 }
 
 /**
@@ -177,20 +170,20 @@ bool PageAbilityImpl::DoKeyUp(int keyCode, const KeyEvent &keyEvent)
  * @return Returns true if the event is handled; returns false otherwise.
  *
  */
-bool PageAbilityImpl::DoTouchEvent(const TouchEvent &touchEvent)
+void PageAbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    APP_LOGI("PageAbilityImpl::DoTouchEvent begin");
+    APP_LOGI("PageAbilityImpl::DoPointerEvent begin");
     if (ability_ == nullptr) {
-        APP_LOGE("PageAbilityImpl::DoTouchEvent ability_ == nullptr");
-        return false;
+        APP_LOGE("PageAbilityImpl::DoPointerEvent ability_ == nullptr");
+        return;
     }
     auto abilitInfo = ability_->GetAbilityInfo();
-    APP_LOGI("PageAbilityImpl::OnTouchEvent called %{public}s And Focus is %{public}s",
+    APP_LOGI("PageAbilityImpl::DoPointerEvent called %{public}s And Focus is %{public}s",
         abilitInfo->name.c_str(),
         ability_->HasWindowFocus() ? "true" : "false");
 
-    APP_LOGI("PageAbilityImpl::DoTouchEvent end");
-    return ability_->OnTouchEvent(touchEvent);
+    ability_->OnPointerEvent(pointerEvent);
+    APP_LOGI("PageAbilityImpl::DoPointerEvent end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

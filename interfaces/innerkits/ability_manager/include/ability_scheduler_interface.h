@@ -16,8 +16,8 @@
 #ifndef OHOS_AAFWK_ABILITY_SCHEDULER_INTERFACE_H
 #define OHOS_AAFWK_ABILITY_SCHEDULER_INTERFACE_H
 
+#include "foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/appmgr/configuration.h"
 #include <iremote_broker.h>
-#include "configuration.h"
 #include "lifecycle_state_info.h"
 #include "pac_map.h"
 #include "want.h"
@@ -34,6 +34,7 @@ class DataAbilityOperation;
 }
 namespace AAFwk {
 using OHOS::AppExecFwk::PacMap;
+using OHOS::AppExecFwk::Configuration;
 
 class IDataAbilityObserver;
 
@@ -150,8 +151,7 @@ public:
      *
      * @return Returns the number of data records updated.
      */
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates) = 0;
+    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) = 0;
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -272,6 +272,8 @@ public:
     virtual Uri DenormalizeUri(const Uri &uri) = 0;
     virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) = 0;
+    virtual void ContinueAbility(const std::string& deviceId) = 0;
+    virtual void NotifyContinuationResult(const int32_t result) = 0;
     enum {
         // ipc id for scheduling ability to a state of life cycle
         SCHEDULE_ABILITY_TRANSACTION = 0,
@@ -349,6 +351,12 @@ public:
 		
 		// ipc id for scheduling ExecuteBatch
         SCHEDULE_EXECUTEBATCH,
+
+        // ipc id for notify continuation result
+        NOTIFY_CONTINUATION_RESULT,
+
+        // ipc id for continue ability
+        CONTINUE_ABILITY,
     };
 };
 }  // namespace AAFwk

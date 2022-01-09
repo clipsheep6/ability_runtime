@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace LIBZIP {
+
 #define F_OK 0
 
 namespace {
@@ -105,8 +106,9 @@ void FilePath::GetComponents(std::vector<std::string> &components)
 
     // Capture root, if any.
     base = current.BaseName();
-    if (!base.path_.empty() && base.path_ != kCurrentDirectory)
+    if (!base.path_.empty() && base.path_ != kCurrentDirectory) {
         components.push_back(current.BaseName().path_);
+    }
 }
 
 FilePath FilePath::DirName()
@@ -235,6 +237,7 @@ bool FilePath::CreateDirectory(const FilePath &fullPath)
 // static
 bool FilePath::DirectoryExists(const FilePath &path)
 {
+
     struct stat fileInfo;
     if (stat(const_cast<FilePath &>(path).Value().c_str(), &fileInfo) == 0) {
         return S_ISDIR(fileInfo.st_mode);
@@ -293,13 +296,7 @@ FilePath FilePath::Append(FilePath &component)
 }
 
 // If IsParent(child) holds, appends to path (if non-NULL) the
-// relative path to child and returns true.  For example, if parent
-// holds "/Users/johndoe/Library/Application Support", child holds
-// "/Users/johndoe/Library/Application Support/Google/Chrome/Default", and
-// *path holds "/Users/johndoe/Library/Caches", then after
-// parent.AppendRelativePath(child, path) is called *path will hold
-// "/Users/johndoe/Library/Caches/Google/Chrome/Default".  Otherwise,
-// returns false.
+// relative path to child and returns true.
 bool FilePath::AppendRelativePath(const FilePath &child, FilePath *path)
 {
     FilePath childPath = child;
@@ -343,6 +340,7 @@ bool FilePath::AppendRelativePath(const FilePath &child, FilePath *path)
     }
     return true;
 }
+
 }  // namespace LIBZIP
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -16,17 +16,19 @@
 #ifndef OHOS_APPEXECFWK_NAPI_COMMON_DATA_H
 #define OHOS_APPEXECFWK_NAPI_COMMON_DATA_H
 
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
+
+#include "ability.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "pac_map.h"
-#include "ability.h"
 
 using Ability = OHOS::AppExecFwk::Ability;
 namespace OHOS {
 namespace AppExecFwk {
+
 #define NATIVE_C_BUFFER_SIZE 1024 /* Converted to C-style string buffer size */
 #define ARGS_MAX_COUNT 10
 #define ARGS_ASYNC_COUNT 1
@@ -111,6 +113,7 @@ typedef struct __ComplexArrayData {
     std::vector<double> doubleList;
     std::vector<std::string> stringList;
 } ComplexArrayData;
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_APPEXECFWK_NAPI_COMMON_DATA_H

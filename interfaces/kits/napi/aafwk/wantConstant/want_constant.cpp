@@ -13,11 +13,13 @@
  * limitations under the License.
  */
 #include "want_constant.h"
+
 #include <cstring>
-#include <vector>
 #include <uv.h>
-#include "securec.h"
+#include <vector>
+
 #include "hilog_wrapper.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -52,6 +54,8 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, action, "ohos.want.action.dismissTimer", "ACTION_DISMISS_TIMER");
     SetNamedProperty(env, action, "ohos.want.action.sendSms", "ACTION_SEND_SMS");
     SetNamedProperty(env, action, "ohos.want.action.choose", "ACTION_CHOOSE");
+    SetNamedProperty(env, action, "ohos.want.action.imageCapture", "ACTION_IMAGE_CAPTURE");
+    SetNamedProperty(env, action, "ohos.want.action.videoCapture", "ACTION_VIDEO_CAPTURE");
     SetNamedProperty(env, action, "ohos.want.action.select", "ACTION_SELECT");
     SetNamedProperty(env, action, "ohos.want.action.sendData", "ACTION_SEND_DATA");
     SetNamedProperty(env, action, "ohos.want.action.sendMultipleData", "ACTION_SEND_MULTIPLE_DATA");

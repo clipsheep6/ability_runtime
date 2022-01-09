@@ -18,13 +18,14 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "hilog_wrapper.h"
-#include "ipc_skeleton.h"
-#include "system_ability_definition.h"
-#include "if_system_ability_manager.h"
-#include "iservice_registry.h"
-#include "app_mgr_interface.h"
+#include "ability_manager_client.h"
 #include "ability_manager_interface.h"
+#include "app_mgr_interface.h"
+#include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "system_ability_definition.h"
 
 using namespace OHOS::AAFwk;
 
@@ -317,12 +318,10 @@ void GetMissionSnapshotInfoForResult(napi_env env, MissionSnapshot &recentMissio
     NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "topAbility", objTopAbilityInfo));
 
     if (recentMissionInfos.snapshot) {
-        HILOG_INFO("width = [%{public}d]", recentMissionInfos.snapshot->GetWidth());
-        HILOG_INFO("height = [%{public}d]", recentMissionInfos.snapshot->GetHeight());
         napi_value iconResult = nullptr;
         iconResult = Media::PixelMapNapi::CreatePixelMap(env, recentMissionInfos.snapshot);
         NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "snapshot", iconResult));
-    } else {
+    }else{
         NAPI_CALL_RETURN_VOID(env, napi_set_named_property(env, result, "snapshot", NapiGetNull(env)));
     }
 }
@@ -837,7 +836,7 @@ napi_value NAPI_GetActiveAbilityMissionInfos(napi_env env, napi_callback_info in
         callBackMode = true;
     }
 
-    AsyncMissionInfosCallbackInfo *async_callback_info = new (std::nothrow) AsyncMissionInfosCallbackInfo {
+    AsyncMissionInfosCallbackInfo *async_callback_info = new (std::nothrow) AsyncMissionInfosCallbackInfo{
         .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
@@ -1852,7 +1851,7 @@ auto NAPI_GetAbilityMissionSnapshotAsyncExecute = [](napi_env env, void *data) {
     HILOG_INFO("GetAbilityMissionSnapshotWrap called...");
     AsyncGetMissionSnapshot *async_callback_info = (AsyncGetMissionSnapshot *)data;
     AAFwk::AbilityManagerClient::GetInstance()->GetMissionSnapshot(async_callback_info->missionId,
-        async_callback_info->missionSnapshot);
+    async_callback_info->missionSnapshot);
 };
 
 auto NAPI_GetAbilityMissionSnapshotAsyncCompleteCallback = [](napi_env env, napi_status status, void *data) {
@@ -1934,10 +1933,9 @@ napi_value NAPI_GetAbilityMissionSnapshotWrap(
 napi_value NAPI_GetAbilityMissionSnapshot(napi_env env, napi_callback_info info)
 {
     size_t argc = 2;
-    const size_t maxSize = 2;
     napi_value argv[argc];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
+    HILOG_INFO("argc = [%{public}d]", (int32_t)argc);
 
     napi_valuetype valuetype0;
     NAPI_CALL(env, napi_typeof(env, argv[0], &valuetype0));
@@ -1946,7 +1944,7 @@ napi_value NAPI_GetAbilityMissionSnapshot(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &missionId));
 
     bool callBackMode = false;
-    if (argc >= maxSize) {
+    if (argc >= 2) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
         NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
@@ -1954,7 +1952,7 @@ napi_value NAPI_GetAbilityMissionSnapshot(napi_env env, napi_callback_info info)
     }
 
     AsyncGetMissionSnapshot *async_callback_info =
-        new (std::nothrow) AsyncGetMissionSnapshot {.env = env, .asyncWork = nullptr, .deferred = nullptr};
+        new (std::nothrow) AsyncGetMissionSnapshot{.env = env, .asyncWork = nullptr, .deferred = nullptr};
     if (async_callback_info == nullptr) {
         return NapiGetNull(env);
     }

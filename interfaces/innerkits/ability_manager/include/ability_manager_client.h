@@ -111,18 +111,6 @@ public:
         const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE);
 
     /**
-     * StartAbility with want, send want to ability manager service.
-     *
-     * @param want Ability want.
-     * @param callerToken, caller ability token.
-     * @param requestCode Ability request code.
-     * @param requestUid Ability request uid.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-        int requestCode, int requestUid);
-
-    /**
      * Starts a new ability with specific start settings.
      *
      * @param want Indicates the ability to start.
@@ -131,6 +119,18 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability with specific start options.
+     *
+     * @param want, the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken, caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbility(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE);
 
     /**
@@ -163,6 +163,15 @@ public:
      * and this Service ability will be destroyed; returns false otherwise.
      */
     ErrCode TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId);
+
+    /**
+     * MinimizeAbility, minimize the special ability.
+     *
+     * @param token, ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MinimizeAbility(const sptr<IRemoteObject> &token);
+
     /**
      * ConnectAbility, connect session with service ability.
      *
@@ -229,10 +238,9 @@ public:
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.
-     * @param callerToken, specifies the caller ability token.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    ErrCode StopServiceAbility(const Want &want, const sptr<IRemoteObject> &callerToken = nullptr);
+    ErrCode StopServiceAbility(const Want &want);
 
     /**
      * Get the list of the missions that the user has recently launched,
@@ -457,6 +465,147 @@ public:
      */
     void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
 
+    /**
+     * ContinueMission, continue ability from mission center.
+     *
+     * @param srcDeviceId, origin deviceId.
+     * @param dstDeviceId, target deviceId.
+     * @param missionId, indicates which ability to continue.
+     * @param callBack, notify result back.
+     * @param wantParams, extended params.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
+
+    /**
+     * start continuation.
+     * @param want, used to start a ability.
+     * @param abilityToken, ability token.
+     * @param status, continue status.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status);
+
+    /**
+     * notify continuation complete to dms.
+     * @param deviceId, source device which start a continuation.
+     * @param sessionId, represent a continuaion.
+     * @param isSuccess, continuation result.
+     * @return
+     */
+    void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess);
+
+    /**
+     * @brief Lock specified mission.
+     * @param missionId The id of target mission.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode LockMissionForCleanup(int32_t missionId);
+
+    /**
+     * @brief Unlock specified mission.
+     * @param missionId The id of target mission.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnlockMissionForCleanup(int32_t missionId);
+
+    /**
+     * @brief Register mission listener to ams.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterMissionListener(const sptr<IMissionListener> &listener);
+
+    /**
+     * @brief UnRegister mission listener from ams.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnRegisterMissionListener(const sptr<IMissionListener> &listener);
+
+    /**
+     * @brief Register mission listener to ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener);
+
+    /**
+     * @brief UnRegister mission listener from ability manager service.
+     * @param deviceId The remote device Id.
+     * @param listener The handler of listener.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode UnRegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener);
+
+    /**
+     * @brief Get mission infos from ams.
+     * @param deviceId local or remote deviceid.
+     * @param numMax max number of missions.
+     * @param missionInfos mission info result.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode GetMissionInfos(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo> &missionInfos);
+
+    /**
+     * @brief Get mission info by id.
+     * @param deviceId local or remote deviceid.
+     * @param missionId Id of target mission.
+     * @param missionInfo mision info of target mission.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode GetMissionInfo(const std::string& deviceId, int32_t missionId, MissionInfo &missionInfo);
+
+    /**
+     * @brief Clean mission by id.
+     * @param missionId Id of target mission.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CleanMission(int32_t missionId);
+
+    /**
+     * @brief Clean all missions in system.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CleanAllMissions();
+
+    /**
+     * @brief Move a mission to front.
+     * @param missionId Id of target mission.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode MoveMissionToFront(int32_t missionId);
+
+    /**
+     * Start synchronizing remote device mission
+     * @param devId, deviceId.
+     * @param fixConflict, resolve synchronizing conflicts flag.
+     * @param tag, call tag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
+
+    /**
+     * Stop synchronizing remote device mission
+     * @param devId, deviceId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StopSyncRemoteMissions(const std::string& devId);
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;

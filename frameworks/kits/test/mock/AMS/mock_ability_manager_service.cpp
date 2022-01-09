@@ -165,7 +165,7 @@ int MockAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> 
     return 0;
 }
 
-int MockAbilityManagerService::StopServiceAbility(const Want &want, const sptr<IRemoteObject> &callerToken)
+int MockAbilityManagerService::StopServiceAbility(const Want &want)
 {
     return 0;
 }
@@ -234,5 +234,6 @@ int MockAbilityManagerService::PowerOn()
 {
     return 0;
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS

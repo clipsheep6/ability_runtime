@@ -15,15 +15,15 @@
 
 #ifndef OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
 #define OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
-#include "napi/native_common.h"
-#include "napi/native_node_api.h"
 #include "ability.h"
-#include "want.h"
-#include "napi_common.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_predicates.h"
-#include "values_bucket.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
+#include "napi_common.h"
 #include "napi_common_util.h"
+#include "values_bucket.h"
+#include "want.h"
 
 using Want = OHOS::AAFwk::Want;
 using Ability = OHOS::AppExecFwk::Ability;
@@ -90,7 +90,6 @@ struct AppInfo_ {
     std::vector<std::string> permissions;
     std::vector<ModuleInfo> moduleInfos;
     std::string entryDir;
-    bool isCloned;
 };
 
 struct AppInfoCB {

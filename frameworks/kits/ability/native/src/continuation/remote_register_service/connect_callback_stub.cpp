@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 #include "connect_callback_stub.h"
+
+#include "app_log_wrapper.h"
 #include "ipc_types.h"
 #include "string_ex.h"
-#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+
 ConnectCallbackStub::ConnectCallbackStub()
 {
     memberFuncMap_[COMMAND_CONNECT] = &ConnectCallbackStub::ConnectInner;

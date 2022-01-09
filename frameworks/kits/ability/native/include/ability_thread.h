@@ -23,6 +23,7 @@
 #include "ability.h"
 #include "ability_local_record.h"
 #include "context.h"
+#include "extension_impl.h"
 #include "ohos_application.h"
 #include "ability_scheduler_stub.h"
 #include "pac_map.h"
@@ -55,17 +56,21 @@ public:
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
      * @param mainRunner The runner which main_thread holds.
+     * @param appContext the AbilityRuntime context
      */
     static void AbilityThreadMain(std::shared_ptr<OHOSApplication> &application,
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner);
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
+        const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
      * @description: Attach The ability thread to the main process.
      * @param application Indicates the main process.
      * @param abilityRecord Indicates the abilityRecord.
+     * @param appContext the AbilityRuntime context
      */
     static void AbilityThreadMain(
-        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
      * @description: Attach The ability thread to the main process.
@@ -74,7 +79,28 @@ public:
      * @param mainRunner The runner which main_thread holds.
      */
     void Attach(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<EventRunner> &mainRunner, const std::shared_ptr<AbilityRuntime::Context> &appContext);
+
+    /**
+     * @description: Attach The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord Indicates the abilityRecord.
+     * @param mainRunner The runner which main_thread holds.
+     */
+    void AttachExtension(std::shared_ptr<OHOSApplication> &application,
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
         const std::shared_ptr<EventRunner> &mainRunner);
+
+    /**
+     * @description: Attach The ability thread to the main process.
+     * @param application Indicates the main process.
+     * @param abilityRecord Indicates the abilityRecord.
+     * @param mainRunner The runner which main_thread holds.
+     */
+    void AttachExtension(std::shared_ptr<OHOSApplication> &application,
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+
+    void InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
 
     /**
      * @description: Attach The ability thread to the main process.
@@ -82,7 +108,8 @@ public:
      * @param abilityRecord Indicates the abilityRecord.
      */
     void Attach(
-        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+        std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AbilityRuntime::Context> &appContext);
 
     /**
      * @description:  Provide operating system AbilityTransaction information to the observer
@@ -203,8 +230,7 @@ public:
      *
      * @return Returns the number of data records updated.
      */
-    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-        const NativeRdb::DataAbilityPredicates &predicates);
+    int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates);
 
     /**
      * @brief Deletes one or more data records from the database.
@@ -274,6 +300,20 @@ public:
      * @param flag true: Indicates this ability is top active ability
      */
     void NotifyTopActiveAbilityChanged(bool flag);
+
+    /**
+     * @brief continue ability to target device.
+     *
+     * @param deviceId: target deviceId
+     */
+    void ContinueAbility(const std::string& deviceId);
+
+    /**
+     * @brief notify this ability continuation result.
+     *
+     * @param result: Continuation result
+     */
+    void NotifyContinuationResult(const int32_t result);
 
     /**
      * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
@@ -355,8 +395,7 @@ public:
      */
     bool CheckObsPermission();
 
-    std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
-        const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
+    std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 private:
     /**
      * @description: Create the abilityname.
@@ -389,6 +428,13 @@ private:
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
 
     /**
+     * @description:  Handle the life cycle of Extension.
+     * @param want  Indicates the structure containing lifecycle information about the extension.
+     * @param lifeCycleStateInfo  Indicates the lifeCycleStateInfo.
+     */
+    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo);
+
+    /**
      * @description:  Handle the current connection of Ability.
      * @param want  Indicates the structure containing connection information about the ability.
      */
@@ -414,6 +460,31 @@ private:
     void HandleCommandAbility(const Want &want, bool restart, int startId);
 
     /**
+     * @description:  Handle the current connection of Extension.
+     * @param want  Indicates the structure containing connection information about the extension.
+     */
+    void HandleConnectExtension(const Want &want);
+
+    /**
+     * @description:  Handle the current disconnection of Extension.
+     */
+    void HandleDisconnectExtension(const Want &want);
+
+    /**
+     * @brief Handle the current commadn of Extension.
+     *
+     * @param want The Want object to command to.
+     *
+     * * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
+     * destroyed, and the value false indicates a normal startup.
+     *
+     * @param startId Indicates the number of times the Service extension has been started. The startId is incremented
+     * by 1 every time the extension is started. For example, if the extension has been started for six times, the
+     * value of startId is 6.
+     */
+    void HandleCommandExtension(const Want &want, bool restart, int startId);
+
+    /**
      * @description: Handle the restoreAbility state.
      * @param state  Indicates save ability state used to dispatchRestoreAbilityState.
      */
@@ -424,11 +495,18 @@ private:
      */
     void HandleUpdateConfiguration(const Configuration &config);
 
+    std::shared_ptr<AbilityRuntime::AbilityContext> BuildAbilityContext(
+        const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
+        const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityRuntime::Context> &stageContext);
+
     std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Ability> currentAbility_ = nullptr;
+    std::shared_ptr<AbilityRuntime::ExtensionImpl> extensionImpl_ = nullptr;
+    std::shared_ptr<AbilityRuntime::Extension> currentExtension_ = nullptr;
     std::shared_ptr<AbilityHandler> abilityHandler_ = nullptr;
     std::shared_ptr<EventRunner> runner_ = nullptr;
+    bool isExtension_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

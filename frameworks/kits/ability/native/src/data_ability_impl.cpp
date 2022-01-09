@@ -14,8 +14,9 @@
  */
 
 #include "data_ability_impl.h"
-#include "app_log_wrapper.h"
+
 #include "abs_shared_result_set.h"
+#include "app_log_wrapper.h"
 #include "data_ability_predicates.h"
 #include "values_bucket.h"
 
@@ -202,7 +203,6 @@ int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicat
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    // std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     if (ability_ == nullptr) {
         APP_LOGE("DataAbilityImpl::Query ability_ is nullptr");
         return nullptr;
@@ -330,5 +330,6 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     APP_LOGI("DataAbilityImpl::ExecuteBatch end, results size:%{public}zu", results.size());
     return results;
 }
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

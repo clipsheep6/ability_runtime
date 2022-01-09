@@ -46,8 +46,10 @@ ohos_moduletest("PandingWantMgrTest") {
   }
 
   deps = [
+    "${innerkits_path}/base:base",
     "${innerkits_path}/want:want",
     "//base/global/i18n_standard/frameworks/intl:intl_util",
+    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
     "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
@@ -65,10 +67,13 @@ ohos_moduletest("PandingWantMgrTest") {
   ]
 
   external_deps = [
+    "bytrace_standard:bytrace_core",
     "ces_standard:cesfwk_core",
     "ces_standard:cesfwk_innerkits",
+    "dsoftbus_standard:softbus_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_standard:image_native",
     "native_appdatamgr:native_appdatafwk",
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",

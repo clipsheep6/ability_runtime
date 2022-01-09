@@ -14,13 +14,13 @@
  */
 
 #include "want.h"
+
+#include <algorithm>
+#include <climits>
 #include <cstdlib>
 #include <regex>
-#include <climits>
 #include <securec.h>
-#include <algorithm>
-#include "string_ex.h"
-#include "parcel_macro.h"
+
 #include "ohos/aafwk/base/array_wrapper.h"
 #include "ohos/aafwk/base/base_object.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
@@ -33,6 +33,8 @@
 #include "ohos/aafwk/base/double_wrapper.h"
 #include "ohos/aafwk/base/string_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
+#include "parcel_macro.h"
+#include "string_ex.h"
 #include "want_params_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
@@ -322,6 +324,7 @@ Uri Want::GetLowerCaseScheme(const Uri &uri)
 {
     std::string strUri = const_cast<Uri &>(uri).ToString();
     std::string schemeStr = const_cast<Uri &>(uri).GetScheme();
+
     if (strUri.empty() || schemeStr.empty()) {
         return uri;
     }
@@ -908,6 +911,7 @@ Want &Want::SetParam(const std::string &key, const std::vector<float> &value)
 long Want::GetLongParam(const std::string &key, long defaultValue) const
 {
     auto value = parameters_.GetParam(key);
+
     if (ILong::Query(value) != nullptr) {
         return Long::Unbox(ILong::Query(value));
     } else if (IString::Query(value) != nullptr) {
@@ -1379,7 +1383,7 @@ void Want::ToUriStringInner(std::string &uriString) const
     }
     if (operation_.GetFlags() != 0) {
         uriString += "flag=";
-        char buf[HEX_STRING_BUF_LEN]{0};
+        char buf[HEX_STRING_BUF_LEN] {0};
         std::size_t len = snprintf_s(buf, HEX_STRING_BUF_LEN, HEX_STRING_BUF_LEN - 1, "0x%08x", operation_.GetFlags());
         if (len == HEX_STRING_LEN) {
             std::string flag = buf;
@@ -1943,7 +1947,7 @@ nlohmann::json Want::ToJson() const
         entitiesJson.emplace_back(entity);
     }
 
-    nlohmann::json wantJson = nlohmann::json {
+    nlohmann::json wantJson = nlohmann::json{
         {"deviceId", operation_.GetDeviceId()},
         {"bundleName", operation_.GetBundleName()},
         {"abilityName", operation_.GetAbilityName()},

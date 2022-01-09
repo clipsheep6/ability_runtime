@@ -13,18 +13,18 @@
  * limitations under the License.
  */
 #include "ability_scheduler_proxy.h"
-#include "abs_shared_result_set.h"
-#include "data_ability_predicates.h"
-#include "values_bucket.h"
 
+#include "abs_shared_result_set.h"
+#include "data_ability_observer_interface.h"
+#include "data_ability_operation.h"
+#include "data_ability_predicates.h"
+#include "data_ability_result.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "ishared_result_set.h"
 #include "pac_map.h"
+#include "values_bucket.h"
 #include "want.h"
-#include "data_ability_observer_interface.h"
-#include "data_ability_result.h"
-#include "data_ability_operation.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -118,8 +118,17 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
     if (!WriteInterfaceToken(data)) {
         return;
     }
-    if (!data.WriteParcelable(&want) && !data.WriteBool(restart) && !data.WriteInt32(startId)) {
+    if (!data.WriteParcelable(&want)) {
         HILOG_ERROR("fail to WriteParcelable");
+        return;
+    }
+    if (!data.WriteBool(restart)) {
+        HILOG_ERROR("fail to WriteBool");
+        return;
+    }
+    HILOG_INFO("WriteInt32,startId:%{public}d", startId);
+    if (!data.WriteInt32(startId)) {
+        HILOG_ERROR("fail to WriteInt32");
         return;
     }
 
@@ -369,8 +378,7 @@ int AbilitySchedulerProxy::Insert(const Uri &uri, const NativeRdb::ValuesBucket 
  *
  * @return Returns the number of data records updated.
  */
-int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
-    const NativeRdb::DataAbilityPredicates &predicates)
+int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     int index = -1;
 
@@ -923,6 +931,46 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
     }
     HILOG_INFO("AbilitySchedulerProxy::ExecuteBatch end %{public}d", total);
     return results;
+}
+
+void AbilitySchedulerProxy::ContinueAbility(const std::string& deviceId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("ContinueAbility fail to write token");
+        return;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("ContinueAbility fail to write deviceId");
+        return;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::CONTINUE_ABILITY, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("ContinueAbility fail to SendRequest. err: %d", err);
+    }
+}
+
+void AbilitySchedulerProxy::NotifyContinuationResult(int32_t result)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("NotifyContinuationResult fail to write token");
+        return;
+    }
+    if (!data.WriteInt32(result)) {
+        HILOG_ERROR("NotifyContinuationResult fail to write result");
+        return;
+    }
+
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::NOTIFY_CONTINUATION_RESULT, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("NotifyContinuationResult fail to SendRequest. err: %d", err);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

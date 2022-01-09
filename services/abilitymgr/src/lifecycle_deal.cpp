@@ -14,9 +14,10 @@
  */
 
 #include "lifecycle_deal.h"
-#include "hilog_wrapper.h"
-#include "ability_util.h"
+
 #include "ability_record.h"
+#include "ability_util.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -28,85 +29,143 @@ LifecycleDeal::~LifecycleDeal()
 
 void LifecycleDeal::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
+    std::unique_lock<std::shared_mutex> lock(schedulerMutex_);
     abilityScheduler_ = scheduler;
+}
+
+sptr<IAbilityScheduler> LifecycleDeal::GetScheduler()
+{
+    std::shared_lock<std::shared_mutex> lock(schedulerMutex_);
+    return abilityScheduler_;
 }
 
 void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("Activate.");
-    CHECK_POINTER(abilityScheduler_);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
     HILOG_INFO("caller %{public}s, %{public}s, %{public}s",
         stateInfo.caller.deviceId.c_str(),
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
-    abilityScheduler_->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
 void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("Inactivate.");
-    CHECK_POINTER(abilityScheduler_);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-    abilityScheduler_->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("Move to background.");
-    CHECK_POINTER(abilityScheduler_);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND;
-    abilityScheduler_->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
 void LifecycleDeal::ConnectAbility(const Want &want)
 {
     HILOG_INFO("Connect ability.");
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleConnectAbility(want);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleConnectAbility(want);
 }
 
 void LifecycleDeal::DisconnectAbility(const Want &want)
 {
     HILOG_INFO("Disconnect ability.");
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleDisconnectAbility(want);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleDisconnectAbility(want);
 }
 
 void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("Terminate.");
-    CHECK_POINTER(abilityScheduler_);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
-    abilityScheduler_->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
 void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 {
-    HILOG_INFO("Command ability.");
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleCommandAbility(want, reStart, startId);
+    HILOG_INFO("Command ability. startId:%{public}d", startId);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
 }
 
 void LifecycleDeal::SaveAbilityState()
 {
     HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleSaveAbilityState();
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleSaveAbilityState();
 }
 
 void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 {
     HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleRestoreAbilityState(inState);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleRestoreAbilityState(inState);
 }
 
 void LifecycleDeal::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->ScheduleUpdateConfiguration(config);
+}
+
+void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo)
+{
+    HILOG_INFO("ForegroundNew.");
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    HILOG_INFO("caller %{public}s, %{public}s, %{public}s",
+        stateInfo.caller.deviceId.c_str(),
+        stateInfo.caller.bundleName.c_str(),
+        stateInfo.caller.abilityName.c_str());
+    stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW;
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+}
+
+void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo)
+{
+    HILOG_INFO("Go background.");
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    HILOG_INFO("caller %{public}s, %{public}s, %{public}s",
+        stateInfo.caller.deviceId.c_str(),
+        stateInfo.caller.bundleName.c_str(),
+        stateInfo.caller.abilityName.c_str());
+    stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW;
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+}
+
+void LifecycleDeal::ContinueAbility(const std::string& deviceId)
+{
+    HILOG_INFO("ContinueAbility.");
     CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ScheduleUpdateConfiguration(config);
+    abilityScheduler_->ContinueAbility(deviceId);
+}
+
+void LifecycleDeal::NotifyContinuationResult(const int32_t result)
+{
+    HILOG_INFO("NotifyContinuationResult.");
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->NotifyContinuationResult(result);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

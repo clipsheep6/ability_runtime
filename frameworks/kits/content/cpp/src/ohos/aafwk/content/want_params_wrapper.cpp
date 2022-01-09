@@ -13,10 +13,14 @@
  * limitations under the License.
  */
 #include "ohos/aafwk/content/want_params_wrapper.h"
+
 #include <algorithm>
+
 namespace OHOS {
 namespace AAFwk {
-#define WANT_PARAM_WRAPPER_TWO 2
+
+constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
+
 IINTERFACE_IMPL_1(WantParamWrapper, Object, IWantParams);
 const InterfaceID g_IID_IWantParams = {
     0xa75b9db6, 0x9813, 0x4371, 0x8848, {0xd, 0x2, 0x9, 0x6, 0x6, 0xc, 0xe, 0x6, 0xe, 0xc, 0x6, 0x8}
@@ -119,7 +123,7 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
                         break;
                     }
                 }
-                wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
+                wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum + 1)));
                 key = "";
                 typeId = 0;
                 strnum = num + 1;
@@ -150,50 +154,6 @@ sptr<IWantParams> WantParamWrapper::Parse(const std::string &str)
     return iwantParams;
 }
 
-unsigned int FindObjectEndSymbol(const std::string &str, const unsigned int &strnum)
-{
-    unsigned int num = 0;
-    int count = 0;
-    for (num = strnum; num < str.size(); num++) {
-        if (str[num] == '{') {
-            count++;
-        } else if (str[num] == '}') {
-            count--;
-        }
-        if (count == 0) {
-            break;
-        }
-    }
-
-    return num;
-}
-
-bool ProcessCommon(
-    const std::string &str, std::string &key, int &typeId, unsigned int &strnum, WantParams &wantPaqrams)
-{
-    if (key == "") {
-        strnum++;
-        key = str.substr(strnum, str.find('"', strnum) - strnum);
-        strnum = str.find('"', strnum);
-    } else if (typeId == 0) {
-        strnum++;
-        typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
-        if (errno == ERANGE) {
-            return false;
-        }
-        strnum = str.find('"', strnum);
-    } else {
-        strnum++;
-        wantPaqrams.SetParam(key,
-            WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
-        strnum = str.find('"', strnum);
-        typeId = 0;
-        key = "";
-    }
-
-    return true;
-}
-
 WantParams WantParamWrapper::ParseWantParams(const std::string &str)
 {
     WantParams wantPaqrams;
@@ -204,15 +164,41 @@ WantParams WantParamWrapper::ParseWantParams(const std::string &str)
     }
     for (unsigned int strnum = 0; strnum < str.size(); strnum++) {
         if (str[strnum] == '{' && key != "" && typeId == WantParams::VALUE_TYPE_WANTPARAMS) {
-            unsigned int num = FindObjectEndSymbol(str, strnum);
+            unsigned int num;
+            int count = 0;
+            for (num = strnum; num < str.size(); num++) {
+                if (str[num] == '{') {
+                    count++;
+                } else if (str[num] == '}') {
+                    count--;
+                }
+                if (count == 0) {
+                    break;
+                }
+            }
             wantPaqrams.SetParam(key, WantParamWrapper::Parse(str.substr(strnum, num - strnum)));
             key = "";
             typeId = 0;
             strnum = num + 1;
         } else if (str[strnum] == '"') {
-            bool ret = ProcessCommon(str, key, typeId, strnum, wantPaqrams);
-            if (!ret) {
-                return wantPaqrams;
+            if (key == "") {
+                strnum++;
+                key = str.substr(strnum, str.find('"', strnum) - strnum);
+                strnum = str.find('"', strnum);
+            } else if (typeId == 0) {
+                strnum++;
+                typeId = atoi(str.substr(strnum, str.find('"', strnum) - strnum).c_str());
+                if (errno == ERANGE) {
+                    return wantPaqrams;
+                }
+                strnum = str.find('"', strnum);
+            } else {
+                strnum++;
+                wantPaqrams.SetParam(key,
+                    WantParams::GetInterfaceByType(typeId, str.substr(strnum, str.find('"', strnum) - strnum)));
+                strnum = str.find('"', strnum);
+                typeId = 0;
+                key = "";
             }
         }
     }

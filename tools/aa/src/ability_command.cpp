@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#include <getopt.h>
+#include "ability_command.h"
 
+#include <getopt.h>
 #include "ability_manager_client.h"
+#include "mission_snapshot.h"
 #include "hilog_wrapper.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
-
-#include "ability_command.h"
 
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const std::string SHORT_OPTIONS = "hd:a:b:p:s:D";
+const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:D";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -35,9 +35,10 @@ const struct option LONG_OPTIONS[] = {
     {"power", required_argument, nullptr, 'p'},
     {"setting", required_argument, nullptr, 's'},
     {"debug", no_argument, nullptr, 'D'},
+    {nullptr, 0, nullptr, 0},
 };
 
-const std::string SHORT_OPTIONS_DUMP = "has:m:lud::e::";
+const std::string SHORT_OPTIONS_DUMP = "has:m:lud::e::LS";
 const struct option LONG_OPTIONS_DUMP[] = {
     {"help", no_argument, nullptr, 'h'},
     {"all", no_argument, nullptr, 'a'},
@@ -47,6 +48,9 @@ const struct option LONG_OPTIONS_DUMP[] = {
     {"ui", no_argument, nullptr, 'u'},
     {"data", no_argument, nullptr, 'd'},
     {"serv", no_argument, nullptr, 'e'},
+    {"mission-list", no_argument, nullptr, 'L'},
+    {"mission-infos", no_argument, nullptr, 'S'},
+    {nullptr, 0, nullptr, 0},
 };
 }  // namespace
 
@@ -65,6 +69,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
         {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
         {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpCommand, this)},
+        {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
     };
 
     return OHOS::ERR_OK;
@@ -306,6 +311,14 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
             ABILITY_VISIBLE_FALSE_DENY_REQUEST,
             "error: ability visible false deny request.",
         },
+        {
+            GET_BUNDLE_INFO_FAILED,
+            "error: get bundle info failed.",
+        },
+        {
+            KILL_PROCESS_KEEP_ALIVE,
+            "error: keep alive process can not be killed.",
+        },
     };
 
     return OHOS::ERR_OK;
@@ -345,10 +358,6 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
-        }
-
-        for (int i = 0; i < argc_; i++) {
-            HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
         }
 
         if (option == -1) {
@@ -542,10 +551,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpCommand()
         return OHOS::ERR_INVALID_VALUE;
     }
 
-    for (int i = 0; i < argc_; i++) {
-        HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
-    }
-
     switch (option) {
         case 'h': {
             // 'aa dump -h'
@@ -588,6 +593,16 @@ ErrCode AbilityManagerShellCommand::RunAsDumpCommand()
             // 'aa dump --serv'
             break;
         }
+        case 'L': {
+            // 'aa dump -L'
+            // 'aa dump --mission-list'
+            break;
+        }
+        case 'S': {
+            // 'aa dump -S'
+            // 'aa dump --mission-infos'
+            break;
+        }
         case '?': {
             result = RunAsDumpCommandOptopt();
             break;
@@ -619,6 +634,27 @@ ErrCode AbilityManagerShellCommand::RunAsDumpCommand()
         }
     }
 
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsForceStop()
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    if (argList_.empty()) {
+        resultReceiver_.append(HELP_MSG_FORCE_STOP + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("Bundle name : %{public}s", argList_[0].c_str());
+    ErrCode result = OHOS::ERR_OK;
+    result = AbilityManagerClient::GetInstance()->KillProcess(argList_[0]);
+    if (result == OHOS::ERR_OK) {
+        HILOG_INFO("%{public}s", STRING_FORCE_STOP_OK.c_str());
+        resultReceiver_ = STRING_FORCE_STOP_OK + "\n";
+    } else {
+        HILOG_INFO("%{public}s result = %{public}d", STRING_FORCE_STOP_NG.c_str(), result);
+        resultReceiver_ = STRING_FORCE_STOP_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(result));
+    }
     return result;
 }
 
@@ -686,8 +722,8 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
     std::string deviceId = "";
     std::string bundleName = "";
     std::string abilityName = "";
-
     bool isDebugApp = false;
+    bool isContinuation = false;
 
     while (true) {
         counter++;
@@ -698,10 +734,6 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
-        }
-
-        for (int i = 0; i < argc_; i++) {
-            HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
         }
 
         if (option == -1) {
@@ -723,6 +755,12 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
 
         if (option == '?') {
             switch (optopt) {
+                case 'h': {
+                    // 'aa start -h'
+                    // 'aa stop-service -h'
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
                 case 'd': {
                     // 'aa start -d' with no argument
                     // 'aa stop-service -d' with no argument
@@ -847,6 +885,12 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
                 isDebugApp = true;
                 break;
             }
+            case 'c': {
+                // 'aa start -c'
+                // set ability launch reason = continuation
+                isContinuation = true;
+                break;
+            }
             case 0: {
                 break;
             }
@@ -858,7 +902,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
 
     if (result == OHOS::ERR_OK) {
         if (abilityName.size() == 0 || bundleName.size() == 0) {
-            // 'aa start [-d <device-id>] -a <ability-name> -b <bundle-name>'
+            // 'aa start [-d <device-id>] -a <ability-name> -b <bundle-name> [-D]'
             // 'aa stop-service [-d <device-id>] -a <ability-name> -b <bundle-name>'
             HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
 
@@ -881,9 +925,15 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
 
                 want.SetParams(wantParams);
             }
+            if (isContinuation) {
+                want.AddFlags(Want::FLAG_ABILITY_CONTINUATION);
+            }
         }
     }
+
     return result;
 }
+
+
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -21,15 +21,16 @@
 
 #include "gtest/gtest.h"
 
-#include <iostream>
 #include "mock_ability_test.h"
 #include "ohos_application.h"
 #include "ability_thread.h"
 #include "event_runner.h"
 #include "ability_info.h"
 #include "ability_local_record.h"
+#include <iostream> //
 namespace OHOS {
 namespace AppExecFwk {
+
 sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 {
     sptr<AppExecFwk::AbilityThread> abilitythread(new (std::nothrow) AppExecFwk::AbilityThread());
@@ -57,10 +58,11 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     std::shared_ptr<EventRunner> mainRunner = EventRunner::Create(info->name);
 
-    abilitythread->Attach(application, abilityRecord, mainRunner);
+    abilitythread->Attach(application, abilityRecord, mainRunner, nullptr);
 
     return abilitythread;
 }
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H

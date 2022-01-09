@@ -18,6 +18,7 @@
 
 #include <vector>
 
+#include "ability_mission_info.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "pixel_map_napi.h"

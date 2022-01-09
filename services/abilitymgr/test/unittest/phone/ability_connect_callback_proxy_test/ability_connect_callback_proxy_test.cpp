@@ -22,6 +22,7 @@ using namespace testing::ext;
 using namespace testing;
 namespace OHOS {
 namespace AAFwk {
+
 class AbilityConnectCallBackProxyTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -54,11 +55,10 @@ HWTEST_F(AbilityConnectCallBackProxyTest, AbilityConnectionCallBack_IPC_001, Tes
     sptr<MockAbilityConnectCallback> mockAbilityConnectStub(new MockAbilityConnectCallback());
     sptr<AbilityConnectionProxy> callback(new AbilityConnectionProxy(mockAbilityConnectStub));
     AppExecFwk::ElementName element;
-    sptr<IRemoteObject> remoteObject;
     EXPECT_CALL(*mockAbilityConnectStub, OnAbilityConnectDone(_, _, _))
         .Times(1)
         .WillOnce(InvokeWithoutArgs(mockAbilityConnectStub.GetRefPtr(), &MockAbilityConnectCallback::PostVoid));
-    callback->OnAbilityConnectDone(element, remoteObject, 0);
+    callback->OnAbilityConnectDone(element, mockAbilityConnectStub, 0);
     mockAbilityConnectStub->Wait();
 }
 

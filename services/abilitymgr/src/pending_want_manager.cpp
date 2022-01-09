@@ -19,8 +19,8 @@
 #include <chrono>
 #include <thread>
 
-#include "ability_util.h"
 #include "ability_manager_service.h"
+#include "ability_util.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -219,7 +219,7 @@ int32_t PendingWantManager::PendingWantStartAbility(
 {
     HILOG_INFO("%{public}s:begin.", __func__);
     return DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-        want, callerToken, requestCode, -1, callerUid);
+        want, callerToken, requestCode, callerUid);
 }
 
 int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> wantsInfo,
@@ -231,7 +231,7 @@ int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo
     for (const auto &item : wantsInfo) {
         const auto &want = item.want;
         result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            want, callerToken, requestCode, -1, callerUid);
+            want, callerToken, requestCode, callerUid);
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             HILOG_ERROR("%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
             return result;

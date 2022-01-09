@@ -15,12 +15,13 @@
 
 #include "caller_info.h"
 
-#include "string_ex.h"
-#include "nlohmann/json.hpp"
 #include "hilog_wrapper.h"
+#include "nlohmann/json.hpp"
+#include "string_ex.h"
 
 namespace OHOS {
 namespace AAFwk {
+
 bool CallerInfo::ReadFromParcel(Parcel &parcel)
 {
     requestCode = parcel.ReadInt32();
@@ -60,5 +61,6 @@ bool CallerInfo::Marshalling(Parcel &parcel) const
     }
     return true;
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS

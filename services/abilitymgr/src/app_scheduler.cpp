@@ -15,11 +15,12 @@
 
 #include "app_scheduler.h"
 
-#include "hilog_wrapper.h"
-#include "ability_util.h"
 #include "ability_manager_errors.h"
 #include "ability_record.h"
+#include "ability_util.h"
 #include "appmgr/app_mgr_constants.h"
+#include "bytrace.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -55,6 +56,7 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
 int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Load ability.");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
@@ -69,6 +71,7 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
 
 int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Terminate ability.");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
@@ -83,6 +86,7 @@ int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
 
 void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Move to forground.");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
@@ -90,10 +94,26 @@ void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
 
 void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Move to background.");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
 }
+
+void AppScheduler::UpdateAbilityState(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
+{
+    HILOG_DEBUG("UpdateAbilityState.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->UpdateAbilityState(token, state);
+}
+
+void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const AppExecFwk::ExtensionState state)
+{
+    HILOG_DEBUG("UpdateExtensionState.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->UpdateExtensionState(token, state);
+}
+
 
 void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
@@ -132,6 +152,7 @@ AppAbilityState AppScheduler::GetAbilityState() const
 
 void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("On ability request done, state:%{public}d", static_cast<int32_t>(state));
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
@@ -141,22 +162,11 @@ void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const 
 
 int AppScheduler::KillApplication(const std::string &bundleName)
 {
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     int ret = (int)appMgrClient_->KillApplication(bundleName);
     if (ret != ERR_OK) {
         HILOG_ERROR("Fail to kill application.");
-        return INNER_ERR;
-    }
-
-    return ERR_OK;
-}
-
-int AppScheduler::KillApplicationByUid(const std::string &bundleName, const int uid)
-{
-    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
-    int ret = (int)appMgrClient_->KillApplicationByUid(bundleName, uid);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Fail to kill application by uid.");
         return INNER_ERR;
     }
 
@@ -200,6 +210,7 @@ int AppScheduler::CompelVerifyPermission(const std::string &permission, int pid,
 
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
     AppInfo info;

@@ -12,23 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <cstring>
-#include <vector>
-#include <uv.h>
-#include "data_ability_observer_interface.h"
-#include "data_ability_helper.h"
-#include "uri.h"
-#include "securec.h"
-#include "hilog_wrapper.h"
-#include "napi_result_set.h"
-#include "napi_rdb_predicates.h"
-#include "napi_data_ability_predicates.h"
-#include "data_ability_result.h"
-#include "data_ability_operation.h"
-#include "napi_data_ability_operation.h"
-#include "../inner/napi_common/napi_common_ability.h"
-#include "message_parcel.h"
 #include "napi_data_ability_helper.h"
+
+#include <cstring>
+#include <uv.h>
+#include <vector>
+
+#include "data_ability_helper.h"
+#include "data_ability_observer_interface.h"
+#include "uri.h"
+
+#include "../inner/napi_common/napi_common_ability.h"
+#include "data_ability_operation.h"
+#include "data_ability_result.h"
+#include "hilog_wrapper.h"
+#include "message_parcel.h"
+#include "napi_data_ability_operation.h"
+#include "napi_data_ability_predicates.h"
+#include "napi_rdb_predicates.h"
+#include "napi_result_set.h"
+#include "securec.h"
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
@@ -467,6 +470,7 @@ napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info)
  */
 napi_value NotifyChangeWrap(napi_env env, napi_callback_info info, DAHelperNotifyChangeCB *notifyChangeCB)
 {
+
     HILOG_INFO("%{public}s,called", __func__);
     size_t argcAsync = ARGS_TWO;
     const size_t argcPromise = ARGS_ONE;
@@ -1107,7 +1111,7 @@ int NAPIDataAbilityObserver::GetWorkRun()
     return workRun_;
 }
 
-DAHelperOnOffCB* NAPIDataAbilityObserver::GetAssociatedObject(void)
+const DAHelperOnOffCB* NAPIDataAbilityObserver::GetAssociatedObject(void)
 {
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called.", __func__);
     return onCB_;
@@ -1149,7 +1153,7 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     if (obs != nullptr) {
         if (obs->GetWorkInt() == 1) {
             obs->ReleaseJSCallback();
-            DAHelperOnOffCB* assicuated = obs->GetAssociatedObject();
+            const DAHelperOnOffCB* assicuated = obs->GetAssociatedObject();
             if (assicuated != nullptr) {
                 HILOG_INFO("OnChange, uv_queue_work ReleaseJSCallback Called");
                 obs->SetAssociatedObject(nullptr);
@@ -3378,5 +3382,6 @@ void GetDataAbilityResultForResult(
     }
     HILOG_INFO("%{public}s, NAPI_ExecuteBatch, getDataAbilityResultForResult end.", __func__);
 }
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

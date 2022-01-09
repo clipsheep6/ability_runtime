@@ -22,9 +22,9 @@
 #include "iwindow_manager_service.h"
 
 namespace OHOS {
-class MockWindowManager : public IWindowManagerService {
+class WindowManagerServiceMock : public IWindowManagerService {
 public:
-    virtual ~MockWindowManager() = default;
+    virtual ~WindowManagerServiceMock() = default;
 
     MOCK_METHOD1(GetDisplays, WMError(std::vector<struct WMDisplayInfo> &displays));
     MOCK_METHOD1(GetDisplayPower, sptr<PromisePowerStatus>(int32_t did));
@@ -50,8 +50,14 @@ public:
     MOCK_METHOD3(ScaleTo, sptr<PromiseWMError>(int32_t wid, uint32_t width, uint32_t height));
     MOCK_METHOD2(SetWindowType, sptr<PromiseWMError>(int32_t wid, WindowType type));
     MOCK_METHOD2(SetWindowMode, sptr<PromiseWMError>(int32_t wid, WindowMode mode));
-    MOCK_METHOD4(CreateVirtualDisplay, sptr<PromiseWMError>(int32_t x, int32_t y, int32_t width, int32_t height));
-    MOCK_METHOD1(DestroyVirtualDisplay, sptr<PromiseWMError>(uint32_t did));
+    virtual sptr<PromiseWMError> CreateVirtualDisplay(int32_t x, int32_t y, int32_t width, int32_t height) override
+    {
+        return nullptr;
+    }
+    virtual sptr<PromiseWMError> DestroyVirtualDisplay(uint32_t did) override
+    {
+        return nullptr;
+    }
 };
 }  // namespace OHOS
 

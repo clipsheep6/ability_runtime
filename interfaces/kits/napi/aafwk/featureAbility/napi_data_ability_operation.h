@@ -15,8 +15,8 @@
 #ifndef OHOS_APPEXECFWK_DATA_ABILITY_OPERATION_H
 #define OHOS_APPEXECFWK_DATA_ABILITY_OPERATION_H
 
-#include "feature_ability_common.h"
 #include "data_ability_operation.h"
+#include "feature_ability_common.h"
 
 namespace OHOS {
 namespace NativeRdb {
@@ -69,6 +69,7 @@ napi_value UnwrapValuesBucket(std::shared_ptr<NativeRdb::ValuesBucket> &param, n
  */
 napi_value UnwrapDataAbilityPredicatesBackReferences(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, napi_env env, napi_value args);
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_APPEXECFWK_WANT_WRAPPER_H */

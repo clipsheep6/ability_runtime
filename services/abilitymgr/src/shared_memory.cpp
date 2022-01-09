@@ -14,7 +14,7 @@
  */
 
 #include "shared_memory.h"
-#include <cstdlib>
+#include <stdlib.h>
 #include <sys/shm.h>
 #include <cerrno>
 #include <cstring>
@@ -46,11 +46,7 @@ void SharedMemory::ReleaseShmId(const int shmId)
 
 int SharedMemory::PushSharedMemory(const void *data, const int size)
 {
-    if (size < 0) {
-        HILOG_ERROR("size less 0");
-        return -1;
-    }
-
+    // internal call, no need to check null.
     static int shmKey = SHM_KEY_START;
     int shmId;
     while ((shmId = shmget(shmKey, size, SHM_READ_WRITE_PERMISSIONS | IPC_CREAT | IPC_EXCL)) < 0) {
@@ -81,6 +77,8 @@ int SharedMemory::PushSharedMemory(const void *data, const int size)
         return -1;
     }
 
+    // memcpy(shared, data, size);
+
     if (shmdt(shared) == -1) {
         ReleaseShmId(shmId);
         HILOG_ERROR("shmdt failed: %{public}d.", errno);
@@ -92,11 +90,6 @@ int SharedMemory::PushSharedMemory(const void *data, const int size)
 
 void* SharedMemory::PopSharedMemory(int shmKey, int size)
 {
-    if (size < 0) {
-        HILOG_ERROR("size less 0");
-        return nullptr;
-    }
-
     void *data = reinterpret_cast<void *>(malloc(size));
     int shmId = shmget(shmKey, 0, 0 | SHM_READ_WRITE_PERMISSIONS);
     if (shmId == -1) {
@@ -118,6 +111,7 @@ void* SharedMemory::PopSharedMemory(int shmKey, int size)
         HILOG_ERROR("Failed to memory copy, retCode[%{public}d].", retCode);
         return nullptr;
     }
+    // memcpy(data, shared, size);
 
     if (shmdt(shared) == -1) {
         ReleaseShmId(shmId);
@@ -129,5 +123,6 @@ void* SharedMemory::PopSharedMemory(int shmKey, int size)
 
     return data;
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS

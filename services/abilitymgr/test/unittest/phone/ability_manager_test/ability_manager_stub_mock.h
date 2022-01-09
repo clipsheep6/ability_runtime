@@ -35,6 +35,7 @@ public:
     MOCK_METHOD4(SendRequest, int(uint32_t, MessageParcel &, MessageParcel &, MessageOption &));
     MOCK_METHOD2(StartAbility, int(const Want &, int));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &, int, const Want *));
+    MOCK_METHOD1(MinimizeAbility, int(const sptr<IRemoteObject> &);
     MOCK_METHOD3(ConnectAbility, int(const Want &, const sptr<IAbilityConnection> &, const sptr<IRemoteObject> &));
 
     MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &));
@@ -97,6 +98,38 @@ public:
     MOCK_METHOD1(TerminateAbilityTest, void(int id));
     MOCK_METHOD1(MoveMissionToEnd, int(int id));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
+    virtual int StartUser(int userId) override
+    {
+        return 0;
+    }
+    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    {
+        return 0;
+    }
+    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    {
+        return 0;
+    }
+    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    {
+        return 0;
+    }
+    MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
+    MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, const int32_t result));
+    MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams));
+    MOCK_METHOD2(ContinueAbility, int(const std::string &deviceId, int32_t missionId));
+    MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string &deviceId, int32_t sessionId, bool isSuccess));
+    virtual int RegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
+    {
+        return 0;
+    }
+    virtual int UnRegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
+    {
+        return 0;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

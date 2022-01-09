@@ -25,8 +25,8 @@
 #include "ability_manager_service.h"
 #undef private
 #undef protected
-#include "gtest/gtest.h"
 #include "ability_manager_errors.h"
+#include "gtest/gtest.h"
 #include "mock_bundle_mgr.h"
 #include "want.h"
 #include "sa_mgr_client.h"
@@ -536,6 +536,7 @@ HWTEST_F(DumpModuleTest, dump_module_test_007, TestSize.Level2)
  */
 HWTEST_F(DumpModuleTest, dump_module_test_008, TestSize.Level2)
 {
+
     std::string args("--mission");
     std::vector<std::string> dumpInfo;
     std::vector<std::string> abilityNames;
@@ -703,5 +704,6 @@ HWTEST_F(DumpModuleTest, dump_module_test_011, TestSize.Level2)
     stackMgr->DumpWaittingAbilityQueue(waitingQueueResult);
     EXPECT_NE(std::string::npos, waitingQueueResult.find("com.ix.hiRadio"));
 }
+
 }  // namespace AAFwk
 }  // namespace OHOS
