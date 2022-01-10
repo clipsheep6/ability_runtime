@@ -118,6 +118,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
 
 group("moduletest") {
   testonly = true
+  deps = []
 
-  deps = [ ":AbilityRecordModuleTest" ]
+  #deps = [ ":AbilityRecordModuleTest" ]
 }

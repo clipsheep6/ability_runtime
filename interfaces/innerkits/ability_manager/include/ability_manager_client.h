@@ -466,35 +466,20 @@ public:
     void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
 
     /**
-     * ContinueMission, continue ability from mission center.
-     *
-     * @param srcDeviceId, origin deviceId.
-     * @param dstDeviceId, target deviceId.
-     * @param missionId, indicates which ability to continue.
-     * @param callBack, notify result back.
-     * @param wantParams, extended params.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        int32_t missionId, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams);
-
-    /**
      * start continuation.
      * @param want, used to start a ability.
      * @param abilityToken, ability token.
-     * @param status, continue status.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status);
+    ErrCode StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken);
 
     /**
-     * notify continuation complete to dms.
-     * @param deviceId, source device which start a continuation.
-     * @param sessionId, represent a continuaion.
-     * @param isSuccess, continuation result.
-     * @return
+     * notify continuation result.
+     * @param abilityToken, ability token.
+     * @param result, continuation result.
+     * @return Returns ERR_OK on success, others on failure.
      */
-    void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess);
+    ErrCode NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result);
 
     /**
      * @brief Lock specified mission.
@@ -527,26 +512,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode UnRegisterMissionListener(const sptr<IMissionListener> &listener);
-
-    /**
-     * @brief Register mission listener to ability manager service.
-     * @param deviceId The remote device Id.
-     * @param listener The handler of listener.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode RegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener);
-
-    /**
-     * @brief UnRegister mission listener from ability manager service.
-     * @param deviceId The remote device Id.
-     * @param listener The handler of listener.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode UnRegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener);
 
     /**
      * @brief Get mission infos from ams.
@@ -591,38 +556,6 @@ public:
      */
     ErrCode MoveMissionToFront(int32_t missionId);
 
-    /**
-     * Start synchronizing remote device mission
-     * @param devId, deviceId.
-     * @param fixConflict, resolve synchronizing conflicts flag.
-     * @param tag, call tag.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
-
-    /**
-     * Stop synchronizing remote device mission
-     * @param devId, deviceId.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StopSyncRemoteMissions(const std::string& devId);
-
-    /**
-     * @brief start user.
-     * @param accountId accountId.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StartUser(int accountId);
-
-    /**
-     * @brief stop user.
-     * @param accountId accountId.
-     * @param callback callback.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StopUser(int accountId, const sptr<IStopUserCallback> &callback);
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;

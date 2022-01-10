@@ -41,7 +41,6 @@
 #include "ability_config.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
-#include "event_handler.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -147,74 +146,22 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
 
     /**
-     * ContinueMission, continue ability from mission center.
-     *
-     * @param srcDeviceId, origin deviceId.
-     * @param dstDeviceId, target deviceId.
-     * @param missionId, indicates which ability to continue.
-     * @param callBack, notify result back.
-     * @param wantParams, extended params.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
-
-    /**
-     * ContinueAbility, continue ability to ability.
-     *
-     * @param deviceId, target deviceId.
-     * @param missionId, indicates which ability to continue.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int ContinueAbility(const std::string &deviceId, int32_t missionId) override;
-
-    /**
      * StartContinuation, continue ability to remote.
      *
      * @param want, Indicates the ability to start.
      * @param abilityToken, Caller ability token.
-     * @param status, continue status.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) override;
-
-    /**
-     * NotifyCompleteContinuation, notify continuation complete to dms.
-     * @param deviceId, source device which start a continuation.
-     * @param sessionId, represent a continuaion.
-     * @param isSuccess, continuation result.
-     * @return
-     */
-    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) override;
+    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken) override;
 
     /**
      * NotifyContinuationResult, notify continue result to ability.
      *
-     * @param missionId, Caller mission id.
+     * @param abilityToken, Caller ability token.
      * @param result, continuation result.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) override;
-
-    /**
-     * RegisterMissionListener, register remote device mission listener.
-     *
-     * @param deviceId, Indicates the remote device Id.
-     * @param listener, listener.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int RegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener) override;
-
-    /**
-     * UnRegisterMissionListener, unregister remote device mission listener.
-     *
-     * @param deviceId, Indicates the remote device Id.
-     * @param listener, listener.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener)override;
+    virtual int NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result) override;
 
     virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) override;
 
@@ -636,10 +583,6 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId) override;
 
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
-
-    virtual int StopSyncRemoteMissions(const std::string& devId) override;
-
     /**
      * Get system memory information.
      * @param SystemMemoryAttr, memory information.
@@ -703,10 +646,6 @@ public:
      */
     sptr<IRemoteObject> GetAbilityTokenByMissionId(int32_t missionId);
 
-    virtual int StartUser(int userId) override;
-
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
-
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -732,7 +671,6 @@ public:
 
     static constexpr uint32_t MIN_DUMP_ARGUMENT_NUM = 2;
     static constexpr uint32_t MAX_WAIT_SYSTEM_UI_NUM = 600;
-    static constexpr uint32_t MAX_WAIT_SETTINGS_DATA_NUM = 300;
 
     enum DumpKey {
         KEY_DUMP_ALL = 0,
@@ -841,11 +779,6 @@ private:
     void RequestPermission(const Want *resultWant);
 
     bool CheckIsRemote(const std::string& deviceId);
-    int GetRemoteMissionInfos(const std::string& deviceId, int32_t numMax,
-        std::vector<MissionInfo> &missionInfos);
-    int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
-        MissionInfo &missionInfo);
-    int CallMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
@@ -882,7 +815,6 @@ private:
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     std::shared_ptr<AppExecFwk::Configuration> configuration_;
-    std::shared_ptr<AppExecFwk::EventHandler> callListenerHandler_ = nullptr;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 
     // new ams here

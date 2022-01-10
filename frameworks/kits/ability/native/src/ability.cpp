@@ -823,81 +823,7 @@ int Ability::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
  * @param configuration Indicates the updated configuration information.
  */
 void Ability::OnConfigurationUpdated(const Configuration &configuration)
-{
-    APP_LOGI("%{public}s called.", __func__);
-}
-
-void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
-{
-    APP_LOGI("%{public}s begin.", __func__);
-
-    if (configuration_ == nullptr) {
-        configuration_ = std::make_shared<Configuration>(configuration);
-        APP_LOGI("%{public}s begin Configuration init.", __func__);
-        return;
-    }
-
-    // Data difference
-    Configuration differ;
-    std::vector<std::string> changeKey;
-    configuration_->CompareDifferent(changeKey, configuration);
-
-    if (changeKey.empty()) {
-        APP_LOGE("%{public}s Configuration differ is empty.", __func__);
-        return;
-    }
-
-    for (auto &key : changeKey) {
-        auto item = configuration.GetItemForIdAndKey(key);
-        if (item.empty()) {
-            APP_LOGI("%{public}s configuration.GetItemForIdAndKey(%{public}s) is empty.", __func__, key.c_str());
-            continue;
-        }
-        configuration_->Merge(key, configuration);
-        differ.Merge(key, configuration);
-    }
-    // Notify Ability Subclass
-    OnConfigurationUpdated(differ);
-    APP_LOGI("%{public}s Notify Ability Subclass.", __func__);
-
-    // Notify ResourceManager
-    std::string language = differ.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
-    while (language.compare("") != 0) {
-        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-        if (resConfig == nullptr) {
-            APP_LOGE("%{public}s resConfig is nullptr.", __func__);
-            break;
-        }
-        UErrorCode status = U_ZERO_ERROR;
-        icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-        if (status != U_ZERO_ERROR) {
-            APP_LOGI("%{public}s Notify ResourceManager forLanguageTag error[%{public}d].",
-                __func__,
-                static_cast<int>(status));
-            break;
-        }
-        resConfig->SetLocaleInfo(locale);
-        auto resourceManager = GetResourceManager();
-        if (resourceManager == nullptr) {
-            APP_LOGE("%{public}s resourceManager is nullptr.", __func__);
-            break;
-        }
-        resourceManager->UpdateResConfig(*resConfig);
-        APP_LOGI("%{public}s Notify ResourceManager.", __func__);
-        break;
-    }
-
-    // Notify WindowScene
-    if (scene_ != nullptr) {
-        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(differ);
-        scene_->UpdateConfiguration(diffConfiguration);
-        APP_LOGE("%{public}s scene_ -> UpdateConfiguration success.", __func__);
-    } else {
-        APP_LOGE("%{public}s scene_ is nullptr.", __func__);
-    }
-   
-    APP_LOGI("%{public}s end.", __func__);
-}
+{}
 
 /**
  * @brief Called when the system configuration is updated.
@@ -1620,28 +1546,6 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
  * is null, this method has the same effect as continueAbility().
  *
  */
-void Ability::ContinueAbilityWithStack(const std::string &deviceId)
-{
-    if (deviceId.empty()) {
-        APP_LOGE("ContinueAbilityWithStack(deviceId) failed. deviceId is empty");
-        return;
-    }
-
-    if (!VerifySupportForContinuation()) {
-        APP_LOGE("ContinueAbilityWithStack(deviceId) failed. VerifySupportForContinuation failed");
-        return;
-    }
-    continuationManager_->ContinueAbilityWithStack(deviceId);
-}
-
-/**
- * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
- * ability slices must implement the IAbilityContinuation interface.
- *
- * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter
- * is null, this method has the same effect as continueAbility().
- *
- */
 void Ability::ContinueAbility(const std::string &deviceId)
 {
     if (deviceId.empty()) {
@@ -1650,7 +1554,7 @@ void Ability::ContinueAbility(const std::string &deviceId)
     }
 
     if (!VerifySupportForContinuation()) {
-        APP_LOGE("Ability::ContinueAbility(deviceId) failed. VerifySupportForContinuation failed");
+        APP_LOGE("Ability::ContinueAbility(deviceId) failed. VerifySupportForContinuation faled");
         return;
     }
     continuationManager_->ContinueAbility(false, deviceId);
@@ -3221,9 +3125,6 @@ void Ability::DoOnForeground(const Want& want)
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityForeground.", __func__);
         abilityWindow_->OnPostAbilityForeground();
         APP_LOGI("%{public}s end abilityWindow_->OnPostAbilityForeground.", __func__);
-    } else {
-        APP_LOGI("========================abilityWindow_ != nullptr ======================");
-
     }
 }
 }  // namespace AppExecFwk

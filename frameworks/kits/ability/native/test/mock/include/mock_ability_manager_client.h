@@ -126,7 +126,6 @@ public:
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     };
     virtual void NotifyContinuationResult(const int32_t result) {};
-    virtual void ContinueAbility(const std::string& deviceId) {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

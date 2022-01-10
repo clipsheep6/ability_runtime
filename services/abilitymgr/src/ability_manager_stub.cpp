@@ -68,20 +68,13 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
     requestFuncMap_[DUMP_STATE] = &AbilityManagerStub::DumpStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
-    requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
-    requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
     requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
-    requestFuncMap_[NOTIFY_COMPLETE_CONTINUATION] = &AbilityManagerStub::NotifyCompleteContinuationInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilityManagerStub::NotifyContinuationResultInner;
-    requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
-    requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
     requestFuncMap_[MOVE_MISSION_TO_FLOATING_STACK] = &AbilityManagerStub::MoveMissionToFloatingStackInner;
     requestFuncMap_[MOVE_MISSION_TO_SPLITSCREEN_STACK] = &AbilityManagerStub::MoveMissionToSplitScreenStackInner;
     requestFuncMap_[CHANGE_FOCUS_ABILITY] = &AbilityManagerStub::ChangeFocusAbilityInner;
     requestFuncMap_[MINIMIZE_MULTI_WINDOW] = &AbilityManagerStub::MinimizeMultiWindowInner;
     requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
-    requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
-    requestFuncMap_[STOP_SYNC_MISSIONS] = &AbilityManagerStub::StopSyncRemoteMissionsInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -123,8 +116,6 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[CLEAN_MISSION] = &AbilityManagerStub::CleanMissionInner;
     requestFuncMap_[CLEAN_ALL_MISSIONS] = &AbilityManagerStub::CleanAllMissionsInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
-    requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
-    requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -911,73 +902,35 @@ int AbilityManagerStub::GetSystemMemoryAttrInner(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
-int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string srcDeviceId = data.ReadString();
-    std::string dstDeviceId = data.ReadString();
-    int32_t missionId = data.ReadInt32();
-    sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    if (callback == nullptr) {
-        HILOG_ERROR("ContinueMissionInner callback readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
-    if (wantParams == nullptr) {
-        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, *wantParams);
-    HILOG_INFO("ContinueMissionInner result = %{public}d", result);
-    return result;
-}
-
-int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string deviceId = data.ReadString();
-    int32_t missionId = data.ReadInt32();
-    int32_t result = ContinueAbility(deviceId, missionId);
-    HILOG_INFO("ContinueAbilityInner result = %{public}d", result);
-    return result;
-}
-
 int AbilityManagerStub::StartContinuationInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        HILOG_ERROR("StartContinuationInner want readParcelable failed!");
+        HILOG_ERROR("DistributedSchedStub: StartContinuationInner want readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> abilityToken = data.ReadParcelable<IRemoteObject>();
     if (abilityToken == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: StartContinuationInner abilityToken readParcelable failed!");
+        HILOG_ERROR("DistributedSchedStub: StartContinuationInner abilityToken readParcelable failed!");
         return ERR_NULL_OBJECT;
     }
-    int32_t status = data.ReadInt32();
-    int32_t result = StartContinuation(*want, abilityToken, status);
-    HILOG_INFO("StartContinuationInner result = %{public}d", result);
-
+    int32_t result = StartContinuation(*want, abilityToken);
+    HILOG_INFO("DistributedSchedStub: StartContinuationInner result = %{public}d", result);
     return result;
-}
-
-int AbilityManagerStub::NotifyCompleteContinuationInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string devId = data.ReadString();
-    int32_t sessionId = data.ReadInt32();
-    bool isSuccess = data.ReadBool();
-
-    NotifyCompleteContinuation(devId, sessionId, isSuccess);
-    HILOG_INFO("NotifyCompleteContinuationInner end");
-    return NO_ERROR;
 }
 
 int AbilityManagerStub::NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t missionId = data.ReadInt32();
-    int32_t continuationResult = data.ReadInt32();
+    sptr<IRemoteObject> abilityToken = data.ReadParcelable<IRemoteObject>();
+    if (abilityToken == nullptr) {
+        HILOG_ERROR("DistributedSchedStub: NotifyContinuationResultInner abilityToken readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int continuationResult = data.ReadInt32();
 
-    int32_t result = NotifyContinuationResult(missionId, continuationResult);
-    HILOG_INFO("StartContinuationInner result = %{public}d", result);
+    int32_t result = NotifyContinuationResult(abilityToken, continuationResult);
+    HILOG_INFO("DistributedSchedStub: StartContinuationInner result = %{public}d", result);
     return result;
 }
 
@@ -1095,89 +1048,6 @@ int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
-}
-
-int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t userId = data.ReadInt32();
-    int result = StartUser(userId);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("StartUser failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t userId = data.ReadInt32();
-    sptr<IStopUserCallback> callback = nullptr;
-    if (data.ReadBool()) {
-        callback = iface_cast<IStopUserCallback>(data.ReadParcelable<IRemoteObject>());
-    }
-    int result = StopUser(userId, callback);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("StopUser failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string deviceId = data.ReadString();
-    bool fixConflict = data.ReadBool();
-    int64_t tag = data.ReadInt64();
-    int result = StartSyncRemoteMissions(deviceId, fixConflict, tag);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("StartSyncRemoteMissionsInner failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply)
-{
-    int result = StopSyncRemoteMissions(data.ReadString());
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("StopSyncRemoteMissionsInner failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string deviceId = data.ReadString();
-    if (deviceId.empty()) {
-        HILOG_ERROR("AbilityManagerStub: RegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
-    }
-    sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
-    if (listener == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: RegisterRemoteMissionListenerInner listener readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = RegisterMissionListener(deviceId, listener);
-    HILOG_INFO("AbilityManagerStub: RegisterRemoteMissionListenerInner result = %{public}d", result);
-    return result;
-}
-
-int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string deviceId = data.ReadString();
-    if (deviceId.empty()) {
-        HILOG_ERROR("AbilityManagerStub: UnRegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
-    }
-    sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
-    if (listener == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: UnRegisterRemoteMissionListenerInner listener readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = UnRegisterMissionListener(deviceId, listener);
-    HILOG_INFO("AbilityManagerStub: UnRegisterRemoteMissionListenerInner result = %{public}d", result);
-    return result;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
