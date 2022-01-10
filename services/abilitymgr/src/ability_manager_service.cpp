@@ -2607,6 +2607,9 @@ void AbilityManagerService::StartingSettingsDataAbility()
 int AbilityManagerService::StartUser(int userId)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    if (callback) {
+        callback->OnStopUserDone(userId, ERR_OK);
+    }
     return 0;
 }
 
