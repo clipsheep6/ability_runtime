@@ -722,5 +722,13 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId)
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->MoveMissionToFront(missionId);
 }
+
+ErrCode AbilityManagerClient::StartUser(int accountId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StartUser(accountId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
