@@ -592,6 +592,13 @@ public:
     ErrCode MoveMissionToFront(int32_t missionId);
 
     /**
+     * @brief start user.
+     * @param accountId accountId.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartUser(int accountId);
+
      * Start synchronizing remote device mission
      * @param devId, deviceId.
      * @param fixConflict, resolve synchronizing conflicts flag.
