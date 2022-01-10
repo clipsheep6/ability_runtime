@@ -35,7 +35,6 @@
 #include "iservice_registry.h"
 #include "locale_config.h"
 #include "lock_screen_white_list.h"
-#include "mission/mission_info_converter.h"
 #include "sa_mgr_client.h"
 #include "softbus_bus_center.h"
 #include "string_ex.h"
@@ -50,7 +49,6 @@ static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 const int32_t EXTENSION_SUPPORT_API_VERSION = 8;
-const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const std::string EMPTY_DEVICE_ID = "";
 const std::string PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
@@ -474,10 +472,10 @@ sptr<DistributedSchedule::IDistributedSched> AbilityManagerService::GetDmsProxy(
         return nullptr;
     }
     HILOG_INFO("get dms proxy success.");
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy =
+    sptr<DistributedSchedule::IDistributedSched> iDistributedSchedule =
         iface_cast<DistributedSchedule::IDistributedSched>(remoteObject);
     HILOG_INFO("%{public}s end.", __func__);
-    return dmsProxy;
+    return iDistributedSchedule;
 }
 
 bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
@@ -825,35 +823,7 @@ int AbilityManagerService::DisconnectRemoteAbility(const sptr<IRemoteObject> &co
     return dms->DisconnectRemoteAbility(connect);
 }
 
-int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-    int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
-{
-    HILOG_INFO("ContinueMission srcDeviceId: %{public}s, dstDeviceId: %{public}s, missionId: %{public}d",
-        srcDeviceId.c_str(), dstDeviceId.c_str(), missionId);
-
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy = GetDmsProxy();
-    if (dmsProxy == nullptr) {
-        HILOG_ERROR("ContinueMission failed to get dms.");
-        return ERR_INVALID_VALUE;
-    }
-    return dmsProxy->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
-}
-
-int AbilityManagerService::ContinueAbility(const std::string &deviceId, int32_t missionId)
-{
-    HILOG_INFO("ContinueAbility deviceId : %{public}s, missionId = %{public}d.", deviceId.c_str(), missionId);
-
-    sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
-    CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
-
-    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-
-    abilityRecord->ContinueAbility(deviceId);
-    return ERR_OK;
-}
-
-int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status)
+int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken)
 {
     HILOG_INFO("Start Continuation.");
     if (!CheckIfOperateRemote(want)) {
@@ -869,118 +839,18 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
         HILOG_ERROR("AbilityManagerService::StartContinuation failed to get dms.");
         return ERR_INVALID_VALUE;
     }
-    int32_t missionId = GetMissionIdByAbilityToken(abilityToken);
-    if (missionId == -1) {
-        HILOG_ERROR("AbilityManagerService::StartContinuation failed to get missionId.");
-        return ERR_INVALID_VALUE;
-    }
-    auto result =  dmsProxy->StartContinuation(want, missionId, appUid, status);
-    if (result != ERR_OK) {
-        HILOG_ERROR("StartContinuation failed, result = %{public}d, notify caller", result);
-        NotifyContinuationResult(missionId, result);
-    }
-    return result;
+    return dmsProxy->StartContinuation(want, abilityToken, appUid);
 }
 
-void AbilityManagerService::NotifyCompleteContinuation(const std::string &deviceId,
-    int32_t sessionId, bool isSuccess)
-{
-    HILOG_INFO("NotifyCompleteContinuation.");
-
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy = GetDmsProxy();
-    if (dmsProxy == nullptr) {
-        HILOG_ERROR("AbilityManagerService::NotifyCompleteContinuation failed to get dms.");
-        return;
-    }
-    dmsProxy->NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess);
-}
-
-int AbilityManagerService::NotifyContinuationResult(int32_t missionId, const int32_t result)
+int AbilityManagerService::NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result)
 {
     HILOG_INFO("Notify Continuation Result : %{public}d.", result);
-
-    auto abilityToken = GetAbilityTokenByMissionId(missionId);
     CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
 
     auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     abilityRecord->NotifyContinuationResult(result);
-    return ERR_OK;
-}
-
-int AbilityManagerService::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
-{
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy = GetDmsProxy();
-    if (dmsProxy == nullptr) {
-        HILOG_ERROR("AbilityManagerService::StartSyncRemoteMissions failed to get dms.");
-        return ERR_INVALID_VALUE;
-    }
-    return dmsProxy->StartSyncRemoteMissions(devId, fixConflict, tag);
-}
-
-int AbilityManagerService::StopSyncRemoteMissions(const std::string& devId)
-{
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy = GetDmsProxy();
-    if (dmsProxy == nullptr) {
-        HILOG_ERROR("AbilityManagerService::StopSyncRemoteMissions failed to get dms.");
-        return ERR_INVALID_VALUE;
-    }
-    return dmsProxy->StopSyncRemoteMissions(devId);
-}
-
-int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
-{
-    std::string localDeviceId;
-    if (!GetLocalDeviceId(localDeviceId) || localDeviceId == deviceId) {
-        HILOG_ERROR("RegisterMissionListener: Check DeviceId failed");
-        return REGISTER_REMOTE_MISSION_LISTENER_FAIL;
-    }
-    return CallMissionListener(deviceId, listener);
-}
-
-int AbilityManagerService::CallMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
-{
-    if (callListenerHandler_ == nullptr) {
-        HILOG_INFO("init callListenerHandler_");
-        auto parseRunner = AppExecFwk::EventRunner::Create("CallRemoteMissionListener");
-        callListenerHandler_ = std::make_shared<AppExecFwk::EventHandler>(parseRunner);
-    }
-    int32_t delayTime = 2000;
-    auto callNotifyMissionsChanged = [listener, deviceId, this]() {
-        HILOG_INFO("callNotifyMissionsChanged");
-        listener->NotifyMissionsChanged(deviceId);
-    };
-    if (!callListenerHandler_->PostTask(callNotifyMissionsChanged, delayTime)) {
-        HILOG_ERROR("CallMissionListener: post NotifyMissionsChanged task failed");
-    }
-    auto callNotifySnapshot = [listener, deviceId, this]() {
-        HILOG_INFO("callNotifySnapshot");
-        listener->NotifySnapshot(deviceId, 1);
-    };
-    if (!callListenerHandler_->PostTask(callNotifySnapshot, delayTime)) {
-        HILOG_ERROR("CallMissionListener: post NotifySnapshot task failed");
-    }
-    auto callNotifyNetDisconnect = [listener, deviceId, this]() {
-        HILOG_INFO("callNotifyNetDisconnect");
-        listener->NotifyNetDisconnect(deviceId, 1);
-    };
-    if (!callListenerHandler_->PostTask(callNotifyNetDisconnect, delayTime)) {
-        HILOG_ERROR("CallMissionListener: post NotifyNetDisconnect task failed");
-    }
-    return ERR_OK;
-}
-
-int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId,
-    const sptr<IRemoteMissionListener> &listener)
-{
-    std::string localDeviceId;
-    if (!GetLocalDeviceId(localDeviceId) || localDeviceId == deviceId) {
-        HILOG_ERROR("RegisterMissionListener: Check DeviceId failed");
-        return REGISTER_REMOTE_MISSION_LISTENER_FAIL;
-    }
     return ERR_OK;
 }
 
@@ -1224,28 +1094,11 @@ int AbilityManagerService::GetMissionInfos(const std::string& deviceId, int32_t 
     }
 
     if (CheckIsRemote(deviceId)) {
-        return GetRemoteMissionInfos(deviceId, numMax, missionInfos);
+        HILOG_ERROR("get remote missioninfos not support yet.");
+        return -1;
     }
 
     return currentMissionListManager_->GetMissionInfos(numMax, missionInfos);
-}
-
-int AbilityManagerService::GetRemoteMissionInfos(const std::string& deviceId, int32_t numMax,
-    std::vector<MissionInfo> &missionInfos)
-{
-    HILOG_INFO("GetRemoteMissionInfos begin");
-    sptr<DistributedSchedule::IDistributedSched> dmsProxy = GetDmsProxy();
-    if (dmsProxy == nullptr) {
-        HILOG_ERROR("GetRemoteMissionInfos failed to get dms.");
-        return ERR_INVALID_VALUE;
-    }
-    std::vector<DistributedSchedule::DstbMissionInfo> dstbMissionInfos;
-    int result = dmsProxy->GetMissionInfos(deviceId, numMax, dstbMissionInfos);
-    if (result != ERR_OK) {
-        HILOG_ERROR("GetRemoteMissionInfos failed, result = %{public}d", result);
-        return result;
-    }
-    return DistributedSchedule::MissionInfoConverter::ConvertToMissionInfos(dstbMissionInfos, missionInfos);
 }
 
 int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t missionId,
@@ -1261,29 +1114,11 @@ int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t m
     }
 
     if (CheckIsRemote(deviceId)) {
-        return GetRemoteMissionInfo(deviceId, missionId, missionInfo);
+        HILOG_ERROR("get remote mission not support yet.");
+        return -1;
     }
 
     return currentMissionListManager_->GetMissionInfo(missionId, missionInfo);
-}
-
-int AbilityManagerService::GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
-    MissionInfo &missionInfo)
-{
-    HILOG_INFO("GetMissionInfoFromDms begin");
-    std::vector<MissionInfo> missionVector;
-    int result = GetRemoteMissionInfos(deviceId, MAX_NUMBER_OF_DISTRIBUTED_MISSIONS, missionVector);
-    if (result != ERR_OK) {
-        return result;
-    }
-    for (auto iter = missionVector.begin(); iter != missionVector.end(); iter++) {
-        if (iter->id == missionId) {
-            missionInfo = *iter;
-            return ERR_OK;
-        }
-    }
-    HILOG_WARN("missionId not found");
-    return ERR_INVALID_VALUE;
 }
 
 int AbilityManagerService::CleanMission(int32_t missionId)
@@ -2597,53 +2432,11 @@ void AbilityManagerService::StartingSettingsDataAbility()
         return;
     }
 
+    /* query if settingdatas ability has installed */
     AppExecFwk::AbilityInfo abilityInfo;
     Want want;
     want.SetElementName(AbilityConfig::SETTINGS_DATA_BUNDLE_NAME, AbilityConfig::SETTINGS_DATA_ABILITY_NAME);
-    uint32_t waitCnt = 0;
-    // Wait 5 minutes for the installation to complete.
-    while (!iBundleManager_->QueryAbilityInfo(want, abilityInfo) && waitCnt < MAX_WAIT_SETTINGS_DATA_NUM) {
-        HILOG_INFO("Waiting query settings data info completed.");
-        usleep(REPOLL_TIME_MICRO_SECONDS);
-        waitCnt++;
-    }
-
-    // node: do not use abilityInfo.uri directly, need check uri first.
-    auto GetValidUri = [&]() -> std::string {
-        int32_t firstSeparator = abilityInfo.uri.find_first_of('/');
-        int32_t lastSeparator = abilityInfo.uri.find_last_of('/');
-        if (lastSeparator - firstSeparator != 1) {
-            HILOG_ERROR("ability info uri error, uri: %{public}s", abilityInfo.uri.c_str());
-            return "";
-        }
-
-        std::string uriStr = abilityInfo.uri;
-        uriStr.insert(lastSeparator, "/");
-        return uriStr;
-    };
-
-    std::string abilityUri = GetValidUri();
-    if (abilityUri.empty()) {
-        return;
-    }
-
-    HILOG_INFO("abilityInfo uri: %{public}s.", abilityUri.c_str());
-
-    // start settings data ability
-    Uri uri(abilityUri);
-    (void)AcquireDataAbility(uri, true, nullptr);
-}
-
-int AbilityManagerService::StartUser(int userId)
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    return 0;
-}
-
-int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    return 0;
+    (void)StartAbility(want, DEFAULT_INVAL_VALUE);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

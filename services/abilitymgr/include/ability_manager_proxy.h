@@ -486,20 +486,9 @@ public:
      */
     virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) override;
 
-    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
-        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) override;
+    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken) override;
 
-    virtual int ContinueAbility(const std::string &deviceId, int32_t missionId) override;
-
-    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) override;
-
-    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) override;
-
-    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) override;
-
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
-
-    virtual int StopSyncRemoteMissions(const std::string& devId) override;
+    virtual int NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result) override;
 
     virtual int LockMissionForCleanup(int32_t missionId) override;
 
@@ -520,16 +509,6 @@ public:
     virtual int CleanAllMissions() override;
 
     virtual int MoveMissionToFront(int32_t missionId) override;
-
-    virtual int StartUser(int userId) override;
-
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
-
-    virtual int RegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener) override;
-
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
-        const sptr<IRemoteMissionListener> &listener) override;
 
 private:
     template<typename T>

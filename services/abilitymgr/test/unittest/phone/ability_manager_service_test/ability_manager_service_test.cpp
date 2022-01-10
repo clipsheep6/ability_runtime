@@ -1596,7 +1596,7 @@ HWTEST_F(AbilityManagerServiceTest, startContinuation_001, TestSize.Level1)
     want.SetElement(element);
 
     sptr<IRemoteObject> abilityToken = new (std::nothrow) MockAbilityToken();
-    auto result = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
 }
 
@@ -1616,7 +1616,7 @@ HWTEST_F(AbilityManagerServiceTest, startContinuation_002, TestSize.Level1)
     want.SetElement(element);
 
     sptr<IRemoteObject> abilityToken = new (std::nothrow) MockAbilityToken();
-    auto result = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_NE(OHOS::ERR_OK, result);
 }
 
@@ -1633,7 +1633,7 @@ HWTEST_F(AbilityManagerServiceTest, startContinuation_003, TestSize.Level1)
     want.SetElement(element);
 
     sptr<IRemoteObject> abilityToken = nullptr;
-    auto result = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_NE(OHOS::ERR_OK, result);
 }
 
@@ -1649,23 +1649,23 @@ HWTEST_F(AbilityManagerServiceTest, startContinuation_004, TestSize.Level1)
     ElementName element("", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     sptr<IRemoteObject> abilityToken = new (std::nothrow) MockAbilityToken();
-    auto result = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_NE(OHOS::ERR_OK, result);
 
     ElementName element1("device", "", "MusicAbility");
     want.SetElement(element1);
-    auto result1 = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result1 = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_NE(OHOS::ERR_OK, result1);
 
     ElementName element2("device", "com.ix.hiMusic", "");
     want.SetElement(element2);
-    auto result2 = abilityMs_->StartContinuation(want, abilityToken, 0);
+    auto result2 = abilityMs_->StartContinuation(want, abilityToken);
     EXPECT_NE(OHOS::ERR_OK, result2);
 }
 
 /**
  * @tc.name: NotifyContinuationResult_001
- * @tc.desc: test NotifyContinuationResult when abilityToken not exist
+ * @tc.desc: test NotifyContinuationResult when abilityRecord not exist
  * @tc.type: FUNC
  * @tc.require: AR000GI8IL
  */
@@ -1675,74 +1675,51 @@ HWTEST_F(AbilityManagerServiceTest, NotifyContinuationResult_001, TestSize.Level
     ElementName element("device", "com.ix.musicService", "MusicService");
     want.SetElement(element);
 
-    int32_t missionId = 0;
+    std::shared_ptr<AbilityRecord> ability = nullptr;
+    const sptr<IRemoteObject> abilityToken = new Token(ability);
     int32_t isSuccess = 0;
-    auto result = abilityMs_->NotifyContinuationResult(missionId, isSuccess);
+    auto result = abilityMs_->NotifyContinuationResult(abilityToken, isSuccess);
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
 }
 
 /**
  * @tc.name: NotifyContinuationResult_002
- * @tc.desc: test NotifyContinuationResult
+ * @tc.desc: test NotifyContinuationResult when abilityToken is null
  * @tc.type: FUNC
  * @tc.require: AR000GI8IL
  */
 HWTEST_F(AbilityManagerServiceTest, NotifyContinuationResult_002, TestSize.Level1)
 {
     Want want;
+    ElementName element("device", "com.ix.musicService", "MusicService");
+    want.SetElement(element);
+
+    sptr<IRemoteObject> abilityToken = nullptr;
+    int32_t isSuccess = 0;
+    auto result = abilityMs_->NotifyContinuationResult(abilityToken, isSuccess);
+    EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
+}
+
+/**
+ * @tc.name: NotifyContinuationResult_003
+ * @tc.desc: test NotifyContinuationResult
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8IL
+ */
+HWTEST_F(AbilityManagerServiceTest, NotifyContinuationResult_003, TestSize.Level1)
+{
+    Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = StartAbility(want);
     EXPECT_EQ(OHOS::ERR_OK, result);
-    auto topMissionId = abilityMs_->GetStackManager()->GetTopMissionRecord()->GetMissionRecordId();
+    auto stackManager = abilityMs_->GetStackManager();
+    auto ability = stackManager->GetCurrentTopAbility();
+    auto abilityToken = ability->GetToken();
 
     int32_t isSuccess = 0;
-    result = abilityMs_->NotifyContinuationResult(topMissionId, isSuccess);
+    result = abilityMs_->NotifyContinuationResult(abilityToken, isSuccess);
     EXPECT_EQ(OHOS::ERR_OK, result);
-}
-
-/**
- * @tc.name: ContinueMission_001
- * @tc.desc: test ContinueMission
- * @tc.type: FUNC
- * @tc.require: SR000GKT4A
- */
-HWTEST_F(AbilityManagerServiceTest, ContinueMission_001, TestSize.Level0)
-{
-    std::string srcId = "123";
-    std::string dstId = "456";
-    int32_t missionId = 0;
-    WantParams wantParams;
-    int res = abilityMs_->ContinueMission(srcId, dstId, missionId, nullptr, wantParams);
-    EXPECT_NE(res, NO_ERROR);
-}
-
-/**
- * @tc.name: ContinueAbility_001
- * @tc.desc: test ContinueAbility
- * @tc.type: FUNC
- * @tc.require: SR000GKT4A
- */
-HWTEST_F(AbilityManagerServiceTest, ContinueAbility_001, TestSize.Level0)
-{
-    std::string dstId = "123";
-    int32_t missionId = 0;
-    int res = abilityMs_->ContinueAbility(dstId, missionId);
-    EXPECT_EQ(res, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: NotifyCompleteContinuation_001
- * @tc.desc: test NotifyCompleteContinuation
- * @tc.type: FUNC
- * @tc.require: SR000GKT4A
- */
-HWTEST_F(AbilityManagerServiceTest, NotifyCompleteContinuation_001, TestSize.Level0)
-{
-    std::string deviceId = "123";
-    int32_t sessionId = 0;
-    bool isSuccess = true;
-    abilityMs_->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
 }
 
 /*

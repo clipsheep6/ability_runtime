@@ -153,13 +153,6 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
     abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
 }
 
-void LifecycleDeal::ContinueAbility(const std::string& deviceId)
-{
-    HILOG_INFO("ContinueAbility.");
-    CHECK_POINTER(abilityScheduler_);
-    abilityScheduler_->ContinueAbility(deviceId);
-}
-
 void LifecycleDeal::NotifyContinuationResult(const int32_t result)
 {
     HILOG_INFO("NotifyContinuationResult.");

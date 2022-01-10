@@ -1331,13 +1331,5 @@ void AbilityRecordNew::BackgroundNew(const Closure &task)
     currentState_ = AbilityState::BACKGROUNDING_NEW;
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
 }
-
-void AbilityRecord::ContinueAbility(const std::string& deviceId)
-{
-    HILOG_INFO("ContinueAbility.");
-    CHECK_POINTER(lifecycleDeal_);
-
-    lifecycleDeal_->ContinueAbility(deviceId);
-}
 }  // namespace AAFwk
 }  // namespace OHOS

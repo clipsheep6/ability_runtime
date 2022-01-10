@@ -30,7 +30,6 @@ using AbilityHandler = AppExecFwk::AbilityHandler;
 using AbilityInfo = AppExecFwk::AbilityInfo;
 using OHOSApplication = AppExecFwk::OHOSApplication;
 using Want = AppExecFwk::Want;
-using AbilityStartSetting = AppExecFwk::AbilityStartSetting;
 
 class JsAbility : public Ability {
 public:

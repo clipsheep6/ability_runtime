@@ -592,7 +592,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_028, TestSize.Level0)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     Want want;
     sptr<IRemoteObject> abilityToken = nullptr;
-    int res = proxy_->StartContinuation(want, abilityToken, 0);
+    int res = proxy_->StartContinuation(want, abilityToken);
     EXPECT_EQ(res, NO_ERROR);
     EXPECT_EQ(IAbilityManager::START_CONTINUATION, mock_->code_);
 }
@@ -610,7 +610,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_029, TestSize.Level0)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeErrorSendRequest));
     const Want want;
     sptr<IRemoteObject> abilityToken = nullptr;
-    int res = proxy_->StartContinuation(want, abilityToken, 0);
+    int res = proxy_->StartContinuation(want, abilityToken);
 
     EXPECT_EQ(IAbilityManager::START_CONTINUATION, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
@@ -627,8 +627,9 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_030, TestSize.Level0)
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    sptr<IRemoteObject> abilityToken = nullptr;
     int32_t result = 0;
-    int res = proxy_->NotifyContinuationResult(0, result);
+    int res = proxy_->NotifyContinuationResult(abilityToken, result);
     EXPECT_EQ(res, NO_ERROR);
     EXPECT_EQ(IAbilityManager::NOTIFY_CONTINUATION_RESULT, mock_->code_);
 }
@@ -644,8 +645,9 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_031, TestSize.Level0)
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeErrorSendRequest));
+    sptr<IRemoteObject> abilityToken = nullptr;
     int32_t result = 0;
-    int res = proxy_->NotifyContinuationResult(0, result);
+    int res = proxy_->NotifyContinuationResult(abilityToken, result);
 
     EXPECT_EQ(IAbilityManager::NOTIFY_CONTINUATION_RESULT, mock_->code_);
     EXPECT_NE(res, NO_ERROR);

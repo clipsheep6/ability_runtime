@@ -43,15 +43,11 @@ public:
 
     std::string GetOriginalDeviceId();
 
-    void ContinueAbilityWithStack(const std::string &deviceId);
-
     void ContinueAbility(bool reversible, const std::string &deviceId);
 
     bool ReverseContinueAbility();
 
     bool StartContinuation();
-
-    bool OnContinue(WantParams &wantParams);
 
     bool SaveData(WantParams &saveData);
 
@@ -72,8 +68,6 @@ private:
     enum ProgressState { INITIAL, WAITING_SCHEDULE, IN_PROGRESS };
 
     bool CheckContinuationIllegal();
-
-    bool HandleContinueAbilityWithStack(const std::string &deviceId);
 
     bool HandleContinueAbility(bool reversible, const std::string &deviceId);
 

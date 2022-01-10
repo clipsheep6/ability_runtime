@@ -375,10 +375,18 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
 {
     std::lock_guard<std::recursive_mutex> guard(Lock_);
     std::for_each(serviceMap_.begin(), serviceMap_.end(), [&info](ServiceMapType::reference service) {
-        if (service.second && service.second->GetApplicationInfo().name == info.appName &&
-            (info.processName == service.second->GetAbilityInfo().process ||
+        if (service.second && (info.processName == service.second->GetAbilityInfo().process ||
             info.processName == service.second->GetApplicationInfo().bundleName)) {
-            service.second->SetAppState(info.state);
+            auto appName = service.second->GetApplicationInfo().name;
+            auto uid = service.second->GetAbilityInfo().applicationInfo.uid;
+            auto isExist = [&appName, &uid](const AppData &appData) {
+                return appData.appName == appName && appData.uid == uid;
+            };
+            auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+
+            if(iter != info.appData.end()){
+                service.second->SetAppState(info.state);
+            }
         }
     });
 }
