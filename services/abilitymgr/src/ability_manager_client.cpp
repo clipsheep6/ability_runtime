@@ -628,25 +628,37 @@ void AbilityManagerClient::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &mem
     return;
 }
 
-ErrCode AbilityManagerClient::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken)
+ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    int32_t missionId, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams)
 {
+    if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
+        HILOG_ERROR("srcDeviceId or dstDeviceId or callback is null!");
+        return ERR_INVALID_VALUE;
+    }
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    int result = abms->StartContinuation(want, abilityToken);
-    if (result != ERR_OK) {
-        HILOG_ERROR("StartContinuation failed, notify caller");
-        NotifyContinuationResult(abilityToken, result);
-    }
+    int result = abms->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
     return result;
 }
 
-ErrCode AbilityManagerClient::NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result)
+ErrCode AbilityManagerClient::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken,
+    int32_t status)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->NotifyContinuationResult(abilityToken, result);
+    int result = abms->StartContinuation(want, abilityToken, status);
+    return result;
+}
+
+void AbilityManagerClient::NotifyCompleteContinuation(const std::string &deviceId,
+    int32_t sessionId, bool isSuccess)
+{
+    CHECK_REMOTE_OBJECT(remoteObject_);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
 }
 
 ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
@@ -679,6 +691,24 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(const sptr<IMissionListe
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->UnRegisterMissionListener(listener);
+}
+
+ErrCode AbilityManagerClient::RegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, REGISTER_REMOTE_MISSION_LISTENER_FAIL);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->RegisterMissionListener(deviceId, listener);
+}
+
+ErrCode AbilityManagerClient::UnRegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, UNREGISTER_REMOTE_MISSION_LISTENER_FAIL);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->UnRegisterMissionListener(deviceId, listener);
 }
 
 ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32_t numMax,
@@ -729,6 +759,30 @@ ErrCode AbilityManagerClient::StartUser(int accountId)
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->StartUser(accountId);
+/**
+ * Start synchronizing remote device mission
+ * @param devId, deviceId.
+ * @param fixConflict, resolve synchronizing conflicts flag.
+ * @param tag, call tag.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+ErrCode AbilityManagerClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    auto abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StartSyncRemoteMissions(devId, fixConflict, tag);
+}
+
+/**
+ * Stop synchronizing remote device mission
+ * @param devId, deviceId.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string& devId)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    auto abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StopSyncRemoteMissions(devId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

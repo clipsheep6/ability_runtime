@@ -1503,7 +1503,70 @@ void AbilityManagerProxy::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memo
     memoryInfo = *remoteRetsult;
 }
 
-int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken)
+int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+    int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(srcDeviceId)) {
+        HILOG_ERROR("srcDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(dstDeviceId)) {
+        HILOG_ERROR("dstDeviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("missionId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(callBack)) {
+        HILOG_ERROR("callBack write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&wantParams)) {
+        HILOG_ERROR("wantParams write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::CONTINUE_MISSION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::ContinueAbility(const std::string &deviceId, int32_t missionId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("deviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("missionId write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::CONTINUE_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1519,7 +1582,10 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
         HILOG_ERROR("abilityToken write failed.");
         return INNER_ERR;
     }
-
+    if (!data.WriteInt32(status)) {
+        HILOG_ERROR("status write failed.");
+        return INNER_ERR;
+    }
     auto error = Remote()->SendRequest(IAbilityManager::START_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -1528,7 +1594,35 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result)
+void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("deviceId write failed.");
+        return;
+    }
+    if (!data.WriteInt32(sessionId)) {
+        HILOG_ERROR("sessionId write failed.");
+        return;
+    }
+    if (!data.WriteBool(isSuccess)) {
+        HILOG_ERROR("result write failed.");
+        return;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return;
+    }
+}
+
+int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, const int32_t result)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1536,8 +1630,8 @@ int AbilityManagerProxy::NotifyContinuationResult(const sptr<IRemoteObject> &abi
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(abilityToken)) {
-        HILOG_ERROR("abilityToken write failed.");
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("missionId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(result)) {
@@ -1617,6 +1711,32 @@ int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &l
     }
 
     error = Remote()->SendRequest(IAbilityManager::REGISTER_MISSION_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::RegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("deviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("listener write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -1826,6 +1946,89 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &cal
     error = Remote()->SendRequest(IAbilityManager::STOP_USER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StopUser:SendRequest error: %d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
+{
+    HILOG_INFO("called");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken faild");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(devId)) {
+        HILOG_ERROR("write deviceId fail.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!data.WriteBool(fixConflict)) {
+        HILOG_ERROR("WriteBool fail.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!data.WriteInt64(tag)) {
+        HILOG_ERROR("WriteInt64 fail.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::START_SYNC_MISSIONS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::StopSyncRemoteMissions(const std::string& devId)
+{
+    HILOG_INFO("called");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken faild");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(devId)) {
+        HILOG_ERROR("write deviceId fail.");
+        return ERR_INVALID_VALUE;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::STOP_SYNC_MISSIONS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
+    const sptr<IRemoteMissionListener> &listener)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("deviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(listener->AsObject())) {
+        HILOG_ERROR("listener write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::UNREGISTER_REMOTE_MISSION_LISTENER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();

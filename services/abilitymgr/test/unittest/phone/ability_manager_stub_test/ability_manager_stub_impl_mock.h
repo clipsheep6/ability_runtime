@@ -47,6 +47,13 @@ public:
     MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     
+    MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
+    MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, const int32_t result));
+    MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams));
+    MOCK_METHOD2(ContinueAbility, int(const std::string &deviceId, int32_t missionId));
+    MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string &deviceId, int32_t sessionId, bool isSuccess));
+
     int InvokeSendRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
     {
         code_ = code;
@@ -294,6 +301,70 @@ public:
     }
 
     virtual int ClearUpApplicationData(const std::string &bundleName) override
+    {
+        return 0;
+    }
+    virtual int LockMissionForCleanup(int32_t missionId) override
+    {
+        return 0;
+    }
+    virtual int UnlockMissionForCleanup(int32_t missionId) override
+    {
+        return 0;
+    }
+    virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override
+    {
+        return 0;
+    }
+    virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override
+    {
+        return 0;
+    }
+    virtual int CleanMission(int32_t missionId) override
+    {
+        return 0;
+    }
+    virtual int CleanAllMissions() override
+    {
+        return 0;
+    }
+    virtual int MoveMissionToFront(int32_t missionId) override
+    {
+        return 0;
+    }
+    virtual int GetMissionInfos(const std::string& deviceId, int32_t numMax,
+        std::vector<MissionInfo> &missionInfos) override
+    {
+        return 0;
+    }
+    virtual int GetMissionInfo(const std::string& deviceId, int32_t missionId,
+        MissionInfo &missionInfo) override
+    {
+        return 0;
+    }
+    virtual int StartUser(int userId) override
+    {
+        return 0;
+    }
+    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    {
+        return 0;
+    }
+    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    {
+        return 0;
+    }
+    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    {
+        return 0;
+    }
+    virtual int RegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
+    {
+        return 0;
+    }
+    virtual int UnRegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }

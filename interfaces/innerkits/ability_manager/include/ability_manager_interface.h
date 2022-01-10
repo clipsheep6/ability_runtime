@@ -42,6 +42,8 @@
 #include "mission_info.h"
 #include "start_options.h"
 #include "stop_user_callback.h"
+#include "remote_mission_listener_interface.h"
+
 
 namespace OHOS {
 namespace AAFwk {
@@ -504,9 +506,16 @@ public:
      */
     virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) = 0;
 
-    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken) = 0;
+    virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
+        int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
-    virtual int NotifyContinuationResult(const sptr<IRemoteObject> &abilityToken, const int32_t result) = 0;
+    virtual int ContinueAbility(const std::string &deviceId, int32_t missionId) = 0;
+
+    virtual int StartContinuation(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status) = 0;
+
+    virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) = 0;
+
+    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) = 0;
 
     virtual int LockMissionForCleanup(int32_t missionId) = 0;
 
@@ -531,6 +540,28 @@ public:
     virtual int StartUser(int userId) = 0;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
+
+    /**
+     * Start synchronizing remote device mission
+     * @param devId, deviceId.
+     * @param fixConflict, resolve synchronizing conflicts flag.
+     * @param tag, call tag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) = 0;
+
+    /**
+     * Stop synchronizing remote device mission
+     * @param devId, deviceId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StopSyncRemoteMissions(const std::string& devId) = 0;
+
+    virtual int RegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) = 0;
+
+    virtual int UnRegisterMissionListener(const std::string &deviceId,
+        const sptr<IRemoteMissionListener> &listener) = 0;
 
     enum {
         // ipc id 1-1000 for kit
@@ -740,6 +771,18 @@ public:
         START_CONTINUATION = 1101,
 
         NOTIFY_CONTINUATION_RESULT = 1102,
+
+        NOTIFY_COMPLETE_CONTINUATION = 1103,
+
+        CONTINUE_ABILITY = 1104,
+
+        CONTINUE_MISSION = 1105,
+
+        // ipc id for mission manager(1110)
+        REGISTER_REMOTE_MISSION_LISTENER = 1110,
+        UNREGISTER_REMOTE_MISSION_LISTENER = 1111,
+        START_SYNC_MISSIONS = 1112,
+        STOP_SYNC_MISSIONS = 1113,
 
         // ipc id 2001-3000 for tools
         // ipc id for dumping state (2001)

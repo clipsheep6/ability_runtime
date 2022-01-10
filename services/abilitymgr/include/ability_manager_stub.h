@@ -106,8 +106,13 @@ private:
     int GetSystemMemoryAttrInner(MessageParcel &data, MessageParcel &reply);
     int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);
 
+    int ContinueMissionInner(MessageParcel &data, MessageParcel &reply);
+    int ContinueAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartContinuationInner(MessageParcel &data, MessageParcel &reply);
+    int NotifyCompleteContinuationInner(MessageParcel &data, MessageParcel &reply);
     int NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
+    int UnRegisterRemoteMissionListenerInner(MessageParcel &data, MessageParcel &reply);
 
     int LockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
     int UnlockMissionForCleanupInner(MessageParcel &data, MessageParcel &reply);
@@ -120,6 +125,9 @@ private:
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
+
+    int StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
+    int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

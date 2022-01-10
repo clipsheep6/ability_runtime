@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,34 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_SCREEN_SHOT_RESPONSE_H
-#define OHOS_AAFWK_SCREEN_SHOT_RESPONSE_H
+#ifndef OHOS_MISSION_CONTINUE_STUB_H
+#define OHOS_MISSION_CONTINUE_STUB_H
 
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
+#include <iremote_object.h>
+#include <iremote_stub.h>
+
+#include "mission_continue_interface.h"
 #include "nocopyable.h"
-#include <condition_variable>
-#include "../wmclient/wm_common.h"
 
 namespace OHOS {
 namespace AAFwk {
-class ScreenShotResponse {
+class MissionContinueStub : public IRemoteStub<IMissionContinue> {
 public:
-    ScreenShotResponse() = default;
-    virtual ~ScreenShotResponse() = default;
+    MissionContinueStub();
+    virtual ~MissionContinueStub();
 
-    void OnWindowShot(const OHOS::WMImageInfo &info);
-    OHOS::WMImageInfo GetImageInfo();
-
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 private:
-    static constexpr int TIME_OUT = 200 * 1000;
-    std::mutex mutex_;
-    std::condition_variable condition_;
-    std::shared_ptr<OHOS::WMImageInfo> info_;
+    DISALLOW_COPY_AND_MOVE(MissionContinueStub);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-
-#endif  // OHOS_AAFWK_SCREEN_SHOT_RESPONSE_H
+#endif  // OHOS_MISSION_CONTINUE_STUB_H
