@@ -146,6 +146,7 @@ bool AbilityManagerService::Init()
         amsConfigResolver_->Parse();
         HILOG_INFO("ams config parse");
     }
+    useNewMission_ = amsConfigResolver_->IsUseNewMission();
 
     auto pendingWantManager = std::make_shared<PendingWantManager>();
     if (!pendingWantManager) {
@@ -212,7 +213,7 @@ int AbilityManagerService::StartAbility(const Want &want, int requestCode)
 
 int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto flags = want.GetFlags();
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
         HILOG_ERROR("StartAbility with continuation flags is not allowed!");
@@ -230,7 +231,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
 int AbilityManagerService::StartAbility(
     const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int callerUid)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s", __func__);
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         return ERR_INVALID_VALUE;
@@ -268,17 +269,24 @@ int AbilityManagerService::StartAbility(
         return connectManager_->StartAbility(abilityRequest);
     }
 
-    if (IsSystemUiApp(abilityRequest.abilityInfo)) {
-        return kernalAbilityManager_->StartAbility(abilityRequest);
-    }
+    if (useNewMission_) {
+        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+            return kernalAbilityManager_->StartAbility(abilityRequest);
+        }
+        return currentMissionListManager_->StartAbility(abilityRequest);
+    } else {
+        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+            return systemAppManager_->StartAbility(abilityRequest);
+        }
 
-    return currentMissionListManager_->StartAbility(abilityRequest);
+        return currentStackManager_->StartAbility(abilityRequest);
+    }
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int requestCode)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability setting.");
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         return ERR_INVALID_VALUE;
@@ -318,17 +326,25 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         HILOG_ERROR("Only support for page type ability.");
         return ERR_INVALID_VALUE;
     }
-    if (IsSystemUiApp(abilityRequest.abilityInfo)) {
-        return kernalAbilityManager_->StartAbility(abilityRequest);
-    }
+    if (useNewMission_) {
+        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+            return kernalAbilityManager_->StartAbility(abilityRequest);
+        }
 
-    return currentMissionListManager_->StartAbility(abilityRequest);
+        return currentMissionListManager_->StartAbility(abilityRequest);
+    } else {
+        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+            return systemAppManager_->StartAbility(abilityRequest);
+        }
+
+        return currentStackManager_->StartAbility(abilityRequest);
+    }
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int requestCode)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability options.");
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         return ERR_INVALID_VALUE;
@@ -364,15 +380,25 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
     if (IsSystemUiApp(abilityRequest.abilityInfo)) {
-        return kernalAbilityManager_->StartAbility(abilityRequest);
+        if (useNewMission_) {
+            return kernalAbilityManager_->StartAbility(abilityRequest);
+        } else {
+            return systemAppManager_->StartAbility(abilityRequest);
+        }
     }
+
     abilityRequest.want.SetParam(StartOptions::STRING_WINDOW_MODE, startOptions.GetWindowMode());
-    return currentMissionListManager_->StartAbility(abilityRequest);
+
+    if (useNewMission_) {
+        return currentMissionListManager_->StartAbility(abilityRequest);
+    } else {
+        return currentStackManager_->StartAbility(abilityRequest);
+    }
 }
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Terminate ability for result: %{public}d", (resultWant != nullptr));
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
@@ -410,7 +436,11 @@ int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, in
         RequestPermission(resultWant);
     }
 
-    return currentMissionListManager_->TerminateAbility(abilityRecord, resultCode, resultWant);
+    if (useNewMission_) {
+        return currentMissionListManager_->TerminateAbility(abilityRecord, resultCode, resultWant);
+    } else {
+        return currentStackManager_->TerminateAbility(token, resultCode, resultWant);
+    }
 }
 
 int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode)
@@ -581,7 +611,11 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token)
         return ERR_INVALID_VALUE;
     }
 
-    return currentMissionListManager_->MinimizeAbility(token);
+    if (useNewMission_) {
+        return currentMissionListManager_->MinimizeAbility(token);
+    } else {
+        return currentStackManager_->MinimizeAbility(token);
+    }
 }
 
 int AbilityManagerService::GetRecentMissions(
@@ -739,7 +773,7 @@ int AbilityManagerService::RemoveStack(int id)
 int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability.");
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
@@ -753,7 +787,7 @@ int AbilityManagerService::ConnectAbility(
 
 int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &connect)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Disconnect ability.");
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
@@ -766,7 +800,7 @@ int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &con
 int AbilityManagerService::ConnectLocalAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin ConnectAbilityLocal", __func__);
     AbilityRequest abilityRequest;
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken);
@@ -1415,7 +1449,7 @@ int AbilityManagerService::ReleaseDataAbility(
 int AbilityManagerService::AttachAbilityThread(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
 
@@ -1435,9 +1469,17 @@ int AbilityManagerService::AttachAbilityThread(
     } else if (type == AppExecFwk::AbilityType::DATA) {
         returnCode = dataAbilityManager_->AttachAbilityThread(scheduler, token);
     } else if (IsSystemUiApp(abilityInfo)) {
-        returnCode = kernalAbilityManager_->AttachAbilityThread(scheduler, token);
+        if (useNewMission_) {
+            returnCode = kernalAbilityManager_->AttachAbilityThread(scheduler, token);
+        } else {
+            returnCode = systemAppManager_->AttachAbilityThread(scheduler, token);
+        }
     } else {
-        returnCode = currentMissionListManager_->AttachAbilityThread(scheduler, token);
+        if (useNewMission_) {
+            returnCode = currentMissionListManager_->AttachAbilityThread(scheduler, token);
+        } else {
+            returnCode = currentStackManager_->AttachAbilityThread(scheduler, token);
+        }
     }
 
     HILOG_INFO("attach ability type [%{public}d] | returnCode [%{public}d]", type, returnCode);
@@ -1467,8 +1509,14 @@ void AbilityManagerService::DumpFuncInit()
 
 void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::string> &info)
 {
-    if (currentMissionListManager_) {
-        currentMissionListManager_->Dump(info);
+    if (useNewMission_) {
+        if (currentMissionListManager_) {
+            currentMissionListManager_->Dump(info);
+        }
+    } else {
+        if (currentStackManager_) {
+            currentStackManager_->Dump(info);
+        }
     }
 }
 
@@ -1530,7 +1578,11 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
     }
     int missionId = DEFAULT_INVAL_VALUE;
     (void)StrToInt(argList[1], missionId);
-    currentMissionListManager_->DumpMission(missionId, info);
+    if (useNewMission_) {
+        currentMissionListManager_->DumpMission(missionId, info);
+    } else {
+        currentStackManager_->DumpMission(missionId, info);
+    }
 }
 
 void AbilityManagerService::DumpTopAbilityInner(const std::string &args, std::vector<std::string> &info)
@@ -1621,7 +1673,7 @@ void AbilityManagerService::DumpState(const std::string &args, std::vector<std::
 
 int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Ability transition done, state:%{public}d", state);
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
@@ -1647,17 +1699,25 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     if (type == AppExecFwk::AbilityType::DATA) {
         return dataAbilityManager_->AbilityTransitionDone(token, state);
     }
-    if (IsSystemUiApp(abilityInfo)) {
-        return kernalAbilityManager_->AbilityTransitionDone(token, state);
-    }
+    if (useNewMission_) {
+        if (IsSystemUiApp(abilityInfo)) {
+            return kernalAbilityManager_->AbilityTransitionDone(token, state);
+        }
 
-    return currentMissionListManager_->AbilityTransactionDone(token, state, saveData);
+        return currentMissionListManager_->AbilityTransactionDone(token, state, saveData);
+    } else {
+        if (IsSystemUiApp(abilityInfo)) {
+            return systemAppManager_->AbilityTransitionDone(token, state);
+        }
+
+        return currentStackManager_->AbilityTransitionDone(token, state, saveData);
+    }
 }
 
 int AbilityManagerService::ScheduleConnectAbilityDone(
     const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule connect ability done.");
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
@@ -1677,7 +1737,7 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 
 int AbilityManagerService::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject> &token)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule disconnect ability done.");
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
@@ -1697,7 +1757,7 @@ int AbilityManagerService::ScheduleDisconnectAbilityDone(const sptr<IRemoteObjec
 
 int AbilityManagerService::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule command ability done.");
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
@@ -1726,7 +1786,7 @@ void AbilityManagerService::AddWindowInfo(const sptr<IRemoteObject> &token, int3
 
 void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("On ability request done.");
     if (!VerificationToken(token)) {
         return;
@@ -1745,11 +1805,19 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             dataAbilityManager_->OnAbilityRequestDone(token, state);
             break;
         default: {
-            if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
-                kernalAbilityManager_->OnAbilityRequestDone(token, state);
-                break;
+            if (useNewMission_) {
+                if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
+                    kernalAbilityManager_->OnAbilityRequestDone(token, state);
+                    break;
+                }
+                currentMissionListManager_->OnAbilityRequestDone(token, state);
+            } else {
+                if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
+                    systemAppManager_->OnAbilityRequestDone(token, state);
+                    break;
+                }
+                currentStackManager_->OnAbilityRequestDone(token, state);
             }
-            currentMissionListManager_->OnAbilityRequestDone(token, state);
             break;
         }
     }
@@ -1760,7 +1828,11 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
     HILOG_INFO("On app state changed.");
     currentStackManager_->OnAppStateChanged(info);
     connectManager_->OnAppStateChanged(info);
-    kernalAbilityManager_->OnAppStateChanged(info);
+    if (useNewMission_) {
+        kernalAbilityManager_->OnAppStateChanged(info);
+    } else {
+        systemAppManager_->OnAppStateChanged(info);
+    }
     dataAbilityManager_->OnAppStateChanged(info);
 }
 
@@ -1908,7 +1980,7 @@ void AbilityManagerService::StartSystemUi(const std::string abilityName)
 int AbilityManagerService::GenerateAbilityRequest(
     const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     request.want = want;
     request.requestCode = requestCode;
     request.callerToken = callerToken;
@@ -1989,7 +2061,7 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
 
 int AbilityManagerService::StopServiceAbility(const Want &want)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Stop service ability.");
     AbilityRequest abilityRequest;
     int result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr);
@@ -2010,13 +2082,24 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
 {
     CHECK_POINTER(abilityRecord);
 
-    if (kernalAbilityManager_ && abilityRecord->IsKernalSystemAbility()) {
-        kernalAbilityManager_->OnAbilityDied(abilityRecord);
-        return;
-    }
+    if (useNewMission_) {
+        if (kernalAbilityManager_ && abilityRecord->IsKernalSystemAbility()) {
+            kernalAbilityManager_->OnAbilityDied(abilityRecord);
+            return;
+        }
 
-    if (currentStackManager_) {
-        currentStackManager_->OnAbilityDied(abilityRecord);
+        if (currentMissionListManager_) {
+            currentMissionListManager_->OnAbilityDied(abilityRecord);
+        }
+    } else {
+        if (systemAppManager_ && abilityRecord->IsKernalSystemAbility()) {
+            systemAppManager_->OnAbilityDied(abilityRecord);
+            return;
+        }
+
+        if (currentStackManager_) {
+            currentStackManager_->OnAbilityDied(abilityRecord);
+        }
     }
 
     if (connectManager_) {
@@ -2158,9 +2241,15 @@ bool AbilityManagerService::IsSystemUiApp(const AppExecFwk::AbilityInfo &info) c
 void AbilityManagerService::HandleLoadTimeOut(int64_t eventId)
 {
     HILOG_DEBUG("Handle load timeout.");
-    if (kernalAbilityManager_) {
-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
-    }
+    if (useNewMission_) {
+        if (kernalAbilityManager_) {
+            kernalAbilityManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+        }
+    } else {
+        if (systemAppManager_) {
+            systemAppManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+        }
+     }
     if (currentStackManager_) {
         currentStackManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
     }
@@ -2170,8 +2259,14 @@ void AbilityManagerService::HandleActiveTimeOut(int64_t eventId)
 {
     HILOG_DEBUG("Handle active timeout.");
 
-    if (kernalAbilityManager_) {
-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
+    if (useNewMission_) {
+        if (kernalAbilityManager_) {
+            kernalAbilityManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
+        }
+    } else {
+        if (systemAppManager_) {
+            systemAppManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
+        }
     }
     if (currentStackManager_) {
         currentStackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
@@ -2189,8 +2284,14 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t eventId)
 void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
 {
     HILOG_DEBUG("Handle ForegroundNew timeout.");
-    if (kernalAbilityManager_) {
-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
+    if (useNewMission_) {
+        if (kernalAbilityManager_) {
+            kernalAbilityManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
+        }
+    } else {
+        if (systemAppManager_) {
+            systemAppManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
+        }
     }
     if (currentStackManager_) {
         currentStackManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
@@ -2200,8 +2301,14 @@ void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
 void AbilityManagerService::HandleBackgroundNewTimeOut(int64_t eventId)
 {
     HILOG_DEBUG("Handle BackgroundNew timeout.");
-    if (kernalAbilityManager_) {
-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
+    if (useNewMission_) {
+        if (kernalAbilityManager_) {
+            kernalAbilityManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
+        }
+    } else {
+        if (systemAppManager_) {
+            systemAppManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
+        }
     }
     if (currentStackManager_) {
         currentStackManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
@@ -2213,16 +2320,26 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     HILOG_INFO("Verification token.");
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
     CHECK_POINTER_RETURN_BOOL(connectManager_);
-
+    CHECK_POINTER_RETURN_BOOL(currentStackManager_);
+    CHECK_POINTER_RETURN_BOOL(systemAppManager_);
     CHECK_POINTER_RETURN_BOOL(currentMissionListManager_);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
 
-    if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
-        return true;
-    }
+    if (useNewMission_) {
+        if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
+            return true;
+        }
+        if (currentMissionListManager_->GetAbilityFromTerminateList(token)) {
+            return true;
+        }
+    } else {
+        if (currentStackManager_->GetAbilityRecordByToken(token)) {
+            return true;
+        }
 
-    if (currentMissionListManager_->GetAbilityFromTerminateList(token)) {
-        return true;
+        if (currentStackManager_->GetAbilityFromTerminateList(token)) {
+            return true;
+        }
     }
 
     if (dataAbilityManager_->GetAbilityRecordByToken(token)) {
@@ -2233,8 +2350,14 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
-    if (kernalAbilityManager_->GetAbilityRecordByToken(token)) {
-        return true;
+    if (useNewMission_) {
+        if (kernalAbilityManager_->GetAbilityRecordByToken(token)) {
+            return true;
+        }
+    } else {
+        if (systemAppManager_->GetAbilityRecordByToken(token)) {
+            return true;
+        }
     }
 
     HILOG_ERROR("Failed to verify token.");
@@ -2374,6 +2497,7 @@ void AbilityManagerService::RestartAbility(const sptr<IRemoteObject> &token)
     HILOG_INFO("%{public}s called", __func__);
     CHECK_POINTER(currentStackManager_);
     CHECK_POINTER(kernalAbilityManager_);
+    CHECK_POINTER(systemAppManager_);
     if (!VerificationToken(token)) {
         return;
     }
@@ -2382,7 +2506,11 @@ void AbilityManagerService::RestartAbility(const sptr<IRemoteObject> &token)
     CHECK_POINTER(abilityRecord);
 
     if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
-        kernalAbilityManager_->RestartAbility(abilityRecord);
+        if (useNewMission_) {
+            kernalAbilityManager_->RestartAbility(abilityRecord);
+        } else {
+            systemAppManager_->RestartAbility(abilityRecord);
+        }
         return;
     }
 
