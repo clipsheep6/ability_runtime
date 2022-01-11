@@ -16,6 +16,7 @@
 #include "js_service_extension.h"
 
 #include "ability_info.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -104,9 +105,13 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
 
 void JsServiceExtension::OnStop()
 {
-    ServiceExtension::OnStop();
+    Extension::OnStop();
     HILOG_INFO("JsServiceExtension OnStop begin.");
     CallObjectMethod("onDestroy");
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
+    if (ret) {
+        HILOG_INFO("The service extension connection is not disconnected.");
+    }
     HILOG_INFO("%{public}s end.", __func__);
 }
 
