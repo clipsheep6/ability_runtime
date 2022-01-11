@@ -34,10 +34,10 @@ ohos_shared_library("ability_context_native") {
   public_configs = [ ":ability_context_public_config" ]
 
   sources = [
-    "${SO_DIR}/src/ability_connection.cpp",
     "${SO_DIR}/src/ability_context_impl.cpp",
-    "${SO_DIR}/src/connection_manager.cpp",
     "${SO_DIR}/src/js_extension_context.cpp",
+    "${SO_DIR}/src/ability_connection.cpp",
+    "${SO_DIR}/src/connection_manager.cpp",
   ]
 
   deps = [
