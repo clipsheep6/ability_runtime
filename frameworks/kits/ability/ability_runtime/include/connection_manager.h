@@ -98,7 +98,7 @@ public:
     /**
      * @brief check the ability connection of caller is disconnect.
      *
-     * @param connectCaller The connection caller.
+     * @param connectCaller The ability connection caller.
      * @return Returns whether the ability connection of caller is disconnect.
      */
     bool DisconnectCaller(const sptr<IRemoteObject> &connectCaller);
@@ -106,7 +106,7 @@ public:
     /**
      * @brief check the ability connection of receiver is disconnect.
      *
-     * @param connectReceiver The connection receiver.
+     * @param connectReceiver The ability connection receiver.
      * @return Returns whether the ability connection of receiver is disconnect.
      */
     bool DisconnectReceiver(const AppExecFwk::ElementName &connectReceiver);
