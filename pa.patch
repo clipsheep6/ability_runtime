@@ -1,0 +1,760 @@
+diff --git a/frameworks/kits/ability/native/include/ability_impl.h b/frameworks/kits/ability/native/include/ability_impl.h
+index eceba3e..c124069 100755
+--- a/frameworks/kits/ability/native/include/ability_impl.h
++++ b/frameworks/kits/ability/native/include/ability_impl.h
+@@ -46,6 +46,20 @@ public:
+         std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
+         std::shared_ptr<ContextDeal> &contextDeal);
+ 
++    /**
++      * @brief Set if use new mission.
++      *
++      * @param useNewMission new mission flag.
++      */
++     static void SetUseNewMission(bool useNewMission);
++ 
++     /**
++      * @brief Get if use new mission.
++      *
++      * @return return true if use new mission.
++      */
++     static bool IsUseNewMission();
++
+     /**
+      * @brief Connect the ability. and Calling information back to Ability.
+      *
+diff --git a/frameworks/kits/ability/native/include/page_ability_impl.h b/frameworks/kits/ability/native/include/page_ability_impl.h
+index 048fe8c..7782fbe 100644
+--- a/frameworks/kits/ability/native/include/page_ability_impl.h
++++ b/frameworks/kits/ability/native/include/page_ability_impl.h
+@@ -58,6 +58,17 @@ public:
+      */
+     bool AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+ 
++    /**
++      * @brief Handling the life cycle switching of PageAbility in switch.
++      *
++      * @param want Indicates the structure containing information about the ability.
++      * @param targetState The life cycle state to switch to.
++      *
++      * @return return true if the lifecycle transaction successfully, otherwise return false.
++      *
++      */
++     bool AbilityTransactionNew(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
++ 
+     /**
+      * @brief Execution the KeyDown callback of the ability
+      * @param keyEvent Indicates the key-down event.
+diff --git a/frameworks/kits/ability/native/src/ability.cpp b/frameworks/kits/ability/native/src/ability.cpp
+index c457361..980f7de 100644
+--- a/frameworks/kits/ability/native/src/ability.cpp
++++ b/frameworks/kits/ability/native/src/ability.cpp
+@@ -18,6 +18,7 @@
+ #include <cinttypes>
+ #include <thread>
+ 
++#include "ability_impl.h"
+ #include "ability_loader.h"
+ #include "ability_post_event_timeout.h"
+ #include "ability_runtime/js_ability.h"
+@@ -673,9 +674,15 @@ void Ability::InitWindow(Rosen::WindowType winType)
+         APP_LOGE("Ability::InitWindow abilityWindow_ is nullptr");
+         return;
+     }
+-
++    bool useNewMission = AbilityImpl::IsUseNewMission();
+     APP_LOGI("%{public}s beign abilityWindow_->InitWindow.", __func__);
+-    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
++    if (useNewMission) {
++        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
++    } else {
++        std::shared_ptr<AbilityRuntime::AbilityContext> context = nullptr;
++        sptr<Rosen::IWindowLifeCycle> listener = nullptr;
++        abilityWindow_->InitWindow(winType, context, listener);
++    }
+     APP_LOGI("%{public}s end abilityWindow_->InitWindow.", __func__);
+ }
+ 
+diff --git a/frameworks/kits/ability/native/src/ability_impl.cpp b/frameworks/kits/ability/native/src/ability_impl.cpp
+index 31af78f..7c11e44 100755
+--- a/frameworks/kits/ability/native/src/ability_impl.cpp
++++ b/frameworks/kits/ability/native/src/ability_impl.cpp
+@@ -23,6 +23,8 @@
+ namespace OHOS {
+ namespace AppExecFwk {
+ const int TARGET_VERSION_THRESHOLDS = 8;
++static bool g_useNewMission = false;
++static bool g_isMissionFlagSetted = false;
+ 
+ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
+     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
+@@ -906,5 +908,18 @@ void AbilityImpl::NotifyContinuationResult(const int32_t result)
+     }
+     ability_->OnCompleteContinuation(result);
+ }
++
++void AbilityImpl::SetUseNewMission(bool useNewMission)
++{
++    if (!g_isMissionFlagSetted) {
++        g_isMissionFlagSetted = true;
++        g_useNewMission = useNewMission;
++    }
++}
++
++bool AbilityImpl::IsUseNewMission()
++{
++    return g_useNewMission;
++}
+ }  // namespace AppExecFwk
+ }  // namespace OHOS
+diff --git a/frameworks/kits/ability/native/src/page_ability_impl.cpp b/frameworks/kits/ability/native/src/page_ability_impl.cpp
+index 6f188d8..5828ad8 100644
+--- a/frameworks/kits/ability/native/src/page_ability_impl.cpp
++++ b/frameworks/kits/ability/native/src/page_ability_impl.cpp
+@@ -28,6 +28,7 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
+  */
+ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+ {
++    AbilityImpl::SetUseNewMission(targetState.useNewMission);
+     APP_LOGI("PageAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+              "isNewWant: %{public}d",
+         lifecycleState_,
+@@ -50,12 +51,17 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
+         Inactive();
+     }
+ 
+-    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
++    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
++        targetState.state == AAFwk::ABILITY_STATE_BACKGROUND) {
+         CheckAndSave();
+     }
+ 
+     bool ret = false;
+-    ret = AbilityTransaction(want, targetState);
++    if (AbilityImpl::IsUseNewMission()) {
++        ret = AbilityTransactionNew(want, targetState);
++    } else {
++        ret = AbilityTransaction(want, targetState);
++    }
+     if (ret) {
+         APP_LOGI("AbilityThread::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
+         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
+@@ -74,6 +80,61 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
+  *
+  */
+ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
++{
++    APP_LOGI("PageAbilityImpl::AbilityTransaction begin");
++    bool ret = true;
++    switch (targetState.state) {
++        case AAFwk::ABILITY_STATE_INITIAL: {
++            if (lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) {
++                Background();
++            }
++            Stop();
++            break;
++        }
++        case AAFwk::ABILITY_STATE_INACTIVE: {
++            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
++                Foreground(want);
++            }
++            break;
++        }
++        case AAFwk::ABILITY_STATE_ACTIVE: {
++            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
++                Foreground(want);
++            }
++            if (targetState.isNewWant) {
++                NewWant(want);
++            }
++            SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
++                         targetState.caller.abilityName);
++            Active();
++            break;
++        }
++        case AAFwk::ABILITY_STATE_BACKGROUND: {
++            if (lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) {
++                Background();
++            }
++            break;
++        }
++        default: {
++            ret = false;
++            APP_LOGE("PageAbilityImpl::HandleAbilityTransaction state error");
++            break;
++        }
++    }
++    APP_LOGI("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
++    return ret;
++}
++
++/**
++ * @brief Handling the life cycle switching of PageAbility in switch.
++ *
++ * @param want Indicates the structure containing information about the ability.
++ * @param targetState The life cycle state to switch to.
++ *
++ * @return return true if the lifecycle transaction successfully, otherwise return false.
++ *
++ */
++bool PageAbilityImpl::AbilityTransactionNew(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+ {
+     APP_LOGI("PageAbilityImpl::AbilityTransaction begin");
+     bool ret = true;
+diff --git a/interfaces/innerkits/ability_manager/include/lifecycle_state_info.h b/interfaces/innerkits/ability_manager/include/lifecycle_state_info.h
+index 26c8355..df11ed7 100644
+--- a/interfaces/innerkits/ability_manager/include/lifecycle_state_info.h
++++ b/interfaces/innerkits/ability_manager/include/lifecycle_state_info.h
+@@ -53,6 +53,7 @@ struct LifeCycleStateInfo : public Parcelable {
+     CallerInfo caller;
+     std::shared_ptr<AbilityStartSetting> setting = nullptr;
+     LaunchParam launchParam;
++    bool useNewMission = false;
+ 
+     bool ReadFromParcel(Parcel &parcel);
+     virtual bool Marshalling(Parcel &parcel) const override;
+diff --git a/services/abilitymgr/include/ability_manager_service.h b/services/abilitymgr/include/ability_manager_service.h
+index f389e93..04fd7a1 100755
+--- a/services/abilitymgr/include/ability_manager_service.h
++++ b/services/abilitymgr/include/ability_manager_service.h
+@@ -886,6 +886,7 @@ private:
+     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
+ 
+     // new ams here
++    bool useNewMission_ {false};
+     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
+     std::shared_ptr<MissionListManager> currentMissionListManager_;
+     std::shared_ptr<KernalAbilityManager> kernalAbilityManager_;
+diff --git a/services/abilitymgr/include/ability_record.h b/services/abilitymgr/include/ability_record.h
+index ad725c7..985923f 100644
+--- a/services/abilitymgr/include/ability_record.h
++++ b/services/abilitymgr/include/ability_record.h
+@@ -724,6 +724,7 @@ public:
+     void NotifyContinuationResult(const int32_t result);
+     std::shared_ptr<MissionList> GetOwnedMissionList() const;
+ 
++    void SetUseNewMission();
+     void SetMission(const std::shared_ptr<Mission> &mission);
+     void SetMissionList(const std::shared_ptr<MissionList> &missionList);
+     std::shared_ptr<Mission> GetMission() const;
+diff --git a/services/abilitymgr/include/ams_configuration_parameter.h b/services/abilitymgr/include/ams_configuration_parameter.h
+index b159298..c04fee9 100644
+--- a/services/abilitymgr/include/ams_configuration_parameter.h
++++ b/services/abilitymgr/include/ams_configuration_parameter.h
+@@ -37,6 +37,7 @@ const std::string SYSTEM_CONFIGURATION {"system_configuration"};
+ const std::string SYSTEM_ORIENTATION {"system_orientation"};
+ const std::string STARTUP_CONTACTS {"startup_contacts"};
+ const std::string STARTUP_MMS {"startup_mms"};
++const std::string USE_NEW_MISSION {"use_new_mission"};
+ }  // namespace AmsConfig
+ 
+ enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
+@@ -101,6 +102,12 @@ public:
+      * Get current system direction parameters, Temporary method.
+      */
+     std::string GetOrientation() const;
++    /**
++     * check if use new mission.
++     *
++     * return true if use mission list, false if use mission stack.
++     */
++    bool IsUseNewMission() const;
+ 
+     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
+ 
+@@ -123,6 +130,7 @@ private:
+     bool canStartPhoneService_ {false};
+     bool canStartContacts {false};
+     bool canStartMms {false};
++    bool useNewMission_ {false};
+     std::string orientation_ {""};
+     int missionSaveTime_ {12 * 60 * 60 * 1000};
+     std::map<std::string, std::string> memThreshold_;
+diff --git a/services/abilitymgr/src/ability_manager_service.cpp b/services/abilitymgr/src/ability_manager_service.cpp
+index e846ed0..0f2ad5f 100644
+--- a/services/abilitymgr/src/ability_manager_service.cpp
++++ b/services/abilitymgr/src/ability_manager_service.cpp
+@@ -146,6 +146,7 @@ bool AbilityManagerService::Init()
+         amsConfigResolver_->Parse();
+         HILOG_INFO("ams config parse");
+     }
++    useNewMission_ = amsConfigResolver_->IsUseNewMission();
+ 
+     auto pendingWantManager = std::make_shared<PendingWantManager>();
+     if (!pendingWantManager) {
+@@ -268,11 +269,18 @@ int AbilityManagerService::StartAbility(
+         return connectManager_->StartAbility(abilityRequest);
+     }
+ 
+-    if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+-        return kernalAbilityManager_->StartAbility(abilityRequest);
+-    }
++    if (useNewMission_) {
++        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
++            return kernalAbilityManager_->StartAbility(abilityRequest);
++        }
++        return currentMissionListManager_->StartAbility(abilityRequest);
++    } else {
++        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
++            return systemAppManager_->StartAbility(abilityRequest);
++        }
+ 
+-    return currentMissionListManager_->StartAbility(abilityRequest);
++        return currentStackManager_->StartAbility(abilityRequest);
++    }
+ }
+ 
+ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
+@@ -318,11 +326,19 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
+         HILOG_ERROR("Only support for page type ability.");
+         return ERR_INVALID_VALUE;
+     }
+-    if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+-        return kernalAbilityManager_->StartAbility(abilityRequest);
+-    }
++    if (useNewMission_) {
++        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
++            return kernalAbilityManager_->StartAbility(abilityRequest);
++        }
++
++        return currentMissionListManager_->StartAbility(abilityRequest);
++    } else {
++        if (IsSystemUiApp(abilityRequest.abilityInfo)) {
++            return systemAppManager_->StartAbility(abilityRequest);
++        }
+ 
+-    return currentMissionListManager_->StartAbility(abilityRequest);
++        return currentStackManager_->StartAbility(abilityRequest);
++    }
+ }
+ 
+ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
+@@ -364,10 +380,20 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
+     }
+ 
+     if (IsSystemUiApp(abilityRequest.abilityInfo)) {
+-        return kernalAbilityManager_->StartAbility(abilityRequest);
++        if (useNewMission_) {
++            return kernalAbilityManager_->StartAbility(abilityRequest);
++        } else {
++            return systemAppManager_->StartAbility(abilityRequest);
++        }
+     }
++
+     abilityRequest.want.SetParam(StartOptions::STRING_WINDOW_MODE, startOptions.GetWindowMode());
+-    return currentMissionListManager_->StartAbility(abilityRequest);
++
++    if (useNewMission_) {
++        return currentMissionListManager_->StartAbility(abilityRequest);
++    } else {
++        return currentStackManager_->StartAbility(abilityRequest);
++    }
+ }
+ 
+ int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
+@@ -410,7 +436,11 @@ int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, in
+         RequestPermission(resultWant);
+     }
+ 
+-    return currentMissionListManager_->TerminateAbility(abilityRecord, resultCode, resultWant);
++    if (useNewMission_) {
++        return currentMissionListManager_->TerminateAbility(abilityRecord, resultCode, resultWant);
++    } else {
++        return currentStackManager_->TerminateAbility(token, resultCode, resultWant);
++    }
+ }
+ 
+ int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode)
+@@ -581,7 +611,11 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token)
+         return ERR_INVALID_VALUE;
+     }
+ 
+-    return currentMissionListManager_->MinimizeAbility(token);
++    if (useNewMission_) {
++        return currentMissionListManager_->MinimizeAbility(token);
++    } else {
++        return currentStackManager_->MinimizeAbility(token);
++    }
+ }
+ 
+ int AbilityManagerService::GetRecentMissions(
+@@ -1435,9 +1469,17 @@ int AbilityManagerService::AttachAbilityThread(
+     } else if (type == AppExecFwk::AbilityType::DATA) {
+         returnCode = dataAbilityManager_->AttachAbilityThread(scheduler, token);
+     } else if (IsSystemUiApp(abilityInfo)) {
+-        returnCode = kernalAbilityManager_->AttachAbilityThread(scheduler, token);
++        if (useNewMission_) {
++            returnCode = kernalAbilityManager_->AttachAbilityThread(scheduler, token);
++        } else {
++            returnCode = systemAppManager_->AttachAbilityThread(scheduler, token);
++        }
+     } else {
+-        returnCode = currentMissionListManager_->AttachAbilityThread(scheduler, token);
++        if (useNewMission_) {
++            returnCode = currentMissionListManager_->AttachAbilityThread(scheduler, token);
++        } else {
++            returnCode = currentStackManager_->AttachAbilityThread(scheduler, token);
++        }
+     }
+ 
+     HILOG_INFO("attach ability type [%{public}d] | returnCode [%{public}d]", type, returnCode);
+@@ -1467,8 +1509,14 @@ void AbilityManagerService::DumpFuncInit()
+ 
+ void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::string> &info)
+ {
+-    if (currentMissionListManager_) {
+-        currentMissionListManager_->Dump(info);
++    if (useNewMission_) {
++        if (currentMissionListManager_) {
++            currentMissionListManager_->Dump(info);
++        }
++    } else {
++        if (currentStackManager_) {
++            currentStackManager_->Dump(info);
++        }
+     }
+ }
+ 
+@@ -1530,7 +1578,11 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
+     }
+     int missionId = DEFAULT_INVAL_VALUE;
+     (void)StrToInt(argList[1], missionId);
+-    currentMissionListManager_->DumpMission(missionId, info);
++    if (useNewMission_) {
++        currentMissionListManager_->DumpMission(missionId, info);
++    } else {
++        currentStackManager_->DumpMission(missionId, info);
++    }
+ }
+ 
+ void AbilityManagerService::DumpTopAbilityInner(const std::string &args, std::vector<std::string> &info)
+@@ -1647,11 +1699,19 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
+     if (type == AppExecFwk::AbilityType::DATA) {
+         return dataAbilityManager_->AbilityTransitionDone(token, state);
+     }
+-    if (IsSystemUiApp(abilityInfo)) {
+-        return kernalAbilityManager_->AbilityTransitionDone(token, state);
+-    }
++    if (useNewMission_) {
++        if (IsSystemUiApp(abilityInfo)) {
++            return kernalAbilityManager_->AbilityTransitionDone(token, state);
++        }
++
++        return currentMissionListManager_->AbilityTransactionDone(token, state, saveData);
++    } else {
++        if (IsSystemUiApp(abilityInfo)) {
++            return systemAppManager_->AbilityTransitionDone(token, state);
++        }
+ 
+-    return currentMissionListManager_->AbilityTransactionDone(token, state, saveData);
++        return currentStackManager_->AbilityTransitionDone(token, state, saveData);
++    }
+ }
+ 
+ int AbilityManagerService::ScheduleConnectAbilityDone(
+@@ -1745,11 +1805,19 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
+             dataAbilityManager_->OnAbilityRequestDone(token, state);
+             break;
+         default: {
+-            if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
+-                kernalAbilityManager_->OnAbilityRequestDone(token, state);
+-                break;
++            if (useNewMission_) {
++                if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
++                    kernalAbilityManager_->OnAbilityRequestDone(token, state);
++                    break;
++                }
++                currentMissionListManager_->OnAbilityRequestDone(token, state);
++            } else {
++                if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
++                    systemAppManager_->OnAbilityRequestDone(token, state);
++                    break;
++                }
++                currentStackManager_->OnAbilityRequestDone(token, state);
+             }
+-            currentMissionListManager_->OnAbilityRequestDone(token, state);
+             break;
+         }
+     }
+@@ -1760,7 +1828,11 @@ void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
+     HILOG_INFO("On app state changed.");
+     currentStackManager_->OnAppStateChanged(info);
+     connectManager_->OnAppStateChanged(info);
+-    kernalAbilityManager_->OnAppStateChanged(info);
++    if (useNewMission_) {
++        kernalAbilityManager_->OnAppStateChanged(info);
++    } else {
++        systemAppManager_->OnAppStateChanged(info);
++    }
+     dataAbilityManager_->OnAppStateChanged(info);
+ }
+ 
+@@ -2010,13 +2082,24 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
+ {
+     CHECK_POINTER(abilityRecord);
+ 
+-    if (kernalAbilityManager_ && abilityRecord->IsKernalSystemAbility()) {
+-        kernalAbilityManager_->OnAbilityDied(abilityRecord);
+-        return;
+-    }
++    if (useNewMission_) {
++        if (kernalAbilityManager_ && abilityRecord->IsKernalSystemAbility()) {
++            kernalAbilityManager_->OnAbilityDied(abilityRecord);
++            return;
++        }
+ 
+-    if (currentMissionListManager_) {
+-        currentMissionListManager_->OnAbilityDied(abilityRecord);
++        if (currentMissionListManager_) {
++            currentMissionListManager_->OnAbilityDied(abilityRecord);
++        }
++    } else {
++        if (systemAppManager_ && abilityRecord->IsKernalSystemAbility()) {
++            systemAppManager_->OnAbilityDied(abilityRecord);
++            return;
++        }
++
++        if (currentStackManager_) {
++            currentStackManager_->OnAbilityDied(abilityRecord);
++        }
+     }
+ 
+     if (connectManager_) {
+@@ -2158,9 +2241,15 @@ bool AbilityManagerService::IsSystemUiApp(const AppExecFwk::AbilityInfo &info) c
+ void AbilityManagerService::HandleLoadTimeOut(int64_t eventId)
+ {
+     HILOG_DEBUG("Handle load timeout.");
+-    if (kernalAbilityManager_) {
+-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+-    }
++    if (useNewMission_) {
++        if (kernalAbilityManager_) {
++            kernalAbilityManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
++        }
++    } else {
++        if (systemAppManager_) {
++            systemAppManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
++        }
++     }
+     if (currentStackManager_) {
+         currentStackManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+     }
+@@ -2170,8 +2259,14 @@ void AbilityManagerService::HandleActiveTimeOut(int64_t eventId)
+ {
+     HILOG_DEBUG("Handle active timeout.");
+ 
+-    if (kernalAbilityManager_) {
+-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
++    if (useNewMission_) {
++        if (kernalAbilityManager_) {
++            kernalAbilityManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
++        }
++    } else {
++        if (systemAppManager_) {
++            systemAppManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
++        }
+     }
+     if (currentStackManager_) {
+         currentStackManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
+@@ -2189,8 +2284,14 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t eventId)
+ void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
+ {
+     HILOG_DEBUG("Handle ForegroundNew timeout.");
+-    if (kernalAbilityManager_) {
+-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
++    if (useNewMission_) {
++        if (kernalAbilityManager_) {
++            kernalAbilityManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
++        }
++    } else {
++        if (systemAppManager_) {
++            systemAppManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
++        }
+     }
+     if (currentStackManager_) {
+         currentStackManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
+@@ -2200,8 +2301,14 @@ void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
+ void AbilityManagerService::HandleBackgroundNewTimeOut(int64_t eventId)
+ {
+     HILOG_DEBUG("Handle BackgroundNew timeout.");
+-    if (kernalAbilityManager_) {
+-        kernalAbilityManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
++    if (useNewMission_) {
++        if (kernalAbilityManager_) {
++            kernalAbilityManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
++        }
++    } else {
++        if (systemAppManager_) {
++            systemAppManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
++        }
+     }
+     if (currentStackManager_) {
+         currentStackManager_->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
+@@ -2213,16 +2320,26 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
+     HILOG_INFO("Verification token.");
+     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
+     CHECK_POINTER_RETURN_BOOL(connectManager_);
+-
++    CHECK_POINTER_RETURN_BOOL(currentStackManager_);
++    CHECK_POINTER_RETURN_BOOL(systemAppManager_);
+     CHECK_POINTER_RETURN_BOOL(currentMissionListManager_);
+     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
+ 
+-    if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
+-        return true;
+-    }
++    if (useNewMission_) {
++        if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
++            return true;
++        }
++        if (currentMissionListManager_->GetAbilityFromTerminateList(token)) {
++            return true;
++        }
++    } else {
++        if (currentStackManager_->GetAbilityRecordByToken(token)) {
++            return true;
++        }
+ 
+-    if (currentMissionListManager_->GetAbilityFromTerminateList(token)) {
+-        return true;
++        if (currentStackManager_->GetAbilityFromTerminateList(token)) {
++            return true;
++        }
+     }
+ 
+     if (dataAbilityManager_->GetAbilityRecordByToken(token)) {
+@@ -2233,8 +2350,14 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
+         return true;
+     }
+ 
+-    if (kernalAbilityManager_->GetAbilityRecordByToken(token)) {
+-        return true;
++    if (useNewMission_) {
++        if (kernalAbilityManager_->GetAbilityRecordByToken(token)) {
++            return true;
++        }
++    } else {
++        if (systemAppManager_->GetAbilityRecordByToken(token)) {
++            return true;
++        }
+     }
+ 
+     HILOG_ERROR("Failed to verify token.");
+@@ -2374,6 +2497,7 @@ void AbilityManagerService::RestartAbility(const sptr<IRemoteObject> &token)
+     HILOG_INFO("%{public}s called", __func__);
+     CHECK_POINTER(currentStackManager_);
+     CHECK_POINTER(kernalAbilityManager_);
++    CHECK_POINTER(systemAppManager_);
+     if (!VerificationToken(token)) {
+         return;
+     }
+@@ -2382,7 +2506,11 @@ void AbilityManagerService::RestartAbility(const sptr<IRemoteObject> &token)
+     CHECK_POINTER(abilityRecord);
+ 
+     if (IsSystemUiApp(abilityRecord->GetAbilityInfo())) {
+-        kernalAbilityManager_->RestartAbility(abilityRecord);
++        if (useNewMission_) {
++            kernalAbilityManager_->RestartAbility(abilityRecord);
++        } else {
++            systemAppManager_->RestartAbility(abilityRecord);
++        }
+         return;
+     }
+ 
+diff --git a/services/abilitymgr/src/ability_record.cpp b/services/abilitymgr/src/ability_record.cpp
+index d07294c..da5cf66 100644
+--- a/services/abilitymgr/src/ability_record.cpp
++++ b/services/abilitymgr/src/ability_record.cpp
+@@ -1225,6 +1225,11 @@ void AbilityRecord::SetMissionList(const std::shared_ptr<MissionList> &missionLi
+     missionList_ = missionList;
+ }
+ 
++void AbilityRecord::SetUseNewMission()
++{
++    lifeCycleStateInfo_.useNewMission = true;
++}
++
+ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
+ {
+     if (mission) {
+diff --git a/services/abilitymgr/src/ams_configuration_parameter.cpp b/services/abilitymgr/src/ams_configuration_parameter.cpp
+index 99ec0ec..0c132a9 100644
+--- a/services/abilitymgr/src/ams_configuration_parameter.cpp
++++ b/services/abilitymgr/src/ams_configuration_parameter.cpp
+@@ -77,6 +77,11 @@ std::string AmsConfigurationParameter::GetOrientation() const
+     return orientation_;
+ }
+ 
++bool AmsConfigurationParameter::IsUseNewMission() const
++{
++    return useNewMission_;
++}
++
+ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
+ {
+     HILOG_DEBUG("%{public}s", __func__);
+@@ -137,6 +142,9 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
+         canStartContacts = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_CONTACTS).get<bool>();
+         canStartMms = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_MMS).get<bool>();
+         missionSaveTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
++        if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::USE_NEW_MISSION)) {
++            useNewMission_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::USE_NEW_MISSION).get<bool>();
++        }
+         HILOG_INFO("get ams service config succes!");
+         ret = 0;
+     }
+diff --git a/services/abilitymgr/src/kernal_ability_manager.cpp b/services/abilitymgr/src/kernal_ability_manager.cpp
+index d1dd396..6e1059d 100644
+--- a/services/abilitymgr/src/kernal_ability_manager.cpp
++++ b/services/abilitymgr/src/kernal_ability_manager.cpp
+@@ -200,6 +200,7 @@ void KernalAbilityManager::GetOrCreateAbilityRecord(
+         return;
+     }
+     targetAbility = AbilityRecord::CreateAbilityRecord(abilityRequest);
++    targetAbility->SetUseNewMission();
+     abilities_.push_front(targetAbility);
+ }
+ 
+diff --git a/services/abilitymgr/src/lifecycle_state_info.cpp b/services/abilitymgr/src/lifecycle_state_info.cpp
+index 1070cb1..62df134 100644
+--- a/services/abilitymgr/src/lifecycle_state_info.cpp
++++ b/services/abilitymgr/src/lifecycle_state_info.cpp
+@@ -43,6 +43,7 @@ bool LifeCycleStateInfo::ReadFromParcel(Parcel &parcel)
+         return false;
+     }
+     launchParam = *launchInfo;
++    useNewMission = parcel.ReadBool();
+     return true;
+ }
+ 
+@@ -90,6 +91,10 @@ bool LifeCycleStateInfo::Marshalling(Parcel &parcel) const
+     if (!parcel.WriteParcelable(&launchParam)) {
+         return false;
+     }
++    // write useNewMission
++    if (!parcel.WriteBool(useNewMission)) {
++        return false;
++    }
+     return true;
+ }
+ }  // namespace AAFwk
+diff --git a/services/abilitymgr/src/mission_list_manager.cpp b/services/abilitymgr/src/mission_list_manager.cpp
+index 266e515..65e8663 100644
+--- a/services/abilitymgr/src/mission_list_manager.cpp
++++ b/services/abilitymgr/src/mission_list_manager.cpp
+@@ -290,6 +290,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
+     }
+     targetRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+     targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord, missionName);
++    targetRecord->SetUseNewMission();
+     targetRecord->SetMission(targetMission);
+ 
+     if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+@@ -1215,6 +1216,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
+     }
+ 
+     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
++    abilityRecord->SetUseNewMission();
+     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
+     abilityRecord->SetMission(mission);
+     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();

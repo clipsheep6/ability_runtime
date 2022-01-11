@@ -18,6 +18,7 @@
 #include <cinttypes>
 #include <thread>
 
+#include "ability_impl.h"
 #include "ability_loader.h"
 #include "ability_post_event_timeout.h"
 #include "ability_runtime/js_ability.h"
@@ -169,7 +170,7 @@ std::shared_ptr<Global::Resource::ResourceManager> Ability::GetResourceManager()
  */
 void Ability::OnStart(const Want &want)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::OnStart falied abilityInfo_ is nullptr.");
@@ -244,7 +245,7 @@ void Ability::OnStart(const Want &want)
  */
 void Ability::OnStop()
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (scene_ != nullptr) {
         scene_ = nullptr;
@@ -284,7 +285,7 @@ void Ability::OnStop()
  */
 void Ability::OnActive()
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityWindow_ != nullptr) {
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityActive.", __func__);
@@ -314,7 +315,7 @@ void Ability::OnActive()
  */
 void Ability::OnInactive()
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityInactive.", __func__);
@@ -378,7 +379,7 @@ void Ability::onSceneDestroyed()
  */
 void Ability::OnForeground(const Want &want)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
@@ -427,7 +428,7 @@ void Ability::NotityContinuationResult(const Want& want, bool success)
  */
 void Ability::OnBackground()
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         APP_LOGI("%{public}s begin OnPostAbilityBackground.", __func__);
@@ -476,7 +477,7 @@ void Ability::OnBackground()
  */
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityLifecycleExecutor_ == nullptr) {
         APP_LOGE("Ability::OnConnect error. abilityLifecycleExecutor_ == nullptr.");
@@ -501,7 +502,7 @@ sptr<IRemoteObject> Ability::OnConnect(const Want &want)
  */
 void Ability::OnDisconnect(const Want &want)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 }
 
 /**
@@ -673,9 +674,15 @@ void Ability::InitWindow(Rosen::WindowType winType)
         APP_LOGE("Ability::InitWindow abilityWindow_ is nullptr");
         return;
     }
-
+    bool useNewMission = AbilityImpl::IsUseNewMission();
     APP_LOGI("%{public}s beign abilityWindow_->InitWindow.", __func__);
-    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
+    if (useNewMission) {
+        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
+    } else {
+        std::shared_ptr<AbilityRuntime::AbilityContext> context = nullptr;
+        sptr<Rosen::IWindowLifeCycle> listener = nullptr;
+        abilityWindow_->InitWindow(winType, context, listener);
+    }
     APP_LOGI("%{public}s end abilityWindow_->InitWindow.", __func__);
 }
 
@@ -1140,7 +1147,7 @@ void Ability::SetVolumeTypeAdjustedByKey(int volumeType)
  */
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin restart=%{public}s,startId=%{public}d.", __func__, restart ? "true" : "false", startId);
     if (abilityLifecycleExecutor_ == nullptr) {
         APP_LOGE("Ability::OnCommand error. abilityLifecycleExecutor_ == nullptr.");
