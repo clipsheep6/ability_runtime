@@ -428,7 +428,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
 
     if ((!abilityRecord->IsAbilityState(AbilityState::INACTIVE)) &&
         (!abilityRecord->IsAbilityState(AbilityState::ACTIVE))) {
-        HILOG_ERROR("Ability record state is not inactive ,state：%{public}d", abilityRecord->GetAbilityState());
+        HILOG_ERROR("Ability record state is not inactive ,state锛?{public}d", abilityRecord->GetAbilityState());
         return INVALID_CONNECTION_STATE;
     }
 
@@ -456,7 +456,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
     CHECK_POINTER_AND_RETURN(connect, CONNECTION_NOT_EXIST);
 
     if (!abilityRecord->IsAbilityState(AbilityState::ACTIVE)) {
-        HILOG_ERROR("The service ability state is not active ,state：%{public}d", abilityRecord->GetAbilityState());
+        HILOG_ERROR("The service ability state is not active ,state锛?{public}d", abilityRecord->GetAbilityState());
         return INVALID_CONNECTION_STATE;
     }
 
@@ -494,7 +494,7 @@ int AbilityConnectManager::ScheduleCommandAbilityDoneLocked(const sptr<IRemoteOb
 
     if ((!abilityRecord->IsAbilityState(AbilityState::INACTIVE)) &&
         (!abilityRecord->IsAbilityState(AbilityState::ACTIVE))) {
-        HILOG_ERROR("Ability record state is not inactive ,state：%{public}d", abilityRecord->GetAbilityState());
+        HILOG_ERROR("Ability record state is not inactive ,state锛?{public}d", abilityRecord->GetAbilityState());
         return INVALID_CONNECTION_STATE;
     }
     // complete command and pop waiting start ability from queue.
@@ -660,7 +660,7 @@ void AbilityConnectManager::HandleDisconnectTask(const ConnectListType &connectl
         if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED &&
             targetService->GetConnectRecordList().size() > 1) {
             HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
-            connectRecord->CompleteDisconnect(ERR_OK);
+            connectRecord->CompleteDisconnect(ERR_OK, false);
             targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
@@ -907,7 +907,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(const std::shared_ptr<AbilityR
     ConnectListType connlist = abilityRecord->GetConnectRecordList();
     for (auto &connectRecord : connlist) {
         HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
-        connectRecord->CompleteDisconnect(ERR_OK);
+        connectRecord->CompleteDisconnect(ERR_OK, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
