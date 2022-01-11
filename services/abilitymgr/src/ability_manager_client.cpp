@@ -753,6 +753,11 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId)
     return abms->MoveMissionToFront(missionId);
 }
 
+ErrCode AbilityManagerClient::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
+{
+    return ERR_OK;
+}
+
 /**
  * Start synchronizing remote device mission
  * @param devId, deviceId.
