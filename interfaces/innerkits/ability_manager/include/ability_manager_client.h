@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "snapshot.h"
 #include "want.h"
 
 #include "iremote_object.h"
@@ -590,6 +591,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MoveMissionToFront(int32_t missionId);
+
+    /**
+     * @brief Register snapshot handler.
+     * @param handler snapshot handler.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
     /**
      * Start synchronizing remote device mission
