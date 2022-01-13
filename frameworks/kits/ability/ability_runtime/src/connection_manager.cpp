@@ -65,17 +65,13 @@ ErrCode ConnectionManager::ConnectAbility(const sptr<IRemoteObject> &connectCall
         }
     } else {
         abilityConnection = new AbilityConnection(connectCallback);
-        ErrCode ret =
-            AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, abilityConnection, connectCaller);
-        if (ret == ERR_OK) {
-            ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
-            std::vector<std::shared_ptr<AbilityConnectCallback>> callbacks;
-            callbacks.push_back(connectCallback);
-            abilityConnections_[connectionInfo] = callbacks;
-        }
+        ConnectionInfo connectionInfo(connectCaller, connectReceiver, abilityConnection);
+        std::vector<std::shared_ptr<AbilityConnectCallback>> callbacks;
+        callbacks.push_back(connectCallback);
+        abilityConnections_[connectionInfo] = callbacks;
         HILOG_DEBUG("%{public}s end, not find connection, connection: %{public}p, abilityConnectionsSize:%{public}d.",
-            __func__, abilityConnection.GetRefPtr(), abilityConnections_.size());
-        return ret;
+            __func__, abilityConnection.GetRefPtr(), (int32_t)abilityConnections_.size());
+        return AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, abilityConnection, connectCaller);;
     }
 }
 
