@@ -34,7 +34,6 @@ void AbilityConnection::OnAbilityConnectDone(
     }
     SetRemoteObject(remoteObject);
     SetResultCode(resultCode);
-    abilityConnectCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
     HILOG_DEBUG("%{public}s end, remoteObject:%{public}p, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, remoteObject.GetRefPtr(), element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
@@ -51,9 +50,6 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &e
         if (ret) {
             HILOG_INFO("The service connection is not disconnected.");
         }
-        abilityConnectCallback_->OnAbilityDisconnectDone(element, DIED + 1);
-    } else {
-        abilityConnectCallback_->OnAbilityDisconnectDone(element, resultCode);
     }
     HILOG_DEBUG("%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
