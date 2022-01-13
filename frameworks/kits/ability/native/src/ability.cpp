@@ -267,11 +267,6 @@ void Ability::OnStop()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
-
-    bool ret = AbilityRuntime::ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
-    if (ret) {
-        APP_LOGI("The service connection is not disconnected.");
-    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -1617,6 +1612,29 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
     std::weak_ptr<IContinuationRegisterManager> continuationRegisterManager =
         std::weak_ptr<IContinuationRegisterManager>(continuationRegisterManager_);
     return continuationRegisterManager;
+}
+
+/**
+ * @brief Callback function to ask the user to prepare for the migration .
+ *
+ * @return If the user allows migration and saves data suscessfully, it returns true; otherwise, it returns false.
+ */
+bool Ability::OnContinue(WantParams &wantParams)
+{
+    return false;
+}
+
+/**
+ * @brief Get page ability stack info.
+ *
+ * @return A string represents page ability stack info, empty if failed;
+ */
+const std::string& Ability::GetContentInfo()
+{
+    if (scene_ == nullptr) {
+        return "";
+    }
+    return scene_->GetContentInfo();
 }
 
 /**

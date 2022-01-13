@@ -18,6 +18,7 @@
 #include "ability_runtime/js_ability_context.h"
 #include "ability_runtime/js_window_stage.h"
 #include "ability_start_setting.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -116,6 +117,10 @@ void JsAbility::OnStop()
     Ability::OnStop();
 
     CallObjectMethod("onDestroy");
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
+    if (ret) {
+        HILOG_INFO("The service connection is not disconnected.");
+    }
 }
 
 void JsAbility::OnSceneCreated()
@@ -178,6 +183,40 @@ void JsAbility::OnBackground()
     Ability::OnBackground();
 
     CallObjectMethod("onBackground");
+}
+
+bool JsAbility::OnContinue(WantParams &wantParams)
+{
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get Ability object");
+        return false;
+    }
+
+    NativeValue* methodOnCreate = obj->GetProperty("onContinue");
+    if (methodOnCreate == nullptr) {
+        HILOG_ERROR("Failed to get 'onContinue' from Ability object");
+        return false;
+    }
+
+    napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
+    NativeValue* jsWantParams = reinterpret_cast<NativeValue*>(napiWantParams);
+
+    NativeValue* result = nativeEngine.CallFunction(value, methodOnCreate, &jsWantParams, 1);
+
+    napi_value new_napiWantParams = reinterpret_cast<napi_value>(jsWantParams);
+    OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), new_napiWantParams, wantParams);
+
+    NativeBoolean* boolResult = ConvertNativeValueTo<NativeBoolean>(result);
+    if (boolResult == nullptr) {
+        return false;
+    }
+
+    return *boolResult;
 }
 
 void JsAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
