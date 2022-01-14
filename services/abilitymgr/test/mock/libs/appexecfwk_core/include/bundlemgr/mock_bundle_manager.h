@@ -143,8 +143,7 @@ public:
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
 
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
     virtual bool CheckIsSystemAppByUid(const int uid) override;
     MOCK_METHOD3(GetApplicationInfos,
         bool(const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos));
@@ -228,8 +227,7 @@ public:
     bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
 
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
     MOCK_METHOD2(QueryWantAbility, int(const AAFwk::Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD3(GetApplicationInfos,
         bool(const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos));
@@ -314,12 +312,6 @@ public:
         return true;
     }
     virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool GetDistributedBundleInfo(
-        const std::string &networkId, int32_t userId, const std::string &bundleName,
-        DistributedBundleInfo &distributedBundleInfo) override
     {
         return true;
     }

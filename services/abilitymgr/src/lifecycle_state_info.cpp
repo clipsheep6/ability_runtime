@@ -43,7 +43,6 @@ bool LifeCycleStateInfo::ReadFromParcel(Parcel &parcel)
         return false;
     }
     launchParam = *launchInfo;
-    useNewMission = parcel.ReadBool();
     return true;
 }
 
@@ -89,10 +88,6 @@ bool LifeCycleStateInfo::Marshalling(Parcel &parcel) const
     }
     // write launch param
     if (!parcel.WriteParcelable(&launchParam)) {
-        return false;
-    }
-    // write useNewMission
-    if (!parcel.WriteBool(useNewMission)) {
         return false;
     }
     return true;

@@ -194,10 +194,6 @@ napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     auto syncContext = new SyncRemoteMissionsContext();
-    if (syncContext == nullptr) {
-        HILOG_ERROR("%{public}s, syncContext is nullptr.", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
-    }
     if (!ProcessSyncInput(env, info, true, syncContext)) {
         delete syncContext;
         syncContext = nullptr;
@@ -270,10 +266,6 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     auto syncContext = new SyncRemoteMissionsContext();
-    if (syncContext == nullptr) {
-        HILOG_ERROR("%{public}s, syncContext is nullptr.", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
-    }
     if (!ProcessSyncInput(env, info, false, syncContext)) {
         delete syncContext;
         syncContext = nullptr;
@@ -315,6 +307,12 @@ void RegisterMissonExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     auto registerMissonCB = (RegisterMissonCB*)data;
+    if (registerMissonCB == nullptr) {
+        HILOG_ERROR("%{public}s registerMissonCB == nullptr.", __func__);
+        registerMissonCB->result = -1;
+        return;
+    }
+    HILOG_INFO("create registerMissonCB success.");
 
     std::lock_guard<std::mutex> autoLock(registrationLock_);
     sptr<NAPIRemoteMissionListener> registration;
@@ -553,15 +551,17 @@ napi_value NAPI_RegisterMissionListener(napi_env env, napi_callback_info info)
     RegisterMissonCB *registerMissonCB = CreateRegisterMissonCBCBInfo(env);
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s registerMissonCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        return nullptr;
     }
 
     napi_value ret = RegisterMissonWrap(env, info, registerMissonCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
-        delete registerMissonCB;
-        registerMissonCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        if (registerMissonCB != nullptr) {
+            delete registerMissonCB;
+            registerMissonCB = nullptr;
+        }
+        NAPI_ASSERT(env, ret == nullptr, "wrong arguments");
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -602,7 +602,6 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
     RegisterMissonCB *registerMissonCB = static_cast<RegisterMissonCB *>(work->data);
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("UvWorkNotifyMissionChanged, registerMissonCB is null");
-        delete work;
         return;
     }
     napi_value result = nullptr;
@@ -620,9 +619,14 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
     if (registerMissonCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->cbBase.cbInfo.callback);
     }
-    delete registerMissonCB;
-    registerMissonCB = nullptr;
-    delete work;
+    if (registerMissonCB != nullptr) {
+        delete registerMissonCB;
+        registerMissonCB = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
     HILOG_INFO("UvWorkNotifyMissionChanged, uv_queue_work end");
 }
 
@@ -646,7 +650,10 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     auto registerMissonCB = new (std::nothrow) RegisterMissonCB;
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s, registerMissonCB == nullptr.", __func__);
-        delete work;
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
         return;
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
@@ -657,9 +664,14 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyMissionChanged);
     if (rev != 0) {
-        delete registerMissonCB;
-        registerMissonCB = nullptr;
-        delete work;
+        if (registerMissonCB != nullptr) {
+            delete registerMissonCB;
+            registerMissonCB = nullptr;
+        }
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
     }
     HILOG_INFO("%{public}s, end.", __func__);
 }
@@ -674,7 +686,6 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
     RegisterMissonCB *registerMissonCB = static_cast<RegisterMissonCB *>(work->data);
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("UvWorkNotifySnapshot, registerMissonCB is null");
-        delete work;
         return;
     }
     napi_value result[2] = {0};
@@ -695,9 +706,14 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
     if (registerMissonCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->cbBase.cbInfo.callback);
     }
-    delete registerMissonCB;
-    registerMissonCB = nullptr;
-    delete work;
+    if (registerMissonCB != nullptr) {
+        delete registerMissonCB;
+        registerMissonCB = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
     HILOG_INFO("UvWorkNotifySnapshot, uv_queue_work end");
 }
 
@@ -721,7 +737,10 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     auto registerMissonCB = new (std::nothrow) RegisterMissonCB;
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s, registerMissonCB == nullptr.", __func__);
-        delete work;
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
         return;
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
@@ -733,9 +752,14 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifySnapshot);
     if (rev != 0) {
-        delete registerMissonCB;
-        registerMissonCB = nullptr;
-        delete work;
+        if (registerMissonCB != nullptr) {
+            delete registerMissonCB;
+            registerMissonCB = nullptr;
+        }
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
     }
     HILOG_INFO("%{public}s, end.", __func__);
 }
@@ -750,7 +774,6 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
     RegisterMissonCB *registerMissonCB = static_cast<RegisterMissonCB *>(work->data);
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("UvWorkNotifyNetDisconnect, registerMissonCB is null");
-        delete work;
         return;
     }
     napi_value result[2] = {0};
@@ -771,9 +794,14 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
     if (registerMissonCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->cbBase.cbInfo.callback);
     }
-    delete registerMissonCB;
-    registerMissonCB = nullptr;
-    delete work;
+    if (registerMissonCB != nullptr) {
+        delete registerMissonCB;
+        registerMissonCB = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
     HILOG_INFO("UvWorkNotifyNetDisconnect, uv_queue_work end");
 }
 
@@ -798,7 +826,10 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
     auto registerMissonCB = new (std::nothrow) RegisterMissonCB;
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s, registerMissonCB == nullptr.", __func__);
-        delete work;
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
         return;
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
@@ -810,9 +841,14 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkNotifyNetDisconnect);
     if (rev != 0) {
-        delete registerMissonCB;
-        registerMissonCB = nullptr;
-        delete work;
+        if (registerMissonCB != nullptr) {
+            delete registerMissonCB;
+            registerMissonCB = nullptr;
+        }
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
     }
     HILOG_INFO("%{public}s, end.", __func__);
 }
@@ -821,6 +857,11 @@ void UnRegisterMissonExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     auto registerMissonCB = (RegisterMissonCB*)data;
+    if (registerMissonCB == nullptr) {
+        HILOG_ERROR("%{public}s registerMissonCB == nullptr.", __func__);
+        registerMissonCB->result = -1;
+        return;
+    }
 
     std::lock_guard<std::mutex> autoLock(registrationLock_);
     sptr<NAPIRemoteMissionListener> registration;
@@ -982,15 +1023,17 @@ napi_value NAPI_UnRegisterMissionListener(napi_env env, napi_callback_info info)
     RegisterMissonCB *registerMissonCB = CreateRegisterMissonCBCBInfo(env);
     if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s registerMissonCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        return nullptr;
     }
 
     napi_value ret = UnRegisterMissonWrap(env, info, registerMissonCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
-        delete registerMissonCB;
-        registerMissonCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        if (registerMissonCB != nullptr) {
+            delete registerMissonCB;
+            registerMissonCB = nullptr;
+        }
+        NAPI_ASSERT(env, ret == nullptr, "wrong arguments");
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -1046,6 +1089,10 @@ void ContinueAbilityExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("%{public}s called.", __func__);
     auto continueAbilityCB = static_cast<ContinueAbilityCB *>(data);
+    if (continueAbilityCB == nullptr) {
+        HILOG_ERROR("%{public}s continueAbilityCB == nullptr.", __func__);
+        return;
+    }
     HILOG_INFO("create continueAbilityCB success.");
     sptr<NAPIMissionContinue> continuation(new (std::nothrow) NAPIMissionContinue());
     continueAbilityCB->abilityContinuation = continuation;
@@ -1279,15 +1326,17 @@ napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
     ContinueAbilityCB *continueAbilityCB = CreateContinueAbilityCBCBInfo(env);
     if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s continueAbilityCB == nullptr", __func__);
-        NAPI_ASSERT(env, false, "wrong arguments");
+        return nullptr;
     }
 
     napi_value ret = ContinueAbilityWrap(env, info, continueAbilityCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
-        delete continueAbilityCB;
-        continueAbilityCB = nullptr;
-        NAPI_ASSERT(env, false, "wrong arguments");
+        if (continueAbilityCB != nullptr) {
+            delete continueAbilityCB;
+            continueAbilityCB = nullptr;
+        }
+        NAPI_ASSERT(env, ret == nullptr, "wrong arguments");
     }
     HILOG_INFO("%{public}s end.", __func__);
     return ret;
@@ -1303,7 +1352,6 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
     ContinueAbilityCB *continueAbilityCB = static_cast<ContinueAbilityCB *>(work->data);
     if (continueAbilityCB == nullptr) {
         HILOG_ERROR("UvWorkOnCountinueDone, continueAbilityCB is null");
-        delete work;
         return;
     }
     napi_value result = nullptr;
@@ -1322,9 +1370,14 @@ void UvWorkOnContinueDone(uv_work_t *work, int status)
     if (continueAbilityCB->cbBase.cbInfo.callback != nullptr) {
         napi_delete_reference(continueAbilityCB->cbBase.cbInfo.env, continueAbilityCB->cbBase.cbInfo.callback);
     }
-    delete continueAbilityCB;
-    continueAbilityCB = nullptr;
-    delete work;
+    if (continueAbilityCB != nullptr) {
+        delete continueAbilityCB;
+        continueAbilityCB = nullptr;
+    }
+    if (work != nullptr) {
+        delete work;
+        work = nullptr;
+    }
     HILOG_INFO("UvWorkOnCountinueDone, uv_queue_work end");
 }
 
@@ -1348,7 +1401,10 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
     auto continueAbilityCB = new (std::nothrow) ContinueAbilityCB;
     if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s, continueAbilityCB == nullptr.", __func__);
-        delete work;
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
         return;
     }
     continueAbilityCB->cbBase.cbInfo.env = env_;
@@ -1359,9 +1415,14 @@ void NAPIMissionContinue::OnContinueDone(int32_t result)
     int rev = uv_queue_work(
         loop, work, [](uv_work_t *work) {}, UvWorkOnContinueDone);
     if (rev != 0) {
-        delete continueAbilityCB;
-        continueAbilityCB = nullptr;
-        delete work;
+        if (continueAbilityCB != nullptr) {
+            delete continueAbilityCB;
+            continueAbilityCB = nullptr;
+        }
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
     }
     HILOG_INFO("%{public}s, end.", __func__);
 }

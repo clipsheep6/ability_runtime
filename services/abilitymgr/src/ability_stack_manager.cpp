@@ -125,7 +125,7 @@ int AbilityStackManager::StartAbility(const AbilityRequest &abilityRequest)
 int AbilityStackManager::StartAbilityLocked(
     const std::shared_ptr<AbilityRecord> &currentTopAbility, const AbilityRequest &abilityRequest)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     // lock screen state
     if (IsLockScreenState()) {
         HILOG_DEBUG("Start ability with white list ...");
@@ -200,7 +200,7 @@ int AbilityStackManager::StartAbilityAsDefaultLocked(
 int AbilityStackManager::StartAbilityLifeCycle(std::shared_ptr<AbilityRecord> lastTopAbility,
     std::shared_ptr<AbilityRecord> currentTopAbility, std::shared_ptr<AbilityRecord> targetAbility)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     CHECK_POINTER_AND_RETURN(targetAbility, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(currentTopAbility, ERR_INVALID_VALUE);
     enum ChangeType { T_ACTIVE = 0, T_CHANGE, T_DEFAULT } changeType;
@@ -310,7 +310,7 @@ int AbilityStackManager::GetTargetChangeType(bool isMissionChanged, bool isStack
 int AbilityStackManager::StartAbilityAsMultiWindowLocked(
     const std::shared_ptr<AbilityRecord> &currentTopAbility, const AbilityRequest &abilityRequest)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Start ability as special locked.");
 
     CHECK_POINTER_AND_RETURN(currentTopAbility, INNER_ERR);
@@ -397,7 +397,7 @@ int AbilityStackManager::StartAbilityAsMultiWindowLocked(
 int AbilityStackManager::StartAbilityByAllowListLocked(
     const std::shared_ptr<AbilityRecord> &currentTopAbility, const AbilityRequest &abilityRequest)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Start ability as allow list locked.");
     // 1. lockscreen stack is target mission stack
     std::shared_ptr<MissionStack> targetStack = GetTargetMissionStack(abilityRequest);
@@ -453,7 +453,7 @@ void AbilityStackManager::SortPreMission(
 void AbilityStackManager::MoveMissionAndAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
     std::shared_ptr<AbilityRecord> &targetAbilityRecord, std::shared_ptr<MissionRecord> &targetMissionRecord)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("Move mission and ability.");
     CHECK_POINTER(targetAbilityRecord);
     CHECK_POINTER(targetMissionRecord);
@@ -1411,8 +1411,14 @@ void AbilityStackManager::OnAppStateChanged(const AppInfo &info)
             if (!ability) {
                 continue;
             }
-            if (ability->GetApplicationInfo().name == info.appName &&
-                (info.processName == ability->GetAbilityInfo().process ||
+            auto appName = ability->GetApplicationInfo().name;
+            auto uid = ability->GetAbilityInfo().applicationInfo.uid;
+            auto isExist = [&appName, &uid](const AppData &appData) {
+                return appData.appName == appName && appData.uid == uid;
+            };
+            auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+
+            if (iter != info.appData.end() && (info.processName == ability->GetAbilityInfo().process ||
                 info.processName == ability->GetApplicationInfo().bundleName)) {
                 ability->SetAppState(info.state);
             }
@@ -1436,7 +1442,14 @@ void AbilityStackManager::OnAppStateChanged(const AppInfo &info)
                         continue;
                     }
 
-                    if (ability->GetApplicationInfo().name == info.appName &&
+                    auto appName = ability->GetApplicationInfo().name;
+                    auto uid = ability->GetAbilityInfo().applicationInfo.uid;
+                    auto isExist = [&appName, &uid](const AppData &appData) {
+                        return appData.appName == appName && appData.uid == uid;
+                    };
+                    auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+
+                    if (iter != info.appData.end() &&
                         (info.processName == ability->GetAbilityInfo().process ||
                         info.processName == ability->GetApplicationInfo().bundleName)) {
                         ability->SetAppState(info.state);

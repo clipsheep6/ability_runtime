@@ -18,7 +18,6 @@
 #include "ability_runtime/js_ability_context.h"
 #include "ability_runtime/js_window_stage.h"
 #include "ability_start_setting.h"
-#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -78,20 +77,6 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
 
     context->Bind(jsRuntime_, shellContextRef.release());
     obj->SetProperty("context", contextObj);
-
-    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get ability native object");
-        return;
-    }
-
-    HILOG_INFO("Set ability context pointer: %{public}p", context.get());
-
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
-        [](NativeEngine*, void* data, void*) {
-            HILOG_INFO("Finalizer for weak_ptr ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
-        }, nullptr);
 }
 
 void JsAbility::OnStart(const Want &want)
@@ -131,10 +116,6 @@ void JsAbility::OnStop()
     Ability::OnStop();
 
     CallObjectMethod("onDestroy");
-    bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
-    if (ret) {
-        HILOG_INFO("The service connection is not disconnected.");
-    }
 }
 
 void JsAbility::OnSceneCreated()

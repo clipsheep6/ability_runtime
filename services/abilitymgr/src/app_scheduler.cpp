@@ -35,11 +35,6 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     CHECK_POINTER_RETURN_BOOL(callback.lock());
     CHECK_POINTER_RETURN_BOOL(appMgrClient_);
 
-    std::lock_guard<std::recursive_mutex> guard(lock_);
-    if (isInit_) {
-        return true;
-    }
-
     callback_ = callback;
     /* because the errcode type of AppMgr Client API will be changed to int,
      * so must to covert the return result  */
@@ -55,13 +50,13 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
         return false;
     }
     HILOG_INFO("success to ConnectAppMgrService");
-    isInit_ = true;
     return true;
 }
 
 int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo)
 {
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Load ability.");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
@@ -76,7 +71,7 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
 
 int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Terminate ability.");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
@@ -91,7 +86,7 @@ int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
 
 void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Move to forground.");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND);
@@ -99,7 +94,7 @@ void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
 
 void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_DEBUG("Move to background.");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateAbilityState(token, AppExecFwk::AbilityState::ABILITY_STATE_BACKGROUND);
@@ -118,7 +113,6 @@ void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const 
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateExtensionState(token, state);
 }
-
 
 void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
@@ -157,7 +151,7 @@ AppAbilityState AppScheduler::GetAbilityState() const
 
 void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("On ability request done, state:%{public}d", static_cast<int32_t>(state));
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
@@ -215,13 +209,17 @@ int AppScheduler::CompelVerifyPermission(const std::string &permission, int pid,
 
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
     AppInfo info;
-    info.appName = appData.appName;
+    for (const auto &list : appData.appDatas) {
+        AppData data;
+        data.appName = list.appName;
+        data.uid = list.uid;
+        info.appData.push_back(data);
+    }
     info.processName = appData.processName;
-    info.uid = appData.uid;
     info.state = static_cast<AppState>(appData.appState);
     callback->OnAppStateChanged(info);
 }

@@ -135,10 +135,8 @@ public:
      * @brief Destroys this Page or Service ability.
      * After a Page or Service ability performs all operations, it can use this method to destroy itself
      * to free up memory. This method can be called only after the ability is initialized.
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual ErrCode TerminateAbility() final;
+    virtual void TerminateAbility() final;
 
     /**
      * @brief Obtains the Lifecycle object of the current ability.
@@ -174,10 +172,8 @@ public:
      *
      * @param want information of other ability
      * @param requestCode request code for abilityMS to return result
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual ErrCode StartAbilityForResult(const Want &want, int requestCode) final;
+    virtual void StartAbilityForResult(const Want &want, int requestCode) final;
 
     /**
      * Starts an ability with specific start settings and returns the execution result when the ability is destroyed.
@@ -189,10 +185,8 @@ public:
      * @param requestCode Indicates the request code returned after the ability is started. You can define the request
      * code to identify the results returned by abilities. The value ranges from 0 to 65535.
      * @param abilityStartSetting Indicates the setting ability used to start.
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual ErrCode StartAbilityForResult(
+    virtual void StartAbilityForResult(
         const Want &want, int requestCode, AbilityStartSetting abilityStartSetting) final;
 
     /**
@@ -204,10 +198,8 @@ public:
      *
      * @param want Indicates the ability to start.
      * @param abilityStartSetting Indicates the setting ability used to start.
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const Want &want, AbilityStartSetting abilityStartSetting);
+    void StartAbility(const Want &want, AbilityStartSetting abilityStartSetting);
 
     // lifecycle callback
     virtual void Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
@@ -854,11 +846,9 @@ public:
      * the ability to start using the intent parameter.
      *
      * @param intent Indicates the ability to start.
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
     using AbilityContext::StartAbility;
-    virtual ErrCode StartAbility(const Want &want) final;
+    virtual void StartAbility(const Want &want) final;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
@@ -876,10 +866,8 @@ public:
      *
      * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
      *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
-     *
-     * @return errCode ERR_OK on success, others on failure.
      */
-    ErrCode DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
+    void DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
 
     /**
      * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
@@ -1464,7 +1452,7 @@ private:
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
-
+    
     bool bWindowFocus_ = false;
     int compatibleVersion_ = 0;
 
@@ -1496,6 +1484,7 @@ private:
     static const int32_t RELEASE_FORM = 8;
     static const int32_t RELEASE_CACHED_FORM = 9;
     static const int64_t MIN_NEXT_TIME = 5;
+    static const std::map<int32_t, Rosen::WindowMode> convertWindowModeMap_;
 
 private:
     /**

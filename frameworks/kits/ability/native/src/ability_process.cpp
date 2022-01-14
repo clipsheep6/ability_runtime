@@ -49,23 +49,21 @@ AbilityProcess::AbilityProcess()
 AbilityProcess::~AbilityProcess()
 {}
 
-ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
+void AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
 {
     APP_LOGI("AbilityProcess::StartAbility begin");
     if (ability == nullptr) {
         APP_LOGE("AbilityProcess::StartAbility ability is nullptr");
-        return ERR_NULL_OBJECT;
+        return;
     }
-
-    ErrCode err = ERR_OK;
 
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
             APP_LOGI("%{public}s param.setting == nullptr call StartAbilityForResult.", __func__);
-            err = ability->StartAbilityForResult(param.want, param.requestCode);
+            ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
             APP_LOGI("%{public}s param.setting != nullptr call StartAbilityForResult.", __func__);
-            err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
+            ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
         std::lock_guard<std::mutex> lock_l(mutex_);
@@ -84,14 +82,13 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     } else {
         if (param.setting == nullptr) {
             APP_LOGI("%{public}s param.setting == nullptr call StartAbility.", __func__);
-            err = ability->StartAbility(param.want);
+            ability->StartAbility(param.want);
         } else {
             APP_LOGI("%{public}s param.setting != nullptr call StartAbility.", __func__);
-            err = ability->StartAbility(param.want, *(param.setting));
+            ability->StartAbility(param.want, *(param.setting));
         }
     }
     APP_LOGI("AbilityProcess::StartAbility end");
-    return err;
 }
 
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)

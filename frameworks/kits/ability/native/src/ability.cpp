@@ -18,7 +18,6 @@
 #include <cinttypes>
 #include <thread>
 
-#include "ability_impl.h"
 #include "ability_loader.h"
 #include "ability_post_event_timeout.h"
 #include "ability_runtime/js_ability.h"
@@ -72,6 +71,12 @@ const std::string Ability::DMS_ORIGIN_DEVICE_ID("deviceId");
 const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const int TARGET_VERSION_THRESHOLDS = 8;
+const std::map<int32_t, Rosen::WindowMode> Ability::convertWindowModeMap_ = {
+    {AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN, Rosen::WindowMode::WINDOW_MODE_FULLSCREEN},
+    //{AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY, Rosen::WindowMode::WINDOW_MODE_SPLIT_PRIMARY},
+    //{AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY, Rosen::WindowMode::WINDOW_MODE_SPLIT_SECONDARY},
+    {AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING, Rosen::WindowMode::WINDOW_MODE_FLOATING}
+};
 
 static std::mutex formLock;
 
@@ -164,7 +169,7 @@ std::shared_ptr<Global::Resource::ResourceManager> Ability::GetResourceManager()
  */
 void Ability::OnStart(const Want &want)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::OnStart falied abilityInfo_ is nullptr.");
@@ -239,7 +244,7 @@ void Ability::OnStart(const Want &want)
  */
 void Ability::OnStop()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (scene_ != nullptr) {
         scene_ = nullptr;
@@ -261,6 +266,11 @@ void Ability::OnStop()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
+
+    bool ret = AbilityRuntime::ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
+    if (ret) {
+        APP_LOGI("The service connection is not disconnected.");
+    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -274,7 +284,7 @@ void Ability::OnStop()
  */
 void Ability::OnActive()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityWindow_ != nullptr) {
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityActive.", __func__);
@@ -304,7 +314,7 @@ void Ability::OnActive()
  */
 void Ability::OnInactive()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityInactive.", __func__);
@@ -368,7 +378,7 @@ void Ability::onSceneDestroyed()
  */
 void Ability::OnForeground(const Want &want)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
@@ -417,7 +427,7 @@ void Ability::NotityContinuationResult(const Want& want, bool success)
  */
 void Ability::OnBackground()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         APP_LOGI("%{public}s begin OnPostAbilityBackground.", __func__);
@@ -466,7 +476,7 @@ void Ability::OnBackground()
  */
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityLifecycleExecutor_ == nullptr) {
         APP_LOGE("Ability::OnConnect error. abilityLifecycleExecutor_ == nullptr.");
@@ -491,7 +501,7 @@ sptr<IRemoteObject> Ability::OnConnect(const Want &want)
  */
 void Ability::OnDisconnect(const Want &want)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
 }
 
 /**
@@ -499,24 +509,19 @@ void Ability::OnDisconnect(const Want &want)
  *
  * @param want information of other ability
  * @param requestCode request code for abilityMS to return result
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
+void Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbilityForResult abilityInfo_ == nullptr");
-        return ERR_NULL_OBJECT;
+        return;
     }
     APP_LOGI("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
-        return ERR_INVALID_VALUE;
+    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        AbilityContext::StartAbility(want, requestCode);
     }
-    ErrCode err = AbilityContext::StartAbility(want, requestCode);
     APP_LOGI("%{public}s end.", __func__);
-    return err;
 }
 
 /**
@@ -529,24 +534,19 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
  * @param requestCode Indicates the request code returned after the ability is started. You can define the request
  * code to identify the results returned by abilities. The value ranges from 0 to 65535.
  * @param abilityStartSetting Indicates the setting ability used to start.
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
+void Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
 {
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbilityForResult abilityInfo_ == nullptr");
-        return ERR_NULL_OBJECT;
+        return;
     }
     APP_LOGI("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
-        return ERR_INVALID_VALUE;
+    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
     }
-    ErrCode err = AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
     APP_LOGI("%{public}s end.", __func__);
-    return err;
 }
 
 /**
@@ -558,24 +558,19 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, Abilit
  *
  * @param want Indicates the ability to start.
  * @param abilityStartSetting Indicates the setting ability used to start.
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
+void Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
 {
     APP_LOGI("%{public}s beign.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbility abilityInfo_ == nullptr");
-        return ERR_NULL_OBJECT;
+        return;
     }
     APP_LOGI("Ability::StartAbility called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE && abilityInfo_->type != AppExecFwk::AbilityType::SERVICE) {
-        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
-        return ERR_INVALID_VALUE;
+    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE || abilityInfo_->type == AppExecFwk::AbilityType::SERVICE) {
+        AbilityContext::StartAbility(want, -1, abilityStartSetting);
     }
-    ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
     APP_LOGI("%{public}s end.", __func__);
-    return err;
 }
 
 /**
@@ -678,15 +673,9 @@ void Ability::InitWindow(Rosen::WindowType winType)
         APP_LOGE("Ability::InitWindow abilityWindow_ is nullptr");
         return;
     }
-    bool useNewMission = AbilityImpl::IsUseNewMission();
+
     APP_LOGI("%{public}s beign abilityWindow_->InitWindow.", __func__);
-    if (useNewMission) {
-        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
-    } else {
-        std::shared_ptr<AbilityRuntime::AbilityContext> context = nullptr;
-        sptr<Rosen::IWindowLifeCycle> listener = nullptr;
-        abilityWindow_->InitWindow(winType, context, listener);
-    }
+    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
     APP_LOGI("%{public}s end abilityWindow_->InitWindow.", __func__);
 }
 
@@ -906,7 +895,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     } else {
         APP_LOGE("%{public}s scene_ is nullptr.", __func__);
     }
-
+   
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -1151,7 +1140,7 @@ void Ability::SetVolumeTypeAdjustedByKey(int volumeType)
  */
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     APP_LOGI("%{public}s begin restart=%{public}s,startId=%{public}d.", __func__, restart ? "true" : "false", startId);
     if (abilityLifecycleExecutor_ == nullptr) {
         APP_LOGE("Ability::OnCommand error. abilityLifecycleExecutor_ == nullptr.");
@@ -1467,26 +1456,24 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
  * the ability to start using the intent parameter.
  *
  * @param intent Indicates the ability to start.
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::StartAbility(const Want &want)
+void Ability::StartAbility(const Want &want)
 {
-    APP_LOGI("%{public}s begin Ability::StartAbility", __func__);
-    return AbilityContext::StartAbility(want, -1);
+    APP_LOGI("%{public}s begin.", __func__);
+    AbilityContext::StartAbility(want, -1);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
  * @brief Destroys this Page or Service ability.
  * After a Page or Service ability performs all operations, it can use this method to destroy itself
  * to free up memory. This method can be called only after the ability is initialized.
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::TerminateAbility()
+void Ability::TerminateAbility()
 {
-    APP_LOGI("%{public}s begin Ability::TerminateAbility", __func__);
-    return AbilityContext::TerminateAbility();
+    APP_LOGI("%{public}s begin.", __func__);
+    AbilityContext::TerminateAbility();
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -1563,10 +1550,8 @@ bool Ability::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnect
  *
  * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
  *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
- *
- * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode Ability::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+void Ability::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
 {
     return AbilityContext::DisconnectAbility(conn);
 }
@@ -3221,9 +3206,11 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
     }
     auto windowMode = want.GetIntParam(StartOptions::STRING_WINDOW_MODE,
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-    APP_LOGI("Ability::GetWindowOption window mode is %{public}d.", windowMode);
-    option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-
+    auto iter = convertWindowModeMap_.find(windowMode);
+    if (iter != convertWindowModeMap_.end()) {
+        option->SetWindowMode(iter->second);
+        APP_LOGI("Ability::GetWindowOption window mode is %{public}d.", iter->second);
+    }
     APP_LOGI("%{public}s end", __func__);
     return option;
 }

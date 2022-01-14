@@ -77,11 +77,6 @@ std::string AmsConfigurationParameter::GetOrientation() const
     return orientation_;
 }
 
-bool AmsConfigurationParameter::IsUseNewMission() const
-{
-    return useNewMission_;
-}
-
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
     HILOG_DEBUG("%{public}s", __func__);
@@ -142,9 +137,6 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
         canStartContacts = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_CONTACTS).get<bool>();
         canStartMms = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_MMS).get<bool>();
         missionSaveTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
-        if (Object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::USE_NEW_MISSION)) {
-            useNewMission_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::USE_NEW_MISSION).get<bool>();
-        }
         HILOG_INFO("get ams service config succes!");
         ret = 0;
     }

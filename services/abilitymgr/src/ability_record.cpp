@@ -111,7 +111,6 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
             abilityRequest.appInfo, abilityRequest.requestCode, abilityRequest.compatibleVersion);
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
-    abilityRecord->SetUid(abilityRequest.uid);
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;
@@ -137,19 +136,9 @@ bool AbilityRecord::Init()
     return true;
 }
 
-void AbilityRecord::SetUid(int32_t uid)
-{
-    uid_ = uid;
-}
-
-int32_t AbilityRecord::GetUid()
-{
-    return uid_;
-}
-
 int AbilityRecord::LoadAbility()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("%s", __func__);
     startTime_ = AbilityUtil::SystemTimeMillis();
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
@@ -176,7 +165,6 @@ int AbilityRecord::LoadAbility()
 
 void AbilityRecord::ForegroundAbility()
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ForegroundAbility.");
     CHECK_POINTER(lifecycleDeal_);
 
@@ -715,7 +703,7 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
 
 void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("Add caller record.");
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER(abilityRecord);
@@ -1235,11 +1223,6 @@ std::shared_ptr<MissionList> AbilityRecord::GetOwnedMissionList() const
 void AbilityRecord::SetMissionList(const std::shared_ptr<MissionList> &missionList)
 {
     missionList_ = missionList;
-}
-
-void AbilityRecord::SetUseNewMission()
-{
-    lifeCycleStateInfo_.useNewMission = true;
 }
 
 void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)

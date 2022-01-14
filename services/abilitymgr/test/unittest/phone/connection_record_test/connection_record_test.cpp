@@ -213,7 +213,7 @@ HWTEST_F(ConnectionRecordTest, AaFwk_ConnectionRecord_007, TestSize.Level1)
 {
     EXPECT_CALL(*callback_, OnAbilityDisconnectDone(::testing::_, ::testing::_)).Times(1);
 
-    connectionRecord_->CompleteDisconnect(ERR_OK, false);
+    connectionRecord_->CompleteDisconnect(ERR_OK);
     EXPECT_EQ(connectionRecord_->GetConnectState(), ConnectionState::DISCONNECTED);
 }
 

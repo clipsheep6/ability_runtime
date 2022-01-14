@@ -53,7 +53,6 @@ struct LifeCycleStateInfo : public Parcelable {
     CallerInfo caller;
     std::shared_ptr<AbilityStartSetting> setting = nullptr;
     LaunchParam launchParam;
-    bool useNewMission = false;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

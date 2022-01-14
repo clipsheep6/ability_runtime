@@ -32,7 +32,7 @@ KernalSystemAppManager::~KernalSystemAppManager()
 
 int KernalSystemAppManager::StartAbility(const AbilityRequest &abilityRequest)
 {
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
     HILOG_INFO("start kernal systerm ability.");
     std::lock_guard<std::recursive_mutex> guard(stackLock_);
     if (!waittingAbilityQueue_.empty()) {
@@ -118,10 +118,16 @@ void KernalSystemAppManager::OnAppStateChanged(const AppInfo &info)
 {
     std::lock_guard<std::recursive_mutex> guard(stackLock_);
     for (auto ability : abilities_) {
-        if (ability && ability->GetApplicationInfo().name == info.appName &&
-            (info.processName == ability->GetAbilityInfo().process ||
+        if (ability && (info.processName == ability->GetAbilityInfo().process ||
             info.processName == ability->GetApplicationInfo().bundleName)) {
-            ability->SetAppState(info.state);
+            auto appName = ability->GetApplicationInfo().name;
+            auto isExist = [&appName](const AppData &appData) {
+                return appData.appName == appName;
+            };
+            auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+            if(iter != info.appData.end()){
+                ability->SetAppState(info.state);
+            }
         }
     }
 }

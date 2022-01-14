@@ -28,7 +28,6 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  */
 void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    AbilityImpl::SetUseNewMission(targetState.useNewMission);
     APP_LOGI("PageAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d",
         lifecycleState_,
@@ -51,17 +50,12 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         Inactive();
     }
 
-    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
-        targetState.state == AAFwk::ABILITY_STATE_BACKGROUND) {
+    if (targetState.state == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
         CheckAndSave();
     }
 
     bool ret = false;
-    if (AbilityImpl::IsUseNewMission()) {
-        ret = AbilityTransactionNew(want, targetState);
-    } else {
-        ret = AbilityTransaction(want, targetState);
-    }
+    ret = AbilityTransaction(want, targetState);
     if (ret) {
         APP_LOGI("AbilityThread::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
@@ -80,61 +74,6 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  *
  */
 bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
-{
-    APP_LOGI("PageAbilityImpl::AbilityTransaction begin");
-    bool ret = true;
-    switch (targetState.state) {
-        case AAFwk::ABILITY_STATE_INITIAL: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) {
-                Background();
-            }
-            Stop();
-            break;
-        }
-        case AAFwk::ABILITY_STATE_INACTIVE: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
-                Foreground(want);
-            }
-            break;
-        }
-        case AAFwk::ABILITY_STATE_ACTIVE: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
-                Foreground(want);
-            }
-            if (targetState.isNewWant) {
-                NewWant(want);
-            }
-            SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
-                         targetState.caller.abilityName);
-            Active();
-            break;
-        }
-        case AAFwk::ABILITY_STATE_BACKGROUND: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) {
-                Background();
-            }
-            break;
-        }
-        default: {
-            ret = false;
-            APP_LOGE("PageAbilityImpl::HandleAbilityTransaction state error");
-            break;
-        }
-    }
-    APP_LOGI("PageAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
-    return ret;
-}
-
-/**
- * @brief Handling the life cycle switching of PageAbility in switch.
- *
- * @param want Indicates the structure containing information about the ability.
- * @param targetState The life cycle state to switch to.
- *
- * @return return true if the lifecycle transaction successfully, otherwise return false.
- *
- */
-bool PageAbilityImpl::AbilityTransactionNew(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     APP_LOGI("PageAbilityImpl::AbilityTransaction begin");
     bool ret = true;

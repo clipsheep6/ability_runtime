@@ -98,8 +98,7 @@ public:
         const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
 };
 
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
@@ -175,8 +174,7 @@ public:
         const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
     virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
+        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override;
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
@@ -204,12 +202,6 @@ public:
         return true;
     }
     virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool GetDistributedBundleInfo(
-        const std::string &networkId, int32_t userId, const std::string &bundleName,
-        DistributedBundleInfo &distributedBundleInfo) override
     {
         return true;
     }
