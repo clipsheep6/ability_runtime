@@ -35,11 +35,6 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     CHECK_POINTER_RETURN_BOOL(callback.lock());
     CHECK_POINTER_RETURN_BOOL(appMgrClient_);
 
-    std::lock_guard<std::recursive_mutex> guard(lock_);
-    if (isInit_) {
-        return true;
-    }
-
     callback_ = callback;
     /* because the errcode type of AppMgr Client API will be changed to int,
      * so must to covert the return result  */
@@ -55,7 +50,6 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
         return false;
     }
     HILOG_INFO("success to ConnectAppMgrService");
-    isInit_ = true;
     return true;
 }
 
@@ -118,7 +112,6 @@ void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const 
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->UpdateExtensionState(token, state);
 }
-
 
 void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
@@ -226,9 +219,13 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
     AppInfo info;
-    info.appName = appData.appName;
+    for (const auto &list : appData.appDatas) {
+        AppData data;
+        data.appName = list.appName;
+        data.uid = list.uid;
+        info.appData.push_back(data);
+    }
     info.processName = appData.processName;
-    info.uid = appData.uid;
     info.state = static_cast<AppState>(appData.appState);
     callback->OnAppStateChanged(info);
 }
