@@ -133,7 +133,10 @@ bool AbilityManagerService::Init()
 
     handler_ = std::make_shared<AbilityEventHandler>(eventLoop_, weak_from_this());
     CHECK_POINTER_RETURN_BOOL(handler_);
-    CHECK_POINTER_RETURN_BOOL(connectManager_);
+
+    // init user controller.
+    userController_ = std::make_shared<UserController>();
+    userController_->Init();
     connectManager_->SetEventHandler(handler_);
 
     // init ConfigurationDistributor
@@ -164,7 +167,7 @@ bool AbilityManagerService::Init()
     systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
     CHECK_POINTER_RETURN_BOOL(systemAppManager_);
 
-    InitMissionListManager(userId);
+    InitMissionListManager(userId, true);
     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(userId);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
 
@@ -1854,7 +1857,7 @@ void AbilityManagerService::SetStackManager(int userId)
     }
 }
 
-void AbilityManagerService::InitMissionListManager(int userId)
+void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
 {
     auto iterator = missionListManagers_.find(userId);
     if (iterator != missionListManagers_.end()) {
@@ -2859,6 +2862,92 @@ bool AbilityManagerService::writeToPng(const char* fileName, uint32_t w, uint32_
     png_destroy_write_struct(&png_ptr,&info_ptr);
     fclose(fp);
     return true;
+}
+
+void AbilityManagerService::StartFreezingScreen()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+}
+
+void AbilityManagerService::StopFreezingScreen()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+}
+
+void AbilityManagerService::UserStarted(int32_t userId)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    InitConnectManager(userId, false);
+    SetStackManager(userId);
+    InitMissionListManager(userId, false);
+    InitDataAbilityManager(userId, false);
+    InitPendWantManager(userId, false);
+}
+
+void AbilityManagerService::SwitchToUser(int32_t userId)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    InitConnectManager(userId, true);
+    SetStackManager(userId);
+    InitMissionListManager(userId, true);
+    InitDataAbilityManager(userId, true);
+    InitPendWantManager(userId, true);
+}
+
+void AbilityManagerService::StartLauncherAbility(int32_t userId)
+{
+    HILOG_DEBUG("StartLauncherAbility, userId:%{public}d, currentUserId:%{public}d", userId, GetUserId());
+    ConnectBmsService();
+    StartingLauncherAbility();
+}
+
+void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
+{
+    auto it = connectManagers_.find(userId);
+    if (it == connectManagers_.end()) {
+        auto manager = std::make_shared<AbilityConnectManager>();
+        manager->SetEventHandler(handler_);
+        connectManagers_.emplace(userId, manager);
+        if (switchUser) {
+            connectManager_ = manager;
+        }
+    } else {
+        if (switchUser) {
+            connectManager_ = it->second;
+        }
+    }
+}
+
+void AbilityManagerService::InitDataAbilityManager(int32_t userId, bool switchUser)
+{
+    auto it = dataAbilityManagers_.find(userId);
+    if (it == dataAbilityManagers_.end()) {
+        auto manager = std::make_shared<DataAbilityManager>();
+        dataAbilityManagers_.emplace(userId, manager);
+        if (switchUser) {
+            dataAbilityManager_ = manager;
+        }
+    } else {
+        if (switchUser) {
+            dataAbilityManager_ = it->second;
+        }
+    }
+}
+
+void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
+{
+    auto it = pendingWantManagers_.find(userId);
+    if (it == pendingWantManagers_.end()) {
+        auto manager = std::make_shared<PendingWantManager>();
+        pendingWantManagers_.emplace(userId, manager);
+        if (switchUser) {
+            pendingWantManager_ = manager;
+        }
+    } else {
+        if (switchUser) {
+            pendingWantManager_ = it->second;
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
