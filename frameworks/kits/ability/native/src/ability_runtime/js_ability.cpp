@@ -12,11 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <regex>
 #include "ability_runtime/js_ability.h"
 
 #include "ability_runtime/js_ability_context.h"
 #include "ability_runtime/js_window_stage.h"
+#include "ability_start_setting.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -76,6 +78,20 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
 
     context->Bind(jsRuntime_, shellContextRef.release());
     obj->SetProperty("context", contextObj);
+
+    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get ability native object");
+        return;
+    }
+
+    HILOG_INFO("Set ability context pointer: %{public}p", context.get());
+
+    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
+        [](NativeEngine*, void* data, void*) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+        }, nullptr);
 }
 
 void JsAbility::OnStart(const Want &want)
@@ -115,6 +131,10 @@ void JsAbility::OnStop()
     Ability::OnStop();
 
     CallObjectMethod("onDestroy");
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
+    if (ret) {
+        HILOG_INFO("The service connection is not disconnected.");
+    }
 }
 
 void JsAbility::OnSceneCreated()
@@ -249,8 +269,23 @@ void JsAbility::DoOnForeground(const Want& want)
             HILOG_ERROR("%{public}s error. failed to create WindowScene instance!", __func__);
             return;
         }
+
+        int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        if (setting_ != nullptr) {
+            std::string strDisplayId = setting_->GetProperty(
+                OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+            std::regex formatRegex("[0-9]{0,9}$");
+            std::smatch sm;
+            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+            if (flag) {
+                displayId = std::stoi(strDisplayId);
+                HILOG_INFO("%{public}s success. displayId is %{public}d", __func__, displayId);
+            } else {
+                HILOG_INFO("%{public}s error. failed to formatRegex str", __func__);
+            }
+        }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(Rosen::WindowScene::DEFAULT_DISPLAY_ID, abilityContext_, sceneListener_);
+        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_);
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;
