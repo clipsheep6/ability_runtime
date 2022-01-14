@@ -23,12 +23,14 @@
 namespace OHOS {
 namespace AppExecFwk {
 const int TARGET_VERSION_THRESHOLDS = 8;
+static bool g_useNewMission = false;
+static bool g_isMissionFlagSetted = false;
 
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
     std::shared_ptr<ContextDeal> &contextDeal)
 {
-    BYTRACE(BYTRACE_TAG_ABILITY_MANAGER);
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("AbilityImpl::init begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         ability == nullptr || contextDeal == nullptr) {
@@ -41,8 +43,11 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     record->SetAbilityImpl(shared_from_this());
     ability_ = ability;
     handler_ = handler;
-    ability_->SetSceneListener(
-        sptr<WindowLifeCycleImpl>(new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
+    auto info = record->GetAbilityInfo();
+    if (info && info->type == AbilityType::PAGE) {
+        ability_->SetSceneListener(
+            sptr<WindowLifeCycleImpl>(new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
+    }
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
@@ -203,6 +208,7 @@ void AbilityImpl::AfterUnFocused()
 
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     auto owner = owner_.lock();
     if (owner && owner->GetCompatibleVersion() < TARGET_VERSION_THRESHOLDS) {
@@ -217,6 +223,7 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 
 void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
     auto owner = owner_.lock();
     if (owner && owner->GetCompatibleVersion() < TARGET_VERSION_THRESHOLDS) {
@@ -905,6 +912,19 @@ void AbilityImpl::NotifyContinuationResult(const int32_t result)
         return;
     }
     ability_->OnCompleteContinuation(result);
+}
+
+void AbilityImpl::SetUseNewMission(bool useNewMission)
+{
+    if (!g_isMissionFlagSetted) {
+        g_isMissionFlagSetted = true;
+        g_useNewMission = useNewMission;
+    }
+}
+
+bool AbilityImpl::IsUseNewMission()
+{
+    return g_useNewMission;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

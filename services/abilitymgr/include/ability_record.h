@@ -117,6 +117,7 @@ struct AbilityRequest {
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ApplicationInfo appInfo;
+    int32_t uid = 0;
     int requestCode = -1;
     bool restart = false;
     sptr<IRemoteObject> callerToken;
@@ -724,6 +725,7 @@ public:
     void NotifyContinuationResult(const int32_t result);
     std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
+    void SetUseNewMission();
     void SetMission(const std::shared_ptr<Mission> &mission);
     void SetMissionList(const std::shared_ptr<MissionList> &missionList);
     std::shared_ptr<Mission> GetMission() const;
@@ -732,6 +734,8 @@ public:
     void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
     int GetId() override;
+    void SetUid(int32_t uid);
+    int32_t GetUid();
 
     /**
      * get the type of ability.
@@ -805,6 +809,7 @@ public:
     AppState appState_ = AppState::BEGIN;
 
     int32_t compatibleVersion_ = 0; // > 7 new version, <= 7 old version.
+    int32_t uid_ = 0;
     std::weak_ptr<MissionList> missionList_;
     std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;

@@ -13,31 +13,30 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_STOP_USER_CALLBACK_H
-#define OHOS_AAFWK_STOP_USER_CALLBACK_H
+#include "user_event_handler.h"
 
-#include "iremote_broker.h"
+#include "user_controller.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
-/**
- * @class IStopUserCallback
- * stop user callback.
- */
-class IStopUserCallback : public OHOS::IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.StopUserCallback");
+UserEventHandler::UserEventHandler(
+    const std::shared_ptr<AppExecFwk::EventRunner> &runner, const std::weak_ptr<UserController> &owner)
+    : AppExecFwk::EventHandler(runner), controller_(owner)
+{
+}
 
-    virtual void OnStopUserDone(int userId, int errcode) = 0;
+void UserEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
+{
+    if (!event) {
+        HILOG_ERROR("invalid event");
+        return;
+    }
 
-    enum StopUserCallbackCmd {
-        // ipc id for OnStopUserDone
-        ON_STOP_USER_DONE = 0,
-
-        // maximum of enum
-        CMD_MAX
-    };
-};
+    auto owner = controller_.lock();
+    if (owner) {
+        owner->ProcessEvent(event);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_STOP_USER_CALLBACK_H

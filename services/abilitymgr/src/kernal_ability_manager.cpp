@@ -204,6 +204,7 @@ void KernalAbilityManager::GetOrCreateAbilityRecord(
         return;
     }
     targetAbility = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    targetAbility->SetUseNewMission();
     abilities_.push_front(targetAbility);
 }
 

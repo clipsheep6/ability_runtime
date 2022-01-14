@@ -42,6 +42,7 @@
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
 #include "event_handler.h"
+#include "user_controller.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -707,6 +708,11 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
+
+    virtual int32_t GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -732,6 +738,7 @@ public:
 
     static constexpr uint32_t MIN_DUMP_ARGUMENT_NUM = 2;
     static constexpr uint32_t MAX_WAIT_SYSTEM_UI_NUM = 600;
+    static constexpr uint32_t MAX_WAIT_SETTINGS_DATA_NUM = 300;
 
     enum DumpKey {
         KEY_DUMP_ALL = 0,
@@ -750,6 +757,7 @@ public:
     };
 
     friend class AbilityStackManager;
+    friend class UserController;
 
 protected:
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state) override;
@@ -862,6 +870,14 @@ private:
     void DumpFuncInit();
     bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
+
+    // multi user
+    void StartFreezingScreen();
+    void StopFreezingScreen();
+    void UserStarted(int32_t userId);
+    void SwitchToUser(int32_t userId);
+    void StartLauncherAbility(int32_t userId);
+
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
 
@@ -885,9 +901,11 @@ private:
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 
     // new ams here
+    bool useNewMission_ {false};
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
     std::shared_ptr<KernalAbilityManager> kernalAbilityManager_;
+    sptr<ISnapshotHandler> snapshotHandler_;
 };
 
 }  // namespace AAFwk
