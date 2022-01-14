@@ -851,6 +851,7 @@ private:
     int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
         MissionInfo &missionInfo);
     int CallMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
+    bool writeToPng(const char* fileName, uint32_t w, uint32_t h, const uint8_t* data);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
