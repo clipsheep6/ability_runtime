@@ -2771,7 +2771,7 @@ void AbilityManagerService::StartingSettingsDataAbility()
 
 int AbilityManagerService::StartUser(int userId)
 {
-    HILOG_DEBUG("%{public}s, userId:%{public}d", __func__);
+    HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
     if (userController_) {
         return userController_->StartUser(userId, true);
     }
