@@ -33,7 +33,7 @@ using namespace OHOS::AppExecFwk;
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 namespace {
     constexpr int32_t ARG_COUNT_TWO = 1;
-    constexpr int32_t ARG_COUNT_THREE = 1;
+    constexpr int32_t ARG_COUNT_THREE = 3;
 }
 class JsMissionManager {
 public:
@@ -245,7 +245,7 @@ private:
 
     NativeValue* OnGetMissionSnapShot(NativeEngine &engine, NativeCallbackInfo &info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_INFO("%{public}s is called, argc =%{public}d", __FUNCTION__, static_cast<int32_t>(info.argc));
         if (info.argc != ARG_COUNT_TWO && info.argc != ARG_COUNT_THREE) {
             HILOG_ERROR("missionSnapshot: need two or three params");
             return engine.CreateUndefined();
@@ -256,7 +256,7 @@ private:
             return engine.CreateUndefined();
         }
         int32_t missionId = -1;
-        if (!ConvertFromJsValue(engine, info.argv[0], missionId)) {
+        if (!ConvertFromJsValue(engine, info.argv[1], missionId)) {
             HILOG_ERROR("missionSnapshot: Parse missionId failed");
             return engine.CreateUndefined();
         }
