@@ -120,11 +120,11 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
             HILOG_DEBUG("%{public}s disconnectAbility.", __func__);
             return AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(abilityConnection);
         } else {
+            connectCallback->OnAbilityDisconnectDone(connectReceiver, ERR_OK);
             HILOG_DEBUG("%{public}s callbacks is not empty, do not need disconnectAbility.", __func__);
             return ERR_OK;
         }
     } else {
-        connectCallback->OnAbilityDisconnectDone(connectReceiver, ERR_OK);
         HILOG_ERROR("%{public}s not find conn exist.", __func__);
         return ERR_INVALID_VALUE;
     }
