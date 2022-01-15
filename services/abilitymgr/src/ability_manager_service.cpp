@@ -2809,8 +2809,9 @@ int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, i
     int32_t result = 0;
     for (const MissionInfo& info : missionInfos) {
         // int32_t result = snapshotHandler_->GetSnapshot(GetAbilityTokenByMissionId(missionId), snapshot);
+        HILOG_ERROR("snapshot: GetMissionSnapshot 3, id = %{public}d", info.id);
         result = snapshotHandler_->GetSnapshot(GetAbilityTokenByMissionId(info.id), snapshot);
-        HILOG_ERROR("snapshot: GetMissionSnapshot 3");
+        HILOG_ERROR("snapshot: GetMissionSnapshot 4");
         missionSnapshot.snapshot = snapshot.GetPixelMap();
         const uint8_t* data = missionSnapshot.snapshot->GetPixels();
         auto width = missionSnapshot.snapshot->GetWidth();
