@@ -329,12 +329,17 @@ void JsAbility::DoOnForeground(const Want& want)
         HILOG_INFO("lauch reason = %{public}d, contentStorage = %{public}p", launchParam_.launchReason,
             abilityContext_->GetContentStorage());
         if (IsRestoredInContinuation()) {
-            std::string pageStack = AAFwk::String::Unbox(
-                AAFwk::IString::Query(want.GetParams().GetParam(PAGE_STACK_PROPERTY_NAME)));
+            auto ao = AAFwk::IString::Query(want.GetParams().GetParam(PAGE_STACK_PROPERTY_NAME));
+            std::string pageStack;
+            if (ao != nullptr) {
+                pageStack = AAFwk::String::Unbox(ao);
+            } else {
+                HILOG_WARN("page stack is empty!");
+            }
             HandleScope handleScope(jsRuntime_);
             auto& engine = jsRuntime_.GetNativeEngine();
-            scene_->GetMainWindow()->SetUIContent(pageStack, &engine,
-                static_cast<NativeValue*>(abilityContext_->GetContentStorage()));
+            scene_->GetMainWindow()->SetUIContent(abilityContext_, pageStack, &engine,
+                static_cast<NativeValue*>(abilityContext_->GetContentStorage()), true);
             OnSceneRestored();
             NotityContinuationResult(want, true);
         } else {
