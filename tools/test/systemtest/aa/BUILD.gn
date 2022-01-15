@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
 
-module_output_path = "aafwk_standard/tools"
+module_output_path = "ability_tools/tools"
 
 ohos_systemtest("aa_command_start_system_test") {
   module_out_path = module_output_path
