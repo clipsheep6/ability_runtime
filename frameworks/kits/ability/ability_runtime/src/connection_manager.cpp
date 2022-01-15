@@ -57,8 +57,6 @@ ErrCode ConnectionManager::ConnectAbility(const sptr<IRemoteObject> &connectCall
         HILOG_INFO("%{public}s end, find abilityConnection:%{public}p exist, callbackSize:%{public}d.",
             __func__, abilityConnection.GetRefPtr(), (int32_t)callbacks.size());
         if (abilityConnection->GetResultCode() == ERR_OK) {
-            connectCallback->OnAbilityConnectDone(connectReceiver, abilityConnection->GetRemoteObject(),
-                abilityConnection->GetResultCode());
             return ERR_OK;
         } else {
             return AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, abilityConnection, connectCaller);
@@ -120,7 +118,6 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
             HILOG_DEBUG("%{public}s disconnectAbility.", __func__);
             return AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(abilityConnection);
         } else {
-            connectCallback->OnAbilityDisconnectDone(connectReceiver, ERR_OK);
             HILOG_DEBUG("%{public}s callbacks is not empty, do not need disconnectAbility.", __func__);
             return ERR_OK;
         }
