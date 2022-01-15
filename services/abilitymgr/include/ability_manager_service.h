@@ -853,6 +853,7 @@ private:
         std::vector<MissionInfo> &missionInfos);
     int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
         MissionInfo &missionInfo);
+    bool WriteToPng(const char* fileName, uint32_t w, uint32_t h, const uint8_t* data);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
