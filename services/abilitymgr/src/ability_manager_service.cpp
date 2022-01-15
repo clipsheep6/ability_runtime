@@ -1373,6 +1373,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     auto userId = GetUserId();
     AbilityRequest abilityRequest;
     std::string dataAbilityUri = localUri.ToString();
+    HILOG_INFO("%{public}s, called. userId %{public}d", __func__, userId);
     bool queryResult = iBundleManager_->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo);
     if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
