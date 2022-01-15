@@ -40,6 +40,7 @@
 #include "softbus_bus_center.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "png.h"
 
 using OHOS::AppExecFwk::ElementName;
 
@@ -2702,6 +2703,7 @@ int AbilityManagerService::GetMissionSaveTime() const
 int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObject> &token)
 {
     if (!currentMissionListManager_) {
+
         return -1;
     }
     return currentMissionListManager_->GetMissionIdByAbilityToken(token);
@@ -2794,13 +2796,77 @@ int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>&
 int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot)
 {
+    HILOG_ERROR("snapshot: GetMissionSnapshot 1");
     if (!snapshotHandler_) {
+        HILOG_ERROR("snapshot: snapshotHandler_ is null");
         return 0;
     }
+    HILOG_ERROR("snapshot: GetMissionSnapshot 2");
     Snapshot snapshot;
-    int32_t result = snapshotHandler_->GetSnapshot(GetAbilityTokenByMissionId(missionId), snapshot);
-    missionSnapshot.snapshot = snapshot.GetPixelMap();
+    std::vector<MissionInfo> missionInfos;
+    std::vector<std::string> files = {"/data/1.png", "/data/2.png", "/data/3.png", "/data/4.png", "/data/5.png"};
+    GetMissionInfos(0, 100, missionInfos);
+    int index = 0;
+    int32_t result = 0;
+    for (const MissionInfo& info : missionInfos) {
+        // int32_t result = snapshotHandler_->GetSnapshot(GetAbilityTokenByMissionId(missionId), snapshot);
+        HILOG_ERROR("snapshot: GetMissionSnapshot 3, id = %{public}d", info.id);
+        result = snapshotHandler_->GetSnapshot(GetAbilityTokenByMissionId(info.id), snapshot);
+        HILOG_ERROR("snapshot: GetMissionSnapshot 4");
+        missionSnapshot.snapshot = snapshot.GetPixelMap();
+        const uint8_t* data = missionSnapshot.snapshot->GetPixels();
+        auto width = missionSnapshot.snapshot->GetWidth();
+        auto height = missionSnapshot.snapshot->GetHeight();
+        WriteToPng(files[index++].c_str(), width, height, data);
+        HILOG_ERROR("snapshot: width = %{public}d, height = %{public}d", width, height);
+    }
     return result;
+}
+
+bool AbilityManagerService::WriteToPng(const char* fileName, uint32_t w, uint32_t h, const uint8_t* data)
+{
+    const int BITMAP_DEPTH = 8; // color depth
+    const int BPP = 4; // bytes per pixel
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png_ptr == nullptr) {
+        printf("png_create_write_struct error, nullptr!\n");
+        return false;
+    }
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (png_ptr == nullptr) {
+        printf("png_create_info_struct error, nullptr!\n");
+        png_destroy_write_struct(&png_ptr, nullptr);
+        return false;
+    }
+    FILE *fp = fopen(fileName,"wb");
+    if (fp == nullptr) {
+        printf("open file [%s] error, nullptr!\n", fileName);
+        png_destroy_write_struct(&png_ptr,&info_ptr);
+        return false;
+    }
+    png_init_io(png_ptr,fp);
+
+    // set png header
+    png_set_IHDR(png_ptr,info_ptr,
+        w, h,
+        BITMAP_DEPTH,
+        PNG_COLOR_TYPE_RGBA,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_BASE,
+        PNG_FILTER_TYPE_BASE);
+    png_set_packing(png_ptr); // set packing info
+    png_write_info(png_ptr, info_ptr); // write to header
+
+    for (uint32_t i = 0; i < h; i++) {
+        png_write_row(png_ptr, data + (i * w * BPP));
+    }
+
+    png_write_end(png_ptr,info_ptr);
+
+    // free
+    png_destroy_write_struct(&png_ptr,&info_ptr);
+    fclose(fp);
+    return true;
 }
 
 void AbilityManagerService::StartFreezingScreen()

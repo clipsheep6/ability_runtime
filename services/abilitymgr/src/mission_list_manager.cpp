@@ -751,6 +751,10 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
             terminateAbility->Terminate(timeoutTask);
         }
     }
+    auto mission = abilityRecord->GetMission();
+    if (mission && listenerController_) {
+        listenerController_->NotifyMissionSnapshotChanged(mission->GetMissionId());
+    }
 }
 
 int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
