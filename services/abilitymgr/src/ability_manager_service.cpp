@@ -137,13 +137,10 @@ bool AbilityManagerService::Init()
     userController_->Init();
     int userId = GetUserId();
 
-    InitConnectManager(userId, true);
-
     // init ConfigurationDistributor
     DelayedSingleton<ConfigurationDistributor>::GetInstance();
 
-    InitDataAbilityManager(userId, true);
-    InitPendWantManager(userId, true);
+    systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
 
     amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
     if (amsConfigResolver_) {
@@ -156,11 +153,9 @@ bool AbilityManagerService::Init()
     configuration_ = std::make_shared<AppExecFwk::Configuration>();
     GetGlobalConfiguration();
 
-    SetStackManager(userId, true);
     systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
     CHECK_POINTER_RETURN_BOOL(systemAppManager_);
 
-    InitMissionListManager(userId, true);
     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(userId);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
 
@@ -1375,9 +1370,10 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         return nullptr;
     }
 
+    auto userId = GetUserId();
     AbilityRequest abilityRequest;
     std::string dataAbilityUri = localUri.ToString();
-    bool queryResult = iBundleManager_->QueryAbilityInfoByUri(dataAbilityUri, abilityRequest.abilityInfo);
+    bool queryResult = iBundleManager_->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo);
     if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
         return nullptr;
@@ -1396,11 +1392,22 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         HILOG_ERROR("BMS query result is not a data ability.");
         return nullptr;
     }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!iBundleManager_->GetBundleInfo(abilityRequest.appInfo.bundleName,
+        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId)) {
+        HILOG_ERROR("Failed to get bundle info when AcquireDataAbility.");
+        return nullptr;
+    }
+    abilityRequest.compatibleVersion = bundleInfo.compatibleVersion;
+    abilityRequest.uid = bundleInfo.uid;
+
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
         abilityRequest.appInfo.name.c_str(),
         abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
 
+    CHECK_POINTER_AND_RETURN(dataAbilityManager_, nullptr);
     return dataAbilityManager_->Acquire(abilityRequest, tryBind, callerToken, isSystem);
 }
 
@@ -1880,9 +1887,11 @@ void AbilityManagerService::StartingLauncherAbility()
     /* query if launcher ability has installed */
     AppExecFwk::AbilityInfo abilityInfo;
     /* First stage, hardcoding for the first launcher App */
+    auto userId = GetUserId();
     Want want;
     want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME);
-    while (!(iBundleManager_->QueryAbilityInfo(want, abilityInfo))) {
+    while (!(iBundleManager_->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
+        userId, abilityInfo))) {
         HILOG_INFO("Waiting query launcher ability info completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
@@ -1977,6 +1986,10 @@ int AbilityManagerService::GenerateAbilityRequest(
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
 
     int userId = GetUserId();
+    if (IsSystemUI(want.GetBundle())) {
+        userId = DEFAULT_USER_ID;
+    }
+
     bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
         userId, request.abilityInfo);
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
@@ -1987,7 +2000,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (request.abilityInfo.type == AppExecFwk::AbilityType::SERVICE) {
         AppExecFwk::BundleInfo bundleInfo;
         bool ret = bms->GetBundleInfo(request.abilityInfo.bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo);
+            AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId);
         if (!ret) {
             HILOG_ERROR("Failed to get bundle info when GenerateAbilityRequest.");
             return RESOLVE_ABILITY_ERR;
@@ -2181,7 +2194,8 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         return ERR_INVALID_VALUE;
     }
 
-    if (dataAbilityManager_ == nullptr) {
+    auto dataAbilityManager = IsSystemUI(bundleName) ? systemDataAbilityManager_ : dataAbilityManager_;
+    if (dataAbilityManager == nullptr) {
         HILOG_ERROR("Invalid data ability manager when app data abilities preloading.");
         return ERR_INVALID_STATE;
     }
@@ -2191,6 +2205,9 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
 
     AppExecFwk::BundleInfo bundleInfo;
     int32_t userId = GetUserId();
+    if (IsSystemUI(bundleName)) {
+        userId = DEFAULT_USER_ID;
+    }
     bool ret = bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId);
     if (!ret) {
         HILOG_ERROR("Failed to get bundle info when app data abilities preloading.");
@@ -2214,7 +2231,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         dataAbilityRequest.uid = bundleInfo.uid;
         HILOG_INFO("App data ability preloading: '%{public}s.%{public}s'...", it->bundleName.c_str(), it->name.c_str());
 
-        auto dataAbility = dataAbilityManager_->Acquire(dataAbilityRequest, false, nullptr, false);
+        auto dataAbility = dataAbilityManager->Acquire(dataAbilityRequest, false, nullptr, false);
         if (dataAbility == nullptr) {
             HILOG_ERROR(
                 "Failed to preload data ability '%{public}s.%{public}s'.", it->bundleName.c_str(), it->name.c_str());
@@ -2225,6 +2242,11 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
     HILOG_INFO("App data abilities preloading done.");
 
     return ERR_OK;
+}
+
+bool AbilityManagerService::IsSystemUI(const std::string &bundleName) const
+{
+    return bundleName == AbilityConfig::SYSTEM_UI_BUNDLE_NAME;
 }
 
 bool AbilityManagerService::IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const
@@ -2530,20 +2552,8 @@ void AbilityManagerService::StartSystemApplication()
 
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
-        StartingLauncherAbility();
-        StartingSettingsDataAbility();
         StartingSystemUiAbility(SatrtUiMode::STARTUIBOTH);
         return;
-    }
-
-    if (amsConfigResolver_->GetStartLauncherState()) {
-        HILOG_INFO("start launcher");
-        StartingLauncherAbility();
-    }
-
-    if (amsConfigResolver_->GetStartSettingsDataState()) {
-        HILOG_INFO("start settingsdata");
-        StartingSettingsDataAbility();
     }
 
     if (amsConfigResolver_->GetStatusBarState()) {
@@ -2761,7 +2771,10 @@ void AbilityManagerService::StartingSettingsDataAbility()
 
 int AbilityManagerService::StartUser(int userId)
 {
-    HILOG_DEBUG("%{public}s", __func__);
+    HILOG_DEBUG("%{public}s, userId:%{public}d", __func__);
+    if (userController_) {
+        return userController_->StartUser(userId, true);
+    }
     return 0;
 }
 
@@ -2836,7 +2849,24 @@ void AbilityManagerService::StartLauncherAbility(int32_t userId)
 {
     HILOG_DEBUG("StartLauncherAbility, userId:%{public}d, currentUserId:%{public}d", userId, GetUserId());
     ConnectBmsService();
-    StartingLauncherAbility();
+
+    if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
+        HILOG_INFO("start all");
+        StartingLauncherAbility();
+        StartingSettingsDataAbility();
+        return;
+    }
+
+
+    if (amsConfigResolver_->GetStartLauncherState()) {
+        HILOG_INFO("start launcher");
+        StartingLauncherAbility();
+    }
+
+    if (amsConfigResolver_->GetStartSettingsDataState()) {
+        HILOG_INFO("start settingsdata");
+        StartingSettingsDataAbility();
+    }
 }
 
 void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)

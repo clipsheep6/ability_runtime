@@ -881,6 +881,7 @@ private:
     void UserStarted(int32_t userId);
     void SwitchToUser(int32_t userId);
     void StartLauncherAbility(int32_t userId);
+    bool IsSystemUI(const std::string &bundleName) const;
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
@@ -899,6 +900,7 @@ private:
     std::shared_ptr<AppScheduler> appScheduler_;
     std::unordered_map<int, std::shared_ptr<DataAbilityManager>> dataAbilityManagers_;
     std::shared_ptr<DataAbilityManager> dataAbilityManager_;
+    std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
