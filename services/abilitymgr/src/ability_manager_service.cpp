@@ -121,7 +121,7 @@ void AbilityManagerService::OnStart()
         return;
     }
 
-    HILOG_INFO("Ability manager service start success.");
+    HILOG_INFO("Ability manager service start success...");
 }
 
 bool AbilityManagerService::Init()
