@@ -334,7 +334,7 @@ void JsAbility::DoOnForeground(const Want& want)
             HandleScope handleScope(jsRuntime_);
             auto& engine = jsRuntime_.GetNativeEngine();
             scene_->GetMainWindow()->SetUIContent(abilityContext_, pageStack, &engine,
-                static_cast<NativeValue*>(abilityContext_->GetContentStorage()));
+                static_cast<NativeValue*>(abilityContext_->GetContentStorage()), true);
             OnSceneRestored();
             NotityContinuationResult(want, true);
         } else {
