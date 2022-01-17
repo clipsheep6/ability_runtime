@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
+
 std::string AbilityContextImpl::GetBundleCodeDir()
 {
     return stageContext_ ? stageContext_->GetBundleCodeDir() : "";
@@ -84,6 +86,15 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, int r
     return err;
 }
 
+ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
+    int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("%{public}s. Start calling StartAbilityForResult.", __func__);
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
+    HILOG_INFO("%{public}s. End calling StartAbilityForResult. ret=%{public}d", __func__, err);
+    return err;
+}
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode)
 {

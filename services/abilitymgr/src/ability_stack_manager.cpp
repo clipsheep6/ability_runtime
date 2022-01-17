@@ -646,7 +646,8 @@ int AbilityStackManager::TerminateAbilityLocked(std::list<TerminatingAbility> &t
             ability->SendResultToCallers();
             MoveToBackgroundTask(ability);
         }
-        if (ability->IsAbilityState(AbilityState::BACKGROUND)) {
+        if (ability->IsAbilityState(AbilityState::BACKGROUND) ||
+            ability->IsAbilityState(AbilityState::BACKGROUND_NEW)) {
             // ability on background, remove AbilityRecord out of stack and then schedule to terminate.
             RemoveTerminatingAbility(ability, lastActiveAbility);
             ability->SendResultToCallers();
@@ -1411,8 +1412,14 @@ void AbilityStackManager::OnAppStateChanged(const AppInfo &info)
             if (!ability) {
                 continue;
             }
-            if (ability->GetApplicationInfo().name == info.appName &&
-                (info.processName == ability->GetAbilityInfo().process ||
+            auto appName = ability->GetApplicationInfo().name;
+            auto uid = ability->GetAbilityInfo().applicationInfo.uid;
+            auto isExist = [&appName, &uid](const AppData &appData) {
+                return appData.appName == appName && appData.uid == uid;
+            };
+            auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+
+            if (iter != info.appData.end() && (info.processName == ability->GetAbilityInfo().process ||
                 info.processName == ability->GetApplicationInfo().bundleName)) {
                 ability->SetAppState(info.state);
             }
@@ -1436,7 +1443,14 @@ void AbilityStackManager::OnAppStateChanged(const AppInfo &info)
                         continue;
                     }
 
-                    if (ability->GetApplicationInfo().name == info.appName &&
+                    auto appName = ability->GetApplicationInfo().name;
+                    auto uid = ability->GetAbilityInfo().applicationInfo.uid;
+                    auto isExist = [&appName, &uid](const AppData &appData) {
+                        return appData.appName == appName && appData.uid == uid;
+                    };
+                    auto iter = std::find_if(info.appData.begin(), info.appData.end(), isExist);
+
+                    if (iter != info.appData.end() &&
                         (info.processName == ability->GetAbilityInfo().process ||
                         info.processName == ability->GetApplicationInfo().bundleName)) {
                         ability->SetAppState(info.state);
@@ -2913,6 +2927,7 @@ void AbilityStackManager::OnTimeOut(uint32_t msgId, int64_t eventId)
     auto abilityRecord = GetAbilityRecordByEventId(eventId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("stack manager on time out event: ability record is nullptr.");
+        BackToLauncher();
         return;
     }
 

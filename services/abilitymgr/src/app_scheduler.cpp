@@ -35,6 +35,11 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     CHECK_POINTER_RETURN_BOOL(callback.lock());
     CHECK_POINTER_RETURN_BOOL(appMgrClient_);
 
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    if (isInit_) {
+        return true;
+    }
+
     callback_ = callback;
     /* because the errcode type of AppMgr Client API will be changed to int,
      * so must to covert the return result  */
@@ -50,6 +55,7 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
         return false;
     }
     HILOG_INFO("success to ConnectAppMgrService");
+    isInit_ = true;
     return true;
 }
 
@@ -113,7 +119,6 @@ void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, const 
     appMgrClient_->UpdateExtensionState(token, state);
 }
 
-
 void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
 {
@@ -127,6 +132,13 @@ void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
     HILOG_DEBUG("Kill process by ability token.");
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessByAbilityToken(token);
+}
+
+void AppScheduler::KillProcessesByUserId(int32_t userId)
+{
+    HILOG_DEBUG("Kill process by user id.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->KillProcessesByUserId(userId);
 }
 
 AppAbilityState AppScheduler::ConvertToAppAbilityState(const int32_t state)
@@ -213,9 +225,13 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
     AppInfo info;
-    info.appName = appData.appName;
+    for (const auto &list : appData.appDatas) {
+        AppData data;
+        data.appName = list.appName;
+        data.uid = list.uid;
+        info.appData.push_back(data);
+    }
     info.processName = appData.processName;
-    info.uid = appData.uid;
     info.state = static_cast<AppState>(appData.appState);
     callback->OnAppStateChanged(info);
 }

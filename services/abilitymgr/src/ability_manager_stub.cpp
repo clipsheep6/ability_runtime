@@ -125,6 +125,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
+    requestFuncMap_[SET_ABILITY_CONTROLLER] = &AbilityManagerStub::SetAbilityControllerInner;
+    requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsUserAStabilityTestInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1178,6 +1180,62 @@ int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data
     int32_t result = UnRegisterMissionListener(deviceId, listener);
     HILOG_INFO("AbilityManagerStub: UnRegisterRemoteMissionListenerInner result = %{public}d", result);
     return result;
+}
+
+int AbilityManagerStub::RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<ISnapshotHandler> handler = iface_cast<ISnapshotHandler>(data.ReadRemoteObject());
+    if (handler == nullptr) {
+        HILOG_ERROR("snapshot: AbilityManagerStub read snapshot handler failed!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterSnapshotHandler(handler);
+    HILOG_INFO("snapshot: AbilityManagerStub register snapshot handler result = %{public}d", result);
+    return result;
+}
+
+int AbilityManagerStub::GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string deviceId = data.ReadString();
+    if (deviceId.empty()) {
+        HILOG_ERROR("missionSnapshot: get deviceId empty!");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t missionId = data.ReadInt32();
+    MissionSnapshot missionSnapshot;
+    int32_t result = GetMissionSnapshot(deviceId, missionId, missionSnapshot);
+    HILOG_INFO("snapshot: AbilityManagerStub get snapshot result = %{public}d", result);
+    reply.WriteParcelable(&missionSnapshot);
+    return result;
+}
+
+int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AppExecFwk::IAbilityController> controller =
+        iface_cast<AppExecFwk::IAbilityController>(data.ReadRemoteObject());
+    if (controller == nullptr) {
+        HILOG_ERROR("AbilityManagerStub: setAbilityControllerInner controller readParcelable failed!");
+        return ERR_NULL_OBJECT;
+    }
+    bool imAStabilityTest = data.ReadBool();
+    int32_t result = SetAbilityController(controller, imAStabilityTest);
+    HILOG_INFO("AbilityManagerStub: setAbilityControllerInner result = %{public}d", result);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("setAbilityControllerInner failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::IsUserAStabilityTestInner(MessageParcel &data, MessageParcel &reply)
+{
+    bool result = IsUserAStabilityTest();
+    HILOG_INFO("AbilityManagerStub: isUserAStabilityTest result = %{public}d", result);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("isUserAStabilityTest failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

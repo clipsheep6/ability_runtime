@@ -128,6 +128,11 @@ private:
 
     int StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
     int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply);
+    int GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply);
+
+    int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
+    int IsUserAStabilityTestInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

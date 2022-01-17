@@ -202,6 +202,25 @@ public:
     {
         return 0;
     }
+    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
+    {
+        return 0;
+    }
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
+    {
+        return 0;
+    }
+
+    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+        bool imAStabilityTest) override
+    {
+        return 0;
+    }
+
+    virtual bool IsUserAStabilityTest() override
+    {
+        return true;
+    }
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;

@@ -46,6 +46,7 @@ ohos_shared_library("missionmanager_napi") {
     "appexecfwk_standard:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "multimedia_image_standard:image",
   ]
 
   relative_install_dir = "module/application"
@@ -54,7 +55,7 @@ ohos_shared_library("missionmanager_napi") {
   part_name = "aafwk_standard"
 }
 
-ohos_shared_library("missionregistration_napi") {
+ohos_shared_library("distributedmissionmanager") {
   include_dirs = [
     "//third_party/libuv/include",
     "//third_party/node/src",

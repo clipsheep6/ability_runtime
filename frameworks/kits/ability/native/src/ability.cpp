@@ -72,12 +72,6 @@ const std::string Ability::DMS_ORIGIN_DEVICE_ID("deviceId");
 const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const int TARGET_VERSION_THRESHOLDS = 8;
-const std::map<int32_t, Rosen::WindowMode> Ability::convertWindowModeMap_ = {
-    {AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FULLSCREEN, Rosen::WindowMode::WINDOW_MODE_FULLSCREEN},
-    //{AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY, Rosen::WindowMode::WINDOW_MODE_SPLIT_PRIMARY},
-    //{AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY, Rosen::WindowMode::WINDOW_MODE_SPLIT_SECONDARY},
-    {AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING, Rosen::WindowMode::WINDOW_MODE_FLOATING}
-};
 
 static std::mutex formLock;
 
@@ -200,11 +194,16 @@ void Ability::OnStart(const Want &want)
             winType = Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW;
         }
 
-        APP_LOGI("Ability::OnStart bundleName:%{public}s abilityName:%{public}s: set config.type = %{public}d",
+        int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        int displayId = want.GetIntParam(StartOptions::STRING_DISPLAY_ID, defualtDisplayId);
+        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, config.type:%{public}d, "
+            "displayId:%{public}d",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str(),
-            winType);
-        InitWindow(winType);
+            winType,
+            displayId);
+        auto option = GetWindowOption(want);
+        InitWindow(winType, displayId, option);
 
         if (abilityWindow_ != nullptr) {
             APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityStart.", __func__);
@@ -267,11 +266,6 @@ void Ability::OnStop()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
-
-    bool ret = AbilityRuntime::ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
-    if (ret) {
-        APP_LOGI("The service connection is not disconnected.");
-    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -510,19 +504,24 @@ void Ability::OnDisconnect(const Want &want)
  *
  * @param want information of other ability
  * @param requestCode request code for abilityMS to return result
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::StartAbilityForResult(const Want &want, int requestCode)
+ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbilityForResult abilityInfo_ == nullptr");
-        return;
+        return ERR_NULL_OBJECT;
     }
     APP_LOGI("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        AbilityContext::StartAbility(want, requestCode);
+    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
+        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        return ERR_INVALID_VALUE;
     }
+    ErrCode err = AbilityContext::StartAbility(want, requestCode);
     APP_LOGI("%{public}s end.", __func__);
+    return err;
 }
 
 /**
@@ -535,19 +534,24 @@ void Ability::StartAbilityForResult(const Want &want, int requestCode)
  * @param requestCode Indicates the request code returned after the ability is started. You can define the request
  * code to identify the results returned by abilities. The value ranges from 0 to 65535.
  * @param abilityStartSetting Indicates the setting ability used to start.
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
+ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
 {
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbilityForResult abilityInfo_ == nullptr");
-        return;
+        return ERR_NULL_OBJECT;
     }
     APP_LOGI("Ability::StartAbilityForResult called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
+    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
+        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        return ERR_INVALID_VALUE;
     }
+    ErrCode err = AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
     APP_LOGI("%{public}s end.", __func__);
+    return err;
 }
 
 /**
@@ -559,19 +563,24 @@ void Ability::StartAbilityForResult(const Want &want, int requestCode, AbilitySt
  *
  * @param want Indicates the ability to start.
  * @param abilityStartSetting Indicates the setting ability used to start.
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
+ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
 {
     APP_LOGI("%{public}s beign.", __func__);
     if (abilityInfo_ == nullptr) {
         APP_LOGE("Ability::StartAbility abilityInfo_ == nullptr");
-        return;
+        return ERR_NULL_OBJECT;
     }
     APP_LOGI("Ability::StartAbility called type = %{public}d", abilityInfo_->type);
-    if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE || abilityInfo_->type == AppExecFwk::AbilityType::SERVICE) {
-        AbilityContext::StartAbility(want, -1, abilityStartSetting);
+    if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE && abilityInfo_->type != AppExecFwk::AbilityType::SERVICE) {
+        APP_LOGE("Ability::StartAbility ability type: %{public}d", abilityInfo_->type);
+        return ERR_INVALID_VALUE;
     }
+    ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
     APP_LOGI("%{public}s end.", __func__);
+    return err;
 }
 
 /**
@@ -668,7 +677,7 @@ void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int
  *
  * @param windowOption Indicates the window option defined by the user.
  */
-void Ability::InitWindow(Rosen::WindowType winType)
+void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
         APP_LOGE("Ability::InitWindow abilityWindow_ is nullptr");
@@ -677,11 +686,11 @@ void Ability::InitWindow(Rosen::WindowType winType)
     bool useNewMission = AbilityImpl::IsUseNewMission();
     APP_LOGI("%{public}s beign abilityWindow_->InitWindow.", __func__);
     if (useNewMission) {
-        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_);
+        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option);
     } else {
         std::shared_ptr<AbilityRuntime::AbilityContext> context = nullptr;
         sptr<Rosen::IWindowLifeCycle> listener = nullptr;
-        abilityWindow_->InitWindow(winType, context, listener);
+        abilityWindow_->InitWindow(winType, context, listener, displayId, option);
     }
     APP_LOGI("%{public}s end abilityWindow_->InitWindow.", __func__);
 }
@@ -902,7 +911,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     } else {
         APP_LOGE("%{public}s scene_ is nullptr.", __func__);
     }
-   
+
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -1463,24 +1472,26 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
  * the ability to start using the intent parameter.
  *
  * @param intent Indicates the ability to start.
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::StartAbility(const Want &want)
+ErrCode Ability::StartAbility(const Want &want)
 {
-    APP_LOGI("%{public}s begin.", __func__);
-    AbilityContext::StartAbility(want, -1);
-    APP_LOGI("%{public}s end.", __func__);
+    APP_LOGI("%{public}s begin Ability::StartAbility", __func__);
+    return AbilityContext::StartAbility(want, -1);
 }
 
 /**
  * @brief Destroys this Page or Service ability.
  * After a Page or Service ability performs all operations, it can use this method to destroy itself
  * to free up memory. This method can be called only after the ability is initialized.
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::TerminateAbility()
+ErrCode Ability::TerminateAbility()
 {
-    APP_LOGI("%{public}s begin.", __func__);
-    AbilityContext::TerminateAbility();
-    APP_LOGI("%{public}s end.", __func__);
+    APP_LOGI("%{public}s begin Ability::TerminateAbility", __func__);
+    return AbilityContext::TerminateAbility();
 }
 
 /**
@@ -1557,8 +1568,10 @@ bool Ability::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnect
  *
  * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
  *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
+ *
+ * @return errCode ERR_OK on success, others on failure.
  */
-void Ability::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+ErrCode Ability::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
 {
     return AbilityContext::DisconnectAbility(conn);
 }
@@ -1617,6 +1630,29 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
     std::weak_ptr<IContinuationRegisterManager> continuationRegisterManager =
         std::weak_ptr<IContinuationRegisterManager>(continuationRegisterManager_);
     return continuationRegisterManager;
+}
+
+/**
+ * @brief Callback function to ask the user to prepare for the migration .
+ *
+ * @return If the user allows migration and saves data suscessfully, it returns true; otherwise, it returns false.
+ */
+bool Ability::OnContinue(WantParams &wantParams)
+{
+    return false;
+}
+
+/**
+ * @brief Get page ability stack info.
+ *
+ * @return A string represents page ability stack info, empty if failed;
+ */
+const std::string& Ability::GetContentInfo()
+{
+    if (scene_ == nullptr) {
+        return "";
+    }
+    return scene_->GetContentInfo();
 }
 
 /**
@@ -2570,7 +2606,7 @@ bool Ability::LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType)
  *
  * This method must be called when the application has detected that a system setting item (such as the language,
  * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
- * provider automatically updates the form data (if there is any update) through the form framework, with the update
+ * supplier automatically updates the form data (if there is any update) through the form framework, with the update
  * process being unperceivable by the application.
  *
  * @param formId Indicates the ID of the form to update.
@@ -3211,13 +3247,11 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         APP_LOGE("Ability::GetWindowOption option is null.");
         return nullptr;
     }
-    auto windowMode = want.GetIntParam(StartOptions::STRING_WINDOW_MODE,
+    auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-    auto iter = convertWindowModeMap_.find(windowMode);
-    if (iter != convertWindowModeMap_.end()) {
-        option->SetWindowMode(iter->second);
-        APP_LOGI("Ability::GetWindowOption window mode is %{public}d.", iter->second);
-    }
+    APP_LOGI("Ability::GetWindowOption window mode is %{public}d.", windowMode);
+    option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+
     APP_LOGI("%{public}s end", __func__);
     return option;
 }

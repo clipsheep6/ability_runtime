@@ -52,10 +52,14 @@ enum class AppState {
     END,
 };
 
-struct AppInfo {
+struct AppData {
     std::string appName;
-    std::string processName;
     int32_t uid;
+};
+
+struct AppInfo {
+    std::vector<AppData> appData;
+    std::string processName;
     AppState state;
 };
 /**
@@ -162,6 +166,14 @@ public:
     void KillProcessByAbilityToken(const sptr<IRemoteObject> &token);
 
     /**
+     * KillProcessesByUserId, call KillProcessesByUserId() through proxy object,
+     * kill the process by user id.
+     *
+     * @param userId, the user id.
+     */
+    void KillProcessesByUserId(int32_t userId);
+
+    /**
      * convert ability state to app ability state.
      *
      * @param state, the state of ability.
@@ -233,6 +245,8 @@ protected:
     virtual void OnAppStateChanged(const AppExecFwk::AppProcessData &appData) override;
 
 private:
+    std::recursive_mutex lock_;
+    bool isInit_  {false};
     std::weak_ptr<AppStateCallback> callback_;
     std::unique_ptr<AppExecFwk::AppMgrClient> appMgrClient_;
     AppAbilityState appAbilityState_ = AppAbilityState::ABILITY_STATE_UNDEFINED;

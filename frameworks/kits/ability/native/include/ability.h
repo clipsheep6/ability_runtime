@@ -107,7 +107,7 @@ public:
     int TerminateAbility(Want &want);
 
     /**
-     * @brief By binding an action, you can set different action parameters in Intent to present different initial
+     * @brief By binding an action, you can set different action parameters in want to present different initial
      * pages. You must register actions in the profile file.
      *
      * @param action Indicates the action to bind.
@@ -135,8 +135,10 @@ public:
      * @brief Destroys this Page or Service ability.
      * After a Page or Service ability performs all operations, it can use this method to destroy itself
      * to free up memory. This method can be called only after the ability is initialized.
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual void TerminateAbility() final;
+    virtual ErrCode TerminateAbility() final;
 
     /**
      * @brief Obtains the Lifecycle object of the current ability.
@@ -172,8 +174,10 @@ public:
      *
      * @param want information of other ability
      * @param requestCode request code for abilityMS to return result
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual void StartAbilityForResult(const Want &want, int requestCode) final;
+    virtual ErrCode StartAbilityForResult(const Want &want, int requestCode) final;
 
     /**
      * Starts an ability with specific start settings and returns the execution result when the ability is destroyed.
@@ -185,21 +189,25 @@ public:
      * @param requestCode Indicates the request code returned after the ability is started. You can define the request
      * code to identify the results returned by abilities. The value ranges from 0 to 65535.
      * @param abilityStartSetting Indicates the setting ability used to start.
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
-    virtual void StartAbilityForResult(
+    virtual ErrCode StartAbilityForResult(
         const Want &want, int requestCode, AbilityStartSetting abilityStartSetting) final;
 
     /**
      * Starts a new ability with specific start settings.
      * A Page or Service ability uses this method to start a specific ability.
      * The system locates the target ability from installed abilities based on
-     * the value of the intent parameter and then starts it. You can specify the
-     * ability to start using the intent parameter.
+     * the value of the want parameter and then starts it. You can specify the
+     * ability to start using the want parameter.
      *
      * @param want Indicates the ability to start.
      * @param abilityStartSetting Indicates the setting ability used to start.
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
-    void StartAbility(const Want &want, AbilityStartSetting abilityStartSetting);
+    ErrCode StartAbility(const Want &want, AbilityStartSetting abilityStartSetting);
 
     // lifecycle callback
     virtual void Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
@@ -379,7 +387,7 @@ public:
      *
      * @param windowOption Indicates the window option defined by the user.
      */
-    virtual void InitWindow(Rosen::WindowType winType);
+    virtual void InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option);
 
     /**
      * @brief Get the window belong to the ability.
@@ -842,13 +850,15 @@ public:
 
     /**
      * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
-     * ability from installed abilities based on the value of the intent parameter and then starts it. You can specify
-     * the ability to start using the intent parameter.
+     * ability from installed abilities based on the value of the want parameter and then starts it. You can specify
+     * the ability to start using the want parameter.
      *
-     * @param intent Indicates the ability to start.
+     * @param want Indicates the ability to start.
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
     using AbilityContext::StartAbility;
-    virtual void StartAbility(const Want &want) final;
+    virtual ErrCode StartAbility(const Want &want) final;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
@@ -866,8 +876,10 @@ public:
      *
      * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
      *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
+     *
+     * @return errCode ERR_OK on success, others on failure.
      */
-    void DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
+    ErrCode DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
 
     /**
      * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
@@ -1275,6 +1287,22 @@ public:
     std::weak_ptr<IContinuationRegisterManager> GetContinuationRegisterManager();
 
     /**
+     * @brief Prepare user data of local Ability.
+     *
+     * @param wantParams Indicates the user data to be saved.
+     * @return If the ability is willing to continue and data saved successfully, it returns true;
+     * otherwise, it returns false.
+     */
+    virtual bool OnContinue(WantParams &wantParams);
+
+    /**
+     * @brief Get page ability stack info.
+     *
+     * @return A string represents page ability stack info, empty if failed;
+     */
+    virtual const std::string& GetContentInfo();
+
+    /**
      * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
      * ability slices must implement the IAbilityContinuation interface.
      *
@@ -1452,7 +1480,7 @@ private:
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     std::shared_ptr<AAFwk::Want> setWant_ = nullptr;
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
-    
+
     bool bWindowFocus_ = false;
     int compatibleVersion_ = 0;
 
@@ -1464,10 +1492,10 @@ private:
     // Keep consistent with DMS defines. Used to callback to DMS.
     static const std::string DMS_SESSION_ID;
 
-    // The originating deviceId passed by DMS using intent param.
+    // The originating deviceId passed by DMS using want param.
     static const std::string DMS_ORIGIN_DEVICE_ID;
 
-    // If session id cannot get from intent, assign it as default.
+    // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
 
     std::vector<int64_t> lostedByReconnectTempForms_;
@@ -1484,7 +1512,6 @@ private:
     static const int32_t RELEASE_FORM = 8;
     static const int32_t RELEASE_CACHED_FORM = 9;
     static const int64_t MIN_NEXT_TIME = 5;
-    static const std::map<int32_t, Rosen::WindowMode> convertWindowModeMap_;
 
 private:
     /**

@@ -18,6 +18,7 @@
 #include "ability_runtime/js_ability_context.h"
 #include "ability_runtime/js_window_stage.h"
 #include "ability_start_setting.h"
+#include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
@@ -77,6 +78,20 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
 
     context->Bind(jsRuntime_, shellContextRef.release());
     obj->SetProperty("context", contextObj);
+
+    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get ability native object");
+        return;
+    }
+
+    HILOG_INFO("Set ability context pointer: %{public}p", context.get());
+
+    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
+        [](NativeEngine*, void* data, void*) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+        }, nullptr);
 }
 
 void JsAbility::OnStart(const Want &want)
@@ -116,6 +131,10 @@ void JsAbility::OnStop()
     Ability::OnStop();
 
     CallObjectMethod("onDestroy");
+    bool ret = ConnectionManager::GetInstance().DisconnectCaller(AbilityContext::token_);
+    if (ret) {
+        HILOG_INFO("The service connection is not disconnected.");
+    }
 }
 
 void JsAbility::OnSceneCreated()
@@ -178,6 +197,40 @@ void JsAbility::OnBackground()
     Ability::OnBackground();
 
     CallObjectMethod("onBackground");
+}
+
+bool JsAbility::OnContinue(WantParams &wantParams)
+{
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get Ability object");
+        return false;
+    }
+
+    NativeValue* methodOnCreate = obj->GetProperty("onContinue");
+    if (methodOnCreate == nullptr) {
+        HILOG_ERROR("Failed to get 'onContinue' from Ability object");
+        return false;
+    }
+
+    napi_value napiWantParams = OHOS::AppExecFwk::WrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), wantParams);
+    NativeValue* jsWantParams = reinterpret_cast<NativeValue*>(napiWantParams);
+
+    NativeValue* result = nativeEngine.CallFunction(value, methodOnCreate, &jsWantParams, 1);
+
+    napi_value new_napiWantParams = reinterpret_cast<napi_value>(jsWantParams);
+    OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(&nativeEngine), new_napiWantParams, wantParams);
+
+    NativeBoolean* boolResult = ConvertNativeValueTo<NativeBoolean>(result);
+    if (boolResult == nullptr) {
+        return false;
+    }
+
+    return *boolResult;
 }
 
 void JsAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
@@ -266,7 +319,7 @@ void JsAbility::DoOnForeground(const Want& want)
             }
         }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_);
+        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;
@@ -281,7 +334,7 @@ void JsAbility::DoOnForeground(const Want& want)
             HandleScope handleScope(jsRuntime_);
             auto& engine = jsRuntime_.GetNativeEngine();
             scene_->GetMainWindow()->SetUIContent(abilityContext_, pageStack, &engine,
-                static_cast<NativeValue*>(abilityContext_->GetContentStorage()));
+                static_cast<NativeValue*>(abilityContext_->GetContentStorage()), true);
             OnSceneRestored();
             NotityContinuationResult(want, true);
         } else {

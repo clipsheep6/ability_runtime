@@ -666,6 +666,38 @@ int AbilityManagerProxy::GetMissionSnapshot(const int32_t missionId, MissionPixe
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(deviceId)) {
+        HILOG_ERROR("deviceId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("missionId write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    error = Remote()->SendRequest(IAbilityManager::GET_MISSION_SNAPSHOT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    std::unique_ptr<MissionSnapshot> info(reply.ReadParcelable<MissionSnapshot>());
+    if (!info) {
+        HILOG_ERROR("readParcelableInfo failed.");
+        return ERR_UNKNOWN_OBJECT;
+    }
+    snapshot = *info;
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::MoveMissionToTop(int32_t missionId)
 {
     int error;
@@ -2032,6 +2064,71 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
         return error;
     }
     return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(handler->AsObject())) {
+        HILOG_ERROR("snapshot: handler write failed.");
+        return INNER_ERR;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::REGISTER_SNAPSHOT_HANDLER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("snapshot: send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    bool imAStabilityTest)
+{
+    if (!abilityController) {
+        HILOG_ERROR("abilityController nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteRemoteObject(abilityController->AsObject())) {
+        HILOG_ERROR("abilityController write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteBool(imAStabilityTest)) {
+        HILOG_ERROR("imAStabilityTest write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::SET_ABILITY_CONTROLLER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+bool AbilityManagerProxy::IsUserAStabilityTest()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return false;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::IS_USER_A_STABILITY_TEST, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

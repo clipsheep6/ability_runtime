@@ -41,11 +41,12 @@
 #include "ability_config.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
-#include "event_handler.h"
+#include "user_controller.h"
 
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
+using OHOS::AppExecFwk::IAbilityController;
 
 class PendingWantManager;
 /**
@@ -305,7 +306,7 @@ public:
      *
      * @param userId, user id.
      */
-    void SetStackManager(int userId);
+    void SetStackManager(int userId, bool switchUser);
 
     /**
      * GetStackManager, get the current stack manager.
@@ -580,7 +581,7 @@ public:
      *
      * @param userId, user id.
      */
-    void InitMissionListManager(int userId);
+    void InitMissionListManager(int userId, bool switchUser);
 
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) override;
@@ -707,6 +708,32 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    void ClearUserData(int32_t userId);
+
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
+
+    virtual int32_t GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot) override;
+
+    /**
+     * Set ability controller.
+     *
+     * @param abilityController, The ability controller.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int SetAbilityController(const sptr<IAbilityController> &abilityController, bool imAStabilityTest) override;
+
+    /**
+     * Is user a stability test.
+     *
+     * @return Returns true if user is a stability test.
+     */
+    virtual bool IsUserAStabilityTest() override;
+
+    bool IsAbilityControllerStarting(const Want &want, const std::string &bundleName);
+
+    bool IsAbilityControllerResuming(const std::string &bundleName);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -751,6 +778,7 @@ public:
     };
 
     friend class AbilityStackManager;
+    friend class UserController;
 
 protected:
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state) override;
@@ -845,7 +873,8 @@ private:
         std::vector<MissionInfo> &missionInfos);
     int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
         MissionInfo &missionInfo);
-    int CallMissionListener(const std::string &deviceId, const sptr<IRemoteMissionListener> &listener);
+    int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& missionSnapshot);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
@@ -863,6 +892,18 @@ private:
     void DumpFuncInit();
     bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
+
+    void InitConnectManager(int32_t userId, bool switchUser);
+    void InitDataAbilityManager(int32_t userId, bool switchUser);
+    void InitPendWantManager(int32_t userId, bool switchUser);
+
+    // multi user
+    void StartFreezingScreen();
+    void StopFreezingScreen();
+    void UserStarted(int32_t userId);
+    void SwitchToUser(int32_t userId);
+    void StartLauncherAbility(int32_t userId);
+
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
 
@@ -874,15 +915,17 @@ private:
     ServiceRunningState state_;
     std::unordered_map<int, std::shared_ptr<AbilityStackManager>> stackManagers_;
     std::shared_ptr<AbilityStackManager> currentStackManager_;
+    std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
     std::shared_ptr<AbilityConnectManager> connectManager_;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::shared_ptr<AppScheduler> appScheduler_;
+    std::unordered_map<int, std::shared_ptr<DataAbilityManager>> dataAbilityManagers_;
     std::shared_ptr<DataAbilityManager> dataAbilityManager_;
+    std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     std::shared_ptr<AppExecFwk::Configuration> configuration_;
-    std::shared_ptr<AppExecFwk::EventHandler> callListenerHandler_ = nullptr;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 
     // new ams here
@@ -890,6 +933,11 @@ private:
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
     std::shared_ptr<KernalAbilityManager> kernalAbilityManager_;
+    sptr<ISnapshotHandler> snapshotHandler_;
+    std::shared_ptr<UserController> userController_;
+    sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
+    bool controllerIsAStabilityTest_ = false;
+    std::recursive_mutex globalLock_;
 };
 
 }  // namespace AAFwk

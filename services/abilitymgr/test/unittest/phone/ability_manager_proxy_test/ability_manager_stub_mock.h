@@ -326,6 +326,26 @@ public:
     {
         return 0;
     }
+    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
+    {
+        return 0;
+    }
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
+    {
+        return 0;
+    }
+
+    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+        bool imAStabilityTest) override
+    {
+        return 0;
+    }
+
+    virtual bool IsUserAStabilityTest() override
+    {
+        return true;
+    }
+
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD2(
