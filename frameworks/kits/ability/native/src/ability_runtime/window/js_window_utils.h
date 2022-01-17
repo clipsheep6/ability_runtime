@@ -13,10 +13,24 @@
  * limitations under the License.
  */
 
-class StaticSubscriberExtension {
-    onCommonEventTriggered(event) {
-        console.log('onCommonEventTriggered, event:' + event.code);
-    }
+#ifndef OHOS_JS_WINDOW_UTILS_H
+#define OHOS_JS_WINDOW_UTILS_H
+#include "native_engine/native_engine.h"
+#include "native_engine/native_value.h"
+#include "window.h"
+#include "window_option.h"
+#include "wm_common.h"
+
+namespace OHOS {
+namespace AbilityRuntime {
+namespace {
+    constexpr size_t ARGC_ONE = 1;
+    constexpr size_t ARGC_TWO = 2;
+    constexpr int32_t INDEX_ONE = 1;
+    constexpr int32_t INDEX_TWO = 2;
 }
 
-export default StaticSubscriberExtension
+    NativeValue* CreateJsWindowPropertiesObject(NativeEngine& engine, sptr<Rosen::Window>& window);
+}
+}
+#endif

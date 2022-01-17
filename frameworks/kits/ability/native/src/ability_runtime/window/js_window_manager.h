@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
-var ExtensionContext = requireNapi("application.ExtensionContext")
+#include "native_engine/native_engine.h"
+#include "native_engine/native_value.h"
+#ifndef OHOS_JS_WINDOW_MANAGER_H
+#define OHOS_JS_WINDOW_MANAGER_H
+namespace OHOS {
+namespace AbilityRuntime {
+NativeValue* JsWindowManagerInit(NativeEngine* engine, NativeValue* exportObj);
+}  // namespace AbilityRuntime
+}  // namespace OHOS
 
-class StaticSubscriberExtensionContext extends ExtensionContext {
-    constructor(obj) {
-        super(obj);
-    }
-}
-
-export default StaticSubscriberExtensionContext
+#endif

@@ -129,8 +129,7 @@ NativeValue* JsWindowStage::OnSetUIContent(NativeEngine& engine, NativeCallbackI
     }
     HILOG_INFO("JsWindowStage::OnSetUIContent Get url: %{public}s", contextUrl.c_str());
 
-    windowScene_->GetMainWindow()->SetUIContent(contextUrl, &engine,
-        static_cast<NativeValue*>(abilityContext->GetContentStorage()));
+    windowScene_->GetMainWindow()->SetUIContent(abilityContext, contextUrl, &engine, nullptr);
 
     return engine.CreateUndefined();
 }
@@ -146,7 +145,7 @@ NativeValue* JsWindowStage::OnGetMainWindow(NativeEngine& engine, NativeCallback
         [this](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto window = windowScene_->GetMainWindow();
             if (window != nullptr) {
-                task.Resolve(engine, OHOS::Rosen::CreateJsWindowObject(engine, window));
+                task.Resolve(engine, CreateJsWindowObject(engine, window));
                 HILOG_INFO("JsWindowStage::OnGetMainWindow success");
             } else {
                 task.Reject(engine, CreateJsError(engine,
