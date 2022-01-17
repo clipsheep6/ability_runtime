@@ -125,6 +125,7 @@ private:
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
+    int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
 
     int StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
     int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);

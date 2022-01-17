@@ -2799,6 +2799,16 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
     return 0;
 }
 
+int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto missionListManager = currentMissionListManager_;
+    if (missionListManager) {
+        missionListManager->SetMissionLabel(token, label);
+    }
+    return 0;
+}
+
 void AbilityManagerService::ClearUserData(int32_t userId)
 {
     HILOG_DEBUG("%{public}s", __func__);
