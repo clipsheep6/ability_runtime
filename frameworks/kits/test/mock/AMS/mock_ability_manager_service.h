@@ -114,6 +114,7 @@ public:
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
+    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
 
     int MoveMissionToEnd(const sptr<IRemoteObject> &token, const bool nonFirst) override;
     bool IsFirstInMission(const sptr<IRemoteObject> &token) override;
