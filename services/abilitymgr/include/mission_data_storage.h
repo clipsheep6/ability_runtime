@@ -29,6 +29,7 @@ const std::string TASK_DATA_FILE_BASE_PATH = "/data/service/el1/public/AbilityMa
 const std::string MISSION_DATA_FILE_PATH = "MissionInfo";
 const std::string MISSION_JSON_FILE_PREFIX = "mission";
 const std::string JSON_FILE_SUFFIX = ".json";
+const std::string PNG_FILE_SUFFIX = ".png";
 
 class MissionDataStorage : public std::enable_shared_from_this<MissionDataStorage> {
 public:
@@ -56,10 +57,18 @@ public:
      */
     void DeleteMissionInfo(int missionId);
 
+    void SaveMissionSnapshot(int missionId, const MissionSnapshot& missionSnapshot);
+
+    bool GetMissionSnapshot(int missionId, MissionSnapshot& missionSnapshot);
+
+    bool WriteToPng(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data);
+
 private:
     std::string GetMissionDataDirPath();
 
     std::string GetMissionDataFilePath(int missionId);
+
+    std::string GetMissionSnapshotPath(int missionId);
 
     bool CheckFileNameValid(const std::string &fileName);
 
