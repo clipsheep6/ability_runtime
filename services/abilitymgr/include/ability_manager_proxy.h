@@ -525,34 +525,24 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
+
+    virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
+
+    virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
+
     virtual int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
 
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
-    
-    /**
-     * Set ability controller.
-     *
-     * @param abilityController, The ability controller.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
-        bool imAStabilityTest) override;
-
-    /**
-     * Is user a stability test.
-     *
-     * @return Returns true if user is a stability test.
-     */
-    virtual bool IsUserAStabilityTest() override;
 
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
 
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot) override;
 
 private:
-    template<typename T>
+    template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
     bool WriteInterfaceToken(MessageParcel &data);
 

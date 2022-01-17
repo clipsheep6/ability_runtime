@@ -13,29 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_START_OPTIONS_H
-#define OHOS_AAFWK_START_OPTIONS_H
+#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_RUNNING_ABILITY_INFO_H
+#define OHOS_AAFWK_INTERFACES_INNERKITS_RUNNING_ABILITY_INFO_H
 
-#include <string>
-
-#include "ability_window_configuration.h"
 #include "parcel.h"
+#include "ability_info.h"
+#include "element_name.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AAFwk {
-class StartOptions : public Parcelable {
+/**
+ * @struct AbilityRunningInfo
+ * AbilityRunningInfo is used to save informations about running ability.
+ */
+struct AbilityRunningInfo : public Parcelable {
 public:
-    static const std::string STRING_WINDOW_MODE;
+    AppExecFwk::ElementName ability;
+    int pid;
+    int uid;
+    std::string processName;
+    int64_t startTime;
+    int abilityState;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
-    static StartOptions *Unmarshalling(Parcel &parcel);
-
-    void SetWindowMode(int32_t windowMode);
-    int32_t GetWindowMode() const;
-private:
-    int32_t windowMode_ = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;
+    static AbilityRunningInfo *Unmarshalling(Parcel &parcel);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_START_OPTIONS_H
+#endif  // OHOS_AAFWK_INTERFACES_INNERKITS_RUNNING_ABILITY_INFO_H

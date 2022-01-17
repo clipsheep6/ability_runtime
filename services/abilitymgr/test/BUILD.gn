@@ -198,5 +198,8 @@ group("unittest") {
     "unittest/phone/want_sender_stub_test:unittest",
     "unittest/phone/wants_info_test:unittest",
     "unittest/phone/window_info_test:unittest",
+
+    #ability new
+    "unittest/ability_new/ability_manager_service_new_test:unittest",
   ]
 }

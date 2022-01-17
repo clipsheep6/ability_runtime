@@ -46,7 +46,6 @@
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
-using OHOS::AppExecFwk::IAbilityController;
 
 class PendingWantManager;
 /**
@@ -679,6 +678,10 @@ public:
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
+    virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
+    virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
+    virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
+
     int GetMissionSaveTime() const;
 
     /**
@@ -714,25 +717,6 @@ public:
 
     virtual int32_t GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot) override;
-
-    /**
-     * Set ability controller.
-     *
-     * @param abilityController, The ability controller.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SetAbilityController(const sptr<IAbilityController> &abilityController, bool imAStabilityTest) override;
-
-    /**
-     * Is user a stability test.
-     *
-     * @return Returns true if user is a stability test.
-     */
-    virtual bool IsUserAStabilityTest() override;
-
-    bool IsAbilityControllerStarting(const Want &want, const std::string &bundleName);
-
-    bool IsAbilityControllerResuming(const std::string &bundleName);
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -873,8 +857,6 @@ private:
         std::vector<MissionInfo> &missionInfos);
     int GetRemoteMissionInfo(const std::string& deviceId, int32_t missionId,
         MissionInfo &missionInfo);
-    int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& missionSnapshot);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
@@ -935,9 +917,6 @@ private:
     std::shared_ptr<KernalAbilityManager> kernalAbilityManager_;
     sptr<ISnapshotHandler> snapshotHandler_;
     std::shared_ptr<UserController> userController_;
-    sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
-    bool controllerIsAStabilityTest_ = false;
-    std::recursive_mutex globalLock_;
 };
 
 }  // namespace AAFwk
