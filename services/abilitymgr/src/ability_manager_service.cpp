@@ -2581,16 +2581,6 @@ void AbilityManagerService::StartSystemApplication()
         StartingSystemUiAbility(SatrtUiMode::NAVIGATIONBAR);
     }
 
-    if (amsConfigResolver_->GetStartContactsState()) {
-        HILOG_INFO("start contacts");
-        StartingContactsAbility();
-    }
-
-    if (amsConfigResolver_->GetStartMmsState()) {
-        HILOG_INFO("start mms");
-        StartingMmsAbility();
-    }
-
     // Location may change
     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }
