@@ -579,20 +579,22 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByToken(
     return defaultStandardList_->GetAbilityRecordByToken(token);
 }
 
-std::shared_ptr<Mission> MissionListManager::GetMissionById(int missionId) const
+std::shared_ptr<Mission> MissionListManager::GetMissionById(int missionId, bool containsLauncher) const
 {
     std::shared_ptr<Mission> mission = nullptr;
     for (auto missionList : currentMissionLists_) {
-        if (missionList && (mission = missionList->GetMissionById(missionId)) != nullptr) {
+        if (!missionList) {
+            continue;
+        }
+        if (!containsLauncher && missionList->GetType() == MissionListType::LAUNCHER) {
+            continue;
+        }
+        if (mission = missionList->GetMissionById(missionId) != nullptr) {
             return mission;
         }
     }
 
     if ((mission = defaultSingleList_->GetMissionById(missionId)) != nullptr) {
-        return mission;
-    }
-
-    if ((mission = launcherList_->GetMissionById(missionId)) != nullptr) {
         return mission;
     }
 
@@ -983,7 +985,7 @@ int MissionListManager::ClearMission(int missionId)
         return ERR_INVALID_VALUE;
     }
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    auto mission = GetMissionById(missionId);
+    auto mission = GetMissionById(missionId, false);
     return ClearMissionLocked(missionId, mission);
 }
 
@@ -1064,7 +1066,7 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
         HILOG_ERROR("param is invalid");
         return MISSION_NOT_FOUND;
     }
-    std::shared_ptr<Mission> mission = GetMissionById(missionId);
+    std::shared_ptr<Mission> mission = GetMissionById(missionId, false);
     if (mission) {
         mission->SetLockedState(lockedState);
         // update inner mission info time
@@ -1177,7 +1179,7 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
 
 std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission)
 {
-    mission = GetMissionById(missionId);
+    mission = GetMissionById(missionId, true);
     if (mission) {
         HILOG_DEBUG("get mission by id successfully, missionId: %{public}d", missionId);
         auto missionList = mission->GetMissionList();
