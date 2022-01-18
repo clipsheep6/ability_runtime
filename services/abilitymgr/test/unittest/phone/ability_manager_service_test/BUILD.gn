@@ -57,7 +57,7 @@ ohos_unittest("ability_manager_service_test") {
   ]
 
   external_deps = [
-    "dsoftbus_standard:softbus_client",
+    "dsoftbus:softbus_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
