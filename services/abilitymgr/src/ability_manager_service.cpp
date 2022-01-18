@@ -2622,6 +2622,7 @@ void AbilityManagerService::ConnectBmsService()
 
 void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
 {
+    return;
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
         HILOG_INFO("bms service is null");
