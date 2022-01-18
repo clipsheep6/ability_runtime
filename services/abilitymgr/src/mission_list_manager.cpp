@@ -589,7 +589,7 @@ std::shared_ptr<Mission> MissionListManager::GetMissionById(int missionId, bool 
         if (!containsLauncher && missionList->GetType() == MissionListType::LAUNCHER) {
             continue;
         }
-        if (mission = missionList->GetMissionById(missionId) != nullptr) {
+        if ((mission = missionList->GetMissionById(missionId)) != nullptr) {
             return mission;
         }
     }
