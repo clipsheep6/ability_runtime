@@ -123,6 +123,7 @@ public:
     * @return None.
     */
     void SetCompatibleVersion(int compatibleVersion);
+
 private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     sptr<IRemoteObject> token_;
