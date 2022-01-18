@@ -121,7 +121,7 @@ void AbilityManagerService::OnStart()
         return;
     }
 
-    HILOG_INFO("Ability manager service start success.");
+    HILOG_INFO("Ability manager service start success...");
 }
 
 bool AbilityManagerService::Init()
@@ -2795,6 +2795,16 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
     HILOG_DEBUG("%{public}s", __func__);
     if (callback) {
         callback->OnStopUserDone(userId, ERR_OK);
+    }
+    return 0;
+}
+
+int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto missionListManager = currentMissionListManager_;
+    if (missionListManager) {
+        missionListManager->SetMissionLabel(token, label);
     }
     return 0;
 }
