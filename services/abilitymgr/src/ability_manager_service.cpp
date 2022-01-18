@@ -1989,6 +1989,16 @@ void AbilityManagerService::StartSystemUi(const std::string abilityName)
     return;
 }
 
+void AbilityManagerService::StartScreenlock(const std::string abilityName)
+{
+    HILOG_INFO("Starting system ui app.");
+    Want want;
+    want.SetElementName(AbilityConfig::SCREENLOCK_BUNDLE_NAME, abilityName);
+    HILOG_INFO("Ability name: %{public}s.", abilityName.c_str());
+    (void)StartAbility(want, DEFAULT_INVAL_VALUE);
+    return;
+}
+
 int AbilityManagerService::GenerateAbilityRequest(
     const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken)
 {
@@ -2655,6 +2665,7 @@ void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
         case SatrtUiMode::STARTUIBOTH:
             StartSystemUi(AbilityConfig::SYSTEM_UI_STATUS_BAR);
             StartSystemUi(AbilityConfig::SYSTEM_UI_NAVIGATION_BAR);
+            StartScreenlock(AbilityConfig::SCREENLOCK);
             break;
         default:
             HILOG_INFO("Input mode error ...");
