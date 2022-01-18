@@ -2622,6 +2622,7 @@ void AbilityManagerService::ConnectBmsService()
 
 void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
 {
+    HILOG_INFO("Do not start systemui for test");
     return;
     HILOG_DEBUG("%{public}s", __func__);
     if (!iBundleManager_) {
