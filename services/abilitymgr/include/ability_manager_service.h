@@ -679,6 +679,10 @@ public:
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
+    virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
+    virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
+    virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
+
     int GetMissionSaveTime() const;
 
     /**
@@ -896,6 +900,10 @@ private:
     void InitConnectManager(int32_t userId, bool switchUser);
     void InitDataAbilityManager(int32_t userId, bool switchUser);
     void InitPendWantManager(int32_t userId, bool switchUser);
+
+    int32_t GetAbilityInfoFromExtension(const Want &want, AppExecFwk::AbilityInfo& abilityInfo);
+    int32_t InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
+        AppExecFwk::AbilityInfo &abilityInfo);
 
     // multi user
     void StartFreezingScreen();
