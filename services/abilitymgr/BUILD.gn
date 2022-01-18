@@ -100,7 +100,7 @@ ohos_shared_library("abilityms") {
     "bytrace_standard:bytrace_core",
     "ces_standard:cesfwk_core",
     "ces_standard:cesfwk_innerkits",
-    "dsoftbus_standard:softbus_client",
+    "dsoftbus:softbus_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
