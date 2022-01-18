@@ -129,8 +129,7 @@ NativeValue* JsWindowStage::OnSetUIContent(NativeEngine& engine, NativeCallbackI
     }
     HILOG_INFO("JsWindowStage::OnSetUIContent Get url: %{public}s", contextUrl.c_str());
 
-    windowScene_->GetMainWindow()->SetUIContent(contextUrl, &engine,
-        static_cast<NativeValue*>(abilityContext->GetContentStorage()));
+    windowScene_->GetMainWindow()->SetUIContent(contextUrl, &engine, info.argv[2]);
 
     return engine.CreateUndefined();
 }
