@@ -111,7 +111,7 @@ public:
      * @param missionId the given missionId
      * @return the mission of the given id
      */
-    std::shared_ptr<Mission> GetMissionById(int missionId) const;
+    std::shared_ptr<Mission> GetMissionById(int missionId, bool containsLauncher) const;
 
     /**
      * @brief Terminate ability with the given abilityRecord
