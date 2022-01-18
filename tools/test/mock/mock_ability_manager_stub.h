@@ -132,7 +132,9 @@ public:
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD1(ClearUpApplicationData, int(const std::string &));
-
+    MOCK_METHOD1(StartUser, int(int userId));
+    MOCK_METHOD1(StopUser, int(int userId, const sptr<IStopUserCallback>&callback));
+    
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     virtual int StartUser(int userId) override
     {
