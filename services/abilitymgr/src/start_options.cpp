@@ -18,12 +18,11 @@
 namespace OHOS {
 namespace AAFwk {
 
-const std::string StartOptions::STRING_DISPLAY_ID = "ohos.aafwk.displayId";
+const std::string StartOptions::STRING_WINDOW_MODE = "ohos.aafwk.windowMode";
 
 bool StartOptions::ReadFromParcel(Parcel &parcel)
 {
     SetWindowMode(parcel.ReadInt32());
-    SetDisplayID(parcel.ReadInt32());
     return true;
 }
 
@@ -45,7 +44,6 @@ StartOptions *StartOptions::Unmarshalling(Parcel &parcel)
 bool StartOptions::Marshalling(Parcel &parcel) const
 {
     parcel.WriteInt32(GetWindowMode());
-    parcel.WriteInt32(GetDisplayID());
     return true;
 }
 
@@ -57,16 +55,6 @@ void StartOptions::SetWindowMode(int32_t windowMode)
 int32_t StartOptions::GetWindowMode() const
 {
     return windowMode_;
-}
-
-void StartOptions::SetDisplayID(int32_t id)
-{
-    displayId_ = id;
-}
-
-int32_t StartOptions::GetDisplayID() const
-{
-    return displayId_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

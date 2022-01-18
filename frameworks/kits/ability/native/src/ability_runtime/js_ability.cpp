@@ -319,7 +319,7 @@ void JsAbility::DoOnForeground(const Want& want)
             }
         }
         auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_);
         if (ret != Rosen::WMError::WM_OK) {
             HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
             return;

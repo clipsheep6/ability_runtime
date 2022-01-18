@@ -125,8 +125,9 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
-    requestFuncMap_[SET_ABILITY_CONTROLLER] = &AbilityManagerStub::SetAbilityControllerInner;
-    requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsUserAStabilityTestInner;
+    requestFuncMap_[GET_ABILITY_RUNNING_INFO] = &AbilityManagerStub::GetAbilityRunningInfosInner;
+    requestFuncMap_[GET_EXTENSION_RUNNING_INFO] = &AbilityManagerStub::GetExtensionRunningInfosInner;
+    requestFuncMap_[GET_PROCESS_RUNNING_INFO] = &AbilityManagerStub::GetProcessRunningInfosInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1125,6 +1126,55 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
     return NO_ERROR;
 }
 
+int AbilityManagerStub::GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AbilityRunningInfo> abilityRunningInfos;
+    auto result = GetAbilityRunningInfos(abilityRunningInfos);
+    reply.WriteInt32(abilityRunningInfos.size());
+    for (auto &it : abilityRunningInfos) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+
+int AbilityManagerStub::GetExtensionRunningInfosInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto upperLimit = data.ReadInt32();
+    std::vector<ExtensionRunningInfo> infos;
+    auto result = GetExtensionRunningInfos(upperLimit, infos);
+    reply.WriteInt32(infos.size());
+    for (auto &it : infos) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+
+int AbilityManagerStub::GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AppExecFwk::RunningProcessInfo> infos;
+    auto result = GetProcessRunningInfos(infos);
+    reply.WriteInt32(infos.size());
+    for (auto &it : infos) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::StartSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
@@ -1207,35 +1257,6 @@ int AbilityManagerStub::GetMissionSnapshotInfoInner(MessageParcel &data, Message
     HILOG_INFO("snapshot: AbilityManagerStub get snapshot result = %{public}d", result);
     reply.WriteParcelable(&missionSnapshot);
     return result;
-}
-
-int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AppExecFwk::IAbilityController> controller =
-        iface_cast<AppExecFwk::IAbilityController>(data.ReadRemoteObject());
-    if (controller == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: setAbilityControllerInner controller readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    bool imAStabilityTest = data.ReadBool();
-    int32_t result = SetAbilityController(controller, imAStabilityTest);
-    HILOG_INFO("AbilityManagerStub: setAbilityControllerInner result = %{public}d", result);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("setAbilityControllerInner failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::IsUserAStabilityTestInner(MessageParcel &data, MessageParcel &reply)
-{
-    bool result = IsUserAStabilityTest();
-    HILOG_INFO("AbilityManagerStub: isUserAStabilityTest result = %{public}d", result);
-    if (!reply.WriteBool(result)) {
-        HILOG_ERROR("isUserAStabilityTest failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

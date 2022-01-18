@@ -646,8 +646,7 @@ int AbilityStackManager::TerminateAbilityLocked(std::list<TerminatingAbility> &t
             ability->SendResultToCallers();
             MoveToBackgroundTask(ability);
         }
-        if (ability->IsAbilityState(AbilityState::BACKGROUND) ||
-            ability->IsAbilityState(AbilityState::BACKGROUND_NEW)) {
+        if (ability->IsAbilityState(AbilityState::BACKGROUND)) {
             // ability on background, remove AbilityRecord out of stack and then schedule to terminate.
             RemoveTerminatingAbility(ability, lastActiveAbility);
             ability->SendResultToCallers();
@@ -2927,7 +2926,6 @@ void AbilityStackManager::OnTimeOut(uint32_t msgId, int64_t eventId)
     auto abilityRecord = GetAbilityRecordByEventId(eventId);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("stack manager on time out event: ability record is nullptr.");
-        BackToLauncher();
         return;
     }
 
