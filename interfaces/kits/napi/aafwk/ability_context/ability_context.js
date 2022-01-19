@@ -54,8 +54,8 @@ class AbilityContext extends Context {
         return this.__context_impl__.restoreWindowStage(contentStorage)
     }
 
-    SwitchArea(mode) {
-        return this.__context_impl__.SwitchArea(mode)
+    switchArea(mode) {
+        return this.__context_impl__.switchArea(mode)
     }
 }
 
