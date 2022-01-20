@@ -32,7 +32,7 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 namespace {
-    constexpr int32_t ARG_COUNT_TWO = 2;
+    constexpr int32_t ARG_COUNT_TWO = 1;
     constexpr int32_t ARG_COUNT_THREE = 3;
 }
 class JsMissionManager {
@@ -266,19 +266,9 @@ private:
                 auto errcode = AbilityManagerClient::GetInstance()->GetMissionSnapshot(
                     deviceId, missionId, missionSnapshot);
                 if (errcode == 0) {
-                    NativeValue* objValue = engine.CreateObject();
-                    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-                    NativeValue* abilityValue = engine.CreateObject();
-                    NativeObject* abilityObj = ConvertNativeValueTo<NativeObject>(abilityValue);
-                    abilityObj->SetProperty(
-                        "bundleName", CreateJsValue(engine, missionSnapshot.topAbility.GetBundleName()));
-                    abilityObj->SetProperty(
-                        "abilityName", CreateJsValue(engine, missionSnapshot.topAbility.GetAbilityName()));
-                    object->SetProperty("ability", abilityValue);
-                    auto snapshotValue = reinterpret_cast<NativeValue*>(Media::PixelMapNapi::CreatePixelMap(
+                    auto nativeValue = reinterpret_cast<NativeValue*>(Media::PixelMapNapi::CreatePixelMap(
                         reinterpret_cast<napi_env>(&engine), missionSnapshot.snapshot));
-                    object->SetProperty("snapshot", snapshotValue);
-                    task.Resolve(engine, objValue);
+                    task.Resolve(engine, nativeValue);
                 } else {
                     task.Reject(engine, CreateJsError(engine, errcode, "Get mission snapshot failed."));
                 }
