@@ -90,7 +90,6 @@ ohos_shared_library("libfms") {
     "//base/miscservices/time/services:time_service",
     "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
     "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr",
     "//utils/native/base:utils",
 
     #  "//third_party/libuuid:libuuid_static",

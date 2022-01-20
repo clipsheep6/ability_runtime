@@ -71,7 +71,6 @@ ohos_unittest("FmsFormSysEventReceiverTest") {
     #"${appexecfwk_path}/services/bundlemgr:bms_target",
     "//foundation/aafwk/standard/services/abilitymgr:abilityms_target",
     "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
