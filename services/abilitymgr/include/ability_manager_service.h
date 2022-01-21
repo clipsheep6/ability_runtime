@@ -822,6 +822,12 @@ private:
     void StartingSystemUiAbility(const SatrtUiMode &mode);
 
     /**
+     * starting system ui abilites.
+     *
+     */
+    void StartingSystemUiAbility();
+
+    /**
      * starting contacts ability.
      *
      */
