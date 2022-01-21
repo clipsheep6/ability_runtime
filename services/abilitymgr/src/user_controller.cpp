@@ -260,8 +260,7 @@ void UserController::MoveUserToForeground(int32_t oldUserId, int32_t newUserId)
     if (!ams) {
         return;
     }
-    ams->SwitchToUser(newUserId);
-    ams->StartLauncherAbility(newUserId);
+    ams->SwitchToUser(oldUserId, newUserId);
     BroacastUserBackground(oldUserId);
     BroacastUserForeground(newUserId);
 }
