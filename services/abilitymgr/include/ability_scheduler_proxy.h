@@ -298,6 +298,8 @@ public:
      * @return
      */
     void NotifyContinuationResult(const int32_t result) override;
+	
+	sptr<IRemoteObject> CallRequest() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

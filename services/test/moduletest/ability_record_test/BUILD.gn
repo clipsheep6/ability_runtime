@@ -24,7 +24,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${EVENT_DIR}/frameworks/core/include",
     "${EVENT_DIR}/interfaces/innerkits/native/include",
     "//third_party/jsoncpp/include",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native/include/distributed_ability_runtime",
     "//foundation/aafwk/standard/interfaces/innerkits/dataobs_manager/include",
   ]
 
@@ -44,6 +43,8 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${services_path}/abilitymgr/src/ability_token_stub.cpp",
     "${services_path}/abilitymgr/src/app_scheduler.cpp",
     "${services_path}/abilitymgr/src/caller_info.cpp",
+    "${services_path}/abilitymgr/src/call_record.cpp",
+    "${services_path}/abilitymgr/src/call_container.cpp",
     "${services_path}/abilitymgr/src/connection_record.cpp",
     "${services_path}/abilitymgr/src/data_ability_manager.cpp",
     "${services_path}/abilitymgr/src/data_ability_record.cpp",
@@ -99,7 +100,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",

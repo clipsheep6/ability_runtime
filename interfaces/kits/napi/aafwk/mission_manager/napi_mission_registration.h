@@ -18,6 +18,7 @@
 
 #include <uv.h>
 
+#include "distributed_sched_interface.h"
 #include "mission_continue_interface.h"
 #include "mission_continue_stub.h"
 #include "napi/native_api.h"

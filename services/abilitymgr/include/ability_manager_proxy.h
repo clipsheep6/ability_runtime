@@ -520,12 +520,30 @@ public:
     virtual int CleanAllMissions() override;
 
     virtual int MoveMissionToFront(int32_t missionId) override;
+	
+	/**
+     * Start Ability, connect session with common ability.
+     *
+     * @param want, Special want for service type's ability.
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByCall(
+        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
+
+    /**
+     * Release Ability, disconnect session with common ability.
+     *
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @param element, the element of target service.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ReleaseAbility(
+        const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override;
 
     virtual int StartUser(int userId) override;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
-
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
 
@@ -553,7 +571,7 @@ public:
      *
      * @return Returns true if user is a stability test.
      */
-    virtual bool IsRunningInStabilityTest() override;
+    virtual bool IsUserAStabilityTest() override;
 
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
 

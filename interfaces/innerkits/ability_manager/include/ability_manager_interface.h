@@ -544,12 +544,28 @@ public:
     virtual int CleanAllMissions() = 0;
 
     virtual int MoveMissionToFront(int32_t missionId) = 0;
+	
+	/**
+     * Start Ability, connect session with common ability.
+     *
+     * @param want, Special want for service type's ability.
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByCall(
+        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
+
+    /**
+     * Release Ability, disconnect session with common ability.
+     *
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
 
     virtual int StartUser(int userId) = 0;
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
-
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) = 0;
 
@@ -592,7 +608,7 @@ public:
      *
      * @return Returns true if user is a stability test.
      */
-    virtual bool IsRunningInStabilityTest() = 0;
+    virtual bool IsUserAStabilityTest() = 0;
 
     /**
      * @brief Register the snapshot handler
@@ -759,9 +775,6 @@ public:
         // ipc id for get stability test flag (52)
         IS_USER_A_STABILITY_TEST,
 
-        // ipc id for set mission label (53)
-        SET_MISSION_LABEL,
-
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)
         START_ABILITY = 1001,
@@ -824,6 +837,11 @@ public:
         START_CONTINUATION = 1101,
 
         NOTIFY_CONTINUATION_RESULT = 1102,
+		
+		// ipc id for call ability
+        START_CALL_ABILITY,
+
+        RELEASE_CALL_ABILITY,
 
         NOTIFY_COMPLETE_CONTINUATION = 1103,
 

@@ -23,12 +23,14 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "ability_runtime/js_caller_complex.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "start_options.h"
 #include "want.h"
+#include "event_handler.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -49,6 +51,12 @@ NativeValue* JsAbilityContext::StartAbility(NativeEngine* engine, NativeCallback
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnStartAbility(*engine, *info) : nullptr;
+}
+
+NativeValue* JsAbilityContext::StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnStartAbilityByCall(*engine, *info) : nullptr;
 }
 
 NativeValue* JsAbilityContext::StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info)
@@ -91,12 +99,6 @@ NativeValue* JsAbilityContext::RestoreWindowStage(NativeEngine* engine, NativeCa
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnRestoreWindowStage(*engine, *info) : nullptr;
-}
-
-NativeValue* JsAbilityContext::SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnSetMissionLabel(*engine, *info) : nullptr;
 }
 
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
@@ -142,6 +144,75 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     AsyncTask::Schedule(
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("OnStartAbilityByCall is called");
+    int errCode = 0;
+    sptr<IRemoteObject> remoteCallee;
+
+    if (info.argc != ARGC_ONE) {
+        HILOG_ERROR("int put params count error");
+        return engine.CreateUndefined();
+    }
+
+    if (info.argv[0]->TypeOf() != NATIVE_OBJECT) {
+        HILOG_ERROR("int put params type error");
+        return engine.CreateUndefined();
+    }
+
+    AAFwk::Want want;
+    OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+        reinterpret_cast<napi_value>(info.argv[0]), want);
+    NativeValue* callerComplex = nullptr;
+    std::mutex mutexlock;
+    std::condition_variable condition;
+
+    auto callBackDone = [&mutexlock, &condition, &remoteCallee](const sptr<IRemoteObject> &obj) {
+        std::unique_lock<std::mutex> lock(mutexlock);
+        remoteCallee = obj;
+        condition.notify_all();
+        HILOG_INFO("OnStartAbilityByCall callBackDone is called");
+    };
+    auto releaseListen = [](const std::string &str) {
+        HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+    };
+
+    auto context = context_.lock();
+    constexpr int CALLER_TIME_OUT = 5; // 5s
+    if (!context) {
+        HILOG_ERROR("context is released");
+        errCode = -1;
+        return engine.CreateUndefined();
+    }
+
+    HILOG_INFO("OnStartAbilityByCall execute is create CallerCallBack");
+    std::shared_ptr<CallerCallBack> callerCallBack = std::make_shared<CallerCallBack>();
+    callerCallBack->SetCallBack(callBackDone);
+    callerCallBack->SetOnRelease(releaseListen);
+    
+    HILOG_INFO("OnStartAbilityByCall execute is StartAbility");
+    errCode = context->StartAbility(want, callerCallBack);
+
+    if (remoteCallee == nullptr) {
+        HILOG_INFO("OnStartAbilityByCall lock mutexlock Done");
+        std::unique_lock<std::mutex> lock(mutexlock);
+        HILOG_INFO("OnStartAbilityByCall lock waiting callBackDone");
+        if (condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
+            remoteCallee = nullptr;
+            errCode = -1;
+            HILOG_ERROR("Waiting callee timeout");
+            return engine.CreateUndefined();
+        }
+    } else {
+        HILOG_INFO("OnStartAbilityByCall remoteCallee isn~t nullptr");
+    }
+
+    HILOG_INFO("OnStartAbilityByCall execute is CreateJsCallerComplex %{public}d", errCode);
+    callerComplex = CreateJsCallerComplex(engine, context, remoteCallee, callerCallBack);
+
+    return callerComplex;
 }
 
 NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info)
@@ -447,45 +518,6 @@ NativeValue* JsAbilityContext::OnRestoreWindowStage(NativeEngine& engine, Native
     return engine.CreateUndefined();
 }
 
-NativeValue* JsAbilityContext::OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    HILOG_INFO("OnSetMissionLabel is called, argc = %{public}d", static_cast<int>(info.argc));
-
-    if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("OnSetMissionLabel, Not enough params");
-        return engine.CreateUndefined();
-    }
-
-    std::string label;
-    if (!ConvertFromJsValue(engine, info.argv[0], label)) {
-        HILOG_ERROR("OnSetMissionLabel, parse label failed.");
-        return engine.CreateUndefined();
-    }
-
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, label](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                return;
-            }
-
-            auto errcode = context->SetMissionLabel(label);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsError(engine, errcode, "SetMissionLabel failed."));
-            }
-        };
-
-    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
-    NativeValue* result = nullptr;
-    AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return result;
-}
-
 bool JsAbilityContext::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
 {
     if (argv == nullptr) {
@@ -558,6 +590,7 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     }
 
     BindNativeFunction(engine, *object, "startAbility", JsAbilityContext::StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityByCall", JsAbilityContext::StartAbilityByCall);
     BindNativeFunction(engine, *object, "startAbilityForResult", JsAbilityContext::StartAbilityForResult);
     BindNativeFunction(engine, *object, "connectAbility", JsAbilityContext::ConnectAbility);
     BindNativeFunction(engine, *object, "disconnectAbility", JsAbilityContext::DisconnectAbility);
@@ -565,7 +598,6 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     BindNativeFunction(engine, *object, "terminateSelfWithResult", JsAbilityContext::TerminateSelfWithResult);
     BindNativeFunction(engine, *object, "requestPermissionsFromUser", JsAbilityContext::RequestPermissionsFromUser);
     BindNativeFunction(engine, *object, "restoreWindowStage", JsAbilityContext::RestoreWindowStage);
-    BindNativeFunction(engine, *object, "setMissionLabel", JsAbilityContext::SetMissionLabel);
     return objValue;
 }
 
