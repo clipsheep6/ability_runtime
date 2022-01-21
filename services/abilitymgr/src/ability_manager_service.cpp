@@ -1354,29 +1354,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
         return nullptr;
     }
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return nullptr;
-    }
-    abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
-    if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
-        HILOG_ERROR("Invalid app info for data ability acquiring.");
-        return nullptr;
-    }
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("BMS query result is not a data ability.");
-        return nullptr;
-    }
 
-    AppExecFwk::BundleInfo bundleInfo;
-    if (!iBundleManager_->GetBundleInfo(abilityRequest.appInfo.bundleName,
-        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId)) {
-        HILOG_ERROR("Failed to get bundle info when AcquireDataAbility.");
+    if (!CheckDataAbilityRequest(abilityRequest)) {
+        HILOG_ERROR("Invalid ability request info for data ability acquiring.");
         return nullptr;
     }
-    abilityRequest.compatibleVersion = bundleInfo.compatibleVersion;
-    abilityRequest.uid = bundleInfo.uid;
 
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
         abilityRequest.appInfo.name.c_str(),
@@ -1385,6 +1367,26 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     CHECK_POINTER_AND_RETURN(dataAbilityManager_, nullptr);
     return dataAbilityManager_->Acquire(abilityRequest, tryBind, callerToken, isSystem);
+}
+
+bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
+{
+    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        return false;
+    }
+    abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
+    if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
+        HILOG_ERROR("Invalid app info for data ability acquiring.");
+        return false;
+    }
+    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+        HILOG_ERROR("BMS query result is not a data ability.");
+        return false;
+    }
+    abilityRequest.uid = abilityRequest.appInfo.uid;
+    return true;
 }
 
 int AbilityManagerService::ReleaseDataAbility(
@@ -2571,7 +2573,8 @@ std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByToken
     return nullptr;
 }
 
-std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByToken(const sptr<IRemoteObject> &token)
+std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByToken(
+    const sptr<IRemoteObject> &token)
 {
     for (auto item: connectManagers_) {
         if (item.second && item.second->GetServiceRecordByToken(token)) {
@@ -2582,7 +2585,8 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     return nullptr;
 }
 
-std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token)
+std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByToken(
+    const sptr<IRemoteObject> &token)
 {
     for (auto item: dataAbilityManagers_) {
         if (item.second && item.second->GetAbilityRecordByToken(token)) {

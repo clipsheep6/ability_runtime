@@ -922,6 +922,7 @@ private:
     bool IsSystemUI(const std::string &bundleName) const;
 
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
+    bool CheckDataAbilityRequest(AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityStackManager> GetStackManagerByUserId(int32_t userId);
     std::shared_ptr<MissionListManager> GetListManagerByUserId(int32_t userId);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByUserId(int32_t userId);

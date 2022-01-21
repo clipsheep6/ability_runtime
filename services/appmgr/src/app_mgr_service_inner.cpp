@@ -172,7 +172,8 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     }
 
     auto userId = GetUserIdByUid(abilityInfo.applicationInfo.uid);
-    bool bundleMgrResult = bundleMgr_->GetBundleInfo(appInfo->bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId);
+    bool bundleMgrResult = bundleMgr_->GetBundleInfo(appInfo->bundleName,
+        BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId);
     if (!bundleMgrResult) {
         APP_LOGE("GetBundleInfo is fail");
         return false;
