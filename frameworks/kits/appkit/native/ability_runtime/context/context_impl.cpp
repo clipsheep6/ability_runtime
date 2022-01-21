@@ -103,7 +103,7 @@ std::string ContextImpl::GetDistributedFilesDir()
     HILOG_DEBUG("ContextImpl::GetDistributedFilesDir");
     std::string dir;
     if (IsCreateBySystemApp()) {
-        dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + GetCurrentAccountId() +
+        dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
             CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE + GetBundleName();
     } else {
         dir = CONTEXT_BASE + CONTEXT_DISTRIBUTEDFILES;
@@ -116,7 +116,7 @@ std::string ContextImpl::GetBaseDir() const
 {
     std::string baseDir;
     if (IsCreateBySystemApp()) {
-        baseDir = CONTEXT_DATA + currArea_ + CONTEXT_FILE_SEPARATOR + GetCurrentAccountId() +
+        baseDir = CONTEXT_DATA + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId()) +
             CONTEXT_BUNDLE + GetBundleName();
     } else {
         baseDir = CONTEXT_BASE + currArea_;
@@ -129,11 +129,11 @@ std::string ContextImpl::GetBaseDir() const
     return baseDir;
 }
 
-std::string ContextImpl::GetCurrentAccountId() const
+int ContextImpl::GetCurrentAccountId() const
 {
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    return std::to_string(userId);
+    return userId;
 }
 
 int ContextImpl::GetCurrentActiveAccountId() const
@@ -145,12 +145,12 @@ int ContextImpl::GetCurrentActiveAccountId() const
         return 0;
     }
 
-    if (osAccountInfos.size == 0) {
+    if (osAccountInfos.size() == 0) {
         HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no accounts.");
         return 0;
     }
 
-    if (osAccountInfos.size > 1) {
+    if (osAccountInfos.size() > 1) {
         HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no current now.");
         return 0;
     }
@@ -176,7 +176,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    int accountId = (GetCurrentAccountId() == "0" ? 0 : GetCurrentAccountId());
+    int accountId = GetCurrentAccountId();
     if (accountId == 0) {
         accountId = GetCurrentActiveAccountId();
     }
