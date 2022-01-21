@@ -2516,7 +2516,7 @@ void AbilityManagerService::StartSystemApplication()
         StartingSettingsDataAbility();
     }
 
-   StartingSystemUiAbility();
+    StartingSystemUiAbility();
 
     if (amsConfigResolver_->GetPhoneServiceState()) {
         HILOG_INFO("start phone service");
@@ -2609,7 +2609,7 @@ void AbilityManagerService::StartingSystemUiAbility()
     HILOG_DEBUG("%{public}s", __func__);
     AppExecFwk::AbilityInfo systemUiInfo;
     Want systemUiWant;
-    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, SYSTEM_UI_ABILITY_NAME);
+    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME);
 #if 0
     uint32_t waitCnt = 0;
     // Wait 10 minutes for the installation to complete.
