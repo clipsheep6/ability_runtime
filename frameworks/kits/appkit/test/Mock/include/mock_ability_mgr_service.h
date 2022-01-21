@@ -83,7 +83,7 @@ public:
         return 0;
     }
 
-    virtual bool IsRunningInStabilityTest() override
+    virtual bool IsUserAStabilityTest() override
     {
         return true;
     }

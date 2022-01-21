@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-constexpr int DEFAULT_USERID = 100;
 /**
  * Attaches a Context object to the current ability.
  * Generally, this method is called after Ability is loaded to provide the application context for the current ability.
@@ -637,7 +636,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     APP_LOGI("ContextContainer::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
         bundleName.length(),
         bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, DEFAULT_USERID);
+    bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         APP_LOGE("ContextContainer::CreateBundleContext GetBundleInfo is error");

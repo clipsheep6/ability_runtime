@@ -108,7 +108,6 @@ public:
     MOCK_METHOD1(CleanMission, int(int32_t missionId));
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
-    MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
 
@@ -207,6 +206,17 @@ public:
     {
         return 0;
     }
+    virtual int StartAbility(const Want &want, const sptr<IAbilityConnection> &connect, 
+        const sptr<IRemoteObject> &callerToken) override
+    {
+        return 0;
+    }
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect, 
+        const AppExecFwk::ElementName &element) override
+    {
+        return 0;
+    }
+
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
     {
         return 0;
@@ -222,7 +232,7 @@ public:
         return 0;
     }
 
-    virtual bool IsRunningInStabilityTest() override
+    virtual bool IsUserAStabilityTest() override
     {
         return true;
     }

@@ -123,9 +123,12 @@ private:
     int CleanMissionInner(MessageParcel &data, MessageParcel &reply);
     int CleanAllMissionsInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontInner(MessageParcel &data, MessageParcel &reply);
+	
+	// for new version ability (call ability)
+    int StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply);
+    int ReleaseInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
-    int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetExtensionRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply);
@@ -136,7 +139,7 @@ private:
     int GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply);
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
-    int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
+    int IsUserAStabilityTestInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int (AbilityManagerStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

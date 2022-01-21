@@ -319,12 +319,6 @@ public:
     {
         return 0;
     }
-
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &token,
-        const std::string &lable) override
-    {
-        return 0;
-    }
 };
 
 class MockAbilityMgrStub : public IRemoteStub<AAFwk::IAbilityManager> {
@@ -695,12 +689,6 @@ public:
         return 0;
     }
 
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &token,
-        const std::string &lable) override
-    {
-        return 0;
-    }
-
     virtual int MoveMissionToFront(int32_t missionId) override
     {
         return 0;
@@ -740,7 +728,7 @@ public:
     {
         return 0;
     }
-    virtual bool IsRunningInStabilityTest() override
+    virtual bool IsUserAStabilityTest() override
     {
         return true;
     }

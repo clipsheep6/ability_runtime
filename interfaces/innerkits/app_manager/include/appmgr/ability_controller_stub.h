@@ -37,26 +37,24 @@ public:
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     /**
-     * The system is trying to start an ability.
+     * The system is trying to start an ability. Return true to allow, or false to reject.
      *
      * @param want The want of ability to start.
      * @param bundleName The bundleName of ability to start.
-     * @return Return true to allow ability to start, or false to reject.
      */
-    virtual bool AllowAbilityStart(const Want &want, const std::string &bundleName) override;
+    virtual bool AbilityStarting(const Want &want, const std::string &bundleName) override;
 
     /**
-     * The system is scheduling Ability to the foreground.
+     * The system is trying to return to an ability. Return true to allow, or false to reject.
      *
      * @param bundleName The bundleName of ability to return.
-     * @return Return true to allow ability to foreground, or false to reject.
      */
-    virtual bool AllowAbilityForeground(const std::string &bundleName) override;
+    virtual bool AbilityResuming(const std::string &bundleName) override;
 
 private:
-    int32_t HandleAllowAbilityStart(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAbilityStarting(MessageParcel &data, MessageParcel &reply);
 
-    int32_t HandleAllowAbilityForeground(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAbilityResuming(MessageParcel &data, MessageParcel &reply);
 
     using AbilityControllerFunc = int32_t (AbilityControllerStub::*)(MessageParcel &data,
         MessageParcel &reply);

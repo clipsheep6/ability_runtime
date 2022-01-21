@@ -23,6 +23,7 @@
 #include "native_engine/native_value.h"
 #include "start_options.h"
 #include "want.h"
+#include "caller_callback.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -134,13 +135,23 @@ public:
     virtual void* GetContentStorage() = 0;
 
     /**
-     * @brief Set mission label of this ability.
+     * call function by callback object
      *
-     * @param label the label of this ability.
-     * @return Returns ERR_OK if success.
+     * @param want Request info for ability.
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
      */
-    virtual ErrCode SetMissionLabel(const std::string &label) = 0;
+    virtual ErrCode StartAbility(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) = 0;
 
+    /**
+     * caller release by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    virtual ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) = 0;
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 

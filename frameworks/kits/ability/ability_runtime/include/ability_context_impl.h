@@ -19,6 +19,7 @@
 #include "ability_context.h"
 
 #include "context_impl.h"
+#include "local_call_container.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -60,14 +61,6 @@ public:
     void RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode) override;
     ErrCode RestoreWindowStage(void* contentStorage) override;
 
-    /**
-     * @brief Set mission label of this ability.
-     *
-     * @param label the label of this ability.
-     * @return Returns ERR_OK if success.
-     */
-    ErrCode SetMissionLabel(const std::string &label) override;
-
     void SetStageContext(const std::shared_ptr<AbilityRuntime::Context> &stageContext);
 
     /**
@@ -97,12 +90,32 @@ public:
         return contentStorage_;
     }
 
+    /**
+     * call function by callback object
+     *
+     * @param want Request info for ability.
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    ErrCode StartAbility(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) override;
+
+    /**
+     * caller release by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) override;
+
 private:
     sptr<IRemoteObject> token_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     std::shared_ptr<AbilityRuntime::Context> stageContext_ = nullptr;
     std::map<int, RuntimeTask> resultCallbacks_;
     void* contentStorage_ = nullptr;
+    sptr<LocalCallContainer> localCallContainer_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

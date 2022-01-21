@@ -597,6 +597,24 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MoveMissionToFront(int32_t missionId);
+	
+	/**
+     * Start Ability, connect session with common ability.
+     *
+     * @param want, Special want for service type's ability.
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByCall(
+        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callToken);
+
+    /**
+     * Release Ability, disconnect session with common ability.
+     *
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element); 
 
     ErrCode GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
 
@@ -643,15 +661,6 @@ public:
      * @return ErrCode Returns ERR_OK on success, others on failure.
      */
     ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
-
-    /**
-     * Set mission label of this ability.
-     *
-     * @param abilityToken Indidate token of ability.
-     * @param label Indidate the label showed of the ability in recent missions.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;
