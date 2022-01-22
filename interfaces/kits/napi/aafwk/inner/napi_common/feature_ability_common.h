@@ -219,7 +219,6 @@ struct DAHelperInsertCB {
     std::string uri;
     NativeRdb::ValuesBucket valueBucket;
     int result = 0;
-    int execResult;
 };
 
 class NAPIAbilityConnection;
@@ -244,7 +243,6 @@ struct DAHelperNotifyChangeCB {
     CBBase cbBase;
     DataAbilityHelper *dataAbilityHelper = nullptr;
     std::string uri;
-    int execResult;
 };
 
 class NAPIDataAbilityObserver;
@@ -279,7 +277,6 @@ struct DAHelperGetTypeCB {
     DataAbilityHelper *dataAbilityHelper = nullptr;
     std::string uri;
     std::string result = "";
-    int execResult;
 };
 
 struct DAHelperGetFileTypesCB {
@@ -288,7 +285,6 @@ struct DAHelperGetFileTypesCB {
     std::string uri;
     std::string mimeTypeFilter;
     std::vector<std::string> result;
-    int execResult;
 };
 
 struct DAHelperNormalizeUriCB {
@@ -296,14 +292,12 @@ struct DAHelperNormalizeUriCB {
     DataAbilityHelper *dataAbilityHelper = nullptr;
     std::string uri;
     std::string result = "";
-    int execResult;
 };
 struct DAHelperDenormalizeUriCB {
     CBBase cbBase;
     DataAbilityHelper *dataAbilityHelper = nullptr;
     std::string uri;
     std::string result = "";
-    int execResult;
 };
 
 struct DAHelperDeleteCB {
@@ -312,7 +306,6 @@ struct DAHelperDeleteCB {
     std::string uri;
     NativeRdb::DataAbilityPredicates predicates;
     int result = 0;
-    int execResult;
 };
 
 struct DAHelperQueryCB {
@@ -322,7 +315,6 @@ struct DAHelperQueryCB {
     std::vector<std::string> columns;
     NativeRdb::DataAbilityPredicates predicates;
     std::shared_ptr<NativeRdb::AbsSharedResultSet> result;
-    int execResult;
 };
 
 struct DAHelperUpdateCB {
@@ -332,7 +324,6 @@ struct DAHelperUpdateCB {
     NativeRdb::ValuesBucket valueBucket;
     NativeRdb::DataAbilityPredicates predicates;
     int result = 0;
-    int execResult;
 };
 struct DAHelperBatchInsertCB {
     CBBase cbBase;
@@ -340,7 +331,6 @@ struct DAHelperBatchInsertCB {
     std::string uri;
     std::vector<NativeRdb::ValuesBucket> values;
     int result = 0;
-    int execResult;
 };
 struct DAHelperOpenFileCB {
     CBBase cbBase;
@@ -348,7 +338,6 @@ struct DAHelperOpenFileCB {
     std::string uri;
     std::string mode;
     int result = 0;
-    int execResult;
 };
 
 struct DAHelperReleaseCB {

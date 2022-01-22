@@ -33,17 +33,16 @@ namespace AppExecFwk {
 #define ARGS_MAX_COUNT 10
 #define ARGS_ASYNC_COUNT 1
 
-constexpr unsigned int ARGS_ZERO = 0;
-constexpr unsigned int ARGS_ONE = 1;
-constexpr unsigned int ARGS_TWO = 2;
-constexpr unsigned int ARGS_THREE = 3;
-constexpr unsigned int ARGS_FOUR = 4;
-constexpr unsigned int ARGS_FIVE = 5;
-constexpr unsigned int ARGS_SIX = 6;
-constexpr unsigned int ARGS_SEVEN = 7;
-constexpr unsigned int ARGS_EIGHT = 8;
-constexpr unsigned int ARGS_NINE = 9;
-constexpr unsigned int ARGS_TEN = 10;
+#define ARGS_ONE 1
+#define ARGS_TWO 2
+#define ARGS_THREE 3
+#define ARGS_FOUR 4
+#define ARGS_FIVE 5
+#define ARGS_SIX 6
+#define ARGS_SEVEN 7
+#define ARGS_EIGHT 8
+#define ARGS_NINE 9
+#define ARGS_TEN 10
 
 #define PARAM0 0
 #define PARAM1 1

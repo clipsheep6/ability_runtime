@@ -2386,7 +2386,7 @@ void StartAbilityPromiseCompletedCB(napi_env env, napi_status status, void *data
 napi_value StartAbilityAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s asyncCallback.", __func__);
+    HILOG_INFO("%{public}s async call.", __func__);
     if (args == nullptr || asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
@@ -2410,13 +2410,13 @@ napi_value StartAbilityAsync(
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
 
-    HILOG_INFO("%{public}s asyncCallback end.", __func__);
+    HILOG_INFO("%{public}s async end.", __func__);
     return WrapVoidToJS(env);
 }
 
 napi_value StartAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("%{public}s promise call.", __func__);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
@@ -2437,7 +2437,7 @@ napi_value StartAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInf
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("%{public}s promise end.", __func__);
     return promise;
 }
 
@@ -3449,17 +3449,7 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     NAPI_CALL(env, napi_new_instance(env, *(GetGlobalDataAbilityHelper()), 1, &args[PARAM0], &result));
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue isn`t object", __func__);
-        return nullptr;
-    }
-
-    if (IsTypeForNapiValue(env, result, napi_null)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue is null", __func__);
-        return nullptr;
-    }
-
-    if (IsTypeForNapiValue(env, result, napi_undefined)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue is undefined", __func__);
+        HILOG_ERROR("%{public}s, IsTypeForNapiValue retval is false", __func__);
         return nullptr;
     }
 
