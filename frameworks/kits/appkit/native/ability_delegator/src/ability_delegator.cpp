@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include <algorithm>
 #include "app_log_wrapper.h"
 #include "ohos_application.h"
 #include "ability_manager_client.h"
