@@ -173,6 +173,7 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
     // update inner mission info time
     InnerMissionInfo innerMissionInfo;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(mission->GetMissionId(), innerMissionInfo);
+    innerMissionInfo.missionInfo.runningState = 0;
     innerMissionInfo.missionInfo.time = Time2str(time(0));
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
 
@@ -1210,7 +1211,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
         HILOG_DEBUG("get mission by id successfully, missionId: %{public}d", missionId);
         auto missionList = mission->GetMissionList();
         if (!missionList) {
-            // mission is not null ptr, so its missionList ptr should be not null ptr too.
+            // not support move launcher mission to front
             HILOG_ERROR("mission list ptr is null ptr");
             return nullptr;
         }
