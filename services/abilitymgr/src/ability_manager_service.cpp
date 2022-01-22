@@ -1915,9 +1915,14 @@ void AbilityManagerService::StartingPhoneServiceAbility()
     phoneServiceWant.SetElementName(AbilityConfig::PHONE_SERVICE_BUNDLE_NAME,
         AbilityConfig::PHONE_SERVICE_ABILITY_NAME);
 
-    while (!(iBundleManager_->QueryAbilityInfo(phoneServiceWant, phoneServiceInfo))) {
+    auto userId = GetUserId();
+    int attemptNums = 1;
+    while (!(iBundleManager_->QueryAbilityInfo(phoneServiceWant,
+        OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, phoneServiceInfo)) &&
+        attemptNums <= 5) {
         HILOG_INFO("Waiting query phone service ability info completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
+        attemptNums++;
     }
 
     (void)StartAbility(phoneServiceWant, DEFAULT_INVAL_VALUE);
@@ -1935,8 +1940,10 @@ void AbilityManagerService::StartingContactsAbility()
     Want contactsWant;
     contactsWant.SetElementName(AbilityConfig::CONTACTS_BUNDLE_NAME, AbilityConfig::CONTACTS_ABILITY_NAME);
 
+    auto userId = GetUserId();
     int attemptNums = 1;
-    while (!(iBundleManager_->QueryAbilityInfo(contactsWant, contactsInfo)) &&
+    while (!(iBundleManager_->QueryAbilityInfo(contactsWant,
+        OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, contactsInfo)) &&
         attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
         HILOG_INFO("Waiting query contacts service completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
@@ -1961,8 +1968,10 @@ void AbilityManagerService::StartingMmsAbility()
     Want mmsWant;
     mmsWant.SetElementName(AbilityConfig::MMS_BUNDLE_NAME, AbilityConfig::MMS_ABILITY_NAME);
  
+    auto userId = GetUserId();
     int attemptNums = 1;
-    while (!(iBundleManager_->QueryAbilityInfo(mmsWant, mmsInfo)) &&
+    while (!(iBundleManager_->QueryAbilityInfo(mmsWant,
+        OHOS::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, msInfo)) &&
         attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
         HILOG_INFO("Waiting query mms service completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
@@ -1999,7 +2008,7 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     int userId = GetUserId();
     if (IsSystemUI(want.GetBundle())) {
-        userId = DEFAULT_USER_ID;
+        userId = MAIN_USER_ID;
     }
 
     bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
@@ -2224,7 +2233,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         return ERR_INVALID_VALUE;
     }
 
-    auto dataAbilityManager = IsSystemUI(bundleName) ? systemDataAbilityManager_ : dataAbilityManager_;
+    auto dataAbilityManager = dataAbilityManager_;
     if (dataAbilityManager == nullptr) {
         HILOG_ERROR("Invalid data ability manager when app data abilities preloading.");
         return ERR_INVALID_STATE;
@@ -2236,7 +2245,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
     AppExecFwk::BundleInfo bundleInfo;
     int32_t userId = GetUserId();
     if (IsSystemUI(bundleName)) {
-        userId = DEFAULT_USER_ID;
+        userId = MAIN_USER_ID;
     }
     bool ret = bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId);
     if (!ret) {
@@ -2826,8 +2835,12 @@ void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
     navigationBarWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_NAVIGATION_BAR);
     uint32_t waitCnt = 0;
     // Wait 10 minutes for the installation to complete.
-    while ((!(iBundleManager_->QueryAbilityInfo(statusBarWant, statusBarInfo)) ||
-            !(iBundleManager_->QueryAbilityInfo(navigationBarWant, navigationBarInfo))) &&
+    auto userId = MAIN_USER_ID;
+    while ((!(iBundleManager_->QueryAbilityInfo(statusBarWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT,
+            userId, statusBarInfo)) ||
+        !(iBundleManager_->QueryAbilityInfo(navigationBarWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, navigationBarInfo))) &&
             waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
         HILOG_INFO("Waiting query system ui info completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
@@ -2942,7 +2955,9 @@ void AbilityManagerService::StartingSettingsDataAbility()
     want.SetElementName(AbilityConfig::SETTINGS_DATA_BUNDLE_NAME, AbilityConfig::SETTINGS_DATA_ABILITY_NAME);
     uint32_t waitCnt = 0;
     // Wait 5 minutes for the installation to complete.
-    while (!iBundleManager_->QueryAbilityInfo(want, abilityInfo) && waitCnt < MAX_WAIT_SETTINGS_DATA_NUM) {
+    auto userId = GetUserId();
+    while (!iBundleManager_->QueryAbilityInfo(want, OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT,
+        userId, abilityInfo) && waitCnt < MAX_WAIT_SETTINGS_DATA_NUM) {
         HILOG_INFO("Waiting query settings data info completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
         waitCnt++;
