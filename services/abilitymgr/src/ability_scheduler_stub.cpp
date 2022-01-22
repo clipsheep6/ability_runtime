@@ -203,7 +203,7 @@ int AbilitySchedulerStub::OpenFileInner(MessageParcel &data, MessageParcel &repl
         return ERR_INVALID_VALUE;
     }
     int fd = OpenFile(*uri, mode);
-    if(fd < 0){
+    if (fd < 0) {
         HILOG_ERROR("OpenFile fail, fd is %{pubilc}d", fd);
         return ERR_INVALID_VALUE;
     }
