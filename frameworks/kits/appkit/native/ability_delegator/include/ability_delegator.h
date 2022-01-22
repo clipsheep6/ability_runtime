@@ -36,11 +36,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class AbilityDelegator : public AbilityLifecycleCallbacks, public std::enable_shared_from_this<AbilityDelegator>
-{
+class AbilityDelegator : public AbilityLifecycleCallbacks, public std::enable_shared_from_this<AbilityDelegator> {
 public:
-    enum class AbilityState : uint8_t
-    {
+    enum class AbilityState : uint8_t {
         UNINITIALIZED = 0,
         STARTED,
         FOREGROUND,

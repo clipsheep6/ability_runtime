@@ -21,8 +21,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class AbilityDelegatorArgs
-{
+class AbilityDelegatorArgs {
 public:
     static const std::string KEY_TEST_RUNNER_CLASS;
     static const std::string KEY_TEST_CASE;

@@ -122,11 +122,11 @@ ohos_shared_library("appkit_native") {
     "${aafwk_path}/frameworks/kits/appkit/native/app/src/context_container.cpp",
 
     #"${aafwk_path}/frameworks/kits/appkit/native/app/main.cpp",
-    "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/ability_delegator_args.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/ability_delegator.cpp",
+    "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/ability_delegator_args.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/ability_delegator_registry.cpp",
-    "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/iability_monitor.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/delegator_thread.cpp",
+    "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/iability_monitor.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/shell_cmd_result.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_delegator/src/test_runner.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime/app/ability_stage.cpp",

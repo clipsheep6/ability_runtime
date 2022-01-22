@@ -14,22 +14,10 @@
  */
 
 #include <algorithm>
-#include "ability_delegator.h"
 #include "app_log_wrapper.h"
 #include "ohos_application.h"
 #include "ability_manager_client.h"
-
-#define RETURN_IF_NULL_POINTER(pointer)         \
-    if (!(pointer)) {                           \
-        APP_LOGW("Invalid input parameter");    \
-        return;                                 \
-    }
-
-#define RETURN_IF_EMPTY_MONITORS()          \
-    if (abilityMonitors_.empty()) {         \
-        APP_LOGW("Empty abilityMonitors");  \
-        return;                             \
-    }
+#include "ability_delegator.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -251,10 +239,16 @@ void AbilityDelegator::Print(const std::string &msg)
 
 void AbilityDelegator::PrePerformStart(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -268,10 +262,16 @@ void AbilityDelegator::PrePerformStart(const std::shared_ptr<Ability> &ability)
 
 void AbilityDelegator::PostPerformStart(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -284,10 +284,16 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<Ability> &ability)
 
 void AbilityDelegator::PrePerformScenceCreated(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -301,10 +307,16 @@ void AbilityDelegator::PrePerformScenceCreated(const std::shared_ptr<Ability> &a
 
 void AbilityDelegator::PrePerformScenceRestored(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -318,10 +330,16 @@ void AbilityDelegator::PrePerformScenceRestored(const std::shared_ptr<Ability> &
 
 void AbilityDelegator::PrePerformScenceDestroyed(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -335,10 +353,16 @@ void AbilityDelegator::PrePerformScenceDestroyed(const std::shared_ptr<Ability> 
 
 void AbilityDelegator::PrePerformForeground(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -352,10 +376,16 @@ void AbilityDelegator::PrePerformForeground(const std::shared_ptr<Ability> &abil
 
 void AbilityDelegator::PrePerformBackground(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {
@@ -369,10 +399,16 @@ void AbilityDelegator::PrePerformBackground(const std::shared_ptr<Ability> &abil
 
 void AbilityDelegator::PrePerformStop(const std::shared_ptr<Ability> &ability)
 {
-    RETURN_IF_NULL_POINTER(ability)
+    if (!ability) {
+        APP_LOGW("Invalid input parameter");
+        return;
+    }
 
     std::unique_lock<std::mutex> lck(mutexMonitor_);
-    RETURN_IF_EMPTY_MONITORS()
+    if (abilityMonitors_.empty()) {
+        APP_LOGW("Empty abilityMonitors");
+        return;
+    }
 
     for (auto &monitor : abilityMonitors_) {
         if (!monitor) {

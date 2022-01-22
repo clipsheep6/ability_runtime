@@ -24,8 +24,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class DelegatorThread
-{
+class DelegatorThread {
 public:
     using DTask = std::function<void()>;
 

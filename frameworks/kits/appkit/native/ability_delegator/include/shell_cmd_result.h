@@ -20,8 +20,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class ShellCmdResult
-{
+class ShellCmdResult {
 public:
     ShellCmdResult() = default;
     ShellCmdResult(const int32_t exitCode, const std::string &stdResult);

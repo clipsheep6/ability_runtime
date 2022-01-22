@@ -24,8 +24,7 @@ class Runtime;
 }
 
 namespace AppExecFwk {
-class TestRunner
-{
+class TestRunner {
 public:
     static std::unique_ptr<TestRunner> Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime);
 

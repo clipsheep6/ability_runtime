@@ -28,8 +28,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class IAbilityMonitor
-{
+class IAbilityMonitor {
 public:
     static constexpr int64_t MAX_TIME_OUT {5000};
 

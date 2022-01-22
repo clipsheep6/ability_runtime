@@ -22,8 +22,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class AbilityDelegatorRegistry
-{
+class AbilityDelegatorRegistry {
 public:
     static std::shared_ptr<AbilityDelegator> GetAbilityDelegator();
     static std::shared_ptr<AbilityDelegatorArgs> GetArguments();
