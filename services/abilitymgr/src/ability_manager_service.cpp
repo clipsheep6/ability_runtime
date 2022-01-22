@@ -1971,7 +1971,7 @@ void AbilityManagerService::StartingMmsAbility()
     auto userId = GetUserId();
     int attemptNums = 1;
     while (!(iBundleManager_->QueryAbilityInfo(mmsWant,
-        OHOS::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, mmsInfo)) &&
+        OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, mmsInfo)) &&
         attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
         HILOG_INFO("Waiting query mms service completed.");
         usleep(REPOLL_TIME_MICRO_SECONDS);
