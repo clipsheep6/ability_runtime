@@ -193,6 +193,7 @@ bool MainThread::ConnectToAppMgr()
     APP_LOGI("MainThread::connectToAppMgr before AttachApplication");
     appMgr_->AttachApplication(this);
     APP_LOGI("MainThread::connectToAppMgr after AttachApplication");
+    APP_LOGI("MainThread::connectToAppMgr end");
     return true;
 }
 
@@ -1184,7 +1185,7 @@ void MainThread::Start()
     APP_LOGI("MainThread::main called start");
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
-        APP_LOGE("MainThread::main failed, runner is nullptr");
+        APP_LOGE("MainThread::main called start");
         return;
     }
     std::shared_ptr<EventRunner> runnerWatchDog = EventRunner::Create("WatchDogRunner");

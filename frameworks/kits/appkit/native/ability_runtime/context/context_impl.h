@@ -88,13 +88,6 @@ public:
     std::string GetDistributedFilesDir() override;
 
     /**
-     * @brief Switch file area
-     *
-     * @param mode file area.
-     */
-    void SwitchArea(int mode) override;
-
-    /**
      * @brief set the ResourceManager.
      *
      * @param the ResourceManager has been inited.
@@ -182,15 +175,14 @@ public:
      */
     void InitAppContext();
 private:
-    static const int64_t CONTEXT_CREATE_BY_SYSTEM_APP;
-    static const std::string CONTEXT_DATA_APP;
+    static const std::string CONTEXT_BUNDLECODE_BASE;
+    static const std::string CONTEXT_BUNDLECODE;
     static const std::string CONTEXT_BUNDLE;
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE;
     static const std::string CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE;
     static const std::string CONTEXT_DISTRIBUTEDFILES;
     static const std::string CONTEXT_FILE_SEPARATOR;
     static const std::string CONTEXT_DATA;
-    static const std::string CONTEXT_DATA_STORAGE;
     static const std::string CONTEXT_BASE;
     static const std::string CONTEXT_PRIVATE;
     static const std::string CONTEXT_CACHES;
@@ -198,9 +190,8 @@ private:
     static const std::string CONTEXT_DATABASE;
     static const std::string CONTEXT_TEMP;
     static const std::string CONTEXT_FILES;
-    static const std::string CONTEXT_HAPS;
-    static const std::string CONTEXT_ELS[];
-    static const int EL_DEFAULT = 1;
+    static const std::string CONTEXT_CE;
+    static const int64_t CONTEXT_CREATE_BY_SYSTEM_APP;
     int flags_ = 0x00000000;
 
     void InitResourceManager(
@@ -214,7 +205,7 @@ private:
     std::shared_ptr<Context> parentContext_ = nullptr;
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
     std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_ = nullptr;
-    std::string currArea_ = CONTEXT_ELS[EL_DEFAULT];
+    std::string currArea_ = CONTEXT_CE;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -360,11 +360,11 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
         return INNER_ERR;
     }
     if (!data.WriteParcelable(token) || !data.WriteInt32(state)) {
-        HILOG_ERROR("token or state write failed.");
+        HILOG_ERROR("data write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&saveData)) {
-        HILOG_ERROR("saveData write failed.");
+        HILOG_ERROR("data write failed.");
         return INNER_ERR;
     }
     error = Remote()->SendRequest(IAbilityManager::ABILITY_TRANSITION_DONE, data, reply, option);
