@@ -44,6 +44,7 @@ constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
+constexpr static char DATA_SHARE_EXTENSION[] = "DataShareExtension";
 constexpr int TARGET_VERSION_THRESHOLDS = 8;
 
 /**
@@ -103,6 +104,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
     } else if (abilityInfo->type == AbilityType::DATA) {
         abilityName = ACE_DATA_ABILITY_NAME;
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::DATASHARE) {
+            abilityName = DATA_SHARE_EXTENSION;
+        }
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
         abilityName = BASE_SERVICE_EXTENSION;
         if (abilityInfo->formEnabled == true) {
