@@ -28,7 +28,7 @@ ErrCode DataShareExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, ILLEGAL_REQUEST_CODE);
-    HILOG_DEBUG("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
+    HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
     if (err != ERR_OK) {
         HILOG_ERROR("DataShareExtensionContext::StartAbility is failed %{public}d", err);
     }
@@ -40,7 +40,7 @@ ErrCode DataShareExtensionContext::StartAbility(const AAFwk::Want &want, const A
     HILOG_DEBUG("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_,
         ILLEGAL_REQUEST_CODE);
-    HILOG_DEBUG("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
+    HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
     if (err != ERR_OK) {
         HILOG_ERROR("DataShareExtensionContext::StartAbility is failed %{public}d", err);
     }
@@ -64,9 +64,9 @@ ErrCode DataShareExtensionContext::DisconnectAbility(
     ErrCode ret =
         ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
     if (ret != ERR_OK) {
-        HILOG_ERROR("%{public}s end ams->DisconnectAbility error, ret=%{public}d", __func__, ret);
+        HILOG_ERROR("%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
     }
-    HILOG_INFO("%{public}s end ams->DisconnectAbility", __func__);
+    HILOG_INFO("%{public}s end DisconnectAbility", __func__);
     return ret;
 }
 

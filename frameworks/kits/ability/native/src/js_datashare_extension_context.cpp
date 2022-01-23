@@ -41,7 +41,8 @@ constexpr size_t ARGC_THREE = 3;
 
 class JsDataShareExtensionContext final {
 public:
-    JsDataShareExtensionContext(const std::shared_ptr<DataShareExtensionContext>& context) : context_(context) {}
+    explicit JsDataShareExtensionContext(const std::shared_ptr<DataShareExtensionContext>& context)
+        : context_(context) {}
     ~JsDataShareExtensionContext() = default;
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint)
