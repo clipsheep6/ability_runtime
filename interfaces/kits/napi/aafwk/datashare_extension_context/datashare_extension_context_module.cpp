@@ -26,7 +26,7 @@ void NAPI_application_DataShareExtensionContext_AutoRegister()
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
         .name = "application.DataShareExtensionContext",
-        .fileName = "application/libdatashare_extension_context_napi.so/DataShareExtensionContext.js",
+        .fileName = "application/libdatashareextensioncontext_napi.so/DataShareExtensionContext.js",
     };
 
     moduleManager->Register(&newModuleInfo);

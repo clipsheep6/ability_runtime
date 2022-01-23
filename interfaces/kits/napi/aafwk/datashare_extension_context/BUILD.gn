@@ -34,7 +34,7 @@ gen_js_obj("datashare_extension_context_abc") {
   dep = ":gen_datashare_extension_context_abc"
 }
 
-ohos_shared_library("datashare_extension_context_napi") {
+ohos_shared_library("datashareextensioncontext_napi") {
   sources = [ "datashare_extension_context_module.cpp" ]
 
   deps = [
