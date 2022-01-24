@@ -68,6 +68,13 @@ NativeValue* JsWindowStage::LoadContent(NativeEngine* engine, NativeCallbackInfo
     return (me != nullptr) ? me->OnLoadContent(*engine, *info) : nullptr;
 }
 
+NativeValue* JsWindowStage::GetWindowMode(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsWindowStage::GetWindowMode is called");
+    JsWindowStage* me = CheckParamsAndGetThis<JsWindowStage>(engine, info);
+    return (me != nullptr) ? me->OnGetWindowMode(*engine, *info) : nullptr;
+}
+
 void JsWindowStage::AfterForeground()
 {
     LifeCycleCallBack(WindowStageEventType::VISIBLE);
@@ -325,6 +332,30 @@ NativeValue* JsWindowStage::OnLoadContent(NativeEngine& engine, NativeCallbackIn
     return result;
 }
 
+NativeValue* JsWindowStage::OnGetWindowMode(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("JsWindowStage::OnGetWindowMode is called");
+    AsyncTask::CompleteCallback complete =
+        [this](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            auto window = windowScene_->GetMainWindow();
+            if (window == nullptr) {
+                task.Reject(engine, CreateJsError(engine, static_cast<int32_t>(Rosen::WMError::WM_ERROR_NULLPTR),
+                    "JsWindowStage::OnGetWindowMode failed."));
+                HILOG_ERROR("JsWindowStage window is nullptr");
+                return;
+            }
+            Rosen::WindowMode mode = window->GetMode();
+            task.Resolve(engine, CreateJsValue(engine, mode));
+            HILOG_INFO("JsWindowStage OnGetWindowMode success");
+        };
+
+    NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule(
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 NativeValue* CreateJsWindowStage(NativeEngine& engine,
     std::shared_ptr<Rosen::WindowScene> windowScene)
 {
@@ -342,6 +373,8 @@ NativeValue* CreateJsWindowStage(NativeEngine& engine,
         *object, "loadContent", JsWindowStage::LoadContent);
     AbilityRuntime::BindNativeFunction(engine,
         *object, "getMainWindow", JsWindowStage::GetMainWindow);
+    AbilityRuntime::BindNativeFunction(engine,
+        *object, "getWindowMode", JsWindowStage::GetWindowMode);
     AbilityRuntime::BindNativeFunction(engine, *object, "on", JsWindowStage::On);
     AbilityRuntime::BindNativeFunction(engine, *object, "off", JsWindowStage::Off);
 
