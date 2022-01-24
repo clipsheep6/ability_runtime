@@ -151,6 +151,7 @@ ohos_unittest("application_test") {
 ohos_unittest("context_container_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "../app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
@@ -214,6 +215,7 @@ ohos_unittest("context_deal_for_task_dispacher_test") {
   configs = [ ":module_context_config" ]
 
   deps = [
+    
     "${ABILITY_INNERKITS_PATH}/want:want",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "//foundation/aafwk/standard/common/task_dispatcher:appkit_dispatcher_td",
@@ -236,6 +238,7 @@ ohos_unittest("context_deal_for_task_dispacher_test") {
 ohos_unittest("context_deal_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "${aafwk_path}/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "../app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
