@@ -27,6 +27,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&)>;
+using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
 class AbilityContext : public Context {
 public:
     virtual ~AbilityContext() = default;
@@ -124,7 +125,23 @@ public:
      * @param requestCode Indicates the request code to be passed to the Ability.onRequestPermissionsFromUserResult(int,
      * String[], int[]) callback method. This code cannot be a negative number.
      */
-    virtual void RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode) = 0;
+    virtual void RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode, PermissionRequestTask &&task) = 0;
+
+    /**
+     * @brief Called back after permissions are requested by using
+     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int).
+     *
+     * @param requestCode Indicates the request code passed to this method from
+     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int).
+     * @param permissions Indicates the list of permissions requested by using
+     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int). This parameter cannot be null.
+     * @param grantResults Indicates the granting results of the corresponding permissions requested using
+     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int). The value 0 indicates that a
+     * permission is granted, and the value -1 indicates not.
+     *
+     */
+    virtual void OnRequestPermissionsFromUserResult(
+        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) = 0;
 
     /**
      * @brief Get ContentStorage.
