@@ -23,6 +23,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr size_t ARGC_TWO = 2;
+constexpr size_t ARGC_THREE = 3;
+constexpr size_t INDEX_ONE = 1;
+constexpr size_t INDEX_TWO = 2;
 void JsWindowStage::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
     HILOG_INFO("JsWindowStage::Finalizer is called");
@@ -55,6 +59,13 @@ NativeValue* JsWindowStage::Off(NativeEngine* engine, NativeCallbackInfo* info)
     HILOG_INFO("JsWindowStage::Off is called");
     JsWindowStage* me = AbilityRuntime::CheckParamsAndGetThis<JsWindowStage>(engine, info);
     return (me != nullptr) ? me->OffEvent(*engine, *info) : nullptr;
+}
+
+NativeValue* JsWindowStage::LoadContent(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsWindowStage::LoadContent is called");
+    JsWindowStage* me = CheckParamsAndGetThis<JsWindowStage>(engine, info);
+    return (me != nullptr) ? me->OnLoadContent(*engine, *info) : nullptr;
 }
 
 void JsWindowStage::AfterForeground()
@@ -270,6 +281,49 @@ NativeValue* JsWindowStage::OffEvent(NativeEngine& engine, NativeCallbackInfo& i
     return engine.CreateUndefined();
 }
 
+NativeValue* JsWindowStage::OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("JsWindowStage::OnLoadContent is called");
+    if (info.argc <= 0) {
+        HILOG_ERROR("JsWindowStage param not match");
+        return engine.CreateUndefined();
+    }
+    std::string contextUrl;
+    if (!ConvertFromJsValue(engine, info.argv[0], contextUrl)) {
+        HILOG_ERROR("Failed to convert parameter to context url");
+        return engine.CreateUndefined();
+    }
+    NativeValue* storage = nullptr;
+    NativeValue* callBack = nullptr;
+    if (info.argc == ARGC_TWO) {
+        NativeValue* value = info.argv[INDEX_ONE];
+        if (value->TypeOf() == NATIVE_FUNCTION) {
+            callBack = info.argv[INDEX_ONE];
+        } else {
+            storage = info.argv[INDEX_ONE];
+        }
+    } else if (info.argc == ARGC_THREE) {
+        storage = info.argv[INDEX_ONE];
+        callBack = info.argv[INDEX_TWO];
+    }
+    contentStorage_ = static_cast<void*>(storage);
+    AsyncTask::CompleteCallback complete =
+        [this, contextUrl](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            Rosen::WMError ret = windowScene_->GetMainWindow()->SetUIContent(contextUrl, &engine,
+                static_cast<NativeValue*>(contentStorage_), false);
+            if (ret == Rosen::WMError::WM_OK) {
+                task.Resolve(engine, engine.CreateUndefined());
+                HILOG_INFO("JsWindowStage::OnLoadContent success");
+            } else {
+                task.Reject(engine,
+                    CreateJsError(engine, static_cast<int32_t>(ret), "JsWindowStage::OnLoadContent failed."));
+            }
+        };
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule(
+        engine, CreateAsyncTaskWithLastParam(engine, callBack, nullptr, std::move(complete), &result));
+    return result;
+}
 
 NativeValue* CreateJsWindowStage(NativeEngine& engine,
     std::shared_ptr<Rosen::WindowScene> windowScene)
@@ -284,6 +338,8 @@ NativeValue* CreateJsWindowStage(NativeEngine& engine,
 
     AbilityRuntime::BindNativeFunction(engine,
         *object, "setUIContent", JsWindowStage::SetUIContent);
+    AbilityRuntime::BindNativeFunction(engine,
+        *object, "loadContent", JsWindowStage::LoadContent);
     AbilityRuntime::BindNativeFunction(engine,
         *object, "getMainWindow", JsWindowStage::GetMainWindow);
     AbilityRuntime::BindNativeFunction(engine, *object, "on", JsWindowStage::On);
