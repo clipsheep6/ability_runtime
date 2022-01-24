@@ -23,6 +23,7 @@ ohos_shared_library("napi_common") {
 
   sources = [
     "napi_common_ability.cpp",
+    "napi_common_configuration.cpp",
     "napi_common_start_options.cpp",
     "napi_common_util.cpp",
     "napi_common_want.cpp",
@@ -41,9 +42,9 @@ ohos_shared_library("napi_common") {
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:want",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:libeventhandler",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",

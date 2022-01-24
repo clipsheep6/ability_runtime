@@ -91,6 +91,8 @@ config("module_ability_context_config") {
 ohos_unittest("ability_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ability_record_mgr.cpp",
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
@@ -548,6 +550,7 @@ ohos_unittest("ability_impl_test") {
 ohos_unittest("ability_thread_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_data_ability_impl.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
@@ -639,6 +642,7 @@ ohos_unittest("form_provider_client_test") {
 ohos_unittest("data_ability_impl_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_replace_ability_impl.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
@@ -686,6 +690,7 @@ ohos_unittest("data_ability_impl_test") {
 ohos_unittest("data_ability_impl_file_secondpart_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_replace_ability_impl.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
@@ -733,6 +738,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
 ohos_unittest("data_ability_impl_file_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_replace_ability_impl.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
@@ -780,6 +786,7 @@ ohos_unittest("data_ability_impl_file_test") {
 ohos_unittest("ability_thread_dataability_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include/mock_data_ability_impl.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
@@ -996,6 +1003,8 @@ ohos_unittest("data_ability_result_test") {
 ohos_unittest("form_host_client_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ability_record_mgr.cpp",
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
@@ -1039,6 +1048,7 @@ ohos_unittest("form_host_client_test") {
 ohos_unittest("continuation_test") {
   module_out_path = module_output_path
   sources = [
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/app_loader.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/application_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
