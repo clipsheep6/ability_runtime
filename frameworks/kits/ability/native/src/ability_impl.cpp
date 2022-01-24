@@ -503,6 +503,14 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
         } else {
             APP_LOGI("%{public}s user cancel permissions.", __func__);
         }
+    } else if (resultData.HasParameter("ohos.user.grant.permission")) {
+        std::vector<std::string> permissions = resultData.GetStringArrayParam("ohos.user.grant.permission");
+        std::vector<int> grantedResult(permissions.size(), -1);
+        if (resultCode > 0) {
+            grantedResult = resultData.GetIntArrayParam("ohos.user.grant.permission.result");
+            APP_LOGI("%{public}s Get user granted result.", __func__);
+        }
+        ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantedResult);
     } else {
         ability_->OnAbilityResult(requestCode, resultCode, resultData);
     }

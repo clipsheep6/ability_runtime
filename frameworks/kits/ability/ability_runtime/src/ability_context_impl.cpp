@@ -214,9 +214,25 @@ sptr<IRemoteObject> AbilityContextImpl::GetAbilityToken()
     return token_;
 }
 
-void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode)
+void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode, PermissionRequestTask &&task)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    AAFwk::Want want;
+    want.SetElementName("com.ohos.permissionmanager", "com.ohos.permissionmanager.GrantAbility");
+    want.SetParam("ohos.user.grant.permission", permissions);
+    HILOG_DEBUG("%{public}s. Start calling StartAbility.", __func__);
+    permissionRequestCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
+    HILOG_INFO("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
+}
+
+void AbilityContextImpl::OnRequestPermissionsFromUserResult(
+    int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults)
+{
+    HILOG_DEBUG("%{public}s. Start calling OnRequestPermissionsFromUserResult.", __func__);
+    permissionRequestCallbacks_[requestCode](permissions, grantResults);
+    permissionRequestCallbacks_.erase(requestCode);
+    HILOG_INFO("%{public}s. End calling OnRequestPermissionsFromUserResult.", __func__);
 }
 
 ErrCode AbilityContextImpl::RestoreWindowStage(void* contentStorage)
