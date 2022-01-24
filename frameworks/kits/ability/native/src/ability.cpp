@@ -71,8 +71,6 @@ const std::string Ability::DMS_SESSION_ID("sessionId");
 const std::string Ability::DMS_ORIGIN_DEVICE_ID("deviceId");
 const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
-const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
-const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const int TARGET_VERSION_THRESHOLDS = 8;
 
 static std::mutex formLock;
@@ -196,13 +194,9 @@ void Ability::OnStart(const Want &want)
             winType = Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW;
         }
 
-        if (abilityInfo_->bundleName == LAUNCHER_BUNDLE_NAME && abilityInfo_->name == LAUNCHER_ABILITY_NAME) {
-            winType = Rosen::WindowType::WINDOW_TYPE_WALLPAPER;
-        }
-
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(StartOptions::STRING_DISPLAY_ID, defualtDisplayId);
-        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, config.type:%{public}d, "
+        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, windowType:%{public}d, "
             "displayId:%{public}d",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str(),
