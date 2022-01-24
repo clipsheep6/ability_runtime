@@ -17,7 +17,6 @@
 
 #include "ability_loader.h"
 #include "connection_manager.h"
-#include "extension_base.cpp"
 #include "hilog_wrapper.h"
 #include "js_service_extension.h"
 #include "runtime.h"
@@ -62,7 +61,13 @@ std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
         HILOG_ERROR("ServiceExtension::CreateAndInitContext record is nullptr");
         return context;
     }
-    context->SetAbilityInfo(record->GetAbilityInfo());
+
+    auto abilityInfo = record->GetAbilityInfo();
+    context->SetAbilityInfo(abilityInfo);
+    context->InitHapModuleInfo(abilityInfo);
+    auto appContext = Context::GetApplicationContext();
+    context->SetApplicationInfo(appContext->GetApplicationInfo());
+    context->SetResourceManager(appContext->GetResourceManager());
     return context;
 }
 }
