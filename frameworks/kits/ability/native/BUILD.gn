@@ -147,6 +147,7 @@ ohos_shared_library("abilitykit_native") {
     "${SUBSYSTEM_DIR}/src/data_ability_operation_builder.cpp",
     "${SUBSYSTEM_DIR}/src/data_ability_result.cpp",
     "${SUBSYSTEM_DIR}/src/data_uri_utils.cpp",
+    "${SUBSYSTEM_DIR}/src/datashare_extension.cpp",
     "${SUBSYSTEM_DIR}/src/extension.cpp",
     "${SUBSYSTEM_DIR}/src/extension_impl.cpp",
     "${SUBSYSTEM_DIR}/src/extension_module_loader.cpp",
@@ -160,6 +161,8 @@ ohos_shared_library("abilitykit_native") {
     "${SUBSYSTEM_DIR}/src/form_runtime/form_extension_provider_client.cpp",
     "${SUBSYSTEM_DIR}/src/form_runtime/js_form_extension.cpp",
     "${SUBSYSTEM_DIR}/src/form_runtime/js_form_extension_context.cpp",
+    "${SUBSYSTEM_DIR}/src/js_datashare_extension.cpp",
+    "${SUBSYSTEM_DIR}/src/js_datashare_extension_context.cpp",
     "${SUBSYSTEM_DIR}/src/js_service_extension.cpp",
     "${SUBSYSTEM_DIR}/src/js_service_extension_context.cpp",
     "${SUBSYSTEM_DIR}/src/js_static_subscriber_extension.cpp",
@@ -196,6 +199,7 @@ ohos_shared_library("abilitykit_native") {
     "${SUBSYSTEM_DIR}/src/continuation/remote_register_service/remote_register_service_stub.cpp",
     "${SUBSYSTEM_DIR}/src/distributed_ability_runtime/distributed_client.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context_impl.cpp",
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/datashare_extension_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/extension_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/form_extension_context.cpp",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/service_extension_context.cpp",
@@ -304,6 +308,30 @@ ohos_shared_library("service_extension_module") {
       [ "//foundation/aafwk/standard/frameworks/kits/ability/native/include" ]
 
   sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/src/service_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [
+    ":abilitykit_native",
+    "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_runtime:runtime",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
+
+  subsystem_name = "aafwk"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("datashare_extension_module") {
+  include_dirs =
+      [ "//foundation/aafwk/standard/frameworks/kits/ability/native/include" ]
+
+  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/src/datashare_extension_module_loader.cpp" ]
 
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]

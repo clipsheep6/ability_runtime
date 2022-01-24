@@ -25,6 +25,7 @@
 #include "bytrace.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "datashare_extension.h"
 #include "extension_module_loader.h"
 #include "form_extension.h"
 #include "if_system_ability_manager.h"
@@ -846,6 +847,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData)
             return AbilityRuntime::StaticSubscriberExtension::Create(application->GetRuntime());
         });
         LoadAndRegisterExtension("system/lib/libservice_extension_module.z.so", "ServiceExtension",
+            application_->GetRuntime());
+        LoadAndRegisterExtension("system/lib/libdatashare_extension_module.z.so", "DataShareExtension",
             application_->GetRuntime());
     }
 
