@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <csignal>
 
 #include "ability_info.h"
 #include "ability_manager_errors.h"
@@ -2928,6 +2929,21 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
     }
 }
 
+bool AbilityManagerService::SendANRProcessID(int pid)
+{
+    int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
+    auto timeoutTask = [pid]() {
+        if (kill(pid,SIGKILL) != ERR_OK) {
+            HILOG_ERROR("Kill ANR process failed");
+        }
+    };
+    if (kill(pid,SIGUSR1) != ERR_OK) {
+        HILOG_ERROR("Send sig to ANR process failed");
+    }
+    handler_->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
+    return true;
+}
+
 int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &abilityController,
     bool imAStabilityTest)
 {
@@ -2998,7 +3014,20 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.isModuleJson = true;
     abilityInfo.isStageBasedModel = true;
     abilityInfo.process = extensionInfo.process;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    switch (extensionInfo.type) {
+        case AppExecFwk::ExtensionAbilityType::FORM:
+            abilityInfo.type = AppExecFwk::AbilityType::FORM;
+            break;
+        case AppExecFwk::ExtensionAbilityType::SERVICE:
+            abilityInfo.type = AppExecFwk::AbilityType::SERVICE;
+            break;
+        case AppExecFwk::ExtensionAbilityType::DATASHARE:
+            abilityInfo.type = AppExecFwk::AbilityType::DATA;
+            break;
+        default:
+            abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+            break;
+    }
     return 0;
 }
 
