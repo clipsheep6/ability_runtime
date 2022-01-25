@@ -232,6 +232,10 @@ public:
     {
         return 0;
     }
+    virtual bool SendANRProcessID(int pid)
+    {
+        return true;
+    }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
@@ -242,6 +246,17 @@ public:
     virtual bool IsRunningInStabilityTest() override
     {
         return true;
+    }
+
+    virtual int StartAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken) override
+    {
+        return 0;
+    }
+
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override
+    {
+        return 0;
     }
 
     enum RequestCode {
