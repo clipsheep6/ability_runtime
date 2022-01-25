@@ -379,7 +379,8 @@ ErrCode FormMgrService::Init()
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_ABILITY_UPDATED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
-
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_UID_REMOVED);
+        
         // init TimerReceiver
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         formSysEventReceiver_ = std::make_shared<FormSysEventReceiver>(subscribeInfo);
@@ -397,7 +398,27 @@ ErrCode FormMgrService::Init()
  */
 bool FormMgrService::CheckFormPermission()
 {
-    return true;
+	return true;
+    //sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    //if (iBundleMgr == nullptr) {
+    //    APP_LOGE("%{public}s, failed to get IBundleMgr.", __func__);
+    //    return false;
+    //}
+
+    //int uid = IPCSkeleton::GetCallingUid();
+    //if (!iBundleMgr->CheckIsSystemAppByUid(uid)) {
+    //    APP_LOGE("%{public}s fail, form is not system app. uid:%{public}d", __func__, uid);
+    //    return false;
+    //}
+
+    //std::string bundleName;
+    //bool result = iBundleMgr->GetBundleNameForUid(uid, bundleName);
+    //if (!result || bundleName.empty()) {
+    //    APP_LOGE("%{public}s failed, cannot get bundle name by uid:%{public}d", __func__, uid);
+    //    return false;
+    //}
+
+    //return CheckFormPermission(bundleName);
 }
 
 bool FormMgrService::CheckFormPermission(const std::string &bundleName) const
