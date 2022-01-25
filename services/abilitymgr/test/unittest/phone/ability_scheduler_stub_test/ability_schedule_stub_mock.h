@@ -133,6 +133,8 @@ public:
     {}
     virtual void ContinueAbility(const std::string& deviceId) override
     {}
+    virtual void DumpAbilityInfo(std::vector<std::string> &info) override
+    {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

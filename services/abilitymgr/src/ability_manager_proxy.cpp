@@ -469,6 +469,42 @@ void AbilityManagerProxy::AddWindowInfo(const sptr<IRemoteObject> &token, int32_
     }
 }
 
+void AbilityManagerProxy::DumpSysState(const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    data.WriteString16(Str8ToStr16(args));
+
+    if (!data.WriteBool(isClient)) {
+        HILOG_ERROR("data write failed.");
+        return ;
+    }
+    if (!data.WriteBool(isUserID)) {
+        HILOG_ERROR("data write failed.");
+        return ;
+    }
+    if (!data.WriteInt32(UserID)) {
+        HILOG_ERROR("data write failed.");
+        return ;
+    }
+    error = Remote()->SendRequest(IAbilityManager::DUMPSYS_STATE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("AbilityManagerProxy: SendRequest err %{public}d", error);
+        return;
+    }
+    int32_t stackNum = reply.ReadInt32();
+    for (int i = 0; i < stackNum; i++) {
+        std::string stac = Str16ToStr8(reply.ReadString16());
+        state.emplace_back(stac);
+    }
+}
+
 void AbilityManagerProxy::DumpState(const std::string &args, std::vector<std::string> &state)
 {
     int error;
@@ -2224,6 +2260,27 @@ bool AbilityManagerProxy::IsRunningInStabilityTest()
     auto error = Remote()->SendRequest(IAbilityManager::IS_USER_A_STABILITY_TEST, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
+bool AbilityManagerProxy::SendANRProcessID(int pid)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return false;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("pid WriteInt32 fail.");
+        return false;
+    }
+    error = Remote()->SendRequest(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("SendANRProcessID error: %d", error);
         return false;
     }
     return reply.ReadBool();

@@ -60,6 +60,9 @@ public:
 
     void DumpState(const std::string &args, std::vector<std::string> &info) override;
 
+    void DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
+
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
     int StopServiceAbility(const Want &want) override;
     int PowerOff() override;

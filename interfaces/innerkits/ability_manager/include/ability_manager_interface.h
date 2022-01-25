@@ -236,6 +236,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) = 0;
+    virtual void DumpSysState(const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) = 0;
 
     /**
      * Destroys this Service ability if the number of times it
@@ -601,6 +602,12 @@ public:
      */
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) = 0;
 
+    /**
+     * Send not response process ID to ability manager service.
+     * @param pid The not response process ID.
+     */
+    virtual bool SendANRProcessID(int pid) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -803,6 +810,8 @@ public:
         GET_PENDING_WANT_SENDER_INFO,
         SET_SHOW_ON_LOCK_SCREEN,
 
+        SEND_APP_NOT_RESPONSE_PROCESS_ID,
+
         // ipc id for starting ability by settings(1018)
         START_ABILITY_FOR_SETTINGS,
 
@@ -842,6 +851,7 @@ public:
         // ipc id 2001-3000 for tools
         // ipc id for dumping state (2001)
         DUMP_STATE = 2001,
+		DUMPSYS_STATE = 2002,
     };
 };
 }  // namespace AAFwk

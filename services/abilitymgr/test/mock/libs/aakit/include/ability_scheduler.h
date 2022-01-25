@@ -101,6 +101,8 @@ public:
     {};
     virtual void ContinueAbility(const std::string& deviceId) override
     {};
+    virtual void DumpAbilityInfo(std::vector<std::string> &info) override
+    {};
 private:
     AbilityResult result_;
 };

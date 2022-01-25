@@ -67,6 +67,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
     requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
     requestFuncMap_[DUMP_STATE] = &AbilityManagerStub::DumpStateInner;
+    requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
     requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
@@ -132,6 +133,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[SET_ABILITY_CONTROLLER] = &AbilityManagerStub::SetAbilityControllerInner;
     requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
+    requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -466,6 +468,27 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
     int32_t result = StopServiceAbility(*want);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::DumpSysStateInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<std::string> result;
+    std::string args = Str16ToStr8(data.ReadString16());
+    std::vector<std::string> argList;
+
+    auto isClient = data.ReadBool();
+    auto isUserID = data.ReadBool();
+    auto UserID = data.ReadInt32();
+    SplitStr(args, " ", argList);
+    if (argList.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    DumpSysState(args, result, isClient, isUserID, UserID);
+    reply.WriteInt32(result.size());
+    for (auto stack : result) {
+        reply.WriteString16(Str8ToStr16(stack));
+    }
     return NO_ERROR;
 }
 
@@ -1300,6 +1323,17 @@ int AbilityManagerStub::IsRunningInStabilityTestInner(MessageParcel &data, Messa
     HILOG_INFO("AbilityManagerStub: IsRunningInStabilityTest result = %{public}d", result);
     if (!reply.WriteBool(result)) {
         HILOG_ERROR("IsRunningInStabilityTest failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    bool result = SendANRProcessID(pid);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

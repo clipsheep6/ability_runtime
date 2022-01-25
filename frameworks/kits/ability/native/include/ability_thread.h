@@ -394,6 +394,13 @@ public:
      * @return Returns true on success, others on failure.
      */
     bool CheckObsPermission();
+	
+	/**
+     * @brief Dump ability runner info.
+     *
+     * @param runnerInfo ability runner info.
+     */
+    void DumpAbilityInfo(std::vector<std::string> &info);
 
     std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 private:
