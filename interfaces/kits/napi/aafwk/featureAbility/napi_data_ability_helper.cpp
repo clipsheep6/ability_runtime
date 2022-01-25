@@ -90,33 +90,40 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
 
-    auto IsStageModel = [=](Ability* &ability) -> bool {
-        napi_value global = nullptr;
-        if (napi_get_global(env, &global) != ERR_OK) {
-            return true;
-        }
-        napi_value abilityObj = nullptr;
-        if (napi_get_named_property(env, global, "ability", &abilityObj) != ERR_OK) {
-            return true;
-        }
-        if (napi_get_value_external(env, abilityObj, (void **)&ability) != ERR_OK || ability == nullptr) {
-            return true;
-        }
-        return false;
-    };
-
-    Ability *ability = nullptr;
-    bool stageModel = IsStageModel(ability);
     std::shared_ptr<DataAbilityHelper> dataAbilityHelper = nullptr;
-    if (stageModel) {
-        OHOS::AbilityRuntime::Context context = static_cast<OHOS::AbilityRuntime::Context>(argv[0]);
-        std::string strUri = NapiValueToStringUtf8(env, argv[1]);
-        HILOG_INFO("Stage Model: context = %{public}p strUri = %{public}s", strUri.c_str());
-        dataAbilityHelper = DataAbilityHelper::Creator(&context, std::make_shared<Uri>(strUri));
-    } else {
+    bool stageMode = false;
+    napi_status status = OHOS::AbilityRuntime::IsStageContext(env, argv[0], stageMode);
+    if (status != napi_ok) {
+        HiLog::Info(LABEL, "argv[0] is not a context");
+        auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
+        if (ability == nullptr) {
+            HiLog::Error(LABEL, "Failed to get native context instance");
+            return nullptr;
+        }
         std::string strUri = NapiValueToStringUtf8(env, argv[0]);
         HILOG_INFO("FA Model: ability = %{public}p strUri = %{public}s", ability, strUri.c_str());
         dataAbilityHelper = DataAbilityHelper::Creator(ability->GetContext(), std::make_shared<Uri>(strUri));
+    } else {
+        HiLog::Info(LABEL, "argv[0] is a context");
+        if (stageMode) {
+            auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[0]);
+            if (context == nullptr) {
+                HiLog::Error(LABEL, "Failed to get native context instance");
+                return nullptr;
+            }
+            std::string strUri = NapiValueToStringUtf8(env, argv[1]);
+            HILOG_INFO("Stage Model: context = %{public}p strUri = %{public}s", strUri.c_str());
+            dataAbilityHelper = DataAbilityHelper::Creator(&context, std::make_shared<Uri>(strUri));
+        } else {
+            auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
+            if (ability == nullptr) {
+                HiLog::Error(LABEL, "Failed to get native context instance");
+                return nullptr;
+            }
+            std::string strUri = NapiValueToStringUtf8(env, argv[1]);
+            HILOG_INFO("FA Model: ability = %{public}p strUri = %{public}s", ability, strUri.c_str());
+            dataAbilityHelper = DataAbilityHelper::Creator(ability->GetContext(), std::make_shared<Uri>(strUri));
+        }
     }
 
     if (dataAbilityHelper == nullptr) {
