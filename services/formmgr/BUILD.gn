@@ -35,7 +35,7 @@ ohos_shared_library("libfms") {
     "//base/security/permission/interfaces/innerkits/permission_standard/permissionsdk/main/cpp/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/bundlemgr",
     "//foundation/appexecfwk/standard/common/log/include",
-
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime",
     #  "//third_party/libuuid",
   ]
   sources = [
@@ -94,7 +94,7 @@ ohos_shared_library("libfms") {
     "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
     "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr",
     "//utils/native/base:utils",
-
+    "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
     #  "//third_party/libuuid:libuuid_static",
   ]
 
