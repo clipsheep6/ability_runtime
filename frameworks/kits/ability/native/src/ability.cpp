@@ -200,7 +200,7 @@ void Ability::OnStart(const Want &want)
 
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(StartOptions::STRING_DISPLAY_ID, defualtDisplayId);
-        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, windowType:%{public}d, "
+        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, config.type:%{public}d, "
             "displayId:%{public}d",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str(),
@@ -2728,20 +2728,16 @@ bool Ability::CheckFMSReady()
 bool Ability::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
     APP_LOGI("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
+    sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return false;
     }
-
-    // GetAllFormsInfo request to fms
-    int resultCode = FormMgr::GetInstance().GetAllFormsInfo(formInfos);
-    if (resultCode != ERR_OK) {
-        APP_LOGE("%{public}s error, failed to GetAllFormsInfo, error code is %{public}d.", __func__, resultCode);
-        return false;
+    bool isHaveFormsInfo = iBundleMgr->GetAllFormsInfo(formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    return !formInfos.empty();
+    return isHaveFormsInfo;
 }
 
 /**
@@ -2758,20 +2754,16 @@ bool Ability::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &
         APP_LOGW("Failed to Get forms info, because empty bundle name");
         return false;
     }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
+    sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return false;
     }
-
-    // GetFormsInfoByApp request to fms
-    int resultCode = FormMgr::GetInstance().GetFormsInfoByApp(bundleName, formInfos);
-    if (resultCode != ERR_OK) {
-        APP_LOGE("%{public}s error, failed to GetFormsInfoByApp, error code is %{public}d.", __func__, resultCode);
-        return false;
+    bool isHaveFormsInfo = iBundleMgr->GetFormsInfoByApp(bundleName, formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    return !formInfos.empty();
+    return isHaveFormsInfo;
 }
 
 /**
@@ -2789,20 +2781,16 @@ bool Ability::GetFormsInfoByModule(std::string &bundleName, std::string &moduleN
         APP_LOGW("Failed to Get forms info, because empty bundleName or moduleName");
         return false;
     }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
+    sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        APP_LOGE("%{public}s error, failed to get IBundleMgr.", __func__);
         return false;
     }
-
-    // GetFormsInfoByModule request to fms
-    int resultCode = FormMgr::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);
-    if (resultCode != ERR_OK) {
-        APP_LOGE("%{public}s error, failed to GetFormsInfoByModule, error code is %{public}d.", __func__, resultCode);
-        return false;
+    bool isHaveFormsInfo = iBundleMgr->GetFormsInfoByModule(bundleName, moduleName, formInfos);
+    if (formInfos.size() == 0 || formInfos.empty()) {
+        isHaveFormsInfo = false;
     }
-
-    return !formInfos.empty();
+    return isHaveFormsInfo;
 }
 
 /**

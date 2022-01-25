@@ -42,13 +42,22 @@ public:
 
     std::string GetBundleCodePath() const override;
     ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
+    ErrCode StartAbilityWithAccount(const AAFwk::Want &want, int accountId, int requestCode) override;
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode) override;
+    ErrCode StartAbilityWithAccount(
+        const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task) override;
+    ErrCode StartAbilityForResultWithAccount(
+        const AAFwk::Want &want, int accountId, int requestCode, RuntimeTask &&task) override;
+    ErrCode StartAbilityForResultWithAccount(const AAFwk::Want &want, int accountId,
+        const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
     void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) override;
     bool ConnectAbility(const AAFwk::Want &want,
+                        const sptr<AbilityConnectCallback> &connectCallback) override;
+    bool ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
                         const sptr<AbilityConnectCallback> &connectCallback) override;
     void DisconnectAbility(const AAFwk::Want &want,
                            const sptr<AbilityConnectCallback> &connectCallback) override;
@@ -58,10 +67,7 @@ public:
 
     ErrCode TerminateSelf() override;
     sptr<IRemoteObject> GetAbilityToken() override;
-    void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
-        int requestCode, PermissionRequestTask &&task) override;
-    void OnRequestPermissionsFromUserResult(
-        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) override;
+    void RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode) override;
     ErrCode RestoreWindowStage(void* contentStorage) override;
 
     /**
@@ -106,7 +112,6 @@ private:
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     std::shared_ptr<AbilityRuntime::Context> stageContext_ = nullptr;
     std::map<int, RuntimeTask> resultCallbacks_;
-    std::map<int, PermissionRequestTask> permissionRequestCallbacks_;
     void* contentStorage_ = nullptr;
 };
 }  // namespace AbilityRuntime
