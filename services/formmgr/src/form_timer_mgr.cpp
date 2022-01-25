@@ -1201,7 +1201,7 @@ void FormTimerMgr::ExecTimerTask(const FormTimer &timerTask)
         if (IsActiveUser(timerTask.userId)) {
             want.SetParam(Constants::PARAM_FORM_USER_ID, timerTask.userId);
         }
-        APP_LOGD("%{public}s, userId:%{public}d",__func__, timerTask.userId);
+        APP_LOGI("%{public}s, userId:%{public}d", __func__, timerTask.userId);
 
         auto task = std::bind(&FormProviderMgr::RefreshForm, &FormProviderMgr::GetInstance(), timerTask.formId, want);
         taskExecutor_->AddTask(task);
