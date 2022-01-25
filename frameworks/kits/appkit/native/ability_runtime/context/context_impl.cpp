@@ -75,8 +75,8 @@ std::string ContextImpl::GetDatabaseDir()
 {
     std::string dir;
     if (IsCreateBySystemApp()) {
-        dir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId())
-		    + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE + GetBundleName();
+        dir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + GetCurrentAccountId() + CONTEXT_FILE_SEPARATOR +
+            CONTEXT_DATABASE + GetBundleName();
     } else {
         dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DATABASE;
     }
@@ -111,7 +111,7 @@ std::string ContextImpl::GetDistributedFilesDir()
     HILOG_DEBUG("ContextImpl::GetDistributedFilesDir");
     std::string dir;
     if (IsCreateBySystemApp()) {
-        dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
+        dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + GetCurrentAccountId() +
             CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE + GetBundleName();
     } else {
         dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES +
@@ -136,7 +136,7 @@ std::string ContextImpl::GetBaseDir() const
 {
     std::string baseDir;
     if (IsCreateBySystemApp()) {
-        baseDir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId()) +
+        baseDir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + GetCurrentAccountId() +
             CONTEXT_FILE_SEPARATOR + CONTEXT_BASE + CONTEXT_FILE_SEPARATOR + GetBundleName();
     } else {
         baseDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_BASE;
@@ -150,33 +150,11 @@ std::string ContextImpl::GetBaseDir() const
     return baseDir;
 }
 
-int ContextImpl::GetCurrentAccountId() const
+std::string ContextImpl::GetCurrentAccountId() const
 {
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-    return userId;
-}
-
-int ContextImpl::GetCurrentActiveAccountId() const
-{
-    std::vector<AccountSA::OsAccountInfo> osAccountInfos;
-    ErrCode ret = AccountSA::OsAccountManager::QueryAllCreatedOsAccounts(osAccountInfos);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error.");
-        return 0;
-    }
-
-    if (osAccountInfos.size() == 0) {
-        HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no accounts.");
-        return 0;
-    }
-
-    if (osAccountInfos.size() > 1) {
-        HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no current now.");
-        return 0;
-    }
-
-    return osAccountInfos[0].GetLocalId();
+    return std::to_string(userId);
 }
 
 std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
@@ -197,13 +175,10 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    int accountId = GetCurrentAccountId();
-    if (accountId == 0) {
-        accountId = GetCurrentActiveAccountId();
-    }
-    HILOG_DEBUG("ContextImpl::CreateBundleContext length: %{public}zu, bundleName: %{public}s, accountId: %{public}d",
-        (size_t)bundleName.length(), bundleName.c_str(), accountId);
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    HILOG_DEBUG("ContextImpl::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
+        (size_t)bundleName.length(),
+        bundleName.c_str());
+    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleInfo is error");

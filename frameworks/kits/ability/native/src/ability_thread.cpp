@@ -667,15 +667,7 @@ void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
         return;
     }
 
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, config]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleUpdateConfiguration failed.");
-            return;
-        }
-        abilityThread->HandleUpdateConfiguration(config);
-    };
+    auto task = [abilitThread = this, config]() { abilitThread->HandleUpdateConfiguration(config); };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleUpdateConfiguration abilityHandler_ is nullptr");
@@ -724,19 +716,13 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
         APP_LOGE("ScheduleAbilityTransaction::failed, token_  nullptr");
         return;
     }
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, want, lifeCycleStateInfo]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleAbilityTransaction failed.");
-            return;
-        }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
-        } else {
-            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
-        }
-    };
+    auto task = [abilityThread = this, want, lifeCycleStateInfo]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo);
+            } else {
+                abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleAbilityTransaction abilityHandler_ == nullptr");
@@ -757,19 +743,13 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
 void AbilityThread::ScheduleConnectAbility(const Want &want)
 {
     APP_LOGI("AbilityThread::ScheduleConnectAbility begin, isExtension_：%{public}d", isExtension_);
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, want]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleConnectAbility failed.");
-            return;
-        }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleConnectExtension(want);
-        } else {
-            abilityThread->HandleConnectAbility(want);
-        }
-    };
+    auto task = [abilityThread = this, want]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleConnectExtension(want);
+            } else {
+                abilityThread->HandleConnectAbility(want);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleConnectAbility abilityHandler_ == nullptr");
@@ -790,19 +770,13 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
 void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
     APP_LOGI("AbilityThread::ScheduleDisconnectAbility begin, isExtension_：%{public}d", isExtension_);
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, want]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleDisconnectAbility failed.");
-            return;
-        }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleDisconnectExtension(want);
-        } else {
-            abilityThread->HandleDisconnectAbility(want);
-        }
-    };
+    auto task = [abilityThread = this, want]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleDisconnectExtension(want);
+            } else {
+                abilityThread->HandleDisconnectAbility(want);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleDisconnectAbility abilityHandler_ == nullptr");
@@ -831,19 +805,13 @@ void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
     APP_LOGI("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, want, restart, startId]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleCommandAbility failed.");
-            return;
-        }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleCommandExtension(want, restart, startId);
-        } else {
-            abilityThread->HandleCommandAbility(want, restart, startId);
-        }
-    };
+    auto task = [abilityThread = this, want, restart, startId]() {
+            if (abilityThread->isExtension_) {
+                abilityThread->HandleCommandExtension(want, restart, startId);
+            } else {
+                abilityThread->HandleCommandAbility(want, restart, startId);
+            }
+        };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleCommandAbility abilityHandler_ == nullptr");
@@ -875,16 +843,11 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
         APP_LOGE("AbilityThread::SendResult abilityImpl_ == nullptr");
         return;
     }
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, requestCode, resultCode, want]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr || abilityThread->abilityImpl_ == nullptr) {
-            APP_LOGE("abilityThread or abilityImpl is nullptr, SendResult failed.");
-            return;
-        }
+
+    auto task = [this, requestCode, resultCode, want]() {
         if (requestCode != -1) {
             APP_LOGI("AbilityThread::SendResult before abilityImpl_->SendResult");
-            abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
+            abilityImpl_->SendResult(requestCode, resultCode, want);
             APP_LOGI("AbilityThread::SendResult after abilityImpl_->SendResult");
         }
     };
@@ -899,6 +862,7 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
         APP_LOGE("AbilityThread::SendResult PostTask error");
     }
     APP_LOGI("AbilityThread::SendResult end");
+
 }
 
 /**
@@ -1423,18 +1387,13 @@ bool AbilityThread::CheckObsPermission()
 bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     APP_LOGI("%{public}s called", __func__);
+
     if (!CheckObsPermission()) {
         APP_LOGE("%{public}s CheckObsPermission() return false", __func__);
         return false;
     }
 
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, uri, dataObserver]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleRegisterObserver failed.");
-            return;
-        }
+    auto task = [abilityThread = this, uri, dataObserver]() {
         abilityThread->HandleRegisterObserver(uri, dataObserver);
     };
 
@@ -1459,18 +1418,13 @@ bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::I
 bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     APP_LOGI("%{public}s called", __func__);
+
     if (!CheckObsPermission()) {
         APP_LOGE("%{public}s CheckObsPermission() return false", __func__);
         return false;
     }
 
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, uri, dataObserver]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleUnregisterObserver failed.");
-            return;
-        }
+    auto task = [abilityThread = this, uri, dataObserver]() {
         abilityThread->HandleUnregisterObserver(uri, dataObserver);
     };
 
@@ -1494,20 +1448,13 @@ bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk:
 bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 {
     APP_LOGI("%{public}s called", __func__);
+
     if (!CheckObsPermission()) {
         APP_LOGE("%{public}s CheckObsPermission() return false", __func__);
         return false;
     }
 
-    wptr<AbilityThread> weak = this;
-    auto task = [weak, uri]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, ScheduleNotifyChange failed.");
-            return;
-        }
-        abilityThread->HandleNotifyChange(uri);
-    };
+    auto task = [abilityThread = this, uri]() { abilityThread->HandleNotifyChange(uri); };
 
     if (abilityHandler_ == nullptr) {
         APP_LOGE("AbilityThread::ScheduleNotifyChange abilityHandler_ == nullptr");

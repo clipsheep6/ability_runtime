@@ -257,15 +257,7 @@ void MainThread::ScheduleForegroundApplication()
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("MainThread::scheduleForegroundApplication called begin");
-    wptr<MainThread> weak = this;
-    auto task = [weak]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleForegroundApplication failed.");
-            return;
-        }
-        appThread->HandleForegroundApplication();
-    };
+    auto task = [appThread = this]() { appThread->HandleForegroundApplication(); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("PostTask task failed");
     }
@@ -280,15 +272,8 @@ void MainThread::ScheduleForegroundApplication()
 void MainThread::ScheduleBackgroundApplication()
 {
     APP_LOGI("MainThread::scheduleBackgroundApplication called begin");
-    wptr<MainThread> weak = this;
-    auto task = [weak]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleBackgroundApplication failed.");
-            return;
-        }
-        appThread->HandleBackgroundApplication();
-    };
+
+    auto task = [appThread = this]() { appThread->HandleBackgroundApplication(); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
@@ -303,15 +288,8 @@ void MainThread::ScheduleBackgroundApplication()
 void MainThread::ScheduleTerminateApplication()
 {
     APP_LOGI("MainThread::scheduleTerminateApplication called begin");
-    wptr<MainThread> weak = this;
-    auto task = [weak]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleTerminateApplication failed.");
-            return;
-        }
-        appThread->HandleTerminateApplication();
-    };
+
+    auto task = [appThread = this]() { appThread->HandleTerminateApplication(); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleTerminateApplication PostTask task failed");
     }
@@ -327,15 +305,8 @@ void MainThread::ScheduleTerminateApplication()
 void MainThread::ScheduleShrinkMemory(const int level)
 {
     APP_LOGI("MainThread::scheduleShrinkMemory level: %{public}d", level);
-    wptr<MainThread> weak = this;
-    auto task = [weak, level]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleShrinkMemory failed.");
-            return;
-        }
-        appThread->HandleShrinkMemory(level);
-    };
+
+    auto task = [appThread = this, level]() { appThread->HandleShrinkMemory(level); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleShrinkMemory PostTask task failed");
     }
@@ -350,15 +321,8 @@ void MainThread::ScheduleShrinkMemory(const int level)
 void MainThread::ScheduleProcessSecurityExit()
 {
     APP_LOGI("MainThread::ScheduleProcessSecurityExit called start");
-    wptr<MainThread> weak = this;
-    auto task = [weak]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleShrinkMemory failed.");
-            return;
-        }
-        appThread->HandleProcessSecurityExit();
-    };
+
+    auto task = [appThread = this]() { appThread->HandleProcessSecurityExit(); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleProcessSecurityExit PostTask task failed");
     }
@@ -382,19 +346,12 @@ void MainThread::ScheduleLowMemory()
  * @param data The launchdata of the application witch launced.
  *
  */
-void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Configuration &config)
+void MainThread::ScheduleLaunchApplication(const AppLaunchData &data)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("MainThread::scheduleLaunchApplication start");
-    wptr<MainThread> weak = this;
-    auto task = [weak, data, config]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleLaunchApplication failed.");
-            return;
-        }
-        appThread->HandleLaunchApplication(data, config);
-    };
+
+    auto task = [appThread = this, data]() { appThread->HandleLaunchApplication(data); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleLaunchApplication PostTask task failed");
     }
@@ -404,15 +361,7 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
 void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     APP_LOGI("MainThread::ScheduleAbilityStageInfo start");
-    wptr<MainThread> weak = this;
-    auto task = [weak, abilityStage]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleShrinkMemory failed.");
-            return;
-        }
-        appThread->HandleAbilityStage(abilityStage);
-    };
+    auto task = [appThread = this, abilityStage]() { appThread->HandleAbilityStage(abilityStage);};
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleAbilityStageInfo PostTask task failed");
     }
@@ -452,15 +401,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
         APP_LOGI("MainThread::ScheduleLaunchAbility compatibleVersion:%{public}d", bundleInfo.compatibleVersion);
     }
 
-    wptr<MainThread> weak = this;
-    auto task = [weak, abilityRecord]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleLaunchAbility failed.");
-            return;
-        }
-        appThread->HandleLaunchAbility(abilityRecord);
-    };
+    auto task = [appThread = this, abilityRecord]() { appThread->HandleLaunchAbility(abilityRecord); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleLaunchAbility PostTask task failed");
     }
@@ -477,15 +418,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
 void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
     APP_LOGI("MainThread::scheduleCleanAbility called start.");
-    wptr<MainThread> weak = this;
-    auto task = [weak, token]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleCleanAbility failed.");
-            return;
-        }
-        appThread->HandleCleanAbility(token);
-    };
+    auto task = [appThread = this, token]() { appThread->HandleCleanAbility(token); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleCleanAbility PostTask task failed");
     }
@@ -514,15 +447,7 @@ void MainThread::ScheduleProfileChanged(const Profile &profile)
 void MainThread::ScheduleConfigurationUpdated(const Configuration &config)
 {
     APP_LOGI("MainThread::ScheduleConfigurationUpdated called start.");
-    wptr<MainThread> weak = this;
-    auto task = [weak, config]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("appThread is nullptr, HandleConfigurationUpdated failed.");
-            return;
-        }
-        appThread->HandleConfigurationUpdated(config);
-    };
+    auto task = [appThread = this, config]() { appThread->HandleConfigurationUpdated(config); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleConfigurationUpdated PostTask task failed");
     }
@@ -771,7 +696,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
  * @param appLaunchData The launchdata of the application witch launced.
  *
  */
-void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
+void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("MainThread::handleLaunchApplication called start.");
@@ -853,7 +778,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     contextDeal->SetApplicationContext(application_);
     application_->AttachBaseContext(contextDeal);
     application_->SetAbilityRecordMgr(abilityRecordMgr_);
-    application_->SetConfiguration(config);
 
     // create contextImpl
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
@@ -1234,13 +1158,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
     APP_LOGI("MainThread:Init Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchDogHandler_ = std::make_shared<WatchDog>(watchDogRunner);
-    wptr<MainThread> weak = this;
-    auto task = [weak]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, SetRunnerStarted failed.");
-            return;
-        }
+    auto task = [appThread = this]() {
         APP_LOGI("MainThread:MainHandler Start");
         appThread->SetRunnerStarted(true);
     };
@@ -1253,10 +1171,8 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
     if (!watchDogHandler_->PostTask(taskWatchDog)) {
         APP_LOGE("MainThread::Init WatchDog postTask task failed");
     }
-    /*
     watchDogHandler_->Init(mainHandler_, watchDogHandler_);
     APP_LOGI("MainThread:Init before CreateRunner.");
-    */
     TaskHandlerClient::GetInstance()->CreateRunner();
     APP_LOGI("MainThread:Init after CreateRunner.");
     APP_LOGI("MainThread:Init end.");
@@ -1544,15 +1460,7 @@ void MainThread::HandleScheduleAcceptWant(const AAFwk::Want &want, const std::st
 void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName)
 {
     APP_LOGI("MainThread::ScheduleAcceptWant start");
-    wptr<MainThread> weak = this;
-    auto task = [weak, want, moduleName]() {
-        auto appThread = weak.promote();
-        if (appThread == nullptr) {
-            APP_LOGE("abilityThread is nullptr, HandleScheduleAcceptWant failed.");
-            return;
-        }
-        appThread->HandleScheduleAcceptWant(want, moduleName);
-    };
+    auto task = [appThread = this, want, moduleName]() { appThread->HandleScheduleAcceptWant(want, moduleName); };
     if (!mainHandler_->PostTask(task)) {
         APP_LOGE("MainThread::ScheduleAcceptWant PostTask task failed");
     }

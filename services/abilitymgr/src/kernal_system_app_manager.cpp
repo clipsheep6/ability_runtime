@@ -168,14 +168,7 @@ int KernalSystemAppManager::DispatchActive(const std::shared_ptr<AbilityRecord> 
     }
     handler->RemoveEvent(AbilityManagerService::ACTIVE_TIMEOUT_MSG, abilityRecord->GetEventId());
 
-    auto task = [weak = weak_from_this(), abilityRecord]() {
-        auto kernalManager = weak.lock();
-        if (kernalManager == nullptr) {
-            HILOG_ERROR("kernalManager is null, CompleteActive failed");
-            return;
-        }
-        kernalManager->CompleteActive(abilityRecord);
-    };
+    auto task = [kernalManager = shared_from_this(), abilityRecord]() { kernalManager->CompleteActive(abilityRecord); };
     handler->PostTask(task);
     return ERR_OK;
 }
@@ -189,14 +182,7 @@ void KernalSystemAppManager::CompleteActive(const std::shared_ptr<AbilityRecord>
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER(handler);
 
-    auto task = [weak = weak_from_this()]() {
-        auto kernalManager = weak.lock();
-        if (kernalManager == nullptr) {
-            HILOG_ERROR("kernalManager is null, DequeueWaittingAbility failed");
-            return;
-        }
-        kernalManager->DequeueWaittingAbility();
-    };
+    auto task = [kernalManager = shared_from_this()]() { kernalManager->DequeueWaittingAbility(); };
     handler->PostTask(task, "DequeueWaittingAbility");
 }
 

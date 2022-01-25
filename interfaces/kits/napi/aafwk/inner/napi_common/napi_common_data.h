@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "ability.h"
-#include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "pac_map.h"
@@ -34,7 +33,6 @@ namespace AppExecFwk {
 #define ARGS_MAX_COUNT 10
 #define ARGS_ASYNC_COUNT 1
 
-#define ARGS_ZERO 0
 #define ARGS_ONE 1
 #define ARGS_TWO 2
 #define ARGS_THREE 3

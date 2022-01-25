@@ -34,7 +34,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-class Configuration;
 class AmsMgrScheduler : public AmsMgrStub {
 public:
     AmsMgrScheduler(
@@ -165,14 +164,6 @@ public:
         const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
-
-    /**
-     *  ANotify application update system environment changes.
-     *
-     * @param config System environment change parameters.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual void UpdateConfiguration(const Configuration &config) override;
 
 private:
     /**

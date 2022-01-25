@@ -25,7 +25,6 @@
 #include "iapp_state_callback.h"
 #include "running_process_info.h"
 #include "istart_specified_ability_response.h"
-#include "configuration.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -157,14 +156,6 @@ public:
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
-	
-	 /**
-     *  ANotify application update system environment changes.
-     *
-     * @param config System environment change parameters.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual void UpdateConfiguration(const Configuration &config) = 0;
 
     enum class Message {
         LOAD_ABILITY = 0,
@@ -184,7 +175,6 @@ public:
         GET_RUNNING_PROCESS_INFO_BY_TOKEN,
         START_SPECIFIED_ABILITY,
         REGISTER_START_SPECIFIED_ABILITY_RESPONSE,
-        UPDATE_CONFIGURATION,
     };
 };
 }  // namespace AppExecFwk

@@ -29,6 +29,7 @@
 #include "app_scheduler.h"
 #include "application_info.h"
 #include "ability_record_info.h"
+#include "configuration_holder.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
 #include "want.h"
@@ -155,7 +156,7 @@ struct AbilityRequest {
  * @class AbilityRecord
  * AbilityRecord records ability info and states and used to schedule ability life.
  */
-class AbilityRecord : public std::enable_shared_from_this<AbilityRecord> {
+class AbilityRecord : public ConfigurationHolder, public std::enable_shared_from_this<AbilityRecord> {
 public:
     AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &abilityInfo,
         const AppExecFwk::ApplicationInfo &applicationInfo, int requestCode = -1, int32_t apiVersion = 1);
@@ -731,6 +732,9 @@ public:
     std::shared_ptr<Mission> GetMission() const;
     int32_t GetMissionId() const;
 
+    void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
+
+    int GetId() override;
     void SetUid(int32_t uid);
     int32_t GetUid();
 

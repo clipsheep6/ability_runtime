@@ -25,12 +25,12 @@ AppLifeCycleDeal::AppLifeCycleDeal()
 AppLifeCycleDeal::~AppLifeCycleDeal()
 {}
 
-void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData_, const Configuration &config)
+void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData_)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("AppLifeCycleDeal ScheduleLaunchApplication");
     if (appThread_) {
-        appThread_->ScheduleLaunchApplication(launchData_, config);
+        appThread_->ScheduleLaunchApplication(launchData_);
     }
 }
 
@@ -138,16 +138,6 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
     }
 
     appThread_->ScheduleAcceptWant(want, moduleName);
-}
-
-void AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
-{
-    APP_LOGI("call %{public}s", __func__);
-    if (!appThread_) {
-        APP_LOGI("appThread_ is null");
-        return;
-    }
-    appThread_->ScheduleConfigurationUpdated(config);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

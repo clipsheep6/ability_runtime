@@ -77,5 +77,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#include "extension_base.inl"
 #endif  // FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_BASE_H

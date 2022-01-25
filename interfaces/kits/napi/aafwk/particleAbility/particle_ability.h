@@ -16,7 +16,6 @@
 #ifndef OHOS_APPEXECFWK_PARTICLE_ABILITY_H
 #define OHOS_APPEXECFWK_PARTICLE_ABILITY_H
 
-#include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 
