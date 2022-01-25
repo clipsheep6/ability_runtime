@@ -191,6 +191,17 @@ public:
     {
         return 0;
     }
+    
+    virtual int StartAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken) override
+    {
+        return 0;
+    }
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
+        const AppExecFwk::ElementName &element) override
+    {
+        return 0;
+    }
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
     {
         return 0;
@@ -198,6 +209,10 @@ public:
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;
+    }
+    virtual bool SendANRProcessID(int pid)
+    {
+        return true;
     }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
