@@ -144,6 +144,20 @@ public:
      */
     virtual void SwitchArea(int mode) = 0;
 
+     /**
+     * @brief Obtains token.
+     *
+     * @return Returns the token.
+     */
+    virtual sptr<IRemoteObject> GetToken() = 0;
+
+    /**
+     * @brief Attachs ability's token.
+     *
+     * @param token The token represents ability.
+     */
+    virtual void SetToken(const sptr<IRemoteObject> &token) = 0;
+
     /**
      * @brief Getting derived class
      *

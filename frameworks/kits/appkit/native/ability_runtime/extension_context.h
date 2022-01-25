@@ -30,20 +30,6 @@ public:
     ExtensionContext() = default;
     virtual ~ExtensionContext() = default;
 
-    /**
-     * @brief Set the token witch the app launched.
-     *
-     * @param token The token which the is launched by app.
-     */
-    void SetToken(const sptr<IRemoteObject> &token);
-
-    /**
-     * @brief Get the token witch the app launched.
-     *
-     * @return token The token which the is launched by app.
-     */
-    sptr<IRemoteObject> GetToken() const;
-
     using SelfType = ExtensionContext;
     static const size_t CONTEXT_TYPE_ID;
 
@@ -53,7 +39,6 @@ protected:
         return contextTypeId == CONTEXT_TYPE_ID || Context::IsContext(contextTypeId);
     }
 
-    sptr<IRemoteObject> token_;
 private:
 };
 }  // namespace AbilityRuntime
