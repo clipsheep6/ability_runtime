@@ -18,7 +18,6 @@
 
 #include <string>
 
-#include "iremote_object.h"
 #include "want.h"
 
 namespace OHOS {

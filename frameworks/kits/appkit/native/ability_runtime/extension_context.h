@@ -17,7 +17,6 @@
 #define EXTENSION_CONTEXT_H
 
 #include "context_impl.h"
-#include "iremote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
