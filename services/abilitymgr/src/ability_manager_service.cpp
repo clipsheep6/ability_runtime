@@ -29,7 +29,6 @@
 #include "ability_util.h"
 #include "bytrace.h"
 #include "bundle_mgr_client.h"
-#include "configuration_distributor.h"
 #include "distributed_client.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -144,10 +143,6 @@ bool AbilityManagerService::Init()
     int userId = GetUserId();
 
     InitConnectManager(userId, true);
-
-    // init ConfigurationDistributor
-    DelayedSingleton<ConfigurationDistributor>::GetInstance();
-
     InitDataAbilityManager(userId, true);
     InitPendWantManager(userId, true);
 
@@ -157,10 +152,6 @@ bool AbilityManagerService::Init()
         HILOG_INFO("ams config parse");
     }
     useNewMission_ = amsConfigResolver_->IsUseNewMission();
-
-    // after amsConfigResolver_
-    configuration_ = std::make_shared<AppExecFwk::Configuration>();
-    GetGlobalConfiguration();
 
     SetStackManager(userId, true);
     systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
@@ -198,7 +189,6 @@ void AbilityManagerService::OnStop()
     eventLoop_.reset();
     handler_.reset();
     state_ = ServiceRunningState::STATE_NOT_START;
-    DelayedSingleton<ConfigurationDistributor>::DestroyInstance();
 }
 
 ServiceRunningState AbilityManagerService::QueryServiceState() const
@@ -265,7 +255,7 @@ int AbilityManagerService::StartAbility(
             return result;
         }
     }
-
+    UpdateCallerInfo(abilityRequest.want);
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         HILOG_INFO("%{public}s Start SERVICE or EXTENSION", __func__);
         return connectManager_->StartAbility(abilityRequest);
@@ -340,7 +330,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         return ERR_WOULD_BLOCK;
     }
-
     if (useNewMission_) {
         if (IsSystemUiApp(abilityRequest.abilityInfo)) {
             return kernalAbilityManager_->StartAbility(abilityRequest);
@@ -403,7 +392,6 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             return systemAppManager_->StartAbility(abilityRequest);
         }
     }
-
     abilityRequest.want.SetParam(StartOptions::STRING_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     if (useNewMission_) {
@@ -677,63 +665,7 @@ int AbilityManagerService::GetMissionLockModeState()
 int AbilityManagerService::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     HILOG_INFO("%{public}s called", __func__);
-    CHECK_POINTER_AND_RETURN(configuration_, ERR_INVALID_VALUE);
-
-    std::vector<std::string> changeKeyV;
-    configuration_->CompareDifferent(changeKeyV, config);
-    int size = changeKeyV.size();
-    HILOG_INFO("changeKeyV size :%{public}d", size);
-    if (!changeKeyV.empty()) {
-        for (const auto &iter : changeKeyV) {
-            configuration_->Merge(iter, config);
-        }
-        auto FindKeyFromKeychain = [](const std::string &findItemKey, const std::vector<std::string> &keychain) -> int {
-                int amount = 0;
-                if (findItemKey.empty()) {
-                    return amount;
-                }
-
-                for (const auto &it :keychain) {
-                    if (it.find(findItemKey) != std::string::npos) {
-                        ++amount;
-                    }
-                }
-                HILOG_INFO("amount :%{public}d", amount);
-                return amount;
-        };
-        // the part that currently focuses on language
-        if (FindKeyFromKeychain(GlobalConfigurationKey::SYSTEM_LANGUAGE, changeKeyV) > 0 ||
-            FindKeyFromKeychain(GlobalConfigurationKey::SYSTEM_ORIENTATION, changeKeyV) > 0) {
-            DelayedSingleton<ConfigurationDistributor>::GetInstance()->UpdateConfiguration(*configuration_);
-        }
-
-        return ERR_OK;
-    }
-    return ERR_INVALID_VALUE;
-}
-
-void AbilityManagerService::GetGlobalConfiguration()
-{
-    if (!GetConfiguration()) {
-        HILOG_INFO("configuration_ is null");
-        return;
-    }
-    // Currently only this interface is known
-    auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
-    HILOG_INFO("current global language is : %{public}s", language.c_str());
-    GetConfiguration()->AddItem(GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
-    CHECK_POINTER(amsConfigResolver_);
-    // This is a temporary plan
-    std::string direction = amsConfigResolver_->GetOrientation();
-    HILOG_INFO("current global direction is : %{public}s", direction.c_str());
-    GetConfiguration()->AddItem(GlobalConfigurationKey::SYSTEM_ORIENTATION, direction);
-
-    DelayedSingleton<ConfigurationDistributor>::GetInstance()->InitConfiguration(*GetConfiguration());
-}
-
-std::shared_ptr<AppExecFwk::Configuration> AbilityManagerService::GetConfiguration()
-{
-    return configuration_;
+    return DelayedSingleton<AppScheduler>::GetInstance()->UpdateConfiguration(config);
 }
 
 int AbilityManagerService::MoveMissionToTop(int32_t missionId)
@@ -1428,11 +1360,6 @@ int AbilityManagerService::AttachAbilityThread(
         }
     }
 
-    HILOG_INFO("attach ability type [%{public}d] | returnCode [%{public}d]", type, returnCode);
-    if (SUCCEEDED(returnCode) && type != AppExecFwk::AbilityType::DATA) {
-        DelayedSingleton<ConfigurationDistributor>::GetInstance()->Atach(abilityRecord);
-    }
-
     return returnCode;
 }
 
@@ -1631,13 +1558,6 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     HILOG_DEBUG("state:%{public}d  name:%{public}s", state, abilityInfo.name.c_str());
     auto type = abilityInfo.type;
-
-    if (type != AppExecFwk::AbilityType::DATA) {
-        int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
-        if (targetState == AbilityState::INITIAL) {
-            DelayedSingleton<ConfigurationDistributor>::GetInstance()->Detach(abilityRecord);
-        }
-    }
 
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         return connectManager_->AbilityTransitionDone(token, state);
@@ -3076,6 +2996,7 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.resourcePath = extensionInfo.resourcePath;
     abilityInfo.enabled = extensionInfo.enabled;
     abilityInfo.isStageBasedModel = true;
+    abilityInfo.process = extensionInfo.process;
     switch (extensionInfo.type) {
         case AppExecFwk::ExtensionAbilityType::FORM:
             abilityInfo.type = AppExecFwk::AbilityType::FORM;
@@ -3128,6 +3049,16 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     bms->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos);
     return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos);
+}
+
+void AbilityManagerService::UpdateCallerInfo(Want& want)
+{
+    int32_t tokenId = IPCSkeleton::GetCallingTokenID();
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
+    want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
+    want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

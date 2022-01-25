@@ -676,7 +676,6 @@ public:
     int CheckPermission(const std::string &bundleName, const std::string &permission);
     void UpdateLockScreenState(bool isLockScreen);
 
-    std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
@@ -868,6 +867,7 @@ private:
     int ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName);
+    void UpdateCallerInfo(Want& want);
 
     bool CheckIfOperateRemote(const Want &want);
     bool GetLocalDeviceId(std::string& localDeviceId);
@@ -937,7 +937,6 @@ private:
     std::shared_ptr<PendingWantManager> pendingWantManager_;
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
-    std::shared_ptr<AppExecFwk::Configuration> configuration_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
 
     // new ams here
