@@ -101,7 +101,7 @@ public:
      * @return Returns the created DataAbilityHelper instance.
      */
     static std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-        const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+        const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
      * @brief Creates a DataAbilityHelper instance without specifying the Uri based.

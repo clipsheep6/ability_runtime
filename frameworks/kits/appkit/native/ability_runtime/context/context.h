@@ -25,6 +25,8 @@
 #include "iremote_object.h"
 #include "resource_manager.h"
 
+using IRemoteObject = OHOS::IRemoteObject;
+
 namespace OHOS {
 namespace AbilityRuntime {
 class Context : public Bindable {
