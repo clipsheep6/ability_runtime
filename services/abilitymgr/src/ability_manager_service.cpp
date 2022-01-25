@@ -196,13 +196,14 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
     return state_;
 }
 
-int AbilityManagerService::StartAbility(const Want &want, int requestCode)
+int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
     HILOG_INFO("%{public}s", __func__);
-    return StartAbility(want, nullptr, requestCode, -1);
+    return StartAbilityInner(want, nullptr, requestCode, -1, userId);
 }
 
-int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
+int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, 
+    int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto flags = want.GetFlags();
@@ -216,11 +217,11 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         return StartRemoteAbility(want, requestCode);
     }
     HILOG_INFO("AbilityManagerService::StartAbility. try to StartLocalAbility");
-    return StartAbility(want, callerToken, requestCode, -1);
+    return StartAbilityInner(want, callerToken, requestCode, -1, userId);
 }
 
-int AbilityManagerService::StartAbility(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int callerUid)
+int AbilityManagerService::StartAbilityInner( const Want &want, const sptr<IRemoteObject> &callerToken, 
+    int requestCode, int callerUid, int32_t userId)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin.", __func__);
@@ -284,7 +285,7 @@ int AbilityManagerService::StartAbility(
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability setting.");
@@ -345,7 +346,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability options.");
@@ -714,7 +715,7 @@ int AbilityManagerService::RemoveStack(int id)
 }
 
 int AbilityManagerService::ConnectAbility(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability.");
