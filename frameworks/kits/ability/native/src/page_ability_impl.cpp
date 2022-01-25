@@ -147,8 +147,7 @@ bool PageAbilityImpl::AbilityTransactionNew(const Want &want, const AAFwk::LifeC
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
-            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW ||
-                lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND) {
+            if (lifecycleState_ == AAFwk::ABILITY_STATE_BACKGROUND_NEW) {
                 Foreground(want);
             }
             if (targetState.isNewWant) {

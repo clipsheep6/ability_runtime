@@ -35,7 +35,6 @@
 #include "os_account_manager.h"
 #include "permission/permission_kit.h"
 #include "system_ability_definition.h"
-#include "locale_config.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -67,14 +66,8 @@ using OHOS::AppExecFwk::Constants::ROOT_UID;
 AppMgrServiceInner::AppMgrServiceInner()
     : appProcessManager_(std::make_shared<AppProcessManager>()),
       remoteClientManager_(std::make_shared<RemoteClientManager>()),
-      appRunningManager_(std::make_shared<AppRunningManager>()),
-      configuration_(std::make_shared<Configuration>())
+      appRunningManager_(std::make_shared<AppRunningManager>())
 {}
-
-void AppMgrServiceInner::Init()
-{
-    GetGlobalConfiguration();
-}
 
 AppMgrServiceInner::~AppMgrServiceInner()
 {}
@@ -214,17 +207,11 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         APP_LOGE("appRecord is null");
         return;
     }
-
-    if (!configuration_) {
-        APP_LOGE("configuration_ is null");
-        return;
-    }
-
     if (appRecord->GetState() != ApplicationState::APP_STATE_CREATE) {
         APP_LOGE("wrong app state:%{public}d", appRecord->GetState());
         return;
     }
-    appRecord->LaunchApplication(*configuration_);
+    appRecord->LaunchApplication();
     appRecord->SetState(ApplicationState::APP_STATE_READY);
     OptimizerAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
 
@@ -1634,11 +1621,12 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
 
 void AppMgrServiceInner::LoadResidentProcess()
 {
-    APP_LOGI("%{public}s called", __func__);
     if (!CheckRemoteClient()) {
         APP_LOGE("GetBundleManager fail");
         return;
     }
+
+    // Broadcast monitoring should be used
 
     std::vector<BundleInfo> infos;
     auto funRet = remoteClientManager_->GetBundleManager()->QueryKeepAliveBundleInfos(infos);
@@ -1982,40 +1970,5 @@ void AppMgrServiceInner::ScheduleAcceptWantDone(
 
 void AppMgrServiceInner::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId)
 {}
-
-void AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
-{
-    if (!appRunningManager_) {
-        APP_LOGE("appRunningManager_ is null");
-        return;
-    }
-
-    std::vector<std::string> changeKeyV;
-    configuration_->CompareDifferent(changeKeyV, config);
-    int size = changeKeyV.size();
-    APP_LOGI("changeKeyV size :%{public}d", size);
-    if (!changeKeyV.empty()) {
-        configuration_->Merge(changeKeyV, config);
-        // all app
-        appRunningManager_->UpdateConfiguration(config);
-    }
-}
-
-void AppMgrServiceInner::GetGlobalConfiguration()
-{
-    if (!configuration_) {
-        APP_LOGE("configuration_ is null");
-        return;
-    }
-    // Currently only this interface is known
-    auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
-    APP_LOGI("current global language is : %{public}s", language.c_str());
-    configuration_->AddItem(GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
-}
-
-std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration()
-{
-    return configuration_;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

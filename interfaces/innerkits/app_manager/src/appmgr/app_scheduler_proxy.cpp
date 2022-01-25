@@ -186,7 +186,7 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
     }
 }
 
-void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchData, const Configuration &config)
+void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchData)
 {
     APP_LOGI("AppSchedulerProxy ScheduleLaunchApplication start");
     MessageParcel data;
@@ -197,12 +197,6 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
     }
 
     if (!data.WriteParcelable(&launchData)) {
-        APP_LOGE("WriteParcelable launchData failed");
-        return ;
-    }
-
-    if (!data.WriteParcelable(&config)) {
-        APP_LOGE("WriteParcelable config failed");
         return ;
     }
 

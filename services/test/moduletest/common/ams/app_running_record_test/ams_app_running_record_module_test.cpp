@@ -84,11 +84,10 @@ protected:
         launchData.SetApplicationInfo(info);
         launchData.SetProcessInfo(processInfo);
 
-        Configuration config;
-        EXPECT_CALL(*mockApplication, ScheduleLaunchApplication(_, _))
+        EXPECT_CALL(*mockApplication, ScheduleLaunchApplication(_))
             .Times(1)
             .WillOnce(Invoke(mockApplication.GetRefPtr(), &MockApplication::LaunchApplication));
-        record->LaunchApplication(config);
+        record->LaunchApplication();
         mockApplication->Wait();
 
         bool isEqual = mockApplication->CompareAppLaunchData(launchData);

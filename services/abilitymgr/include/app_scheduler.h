@@ -32,9 +32,6 @@
 #include "running_process_info.h"
 
 namespace OHOS {
-namespace AppExecFwk {
-class Configuration;
-}
 namespace AAFwk {
 /**
  * @enum AppAbilityState
@@ -245,14 +242,6 @@ public:
 
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
     int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
-
-    /**
-     *  ANotify application update system environment changes.
-     *
-     * @param config System environment change parameters.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int UpdateConfiguration(const AppExecFwk::Configuration &config);
 
 protected:
     /**

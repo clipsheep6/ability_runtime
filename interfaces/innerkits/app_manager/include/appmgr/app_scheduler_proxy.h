@@ -76,7 +76,7 @@ public:
      *
      * @return
      */
-    virtual void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) override;
+    virtual void ScheduleLaunchApplication(const AppLaunchData &) override;
 
     /**
      * Notify application to launch ability stage.

@@ -18,6 +18,7 @@
 
 #include <iremote_stub.h>
 #include "istatic_subscriber.h"
+#include "static_subscriber_extension.h"
 
 namespace OHOS {
 namespace AppExecFwk {

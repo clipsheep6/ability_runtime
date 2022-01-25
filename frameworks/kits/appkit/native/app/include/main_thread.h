@@ -155,7 +155,7 @@ public:
      * @param data The launchdata of the application witch launced.
      *
      */
-    void ScheduleLaunchApplication(const AppLaunchData &data, const Configuration &config) override;
+    void ScheduleLaunchApplication(const AppLaunchData &data) override;
 
     /**
      * Notify application to launch ability stage.
@@ -250,7 +250,7 @@ private:
      * @param appLaunchData The launchdata of the application witch launced.
      *
      */
-    void HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config);
+    void HandleLaunchApplication(const AppLaunchData &appLaunchData);
 
     /**
      *
