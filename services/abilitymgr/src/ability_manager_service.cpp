@@ -2572,8 +2572,12 @@ void AbilityManagerService::StartingSystemUiAbility()
 {
     HILOG_DEBUG("%{public}s", __func__);
     AppExecFwk::AbilityInfo systemUiInfo;
+    if (!iBundleManager_) {
+        HILOG_INFO("bms server is null");
+        return;
+    }
     Want systemUiWant;
-    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, SYSTEM_UI_ABILITY_NAME);
+    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME);
     uint32_t waitCnt = 0;
     // Wait 10 minutes for the installation to complete.
     while (!iBundleManager_->QueryAbilityInfo(systemUiWant, systemUiInfo) && waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
