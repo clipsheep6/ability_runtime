@@ -115,8 +115,7 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want)
     int32_t currentUserId = want.GetIntParam(Constants::PARAM_FORM_USER_ID, DEFAULT_USER_ID);
     if (currentUserId != record.userId) {
         FormDataMgr::GetInstance().SetNeedRefresh(formId, true);
-        APP_LOGE("%{public}s, not current user, set refresh flag, do not refresh, form:%{public}" PRId64 ",\
-            userId:%{public}d", __func__, formId, record.userId);
+        APP_LOGE("%{public}s, not current user, just set refresh flag, userId:%{public}d", __func__, record.userId);
         return ERR_APPEXECFWK_FORM_OPERATION_NOT_SELF;
     }
 
