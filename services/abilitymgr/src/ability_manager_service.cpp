@@ -2466,7 +2466,7 @@ void AbilityManagerService::StartSystemApplication()
         HILOG_INFO("start all");
         StartingLauncherAbility();
         StartingSettingsDataAbility();
-        StartingSystemUiAbility(SatrtUiMode::STARTUIBOTH);
+        StartingSystemUiAbility();
         return;
     }
 
@@ -2480,15 +2480,7 @@ void AbilityManagerService::StartSystemApplication()
         StartingSettingsDataAbility();
     }
 
-    if (amsConfigResolver_->GetStatusBarState()) {
-        HILOG_INFO("start status bar");
-        StartingSystemUiAbility(SatrtUiMode::STATUSBAR);
-    }
-
-    if (amsConfigResolver_->GetNavigationBarState()) {
-        HILOG_INFO("start navigation bar");
-        StartingSystemUiAbility(SatrtUiMode::NAVIGATIONBAR);
-    }
+    StartingSystemUiAbility();
 
     if (amsConfigResolver_->GetPhoneServiceState()) {
         HILOG_INFO("start phone service");
@@ -2575,6 +2567,23 @@ void AbilityManagerService::StartingSystemUiAbility(const SatrtUiMode &mode)
             break;
     }
 }
+
+void AbilityManagerService::StartingSystemUiAbility()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    AppExecFwk::AbilityInfo systemUiInfo;
+    Want systemUiWant;
+    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, SYSTEM_UI_ABILITY_NAME);
+    uint32_t waitCnt = 0;
+    // Wait 10 minutes for the installation to complete.
+    while (!iBundleManager_->QueryAbilityInfo(systemUiWant, systemUiInfo) && waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
+        HILOG_INFO("Waiting query system ui info completed.");
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+        waitCnt++;
+    }
+    (void)StartAbility(systemUiWant, DEFAULT_INVAL_VALUE);
+}
+
 
 bool AbilityManagerService::CheckCallerIsSystemAppByIpc()
 {
