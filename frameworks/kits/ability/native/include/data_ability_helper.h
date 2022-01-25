@@ -71,7 +71,7 @@ public:
      * @return Returns the created DataAbilityHelper instance with a specified Uri.
      */
     static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri);
+        const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
@@ -101,7 +101,7 @@ public:
      * @return Returns the created DataAbilityHelper instance.
      */
     static std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-        const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind);
+        const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
      * @brief Creates a DataAbilityHelper instance without specifying the Uri based.
@@ -306,6 +306,8 @@ public:
 
 private:
     DataAbilityHelper(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
+        const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
+    DataAbilityHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri,
         const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
     DataAbilityHelper(const std::shared_ptr<Context> &context);
     DataAbilityHelper(const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri,

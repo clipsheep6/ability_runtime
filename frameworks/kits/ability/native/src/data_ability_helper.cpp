@@ -43,7 +43,7 @@ DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<Context> &context, co
     APP_LOGI("DataAbilityHelper::DataAbilityHelper end");
 }
 
-DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri,
+DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri,
     const sptr<IAbilityScheduler> &dataAbilityProxy, bool tryBind)
 {
     APP_LOGI("DataAbilityHelper::DataAbilityHelper start");
@@ -164,7 +164,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance with a specified Uri.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
 {
     APP_LOGI("DataAbilityHelper::Creator with context uri called.");
     return DataAbilityHelper::Creator(context, uri, false);
@@ -236,7 +236,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  * @return Returns the created DataAbilityHelper instance.
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRunTime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
     APP_LOGI("DataAbilityHelper::Creator with context uri tryBind called start.");
     if (context == nullptr) {
