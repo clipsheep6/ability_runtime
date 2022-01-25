@@ -46,7 +46,9 @@ ErrCode ShellCommand::OnCommand()
     int result = OHOS::ERR_OK;
 
     auto respond = commandMap_[cmd_];
+    HILOG_INFO("OnCommand enter.");
     if (respond == nullptr) {
+        HILOG_INFO("OnCommand respond is nullptr.");
         resultReceiver_.append(GetCommandErrorMsg());
         respond = commandMap_["help"];
     }
@@ -72,6 +74,7 @@ std::string ShellCommand::ExecCommand()
         HILOG_ERROR("failed to create message map.\n");
     }
 
+    HILOG_INFO("ExecCommand enter.");
     result = OnCommand();
     if (result != OHOS::ERR_OK) {
         HILOG_ERROR("failed to execute your command.\n");
@@ -84,6 +87,7 @@ std::string ShellCommand::ExecCommand()
 
 std::string ShellCommand::GetCommandErrorMsg() const
 {
+    HILOG_INFO("GetCommandErrorMsg enter.");
     std::string commandErrorMsg =
         name_ + ": '" + cmd_ + "' is not a valid " + name_ + " command. See '" + name_ + " help'.\n";
 
