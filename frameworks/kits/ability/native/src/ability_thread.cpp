@@ -44,7 +44,6 @@ constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
-constexpr int TARGET_VERSION_THRESHOLDS = 8;
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -90,7 +89,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
     }
 
     if (abilityInfo->type == AbilityType::PAGE) {
-        if (abilityRecord->GetCompatibleVersion() >= TARGET_VERSION_THRESHOLDS) {
+        if (abilityInfo->isStageBasedModel) {
             abilityName = ABILITY_NAME;
         } else {
             abilityName = ACE_ABILITY_NAME;
@@ -105,7 +104,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         abilityName = ACE_DATA_ABILITY_NAME;
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
         abilityName = BASE_SERVICE_EXTENSION;
-        if (abilityInfo->formEnabled == true) {
+        if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == ExtensionAbilityType::FORM) {
             abilityName = FORM_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::STATICSUBSCRIBER) {
