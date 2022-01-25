@@ -42,7 +42,6 @@ declare namespace windowStage {
      * @since 8
      */
     loadContent(path: string, storage: ContenStorage, callback: AsyncCallback<void>): void;
-
     /**
      * Loads content
      * @param path path of the page to which the content will be loaded
@@ -50,7 +49,6 @@ declare namespace windowStage {
      * @since 8
      */
     loadContent(path: string, callback: AsyncCallback<void>): void;
-
     /**
      * Loads content
      * @param path path of the page to which the content will be loaded
@@ -61,12 +59,14 @@ declare namespace windowStage {
     /**
      * get the windowmode of current window
      * @devices tv, phone, tablet, wearable, car
+     * @systemapi
      * @since 8
      */
     getWindowMode(callback: AsyncCallback<WindowMode>): void;
     /**
      * get the windowmode of current window
      * @devices tv, phone, tablet, wearable, car
+     * @systemapi
      * @since 8
      */
     getWindowMode(): Promise<WindowMode>;

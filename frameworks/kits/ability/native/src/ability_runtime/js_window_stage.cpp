@@ -291,8 +291,8 @@ NativeValue* JsWindowStage::OffEvent(NativeEngine& engine, NativeCallbackInfo& i
 NativeValue* JsWindowStage::OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_INFO("JsWindowStage::OnLoadContent is called");
-    if (info.argc <= 0) {
-        HILOG_ERROR("JsWindowStage param not match");
+    if (info.argc <= 0 || windowScene_ == nullptr) {
+        HILOG_ERROR("JsWindowStage param not match or windowScene_ is nullptr");
         return engine.CreateUndefined();
     }
     std::string contextUrl;
@@ -316,7 +316,13 @@ NativeValue* JsWindowStage::OnLoadContent(NativeEngine& engine, NativeCallbackIn
     contentStorage_ = static_cast<void*>(storage);
     AsyncTask::CompleteCallback complete =
         [this, contextUrl](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            Rosen::WMError ret = windowScene_->GetMainWindow()->SetUIContent(contextUrl, &engine,
+            auto win = windowScene_->GetMainWindow();
+            if (win == nullptr) {
+                task.Reject(engine,
+                    CreateJsError(engine, static_cast<int32_t>(Rosen::WMError::WM_ERROR_NULLPTR),
+                        "JsWindowStage::OnLoadContent failed."));
+            }
+            Rosen::WMError ret = win->SetUIContent(contextUrl, &engine,
                 static_cast<NativeValue*>(contentStorage_), false);
             if (ret == Rosen::WMError::WM_OK) {
                 task.Resolve(engine, engine.CreateUndefined());
