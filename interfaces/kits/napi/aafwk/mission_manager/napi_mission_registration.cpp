@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "distributed_mission_manager.h"
+#include "napi_mission_registration.h"
 
 #include "ability_manager_client.h"
 #include "hilog_wrapper.h"
@@ -104,16 +104,7 @@ bool SetSyncRemoteMissionsContext(const napi_env &env, const napi_value &value,
         HILOG_ERROR("%{public}s, deviceId error type.", __func__);
         return false;
     }
-
-    char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
-    napi_get_value_string_utf8(env, deviceIdValue, deviceId, VALUE_BUFFER_SIZE + 1, &context->valueLen);
-    if (context->valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
-        return false;
-    }
-    context->deviceId = deviceId;
-    HILOG_INFO("%{public}s deviceId:%{public}s", __func__, context->deviceId.c_str());
-
+    napi_get_value_string_utf16(env, deviceIdValue, context->deviceId, VALUE_BUFFER_SIZE, &context->valueLen);
     if (isStart) {
         if (!SetStartSyncMissionsContext (env, value, context)) {
             HILOG_ERROR("%{public}s, Wrong argument for start sync.", __func__);
@@ -161,7 +152,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
         [](napi_env env, void* data) {
             SyncRemoteMissionsContext* syncContext = (SyncRemoteMissionsContext*)data;
             syncContext->result = AbilityManagerClient::GetInstance()->
-                StartSyncRemoteMissions(syncContext->deviceId,
+                StartSyncRemoteMissions(Str16ToStr8(syncContext->deviceId),
                 syncContext->fixConflict, syncContext->tag);
         },
         [](napi_env env, napi_status status, void* data) {
@@ -203,7 +194,7 @@ void StartSyncRemoteMissionsAsyncWork(napi_env env, const napi_value resourceNam
 
 napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s, test1 called.", __func__);
+    HILOG_INFO("%{public}s, called.", __func__);
     auto syncContext = new SyncRemoteMissionsContext();
     if (syncContext == nullptr) {
         HILOG_ERROR("%{public}s, syncContext is nullptr.", __func__);
@@ -238,7 +229,7 @@ void StopSyncRemoteMissionsAsyncWork(napi_env env, napi_value resourceName,
         [](napi_env env, void* data) {
             SyncRemoteMissionsContext* syncContext = (SyncRemoteMissionsContext*)data;
             syncContext->result = AbilityManagerClient::GetInstance()->
-                StopSyncRemoteMissions(syncContext->deviceId);
+                StopSyncRemoteMissions(Str16ToStr8(syncContext->deviceId));
         },
         [](napi_env env, napi_status status, void* data) {
             SyncRemoteMissionsContext* syncContext = (SyncRemoteMissionsContext*)data;
@@ -355,7 +346,7 @@ void RegisterMissonExecuteCB(napi_env env, void *data)
 
     registerMissonCB->result =
         AbilityManagerClient::GetInstance()->
-        RegisterMissionListener(registerMissonCB->deviceId,
+        RegisterMissionListener(Str16ToStr8(registerMissonCB->deviceId),
         registerMissonCB->missionRegistration);
     if (registerMissonCB->result == NO_ERROR) {
         HILOG_INFO("add registration.");
@@ -528,20 +519,16 @@ napi_value RegisterMissonWrap(napi_env env, napi_callback_info info, RegisterMis
         return nullptr;
     }
 
+    char16_t deviceIdList[128] = {0};
+    size_t valueLen = 0;
     napi_typeof(env, firstNApi, &valueType);
     if (valueType != napi_string) {
         HILOG_ERROR("%{public}s, deviceId error type.", __func__);
         return nullptr;
     }
-    char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
-    size_t valueLen = 0;
-    napi_get_value_string_utf8(env, firstNApi, deviceId, VALUE_BUFFER_SIZE + 1, &valueLen);
-    if (valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
-        return nullptr;
-    }
-    registerMissonCB->deviceId = deviceId;
-    HILOG_INFO("%{public}s deviceId:%{public}s", __func__, registerMissonCB->deviceId.c_str());
+    napi_get_value_string_utf16(env, firstNApi, deviceIdList, VALUE_BUFFER_SIZE, &valueLen);
+    registerMissonCB->deviceId = deviceIdList;
+    HILOG_INFO("%{public}s deviceId:%{public}s", __func__, Str16ToStr8(registerMissonCB->deviceId).c_str());
 
     if (argcAsync > 1 && !CreateCallbackReference(env, args[1], registerMissonCB)) {
         HILOG_ERROR("%{public}s, Wrong arguments.", __func__);
@@ -621,9 +608,9 @@ void UvWorkNotifyMissionChanged(uv_work_t *work, int status)
         return;
     }
     napi_value result = nullptr;
-    HILOG_INFO("UvWorkNotifyMissionChanged, deviceId = %{public}s", registerMissonCB->deviceId.c_str());
+    HILOG_INFO("UvWorkNotifyMissionChanged, deviceId = %{public}s", Str16ToStr8(registerMissonCB->deviceId).c_str());
     result =
-        WrapString(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->deviceId.c_str(), "deviceId");
+        WrapString(registerMissonCB->cbBase.cbInfo.env, Str16ToStr8(registerMissonCB->deviceId).c_str(), "deviceId");
 
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -666,7 +653,7 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
     registerMissonCB->cbBase.cbInfo.callback = notifyMissionsChangedRef_;
-    registerMissonCB->deviceId = deviceId;
+    registerMissonCB->deviceId = Str8ToStr16(deviceId);
     work->data = (void *)registerMissonCB;
 
     int rev = uv_queue_work(
@@ -693,9 +680,9 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
         return;
     }
     napi_value result[2] = {0};
-    HILOG_INFO("UvWorkNotifySnapshot, deviceId = %{public}s", registerMissonCB->deviceId.c_str());
+    HILOG_INFO("UvWorkNotifySnapshot, deviceId = %{public}s", Str16ToStr8(registerMissonCB->deviceId).c_str());
     result[0] =
-        WrapString(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->deviceId.c_str(), "deviceId");
+        WrapString(registerMissonCB->cbBase.cbInfo.env, Str16ToStr8(registerMissonCB->deviceId).c_str(), "deviceId");
     HILOG_INFO("UvWorkNotifySnapshot, missionId = %{public}d", registerMissonCB->missionId);
     result[1] =
         WrapInt32(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->missionId, "missionId");
@@ -741,7 +728,7 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
     registerMissonCB->cbBase.cbInfo.callback = notifySnapshotRef_;
-    registerMissonCB->deviceId = deviceId;
+    registerMissonCB->deviceId = Str8ToStr16(deviceId);
     registerMissonCB->missionId = missionId;
     work->data = (void *)registerMissonCB;
 
@@ -769,9 +756,9 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
         return;
     }
     napi_value result[2] = {0};
-    HILOG_INFO("UvWorkNotifyNetDisconnect, deviceId = %{public}s", registerMissonCB->deviceId.c_str());
+    HILOG_INFO("UvWorkNotifyNetDisconnect, deviceId = %{public}s", Str16ToStr8(registerMissonCB->deviceId).c_str());
     result[0] =
-        WrapString(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->deviceId.c_str(), "deviceId");
+        WrapString(registerMissonCB->cbBase.cbInfo.env, Str16ToStr8(registerMissonCB->deviceId).c_str(), "deviceId");
     HILOG_INFO("UvWorkNotifyNetDisconnect, state = %{public}d", registerMissonCB->state);
     result[1] =
         WrapInt32(registerMissonCB->cbBase.cbInfo.env, registerMissonCB->state, "state");
@@ -818,7 +805,7 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
     }
     registerMissonCB->cbBase.cbInfo.env = env_;
     registerMissonCB->cbBase.cbInfo.callback = notifyNetDisconnectRef_;
-    registerMissonCB->deviceId = deviceId;
+    registerMissonCB->deviceId = Str8ToStr16(deviceId);
     registerMissonCB->state = state;
     work->data = (void *)registerMissonCB;
 
@@ -852,7 +839,7 @@ void UnRegisterMissonExecuteCB(napi_env env, void *data)
 
     registerMissonCB->result =
         AbilityManagerClient::GetInstance()->
-        UnRegisterMissionListener(registerMissonCB->deviceId,
+        UnRegisterMissionListener(Str16ToStr8(registerMissonCB->deviceId),
         registerMissonCB->missionRegistration);
     if (registerMissonCB->result == NO_ERROR) {
         HILOG_INFO("remove registration.");
@@ -944,20 +931,16 @@ bool GetUnRegisterMissonDeviceId(napi_env env, const napi_value& value, Register
         return false;
     }
 
+    char16_t deviceIdList[VALUE_BUFFER_SIZE] = {0};
     size_t valueLen = 0;
     napi_typeof(env, firstNApi, &valueType);
     if (valueType != napi_string) {
         HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
         return false;
     }
-    char deviceId[VALUE_BUFFER_SIZE + 1] = {0};
-    napi_get_value_string_utf8(env, firstNApi, deviceId, VALUE_BUFFER_SIZE + 1, &valueLen);
-    if (valueLen > VALUE_BUFFER_SIZE) {
-        HILOG_ERROR("%{public}s, deviceId length not correct", __func__);
-        return false;
-    }
-    registerMissonCB->deviceId = deviceId;
-    HILOG_INFO("%{public}s deviceId:%{public}s", __func__, registerMissonCB->deviceId.c_str());
+    napi_get_value_string_utf16(env, firstNApi, deviceIdList, VALUE_BUFFER_SIZE, &valueLen);
+    registerMissonCB->deviceId = deviceIdList;
+    HILOG_INFO("%{public}s deviceId:%{public}s", __func__, Str16ToStr8(registerMissonCB->deviceId).c_str());
     HILOG_INFO("%{public}s called end.", __func__);
     return true;
 }

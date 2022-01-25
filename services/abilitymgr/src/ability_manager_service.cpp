@@ -2998,7 +2998,20 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.isModuleJson = true;
     abilityInfo.isStageBasedModel = true;
     abilityInfo.process = extensionInfo.process;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    switch (extensionInfo.type) {
+        case AppExecFwk::ExtensionAbilityType::FORM:
+            abilityInfo.type = AppExecFwk::AbilityType::FORM;
+            break;
+        case AppExecFwk::ExtensionAbilityType::SERVICE:
+            abilityInfo.type = AppExecFwk::AbilityType::SERVICE;
+            break;
+        case AppExecFwk::ExtensionAbilityType::DATASHARE:
+            abilityInfo.type = AppExecFwk::AbilityType::DATA;
+            break;
+        default:
+            abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+            break;
+    }
     return 0;
 }
 
