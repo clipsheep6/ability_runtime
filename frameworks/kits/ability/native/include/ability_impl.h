@@ -52,7 +52,7 @@ public:
       * @param useNewMission new mission flag.
       */
      static void SetUseNewMission(bool useNewMission);
-
+ 
      /**
       * @brief Get if use new mission.
       *
@@ -351,6 +351,8 @@ public:
      */
     virtual void NotifyContinuationResult(const int32_t result);
 
+    bool IsStageBasedModel() const;
+
     int GetCompatibleVersion();
 
     void AfterUnFocused();
@@ -428,6 +430,7 @@ protected:
 
     PacMap &GetRestoreData();
 
+    bool isStageBasedModel_ = false;
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Ability> ability_;
@@ -469,7 +472,6 @@ private:
     std::shared_ptr<AbilityLifecycleCallbacks> abilityLifecycleCallbacks_;
     std::shared_ptr<ApplicationImpl> applactionImpl_;
     std::shared_ptr<ContextDeal> contextDeal_;
-    std::shared_ptr<Configuration> configuration_ = nullptr;
 
 private:
     /**

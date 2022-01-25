@@ -180,6 +180,9 @@ public:
      */
     int ClearAllMissions();
 
+    void ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
+        std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive);
+
     /**
      * @brief Set the Mission Locked State object
      *
@@ -331,6 +334,8 @@ private:
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability);
 
+    void LoadAndForeGroundCommon(const std::shared_ptr<AbilityRecord>& timeOutAbilityRecord);
+    void DelCurListAbilityAddToDefaultList(const std::shared_ptr<AbilityRecord>& abilityRecord);
 private:
     int userId_;
     std::recursive_mutex managerLock_;

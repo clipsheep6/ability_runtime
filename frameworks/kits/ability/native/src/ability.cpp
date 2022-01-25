@@ -73,7 +73,6 @@ const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-const int TARGET_VERSION_THRESHOLDS = 8;
 
 static std::mutex formLock;
 
@@ -105,9 +104,8 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
     // page ability only.
     if (abilityInfo_->type == AbilityType::PAGE) {
-        if (compatibleVersion_ < TARGET_VERSION_THRESHOLDS) {
+        if (!abilityInfo_->isStageBasedModel) {
             abilityWindow_ = std::make_shared<AbilityWindow>();
-
             if (abilityWindow_ != nullptr) {
                 APP_LOGI("%{public}s begin abilityWindow_->Init", __func__);
                 abilityWindow_->Init(handler_, shared_from_this());
@@ -228,7 +226,7 @@ void Ability::OnStart(const Want &want)
         APP_LOGE("Ability::OnStart error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
-    if (compatibleVersion_ < TARGET_VERSION_THRESHOLDS) {
+    if (!abilityInfo_->isStageBasedModel) {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
     } else {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::STARTED_NEW);
@@ -432,7 +430,7 @@ void Ability::OnBackground()
     APP_LOGI("%{public}s begin.", __func__);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         APP_LOGI("%{public}s begin OnPostAbilityBackground.", __func__);
-        if (compatibleVersion_ >= TARGET_VERSION_THRESHOLDS) {
+        if (abilityInfo_->isStageBasedModel) {
             if (scene_ == nullptr) {
                 APP_LOGE("Ability::OnBackground error. scene_ == nullptr.");
                 return;
@@ -453,7 +451,7 @@ void Ability::OnBackground()
         return;
     }
 
-    if (compatibleVersion_ >= TARGET_VERSION_THRESHOLDS) {
+    if (abilityInfo_->isStageBasedModel) {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::BACKGROUND_NEW);
     } else {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::BACKGROUND);
@@ -849,76 +847,47 @@ void Ability::OnConfigurationUpdated(const Configuration &configuration)
     APP_LOGI("%{public}s called.", __func__);
 }
 
-void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
+void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfiguration)
 {
     APP_LOGI("%{public}s begin.", __func__);
 
-    if (configuration_ == nullptr) {
-        configuration_ = std::make_shared<Configuration>(configuration);
-        APP_LOGI("%{public}s begin Configuration init.", __func__);
-        return;
+    std::string language;
+    if (setting_) {
+        auto displayId = std::atoi(setting_->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str());
+        language = changeConfiguration.GetItem(displayId, GlobalConfigurationKey::SYSTEM_LANGUAGE);
+        APP_LOGI("displayId :[%{public}d] | language :[%{public}s]", displayId, language.c_str());
+    } else {
+        language = changeConfiguration.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
+        APP_LOGI("language :[%{public}s]", language.c_str());
     }
-
-    // Data difference
-    Configuration differ;
-    std::vector<std::string> changeKey;
-    configuration_->CompareDifferent(changeKey, configuration);
-
-    if (changeKey.empty()) {
-        APP_LOGE("%{public}s Configuration differ is empty.", __func__);
-        return;
-    }
-
-    for (auto &key : changeKey) {
-        auto item = configuration.GetItemForIdAndKey(key);
-        if (item.empty()) {
-            APP_LOGI("%{public}s configuration.GetItemForIdAndKey(%{public}s) is empty.", __func__, key.c_str());
-            continue;
-        }
-        configuration_->Merge(key, configuration);
-        differ.Merge(key, configuration);
-    }
-    // Notify Ability Subclass
-    OnConfigurationUpdated(differ);
-    APP_LOGI("%{public}s Notify Ability Subclass.", __func__);
 
     // Notify ResourceManager
-    std::string language = differ.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
-    while (language.compare("") != 0) {
-        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-        if (resConfig == nullptr) {
-            APP_LOGE("%{public}s resConfig is nullptr.", __func__);
-            break;
-        }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (resConfig != nullptr && !language.empty()) {
+        APP_LOGE("make resource mgr date");
         UErrorCode status = U_ZERO_ERROR;
         icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-        if (status != U_ZERO_ERROR) {
-            APP_LOGI("%{public}s Notify ResourceManager forLanguageTag error[%{public}d].",
-                __func__,
-                static_cast<int>(status));
-            break;
+        APP_LOGI("get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
+        if (status == U_ZERO_ERROR) {
+            resConfig->SetLocaleInfo(locale);
+            auto resourceManager = GetResourceManager();
+            if (resourceManager != nullptr) {
+                resourceManager->UpdateResConfig(*resConfig);
+                APP_LOGI("%{public}s Notify ResourceManager.", __func__);
+            }
         }
-        resConfig->SetLocaleInfo(locale);
-        auto resourceManager = GetResourceManager();
-        if (resourceManager == nullptr) {
-            APP_LOGE("%{public}s resourceManager is nullptr.", __func__);
-            break;
-        }
-        resourceManager->UpdateResConfig(*resConfig);
-        APP_LOGI("%{public}s Notify ResourceManager.", __func__);
-        break;
     }
 
     // Notify WindowScene
-    if (scene_ != nullptr) {
-        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(differ);
+    if (scene_ != nullptr && !language.empty()) {
+        auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(changeConfiguration);
         scene_->UpdateConfiguration(diffConfiguration);
         APP_LOGE("%{public}s scene_ -> UpdateConfiguration success.", __func__);
-    } else {
-        APP_LOGE("%{public}s scene_ is nullptr.", __func__);
     }
 
-    APP_LOGI("%{public}s end.", __func__);
+    // Notify Ability Subclass
+    OnConfigurationUpdated(changeConfiguration);
+    APP_LOGI("%{public}s Notify Ability Subclass.", __func__);
 }
 
 /**
@@ -1763,7 +1732,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         APP_LOGE("Ability::OnForeground error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
-    if (compatibleVersion_ >= TARGET_VERSION_THRESHOLDS) {
+    if (abilityInfo_->isStageBasedModel) {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::FOREGROUND_NEW);
     } else {
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
@@ -2278,7 +2247,7 @@ void Ability::OnUpdate(const int64_t formId)
 {}
 
 /**
- * @brief Called when the form provider is notified that a temporary form is successfully converted to a normal
+ * @brief Called when the form supplier is notified that a temporary form is successfully converted to a normal
  * form.
  *
  * @param formId Indicates the ID of the form.
@@ -2288,7 +2257,7 @@ void Ability::OnCastTemptoNormal(const int64_t formId)
 {}
 
 /**
- * @brief Called when the form provider receives form events from the fms.
+ * @brief Called when the form supplier receives form events from the fms.
  *
  * @param formEventsMap Indicates the form events occurred. The key in the Map object indicates the form ID,
  *                      and the value indicates the event type, which can be either FORM_VISIBLE
@@ -2299,7 +2268,7 @@ void Ability::OnCastTemptoNormal(const int64_t formId)
 void Ability::OnVisibilityChanged(const std::map<int64_t, int32_t> &formEventsMap)
 {}
 /**
- * @brief Called to notify the form provider to update a specified form.
+ * @brief Called to notify the form supplier to update a specified form.
  *
  * @param formId Indicates the ID of the form to update.
  * @param message Form event message.
