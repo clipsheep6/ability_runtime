@@ -52,6 +52,19 @@ const struct option LONG_OPTIONS_DUMP[] = {
     {"mission-infos", no_argument, nullptr, 'S'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::u:c";
+const struct option LONG_OPTIONS_DUMPSYS[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"all", no_argument, nullptr, 'a'},
+    {"mission-list", no_argument, nullptr, 'l'},
+    {"ability", required_argument, nullptr, 'i'},
+    {"extension", no_argument, nullptr, 'e'},
+    {"pending", no_argument, nullptr, 'p'},
+    {"process", no_argument, nullptr, 'r'},
+    {"userId", required_argument, nullptr, 'u'},
+    {"client", no_argument, nullptr, 'c'},
+    {nullptr, 0, nullptr, 0},
+};
 }  // namespace
 
 AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, TOOL_NAME)
@@ -69,6 +82,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
         {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
         {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpCommand, this)},
+        {"dumpsys", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
     };
 
@@ -530,6 +544,145 @@ ErrCode AbilityManagerShellCommand::RunAsStopService()
         result = OHOS::ERR_INVALID_VALUE;
     }
 
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
+{
+    ErrCode result = OHOS::ERR_OK;
+    bool isUserID = false;
+    bool isClient = false;
+    int userID = DEFAULT_INVAL_VALUE;
+
+    std::string args;
+
+    for (size_t i = 0; i < argList_.size(); i++) {
+        if (argList_[i] == "-c" || argList_[i] == "--client") {
+            if (isClient == false) {
+                isClient = true;
+            }else {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+            
+        }else if (argList_[i] == "-u" || argList_[i] == "--userId") {
+            (void)StrToInt(argList_[i + 1], userID);
+            if (userID == DEFAULT_INVAL_VALUE) {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+            if (isUserID == false) {
+                isUserID = true;
+            }else {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+            
+        }else if(argList_[i] == std::to_string(userID)) {
+            continue;
+        }
+        else {
+            args += argList_[i];
+            args += " ";
+        }
+    }
+
+    while (true) {
+
+        int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
+
+        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+        if (optind < 0 || optind > argc_) {
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            break;
+        }
+        switch (option) {
+            case 'h': {
+                // 'aa dumpsys -h'
+                // 'aa dumpsys --help'
+                result = OHOS::ERR_INVALID_VALUE;
+                break;
+            }
+            case 'a': {
+                // 'aa dumpsys -a'
+                // 'aa dumpsys --all'
+                break;
+            }
+            case 'l': {
+                // 'aa dumpsys -l'
+                // 'aa dumpsys --mission-list'
+                break;
+            }
+            case 'i':{
+                // 'aa dumpsys -i'
+                // 'aa dumpsys --ability'
+                break;
+            }
+            case 'e':{
+                // 'aa dumpsys -e'
+                // 'aa dumpsys --extension'
+                break;
+            }
+            case 'p':{
+                // 'aa dumpsys -p'
+                // 'aa dumpsys --pending'
+                break;
+            }
+            case 'r':{
+                // 'aa dumpsys -r'
+                // 'aa dumpsys --process'
+                break;
+            }
+            case 'u': {
+                // 'aa dumpsys -u'
+                // 'aa dumpsys --userId'
+                break;
+            }
+            case 'c': {
+                // 'aa dumpsys -c'
+                // 'aa dumpsys --client'
+                break;
+            }
+            case '?': {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+                break;
+            }
+            default: {
+                if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                    // 'aa dump' with no option: aa dump
+                    // 'aa dump' with a wrong argument: aa dump xxx
+                    HILOG_INFO("'aa dump' with no option.");
+
+                    resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
+                break;
+            }
+        }
+    }
+
+    if (result != OHOS::ERR_OK) {
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+    } else {
+        std::vector<std::string> dumpResults;
+        result = AbilityManagerClient::GetInstance()->DumpSysState(args, dumpResults, isClient, isUserID, userID);
+        if (result == OHOS::ERR_OK) {
+            for (auto it : dumpResults) {
+                resultReceiver_ += it + "\n";
+            }
+        } else {
+            HILOG_INFO("failed to dump state.");
+        }
+    }
     return result;
 }
 

@@ -147,6 +147,10 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state)
     {}
 
+    virtual void DumpSysState(
+            const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID)
+    {}
+
     virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
     {
         return 0;

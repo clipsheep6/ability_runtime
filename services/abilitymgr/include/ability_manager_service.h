@@ -328,6 +328,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual void DumpState(const std::string &args, std::vector<std::string> &info) override;
+    virtual void DumpSysState(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
 
     /**
      * Obtains information about ability stack that are running on the device.
@@ -654,6 +655,7 @@ public:
 
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void GetMaxRestartNum(int &max);
+    bool IsUseNewMission();
 
     /**
      * wait for starting system ui.
@@ -683,6 +685,7 @@ public:
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
     virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
+    int GetProcessRunningInfosByUserId(std::vector<AppExecFwk::RunningProcessInfo> &info, int32_t userId);
 
     int GetMissionSaveTime() const;
 
@@ -741,6 +744,12 @@ public:
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
 
+    /**
+     * Send not response process ID to ability manager service.
+     * @param pid The not response process ID.
+     */
+    virtual bool SendANRProcessID(int pid) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -782,6 +791,15 @@ public:
         KEY_DUMP_WINDOW_MODE,
         KEY_DUMP_MISSION_LIST,
         KEY_DUMP_MISSION_INFOS,
+    };
+
+    enum DumpsysKey {
+        KEY_DUMPSYS_ALL = 0,
+        KEY_DUMPSYS_MISSION_LIST,
+        KEY_DUMPSYS_ABILITY,
+        KEY_DUMPSYS_SERVICE,
+        KEY_DUMPSYS_PENDING,
+        KEY_DUMPSYS_PROCESS,
     };
 
     friend class AbilityStackManager;
@@ -900,6 +918,15 @@ private:
     bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
 
+    //dumpsys info
+ 	void DumpSysFuncInit();
+    void DumpSysInner(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+    void DumpSysMissionListInner(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+    void DumpSysAbilityInner(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+    void DumpSysStateInner(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+    void DumpSysPendingInner(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+    void DumpSysProcess(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+
     void InitConnectManager(int32_t userId, bool switchUser);
     void InitDataAbilityManager(int32_t userId, bool switchUser);
     void InitPendWantManager(int32_t userId, bool switchUser);
@@ -918,6 +945,9 @@ private:
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
+
+	using DumpSysFuncType = void (AbilityManagerService::*)(const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
+    std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -938,6 +968,7 @@ private:
     std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
+    const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
 
     // new ams here
     bool useNewMission_ {false};

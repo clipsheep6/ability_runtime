@@ -59,6 +59,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[TOP_ACTIVE_ABILITY_CHANGED] = &AbilitySchedulerStub::TopActiveAbilityChangedInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
+    requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
 }
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
@@ -573,6 +574,29 @@ int AbilitySchedulerStub::NotifyContinuationResultInner(MessageParcel &data, Mes
 {
     int32_t result = data.ReadInt32();
     NotifyContinuationResult(result);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    
+    std::vector<std::string> infos;
+    // if (!data.ReadStringVector(&infos)) {
+    //     HILOG_ERROR("fail to WriteStringVector infos");
+    //     return ERR_INVALID_VALUE;
+    // };
+
+    DumpAbilityInfo(infos);
+
+    for(const auto & infostep:infos)
+    {
+        HILOG_INFO("DumpAbilityInfoInner infos = %{public}s",infostep.c_str());
+    }
+
+    reply.WriteInt32(infos.size());
+    for (auto stack : infos) {
+        reply.WriteString16(Str8ToStr16(stack));
+    }
     return NO_ERROR;
 }
 

@@ -1548,5 +1548,28 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
     abilityContextImpl->SetAbilityInfo(abilityInfo);
     return abilityContextImpl;
 }
+
+void AbilityThread::DumpAbilityInfo(std::vector<std::string> &info)
+{
+    APP_LOGI("%{public}s begin.", __func__);
+    std::string dumpInfo = "      event:";
+    info.push_back(dumpInfo);
+
+    if (!abilityHandler_) {
+        APP_LOGI("abilityHandler_ is nullptr.");
+        return;
+    }
+    auto runner = abilityHandler_->GetEventRunner();
+    if (!runner) {
+        APP_LOGI("runner_ is nullptr.");
+        return;
+    }
+
+    dumpInfo = "";
+    runner->DumpRunnerInfo(dumpInfo);
+    info.push_back(dumpInfo);
+
+    APP_LOGD("localCallContainer need to get calls info.");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

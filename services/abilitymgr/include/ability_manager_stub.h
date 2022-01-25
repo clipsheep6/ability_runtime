@@ -66,6 +66,7 @@ private:
     int DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StopServiceAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DumpStateInner(MessageParcel &data, MessageParcel &reply);
+    int DumpSysStateInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFloatingStackInner(MessageParcel &data, MessageParcel &reply);
@@ -134,6 +135,7 @@ private:
     int StopSyncRemoteMissionsInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSnapshotHandlerInner(MessageParcel &data, MessageParcel &reply);
     int GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply);
+    int SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply);
 
     int SetAbilityControllerInner(MessageParcel &data, MessageParcel &reply);
     int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
