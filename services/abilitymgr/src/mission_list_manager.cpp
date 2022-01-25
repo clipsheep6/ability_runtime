@@ -1053,41 +1053,39 @@ int MissionListManager::ClearAllMissions()
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
-    for (auto mission : defaultStandardList_->GetAllMissions()) {
-        if (mission && !mission->IsLockedState()) {
-            ClearMissionLocked(-1, mission);
-        }
-    }
-
-    for (auto mission : defaultSingleList_->GetAllMissions()) {
-        if (mission && !mission->IsLockedState()) {
-            ClearMissionLocked(-1, mission);
-        }
-    }
-
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
-    for (auto missionList : currentMissionLists_) {
+    ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false);
+    ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false);
+
+    for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
+        auto missionList = (*listIter);
+        listIter++;
         if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
             continue;
         }
-        for (auto mission : missionList->GetAllMissions()) {
-            if (!mission || !mission->GetAbilityRecord() || mission->IsLockedState()) {
-                continue;
-            }
-
-            if (mission->GetAbilityRecord()->IsActiveState()) {
-                foregroundAbilities.push_front(mission);
-                continue;
-            }
-
-            ClearMissionLocked(-1, mission);
-        }
+        ClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true);
     }
 
-    for (auto mission : foregroundAbilities) {
+    ClearAllMissionsLocked(foregroundAbilities, foregroundAbilities, false);
+    return ERR_OK;
+}
+
+void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
+    std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
+{
+    for (auto listIter = missionList.begin(); listIter != missionList.end();) {
+        auto mission = (*listIter);
+        listIter++;
+        if (!mission || mission->IsLockedState()) {
+            continue;
+        }
+
+        if (searchActive && mission->GetAbilityRecord() && mission->GetAbilityRecord()->IsActiveState()) {
+            foregroundAbilities.push_front(mission);
+            continue;
+        }
         ClearMissionLocked(-1, mission);
     }
-    return ERR_OK;
 }
 
 int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
@@ -1100,17 +1098,19 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     std::shared_ptr<Mission> mission = GetMissionById(missionId);
     if (mission) {
         mission->SetLockedState(lockedState);
-        // update inner mission info time
-        InnerMissionInfo innerMissionInfo;
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(mission->GetMissionId(),
-            innerMissionInfo);
-        innerMissionInfo.missionInfo.time = Time2str(time(0));
-        innerMissionInfo.missionInfo.lockedState = lockedState;
-        DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
-        return ERR_OK;
     }
-    HILOG_ERROR("mission is not exist, missionId %{public}d", missionId);
-    return MISSION_NOT_FOUND;
+
+    // update inner mission info time
+    InnerMissionInfo innerMissionInfo;
+    auto ret = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(missionId, innerMissionInfo);
+    if (ret != 0) {
+        HILOG_ERROR("mission is not exist, missionId %{public}d", missionId);
+        return MISSION_NOT_FOUND;
+    }
+    innerMissionInfo.missionInfo.time = Time2str(time(0));
+    innerMissionInfo.missionInfo.lockedState = lockedState;
+    DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(innerMissionInfo);
+    return ERR_OK;
 }
 
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1450,9 +1450,9 @@ void MissionListManager::HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecor
 
 void MissionListManager::DelayedStartLauncher()
 {
-    auto ams = DelayedSingleton<AbilityManagerService>::GetInstance();
-    CHECK_POINTER(ams);
-    auto handler = ams->GetEventHandler();
+    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER(abilityManagerService);
+    auto handler = abilityManagerService->GetEventHandler();
     CHECK_POINTER(handler);
     std::weak_ptr<MissionListManager> wpListMgr = shared_from_this();
     auto timeoutTask = [wpListMgr]() {
