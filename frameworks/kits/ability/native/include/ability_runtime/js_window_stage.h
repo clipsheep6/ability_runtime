@@ -39,8 +39,6 @@ public:
     static NativeValue* GetMainWindow(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* On(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* Off(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* LoadContent(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* GetWindowMode(NativeEngine* engine, NativeCallbackInfo* info);
     virtual void AfterForeground() override;
     virtual void AfterBackground() override;
     virtual void AfterFocused() override;
@@ -51,8 +49,7 @@ private:
     NativeValue* OnGetMainWindow(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnEvent(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OffEvent(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnGetWindowMode(NativeEngine& engine, NativeCallbackInfo& info);
+
     enum WindowStageEventType {
         VISIBLE = 1,
         FOCUSED,
@@ -64,7 +61,6 @@ private:
     std::shared_ptr<Rosen::WindowScene> windowScene_;
     NativeValue* object_ = nullptr;
     NativeEngine* engine_ = nullptr;
-    void* contentStorage_ = nullptr;
     sptr<IWindowLifeCycle> lifecycleListener_ = nullptr;
     std::map<std::shared_ptr<NativeReference>, int> eventCallbackMap_;
     bool regLifeCycleListenerFlag_ = false;

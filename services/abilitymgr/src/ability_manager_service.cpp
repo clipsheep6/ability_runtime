@@ -196,13 +196,14 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
     return state_;
 }
 
-int AbilityManagerService::StartAbility(const Want &want, int requestCode)
+int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
     HILOG_INFO("%{public}s", __func__);
-    return StartAbility(want, nullptr, requestCode, -1);
+    return StartAbilityInner(want, nullptr, requestCode, -1, userId);
 }
 
-int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
+int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto flags = want.GetFlags();
@@ -216,11 +217,11 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         return StartRemoteAbility(want, requestCode);
     }
     HILOG_INFO("AbilityManagerService::StartAbility. try to StartLocalAbility");
-    return StartAbility(want, callerToken, requestCode, -1);
+    return StartAbilityInner(want, callerToken, requestCode, -1, userId);
 }
 
-int AbilityManagerService::StartAbility(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int callerUid)
+int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int requestCode, int callerUid, int32_t userId)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin.", __func__);
@@ -284,7 +285,7 @@ int AbilityManagerService::StartAbility(
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability setting.");
@@ -345,7 +346,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start ability options.");
@@ -714,7 +715,7 @@ int AbilityManagerService::RemoveStack(int id)
 }
 
 int AbilityManagerService::ConnectAbility(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability.");
@@ -2183,7 +2184,7 @@ void AbilityManagerService::HandleActiveTimeOut(int64_t eventId)
             kernalAbilityManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
         }
         if (currentMissionListManager_) {
-            currentMissionListManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+            currentMissionListManager_->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, eventId);
         }
     } else {
         if (systemAppManager_) {
@@ -2200,7 +2201,7 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t eventId)
     HILOG_DEBUG("Handle inactive timeout.");
     if (useNewMission_) {
         if (currentMissionListManager_) {
-            currentMissionListManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+            currentMissionListManager_->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, eventId);
         }
     } else {
         if (currentStackManager_) {
@@ -2217,7 +2218,7 @@ void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
             kernalAbilityManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
         }
         if (currentMissionListManager_) {
-            currentMissionListManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
+            currentMissionListManager_->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
         }
     } else {
         if (systemAppManager_) {
@@ -2998,7 +2999,20 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.isModuleJson = true;
     abilityInfo.isStageBasedModel = true;
     abilityInfo.process = extensionInfo.process;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+    switch (extensionInfo.type) {
+        case AppExecFwk::ExtensionAbilityType::FORM:
+            abilityInfo.type = AppExecFwk::AbilityType::FORM;
+            break;
+        case AppExecFwk::ExtensionAbilityType::SERVICE:
+            abilityInfo.type = AppExecFwk::AbilityType::SERVICE;
+            break;
+        case AppExecFwk::ExtensionAbilityType::DATASHARE:
+            abilityInfo.type = AppExecFwk::AbilityType::DATA;
+            break;
+        default:
+            abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+            break;
+    }
     return 0;
 }
 
