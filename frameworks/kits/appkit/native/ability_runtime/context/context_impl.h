@@ -187,14 +187,14 @@ public:
      *
      * @param token The token which the is launched by app.
      */
-    void SetToken(const sptr<IRemoteObject> &token);
+    void SetToken(const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief Get the token witch the app launched.
      *
      * @return token The token which the is launched by app.
      */
-    sptr<IRemoteObject> GetToken() const;
+    sptr<IRemoteObject> GetToken() override;
 
 private:
     static const int64_t CONTEXT_CREATE_BY_SYSTEM_APP;

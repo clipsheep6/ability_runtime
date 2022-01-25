@@ -386,7 +386,7 @@ void ContextImpl::SetToken(const sptr<IRemoteObject> &token)
     token_ = token;
 }
 
-sptr<IRemoteObject> ContextImpl::GetToken() const
+sptr<IRemoteObject> ContextImpl::GetToken()
 {
     return token_;
 }
