@@ -163,7 +163,7 @@ int FormMgrAdapter::ReleaseForm(const int64_t formId, const sptr<IRemoteObject> 
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    int32_t userId = GetCurrentUserId(callingUid);
     bool isSelfDbFormId = (userId == dbRecord.userId) && ((std::find(dbRecord.formUserUids.begin(),
     dbRecord.formUserUids.end(), callingUid) != dbRecord.formUserUids.end()) ? true : false);
     if (!isSelfDbFormId) {
@@ -237,7 +237,7 @@ ErrCode FormMgrAdapter::HandleDeleteForm(const int64_t formId, const sptr<IRemot
     }
 
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    int32_t userId = GetCurrentUserId(callingUid);
     bool isSelfDbFormId = (userId == dbRecord.userId) && ((std::find(dbRecord.formUserUids.begin(),
     dbRecord.formUserUids.end(), callingUid) != dbRecord.formUserUids.end()) ? true : false);
     if (!isSelfDbFormId) {
@@ -272,7 +272,7 @@ ErrCode FormMgrAdapter::HandleDeleteTempForm(const int64_t formId, const sptr<IR
     bool isFormRecExist = FormDataMgr::GetInstance().GetFormRecord(formId, record);
     bool isSelfTempFormId = false;
     if (isFormRecExist && record.formTempFlg) {
-		int32_t userId = GetCurrentUserId(uid);
+        int32_t userId = GetCurrentUserId(uid);
         isSelfTempFormId = (userId == record.userId) && ((std::find(record.formUserUids.begin(),
         record.formUserUids.end(), uid) != record.formUserUids.end()) ? true : false);
     }
@@ -395,7 +395,7 @@ int FormMgrAdapter::UpdateForm(const int64_t formId,
 
     // check bundle uid for permission
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    int32_t userId = GetCurrentUserId(callingUid);
     int32_t bundleUid = iBundleMgr->GetUidByBundleName(bundleName, userId);
     if (bundleUid != callingUid) {
         APP_LOGE("%{public}s error, permission denied, the updated form is not your own.", __func__);
@@ -462,9 +462,9 @@ int FormMgrAdapter::RequestForm(const int64_t formId, const sptr<IRemoteObject> 
     }
 
     APP_LOGI("%{public}s, find target client.", __func__);
-	Want reqWant(want);
-	int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    Want reqWant(want);
+    int callingUid = IPCSkeleton::GetCallingUid();
+    int32_t userId = GetCurrentUserId(callingUid);
     reqWant.SetParam(Constants::PARAM_FORM_USER_ID, userId);
     return FormProviderMgr::GetInstance().RefreshForm(matchedFormId, reqWant);
 }
@@ -553,7 +553,7 @@ int FormMgrAdapter::CastTempForm(const int64_t formId, const sptr<IRemoteObject>
     }
 
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    int32_t userId = GetCurrentUserId(callingUid);
     int checkCode = FormDataMgr::GetInstance().CheckEnoughForm(callingUid, userId);
     if (checkCode != 0) {
         APP_LOGE("%{public}s, %{public}" PRId64 " failed,because if too mush forms", __func__, matchedFormId);
@@ -760,7 +760,7 @@ ErrCode FormMgrAdapter::AllotFormById(const FormItemInfo &info,
 
     // get current userId
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t currentUserId = GetCurrentUserId(callingUid);
+    int32_t currentUserId = GetCurrentUserId(callingUid);
     if (hasRecord && (record.userId == currentUserId
         || FormDataMgr::GetInstance().IsCallingUidValid(record.formUserUids))) {
         if (!info.IsMatch(record)) {
@@ -896,7 +896,7 @@ ErrCode FormMgrAdapter::AddNewFormRecord(const FormItemInfo &info, const int64_t
     }
 
     // get current userId
-	int32_t currentUserId = GetCurrentUserId(callingUid);
+    int32_t currentUserId = GetCurrentUserId(callingUid);
     // allot form record
     FormRecord formRecord = FormDataMgr::GetInstance().AllotFormRecord(newInfo, callingUid, currentUserId);
 
@@ -934,7 +934,7 @@ ErrCode FormMgrAdapter::AddFormTimer(const FormRecord &formRecord)
             timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId,
             formRecord.updateDuration, formRecord.userId);
         } else {
-            timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId, formRecord.updateAtHour, 
+            timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId, formRecord.updateAtHour,
                 formRecord.updateAtMin, formRecord.userId);
         }
         if (!timerRet) {
@@ -1248,7 +1248,7 @@ int FormMgrAdapter::SetNextRefreshTime(const int64_t formId, const int64_t nextT
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
     int callingUid = IPCSkeleton::GetCallingUid();
-	int32_t userId = GetCurrentUserId(callingUid);
+    int32_t userId = GetCurrentUserId(callingUid);
     bool isSelfFormId = (userId == formRecord.userId) && ((std::find(formRecord.formUserUids.begin(),
     formRecord.formUserUids.end(), callingUid) != formRecord.formUserUids.end()) ? true : false);
     if (!isSelfFormId) {
@@ -1418,8 +1418,8 @@ int FormMgrAdapter::HandleUpdateFormFlag(std::vector<int64_t> formIds,
         for (const int64_t id : refreshForms) {
             APP_LOGI("%{public}s, formRecord need refresh: %{public}" PRId64 "", __func__, id);
             Want want;
-			int callingUid = IPCSkeleton::GetCallingUid();
-			int32_t userId = GetCurrentUserId(callingUid);
+            int callingUid = IPCSkeleton::GetCallingUid();
+            int32_t userId = GetCurrentUserId(callingUid);
             want.SetParam(Constants::PARAM_FORM_USER_ID, userId);
             FormProviderMgr::GetInstance().RefreshForm(id, want);
         }
@@ -1539,7 +1539,7 @@ int FormMgrAdapter::BatchAddFormRecords(const Want &want)
         formItemInfo.SetFormId(newFormId);
         // allot form host record
         int callingUid = IPCSkeleton::GetCallingUid();
-		int32_t currentUserId = GetCurrentUserId(callingUid);
+        int32_t currentUserId = GetCurrentUserId(callingUid);
         // allot form record
         FormRecord formRecord = FormDataMgr::GetInstance().AllotFormRecord(formItemInfo, callingUid, currentUserId);
         APP_LOGI("%{public}s, batch add form, formId:" "%{public}" PRId64 ".", __func__, formRecord.formId);
@@ -1691,7 +1691,6 @@ int FormMgrAdapter::DistributedDataDeleteForm(const std::string &formId)
 int32_t FormMgrAdapter::GetCurrentUserId(const int callingUid)
 {
     // get current userId
-    // GetUserIdByCallingUid(callingUid); // TODO:get user ID from BundleMgrService
     int32_t userId = callingUid / UID_CALLINGUID_TRANSFORM_DIVISOR;
     return userId;
 }

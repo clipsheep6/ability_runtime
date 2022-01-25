@@ -69,7 +69,7 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
         HandleBundleDataCleared(bundleName, uid);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_UID_REMOVED) {
         int32_t userId = want.GetIntParam(KEY_USER_ID, -1);
-        if(userId == -1) {
+        if (userId == -1) {
             APP_LOGE("%{public}s, failed to get userId, bundleName: %{public}s", __func__, bundleName.c_str());
             return;
         }
@@ -452,7 +452,7 @@ void FormSysEventReceiver::HandleTimerUpdate(const int64_t formId,
             APP_LOGI("%{public}s, add at timer:%{public}d, %{public}d", __func__,
                 timerCfg.updateAtHour, timerCfg.updateAtMin);
             FormTimerMgr::GetInstance().AddFormTimer(formId, timerCfg.updateAtHour,
-            timerCfg.updateAtMin, record.userId);
+                                                     timerCfg.updateAtMin, record.userId);
         }
 
         return;

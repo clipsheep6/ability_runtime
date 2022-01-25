@@ -37,7 +37,7 @@ const std::string INNER_FORM_INFO_FORM_USER_UIDS = "formUserUids";
 void InnerFormInfo::ToJson(nlohmann::json &jsonObject) const
 {
     jsonObject[INNER_FORM_INFO_FORM_ID] = formDBInfo_.formId;
-	jsonObject[INNER_FORM_INFO_USER_ID] = formDBInfo_.userId;
+    jsonObject[INNER_FORM_INFO_USER_ID] = formDBInfo_.userId;
     jsonObject[INNER_FORM_INFO_FORM_NAME] = formDBInfo_.formName;
     jsonObject[INNER_FORM_INFO_BUNDLE_NAME] = formDBInfo_.bundleName;
     jsonObject[INNER_FORM_INFO_MODULE_NAME] = formDBInfo_.moduleName;
@@ -62,7 +62,7 @@ bool InnerFormInfo::FromJson(const nlohmann::json &jsonObject)
         false,
         parseResult,
         ArrayType::NOT_ARRAY);
-	GetValueIfFindKey<int32_t>(jsonObject,
+    GetValueIfFindKey<int32_t>(jsonObject,
         jsonObjectEnd,
         INNER_FORM_INFO_USER_ID,
         formDBInfo_.userId,

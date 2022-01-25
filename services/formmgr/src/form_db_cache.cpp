@@ -287,7 +287,7 @@ void FormDbCache::DeleteDBFormsByUserId(const int32_t userId)
 {
     std::lock_guard<std::mutex> lock(formDBInfosMutex_);
     std::vector<FormDBInfo>::iterator itRecord;
-    for (itRecord = formDBInfos_.begin(); itRecord != formDBInfos_.end(); ) {
+    for (itRecord = formDBInfos_.begin(); itRecord != formDBInfos_.end();) {
         if (userId == itRecord->userId) {
             int64_t formId = itRecord->formId;
             if (dataStorage_->DeleteStorageFormInfo(std::to_string(formId)) == ERR_OK) {

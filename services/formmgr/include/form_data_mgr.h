@@ -337,7 +337,7 @@ public:
 
     /**
      * @brief delete forms by userId.
-     * 
+     *
      * @param userId user ID.
      * @param removedFormIds removed userId.
      */

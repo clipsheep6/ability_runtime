@@ -125,7 +125,6 @@ public:
 	
 	/**
      * @brief delete forms bu userId.
-     * 
      * @param userId user ID.
      */
     void DeleteDBFormsByUserId(const int32_t userId);

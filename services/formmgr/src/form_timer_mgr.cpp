@@ -55,7 +55,7 @@ FormTimerMgr::~FormTimerMgr()
  */
 bool FormTimerMgr::AddFormTimer(const FormTimer &task)
 {
-    APP_LOGI("%{public}s, formId: %{public}" PRId64 "", __func__, task.formId);
+    APP_LOGI("%{public}s, formId: %{public}" PRId64 ", userId:%{public}d", __func__, task.formId, task.userId);
     if (task.isUpdateAt) {
         if (task.hour >= Constants::MIN_TIME && task.hour <= Constants::MAX_HOUR && task.min >= Constants::MIN_TIME &&
             task.min <= Constants::MAX_MININUTE) {
@@ -89,13 +89,13 @@ bool FormTimerMgr::AddFormTimer(const int64_t formId, const long updateDuration,
 /**
  * @brief Add scheduled form timer.
  * @param formId The Id of the form.
- * @param updateAtHour Hour
- * @param updateAtMin Min
+ * @param updateAtHour Hour.
+ * @param updateAtMin Min.
  * @param userId User ID.
  * @return Returns true on success, false on failure.
  */
 bool FormTimerMgr::AddFormTimer(const int64_t formId, const long updateAtHour,
-const long updateAtMin, const int32_t userId)
+                                const long updateAtMin, const int32_t userId)
 {
     FormTimer timerTask(formId, updateAtHour, updateAtMin, userId);
     return AddFormTimer(timerTask);
@@ -880,7 +880,7 @@ bool FormTimerMgr::UpdateAtTimerAlarm()
 std::shared_ptr<WantAgent> FormTimerMgr::GetUpdateAtWantAgent(long updateAtTime)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    ElementName element("device", "bundleName", "abilityName");
+    ElementName element("", "", "");
     want->SetElement(element);
     want->SetAction(Constants::ACTION_UPDATEATTIMER);
     want->SetParam(Constants::KEY_ACTION_TYPE, Constants::TYPE_STATIC_UPDATE);
@@ -994,7 +994,7 @@ void FormTimerMgr::ClearLimiterTimerResource()
 std::shared_ptr<WantAgent> FormTimerMgr::GetLimiterWantAgent()
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    ElementName element("device", "bundleName", "abilityName");
+    ElementName element("", "", "");
     want->SetElement(element);
     want->SetAction(Constants::ACTION_UPDATEATTIMER);
     want->SetParam(Constants::KEY_ACTION_TYPE, Constants::TYPE_RESET_LIMIT);
@@ -1066,7 +1066,7 @@ bool FormTimerMgr::UpdateDynamicAlarm()
 std::shared_ptr<WantAgent> FormTimerMgr::GetDynamicWantAgent(long nextTime)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    ElementName element("device", "bundleName", "abilityName");
+    ElementName element("", "", "");
     want->SetElement(element);
     want->SetAction(Constants::ACTION_UPDATEATTIMER);
     want->SetParam(Constants::KEY_ACTION_TYPE, Constants::TYPE_DYNAMIC_UPDATE);
@@ -1198,9 +1198,11 @@ void FormTimerMgr::ExecTimerTask(const FormTimer &timerTask)
             want.SetParam(Constants::KEY_IS_TIMER, true);
         }
         // multi user
-        if(IsActiveUser(timerTask.userId)) {
+        if (IsActiveUser(timerTask.userId)) {
             want.SetParam(Constants::PARAM_FORM_USER_ID, timerTask.userId);
         }
+        APP_LOGD("%{public}s, userId:%{public}d",__func__, timerTask.userId);
+
         auto task = std::bind(&FormProviderMgr::RefreshForm, &FormProviderMgr::GetInstance(), timerTask.formId, want);
         taskExecutor_->AddTask(task);
     }
