@@ -17,7 +17,6 @@
 #define OHOS_AAFWK_CALL_RECORD_H
 
 #include "ability_connect_callback_interface.h"
-// #include "ability_record.h"
 #include "nocopyable.h"
 
 namespace OHOS {

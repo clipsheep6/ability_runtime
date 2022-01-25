@@ -599,7 +599,7 @@ int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &r
 
     HILOG_INFO("AbilitySchedulerStub::CallRequestInner end");
 
-    return NO_ERROR; 
+    return NO_ERROR;
 }
 
 void AbilitySchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)

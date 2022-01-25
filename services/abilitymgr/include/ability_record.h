@@ -772,8 +772,6 @@ public:
     void SetSpecifiedFlag(const std::string &flag);
     std::string GetSpecifiedFlag() const;
 
-
-
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 
@@ -784,7 +782,6 @@ protected:
     LifeCycleStateInfo lifeCycleStateInfo_;                // target life state info
     static int64_t g_abilityRecordEventId_;
     int64_t eventId_ = 0;                                  // post event id
-
 
 private:
     /**

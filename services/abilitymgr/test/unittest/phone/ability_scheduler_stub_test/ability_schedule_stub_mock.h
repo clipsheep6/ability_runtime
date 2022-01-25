@@ -137,7 +137,6 @@ public:
     {
         return sptr<IRemoteObject>(nullptr);
     }
-
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1423,7 +1423,7 @@ ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
     }
     if (!callContainer_) {
         callContainer_ = std::make_shared<CallContainer>();
-        if(!callContainer_) {
+        if (!callContainer_) {
             HILOG_ERROR("mark_shared error.");
             return ResolveResultType::NG_INNER_ERROR;
         }

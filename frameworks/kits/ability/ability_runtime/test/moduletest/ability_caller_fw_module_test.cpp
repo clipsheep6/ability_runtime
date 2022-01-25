@@ -101,7 +101,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0100, Function | MediumTe
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &){});
+    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
     EXPECT_FALSE(callback->IsCallBack());
 
     ErrCode ret = context_->StartAbility(want, callback);
@@ -137,7 +137,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTe
 {
     Want want;
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &){});
+    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
     EXPECT_FALSE(callback->IsCallBack());
 
     ErrCode ret = context_->StartAbility(want, callback);
@@ -167,7 +167,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0100, Function | Medium
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &){});
+    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
 
     ErrCode ret = context_->StartAbility(want, callback);
     EXPECT_TRUE(ret == 0);
@@ -184,7 +184,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0100, Function | Medium
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    callback->SetCallBack([](const sptr<IRemoteObject> &){});
+    callback->SetCallBack([](const sptr<IRemoteObject> &) {});
 
     ErrCode ret = context_->ReleaseAbility(callback);
     EXPECT_FALSE(ret == 0);

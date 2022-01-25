@@ -711,7 +711,6 @@ protected:
     std::string callingAbilityName_;
     std::map<sptr<AAFwk::IAbilityConnection>, sptr<IRemoteObject>> abilityConnectionMap_;
 
-
 private:
     /**
      * @brief Get Current Ability Type
