@@ -43,10 +43,10 @@ ShellCommand::~ShellCommand()
 
 ErrCode ShellCommand::OnCommand()
 {
+    HILOG_INFO("OnCommand enter.");
     int result = OHOS::ERR_OK;
 
     auto respond = commandMap_[cmd_];
-    HILOG_INFO("OnCommand enter.");
     if (respond == nullptr) {
         HILOG_INFO("OnCommand respond is nullptr.");
         resultReceiver_.append(GetCommandErrorMsg());
@@ -64,6 +64,7 @@ ErrCode ShellCommand::OnCommand()
 
 std::string ShellCommand::ExecCommand()
 {
+    HILOG_INFO("ExecCommand enter.");
     int result = CreateCommandMap();
     if (result != OHOS::ERR_OK) {
         HILOG_ERROR("failed to create command map.\n");
@@ -74,7 +75,6 @@ std::string ShellCommand::ExecCommand()
         HILOG_ERROR("failed to create message map.\n");
     }
 
-    HILOG_INFO("ExecCommand enter.");
     result = OnCommand();
     if (result != OHOS::ERR_OK) {
         HILOG_ERROR("failed to execute your command.\n");
