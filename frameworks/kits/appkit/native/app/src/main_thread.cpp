@@ -827,9 +827,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     bool moduelJson = false;
     bool isStageBased = false;
-    if (!bundleInfo.hapModuleInfos.empty()) {
-        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
-        isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    if (!bundleInfo.abilityInfos.empty()) {
+        moduelJson = bundleInfo.abilityInfos.back().isModuleJson;
+        isStageBased = bundleInfo.abilityInfos.back().isStageBasedModel;
     }
     APP_LOGI("stageBased:%{public}d moduelJson:%{public}d size:%{public}d",
         isStageBased, moduelJson, (int32_t)bundleInfo.hapModuleInfos.size());
