@@ -27,7 +27,12 @@ config("ability_command_config") {
 ohos_source_set("tools_aa_source_set") {
   sources = [
     "src/ability_command.cpp",
+    "src/shell_command_result.cpp",
     "src/shell_command.cpp",
+    "src/system_time.cpp",
+    "src/test_observer_proxy.cpp",
+    "src/test_observer_stub.cpp",
+    "src/test_observer.cpp",
   ]
 
   public_configs = [

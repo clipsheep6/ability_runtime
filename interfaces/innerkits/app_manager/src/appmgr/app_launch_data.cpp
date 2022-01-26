@@ -44,10 +44,16 @@ void AppLaunchData::SetUId(const int32_t uId)
     uId_ = uId;
 }
 
+void AppLaunchData::SetUserTestInfo(const UserTestRecord &record)
+{
+    userTestRecord_ = record;
+}
+
 bool AppLaunchData::Marshalling(Parcel &parcel) const
 {
     return (parcel.WriteParcelable(&applicationInfo_) && parcel.WriteParcelable(&profile_) &&
-            parcel.WriteParcelable(&processInfo_) && parcel.WriteInt32(recordId_) && parcel.WriteInt32(uId_));
+            parcel.WriteParcelable(&processInfo_) && parcel.WriteInt32(recordId_) &&
+            parcel.WriteInt32(uId_) && parcel.WriteParcelable(&userTestRecord_));
 }
 
 bool AppLaunchData::ReadFromParcel(Parcel &parcel)
@@ -75,6 +81,13 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
 
     recordId_ = parcel.ReadInt32();
     uId_ = parcel.ReadInt32();
+
+    std::unique_ptr<UserTestRecord> userTestRecord(parcel.ReadParcelable<UserTestRecord>());
+    if (!userTestRecord) {
+        APP_LOGE("failed, userTestRecord is nullptr");
+        return false;
+    }
+    userTestRecord_ = *userTestRecord;
     return true;
 }
 
@@ -87,6 +100,49 @@ AppLaunchData *AppLaunchData::Unmarshalling(Parcel &parcel)
         appLaunchData = nullptr;
     }
     return appLaunchData;
+}
+
+bool UserTestRecord::ReadFromParcel(Parcel &parcel)
+{
+    AAFwk::Want *wantPtr = parcel.ReadParcelable<AAFwk::Want>();
+    if (wantPtr == nullptr) {
+        APP_LOGE("wantPtr is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    want = *wantPtr;
+    delete wantPtr;
+
+    observer = parcel.ReadParcelable<IRemoteObject>();
+    if (!observer) {
+        APP_LOGE("observer is nullptr");
+        return false;
+    }
+    return true;
+}
+
+bool UserTestRecord::Marshalling(Parcel &parcel) const
+{
+    if (!parcel.WriteParcelable(&want)) {
+        APP_LOGE("Failed to write want");
+        return false;
+    }
+
+    if (!parcel.WriteParcelable(observer)) {
+        APP_LOGE("Failed to write observer");
+        return false;
+    }
+    return true;
+}
+
+UserTestRecord *UserTestRecord::Unmarshalling(Parcel &parcel)
+{
+    UserTestRecord *userTestRecord = new (std::nothrow) UserTestRecord();
+    if (userTestRecord && !userTestRecord->ReadFromParcel(parcel)) {
+        APP_LOGW("failed, because ReadFromParcel failed");
+        delete userTestRecord;
+        userTestRecord = nullptr;
+    }
+    return userTestRecord;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

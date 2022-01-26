@@ -22,6 +22,7 @@
 #include "inner_event.h"
 #include "app_scheduler_host.h"
 #include "app_mgr_interface.h"
+#include "ability_delegator_args.h"
 #include "ability_record_mgr.h"
 #include "application_impl.h"
 #include "resource_manager.h"
@@ -217,6 +218,18 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    /**
+     * @brief Finish user test.
+     * @param msg user test message.
+     * @param resultCode user test result Code.
+     * @param bundleName user test bundleName.
+     * @param observer test observer callback.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer);
+
 private:
     /**
      *
@@ -403,6 +416,15 @@ private:
 
     void LoadAndRegisterExtension(const std::string &libName, const std::string &extensionName,
         const std::unique_ptr<Runtime>& runtime);
+
+    /**
+     *
+     * @brief Ability Delegator Prepare.
+     *
+     * @param UserTestRecord User Test info.
+     *
+     */
+    bool AbilityDelegatorPrepare(const UserTestRecord &record);
 
     class MainHandler : public EventHandler {
     public:

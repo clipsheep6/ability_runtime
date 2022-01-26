@@ -307,9 +307,17 @@ public:
         MissionSnapshot& missionSnapshot);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
 
+    /**
+     * @brief get current top ability by bundle name
+     * @param bundleName the bundle name
+     * @return the current top ability.
+     */
+    std::shared_ptr<AbilityRecord> GetCurrentTopAbility(const std::string &bundleName);
+
     bool IsStarted();
     void PauseManager();
     void ResumeManager();
+
 private:
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
