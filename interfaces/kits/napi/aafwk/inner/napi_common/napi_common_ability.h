@@ -221,6 +221,10 @@ napi_value AcquireDataAbilityHelperWrap(
  */
 napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
+napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
+
+napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
+
 napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo);
 
 bool CheckAbilityType(const CBBase *cbBase);

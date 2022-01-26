@@ -43,6 +43,7 @@
 #include "iremote_object.h"
 #include "pac_map.h"
 #include "want.h"
+#include "want_agent.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -679,14 +680,14 @@ public:
      * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
      * notification bar.
      */
-    virtual void KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest) final;
+    virtual int KeepBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent) final;
 
     /**
      * @brief Cancels background running of this ability to free up system memory.
      * This method can be called only by Service abilities when the onStop() method is called.
      *
      */
-    virtual void CancelBackgroundRunning() final;
+    virtual int CancelBackgroundRunning() final;
 
     /**
      * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used

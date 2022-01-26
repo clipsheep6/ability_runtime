@@ -60,6 +60,7 @@ struct AsyncCallbackInfo {
     Ability *ability = nullptr;
     CallAbilityParam param;
     CallbackInfo aceCallback;
+    Notification::WantAgent::WantAgent *wantAgent = nullptr;
     bool native_result;
     AbilityType abilityType = AbilityType::UNKNOWN;
     int errCode = 0;
