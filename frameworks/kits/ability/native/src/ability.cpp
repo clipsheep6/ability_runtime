@@ -200,7 +200,7 @@ void Ability::OnStart(const Want &want)
 
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(StartOptions::STRING_DISPLAY_ID, defualtDisplayId);
-        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, config.type:%{public}d, "
+        APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, windowType:%{public}d, "
             "displayId:%{public}d",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str(),
@@ -3253,6 +3253,15 @@ void Ability::DoOnForeground(const Want& want)
         APP_LOGI("========================abilityWindow_ != nullptr ======================");
 
     }
+}
+
+/**
+ * @brief request a remote object of callee from this ability.
+ * @return Returns the remote object of callee.
+ */
+sptr<IRemoteObject> Ability::CallRequest()
+{
+    return nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

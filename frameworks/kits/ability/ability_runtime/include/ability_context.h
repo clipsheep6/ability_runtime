@@ -23,10 +23,12 @@
 #include "native_engine/native_value.h"
 #include "start_options.h"
 #include "want.h"
+#include "caller_callback.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&)>;
+using PermissionRequestTask = std::function<void(const std::vector<std::string>&, const std::vector<int>&)>;
 class AbilityContext : public Context {
 public:
     virtual ~AbilityContext() = default;
@@ -118,13 +120,30 @@ public:
     /**
      * @brief Requests certain permissions from the system.
      * This method is called for permission request. This is an asynchronous method. When it is executed,
-     * the Ability.onRequestPermissionsFromUserResult(int, String[], int[]) method will be called back.
+     * the OnRequestPermissionsFromUserResult(int, vector<string>, vector<int>) method will be called back.
      *
      * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
-     * @param requestCode Indicates the request code to be passed to the Ability.onRequestPermissionsFromUserResult(int,
-     * String[], int[]) callback method. This code cannot be a negative number.
+     * @param requestCode Indicates the request code to be passed to the OnRequestPermissionsFromUserResult(int,
+     * vector<string>, vector<int>) callback method. This code cannot be a negative number.
+     * @param task The callback or promise fo js interface.
      */
-    virtual void RequestPermissionsFromUser(const std::vector<std::string> &permissions, int requestCode) = 0;
+    virtual void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
+        int requestCode, PermissionRequestTask &&task) = 0;
+
+    /**
+     * @brief Called back after permissions are requested by using
+     * RequestPermissionsFromUser(vector<string>, int, PermissionRequestTask).
+     *
+     * @param requestCode Indicates the request code passed to this method from
+     * RequestPermissionsFromUser(vector<string>, int, PermissionRequestTask).
+     * @param permissions Indicates the list of permissions requested by using
+     * RequestPermissionsFromUser(vector<string>, int, PermissionRequestTask).
+     * @param grantResults Indicates the granting results of the corresponding permissions requested using
+     * RequestPermissionsFromUser(vector<string>, int, PermissionRequestTask). The value 0 indicates that a
+     * permission is granted, and the value -1 indicates not.
+     */
+    virtual void OnRequestPermissionsFromUserResult(
+        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) = 0;
 
     /**
      * @brief Get ContentStorage.
@@ -132,6 +151,25 @@ public:
      * @return Returns the ContentStorage.
      */
     virtual void* GetContentStorage() = 0;
+
+    /**
+     * call function by callback object
+     *
+     * @param want Request info for ability.
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    virtual ErrCode StartAbility(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) = 0;
+
+    /**
+     * caller release by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    virtual ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
      * @brief Set mission label of this ability.

@@ -113,6 +113,7 @@ public:
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo> &info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
+    MOCK_METHOD3(StartAbilityByCall, int(const Want &, const sptr<IAbilityConnection> &, const sptr<IRemoteObject> &));
 
     virtual int StartUser(int userId) override
     {
@@ -141,6 +142,16 @@ public:
     {
         return 0;
     }
+    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, int requestCode) override
+    {
+        return 0;
+    }
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
+        const AppExecFwk::ElementName &element) override
+    {
+        return 0;
+    }
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
     {
         return 0;
@@ -148,6 +159,10 @@ public:
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;
+    }
+    virtual bool SendANRProcessID(int pid)
+    {
+        return true;
     }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,

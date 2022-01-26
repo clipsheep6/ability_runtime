@@ -124,6 +124,10 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         HILOG_INFO("abilityRequest.startSetting...");
         abilityRecord->SetStartSetting(abilityRequest.startSetting);
     }
+    if (abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
+        HILOG_INFO("abilityRequest.callType is CALL_REQUEST_TYPE.");
+        abilityRecord->SetStartedByCall(true);
+    }
     return abilityRecord;
 }
 
@@ -1003,6 +1007,11 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         abilityManagerService->OnAbilityDied(ability);
     };
     handler->PostTask(task);
+    auto uriTask = [want = want_, ability = shared_from_this()]() {
+        ability->SaveResultToCallers(-1, &want);
+        ability->SendResultToCallers();
+    };
+    handler->PostTask(uriTask);
 }
 
 void AbilityRecord::SetConnRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -1367,12 +1376,120 @@ void AbilityRecordNew::BackgroundNew(const Closure &task)
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
 }
 
+// new version  --start
+bool AbilityRecord::IsStartedByCall() const
+{
+    return isStartedByCall_;
+}
+
+void AbilityRecord::SetStartedByCall(const bool isFlag)
+{
+    isStartedByCall_ = isFlag;
+}
+
+bool AbilityRecord::IsStartToBackground() const
+{
+    return isStartToBackground_;
+}
+
+void AbilityRecord::SetStartToBackground(const bool flag)
+{
+    isStartToBackground_ = flag;
+}
+
+bool AbilityRecord::CallRequest()
+{
+    HILOG_INFO("Call Request.");
+    CHECK_POINTER_RETURN_BOOL(scheduler_);
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+
+    // sync call request
+    sptr<IRemoteObject> callStub = scheduler_->CallRequest();
+    if (!callStub) {
+        HILOG_ERROR("call request failed, callstub is nullptr.");
+        return false;
+    }
+    
+    // complete call request
+    return callContainer_->CallRequestDone(callStub);
+}
+
+ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
+{
+    auto callback = abilityRequest.connect;
+    if (abilityRequest.callType != AbilityCallType::CALL_REQUEST_TYPE || !callback) {
+        HILOG_ERROR("only startd by call type can create a call record.");
+        return ResolveResultType::NG_INNER_ERROR;
+    }
+    if (!callContainer_) {
+        callContainer_ = std::make_shared<CallContainer>();
+        if (!callContainer_) {
+            HILOG_ERROR("mark_shared error.");
+            return ResolveResultType::NG_INNER_ERROR;
+        }
+    }
+
+    HILOG_DEBUG("create call record for this resolve. callerUid:%{public}d ,targetname:%{public}s",
+        abilityRequest.callerUid,
+        abilityRequest.abilityInfo.name.c_str());
+
+    std::shared_ptr<CallRecord> callRecord = callContainer_->GetCallRecord(callback);
+    if (!callRecord) {
+        callRecord = CallRecord::CreateCallRecord(
+            abilityRequest.callerUid, shared_from_this(), callback, abilityRequest.callerToken);
+        if (!callRecord) {
+            HILOG_ERROR("mark_shared error.");
+            return ResolveResultType::NG_INNER_ERROR;
+        }
+    }
+
+    callContainer_->AddCallRecord(callback, callRecord);
+
+    if (callRecord->IsCallState(CallState::REQUESTED) && callRecord->GetCallStub()) {
+        HILOG_DEBUG("this record has requested.");
+        if (!callRecord->SchedulerConnectDone()) {
+            HILOG_DEBUG("this callrecord has requested, but callback failed.");
+            return ResolveResultType::NG_INNER_ERROR;
+        }
+        return ResolveResultType::OK_HAS_REMOTE_OBJ;
+    }
+
+    callRecord->SetCallState(CallState::REQUESTING);
+    return ResolveResultType::OK_NO_REMOTE_OBJ;
+}
+
+bool AbilityRecord::Release(const sptr<IAbilityConnection> & connect)
+{
+    HILOG_DEBUG("ability release call record by callback.");
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+    
+    return callContainer_->RemoveCallRecord(connect);
+}
+
+bool AbilityRecord::IsNeedToCallRequest() const
+{
+    HILOG_DEBUG("ability release call record by callback.");
+    CHECK_POINTER_RETURN_BOOL(callContainer_);
+
+    return callContainer_->IsNeedToCallRequest();
+}
+
 void AbilityRecord::ContinueAbility(const std::string& deviceId)
 {
     HILOG_INFO("ContinueAbility.");
     CHECK_POINTER(lifecycleDeal_);
 
     lifecycleDeal_->ContinueAbility(deviceId);
+}
+
+void AbilityRecord::SetSwitchingPause(bool state)
+{
+    isSwitchingPause_ = state;
+}
+
+bool AbilityRecord::IsSwitchingPause()
+{
+    return isSwitchingPause_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

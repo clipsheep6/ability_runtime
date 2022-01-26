@@ -2164,6 +2164,75 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartAbilityByCall(
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall begin.");
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (connect == nullptr) {
+        HILOG_ERROR("resolve ability fail, connect is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(connect->AsObject())) {
+        HILOG_ERROR("resolve write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(callerToken)) {
+        HILOG_ERROR("callerToken write failed.");
+        return INNER_ERR;
+    }
+
+    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall SendRequest Call.");
+    error = Remote()->SendRequest(IAbilityManager::START_CALL_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall end.");
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (connect == nullptr) {
+        HILOG_ERROR("release calll ability fail, connect is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(connect->AsObject())) {
+        HILOG_ERROR("release ability connect write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteParcelable(&element)) {
+        HILOG_ERROR("element error.");
+        return ERR_INVALID_VALUE;
+    }
+
+    error = Remote()->SendRequest(IAbilityManager::RELEASE_CALL_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     MessageParcel data;
@@ -2224,6 +2293,27 @@ bool AbilityManagerProxy::IsRunningInStabilityTest()
     auto error = Remote()->SendRequest(IAbilityManager::IS_USER_A_STABILITY_TEST, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
+bool AbilityManagerProxy::SendANRProcessID(int pid)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return false;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("pid WriteInt32 fail.");
+        return false;
+    }
+    error = Remote()->SendRequest(IAbilityManager::SEND_APP_NOT_RESPONSE_PROCESS_ID, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("SendANRProcessID error: %d", error);
         return false;
     }
     return reply.ReadBool();
