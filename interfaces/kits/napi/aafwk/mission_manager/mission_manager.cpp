@@ -156,10 +156,6 @@ private:
                     task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
                     return;
                 }
-                if (!missionListener) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                    return;
-                }
                 missionListener->RemoveJsListenerObject(missionListenerId);
                 if (!missionListener->IsEmpty()) {
                     task.Resolve(engine, engine.CreateUndefined());

@@ -60,6 +60,9 @@ public:
 
     void DumpState(const std::string &args, std::vector<std::string> &info) override;
 
+    void DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
+
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
     int StopServiceAbility(const Want &want) override;
     int PowerOff() override;
@@ -233,10 +236,6 @@ public:
     {
         return 0;
     }
-    virtual bool SendANRProcessID(int pid)
-    {
-        return true;
-    }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
@@ -261,7 +260,12 @@ public:
         return 0;
     }
 
-    enum RequestCode {
+    virtual bool SendANRProcessID(int pid) override
+    {
+        return true;
+    }
+
+    enum class RequestCode {
         E_STATE_INITIAL = 0,
         E_STATE_INACTIVE,
         E_STATE_ACTIVE,

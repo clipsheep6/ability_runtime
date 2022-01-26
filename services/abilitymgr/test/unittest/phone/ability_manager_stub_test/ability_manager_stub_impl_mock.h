@@ -148,6 +148,10 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state)
     {}
 
+    virtual void DumpSysState(
+            const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID)
+    {}
+
     virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
     {
         return 0;
@@ -393,10 +397,6 @@ public:
     {
         return 0;
     }
-    virtual bool SendANRProcessID(int pid)
-    {
-        return true;
-    }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
@@ -405,6 +405,10 @@ public:
     }
 
     virtual bool IsRunningInStabilityTest() override
+    {
+        return true;
+    }
+    virtual bool SendANRProcessID(int pid) override
     {
         return true;
     }
