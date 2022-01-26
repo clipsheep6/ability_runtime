@@ -328,7 +328,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual void DumpState(const std::string &args, std::vector<std::string> &info) override;
-    virtual void DumpSysState(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
+<<<<<<< HEAD
+    virtual void DumpSysState(
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
+=======
+    virtual void DumpSysState(const std::string& args, std::vector<std::string>& info,
+        bool isClient, bool isUserID, int UserID) override;
+>>>>>>> 14bef1457f1e4e7e7df3bafa1f8dcef2c7bb4c92
 
     /**
      * Obtains information about ability stack that are running on the device.
@@ -938,14 +944,14 @@ private:
     void DumpFuncInit();
     bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
-    
+
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
 
     /**
      * dumpsys info
      *
      */
- 	void DumpSysFuncInit();
+    void DumpSysFuncInit();
     void DumpSysInner(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
@@ -997,7 +1003,7 @@ private:
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
 
-	using DumpSysFuncType = void (AbilityManagerService::*)(
+    using DumpSysFuncType = void (AbilityManagerService::*)(
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 

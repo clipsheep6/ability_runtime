@@ -566,7 +566,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         MoveToBackgroundTask(abilityRecord);
         return ERR_OK;
     }
-    
+
     if (abilityRecord->IsNeedToCallRequest()) {
         abilityRecord->CallRequest();
     }
@@ -1636,7 +1636,6 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
         dumpInfo = " }";
         info.push_back(dumpInfo);
     }
-    
 }
 
 void MissionListManager::DumpMissionInfos(std::vector<std::string> &info)
@@ -1750,7 +1749,7 @@ int MissionListManager::ResolveAbility(
 {
     HILOG_DEBUG("targetAbilityRecord resolve call record.");
     CHECK_POINTER_AND_RETURN(targetAbility, ResolveResultType::NG_INNER_ERROR);
-    
+
     ResolveResultType result = targetAbility->Resolve(abilityRequest);
     switch (result) {
         case ResolveResultType::NG_INNER_ERROR:
@@ -1766,7 +1765,7 @@ int MissionListManager::ResolveAbility(
             return ResolveResultType::OK_HAS_REMOTE_OBJ;
         }
     }
-    
+
     HILOG_DEBUG("targetAbility need to call request after lifecycle.");
     return result;
 }

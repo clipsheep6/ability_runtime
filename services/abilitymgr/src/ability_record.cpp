@@ -925,7 +925,6 @@ void AbilityRecord::DumpAbilityState(std::vector<std::string> &info, bool isClie
     info.push_back(dumpInfo);
     dumpInfo = "        bundle name [" + GetAbilityInfo().bundleName + "]";
     info.push_back(dumpInfo);
-    // get ability type(unknown/page/service/provider)
     std::string typeStr;
     GetAbilityTypeString(typeStr);
     dumpInfo = "        ability type [" + typeStr + "]";
@@ -1458,7 +1457,7 @@ bool AbilityRecord::CallRequest()
         HILOG_ERROR("call request failed, callstub is nullptr.");
         return false;
     }
-    
+
     // complete call request
     return callContainer_->CallRequestDone(callStub);
 }
@@ -1511,7 +1510,7 @@ bool AbilityRecord::Release(const sptr<IAbilityConnection> & connect)
 {
     HILOG_DEBUG("ability release call record by callback.");
     CHECK_POINTER_RETURN_BOOL(callContainer_);
-    
+
     return callContainer_->RemoveCallRecord(connect);
 }
 

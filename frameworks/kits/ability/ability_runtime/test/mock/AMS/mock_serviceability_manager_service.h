@@ -35,7 +35,8 @@ public:
     MockServiceAbilityManagerService();
     ~MockServiceAbilityManagerService();
     int StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE) override;
-    int StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) override;
+    int StartAbility(
+        const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) override;
     int StartAbility(const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken,
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
@@ -245,7 +246,6 @@ public:
     {
         return 0;
     }
-
 
     int SetAbilityController(
         const sptr<AppExecFwk::IAbilityController> &abilityController, bool imAStabilityTest) override

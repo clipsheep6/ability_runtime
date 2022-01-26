@@ -1510,7 +1510,7 @@ void AbilityManagerService::DumpSysStateInner(
     const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
     std::shared_ptr<AbilityConnectManager> targetManager;
-  
+
     if (isUserID) {
         auto it = connectManagers_.find(userId);
         if (it == connectManagers_.end()) {
@@ -1765,15 +1765,13 @@ void AbilityManagerService::DumpState(const std::string &args, std::vector<std::
     info.push_back("error: invalid argument, please see 'ability dump -h'.");
 }
 
-void AbilityManagerService::DumpSysState(const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+void AbilityManagerService::DumpSysState(
+    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
         return;
-    }
-    for (const auto& argtemp :argList) {
-         HILOG_DEBUG("args = %{public}s", argtemp.c_str());
     }
     auto it = dumpsysMap.find(argList[0]);
     if (it == dumpsysMap.end()) {
@@ -2121,7 +2119,7 @@ void AbilityManagerService::StartingMmsAbility()
     AppExecFwk::AbilityInfo mmsInfo;
     Want mmsWant;
     mmsWant.SetElementName(AbilityConfig::MMS_BUNDLE_NAME, AbilityConfig::MMS_ABILITY_NAME);
- 
+
     auto userId = GetUserId();
     int attemptNums = 1;
     while (!(iBundleManager_->QueryAbilityInfo(mmsWant,

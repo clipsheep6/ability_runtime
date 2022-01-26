@@ -287,7 +287,7 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
     for (const auto& mission : missions_) {
         if (mission) {
             dumpInfo = "    Mission ID #" + std::to_string(mission->GetMissionId());
-            dumpInfo += "  mission name #[" + mission->GetMissionName() + "]" + 
+            dumpInfo += "  mission name #[" + mission->GetMissionName() + "]" +
                 "  lockedState #" + std::to_string(mission->IsLockedState());
             info.push_back(dumpInfo);
 

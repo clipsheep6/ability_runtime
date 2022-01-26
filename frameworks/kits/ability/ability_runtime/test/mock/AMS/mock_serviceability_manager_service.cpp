@@ -43,7 +43,7 @@ int MockServiceAbilityManagerService::StartAbility(
 }
 
 int MockServiceAbilityManagerService::StartAbilityByCall(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::StartAbilityByCall";
     if (!connect) {
@@ -54,8 +54,7 @@ int MockServiceAbilityManagerService::StartAbilityByCall(
 }
 
 int MockServiceAbilityManagerService::StartAbility(
-    const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken,
-    int requestCode) {
+    const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken, int requestCode) {
     return 0;
 }
 
@@ -86,7 +85,7 @@ void MockServiceAbilityManagerService::DumpState(const std::string &args, std::v
 {}
 
 void MockServiceAbilityManagerService::DumpSysState(
-        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
+    const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
 {}
 
 int MockServiceAbilityManagerService::AbilityTransitionDone(

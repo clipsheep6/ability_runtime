@@ -1569,7 +1569,7 @@ void AbilityThread::DumpAbilityInfo(std::vector<std::string> &info)
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
 
-    APP_LOGD("localCallContainer need to get calls info.");
+    APP_LOGI("localCallContainer need to get calls info.");
 }
 
 sptr<IRemoteObject> AbilityThread::CallRequest()

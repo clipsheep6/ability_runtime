@@ -115,7 +115,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode)
 }
 
 ErrCode AbilityManagerClient::StartAbility(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
 {
     if (remoteObject_ == nullptr) {
         return ABILITY_SERVICE_NOT_CONNECTED;
@@ -125,7 +125,7 @@ ErrCode AbilityManagerClient::StartAbility(
 }
 
 ErrCode AbilityManagerClient::StartAbilityByCall(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("AbilityManagerClient::StartAbilityByCall start");
     if (remoteObject_ == nullptr) {

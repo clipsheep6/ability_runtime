@@ -281,7 +281,7 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
-int32_t AppMgrProxy:: GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
+int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
 {
     APP_LOGD("start");
     MessageParcel data;

@@ -531,7 +531,7 @@ int AmsMgrProxy::GetConfiguration(Configuration &config)
         remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION), data, reply, option);
     if (ret != NO_ERROR) {
         APP_LOGW("SendRequest is failed, error code: %{public}d", ret);
-        return ERR_INVALID_DATA; 
+        return ERR_INVALID_DATA;
     }
 
     std::unique_ptr<Configuration> info(reply.ReadParcelable<Configuration>());

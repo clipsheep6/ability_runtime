@@ -585,7 +585,7 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
 
     DumpAbilityInfo(infos);
 
-    for(const auto & infostep:infos) {
+    for (const auto & infostep:infos) {
         HILOG_INFO("DumpAbilityInfoInner infos = %{public}s", infostep.c_str());
     }
 
