@@ -56,11 +56,6 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         APP_LOGE("failed to transform soPath!");
         return false;
     }
-    msg_->accessTokenId = startMsg.accessTokenId;
-    if (strcpy_s(msg_->apl, sizeof(msg_->apl), startMsg.apl.c_str()) != EOK) {
-        APP_LOGE("failed to transform apl!");
-        return false;
-    }
 
     isValid_ = true;
     DumpMsg();
