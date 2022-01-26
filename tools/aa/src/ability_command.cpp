@@ -562,7 +562,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 resultReceiver_.append(HELP_MSG_DUMPSYS);
                 return result;
             }
-            
+
         } else if (argList_[i] == "-u" || argList_[i] == "--userId") {
             (void)StrToInt(argList_[i + 1], userID);
             if (userID == DEFAULT_INVAL_VALUE) {
@@ -577,7 +577,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 resultReceiver_.append(HELP_MSG_DUMPSYS);
                 return result;
             }
-            
+
         } else if (argList_[i] == std::to_string(userID)) {
             continue;
         } else {
@@ -600,7 +600,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
         if (option == -1) {
             break;
         }
-        
+
         switch (option) {
             case 'h': {
                 // 'aa dumpsys -h'
@@ -617,7 +617,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                     result = OHOS::ERR_INVALID_VALUE;
                     resultReceiver_.append(HELP_MSG_DUMPSYS);
                     return result;
-                }                
+                }
                 // 'aa dumpsys -a'
                 // 'aa dumpsys --all'
                 break;
@@ -660,7 +660,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                     result = OHOS::ERR_INVALID_VALUE;
                     resultReceiver_.append(HELP_MSG_DUMPSYS);
                     return result;
-                }                
+                }
                 // 'aa dumpsys -e'
                 // 'aa dumpsys --extension'
                 break;
@@ -672,7 +672,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                     result = OHOS::ERR_INVALID_VALUE;
                     resultReceiver_.append(HELP_MSG_DUMPSYS);
                     return result;
-                }                
+                }
                 // 'aa dumpsys -p'
                 // 'aa dumpsys --pending'
                 break;
@@ -684,7 +684,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                     result = OHOS::ERR_INVALID_VALUE;
                     resultReceiver_.append(HELP_MSG_DUMPSYS);
                     return result;
-                }                
+                }
                 // 'aa dumpsys -r'
                 // 'aa dumpsys --process'
                 break;

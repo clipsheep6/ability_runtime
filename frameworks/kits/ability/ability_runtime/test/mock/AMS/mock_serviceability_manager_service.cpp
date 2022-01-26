@@ -54,7 +54,8 @@ int MockServiceAbilityManagerService::StartAbilityByCall(
 }
 
 int MockServiceAbilityManagerService::StartAbility(
-    const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken, int requestCode) {
+    const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken, int requestCode)
+{
     return 0;
 }
 

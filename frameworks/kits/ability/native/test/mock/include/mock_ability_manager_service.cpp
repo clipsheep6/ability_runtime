@@ -113,7 +113,7 @@ void MockAbilityManagerService::DumpState(const std::string &args, std::vector<s
 {}
 
 void MockAbilityManagerService::DumpSysState(
-        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
+    const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
 {}
 
 int MockAbilityManagerService::AbilityTransitionDone(
@@ -188,7 +188,8 @@ bool MockAbilityManagerService::IsFirstInMission(const sptr<IRemoteObject> &toke
     return true;
 }
 
-int MockAbilityManagerService::CompelVerifyPermission(const std::string &permission, int pid, int uid, std::string &message)
+int MockAbilityManagerService::CompelVerifyPermission(
+    const std::string &permission, int pid, int uid, std::string &message)
 {
     return 0;
 }
@@ -201,6 +202,5 @@ int MockAbilityManagerService::PowerOn()
 {
     return 0;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

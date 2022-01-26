@@ -328,13 +328,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual void DumpState(const std::string &args, std::vector<std::string> &info) override;
-<<<<<<< HEAD
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
-=======
-    virtual void DumpSysState(const std::string& args, std::vector<std::string>& info,
-        bool isClient, bool isUserID, int UserID) override;
->>>>>>> 14bef1457f1e4e7e7df3bafa1f8dcef2c7bb4c92
 
     /**
      * Obtains information about ability stack that are running on the device.

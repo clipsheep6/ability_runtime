@@ -525,7 +525,7 @@ int AmsMgrProxy::GetConfiguration(Configuration &config)
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         APP_LOGE("Remote() is NULL");
-        return ERR_INVALID_DATA; 
+        return ERR_INVALID_DATA;
     }
     int32_t ret =
         remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION), data, reply, option);
