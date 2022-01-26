@@ -279,10 +279,15 @@ public:
      * @param missionId mission id
      * @param abilityToken abilityToken to get current mission snapshot
      * @param missionSnapshot result of snapshot
+     * @return Returns true on success, false on failure.
      */
-    void GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
+    bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
         MissionSnapshot& missionSnapshot);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
+
+    bool IsStarted();
+    void PauseManager();
+    void ResumeManager();
 private:
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
@@ -328,14 +333,15 @@ private:
     void HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecord> abilityRecord);
     void DelayedStartLauncher();
     void BackToLauncher();
+    void GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
+    void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
+        std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     bool IsPC();
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const std::string &flag) const;
 
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability);
 
-    void LoadAndForeGroundCommon(const std::shared_ptr<AbilityRecord>& timeOutAbilityRecord);
-    void DelCurListAbilityAddToDefaultList(const std::shared_ptr<AbilityRecord>& abilityRecord);
 private:
     int userId_;
     std::recursive_mutex managerLock_;
