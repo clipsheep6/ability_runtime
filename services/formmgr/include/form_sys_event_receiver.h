@@ -43,6 +43,8 @@ private:
     void HandleProviderUpdated(const std::string &bundleName);
     bool ProviderFormUpdated(const int64_t formId, const FormRecord &formRecord,
     const std::vector<FormInfo> &targetForms);
+    void HandleBundleFormInfoChanged(const std::string &bundleName);
+    void HandleBundleFormInfoRemoved(const std::string &bundleName);
     void HandleProviderRemoved(const std::string &bundleName);
     void HandleBundleDataCleared(const std::string &bundleName, const int uid);
     void HandleFormHostDataCleared(const int uid);
@@ -50,6 +52,7 @@ private:
     void ClearTempFormRecordData(const int uid, std::map<int64_t, bool> &removedFormsMap);
     void BatchDeleteNoHostDBForms(const int uid, std::map<FormIdKey, std::set<int64_t>> &noHostFormDbMap,
     std::map<int64_t, bool> &removedFormsMap);
+    void HandleUserIdRemoved(const int32_t userId); // multiuser
     /**
      * @brief Delete no host temp forms.
      * @param uid The caller uid.

@@ -21,6 +21,7 @@
 #include <fstream>
 
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "declarative_module_preloader.h"
 
 #include "event_handler.h"
 #include "hilog_wrapper.h"
@@ -269,6 +270,7 @@ bool JsRuntime::Initialize(const Options& options)
         return false;
     }
 
+    OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
     codePath_ = options.codePath;
     return true;
 }
@@ -467,6 +469,11 @@ NativeValue* JsRuntime::ClearCallbackTimer(NativeEngine& engine, NativeCallbackI
     // event should be cancelable before executed
     JsRuntime::RemoveTask(name);
     return engine.CreateUndefined();
+}
+
+std::string JsRuntime::BuildNativeAndJsBackStackTrace()
+{
+    return nativeEngine_->BuildNativeAndJsBackStackTrace();
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

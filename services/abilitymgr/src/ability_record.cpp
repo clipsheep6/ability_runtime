@@ -216,9 +216,6 @@ void AbilityRecord::ProcessForegroundAbility()
             // background to activte state
             HILOG_DEBUG("MoveToForground, %{public}s", element.c_str());
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
-        } else if (IsAbilityState(AbilityState::FOREGROUND_NEW)) {
-            HILOG_DEBUG("already foreground_new, no need lifecycle. %{public}s", element.c_str());
-            return;
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
             ForegroundAbility();
@@ -1006,6 +1003,11 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         abilityManagerService->OnAbilityDied(ability);
     };
     handler->PostTask(task);
+    auto uriTask = [want = want_, ability = shared_from_this()]() {
+        ability->SaveResultToCallers(-1, &want);
+        ability->SendResultToCallers();
+    };
+    handler->PostTask(uriTask);
 }
 
 void AbilityRecord::SetConnRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -1376,6 +1378,16 @@ void AbilityRecord::ContinueAbility(const std::string& deviceId)
     CHECK_POINTER(lifecycleDeal_);
 
     lifecycleDeal_->ContinueAbility(deviceId);
+}
+
+void AbilityRecord::SetSwitchingPause(bool state)
+{
+    isSwitchingPause_ = state;
+}
+
+bool AbilityRecord::IsSwitchingPause()
+{
+    return isSwitchingPause_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
