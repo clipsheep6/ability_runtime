@@ -28,6 +28,7 @@ namespace OHOS {
 namespace AppExecFwk {
 
 napi_value thread_local g_dataAbilityHelper;
+bool thread_local g_dataAbilityHelperStatus = false;
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
 napi_value *GetGlobalClassContext(void)
@@ -38,6 +39,11 @@ napi_value *GetGlobalClassContext(void)
 napi_value *GetGlobalDataAbilityHelper(void)
 {
     return &g_dataAbilityHelper;
+}
+
+bool& GetDataAbilityHelperStatus()
+{
+    return g_dataAbilityHelperStatus;
 }
 
 bool CheckAbilityType(AbilityType typeInAbility, AbilityType typeWant)
@@ -2309,15 +2315,13 @@ void StartAbilityExecuteCB(napi_env env, void *data)
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
         return;
     }
-    if (asyncCallbackInfo->errCode != NAPI_ERR_NO_ERROR) {
-        HILOG_ERROR("%{public}s errCode:%{public}d", __func__, asyncCallbackInfo->errCode);
-        return;
-    }
+    asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     if (asyncCallbackInfo->ability == nullptr) {
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         HILOG_ERROR("%{public}s ability == nullptr", __func__);
         return;
     }
+
     if (!CheckAbilityType(asyncCallbackInfo)) {
         HILOG_ERROR("%{public}s wrong ability type", __func__);
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
@@ -2459,20 +2463,20 @@ napi_value StartAbilityWrap(napi_env env, napi_callback_info info, AsyncCallback
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = 0;
-    asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
+
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
-    } else {
-        CallAbilityParam param;
-        if (UnwrapParamForWant(env, args[PARAM0], asyncCallbackInfo->abilityType, param)) {
-            asyncCallbackInfo->param = param;
-        } else {
-            HILOG_ERROR("%{public}s, call UnwrapParamForWant failed.", __func__);
-            asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
-        }
+        return nullptr;
     }
+
+    CallAbilityParam param;
+    if (UnwrapParamForWant(env, args[PARAM0], asyncCallbackInfo->abilityType, param) == false) {
+        HILOG_ERROR("%{public}s, call UnwrapParamForWant failed.", __func__);
+        return nullptr;
+    }
+
+    asyncCallbackInfo->param = param;
     if (argcAsync > argcPromise) {
         ret = StartAbilityAsync(env, args, 1, asyncCallbackInfo);
     } else {
@@ -3462,6 +3466,11 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
 
     if (IsTypeForNapiValue(env, result, napi_undefined)) {
         HILOG_ERROR("%{public}s, IsTypeForNapiValue is undefined", __func__);
+        return nullptr;
+    }
+
+    if (GetDataAbilityHelperStatus() == false) {
+        HILOG_ERROR("%{public}s, GetDataAbilityHelperStatus is false", __func__);
         return nullptr;
     }
 

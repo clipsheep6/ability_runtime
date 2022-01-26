@@ -24,13 +24,14 @@ namespace OHOS {
 namespace AAFwk {
 class MockAbilityMgrService : public AbilityManagerStub {
 public:
-    MOCK_METHOD2(StartAbility, int(const Want &want, int requestCode));
-    MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD3(StartAbility, int(const Want &want, int32_t userId, int requestCode));
+    MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t userId, int requestCode));
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant));
     MOCK_METHOD1(MinimizeAbility, int(const sptr<IRemoteObject> &token));
-    MOCK_METHOD3(ConnectAbility,
-        int(const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken));
+    MOCK_METHOD4(ConnectAbility, int(const Want &want, const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t userId));
     MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &connect));
     MOCK_METHOD3(AcquireDataAbility, sptr<IAbilityScheduler>(const Uri &, bool, const sptr<IRemoteObject> &));
     MOCK_METHOD2(ReleaseDataAbility, int(sptr<IAbilityScheduler>, const sptr<IRemoteObject> &));
@@ -75,8 +76,8 @@ public:
     MOCK_METHOD2(RegisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
-    MOCK_METHOD4(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
-                                   const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD1(MoveMissionToFloatingStack, int(const MissionOption &missionOption));
     MOCK_METHOD2(MoveMissionToSplitScreenStack, int(const MissionOption &primary, const MissionOption &secondary));
     MOCK_METHOD2(
@@ -114,6 +115,16 @@ public:
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
     MOCK_METHOD3(StartAbilityByCall, int(const Want &, const sptr<IAbilityConnection> &, const sptr<IRemoteObject> &));
+
+    virtual int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
 
     virtual int StartUser(int userId) override
     {
