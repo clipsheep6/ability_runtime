@@ -215,6 +215,7 @@ sptr<IBundleMgr> ContextDeal::GetBundleManager() const
     if (result != NO_ERROR) {
         APP_LOGE("receive error transact code %{public}d in transact", result);
     }
+    APP_LOGI("ContextDeal::GetBundleManager result: %{public}d.", result);
     APP_LOGI("ContextDeal::GetBundleManager after iface_cast<bundleObj>");
     APP_LOGI("ContextDeal::GetBundleManager end");
     return bms;
