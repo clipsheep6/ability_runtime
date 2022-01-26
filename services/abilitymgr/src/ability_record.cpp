@@ -1374,5 +1374,15 @@ void AbilityRecord::ContinueAbility(const std::string& deviceId)
 
     lifecycleDeal_->ContinueAbility(deviceId);
 }
+
+void AbilityRecord::SetSwitchingPause(bool state)
+{
+    isSwitchingPause_ = state;
+}
+
+bool AbilityRecord::IsSwitchingPause()
+{
+    return isSwitchingPause_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
