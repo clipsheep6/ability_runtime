@@ -246,6 +246,11 @@ public:
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
     int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
 
+	/**
+     * Start a user test
+     */
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer, const AppExecFwk::BundleInfo &bundleInfo);
+
     /**
      *  ANotify application update system environment changes.
      *

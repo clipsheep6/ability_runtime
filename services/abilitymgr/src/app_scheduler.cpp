@@ -281,6 +281,18 @@ int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessI
     return static_cast<int>(appMgrClient_->GetAllRunningProcesses(info));
 }
 
+int AppScheduler::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer,
+    const AppExecFwk::BundleInfo &bundleInfo)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    int ret = appMgrClient_->StartUserTestProcess(want, observer, bundleInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Fail to start user test.");
+        return INNER_ERR;
+    }
+    return ERR_OK;
+}
+
 int AppScheduler::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);

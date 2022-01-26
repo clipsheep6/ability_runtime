@@ -365,6 +365,11 @@ enum {
      * Result(2097217) for unregister remote mission listener fail.
      */
     UNREGISTER_REMOTE_MISSION_LISTENER_FAIL,
+
+    /**
+     * Result(2097220) for start user test fail.
+     */
+    START_USER_TEST_FAIL,
 };
 
 enum {
