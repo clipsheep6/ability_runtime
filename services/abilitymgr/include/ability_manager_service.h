@@ -828,6 +828,12 @@ private:
     void StartingSystemUiAbility(const SatrtUiMode &mode);
 
     /**
+     * starting system ui ServiceExt abilites.
+     *
+     */
+    void StartingSystemUiAbility();
+
+    /**
      * starting contacts ability.
      *
      */
