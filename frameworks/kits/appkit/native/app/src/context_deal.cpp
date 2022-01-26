@@ -538,7 +538,8 @@ std::string ContextDeal::GetAppType()
         APP_LOGE("GetAppType failed to get bundle manager service");
         return "";
     }
-    std::string retString = ptr->GetAppType(applicationInfo_->bundleName);
+    std::string retString = "system";
+    retString = ptr->GetAppType(applicationInfo_->bundleName);
     APP_LOGI("ContextDeal::GetAppType end:%{public}s", retString.c_str());
     return retString;
 }
