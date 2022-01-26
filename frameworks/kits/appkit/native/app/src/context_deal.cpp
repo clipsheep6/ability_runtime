@@ -205,6 +205,16 @@ sptr<IBundleMgr> ContextDeal::GetBundleManager() const
     }
     APP_LOGI("ContextDeal::GetBundleManager before iface_cast<bundleObj>");
     sptr<IBundleMgr> bms = iface_cast<IBundleMgr>(bundleObj);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(u"ohos.appexecfwk.BundleMgr")) {
+        APP_LOGE("fail to GetBundleInfo due to write InterfaceToken fail");
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    int32_t result = bundleObj->SendRequest(static_cast<uint32_t>(IBundleMgr::Message::GET_BUNDLE_INFO), data, reply, option);
+    if (result != NO_ERROR) {
+        APP_LOGE("receive error transact code %{public}d in transact", result);
+    }
     APP_LOGI("ContextDeal::GetBundleManager after iface_cast<bundleObj>");
     APP_LOGI("ContextDeal::GetBundleManager end");
     return bms;
