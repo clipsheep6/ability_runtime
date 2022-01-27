@@ -213,6 +213,13 @@ public:
      */
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord, int32_t currentUserId);
 
+    /**
+     * @brief handle when call contection died
+     *
+     * @param callRecord the died call contection
+     */
+    void OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord);
+
      /**
      * Get mission id by target ability token.
      *
@@ -269,6 +276,21 @@ public:
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
 
     /**
+     * resolve the call ipc of ability for schudeling oncall.
+     *
+     * @param abilityRequest, target ability request.
+     */
+    int ResolveLocked(const AbilityRequest &abilityRequest);
+
+    /**
+     * release the connection of this call.
+     *
+     * @param connect, caller callback ipc.
+     * @param element, target ability name.
+     */
+    int ReleaseLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    
+    /**
      * @brief register snapshotHandler
      * @param handler the snapshotHandler
      */
@@ -279,10 +301,15 @@ public:
      * @param missionId mission id
      * @param abilityToken abilityToken to get current mission snapshot
      * @param missionSnapshot result of snapshot
+     * @return Returns true on success, false on failure.
      */
-    void GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
+    bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
         MissionSnapshot& missionSnapshot);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
+
+    bool IsStarted();
+    void PauseManager();
+    void ResumeManager();
 private:
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
@@ -328,14 +355,20 @@ private:
     void HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecord> abilityRecord);
     void DelayedStartLauncher();
     void BackToLauncher();
+    void GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
+    void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
+        std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     bool IsPC();
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const std::string &flag) const;
 
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability);
 
-    void LoadAndForeGroundCommon(const std::shared_ptr<AbilityRecord>& timeOutAbilityRecord);
-    void DelCurListAbilityAddToDefaultList(const std::shared_ptr<AbilityRecord>& abilityRecord);
+    // new version for call inner function.
+    int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
+    std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
+    int CallAbilityLocked(const AbilityRequest &abilityRequest);
+
 private:
     int userId_;
     std::recursive_mutex managerLock_;

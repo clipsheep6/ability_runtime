@@ -111,6 +111,14 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want)
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
 
+    // get current userId
+    int32_t currentUserId = want.GetIntParam(Constants::PARAM_FORM_USER_ID, DEFAULT_USER_ID);
+    if (currentUserId != record.userId) {
+        FormDataMgr::GetInstance().SetNeedRefresh(formId, true);
+        APP_LOGE("%{public}s, not current user, just set refresh flag, userId:%{public}d", __func__, record.userId);
+        return ERR_APPEXECFWK_FORM_OPERATION_NOT_SELF;
+    }
+
     bool isTimerRefresh = want.GetBoolParam(Constants::KEY_IS_TIMER, false);
     Want newWant(want);
     newWant.RemoveParam(Constants::KEY_IS_TIMER);
@@ -306,7 +314,7 @@ ErrCode FormProviderMgr::UpdateForm(const int64_t formId,
     FormDataMgr::GetInstance().UpdateFormProviderInfo(formId, formRecord.formProviderInfo);
     // check if cache data size is less than 1k or not
     std::string jsonData = formRecord.formProviderInfo.GetFormDataString(); // get json data
-    APP_LOGD("%{public}s , jsonData is %{public}s.",  __func__, jsonData.c_str());
+    APP_LOGD("%{public}s screenOn:%{public}d jsonData:%{public}s.", __func__, screenOnFlag, jsonData.c_str());
     if (jsonData.size() <= Constants::MAX_FORM_DATA_SIZE) {
         APP_LOGI("%{public}s, updateJsForm, data is less than 1k, cache data.", __func__);
         FormCacheMgr::GetInstance().AddData(formId, jsonData);

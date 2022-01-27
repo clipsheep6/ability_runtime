@@ -17,8 +17,8 @@
 #define FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_RECORD_H
 
 #include <vector>
+#include "form_info_base.h"
 #include "form_provider_info.h"
-#include "form_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -51,7 +51,7 @@ public:
     std::vector<int> formUserUids;
     bool formVisibleNotify = false;
     int formVisibleNotifyState = 0;
-    int userId = 0;
+    int32_t userId = 0;
     std::string formSrc = "";
     FormWindow formWindow;
     uint32_t versionCode = 0;

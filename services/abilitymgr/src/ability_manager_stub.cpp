@@ -123,6 +123,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[CLEAN_MISSION] = &AbilityManagerStub::CleanMissionInner;
     requestFuncMap_[CLEAN_ALL_MISSIONS] = &AbilityManagerStub::CleanAllMissionsInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
+    requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
+    requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseInner;
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
@@ -132,6 +134,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[SET_ABILITY_CONTROLLER] = &AbilityManagerStub::SetAbilityControllerInner;
     requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
+    requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -410,8 +413,9 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, requestCode);
+    int32_t result = StartAbility(*want, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -425,8 +429,9 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, callerToken, requestCode);
+    int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -441,7 +446,8 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
     }
     auto callback = iface_cast<IAbilityConnection>(data.ReadParcelable<IRemoteObject>());
     auto token = data.ReadParcelable<IRemoteObject>();
-    int32_t result = ConnectAbility(*want, callback, token);
+    int32_t userId = data.ReadInt32();
+    int32_t result = ConnectAbility(*want, callback, token, userId);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -463,7 +469,8 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = StopServiceAbility(*want);
+    int32_t userId = data.ReadInt32();
+    int32_t result = StopServiceAbility(*want, userId);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -500,8 +507,9 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, requestCode);
+    int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete abilityStartSetting;
@@ -522,8 +530,9 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, *startOptions, callerToken, requestCode);
+    int32_t result = StartAbility(*want, *startOptions, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
@@ -1104,6 +1113,52 @@ int AbilityManagerStub::MoveMissionToFrontInner(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
+int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply)
+{
+    
+    HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner begin.");
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto callback = iface_cast<IAbilityConnection>(data.ReadParcelable<IRemoteObject>());
+    auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t result = StartAbilityByCall(*want, callback, callerToken);
+
+    HILOG_DEBUG("resolve call ability ret = %d", result);
+
+    reply.WriteInt32(result);
+    delete want;
+    
+    HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner end.");
+
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ReleaseInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto callback = iface_cast<IAbilityConnection>(data.ReadParcelable<IRemoteObject>());
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    if (element == nullptr) {
+        HILOG_ERROR("callback stub receive element is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = ReleaseAbility(callback, *element);
+
+    HILOG_DEBUG("release call ability ret = %d", result);
+
+    reply.WriteInt32(result);
+
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t userId = data.ReadInt32();
@@ -1300,6 +1355,17 @@ int AbilityManagerStub::IsRunningInStabilityTestInner(MessageParcel &data, Messa
     HILOG_INFO("AbilityManagerStub: IsRunningInStabilityTest result = %{public}d", result);
     if (!reply.WriteBool(result)) {
         HILOG_ERROR("IsRunningInStabilityTest failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    bool result = SendANRProcessID(pid);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

@@ -29,6 +29,7 @@
 #include "form_constants.h"
 #include "form_data_mgr.h"
 #include "form_db_cache.h"
+#include "form_info_mgr.h"
 #include "form_mgr_adapter.h"
 #include "form_task_mgr.h"
 #include "form_timer_mgr.h"
@@ -285,12 +286,10 @@ int FormMgrService::DumpFormTimerByFormId(const std::int64_t formId, std::string
 int FormMgrService::MessageEvent(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
     APP_LOGI("%{public}s called.", __func__);
-
     if (!CheckFormPermission()) {
         APP_LOGE("%{public}s fail, request form permission denied", __func__);
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
-
     return FormMgrAdapter::GetInstance().MessageEvent(formId, want, callerToken);
 }
 
@@ -376,16 +375,19 @@ ErrCode FormMgrService::Init()
 
     if (formSysEventReceiver_ == nullptr) {
         EventFwk::MatchingSkills matchingSkills;
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_ABILITY_UPDATED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
-
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_UID_REMOVED);
         // init TimerReceiver
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         formSysEventReceiver_ = std::make_shared<FormSysEventReceiver>(subscribeInfo);
         EventFwk::CommonEventManager::SubscribeCommonEvent(formSysEventReceiver_);
     }
     FormDbCache::GetInstance().Start();
+    FormInfoMgr::GetInstance().Start();
 
     APP_LOGI("init success");
     return ERR_OK;
@@ -434,6 +436,43 @@ int FormMgrService::DistributedDataDeleteForm(const std::string &formId)
 {
     APP_LOGI("%{public}s called.", __func__);
     return FormMgrAdapter::GetInstance().DistributedDataDeleteForm(formId);
+}
+
+/**
+ * @brief Get All FormsInfo.
+ * @param formInfos Return the forms' information of all forms provided.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
+{
+    APP_LOGI("%{public}s called.", __func__);
+    return FormMgrAdapter::GetInstance().GetAllFormsInfo(formInfos);
+}
+
+/**
+ * @brief Get forms info by bundle name .
+ * @param bundleName Application name.
+ * @param formInfos Return the forms' information of the specify application name.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos)
+{
+    APP_LOGI("%{public}s called.", __func__);
+    return FormMgrAdapter::GetInstance().GetFormsInfoByApp(bundleName, formInfos);
+}
+
+/**
+ * @brief Get forms info by bundle name and module name.
+ * @param bundleName bundle name.
+ * @param moduleName Module name of hap.
+ * @param formInfos Return the forms' information of the specify bundle name and module name.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::GetFormsInfoByModule(std::string &bundleName, std::string &moduleName,
+                                         std::vector<FormInfo> &formInfos)
+{
+    APP_LOGI("%{public}s called.", __func__);
+    return FormMgrAdapter::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 #include <regex>
+#include "system_ability_definition.h"
+#include "if_system_ability_manager.h"
 #include "ability_runtime/js_ability.h"
 
 #include "ability_runtime/js_ability_context.h"
@@ -286,10 +288,61 @@ void JsAbility::OnAbilityResult(int requestCode, int resultCode, const Want &res
     HILOG_INFO("%{public}s end.", __func__);
 }
 
+sptr<IRemoteObject> JsAbility::CallRequest()
+{
+    HILOG_INFO("JsAbility::CallRequest begin.");
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_WARN("JsAbility::CallRequest Obj is nullptr");
+        return nullptr;
+    }
+    HandleScope handleScope(jsRuntime_);
+    HILOG_DEBUG("JsAbility::CallRequest set runtime scope.");
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto value = jsAbilityObj_->Get();
+    if (value == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest value is nullptr");
+        return nullptr;
+    }
+
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
+        return nullptr;
+    }
+
+    auto method = obj->GetProperty("onCallRequest");
+    if (method == nullptr || !method->IsCallable()) {
+        HILOG_ERROR("JsAbility::CallRequest method is %{public}s", method == nullptr ? "nullptr" : "not func");
+        return nullptr;
+    }
+
+    auto remoteJsObj = nativeEngine.CallFunction(value, method, nullptr, 0);
+    if (remoteJsObj == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest JsObj is nullptr");
+        return nullptr;
+    }
+
+    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
+        reinterpret_cast<napi_env>(&nativeEngine), reinterpret_cast<napi_value>(remoteJsObj));
+    if (remoteObj == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
+    }
+
+    HILOG_INFO("JsAbility::CallRequest end.");
+    return remoteObj;
+}
+
 void JsAbility::OnRequestPermissionsFromUserResult(
     int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    std::shared_ptr<AbilityRuntime::AbilityContext> context = GetAbilityContext();
+    if (context == nullptr) {
+        HILOG_WARN("JsAbility not attached to any runtime context!");
+        return;
+    }
+    context->OnRequestPermissionsFromUserResult(requestCode, permissions, grantResults);
+    HILOG_INFO("%{public}s end.", __func__);
 }
 
 void JsAbility::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc)

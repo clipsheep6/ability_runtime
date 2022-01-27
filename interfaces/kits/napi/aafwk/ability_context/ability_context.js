@@ -14,6 +14,7 @@
  */
 
 var Context = requireNapi("application.Context")
+var Caller = requireNapi("application.Caller")
 
 class AbilityContext extends Context {
     constructor(obj) {
@@ -26,12 +27,40 @@ class AbilityContext extends Context {
         return this.__context_impl__.startAbility(want, options, callback)
     }
 
+    startAbilityWithAccount(want, accountId, options, callback) {
+        return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback)
+    }
+
+    startAbilityByCall(want) {
+        if (typeof want !== 'object' || want == null) {
+            console.log("AbilityContext::startAbilityByCall input param error");
+            return null;
+        }
+
+        let callee = this.__context_impl__.startAbilityByCall(want);
+        if (typeof callee === 'object' && callee != null) {
+            console.log("AbilityContext::startAbilityByCall");
+            return new Caller(callee);
+         } else {
+            console.log("AbilityContext::startAbilityByCall Obtain remoteObject falied");
+            return null;
+        }
+    }
+
     startAbilityForResult(want, callback) {
         return this.__context_impl__.startAbilityForResult(want, callback)
     }
 
+    startAbilityForResultWithAccount(want, accountId, callback) {
+        return this.__context_impl__.startAbilityForResultWithAccount(want, accountId, callback)
+    }
+
     connectAbility(want, options) {
         return this.__context_impl__.connectAbility(want, options);
+    }
+
+    connectAbilityWithAccount(want, accountId, options) {
+        return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
     disconnectAbility(connection, callback) {
@@ -46,8 +75,8 @@ class AbilityContext extends Context {
         return this.__context_impl__.terminateSelfWithResult(abilityResult, callback)
     }
 
-    requestPermissionsFromUser(permissions, requestCode, resultCallback) {
-        return this.__context_impl__.requestPermissionsFromUser(permissions, requestCode, resultCallback)
+    requestPermissionsFromUser(permissions, resultCallback) {
+        return this.__context_impl__.requestPermissionsFromUser(permissions, resultCallback)
     }
 
     restoreWindowStage(contentStorage) {

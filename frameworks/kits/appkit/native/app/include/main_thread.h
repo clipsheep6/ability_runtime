@@ -378,6 +378,22 @@ private:
 
     /**
      *
+     * @brief Task in event handler timeout detected.
+     *
+     */
+    void TaskTimeoutDetected();
+
+    /**
+     *
+     * @brief The handle of application not response process.
+     *
+     * @param sigMessage Recieve the sig message.
+     *
+     */
+    static void HandleANRProcess(int sigMessage);
+
+    /**
+     *
      * @brief Check whether the OHOSApplication is ready.
      *
      * @return if the OHOSApplication is ready, return true. else return false.
@@ -422,6 +438,7 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
+    static std::shared_ptr<OHOSApplication> applicationForAnr_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

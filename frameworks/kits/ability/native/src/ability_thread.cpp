@@ -104,7 +104,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         abilityName = ACE_DATA_ABILITY_NAME;
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
         abilityName = BASE_SERVICE_EXTENSION;
-        if (abilityInfo->formEnabled == true) {
+        if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == ExtensionAbilityType::FORM) {
             abilityName = FORM_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::STATICSUBSCRIBER) {
@@ -1547,6 +1547,18 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
     abilityContextImpl->SetToken(token);
     abilityContextImpl->SetAbilityInfo(abilityInfo);
     return abilityContextImpl;
+}
+
+sptr<IRemoteObject> AbilityThread::CallRequest()
+{
+    APP_LOGI("AbilityThread::CallRequest start");
+
+    if (!currentAbility_) {
+        APP_LOGI("ability is nullptr.");
+        return nullptr;
+    }
+
+    return currentAbility_->CallRequest();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

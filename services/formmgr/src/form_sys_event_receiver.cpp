@@ -26,6 +26,7 @@
 #include "form_data_mgr.h"
 #include "form_db_cache.h"
 #include "form_db_info.h"
+#include "form_info_mgr.h"
 #include "form_provider_mgr.h"
 #include "form_sys_event_receiver.h"
 #include "form_timer_mgr.h"
@@ -35,6 +36,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 const std::string KEY_UID = "uid";
+const std::string KEY_USER_ID = "userId";
 /**
  * @brief Receiver Constructor.
  * @param subscriberInfo Subscriber info.
@@ -48,7 +50,7 @@ FormSysEventReceiver::FormSysEventReceiver(const EventFwk::CommonEventSubscribeI
  */
 void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &eventData)
 {
-    AAFwk::Want want = eventData.GetWant();
+    const AAFwk::Want& want = eventData.GetWant();
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
     if (action.empty() || bundleName.empty()) {
@@ -57,15 +59,28 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
         return;
     }
     APP_LOGI("%{public}s, action:%{public}s.", __func__, action.c_str());
-    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED ||
+        action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
+        // install or update
+        APP_LOGI("%{public}s, bundle changed, bundleName: %{public}s", __func__, bundleName.c_str());
+        HandleBundleFormInfoChanged(bundleName);
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         APP_LOGI("%{public}s, bundle removed, bundleName: %{public}s", __func__, bundleName.c_str());
         HandleProviderRemoved(bundleName);
+        HandleBundleFormInfoRemoved(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_ABILITY_UPDATED) {
         APP_LOGI("%{public}s, bundle updated, bundleName: %{public}s", __func__, bundleName.c_str());
         HandleProviderUpdated(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED) {
         int uid = want.GetIntParam(KEY_UID, 0);
         HandleBundleDataCleared(bundleName, uid);
+    } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_UID_REMOVED) {
+        int32_t userId = want.GetIntParam(KEY_USER_ID, -1);
+        if (userId == -1) {
+            APP_LOGE("%{public}s, failed to get userId, bundleName: %{public}s", __func__, bundleName.c_str());
+            return;
+        }
+        HandleUserIdRemoved(userId);
     } else {
         APP_LOGW("%{public}s warnning, invalid action.", __func__);
     }
@@ -197,6 +212,17 @@ bool FormSysEventReceiver::ProviderFormUpdated(const int64_t formId,
     APP_LOGI("%{public}s, no updated form.", __func__);
     return false;
 }
+
+void FormSysEventReceiver::HandleBundleFormInfoChanged(const std::string &bundleName)
+{
+    FormInfoMgr::GetInstance().Update(bundleName);
+}
+
+void FormSysEventReceiver::HandleBundleFormInfoRemoved(const std::string &bundleName)
+{
+    FormInfoMgr::GetInstance().Remove(bundleName);
+}
+
 void FormSysEventReceiver::HandleBundleDataCleared(const std::string &bundleName, const int uid)
 {
     APP_LOGD("%{public}s, bundleName:%{public}s, uid:%{public}d", __func__, bundleName.c_str(), uid);
@@ -439,11 +465,12 @@ void FormSysEventReceiver::HandleTimerUpdate(const int64_t formId,
             timerCfg.updateDuration, timerCfg.updateAtHour, timerCfg.updateAtMin);
         if (timerCfg.updateDuration > 0) {
             APP_LOGI("%{public}s, add interval timer:%{public}" PRId64 "", __func__, timerCfg.updateDuration);
-            FormTimerMgr::GetInstance().AddFormTimer(formId, timerCfg.updateDuration);
+            FormTimerMgr::GetInstance().AddFormTimer(formId, timerCfg.updateDuration, record.userId);
         } else {
             APP_LOGI("%{public}s, add at timer:%{public}d, %{public}d", __func__,
                 timerCfg.updateAtHour, timerCfg.updateAtMin);
-            FormTimerMgr::GetInstance().AddFormTimer(formId, timerCfg.updateAtHour, timerCfg.updateAtMin);
+            FormTimerMgr::GetInstance().AddFormTimer(formId, timerCfg.updateAtHour,
+                                                     timerCfg.updateAtMin, record.userId);
         }
 
         return;
@@ -480,6 +507,20 @@ void FormSysEventReceiver::HandleTimerUpdate(const int64_t formId,
     FormDataMgr::GetInstance().SetUpdateInfo(formId, true,
         timerCfg.updateDuration, timerCfg.updateAtHour, timerCfg.updateAtMin);
     FormTimerMgr::GetInstance().UpdateFormTimer(formId, type, timerCfg);
+}
+
+// multiuser
+void FormSysEventReceiver::HandleUserIdRemoved(const int32_t userId)
+{
+    std::vector<int64_t> removedFormIds;
+    FormDataMgr::GetInstance().DeleteFormsByUserId(userId, removedFormIds);
+    FormDbCache::GetInstance().DeleteDBFormsByUserId(userId);
+
+    // delete form timer
+    std::vector<int64_t>::iterator itRemoved;
+    for (itRemoved = removedFormIds.begin();itRemoved != removedFormIds.end(); itRemoved++) {
+        FormTimerMgr::GetInstance().RemoveFormTimer(*itRemoved);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

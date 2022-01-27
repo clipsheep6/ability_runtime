@@ -65,21 +65,29 @@ public:
      * StartAbility with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
+     * @param userId, Designation User ID.
      * @param requestCode, Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE) = 0;
+    virtual int StartAbility(
+        const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * StartAbility with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
      * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
      * @param requestCode, Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbility(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) = 0;
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * Starts a new ability with specific start settings.
@@ -87,10 +95,15 @@ public:
      * @param want Indicates the ability to start.
      * @param requestCode the resultCode of the ability to start.
      * @param abilityStartSetting Indicates the setting ability used to start.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) = 0;
+    virtual int StartAbility(
+        const Want &want,
+        const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * Starts a new ability with specific start options.
@@ -98,14 +111,16 @@ public:
      * @param want, the want of the ability to start.
      * @param startOptions Indicates the options used to start.
      * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken,
-        int requestCode = DEFAULT_INVAL_VALUE)
-    {
-        return 0;
-    }
+    virtual int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -141,10 +156,14 @@ public:
      * @param want, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ConnectAbility(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * DisconnectAbility, disconnect session with service ability.
@@ -255,7 +274,7 @@ public:
      * @param want, Special want for service type's ability.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    virtual int StopServiceAbility(const Want &want) = 0;
+    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) = 0;
 
     /**
      * Obtains information about ability stack that are running on the device.
@@ -544,6 +563,24 @@ public:
     virtual int CleanAllMissions() = 0;
 
     virtual int MoveMissionToFront(int32_t missionId) = 0;
+	
+	/**
+     * Start Ability, connect session with common ability.
+     *
+     * @param want, Special want for service type's ability.
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityByCall(
+        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
+
+    /**
+     * Release Ability, disconnect session with common ability.
+     *
+     * @param connect, Callback used to notify caller the result of connecting or disconnecting.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
 
     virtual int StartUser(int userId) = 0;
 
@@ -600,6 +637,12 @@ public:
      * @return int Returns ERR_OK on success, others on failure.
      */
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) = 0;
+
+    /**
+     * Send not response process ID to ability manager service.
+     * @param pid The not response process ID.
+     */
+    virtual bool SendANRProcessID(int pid) = 0;
 
     enum {
         // ipc id 1-1000 for kit
@@ -803,6 +846,8 @@ public:
         GET_PENDING_WANT_SENDER_INFO,
         SET_SHOW_ON_LOCK_SCREEN,
 
+        SEND_APP_NOT_RESPONSE_PROCESS_ID,
+
         // ipc id for starting ability by settings(1018)
         START_ABILITY_FOR_SETTINGS,
 
@@ -824,6 +869,11 @@ public:
         START_CONTINUATION = 1101,
 
         NOTIFY_CONTINUATION_RESULT = 1102,
+		
+		// ipc id for call ability
+        START_CALL_ABILITY,
+
+        RELEASE_CALL_ABILITY,
 
         NOTIFY_COMPLETE_CONTINUATION = 1103,
 
