@@ -529,7 +529,7 @@ std::string ContextDeal::GetAppType()
         return "";
     }
     std::string retString = ptr->GetAppType(applicationInfo_->bundleName);
-    APP_LOGI("ContextDeal::GetAppType end:%{public}s", retString.c_str());
+    APP_LOGI("ContextDeal::GetAppType end");
     return retString;
 }
 
