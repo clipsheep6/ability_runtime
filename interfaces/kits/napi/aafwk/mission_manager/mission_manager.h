@@ -22,6 +22,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj);
+void ImportImageModule(NativeEngine* engine);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_MISSION_MANAGER_H
