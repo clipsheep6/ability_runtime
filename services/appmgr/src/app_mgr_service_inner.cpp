@@ -1053,7 +1053,8 @@ void AppMgrServiceInner::OnAppStateChanged(
         }
     }
 
-    if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
+    if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND
+        || state == ApplicationState::APP_STATE_CREATE) {
         AppStateData data = WrapAppStateData(appRecord, state);
         APP_LOGD("OnForegroundApplicationChanged, size:%{public}d, name:%{public}s, uid:%{public}d, state:%{public}d",
             (int32_t)appStateObservers_.size(), data.bundleName.c_str(), data.uid, data.state);
