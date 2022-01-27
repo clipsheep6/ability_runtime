@@ -103,8 +103,7 @@ private:
         }
 
         // unwarp observer
-        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver();
-        observer->SetNativeEngine(&engine);
+        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver(&engine);
         observer->SetJsObserverObject(info.argv[0]);
         int64_t observerId = serialNumber_;
         observerIds_.emplace(observerId, observer);
@@ -364,6 +363,10 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
     return engine->CreateUndefined();
 }
 
+JSApplicationStateObserver::JSApplicationStateObserver(NativeEngine* engine) : engine_(engine) {}
+
+JSApplicationStateObserver::~JSApplicationStateObserver() = default;
+
 void JSApplicationStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
     HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
@@ -542,11 +545,6 @@ void JSApplicationStateObserver::CallJsFunction(const char* methodName, NativeVa
     HILOG_INFO("CallJsFunction CallFunction success");
     engine_->CallFunction(value, method, argv, argc);
     HILOG_INFO("CallJsFunction end");
-}
-
-void JSApplicationStateObserver::SetNativeEngine(NativeEngine* engine)
-{
-    engine_ = engine;
 }
 
 void JSApplicationStateObserver::SetJsObserverObject(NativeValue* jsObserverObject)

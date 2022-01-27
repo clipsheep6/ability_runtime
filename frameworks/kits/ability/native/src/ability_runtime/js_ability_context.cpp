@@ -933,6 +933,15 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
         return;
     }
 
+    // one params
+    if (engine_ == nullptr) {
+        HILOG_ERROR("engine_ nullptr");
+        return;
+    }
+    NativeValue* argv[] = { ConvertElement(element) };
+    HILOG_INFO("OnAbilityDisconnectDone CallFunction success");
+    engine_->CallFunction(value, method, argv, ARGC_ONE);
+
     // release connect
     HILOG_INFO("OnAbilityDisconnectDone abilityConnects_.size:%{public}zu", abilityConnects_.size());
     std::string bundleName = element.GetBundleName();
@@ -948,14 +957,6 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
         abilityConnects_.erase(item);
         HILOG_INFO("OnAbilityDisconnectDone erase abilityConnects_.size:%{public}zu", abilityConnects_.size());
     }
-    // one params
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = { ConvertElement(element) };
-    HILOG_INFO("OnAbilityDisconnectDone CallFunction success");
-    engine_->CallFunction(value, method, argv, ARGC_ONE);
 }
 
 void JSAbilityConnection::CallJsFailed(int32_t errorCode)
