@@ -2462,7 +2462,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
         return TARGET_ABILITY_NOT_SERVICE;
     }
 
-    auto connectManager = GetConnectManagerByUserId(userId);
+    auto connectManager = GetConnectManagerByUserId(userIdValid);
     if (connectManager == nullptr) {
         return ERR_INVALID_VALUE;
     }
@@ -2890,7 +2890,7 @@ std::shared_ptr<AbilityStackManager> AbilityManagerService::GetStackManagerByUse
     if (it != stackManagers_.end()) {
         return it->second;
     }
-
+    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
     return nullptr;
 }
 
@@ -2900,7 +2900,7 @@ std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserI
     if (it != missionListManagers_.end()) {
         return it->second;
     }
-
+    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
     return nullptr;
 }
 
@@ -2910,7 +2910,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     if (it != connectManagers_.end()) {
         return it->second;
     }
-
+    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
     return nullptr;
 }
 
@@ -2920,7 +2920,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     if (it != dataAbilityManagers_.end()) {
         return it->second;
     }
-
+    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
     return nullptr;
 }
 
@@ -3991,7 +3991,6 @@ int AbilityManagerService::GenerateAbilityRequestLocal(
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-
     if ((userId == U0_USER_ID) && (result != ERR_OK)) {
         HILOG_DEBUG("Generate ability request error. But userId is 0, Use current user get.");
         userId = GetUserId();
