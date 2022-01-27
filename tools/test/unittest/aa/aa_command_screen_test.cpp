@@ -216,7 +216,7 @@ HWTEST_F(AaCommandScreenTest, Aa_Command_Screen_0800, Function | MediumTest | Le
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     AbilityManagerShellCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), HELP_MSG_SCREEN);
+    EXPECT_EQ(cmd.ExecCommand(), "error: unknown option.\n" + HELP_MSG_SCREEN);
 }
 
 /**
