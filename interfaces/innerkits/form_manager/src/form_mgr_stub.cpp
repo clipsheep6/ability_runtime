@@ -402,7 +402,9 @@ int32_t FormMgrStub::HandleDumpFormTimerByFormId(MessageParcel &data, MessagePar
 int32_t FormMgrStub::HandleMessageEvent(MessageParcel &data, MessageParcel &reply)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int64_t formId = data.ReadInt64();
+
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (!want) {
         APP_LOGE("%{public}s, failed to ReadParcelable<Want>", __func__);
@@ -429,6 +431,7 @@ int32_t FormMgrStub::HandleMessageEvent(MessageParcel &data, MessageParcel &repl
 int32_t FormMgrStub::HandleBatchAddFormRecords(MessageParcel &data, MessageParcel &reply)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (!want) {
         APP_LOGE("%{public}s, failed to ReadParcelable<Want>", __func__);

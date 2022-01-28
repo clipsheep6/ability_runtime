@@ -75,8 +75,4 @@ group("moduletest") {
 
   deps = []
   deps += [ ":ability_caller_fw_module_test" ]
-
-  # if (is_phone_product) {
-  #   deps += [ ":ability_caller_fw_module_test" ]
-  # }
 }
