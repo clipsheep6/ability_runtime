@@ -45,6 +45,7 @@
 #include "os_account_manager.h"
 #include "png.h"
 #include "ui_service_mgr_client.h"
+#include "xcollie/watchdog.h"
 
 using OHOS::AppExecFwk::ElementName;
 
@@ -182,6 +183,9 @@ bool AbilityManagerService::Init()
     InitMissionListManager(userId, true);
     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(0);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
+
+    int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
+    HiviewDFX::Watchdog::GetInstance().AddThread("AMSWatchdog", handler_, amsTimeOut);
 
     auto startLauncherAbilityTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startLauncherAbilityTask, "startLauncherAbility");
