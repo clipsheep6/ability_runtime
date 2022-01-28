@@ -54,7 +54,6 @@ namespace OHOS {
 namespace AAFwk {
 using namespace std::chrono;
 const int32_t MAIN_USER_ID = 100;
-const int32_t U0_USER_ID = 0;
 static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
@@ -253,22 +252,29 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int requestCode, int callerUid, int32_t userId)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin.", __func__);
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         HILOG_ERROR("%{public}s VerificationToken failed.", __func__);
         return ERR_INVALID_VALUE;
     }
 
     int32_t userIdValid = GetValidUserId(want, userId);
-    int result = CheckMultiOsAccount(userIdValid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckMultiOsAccount error.");
-        return result;
+
+    bool isMultiOsAccountEnable = false;
+    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
+    HILOG_INFO("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
+    if (!isMultiOsAccountEnable) {
+        if (userIdValid != GetUserId()) {
+            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
+                userIdValid, GetUserId());
+            return INVALID_USERID_VALUE;
+        }
     }
+
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, userIdValid);
+    int result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, userIdValid);
     if (result != ERR_OK) {
-        HILOG_ERROR("Generate ability request local error.");
+        HILOG_ERROR("Generate ability request error.");
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -278,13 +284,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     auto type = abilityInfo.type;
-    HILOG_DEBUG("%{public}s Current ability type:%{public}d", __func__, type);
+    HILOG_INFO("%{public}s Current ability type:%{public}d", __func__, type);
     if (type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot start data ability, use 'AcquireDataAbility()' instead.");
         return ERR_INVALID_VALUE;
     }
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
-        HILOG_DEBUG("%{public}s PreLoadAppDataAbilities:%{public}s", __func__, abilityInfo.bundleName.c_str());
+        HILOG_INFO("%{public}s PreLoadAppDataAbilities:%{public}s", __func__, abilityInfo.bundleName.c_str());
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, userIdValid);
         if (result != ERR_OK) {
             HILOG_ERROR("StartAbility: App data ability preloading failed, '%{public}s', %{public}d",
@@ -299,7 +305,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("connectManager is nullptr. userId=%{public}d", userIdValid);
             return ERR_INVALID_VALUE;
         }
-        HILOG_DEBUG("%{public}s Start SERVICE or EXTENSION", __func__);
+        HILOG_INFO("%{public}s Start SERVICE or EXTENSION", __func__);
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -310,7 +316,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (useNewMission_) {
         if (IsSystemUiApp(abilityRequest.abilityInfo)) {
-            HILOG_DEBUG("%{public}s NewMission Start SystemUiApp", __func__);
+            HILOG_INFO("%{public}s NewMission Start SystemUiApp", __func__);
             return kernalAbilityManager_->StartAbility(abilityRequest);
         }
 
@@ -321,11 +327,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", userIdValid);
             return ERR_INVALID_VALUE;
         }
-        HILOG_DEBUG("%{public}s StartAbility by MissionList", __func__);
+        HILOG_INFO("%{public}s StartAbility by MissionList", __func__);
         return missionListManager->StartAbility(abilityRequest);
     } else {
         if (IsSystemUiApp(abilityRequest.abilityInfo)) {
-            HILOG_DEBUG("%{public}s OldMission Start SystemUiApp", __func__);
+            HILOG_INFO("%{public}s OldMission Start SystemUiApp", __func__);
             return systemAppManager_->StartAbility(abilityRequest);
         }
 
@@ -334,7 +340,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("stackManager is nullptr. userId=%{public}d", userIdValid);
             return ERR_INVALID_VALUE;
         }
-        HILOG_DEBUG("%{public}s StartAbility by StackManager", __func__);
+        HILOG_INFO("%{public}s StartAbility by StackManager", __func__);
         return stackManager->StartAbility(abilityRequest);
     }
 }
@@ -343,21 +349,28 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Start ability setting.");
+    HILOG_INFO("Start ability setting.");
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         return ERR_INVALID_VALUE;
     }
 
     int32_t userIdValid = GetValidUserId(want, userId);
-    int result = CheckMultiOsAccount(userIdValid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckMultiOsAccount error.");
-        return result;
+
+    bool isMultiOsAccountEnable = false;
+    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
+    HILOG_INFO("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
+    if (!isMultiOsAccountEnable) {
+        if (userIdValid != GetUserId()) {
+            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
+                userIdValid, GetUserId());
+            return INVALID_USERID_VALUE;
+        }
     }
+
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, userIdValid);
+    int result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, userIdValid);
     if (result != ERR_OK) {
-        HILOG_ERROR("Generate ability request local error.");
+        HILOG_ERROR("Generate ability request error.");
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -423,22 +436,28 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Start ability options.");
+    HILOG_INFO("Start ability options.");
     if (callerToken != nullptr && !VerificationToken(callerToken)) {
         return ERR_INVALID_VALUE;
     }
 
     int32_t userIdValid = GetValidUserId(want, userId);
-    int result = CheckMultiOsAccount(userIdValid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckMultiOsAccount error.");
-        return result;
+
+    bool isMultiOsAccountEnable = false;
+    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
+    HILOG_INFO("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
+    if (!isMultiOsAccountEnable) {
+        if (userIdValid != GetUserId()) {
+            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
+                userIdValid, GetUserId());
+            return INVALID_USERID_VALUE;
+        }
     }
 
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, userIdValid);
+    int result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, userIdValid);
     if (result != ERR_OK) {
-        HILOG_ERROR("Generate ability request local error.");
+        HILOG_ERROR("Generate ability request error.");
         return result;
     }
 
@@ -498,7 +517,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Terminate ability for result: %{public}d", (resultWant != nullptr));
+    HILOG_INFO("Terminate ability for result: %{public}d", (resultWant != nullptr));
     if (!VerificationToken(token)) {
         return ERR_INVALID_VALUE;
     }
@@ -881,10 +900,16 @@ int AbilityManagerService::ConnectAbility(
     }
 
     int32_t userIdValid = GetValidUserId(want, userId);
-    int result = CheckMultiOsAccount(userIdValid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckMultiOsAccount error.");
-        return result;
+
+    bool isMultiOsAccountEnable = false;
+    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
+    HILOG_INFO("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
+    if (!isMultiOsAccountEnable) {
+        if (userIdValid != GetUserId()) {
+            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
+                userIdValid, GetUserId());
+            return INVALID_USERID_VALUE;
+        }
     }
     return ConnectLocalAbility(want, userIdValid, connect, callerToken);
 }
@@ -2451,15 +2476,22 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     HILOG_DEBUG("Stop service ability.");
 
     int32_t userIdValid = GetValidUserId(want, userId);
-    int result = CheckMultiOsAccount(userIdValid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckMultiOsAccount error.");
-        return result;
+
+    bool isMultiOsAccountEnable = false;
+    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
+    HILOG_INFO("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
+    if (!isMultiOsAccountEnable) {
+        if (userIdValid != GetUserId()) {
+            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
+                userIdValid, GetUserId());
+            return INVALID_USERID_VALUE;
+        }
     }
+
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequestLocal(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userIdValid);
+    int result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userIdValid);
     if (result != ERR_OK) {
-        HILOG_ERROR("Generate ability request local error.");
+        HILOG_ERROR("Generate ability request error.");
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -2469,7 +2501,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
         return TARGET_ABILITY_NOT_SERVICE;
     }
 
-    auto connectManager = GetConnectManagerByUserId(userIdValid);
+    auto connectManager = GetConnectManagerByUserId(userId);
     if (connectManager == nullptr) {
         return ERR_INVALID_VALUE;
     }
@@ -2897,7 +2929,7 @@ std::shared_ptr<AbilityStackManager> AbilityManagerService::GetStackManagerByUse
     if (it != stackManagers_.end()) {
         return it->second;
     }
-    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
+
     return nullptr;
 }
 
@@ -2907,7 +2939,7 @@ std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserI
     if (it != missionListManagers_.end()) {
         return it->second;
     }
-    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
+
     return nullptr;
 }
 
@@ -2917,7 +2949,7 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     if (it != connectManagers_.end()) {
         return it->second;
     }
-    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
+
     return nullptr;
 }
 
@@ -2927,7 +2959,7 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     if (it != dataAbilityManagers_.end()) {
         return it->second;
     }
-    HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
+
     return nullptr;
 }
 
@@ -3826,16 +3858,17 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 
 int32_t AbilityManagerService::GetValidUserId(const Want &want, const int32_t userId)
 {
-    HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
+    HILOG_INFO("%{public}s  userId = %{public}d", __func__, userId);
     int32_t userIdValid = DEFAULT_INVAL_VALUE;
     if (IsSystemUI(want.GetBundle())) {
-        HILOG_DEBUG("systemUI ability, user is default");
+        HILOG_INFO("systemUI ability, user is default");
         return MAIN_USER_ID;
     }
 
     if (DEFAULT_INVAL_VALUE == userId) {
+        // calling userid = calling uid / 200000
         userIdValid = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-        HILOG_DEBUG("%{public}s userIdValid = %{public}d, CallingUid = %{public}d", __func__, userIdValid,
+        HILOG_INFO("%{public}s userIdValid = %{public}d, CallingUid = %{public}d", __func__, userIdValid,
             IPCSkeleton::GetCallingUid());
     } else {
         userIdValid = userId;
@@ -4074,39 +4107,6 @@ void AbilityManagerService::UpdateCallerInfo(Want& want)
     want.SetParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId);
     want.SetParam(Want::PARAM_RESV_CALLER_UID, callerUid);
     want.SetParam(Want::PARAM_RESV_CALLER_PID, callerPid);
-}
-
-int AbilityManagerService::CheckMultiOsAccount(const int32_t userId)
-{
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    bool isMultiOsAccountEnable = false;
-    AccountSA::OsAccountManager::IsMultiOsAccountEnable(isMultiOsAccountEnable);
-    HILOG_DEBUG("%{public}s  isMultiOsAccountEnable = %{public}d", __func__, isMultiOsAccountEnable);
-    if (!isMultiOsAccountEnable) {
-        if (userId != GetUserId()) {
-            HILOG_ERROR("%{public}s userId(%{public}d) Unequal CurrentUserId(%{public}d).", __func__,
-                userId, GetUserId());
-            return INVALID_USERID_VALUE;
-        }
-    }
-    return ERR_OK;
-}
-
-int AbilityManagerService::GenerateAbilityRequestLocal(
-    const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t &userId)
-{
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-    if ((userId == U0_USER_ID) && (result != ERR_OK)) {
-        HILOG_DEBUG("Generate ability request error. But userId is 0, Use current user get.");
-        userId = GetUserId();
-        result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request error. userId = %{public}d", userId);
-            return result;
-        }
-    }
-    return result;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

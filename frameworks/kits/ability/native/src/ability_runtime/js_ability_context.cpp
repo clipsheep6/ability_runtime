@@ -800,6 +800,14 @@ NativeValue* JsAbilityContext::WrapPermissionRequestResult(NativeEngine& engine,
     return jsPermissionRequestResult;
 }
 
+NativeValue* ConfigurationUpdated(NativeEngine& engine, const AppExecFwk::Configuration &configuration)
+{
+    NativeValue* objValue = engine.CreateObject();
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    object->SetProperty("configuration", CreateJsConfiguration(engine, configuration));
+    return objValue;
+}
+
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context)
 {
     NativeValue* objValue = CreateJsBaseContext(engine, context);
@@ -813,6 +821,11 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     auto abilityInfo = context->GetAbilityInfo();
     if (abilityInfo != nullptr) {
         object->SetProperty("abilityInfo", CreateJsAbilityInfo(engine, *abilityInfo));
+    }
+
+    auto configuration = context->GetConfiguration();
+    if (configuration != nullptr) {
+        object->SetProperty("configuration", CreateJsConfiguration(engine, *configuration));
     }
 
     BindNativeFunction(engine, *object, "startAbility", JsAbilityContext::StartAbility);

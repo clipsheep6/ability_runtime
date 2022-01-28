@@ -53,11 +53,12 @@ int FormMgr::AddForm(
     FormJsInfo &formInfo)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->AddForm(formId, want, callerToken, formInfo);
 }
 
@@ -70,11 +71,12 @@ int FormMgr::AddForm(
 int FormMgr::DeleteForm(const int64_t formId, const sptr<IRemoteObject> &callerToken)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DeleteForm(formId, callerToken);
 }
 
@@ -88,11 +90,12 @@ int FormMgr::DeleteForm(const int64_t formId, const sptr<IRemoteObject> &callerT
 int FormMgr::ReleaseForm(const int64_t formId, const sptr<IRemoteObject> &callerToken, const bool delCache)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->ReleaseForm(formId, callerToken, delCache);
 }
 
@@ -106,11 +109,13 @@ int FormMgr::ReleaseForm(const int64_t formId, const sptr<IRemoteObject> &caller
 int FormMgr::UpdateForm(const int64_t formId, const std::string &bundleName, const FormProviderData &formBindingData)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
+    // update form
     return remoteProxy_->UpdateForm(formId, bundleName, formBindingData);
 }
 
@@ -127,11 +132,12 @@ int FormMgr::UpdateForm(const int64_t formId, const std::string &bundleName, con
 int FormMgr::RequestForm(const int64_t formId, const sptr<IRemoteObject> &callerToken, const Want &want)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->RequestForm(formId, callerToken, want);
 }
 
@@ -147,12 +153,11 @@ int FormMgr::NotifyWhetherVisibleForms(
     const sptr<IRemoteObject> &callerToken,
     const int32_t formVisibleType)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->NotifyWhetherVisibleForms(formIds, callerToken, formVisibleType);
 }
 
@@ -165,11 +170,12 @@ int FormMgr::NotifyWhetherVisibleForms(
 int FormMgr::CastTempForm(const int64_t formId, const sptr<IRemoteObject> &callerToken)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->CastTempForm(formId, callerToken);
 }
 
@@ -180,12 +186,11 @@ int FormMgr::CastTempForm(const int64_t formId, const sptr<IRemoteObject> &calle
  */
 int FormMgr::DumpStorageFormInfos(std::string &formInfos)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DumpStorageFormInfos(formInfos);
 }
 /**
@@ -196,12 +201,11 @@ int FormMgr::DumpStorageFormInfos(std::string &formInfos)
  */
 int FormMgr::DumpFormInfoByBundleName(const std::string bundleName, std::string &formInfos)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DumpFormInfoByBundleName(bundleName, formInfos);
 }
 /**
@@ -212,12 +216,11 @@ int FormMgr::DumpFormInfoByBundleName(const std::string bundleName, std::string 
  */
 int FormMgr::DumpFormInfoByFormId(const std::int64_t formId, std::string &formInfo)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DumpFormInfoByFormId(formId, formInfo);
 }
 /**
@@ -228,12 +231,11 @@ int FormMgr::DumpFormInfoByFormId(const std::int64_t formId, std::string &formIn
  */
 int FormMgr::DumpFormTimerByFormId(const std::int64_t formId, std::string &isTimingService)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DumpFormTimerByFormId(formId, isTimingService);
 }
 /**
@@ -245,12 +247,11 @@ int FormMgr::DumpFormTimerByFormId(const std::int64_t formId, std::string &isTim
  */
 int FormMgr::MessageEvent(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->MessageEvent(formId, want, callerToken);
 }
 
@@ -262,12 +263,11 @@ int FormMgr::MessageEvent(const int64_t formId, const Want &want, const sptr<IRe
  */
 int FormMgr::SetNextRefreshTime(const int64_t formId, const int64_t nextTime)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->SetNextRefreshTime(formId, nextTime);
 }
 
@@ -283,12 +283,11 @@ int FormMgr::LifecycleUpdate(
     const sptr<IRemoteObject> &callerToken,
     const int32_t updateType)
 {
-    APP_LOGI("%{public}s called.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->LifecycleUpdate(formIds, callerToken, updateType);
 }
 /**
@@ -299,6 +298,7 @@ int FormMgr::LifecycleUpdate(
 int FormMgr::GetRecoverStatus()
 {
     APP_LOGI("%{public}s called.", __func__);
+
     return recoverStatus_;
 }
 
@@ -310,6 +310,7 @@ int FormMgr::GetRecoverStatus()
 void FormMgr::SetRecoverStatus(int recoverStatus)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     recoverStatus_ = recoverStatus;
 }
 
@@ -321,7 +322,6 @@ void FormMgr::SetRecoverStatus(int recoverStatus)
  */
 std::string FormMgr::GetErrorMessage(int errCode)
 {
-    APP_LOGI("%{public}s called.", __func__);
     return FormErrors::GetInstance().GetErrorMessage(errCode);
 }
 
@@ -333,10 +333,12 @@ std::string FormMgr::GetErrorMessage(int errCode)
 void FormMgr::RegisterDeathCallback(const std::shared_ptr<FormCallbackInterface> &formDeathCallback)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     if (formDeathCallback == nullptr) {
         APP_LOGE("%{public}s error, form death callback is nullptr.", __func__);
         return;
     }
+
     formDeathCallbacks_.emplace_back(formDeathCallback);
 }
 
@@ -348,6 +350,7 @@ void FormMgr::RegisterDeathCallback(const std::shared_ptr<FormCallbackInterface>
 void FormMgr::UnRegisterDeathCallback(const std::shared_ptr<FormCallbackInterface> &formDeathCallback)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     if (formDeathCallback == nullptr) {
         APP_LOGE("%{public}s error, form death callback is nullptr.", __func__);
         return;
@@ -378,10 +381,12 @@ sptr<IRemoteObject::DeathRecipient> FormMgr::GetDeathRecipient() const
 bool FormMgr::CheckIsDeathCallbackRegistered(const std::shared_ptr<FormCallbackInterface> &formDeathCallback)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     auto iter = std::find(formDeathCallbacks_.begin(), formDeathCallbacks_.end(), formDeathCallback);
     if (iter != formDeathCallbacks_.end()) {
         return true;
     }
+
     return false;
 }
 
@@ -392,6 +397,7 @@ bool FormMgr::CheckIsDeathCallbackRegistered(const std::shared_ptr<FormCallbackI
 void FormMgr::FormMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     if (remote == nullptr) {
         APP_LOGE("%{public}s failed, remote is nullptr.", __func__);
         return;
@@ -425,6 +431,7 @@ void FormMgr::FormMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &rem
 bool FormMgr::Reconnect()
 {
     APP_LOGI("%{public}s called.", __func__);
+
     for (int i = 0; i < Constants::MAX_RETRY_TIME; i++) {
         // Sleep 1000 milliseconds before reconnect.
         std::this_thread::sleep_for(std::chrono::milliseconds(Constants::SLEEP_TIME));
@@ -455,26 +462,26 @@ ErrCode FormMgr::Connect()
 
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        APP_LOGE("%{private}s fail to get registry", __func__);
+        APP_LOGE("%{private}s:fail to get registry", __func__);
         return ERR_APPEXECFWK_FORM_GET_SYSMGR_FAILED;
     }
     sptr<IRemoteObject> remoteObject = systemManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
     if (remoteObject == nullptr) {
-        APP_LOGE("%{private}s fail to connect FormMgrService", __func__);
+        APP_LOGE("%{private}s:fail to connect FormMgrService", __func__);
         return ERR_APPEXECFWK_FORM_GET_FMS_FAILED;
     }
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new FormMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        APP_LOGE("%{public}s Failed to create FormMgrDeathRecipient!", __func__);
+        APP_LOGE("%{public}s :Failed to create FormMgrDeathRecipient!", __func__);
         return ERR_APPEXECFWK_FORM_COMMON_CODE;
     }
     if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient_))) {
-        APP_LOGE("%{public}s Add death recipient to FormMgrService failed.", __func__);
+        APP_LOGE("%{public}s :Add death recipient to FormMgrService failed.", __func__);
         return ERR_APPEXECFWK_FORM_COMMON_CODE;
     }
 
     remoteProxy_ = iface_cast<IFormMgr>(remoteObject);
-    APP_LOGD("%{public}s Connecting FormMgrService success.", __func__);
+    APP_LOGD("%{public}s :Connecting FormMgrService success.", __func__);
     return ERR_OK;
 }
 
@@ -485,6 +492,7 @@ ErrCode FormMgr::Connect()
 void FormMgr::ResetProxy(const wptr<IRemoteObject> &remote)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     std::lock_guard<std::mutex> lock(connectMutex_);
     if (remoteProxy_ == nullptr) {
         APP_LOGE("%{public}s failed, remote proxy is nullptr.", __func__);
@@ -520,11 +528,12 @@ void FormMgr::SetFormMgrService(sptr<IFormMgr> formMgrService)
 int FormMgr::DistributedDataAddForm(const Want &want)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DistributedDataAddForm(want);
 }
 
@@ -536,11 +545,12 @@ int FormMgr::DistributedDataAddForm(const Want &want)
 int FormMgr::DistributedDataDeleteForm(const std::string &formId)
 {
     APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->DistributedDataDeleteForm(formId);
 }
 
@@ -551,12 +561,13 @@ int FormMgr::DistributedDataDeleteForm(const std::string &formId)
  */
 int FormMgr::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
-    APP_LOGI("%{public}s start.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGI("%{public}s failed, errCode: %{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->GetAllFormsInfo(formInfos);
 }
 
@@ -568,12 +579,13 @@ int FormMgr::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
  */
 int FormMgr::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos)
 {
-    APP_LOGI("%{public}s start.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->GetFormsInfoByApp(bundleName, formInfos);
 }
 
@@ -586,12 +598,13 @@ int FormMgr::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &f
  */
 int FormMgr::GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos)
 {
-    APP_LOGI("%{public}s start.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
+
     int errCode = Connect();
     if (errCode != ERR_OK) {
-        APP_LOGE("%{public}s failed errCode:%{public}d.", __func__, errCode);
         return errCode;
     }
+
     return remoteProxy_->GetFormsInfoByModule(bundleName, moduleName, formInfos);
 }
 }  // namespace AppExecFwk

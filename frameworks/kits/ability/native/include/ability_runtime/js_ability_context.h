@@ -84,6 +84,7 @@ private:
 };
 
 NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
+NativeValue* ConfigurationUpdated(NativeEngine& engine, const AppExecFwk::Configuration &configuration);
 
 class JSAbilityConnection : public AbilityConnectCallback {
 public:
