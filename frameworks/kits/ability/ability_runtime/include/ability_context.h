@@ -23,6 +23,7 @@
 #include "native_engine/native_value.h"
 #include "start_options.h"
 #include "want.h"
+#include "configuration.h"
 #include "caller_callback.h"
 
 namespace OHOS {
@@ -229,6 +230,10 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionLabel(const std::string &label) = 0;
+
+    virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
+
+    virtual std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const = 0;
 
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;

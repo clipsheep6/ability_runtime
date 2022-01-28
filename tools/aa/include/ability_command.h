@@ -130,6 +130,7 @@ private:
     ErrCode RunAsDumpCommand();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    ErrCode RunAsConfCommand();
 
     ErrCode RunAsDumpCommandOptopt();
     ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);
