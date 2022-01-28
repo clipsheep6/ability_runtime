@@ -69,13 +69,6 @@ public:
      */
     virtual void OnProcessDied(const ProcessData &processData) override;
 
-    /**
-     * Application state changed callback.
-     *
-     * @param appStateData Application state data.
-     */
-    virtual void OnApplicationStateChanged(const AppStateData &appStateData) override;
-
 private:
     int32_t HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply);
 
@@ -86,8 +79,6 @@ private:
     int32_t HandleOnProcessCreated(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessDied(MessageParcel &data, MessageParcel &reply);
-
-    int32_t HandleOnApplicationStateChanged(MessageParcel &data, MessageParcel &reply);
 
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);

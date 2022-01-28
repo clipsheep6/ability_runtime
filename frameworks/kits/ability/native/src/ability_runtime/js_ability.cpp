@@ -25,6 +25,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "napi_common_configuration.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "string_wrapper.h"
@@ -249,6 +250,20 @@ bool JsAbility::OnContinue(WantParams &wantParams)
     }
 
     return *boolResult;
+}
+
+void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
+{
+    Ability::OnConfigurationUpdated(configuration);
+    HILOG_INFO("%{public}s called.", __func__);
+
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    ConfigurationUpdated(nativeEngine, configuration);
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
+        reinterpret_cast<napi_env>(&nativeEngine), configuration);
+    NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
+    CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
 }
 
 void JsAbility::OnNewWant(const Want &want)
