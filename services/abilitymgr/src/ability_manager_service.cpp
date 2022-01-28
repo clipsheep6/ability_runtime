@@ -3560,7 +3560,7 @@ int AbilityManagerService::GetExtensionRunningInfos(int upperLimit, std::vector<
         return INNER_ERR;
     }
 
-    connectManager_->GetExtensionRunningInfos(upperLimit, info);
+    connectManager_->GetExtensionRunningInfos(upperLimit, info, GetUserId());
     return ERR_OK;
 }
 
