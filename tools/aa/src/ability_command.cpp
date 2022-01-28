@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
 #include "test_observer.h"
+#include "configuration.h"
 
 using namespace OHOS::AppExecFwk;
 
@@ -86,6 +87,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"dumpsys", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
+        {"conf", std::bind(&AbilityManagerShellCommand::RunAsConfCommand, this)},
     };
 
     return OHOS::ERR_OK;
@@ -1240,6 +1242,14 @@ ErrCode AbilityManagerShellCommand::StartUserTest(const std::map<std::string, st
     resultReceiver_ = STRING_START_USER_TEST_OK + "\n";
 
     return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsConfCommand()
+{
+    AppExecFwk::Configuration config;
+    config.AddItem(GlobalConfigurationKey::SYSTEM_LANGUAGE, "aaaaaaaaaa");
+    AbilityManagerClient::GetInstance()->UpdateConfiguration(config);
+    return OHOS::ERR_INVALID_VALUE;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
