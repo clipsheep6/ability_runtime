@@ -2214,7 +2214,7 @@ void AbilityManagerService::DumpWaittingAbilityQueue(std::string &result)
     return;
 }
 
-// multi user scene
+// multi user scene s
 int AbilityManagerService::GetUserId()
 {
     if (userController_) {
