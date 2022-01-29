@@ -107,6 +107,12 @@ class Caller {
 
     release() {
         console.log("Caller release js called.");
+        if (this.__call_obj__.callee == null) {
+            console.log("Caller release call remoteObj is released");
+            throw new Error("Caller release call remoteObj is released");
+            return;
+        }
+        this.__call_obj__.callee = null;
         this.__call_obj__.release();
     }
 

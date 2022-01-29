@@ -3975,9 +3975,13 @@ int AbilityManagerService::StartUserTest(const Want &want, const sptr<IRemoteObj
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, START_USER_TEST_FAIL);
     AppExecFwk::BundleInfo bundleInfo;
-    if (!bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo)) {
-        HILOG_ERROR("Failed to get bundle info.");
-        return GET_BUNDLE_INFO_FAILED;
+    if (!bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, U0_USER_ID)) {
+        HILOG_ERROR("Failed to get bundle info by U0_USER_ID %{public}d.", U0_USER_ID);
+        int32_t userId = GetUserId();
+        if (!bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, GetUserId())) {
+            HILOG_ERROR("Failed to get bundle info by userId %{public}d.", userId);
+            return GET_BUNDLE_INFO_FAILED;
+        }
     }
 
     int ret = KillProcess(bundleName);
@@ -4063,7 +4067,7 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
     HILOG_INFO("share content: ShowPickerDialog");
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     bms->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos);
-    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos);
 }
 
 void AbilityManagerService::UpdateCallerInfo(Want& want)
