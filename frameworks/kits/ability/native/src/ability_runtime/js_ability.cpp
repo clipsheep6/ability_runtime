@@ -307,6 +307,9 @@ void JsAbility::OnAbilityResult(int requestCode, int resultCode, const Want &res
 sptr<IRemoteObject> JsAbility::CallRequest()
 {
     HILOG_INFO("JsAbility::CallRequest begin.");
+
+    // return GetToken();
+
     if (jsAbilityObj_ == nullptr) {
         HILOG_WARN("JsAbility::CallRequest Obj is nullptr");
         return nullptr;

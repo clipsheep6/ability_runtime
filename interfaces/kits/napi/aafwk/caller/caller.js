@@ -22,7 +22,7 @@ class Caller {
     constructor(obj) {
         console.log("Caller::constructor obj is " + typeof obj);
         this.__call_obj__ = obj;
-        this.releaseCallback = null;
+        this.releaseCall = false;
     }
 
     async call(method, data) {
@@ -30,6 +30,12 @@ class Caller {
         if (typeof method !== 'string' || typeof data !== 'object') {
             console.log("Caller call " + typeof method + " " + typeof data);
             throw new Error("function input parameter error");
+            return;
+        }
+
+        if (this.releaseCall) {
+            console.log("Caller call this.callee release");
+            throw new Error("Function inner object error");
             return;
         }
 
@@ -73,6 +79,12 @@ class Caller {
             return undefined;
         }
 
+        if (this.releaseCall) {
+            console.log("Caller callWithResult this.callee release");
+            throw new Error("Function inner object error");
+            return;
+        }
+
         if (this.__call_obj__.callee == null) {
             console.log("Caller callWithResult this.callee is nullptr");
             return undefined;
@@ -107,7 +119,20 @@ class Caller {
 
     release() {
         console.log("Caller release js called.");
+        if (this.releaseCall == true) {
+            console.log("Caller release remoteObj releaseState is true");
+            throw new Error("Caller release call remoteObj is released");
+            return;
+        }
+
+        if (this.__call_obj__.callee == null) {
+            console.log("Caller release call remoteObj is released");
+            throw new Error("Caller release call remoteObj is released");
+            return;
+        }
+
         this.__call_obj__.release();
+        this.releaseCall = true;
     }
 
     onRelease(callback) {
@@ -115,6 +140,12 @@ class Caller {
         if (typeof callback !== 'function') {
             console.log("Caller onRelease " + typeof callback);
             throw new Error("function input parameter error");
+            return;
+        }
+
+        if (this.releaseCall == true) {
+            console.log("Caller onRelease remoteObj releaseState is true");
+            throw new Error("Caller onRelease call remoteObj is released");
             return;
         }
 
