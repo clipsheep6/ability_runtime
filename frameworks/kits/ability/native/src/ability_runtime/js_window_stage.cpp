@@ -25,8 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 const int CONTENT_STORAGE_ARG = 2;
-constexpr size_t ARGC_TWO = 2;
-constexpr size_t ARGC_THREE = 3;
+constexpr size_t ARGC_ONE = 1;
 constexpr size_t INDEX_ONE = 1;
 constexpr size_t INDEX_TWO = 2;
 } // namespace
@@ -77,6 +76,13 @@ NativeValue* JsWindowStage::GetWindowMode(NativeEngine* engine, NativeCallbackIn
     HILOG_INFO("JsWindowStage::GetWindowMode is called");
     JsWindowStage* me = CheckParamsAndGetThis<JsWindowStage>(engine, info);
     return (me != nullptr) ? me->OnGetWindowMode(*engine, *info) : nullptr;
+}
+
+NativeValue* JsWindowStage::CreateSubWindow(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsWindowStage::CreateSubWindow is called");
+    JsWindowStage* me = CheckParamsAndGetThis<JsWindowStage>(engine, info);
+    return (me != nullptr) ? me->OnCreateSubWindow(*engine, *info) : nullptr;
 }
 
 void JsWindowStage::AfterForeground()
@@ -175,11 +181,10 @@ NativeValue* JsWindowStage::OnGetMainWindow(NativeEngine& engine, NativeCallback
                     "JsWindowStage::OnGetMainWindow failed."));
             }
         };
-
-    NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
+    NativeValue* callback = info.argv[0]->TypeOf() == NATIVE_FUNCTION ? info.argv[0] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr,
+        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr,
         std::move(complete), &result));
     return result;
 }
@@ -305,16 +310,14 @@ NativeValue* JsWindowStage::OnLoadContent(NativeEngine& engine, NativeCallbackIn
     }
     NativeValue* storage = nullptr;
     NativeValue* callBack = nullptr;
-    if (info.argc == ARGC_TWO) {
-        NativeValue* value = info.argv[INDEX_ONE];
-        if (value->TypeOf() == NATIVE_FUNCTION) {
-            callBack = info.argv[INDEX_ONE];
-        } else {
-            storage = info.argv[INDEX_ONE];
-        }
-    } else if (info.argc == ARGC_THREE) {
-        storage = info.argv[INDEX_ONE];
-        callBack = info.argv[INDEX_TWO];
+    NativeValue* value1 = info.argv[INDEX_ONE];
+    NativeValue* value2 = info.argv[INDEX_TWO];
+    if (value1->TypeOf() == NATIVE_FUNCTION) {
+        callBack = value1;
+    } else if (value1->TypeOf() == NATIVE_OBJECT) {
+        storage = value1;
+    } else if (value2->TypeOf() == NATIVE_FUNCTION) {
+        callBack = value2;
     }
     contentStorage_ = static_cast<void*>(storage);
     AsyncTask::CompleteCallback complete =
@@ -357,11 +360,43 @@ NativeValue* JsWindowStage::OnGetWindowMode(NativeEngine& engine, NativeCallback
             task.Resolve(engine, CreateJsValue(engine, mode));
             HILOG_INFO("JsWindowStage OnGetWindowMode success");
         };
-
-    NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
+    NativeValue* callback = info.argv[0]->TypeOf() == NATIVE_FUNCTION ? info.argv[0] : nullptr;
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsWindowStage::OnCreateSubWindow(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("JsWindowStage::OnCreateSubWindow is called");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("JsWindowStage::OnCreateSubWindow params less than 1!");
+        return engine.CreateUndefined();
+    }
+    std::string windowName;
+    if (!ConvertFromJsValue(engine, info.argv[0], windowName)) {
+        HILOG_ERROR("Failed to convert parameter to windowName");
+        return engine.CreateUndefined();
+    }
+    AsyncTask::CompleteCallback complete =
+        [this, windowName](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            sptr<Rosen::WindowOption> windowOption = new Rosen::WindowOption();
+            windowOption->SetWindowType(Rosen::WindowType::WINDOW_TYPE_APP_SUB_WINDOW);
+            auto window = windowScene_->CreateWindow(windowName, windowOption);
+            if (window == nullptr) {
+                task.Reject(engine, CreateJsError(engine, static_cast<int32_t>(Rosen::WMError::WM_ERROR_NULLPTR),
+                    "JsWindowStage::OnCreateSubWindow failed."));
+                HILOG_ERROR("JsWindowStage window is nullptr");
+                return;
+            }
+            task.Resolve(engine, CreateJsWindowObject(engine, window));
+            HILOG_INFO("JsWindowStage OnCreateSubWindow success");
+        };
+    NativeValue* callback = info.argv[INDEX_ONE]->TypeOf() == NATIVE_FUNCTION ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule(
+        engine, CreateAsyncTaskWithLastParam(engine, callback, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -384,6 +419,8 @@ NativeValue* CreateJsWindowStage(NativeEngine& engine,
         *object, "getMainWindow", JsWindowStage::GetMainWindow);
     AbilityRuntime::BindNativeFunction(engine,
         *object, "getWindowMode", JsWindowStage::GetWindowMode);
+    AbilityRuntime::BindNativeFunction(engine,
+        *object, "createSubWindow", JsWindowStage::CreateSubWindow);
     AbilityRuntime::BindNativeFunction(engine, *object, "on", JsWindowStage::On);
     AbilityRuntime::BindNativeFunction(engine, *object, "off", JsWindowStage::Off);
 

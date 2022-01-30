@@ -41,6 +41,7 @@ public:
     static NativeValue* Off(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* LoadContent(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetWindowMode(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* CreateSubWindow(NativeEngine* engine, NativeCallbackInfo* info);
     virtual void AfterForeground() override;
     virtual void AfterBackground() override;
     virtual void AfterFocused() override;
@@ -53,6 +54,7 @@ private:
     NativeValue* OffEvent(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnLoadContent(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetWindowMode(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnCreateSubWindow(NativeEngine& engine, NativeCallbackInfo& info);
     enum WindowStageEventType {
         VISIBLE = 1,
         FOCUSED,
