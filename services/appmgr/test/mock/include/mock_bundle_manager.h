@@ -176,7 +176,7 @@ public:
         return true;
     };
     // clears cache data of a specified application.
-    virtual bool CleanBundleCacheFiles(
+    virtual int32_t CleanBundleCacheFiles(
         const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override
     {
         return true;
@@ -350,7 +350,7 @@ public:
         return true;
     };
     // clears cache data of a specified application.
-    virtual bool CleanBundleCacheFiles(
+    virtual int32_t CleanBundleCacheFiles(
         const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override
     {
         return true;
