@@ -128,6 +128,8 @@ private:
         NativeValue* callback = jsreleaseCallBackObj_->Get();
         NativeValue* args[] = { CreateJsValue(releaseCallBackEngine_, str) };
         releaseCallBackEngine_.CallFunction(value, callback, args, 1);
+        HILOG_DEBUG("OnReleaseNotifyTask CallFunction done");
+        callee_ = nullptr;
         HILOG_DEBUG("OnReleaseNotifyTask end");
     }
 

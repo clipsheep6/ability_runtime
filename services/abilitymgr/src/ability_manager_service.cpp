@@ -4074,7 +4074,7 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
     HILOG_INFO("share content: ShowPickerDialog");
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
     bms->QueryAbilityInfos(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos);
-    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos);
 }
 
 void AbilityManagerService::UpdateCallerInfo(Want& want)
