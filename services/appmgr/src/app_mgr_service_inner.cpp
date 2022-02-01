@@ -533,6 +533,34 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
+{
+    auto bundleMgr_ = remoteClientManager_->GetBundleManager();
+    if (bundleMgr_ == nullptr) {
+        APP_LOGE("GetBundleManager fail");
+        return ERR_DEAD_OBJECT;
+    }
+
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        if (USER_SCALE == 0) {
+            APP_LOGE("USER_SCALE is not zero");
+            return ERR_WOULD_BLOCK;
+        }
+        int32_t userIdTemp = static_cast<int32_t>(appRecord->GetUid() / USER_SCALE);
+        if (userIdTemp == userId) {
+            RunningProcessInfo runningProcessInfo;
+            runningProcessInfo.processName_ = appRecord->GetProcessName();
+            runningProcessInfo.pid_ = appRecord->GetPriorityObject()->GetPid();
+            runningProcessInfo.uid_ = appRecord->GetUid();
+            runningProcessInfo.state_ = static_cast<AppProcessState>(appRecord->GetState());
+            appRecord->GetBundleNames(runningProcessInfo.bundleNames);
+            info.emplace_back(runningProcessInfo);
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
 {
     int32_t ret = -1;
@@ -1061,6 +1089,18 @@ void AppMgrServiceInner::OnAppStateChanged(
         for (const auto &observer : appStateObservers_) {
             if (observer != nullptr) {
                 observer->OnForegroundApplicationChanged(data);
+            }
+        }
+    }
+
+    if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED) {
+        AppStateData data = WrapAppStateData(appRecord, state);
+        APP_LOGI("OnApplicationStateChanged, size:%{public}d, name:%{public}s, uid:%{public}d, state:%{public}d",
+            (int32_t)appStateObservers_.size(), data.bundleName.c_str(), data.uid, data.state);
+        std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+        for (const auto &observer : appStateObservers_) {
+            if (observer != nullptr) {
+                observer->OnApplicationStateChanged(data);
             }
         }
     }
@@ -1905,6 +1945,65 @@ int32_t AppMgrServiceInner::GetForegroundApplications(std::vector<AppStateData> 
 {
     APP_LOGI("%{public}s, begin.", __func__);
     appRunningManager_->GetForegroundApplications(list);
+    return ERR_OK;
+}
+
+int AppMgrServiceInner::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+    const BundleInfo &bundleInfo)
+{
+    if (!appRunningManager_) {
+        APP_LOGE("appRunningManager_ is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto processName = bundleInfo.applicationInfo.process.empty() ?
+        bundleInfo.applicationInfo.bundleName : bundleInfo.applicationInfo.process;
+    APP_LOGI("processName = [%{public}s]", processName.c_str());
+
+    // Inspection records
+    auto appRecord = appRunningManager_->CheckAppRunningRecordIsExist(
+        bundleInfo.applicationInfo.name, processName, bundleInfo.applicationInfo.uid, bundleInfo);
+    if (appRecord) {
+        APP_LOGI("processName [%{public}s] Already exists ", processName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    return StartEmptyProcess(want, observer, bundleInfo, processName);
+}
+
+int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+    const BundleInfo &info, const std::string &processName)
+{
+    APP_LOGI("enter bundle [%{public}s | processName [%{public}s]]", info.name.c_str(), processName.c_str());
+    if (!CheckRemoteClient() || !appRunningManager_) {
+        APP_LOGE("Failed to start the process being tested!");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appInfo = std::make_shared<ApplicationInfo>(info.applicationInfo);
+    auto appRecord = appRunningManager_->CreateAppRunningRecord(appInfo, processName, info);
+    if (!appRecord) {
+        APP_LOGE("start process [%{public}s] failed!", processName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    UserTestRecord testRecord;
+    testRecord.want = want;
+    testRecord.observer = observer;
+    appRecord->SetUserTestInfo(testRecord);
+
+    StartProcess(appInfo->name, processName, appRecord, appInfo->uid, appInfo->bundleName);
+
+    // If it is empty, the startup failed
+    if (!appRecord) {
+        APP_LOGE("start process [%{public}s] failed!", processName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    appRecord->SetEventHandler(eventHandler_);
+    appRecord->AddModules(appInfo, info.hapModuleInfos);
+    APP_LOGI("StartEmptyProcess OK pid : [%{public}d]", appRecord->GetPriorityObject()->GetPid());
+
     return ERR_OK;
 }
 

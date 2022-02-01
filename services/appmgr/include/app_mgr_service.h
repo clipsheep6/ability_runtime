@@ -131,6 +131,17 @@ public:
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
+    /**
+     * GetProcessRunningInfosByUserId, call GetProcessRunningInfosByUserId() through proxy project.
+     * Obtains information about application processes that are running on the device.
+     *
+     * @param info, app name in Application record.
+     * @param userId, userId.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
+
     // the function about system
     /**
      * CheckPermission, call CheckPermission() through proxy object, check the permission.
@@ -190,6 +201,16 @@ public:
      * Start all resident process
      */
     virtual void StartupResidentProcess() override;
+
+    /**
+     * Start user test process.
+     * @param want, want object.
+     * @param observer, test observer remote object.
+     * @param bundleInfo, bundle info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const AppExecFwk::BundleInfo &bundleInfo) override;
 
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;

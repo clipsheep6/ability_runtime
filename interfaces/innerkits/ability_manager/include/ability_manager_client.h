@@ -98,7 +98,7 @@ public:
      * @param requestCode Ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE);
+    ErrCode StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -109,7 +109,10 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbility(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE);
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Starts a new ability with specific start settings.
@@ -119,8 +122,12 @@ public:
      * @param abilityStartSetting Indicates the setting ability used to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE);
+    ErrCode StartAbility(
+        const Want &want,
+        const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * Starts a new ability with specific start options.
@@ -131,8 +138,12 @@ public:
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartAbility(const Want &want, const StartOptions &startOptions, const sptr<IRemoteObject> &callerToken,
-        int requestCode = DEFAULT_INVAL_VALUE);
+    ErrCode StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * TerminateAbility with want, return want from ability manager service.
@@ -182,7 +193,10 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectAbility(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken);
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
      * DisconnectAbility, disconnect session with service ability.
@@ -220,7 +234,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode DumpState(const std::string &args, std::vector<std::string> &state);
-
+    ErrCode DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     /**
      * Connect ability manager service.
      *
@@ -670,6 +685,52 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
+
+    /**
+     * @brief start user test.
+     * @param want the want of the ability user test to start.
+     * @param observer test observer callback.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartUserTest(const Want &want, const sptr<IRemoteObject> &observer);
+
+    /**
+     * @brief Finish user test.
+     * @param msg user test message.
+     * @param resultCode user test result Code.
+     * @param bundleName user test bundleName.
+     * @param observer test observer callback.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer);
+
+    /**
+     * GetCurrentTopAbility, get the token of current top ability.
+     *
+     * @param token, the token of current top ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode GetCurrentTopAbility(sptr<IRemoteObject> &token);
+
+    /**
+     * DelegatorDoAbilityForeground, the delegator calls this interface to move the ability to the foreground.
+     *
+     * @param token, ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token);
+
+    /**
+     * DelegatorDoAbilityBackground, the delegator calls this interface to move the ability to the background.
+     *
+     * @param token, ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token);
+
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;

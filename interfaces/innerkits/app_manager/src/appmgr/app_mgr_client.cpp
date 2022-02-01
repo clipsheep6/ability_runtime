@@ -217,6 +217,35 @@ AppMgrResultCode AppMgrClient::GetAllRunningProcesses(std::vector<RunningProcess
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+AppMgrResultCode AppMgrClient::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
+    if (service != nullptr) {
+        int32_t result = service->GetProcessRunningInfosByUserId(info, userId);
+        if (result == ERR_OK) {
+            return AppMgrResultCode::RESULT_OK;
+        }
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
+    if (service != nullptr) {
+        sptr<IAmsMgr> amsService = service->GetAmsMgr();
+        if (amsService != nullptr) {
+            int32_t result = amsService->GetConfiguration(config);
+            if (result == ERR_OK) {
+                return AppMgrResultCode::RESULT_OK;
+            }
+        }
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 AppMgrResultCode AppMgrClient::SetAppFreezingTime(int time)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
@@ -343,6 +372,17 @@ void AppMgrClient::StartupResidentProcess()
     }
 
     service->StartupResidentProcess();
+}
+
+int AppMgrClient::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+    const BundleInfo &bundleInfo)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
+    if (service == nullptr) {
+        APP_LOGE("service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return service->StartUserTestProcess(want, observer, bundleInfo);
 }
 
 void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)

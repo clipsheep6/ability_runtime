@@ -250,14 +250,16 @@ public:
      *
      * @param info dump result.
      */
-    void Dump(std::vector<std::string> &info);
+    void Dump(std::vector<std::string>& info);
 
     /**
      * @brief dump mission list
      *
      * @param info dump result.
      */
-    void DumpMissionList(std::vector<std::string> &info);
+    void DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args = "");
+
+    void DumpMissionListByRecordId(std::vector<std::string> &info, bool isClient, int32_t abilityRecordId);
 
     /**
      * @brief dump mission by id
@@ -306,6 +308,13 @@ public:
     bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
         MissionSnapshot& missionSnapshot);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
+
+    /**
+     * @brief get current top ability by bundle name
+     * @param bundleName the bundle name
+     * @return the current top ability.
+     */
+    std::shared_ptr<AbilityRecord> GetCurrentTopAbility(const std::string &bundleName);
 
     bool IsStarted();
     void PauseManager();

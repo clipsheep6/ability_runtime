@@ -113,6 +113,16 @@ public:
     virtual void KillProcessesByUserId(int32_t userId) override;
 
     /**
+     * KillProcessWithAccount, call KillProcessWithAccount() through proxy object,
+     * kill the process.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param accountId, account ID.
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t KillProcessWithAccount(const std::string &bundleName, const int accountId) override;
+
+    /**
      * KillApplication, call KillApplication() through proxy object, kill the application.
      *
      * @param  bundleName, bundle name in Application record.
@@ -159,6 +169,8 @@ public:
     virtual void UpdateConfiguration(const Configuration &config) override;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
+
+    virtual int GetConfiguration(Configuration &config) override;
 private:
     bool WriteInterfaceToken(MessageParcel &data);
 

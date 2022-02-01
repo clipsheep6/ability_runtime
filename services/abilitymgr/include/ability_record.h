@@ -291,6 +291,8 @@ public:
      */
     AbilityState GetAbilityState() const;
 
+    bool IsForeground() const;
+
     /**
      * set ability scheduler for accessing ability thread.
      *
@@ -664,6 +666,12 @@ public:
      */
     void Dump(std::vector<std::string> &info);
 
+    /**
+     * dump ability state info.
+     *
+     */
+    void DumpAbilityState(std::vector<std::string> &info, bool isClient);
+
     void SetStartTime();
 
     int64_t GetStartTime() const;
@@ -672,7 +680,7 @@ public:
      * dump service info.
      *
      */
-    void DumpService(std::vector<std::string> &info) const;
+    void DumpService(std::vector<std::string> &info, bool isClient = false) const;
 
     /**
      * get ability record info.

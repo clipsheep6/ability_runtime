@@ -21,10 +21,19 @@ class AbilityContext extends Context {
         super(obj)
         this.abilityInfo = obj.abilityInfo
         this.currentHapModuleInfo = obj.currentHapModuleInfo
+        this.configuration = obj.configuration
+    }
+
+    onUpdateConfiguration(config) {
+        this.configuration = config
     }
 
     startAbility(want, options, callback) {
         return this.__context_impl__.startAbility(want, options, callback)
+    }
+
+    startAbilityWithAccount(want, accountId, options, callback) {
+        return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback)
     }
 
     startAbilityByCall(want) {
@@ -47,8 +56,16 @@ class AbilityContext extends Context {
         return this.__context_impl__.startAbilityForResult(want, callback)
     }
 
+    startAbilityForResultWithAccount(want, accountId, callback) {
+        return this.__context_impl__.startAbilityForResultWithAccount(want, accountId, callback)
+    }
+
     connectAbility(want, options) {
         return this.__context_impl__.connectAbility(want, options);
+    }
+
+    connectAbilityWithAccount(want, accountId, options) {
+        return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
     disconnectAbility(connection, callback) {

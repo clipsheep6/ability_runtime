@@ -220,6 +220,16 @@ public:
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid);
 
     /**
+     * KillApplicationByUserId, kill the application by user ID.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @param userId, user ID.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t KillApplicationByUserId(const std::string &bundleName, const int userId);
+
+    /**
      * ClearUpApplicationData, clear the application data.
      *
      * @param bundleName, bundle name in Application record.
@@ -248,6 +258,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
+
+    /**
+     * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.
+     *
+     * @param info, app name in Application record.
+     * @param userId, userId.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
 
     // Get AppRunningRecord according to appInfo. Create if not exists.
     // Create ability record if not exists and abilityInfo not null.
@@ -530,6 +550,16 @@ public:
      */
     int32_t GetForegroundApplications(std::vector<AppStateData> &list);
 
+    /**
+     * Start user test process.
+     * @param want, want object.
+     * @param observer, test observer remote object.
+     * @param bundleInfo, bundle info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const AppExecFwk::BundleInfo &bundleInfo);
+
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
 
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
@@ -727,8 +757,6 @@ private:
 
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
 
-    int32_t KillApplicationByUserId(const std::string &bundleName, const int userId);
-
     void ClipStringContent(const std::regex &re, const std::string &sorce, std::string &afferCutStr);
 
     bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
@@ -754,6 +782,9 @@ private:
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
+
+    int StartEmptyProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &info, const std::string &processName);
 
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
 

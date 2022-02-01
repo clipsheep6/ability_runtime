@@ -18,10 +18,12 @@
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
+#include "want.h"
 
 #include "ability_info.h"
 #include "application_info.h"
 #include "app_record_id.h"
+#include "bundle_info.h"
 #include "iapp_state_callback.h"
 #include "ams_mgr_interface.h"
 #include "running_process_info.h"
@@ -122,6 +124,16 @@ public:
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) = 0;
 
     /**
+     * GetProcessRunningInfosByUserId, call GetProcessRunningInfosByUserId() through proxy project.
+     * Obtains information about application processes that are running on the device.
+     *
+     * @param info, app name in Application record.
+     * @param userId, user Id in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
+
+    /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
      *
      * @param time, The timeout recorded when the application enters the background .
@@ -177,6 +189,16 @@ public:
      */
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) = 0;
 
+    /**
+     * Start user test process.
+     * @param want, want object.
+     * @param observer, test observer remote object.
+     * @param bundleInfo, bundle info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo) = 0;
+
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
 
     enum class Message {
@@ -190,6 +212,7 @@ public:
         APP_CLEAR_UP_APPLICATION_DATA,
         APP_IS_BACKGROUND_RUNNING_RESTRICTED,
         APP_GET_ALL_RUNNING_PROCESSES,
+        APP_GET_RUNNING_PROCESSES_BY_USER_ID,
         APP_SET_APP_FREEZING_TIME,
         APP_GET_APP_FREEZING_TIME,
         APP_GET_SYSTEM_MEMORY_ATTR,
@@ -198,6 +221,7 @@ public:
         REGISTER_APPLICATION_STATE_OBSERVER,
         UNREGISTER_APPLICATION_STATE_OBSERVER,
         GET_FOREGROUND_APPLICATIONS,
+        START_USER_TEST_PROCESS,
         SCHEDULE_ACCEPT_WANT_DONE,
     };
 };

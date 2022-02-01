@@ -18,10 +18,12 @@
 
 #include "iremote_object.h"
 #include "refbase.h"
+#include "want.h"
 
 #include "ability_info.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
+#include "bundle_info.h"
 #include "iapp_state_callback.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
@@ -163,6 +165,24 @@ public:
      */
     virtual AppMgrResultCode GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
 
+     /**
+     * GetProcessRunningInfosByUserId, call GetProcessRunningInfosByUserId() through proxy project.
+     * Obtains information about application processes that are running on the device.
+     *
+     * @param info, app name in Application record.
+     * @param userId, user Id in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
+
+    /**
+     * GetConfiguration
+     *
+     * @param info, configuration.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode GetConfiguration(Configuration& config);
+
     /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
      *
@@ -222,6 +242,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual AppMgrResultCode UpdateConfiguration(const Configuration &config);
+
+    /**
+     * Start a user test
+     */
+    virtual int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo);
 
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
 

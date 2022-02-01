@@ -65,6 +65,7 @@ private:
     int32_t HandleClearUpApplicationData(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsBackgroundRunningRestricted(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllRunningProcesses(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetAppFreezingTime(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAppFreezingTime(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetSystemMemoryAttr(MessageParcel &data, MessageParcel &reply);
@@ -73,6 +74,7 @@ private:
     int32_t HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetForegroundApplications(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleStartUserTestProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleAcceptWantDone(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);

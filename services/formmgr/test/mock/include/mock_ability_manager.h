@@ -35,11 +35,21 @@ public:
     {
         return 0;
     }
-    virtual int StartAbility(const AAFwk::Want &want, int requestCode = -1)
+    virtual int StartAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;
     }
-    virtual int StartAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = -1)
+    virtual int StartAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
+    {
+        return 0;
+    }
+    int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -48,8 +58,8 @@ public:
     {
         return 0;
     }
-    virtual int ConnectAbility(
-        const AAFwk::Want &want, const sptr<AAFwk::IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    virtual int ConnectAbility(const AAFwk::Want &want, const sptr<AAFwk::IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -176,7 +186,7 @@ public:
     {
         return 0;
     }
-    virtual int StopServiceAbility(const AAFwk::Want &want)
+    virtual int StopServiceAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -325,6 +335,32 @@ public:
     {
         return 0;
     }
+
+    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
 };
 
 class MockAbilityMgrStub : public IRemoteStub<AAFwk::IAbilityManager> {
@@ -361,11 +397,21 @@ public:
     {
         return 0;
     }
-    virtual int StartAbility(const AAFwk::Want &want, int requestCode = -1)
+    virtual int StartAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;
     }
-    virtual int StartAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = -1)
+    virtual int StartAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
+    {
+        return 0;
+    }
+    int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -378,8 +424,8 @@ public:
     {
         return 0;
     }
-    virtual int ConnectAbility(
-        const AAFwk::Want &want, const sptr<AAFwk::IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    virtual int ConnectAbility(const AAFwk::Want &want, const sptr<AAFwk::IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         connect->OnAbilityConnectDone(want.GetElement(), new (std::nothrow) MockFormProviderClient(), 0);
         return 0;
@@ -426,11 +472,18 @@ public:
     {
         return;
     }
+
+    virtual void DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
+    {
+        return;
+    }
+
     virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
     {
         return 0;
     }
-    virtual int StopServiceAbility(const AAFwk::Want &want)
+    virtual int StopServiceAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -590,8 +643,12 @@ public:
     {
         return 0;
     }
-    int StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken, int requestCode = 0)
+    int StartAbility(
+        const Want &want,
+        const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -697,6 +754,32 @@ public:
 
     virtual int SetMissionLabel(const sptr<IRemoteObject> &token,
         const std::string &lable) override
+    {
+        return 0;
+    }
+
+    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }

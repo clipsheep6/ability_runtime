@@ -154,6 +154,20 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
     amsHandler_->PostTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
 }
 
+int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)
+{
+    APP_LOGI("enter");
+    APP_LOGI("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+
+    APP_LOGI("end");
+
+    return amsMgrServiceInner_->KillApplicationByUserId(bundleName, accountId);
+}
+
 void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
     APP_LOGI("AmsMgrScheduler AttachTimeOut begin");
@@ -249,6 +263,20 @@ void AmsMgrScheduler::UpdateConfiguration(const Configuration &config)
     auto task = [=]() { amsMgrServiceInner_->UpdateConfiguration(config); };
     amsHandler_->PostTask(task);
     APP_LOGI("AmsMgrScheduler UpdateConfiguration end");
+}
+
+int AmsMgrScheduler::GetConfiguration(Configuration& config)
+{
+    APP_LOGI("AmsMgrScheduler GetConfiguration begin");
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    if (!amsMgrServiceInner_->GetConfiguration()) {
+        return ERR_INVALID_OPERATION;
+    }
+    config = *(amsMgrServiceInner_->GetConfiguration());
+    APP_LOGI("AmsMgrScheduler GetConfiguration end");
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

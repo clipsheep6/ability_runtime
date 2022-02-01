@@ -19,6 +19,7 @@
 #include "ability_context.h"
 
 #include "context_impl.h"
+#include "configuration.h"
 #include "local_call_container.h"
 
 namespace OHOS {
@@ -43,13 +44,22 @@ public:
 
     std::string GetBundleCodePath() const override;
     ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;
+    ErrCode StartAbilityWithAccount(const AAFwk::Want &want, int accountId, int requestCode) override;
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode) override;
+    ErrCode StartAbilityWithAccount(
+        const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task) override;
+    ErrCode StartAbilityForResultWithAccount(
+        const AAFwk::Want &want, int accountId, int requestCode, RuntimeTask &&task) override;
+    ErrCode StartAbilityForResultWithAccount(const AAFwk::Want &want, int accountId,
+        const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
     void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) override;
     bool ConnectAbility(const AAFwk::Want &want,
+                        const sptr<AbilityConnectCallback> &connectCallback) override;
+    bool ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
                         const sptr<AbilityConnectCallback> &connectCallback) override;
     void DisconnectAbility(const AAFwk::Want &want,
                            const sptr<AbilityConnectCallback> &connectCallback) override;
@@ -102,6 +112,9 @@ public:
         return contentStorage_;
     }
 
+    void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) override;
+
+    std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     /**
      * call function by callback object
      *
@@ -128,6 +141,7 @@ private:
     std::map<int, RuntimeTask> resultCallbacks_;
     std::map<int, PermissionRequestTask> permissionRequestCallbacks_;
     void* contentStorage_ = nullptr;
+    std::shared_ptr<AppExecFwk::Configuration> config_;
     sptr<LocalCallContainer> localCallContainer_;
 };
 }  // namespace AbilityRuntime

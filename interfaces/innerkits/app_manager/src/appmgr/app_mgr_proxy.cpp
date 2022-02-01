@@ -281,6 +281,35 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId)
+{
+    APP_LOGD("start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    data.WriteInt32(userId);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        APP_LOGE("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    if (!SendTransactCmd(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
+    if (error != NO_ERROR) {
+        APP_LOGE("GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    APP_LOGD("end");
+    return result;
+}
+
 bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply)
 {
     MessageOption option(MessageOption::TF_SYNC);
@@ -501,6 +530,37 @@ int AppMgrProxy::GetForegroundApplications(std::vector<AppStateData> &list)
             return ERR_INVALID_VALUE;
         }
         list.emplace_back(*info);
+    }
+    return reply.ReadInt32();
+}
+
+int AppMgrProxy::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+    const BundleInfo &bundleInfo)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteParcelable(&want)) {
+        APP_LOGE("want write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteParcelable(observer)) {
+        APP_LOGE("observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteParcelable(&bundleInfo)) {
+        APP_LOGE("bundleInfo write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    int32_t ret =
+        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_USER_TEST_PROCESS), data, reply, option);
+    if (ret != NO_ERROR) {
+        APP_LOGW("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
     }
     return reply.ReadInt32();
 }

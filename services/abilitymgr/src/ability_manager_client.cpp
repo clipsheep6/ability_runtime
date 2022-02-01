@@ -107,34 +107,41 @@ void AbilityManagerClient::AddWindowInfo(const sptr<IRemoteObject> &token, int32
     abms->AddWindowInfo(token, windowToken);
 }
 
-ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode)
+ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StartAbility(want, requestCode);
+    return abms->StartAbility(want, userId, requestCode);
 }
 
-ErrCode AbilityManagerClient::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
+ErrCode AbilityManagerClient::StartAbility(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StartAbility(want, callerToken, requestCode);
+    return abms->StartAbility(want, callerToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StartAbility(want, abilityStartSetting, callerToken, requestCode);
+    return abms->StartAbility(want, abilityStartSetting, callerToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
+    HILOG_INFO("%{public}s called, userId=%{public}d, windowMode_=%{public}d, displayId_=%{public}d",
+        __func__, userId, startOptions.GetWindowMode(), startOptions.GetDisplayID());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->StartAbility(want, startOptions, callerToken, requestCode);
+    return abms->StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
@@ -166,11 +173,13 @@ ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token)
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->ConnectAbility(want, connect, callerToken);
+    return abms->ConnectAbility(want, connect, callerToken, userId);
 }
 
 ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection> &connect)
@@ -201,6 +210,15 @@ ErrCode AbilityManagerClient::DumpState(const std::string &args, std::vector<std
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     abms->DumpState(args, state);
+    return ERR_OK;
+}
+
+ErrCode AbilityManagerClient::DumpSysState(
+    const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    abms->DumpSysState(args, state, isClient, isUserID, UserID);
     return ERR_OK;
 }
 
@@ -841,6 +859,46 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     auto abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->GetMissionSnapshot(deviceId, missionId, snapshot);
+}
+
+ErrCode AbilityManagerClient::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->StartUserTest(want, observer);
+}
+
+ErrCode AbilityManagerClient::FinishUserTest(const std::string &msg, const int &resultCode,
+    const std::string &bundleName, const sptr<IRemoteObject> &observer)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->FinishUserTest(msg, resultCode, bundleName, observer);
+}
+
+ErrCode AbilityManagerClient::GetCurrentTopAbility(sptr<IRemoteObject> &token)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->GetCurrentTopAbility(token);
+}
+
+ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->DelegatorDoAbilityForeground(token);
+}
+
+ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
+{
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->DelegatorDoAbilityBackground(token);
 }
 
 ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string& label)

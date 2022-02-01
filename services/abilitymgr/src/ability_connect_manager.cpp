@@ -921,7 +921,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(const std::shared_ptr<AbilityR
     RemoveServiceAbility(abilityRecord);
 }
 
-void AbilityConnectManager::DumpState(std::vector<std::string> &info, const std::string &args) const
+void AbilityConnectManager::DumpState(std::vector<std::string> &info, bool isClient, const std::string &args) const
 {
     if (!args.empty()) {
         auto it = std::find_if(serviceMap_.begin(), serviceMap_.end(), [&args](const auto &service) {
@@ -929,24 +929,30 @@ void AbilityConnectManager::DumpState(std::vector<std::string> &info, const std:
         });
         if (it != serviceMap_.end()) {
             info.emplace_back("uri [ " + it->first + " ]");
-            it->second->DumpService(info);
+            it->second->DumpService(info, isClient);
         } else {
             info.emplace_back(args + ": Nothing to dump.");
         }
     } else {
-        info.emplace_back("serviceAbilityRecords:");
+        auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMgr && abilityMgr->IsUseNewMission()) {
+            info.emplace_back("  ExtensionRecords:");
+        } else {
+            info.emplace_back("  serviceAbilityRecords:");
+        }
         for (auto &&service : serviceMap_) {
-            info.emplace_back("  uri [" + service.first + "]");
-            service.second->DumpService(info);
+            info.emplace_back("    uri [" + service.first + "]");
+            service.second->DumpService(info, isClient);
         }
     }
 }
 
-void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info)
+void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info,
+    const int32_t userId)
 {
     HILOG_INFO("Get extension running info.");
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto queryInfo = [&info, upperLimit](ServiceMapType::reference service) {
+    auto queryInfo = [&info, upperLimit, userId](ServiceMapType::reference service) {
         if (static_cast<int>(info.size()) >= upperLimit) {
             return;
         }
@@ -955,6 +961,25 @@ void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector
         ExtensionRunningInfo extensionInfo;
         AppExecFwk::RunningProcessInfo processInfo;
         extensionInfo.extension = abilityRecord->GetWant().GetElement();
+        auto bms = AbilityUtil::GetBundleManager();
+        CHECK_POINTER(bms);
+        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+        bool queryResult = bms->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
+            AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos);
+        if (queryResult) {
+            HILOG_INFO("Query Extension Ability Infos Success.");
+            auto abilityInfo = abilityRecord->GetAbilityInfo();
+            auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo &extensionInfo) {
+                HILOG_INFO("%{public}s, %{public}s", extensionInfo.bundleName.c_str(), extensionInfo.name.c_str());
+                return extensionInfo.bundleName == abilityInfo.bundleName && extensionInfo.name == abilityInfo.name
+                    && extensionInfo.applicationInfo.uid == abilityInfo.applicationInfo.uid;
+            };
+            auto infoIter = std::find_if(extensionInfos.begin(), extensionInfos.end(), isExist);
+            if (infoIter != extensionInfos.end()) {
+                HILOG_INFO("Get target success.");
+                extensionInfo.type = (*infoIter).type;
+            }
+        }
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
         extensionInfo.pid = processInfo.pid_;

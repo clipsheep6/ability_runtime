@@ -18,6 +18,7 @@ var ExtensionContext = requireNapi("application.ExtensionContext")
 class ServiceExtensionContext extends ExtensionContext {
     constructor(obj) {
         super(obj);
+        this.extensionAbilityInfo = obj.extensionAbilityInfo
     }
 
     startAbility(want, options, callback) {
@@ -28,6 +29,16 @@ class ServiceExtensionContext extends ExtensionContext {
     connectAbility(want, options) {
         console.log("connectAbility");
         return this.__context_impl__.connectAbility(want, options);
+    }
+
+    startAbilityWithAccount(want, accountId, options, callback) {
+        console.log("startAbilityWithAccount");
+        return this.__context_impl__.startAbilityWithAccount(want, accountId, options, callback);
+    }
+
+    connectAbilityWithAccount(want, accountId, options) {
+        console.log("connectAbilityWithAccount");
+        return this.__context_impl__.connectAbilityWithAccount(want, accountId, options);
     }
 
     disconnectAbility(connection, callback) {

@@ -17,8 +17,10 @@
 #define FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPEXECFWK_CORE_INCLUDE_APPMGR_APP_MGR_CLIENT_H
 
 #include "iremote_proxy.h"
+#include "want.h"
 
 #include "app_mgr_interface.h"
+#include "bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -115,6 +117,15 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetProcessRunningInfosByUserId, call GetProcessRunningInfosByUserId() through proxy project.
+     * Obtains information about application processes that are running on the device.
+     *
+     * @param info, app name in Application record.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
+
+    /**
      * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
      *
      * @param time, The timeout recorded when the application enters the background .
@@ -169,6 +180,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
+
+    /**
+     * Start user test process.
+     * @param want, want object.
+     * @param observer, test observer remote object.
+     * @param bundleInfo, bundle info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo) override;
 
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;

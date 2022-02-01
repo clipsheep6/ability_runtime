@@ -39,9 +39,13 @@ public:
      *
      * @param want, the want of the ability to start.
      * @param requestCode, Ability request code.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, int requestCode = DEFAULT_INVAL_VALUE) override;
+    virtual int StartAbility(
+        const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
      * StartAbility with want, send want to ability manager service.
@@ -49,21 +53,30 @@ public:
      * @param want, the want of the ability to start.
      * @param callerToken, caller ability token.
      * @param requestCode the resultCode of the ability to start.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int StartAbility(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) override;
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Starts a new ability with specific start settings.
      *
      * @param want Indicates the ability to start.
-     * @param requestCode the resultCode of the ability to start.
+     * @param callerToken caller ability token.
      * @param abilityStartSetting Indicates the setting ability used to start.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) override;
+    virtual int StartAbility(
+        const Want &want,
+        const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Starts a new ability with specific start options.
@@ -71,11 +84,16 @@ public:
      * @param want, the want of the ability to start.
      * @param startOptions Indicates the options used to start.
      * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE) override;
+    virtual int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
      * TerminateAbility, terminate the special ability.
@@ -111,10 +129,14 @@ public:
      * @param want, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ConnectAbility(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
      * DisconnectAbility, connect session with service ability.
@@ -207,7 +229,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual void DumpState(const std::string &args, std::vector<std::string> &state) override;
-
+    virtual void DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
     /**
      * Destroys this Service ability if the number of times it
      * has been started equals the number represented by
@@ -226,7 +249,7 @@ public:
      * @param want, Special want for service type's ability.
      * @return Returns true if this Service ability will be destroyed; returns false otherwise.
      */
-    virtual int StopServiceAbility(const Want &want) override;
+    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
      * Obtains information about ability stack that are running on the device.
@@ -578,6 +601,35 @@ public:
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
 
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot) override;
+
+    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
+
+    virtual int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer) override;
+
+    /**
+     * GetCurrentTopAbility, get the token of current top ability.
+     *
+     * @param token, the token of current top ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override;
+
+    /**
+     * The delegator calls this interface to move the ability to the foreground.
+     *
+     * @param token, ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
+
+    /**
+     * The delegator calls this interface to move the ability to the background.
+     *
+     * @param token, ability's token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
 
     /**
      * Send not response process ID to ability manager service.

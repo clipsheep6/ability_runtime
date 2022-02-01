@@ -59,7 +59,8 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
         return;
     }
     APP_LOGI("%{public}s, action:%{public}s.", __func__, action.c_str());
-    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED ||
+        action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         // install or update
         APP_LOGI("%{public}s, bundle changed, bundleName: %{public}s", __func__, bundleName.c_str());
         HandleBundleFormInfoChanged(bundleName);
@@ -203,7 +204,7 @@ bool FormSysEventReceiver::ProviderFormUpdated(const int64_t formId,
         FormBmsHelper::GetInstance().NotifyModuleNotRemovable(formRecord.bundleName, formRecord.moduleName);
         FormTimerCfg timerCfg;
         GetTimerCfg(updatedForm.updateEnabled, updatedForm.updateDuration,
-            updatedForm.scheduledUpateTime, timerCfg);
+            updatedForm.scheduledUpdateTime, timerCfg);
         HandleTimerUpdate(formId, formRecord, timerCfg);
         FormDataMgr::GetInstance().SetVersionUpgrade(formId, true);
         return true;

@@ -31,7 +31,8 @@ public:
     {}
 
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t userId, int requestCode));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));
@@ -47,14 +48,12 @@ public:
     MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
-
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, const int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams));
     MOCK_METHOD2(ContinueAbility, int(const std::string &deviceId, int32_t missionId));
     MOCK_METHOD3(NotifyCompleteContinuation, void(const std::string &deviceId, int32_t sessionId, bool isSuccess));
-
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo> &info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
@@ -74,13 +73,26 @@ public:
 
     int code_ = 0;
 
-    virtual int StartAbility(const Want &want, int requestCode = -1)
+    virtual int StartAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;
     }
 
-    int StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-        const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE)
+    int StartAbility(const Want &want,
+        const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -96,7 +108,10 @@ public:
     }
 
     virtual int ConnectAbility(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -148,12 +163,16 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &state)
     {}
 
+    virtual void DumpSysState(
+            const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID)
+    {}
+
     virtual int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId)
     {
         return 0;
     }
 
-    virtual int StopServiceAbility(const Want &want)
+    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -375,11 +394,6 @@ public:
         return 0;
     }
 
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, int requestCode) override
-    {
-        return 0;
-    }
     virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {
@@ -393,10 +407,6 @@ public:
     {
         return 0;
     }
-    virtual bool SendANRProcessID(int pid)
-    {
-        return true;
-    }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
@@ -407,6 +417,36 @@ public:
     virtual bool IsRunningInStabilityTest() override
     {
         return true;
+    }
+    virtual bool SendANRProcessID(int pid) override
+    {
+        return true;
+    }
+
+    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
     }
 };
 }  // namespace AAFwk

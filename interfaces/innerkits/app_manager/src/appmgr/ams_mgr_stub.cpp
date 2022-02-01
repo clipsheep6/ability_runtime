@@ -47,6 +47,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleKillProcessByAbilityToken;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_USERID)] =
         &AmsMgrStub::HandleKillProcessesByUserId;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESS_WITH_ACCOUNT)] =
+        &AmsMgrStub::HandleKillProcessWithAccount;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION)] = &AmsMgrStub::HandleKillApplication;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ABILITY_ATTACH_TIMEOUT)] =
         &AmsMgrStub::HandleAbilityAttachTimeOut;
@@ -64,6 +66,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_CONFIGURATION)] =
         &AmsMgrStub::HandleUpdateConfiguration;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION)] =
+        &AmsMgrStub::HandleGetConfiguration;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -184,6 +188,25 @@ ErrCode AmsMgrStub::HandleKillProcessesByUserId(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
+ErrCode AmsMgrStub::HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply)
+{
+    APP_LOGI("enter");
+
+    BYTRACE(BYTRACE_TAG_APP);
+
+    std::string bundleName = data.ReadString();
+    int accountId = data.ReadInt32();
+
+    APP_LOGI("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+
+    int32_t result = KillProcessWithAccount(bundleName, accountId);
+    reply.WriteInt32(result);
+
+    APP_LOGI("end");
+
+    return NO_ERROR;
+}
+
 ErrCode AmsMgrStub::HandleKillApplication(MessageParcel &data, MessageParcel &reply)
 {
     BYTRACE(BYTRACE_TAG_APP);
@@ -279,6 +302,21 @@ int32_t AmsMgrStub::HandleUpdateConfiguration(MessageParcel &data, MessageParcel
         return NO_ERROR;
     }
     return UNKNOWN_ERROR;
+}
+
+int32_t AmsMgrStub::HandleGetConfiguration(MessageParcel &data, MessageParcel &reply)
+{
+    Configuration config;
+    int ret = GetConfiguration(config);
+    if (ret != ERR_OK) {
+        APP_LOGE("GetConfiguration error");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteParcelable(&config)) {
+        APP_LOGE("GetConfiguration error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

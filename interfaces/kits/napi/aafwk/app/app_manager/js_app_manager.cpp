@@ -34,6 +34,7 @@ namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
@@ -82,6 +83,12 @@ public:
         return (me != nullptr) ? me->OnIsRunningInStabilityTest(*engine, *info) : nullptr;
     }
 
+    static NativeValue* KillProcessWithAccount(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnKillProcessWithAccount(*engine, *info) : nullptr;
+    }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -96,8 +103,7 @@ private:
         }
 
         // unwarp observer
-        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver();
-        observer->SetNativeEngine(&engine);
+        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver(engine);
         observer->SetJsObserverObject(info.argv[0]);
         int64_t observerId = serialNumber_;
         observerIds_.emplace(observerId, observer);
@@ -263,6 +269,41 @@ private:
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    NativeValue* OnKillProcessWithAccount(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        if (info.argc == 0) {
+            HILOG_ERROR("Not enough params");
+            return engine.CreateUndefined();
+        }
+        std::string bundleName;
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("Parse bundleName failed");
+            return engine.CreateUndefined();
+        }
+        int accountId = -1;
+        if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
+            HILOG_ERROR("Parse userId failed");
+            return engine.CreateUndefined();
+        }
+
+        AsyncTask::CompleteCallback complete =
+            [appManager = appManager_, bundleName, accountId](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                auto errcode = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
+                if (errcode == 0) {
+                    task.Resolve(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine, CreateJsError(engine, errcode, "Kill processes failed."));
+                }
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule(
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
 };
 } // namespace
 
@@ -316,9 +357,15 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::GetProcessRunningInfos);
     BindNativeFunction(*engine, *object, "isRunningInStabilityTest",
         JsAppManager::IsRunningInStabilityTest);
+    BindNativeFunction(*engine, *object, "killProcessWithAccount",
+        JsAppManager::KillProcessWithAccount);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }
+
+JSApplicationStateObserver::JSApplicationStateObserver(NativeEngine& engine) : engine_(engine) {}
+
+JSApplicationStateObserver::~JSApplicationStateObserver() = default;
 
 void JSApplicationStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
@@ -344,11 +391,7 @@ void JSApplicationStateObserver::HandleOnForegroundApplicationChanged(const AppS
 {
     HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = {CreateJsAppStateData(*engine_, appStateData)};
+    NativeValue* argv[] = {CreateJsAppStateData(engine_, appStateData)};
     CallJsFunction("onForegroundApplicationChanged", argv, ARGC_ONE);
 }
 
@@ -374,11 +417,7 @@ void JSApplicationStateObserver::OnAbilityStateChanged(const AbilityStateData &a
 void JSApplicationStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("HandleOnAbilityStateChanged begin");
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = {CreateJsAbilityStateData(*engine_, abilityStateData)};
+    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
     CallJsFunction("onAbilityStateChanged", argv, ARGC_ONE);
 }
 
@@ -404,11 +443,7 @@ void JSApplicationStateObserver::OnExtensionStateChanged(const AbilityStateData 
 void JSApplicationStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("HandleOnExtensionStateChanged begin");
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = {CreateJsAbilityStateData(*engine_, abilityStateData)};
+    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
     CallJsFunction("onExtensionStateChanged", argv, ARGC_ONE);
 }
 
@@ -434,11 +469,7 @@ void JSApplicationStateObserver::OnProcessCreated(const ProcessData &processData
 void JSApplicationStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
     HILOG_INFO("HandleOnProcessCreated begin");
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = {CreateJsProcessData(*engine_, processData)};
+    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
     CallJsFunction("onProcessCreated", argv, ARGC_ONE);
 }
 
@@ -464,11 +495,7 @@ void JSApplicationStateObserver::OnProcessDied(const ProcessData &processData)
 void JSApplicationStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
     HILOG_INFO("HandleOnProcessDied begin");
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
-    NativeValue* argv[] = {CreateJsProcessData(*engine_, processData)};
+    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
     CallJsFunction("onProcessDied", argv, ARGC_ONE);
 }
 
@@ -491,23 +518,14 @@ void JSApplicationStateObserver::CallJsFunction(const char* methodName, NativeVa
         HILOG_ERROR("Failed to get from object");
         return;
     }
-    if (engine_ == nullptr) {
-        HILOG_ERROR("engine_ nullptr");
-        return;
-    }
     HILOG_INFO("CallJsFunction CallFunction success");
-    engine_->CallFunction(value, method, argv, argc);
+    engine_.CallFunction(value, method, argv, argc);
     HILOG_INFO("CallJsFunction end");
-}
-
-void JSApplicationStateObserver::SetNativeEngine(NativeEngine* engine)
-{
-    engine_ = engine;
 }
 
 void JSApplicationStateObserver::SetJsObserverObject(NativeValue* jsObserverObject)
 {
-    jsObserverObject_ = std::unique_ptr<NativeReference>(engine_->CreateReference(jsObserverObject, 1));
+    jsObserverObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

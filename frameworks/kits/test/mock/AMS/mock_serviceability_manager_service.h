@@ -34,8 +34,24 @@ class MockServiceAbilityManagerService : public AbilityManagerStub,
 public:
     MockServiceAbilityManagerService();
     ~MockServiceAbilityManagerService();
-    int StartAbility(const Want &want, int requestCode = -1) override;
-    int StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode = -1) override;
+    int StartAbility(
+        const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+    int StartAbility(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+    int StartAbility(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override
+    {
+        return 0;
+    }
     int TerminateAbility(
         const sptr<IRemoteObject> &token, int resultCode = -1, const Want *resultWant = nullptr) override;
     int MinimizeAbility(const sptr<IRemoteObject> &token) override
@@ -43,7 +59,10 @@ public:
         return 0;
     }
     int ConnectAbility(
-        const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
     int DisconnectAbility(const sptr<IAbilityConnection> &connect) override;
 
     void AddWindowInfo(const sptr<IRemoteObject> &token, int32_t windowToken) override;
@@ -56,9 +75,11 @@ public:
     int ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token) override;
 
     void DumpState(const std::string &args, std::vector<std::string> &info) override;
+    void DumpSysState(
+        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
 
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
-    int StopServiceAbility(const Want &want) override;
+    int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
@@ -78,8 +99,8 @@ public:
     MOCK_METHOD2(RegisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
-    MOCK_METHOD4(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
-                                   const sptr<IRemoteObject> &callerToken, int requestCode));
+    MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
+        const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD1(MoveMissionToFloatingStack, int(const MissionOption &missionOption));
     MOCK_METHOD2(MoveMissionToSplitScreenStack, int(const MissionOption &primary, const MissionOption &secondary));
     MOCK_METHOD2(
@@ -208,11 +229,6 @@ public:
     {
         return 0;
     }
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, int requestCode) override
-    {
-        return 0;
-    }
     virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {
@@ -227,10 +243,6 @@ public:
     {
         return 0;
     }
-    virtual bool SendANRProcessID(int pid)
-    {
-        return true;
-    }
 
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
@@ -241,6 +253,36 @@ public:
     virtual bool IsRunningInStabilityTest() override
     {
         return true;
+    }
+    virtual bool SendANRProcessID(int pid) override
+    {
+        return true;
+    }
+
+    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int FinishUserTest(const std::string &msg, const int &resultCode,
+        const std::string &bundleName, const sptr<IRemoteObject> &observer) override
+    {
+        return 0;
+    }
+
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
+    }
+
+    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    {
+        return 0;
     }
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life

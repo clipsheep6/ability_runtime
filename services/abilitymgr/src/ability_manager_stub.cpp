@@ -31,6 +31,7 @@ AbilityManagerStub::AbilityManagerStub()
 {
     FirstStepInit();
     SecondStepInit();
+    ThirdStepInit();
 }
 
 AbilityManagerStub::~AbilityManagerStub()
@@ -67,6 +68,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
     requestFuncMap_[STOP_SERVICE_ABILITY] = &AbilityManagerStub::StopServiceAbilityInner;
     requestFuncMap_[DUMP_STATE] = &AbilityManagerStub::DumpStateInner;
+    requestFuncMap_[DUMPSYS_STATE] = &AbilityManagerStub::DumpSysStateInner;
     requestFuncMap_[START_ABILITY_FOR_SETTINGS] = &AbilityManagerStub::StartAbilityForSettingsInner;
     requestFuncMap_[CONTINUE_MISSION] = &AbilityManagerStub::ContinueMissionInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilityManagerStub::ContinueAbilityInner;
@@ -135,6 +137,15 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
     requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
+}
+
+void AbilityManagerStub::ThirdStepInit()
+{
+    requestFuncMap_[START_USER_TEST] = &AbilityManagerStub::StartUserTestInner;
+    requestFuncMap_[FINISH_USER_TEST] = &AbilityManagerStub::FinishUserTestInner;
+    requestFuncMap_[GET_CURRENT_TOP_ABILITY] = &AbilityManagerStub::GetCurrentTopAbilityInner;
+    requestFuncMap_[DELEGATOR_DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
+    requestFuncMap_[DELEGATOR_DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DelegatorDoAbilityBackgroundInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -413,8 +424,9 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, requestCode);
+    int32_t result = StartAbility(*want, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -428,8 +440,9 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, callerToken, requestCode);
+    int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -444,7 +457,8 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
     }
     auto callback = iface_cast<IAbilityConnection>(data.ReadParcelable<IRemoteObject>());
     auto token = data.ReadParcelable<IRemoteObject>();
-    int32_t result = ConnectAbility(*want, callback, token);
+    int32_t userId = data.ReadInt32();
+    int32_t result = ConnectAbility(*want, callback, token, userId);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -466,9 +480,31 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = StopServiceAbility(*want);
+    int32_t userId = data.ReadInt32();
+    int32_t result = StopServiceAbility(*want, userId);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::DumpSysStateInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<std::string> result;
+    std::string args = Str16ToStr8(data.ReadString16());
+    std::vector<std::string> argList;
+
+    auto isClient = data.ReadBool();
+    auto isUserID = data.ReadBool();
+    auto UserID = data.ReadInt32();
+    SplitStr(args, " ", argList);
+    if (argList.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    DumpSysState(args, result, isClient, isUserID, UserID);
+    reply.WriteInt32(result.size());
+    for (auto stack : result) {
+        reply.WriteString16(Str8ToStr16(stack));
+    }
     return NO_ERROR;
 }
 
@@ -503,8 +539,9 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, requestCode);
+    int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete abilityStartSetting;
@@ -525,8 +562,9 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
         return ERR_INVALID_VALUE;
     }
     auto callerToken = data.ReadParcelable<IRemoteObject>();
+    int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, *startOptions, callerToken, requestCode);
+    int32_t result = StartAbility(*want, *startOptions, callerToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
@@ -1351,6 +1389,61 @@ int AbilityManagerStub::IsRunningInStabilityTestInner(MessageParcel &data, Messa
         HILOG_ERROR("IsRunningInStabilityTest failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartUserTestInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto observer = data.ReadParcelable<IRemoteObject>();
+    int32_t result = StartUserTest(*want, observer);
+    reply.WriteInt32(result);
+    delete want;
+    return result;
+}
+
+int AbilityManagerStub::FinishUserTestInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string msg = data.ReadString();
+    int resultCode = data.ReadInt32();
+    std::string bundleName = data.ReadString();
+    auto observer = data.ReadParcelable<IRemoteObject>();
+    int32_t result = FinishUserTest(msg, resultCode, bundleName, observer);
+    reply.WriteInt32(result);
+    return result;
+}
+
+int AbilityManagerStub::GetCurrentTopAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token;
+    auto result = GetCurrentTopAbility(token);
+    if (!reply.WriteParcelable(token)) {
+        HILOG_ERROR("data write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    reply.WriteInt32(result);
+
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
+    auto result = DelegatorDoAbilityForeground(token);
+    reply.WriteInt32(result);
+
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::DelegatorDoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
+    auto result = DelegatorDoAbilityBackground(token);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

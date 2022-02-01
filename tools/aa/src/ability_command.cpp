@@ -20,6 +20,7 @@
 #include "mission_snapshot.h"
 #include "hilog_wrapper.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
+#include "test_observer.h"
 
 using namespace OHOS::AppExecFwk;
 
@@ -52,6 +53,19 @@ const struct option LONG_OPTIONS_DUMP[] = {
     {"mission-infos", no_argument, nullptr, 'S'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::u:c";
+const struct option LONG_OPTIONS_DUMPSYS[] = {
+    {"help", no_argument, nullptr, 'h'},
+    {"all", no_argument, nullptr, 'a'},
+    {"mission-list", no_argument, nullptr, 'l'},
+    {"ability", required_argument, nullptr, 'i'},
+    {"extension", no_argument, nullptr, 'e'},
+    {"pending", no_argument, nullptr, 'p'},
+    {"process", no_argument, nullptr, 'r'},
+    {"userId", required_argument, nullptr, 'u'},
+    {"client", no_argument, nullptr, 'c'},
+    {nullptr, 0, nullptr, 0},
+};
 }  // namespace
 
 AbilityManagerShellCommand::AbilityManagerShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, TOOL_NAME)
@@ -69,7 +83,9 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
         {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
         {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpCommand, this)},
+        {"dumpsys", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
+        {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
     };
 
     return OHOS::ERR_OK;
@@ -361,16 +377,13 @@ ErrCode AbilityManagerShellCommand::RunAsScreenCommand()
         }
 
         if (option == -1) {
-            if (counter == 1) {
-                // When scanning the first argument
-                if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
-                    // 'aa screen' with no option: aa screen
-                    // 'aa screen' with a wrong argument: aa screen xxx
-                    HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
-
-                    resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
+            // When scanning the first argument
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                // 'aa screen' with no option: aa screen
+                // 'aa screen' with a wrong argument: aa screen xxx
+                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
             }
             break;
         }
@@ -530,6 +543,203 @@ ErrCode AbilityManagerShellCommand::RunAsStopService()
         result = OHOS::ERR_INVALID_VALUE;
     }
 
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
+{
+    ErrCode result = OHOS::ERR_OK;
+    bool isUserID = false;
+    bool isClient = false;
+    int userID = DEFAULT_INVAL_VALUE;
+    bool isfirstCommand = false;
+    std::string args;
+
+    for (size_t i = 0; i < argList_.size(); i++) {
+        if (argList_[i] == "-c" || argList_[i] == "--client") {
+            if (isClient == false) {
+                isClient = true;
+            } else {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+
+        } else if (argList_[i] == "-u" || argList_[i] == "--userId") {
+            (void)StrToInt(argList_[i + 1], userID);
+            if (userID == DEFAULT_INVAL_VALUE) {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+            if (isUserID == false) {
+                isUserID = true;
+            } else {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+
+        } else if (argList_[i] == std::to_string(userID)) {
+            continue;
+        } else {
+            args += argList_[i];
+            args += " ";
+        }
+    }
+
+    while (true) {
+
+        int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
+
+        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+
+        if (optind < 0 || optind > argc_) {
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return OHOS::ERR_INVALID_VALUE;
+        }
+
+        if (option == -1) {
+            break;
+        }
+
+        switch (option) {
+            case 'h': {
+                // 'aa dumpsys -h'
+                // 'aa dumpsys --help'
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                result = OHOS::ERR_INVALID_VALUE;
+                return result;
+                break;
+            }
+            case 'a': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -a'
+                // 'aa dumpsys --all'
+                break;
+            }
+            case 'l': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -l'
+                // 'aa dumpsys --mission-list'
+                break;
+            }
+            case 'i': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                    int abilityRecordId = DEFAULT_INVAL_VALUE;
+                    (void)StrToInt(optarg, abilityRecordId);
+                    if (abilityRecordId == DEFAULT_INVAL_VALUE) {
+                        result = OHOS::ERR_INVALID_VALUE;
+                        resultReceiver_.append(HELP_MSG_DUMPSYS);
+                        return result;
+                    }
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -i'
+                // 'aa dumpsys --ability'
+                break;
+            }
+            case 'e': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -e'
+                // 'aa dumpsys --extension'
+                break;
+            }
+            case 'p': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -p'
+                // 'aa dumpsys --pending'
+                break;
+            }
+            case 'r': {
+                if (isfirstCommand == false) {
+                    isfirstCommand = true;
+                } else {
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
+                }
+                // 'aa dumpsys -r'
+                // 'aa dumpsys --process'
+                break;
+            }
+            case 'u': {
+                // 'aa dumpsys -u'
+                // 'aa dumpsys --userId'
+                break;
+            }
+            case 'c': {
+                // 'aa dumpsys -c'
+                // 'aa dumpsys --client'
+                break;
+            }
+            case '?': {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+                break;
+            }
+            default: {
+                if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                    // 'aa dumpsys' with no option: aa dumpsys
+                    // 'aa dumpsys' with a wrong argument: aa dumpsys xxx
+                    HILOG_INFO("'aa dumpsys' with no option.");
+
+                    resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
+                break;
+            }
+        }
+    }
+
+    if (result != OHOS::ERR_OK) {
+        resultReceiver_.append(HELP_MSG_DUMPSYS);
+    } else {
+        if (isfirstCommand != true) {
+            result = OHOS::ERR_INVALID_VALUE;
+            resultReceiver_.append(HELP_MSG_DUMPSYS);
+            return result;
+        }
+
+        std::vector<std::string> dumpResults;
+        result = AbilityManagerClient::GetInstance()->DumpSysState(args, dumpResults, isClient, isUserID, userID);
+        if (result == OHOS::ERR_OK) {
+            for (auto it : dumpResults) {
+                resultReceiver_ += it + "\n";
+            }
+        } else {
+            HILOG_INFO("failed to dump state.");
+        }
+    }
     return result;
 }
 
@@ -737,18 +947,16 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
         }
 
         if (option == -1) {
-            if (counter == 1) {
-                // When scanning the first argument
-                if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
-                    // 'aa start' with no option: aa start
-                    // 'aa start' with a wrong argument: aa start xxx
-                    // 'aa stop-service' with no option: aa stop-service
-                    // 'aa stop-service' with a wrong argument: aa stop-service xxx
-                    HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+            // When scanning the first argument
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                // 'aa start' with no option: aa start
+                // 'aa start' with a wrong argument: aa start xxx
+                // 'aa stop-service' with no option: aa stop-service
+                // 'aa stop-service' with a wrong argument: aa stop-service xxx
+                HILOG_INFO("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
 
-                    resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
             }
             break;
         }
@@ -934,6 +1142,104 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want &want, std::string &win
     return result;
 }
 
+ErrCode AbilityManagerShellCommand::RunAsTestCommand()
+{
+    HILOG_INFO("enter");
+    std::map<std::string, std::string> params;
 
+    for (int i = USER_TEST_COMMAND_START_INDEX; i < argc_; i++) {
+        HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
+        std::string opt = argv_[i];
+        if (opt == "-h" || opt == "--help") {
+            resultReceiver_.append(HELP_MSG_TEST);
+            return OHOS::ERR_OK;
+        } else if (opt == "-p" || opt == "-w") {
+            if (i >= argc_ - 1) {
+                return TestCommandError("error: option [" + opt + "] requires a value.\n");
+            }
+            std::string argv = argv_[++i];
+            params[opt] = argv;
+        } else if (opt == "-s") {
+            if (i >= argc_ - USER_TEST_COMMAND_PARAMS_NUM) {
+                return TestCommandError(
+                    "error: option Should be [-s unittest <test-runner>] or [-s class <test-class>].\n");
+            }
+            std::string argKey = argv_[++i];
+            std::string argValue = argv_[++i];
+            if (!(argKey == "unittest" || argKey == "class")) {
+                return TestCommandError("error: option Should be [-s unittest] or [-s class].\n");
+            }
+            params[opt + " " + argKey] = argValue;
+        } else if (opt.at(0) == '-') {
+            return TestCommandError("error: unknown option: " + opt + "\n");
+        }
+    }
+
+    if (!IsTestCommandIntegrity(params)) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    return StartUserTest(params);
+}
+
+bool AbilityManagerShellCommand::IsTestCommandIntegrity(const std::map<std::string, std::string> &params)
+{
+    HILOG_INFO("enter");
+
+    std::vector<std::string> opts = {"-p", "-s unittest", "-s class"};
+    for (auto opt : opts) {
+        auto it = params.find(opt);
+        if (it == params.end()) {
+            TestCommandError("error: the option [" + opt + "] is expected.\n");
+            return false;
+        }
+    }
+    return true;
+}
+
+ErrCode AbilityManagerShellCommand::TestCommandError(const std::string &info)
+{
+    resultReceiver_.append(info);
+    resultReceiver_.append(HELP_MSG_TEST);
+    return OHOS::ERR_INVALID_VALUE;
+}
+
+ErrCode AbilityManagerShellCommand::StartUserTest(const std::map<std::string, std::string> &params)
+{
+    HILOG_INFO("enter");
+
+    Want want;
+    for (auto param : params) {
+        want.SetParam(param.first, param.second);
+    }
+
+    sptr<TestObserver> observer = new (std::nothrow) TestObserver();
+    if (!observer) {
+        HILOG_ERROR("Failed: the TestObserver is null");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    int result = AbilityManagerClient::GetInstance()->StartUserTest(want, observer->AsObject());
+    if (result != OHOS::ERR_OK) {
+        HILOG_INFO("%{public}s result = %{public}d", STRING_START_USER_TEST_NG.c_str(), result);
+        resultReceiver_ = STRING_START_USER_TEST_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(result));
+        return result;
+    }
+    HILOG_INFO("%{public}s", STRING_START_USER_TEST_OK.c_str());
+
+    int64_t timeMs = 0;
+    if (!want.GetStringParam("-w").empty()) {
+        int time = std::stoi(want.GetStringParam("-w"));
+        timeMs = time * TIME_RATE_MS;
+    }
+    if (!observer->waitForFinish(timeMs)) {
+        resultReceiver_ = "Timeout: user test is not completed within the specified time.\n";
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    resultReceiver_ = STRING_START_USER_TEST_OK + "\n";
+
+    return result;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

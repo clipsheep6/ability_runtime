@@ -22,9 +22,9 @@
 
 #include "ability_connect_callback.h"
 #include "foundation/aafwk/standard/frameworks/kits/ability/ability_runtime/include/ability_context.h"
+#include "js_runtime.h"
 #include "event_handler.h"
 
-class NativeEngine;
 class NativeObject;
 class NativeReference;
 class NativeValue;
@@ -39,15 +39,21 @@ public:
     static void Finalizer(NativeEngine* engine, void* data, void* hint);
 
     static NativeValue* StartAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* StartAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityByCall(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartAbilityForResult(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* StartAbilityForResultWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* ConnectAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelf(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info);
+
+    static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
+        const std::shared_ptr<AppExecFwk::Configuration> &config);
 
     std::shared_ptr<AbilityContext> GetAbilityContext()
     {
@@ -56,10 +62,13 @@ public:
 
 private:
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info);
@@ -81,7 +90,7 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
 
 class JSAbilityConnection : public AbilityConnectCallback {
 public:
-    explicit JSAbilityConnection(NativeEngine* engine);
+    explicit JSAbilityConnection(NativeEngine& engine);
     ~JSAbilityConnection();
     void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
@@ -93,7 +102,7 @@ public:
     void CallJsFailed(int32_t errorCode);
 private:
     NativeValue* ConvertElement(const AppExecFwk::ElementName &element);
-    std::unique_ptr<NativeEngine> engine_;
+    NativeEngine& engine_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
 };
 

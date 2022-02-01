@@ -26,6 +26,8 @@
 #include "appexecfwk_errors.h"
 #include "bytrace.h"
 #include "iapp_state_callback.h"
+#include "want.h"
+#include "bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -50,6 +52,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsBackgroundRunningRestricted;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RUNNING_PROCESSES)] =
         &AppMgrStub::HandleGetAllRunningProcesses;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
+        &AppMgrStub::HandleGetProcessRunningInfosByUserId;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_SET_APP_FREEZING_TIME)] =
         &AppMgrStub::HandleSetAppFreezingTime;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_APP_FREEZING_TIME)] =
@@ -66,6 +70,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUnregisterApplicationStateObserver;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_FOREGROUND_APPLICATIONS)] =
         &AppMgrStub::HandleGetForegroundApplications;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_USER_TEST_PROCESS)] =
+        &AppMgrStub::HandleStartUserTestProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::SCHEDULE_ACCEPT_WANT_DONE)] =
         &AppMgrStub::HandleScheduleAcceptWantDone;
 }
@@ -195,6 +201,24 @@ int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply)
+{
+    BYTRACE(BYTRACE_TAG_APP);
+    int32_t userId = data.ReadInt32();
+    std::vector<RunningProcessInfo> info;
+    auto result = GetProcessRunningInfosByUserId(info, userId);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleSetAppFreezingTime(MessageParcel &data, MessageParcel &reply)
 {
     BYTRACE(BYTRACE_TAG_APP);
@@ -268,6 +292,25 @@ int32_t AppMgrStub::HandleGetForegroundApplications(MessageParcel &data, Message
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
+    return result;
+}
+
+int32_t AppMgrStub::HandleStartUserTestProcess(MessageParcel &data, MessageParcel &reply)
+{
+    AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
+    if (want == nullptr) {
+        APP_LOGE("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    BundleInfo *bundleInfo = data.ReadParcelable<BundleInfo>();
+    if (want == nullptr) {
+        APP_LOGE("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto observer = data.ReadParcelable<IRemoteObject>();
+    int32_t result = StartUserTestProcess(*want, observer, *bundleInfo);
+    reply.WriteInt32(result);
+    delete want;
     return result;
 }
 

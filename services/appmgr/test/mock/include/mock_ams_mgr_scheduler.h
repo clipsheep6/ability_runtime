@@ -34,6 +34,7 @@ public:
     MOCK_METHOD0(Reset, void());
     MOCK_METHOD1(KillProcessByAbilityToken, void(const sptr<IRemoteObject> &token));
     MOCK_METHOD1(KillProcessesByUserId, void(int32_t userId));
+    MOCK_METHOD2(KillProcessWithAccount, int(const std::string &, const int));
     MOCK_METHOD1(KillApplication, int32_t(const std::string &bundleName));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string &, const int uid));
     MOCK_METHOD0(IsReady, bool());
@@ -45,6 +46,7 @@ public:
     MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
     MOCK_METHOD1(RegisterStartSpecifiedAbilityResponse, void(const sptr<IStartSpecifiedAbilityResponse> &response));
     MOCK_METHOD1(UpdateConfiguration, void(const AppExecFwk::Configuration &));
+    MOCK_METHOD1(GetConfiguration, int(AppExecFwk::Configuration &));
 
     MockAmsMgrScheduler() : AmsMgrStub() {};
     virtual ~MockAmsMgrScheduler(){};

@@ -33,7 +33,7 @@ MockAbilityManagerService::MockAbilityManagerService() : abilityScheduler_(nullp
 MockAbilityManagerService::~MockAbilityManagerService()
 {}
 
-int MockAbilityManagerService::StartAbility(const Want &want, int requestCode)
+int MockAbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::StartAbility called";
     curstate_ = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
@@ -68,7 +68,8 @@ int MockAbilityManagerService::StartAbility(const Want &want, int requestCode)
     return 0;
 }
 
-int MockAbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode)
+int MockAbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, int requestCode)
 {
     return 0;
 }
@@ -91,7 +92,7 @@ int MockAbilityManagerService::TerminateAbility(
 }
 
 int MockAbilityManagerService::ConnectAbility(
-    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     if (abilityScheduler_ != nullptr) {
         PacMap inState;
@@ -126,6 +127,10 @@ int MockAbilityManagerService::AttachAbilityThread(
 }
 
 void MockAbilityManagerService::DumpState(const std::string &args, std::vector<std::string> &info)
+{}
+
+void MockAbilityManagerService::DumpSysState(
+    const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID)
 {}
 
 int MockAbilityManagerService::AbilityTransitionDone(
@@ -165,7 +170,7 @@ int MockAbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> 
     return 0;
 }
 
-int MockAbilityManagerService::StopServiceAbility(const Want &want)
+int MockAbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
 {
     return 0;
 }
@@ -234,6 +239,5 @@ int MockAbilityManagerService::PowerOn()
 {
     return 0;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS
