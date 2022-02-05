@@ -1218,7 +1218,7 @@ void Ability::Dump(const std::string &extra)
  * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
  * notification bar.
  */
-int Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest)
+int Ability::KeepBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent)
 {
     BackgroundTaskMgr::ContinuousTaskParam taskParam = BackgroundTaskMgr::ContinuousTaskParam(false, 0,
         std::make_shared<Notification::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken());
