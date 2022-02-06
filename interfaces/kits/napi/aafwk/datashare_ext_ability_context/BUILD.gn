@@ -28,8 +28,9 @@ gen_js_obj("datashare_ext_ability_context_js") {
 }
 
 gen_js_obj("datashare_ext_ability_context_abc") {
-  input = get_label_info(":gen_datashare_ext_ability_context_abc",
-                         "target_out_dir") + "/datashare_ext_ability_context.abc"
+  input =
+      get_label_info(":gen_datashare_ext_ability_context_abc",
+                     "target_out_dir") + "/datashare_ext_ability_context.abc"
   output = target_out_dir + "/datashare_ext_ability_context_abc.o"
   dep = ":gen_datashare_ext_ability_context_abc"
 }
