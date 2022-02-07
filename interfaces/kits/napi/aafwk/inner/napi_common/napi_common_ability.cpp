@@ -3522,17 +3522,6 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
-    // if ((AbilityType)info->type != AbilityType::SERVICE) {
-    //     asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
-    //     HILOG_ERROR("startBackgroundRunning with invalid ability type");
-    //     return;
-    // }
-
-    if (asyncCallbackInfo->wantAgent == nullptr) {
-        HILOG_ERROR("wantAgent param is invalid");
-        asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
-        return;
-    }
 
     asyncCallbackInfo->errCode = asyncCallbackInfo->ability->KeepBackgroundRunning(*asyncCallbackInfo->wantAgent);
 
@@ -3548,15 +3537,17 @@ void BackgroundRunningCallbackCompletedCB(napi_env env, napi_status status, void
     napi_value result[ARGS_TWO] = {0};
     napi_value callResult = 0;
     napi_get_undefined(env, &undefined);
-    result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+    // result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
     if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
-        napi_create_int32(env, 0, &result[PARAM1]);
+        result[0] = WrapUndefinedToJS(env);
+        napi_create_int32(env, 0, &result[1]);
     } else {
-        result[PARAM1] = WrapUndefinedToJS(env);
+        result[1] = WrapUndefinedToJS(env);
+        result[0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
     }
 
     napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
-    napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+    napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult);
 
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
         napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -3661,7 +3652,7 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
 
     UnwrapParamForWantAgent(env, args[1], asyncCallbackInfo->wantAgent);
 
-    if (paramNums == 3) {
+    if (paramNums == maxParamNums) {
         ret = StartBackgroundRunningAsync(env, args, 2, asyncCallbackInfo);
     } else {
         ret = StartBackgroundRunningPromise(env, asyncCallbackInfo);
