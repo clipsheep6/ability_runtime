@@ -14,6 +14,9 @@
  */
 
 #include "context_deal.h"
+
+#include <regex>
+
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "app_log_wrapper.h"
@@ -29,6 +32,10 @@
 #define MODE 0771
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public/";
+const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle/";
+}
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
 const std::string ContextDeal::CONTEXT_DEAL_CODE_CACHE("code_cache");
 const std::string ContextDeal::CONTEXT_DEAL_Files("files");
@@ -122,7 +129,8 @@ void ContextDeal::SetApplicationContext(const std::shared_ptr<Context> &context)
  */
 std::string ContextDeal::GetBundleCodePath()
 {
-    return (applicationInfo_ != nullptr) ? applicationInfo_->codePath : "";
+    return (applicationInfo_ != nullptr) ?
+        std::regex_replace(applicationInfo_->codePath, std::regex(ABS_CODE_PATH), LOCAL_CODE_PATH) : "";
 }
 
 /**
