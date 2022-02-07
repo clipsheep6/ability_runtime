@@ -19,7 +19,8 @@
 #include "extension_module_loader.h"
 
 namespace OHOS::AbilityRuntime {
-class DataShareExtAbilityModuleLoader : public ExtensionModuleLoader, public Singleton<DataShareExtAbilityModuleLoader> {
+class DataShareExtAbilityModuleLoader : public ExtensionModuleLoader,
+    public Singleton<DataShareExtAbilityModuleLoader> {
     DECLARE_SINGLETON(DataShareExtAbilityModuleLoader);
 
 public:

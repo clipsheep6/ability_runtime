@@ -25,48 +25,33 @@
 #include "data_ability_result.h"
 #include "idatashare.h"
 #include "values_bucket.h"
-#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const std::string SCHEME_DATASHARE = "datashare";
-
-Want GetWantFromContext(const std::shared_ptr<Context> &context)
-{
-    Want want;
-    APP_LOGI("GetWantFromContext start.");
-    if (context == nullptr) {
-        APP_LOGE("GetWantFromContext (context) failed, context == nullptr");
-        return want;
-    }
-    std::shared_ptr<AbilityInfo> info = context->GetAbilityInfo();
-    if (info != nullptr) {
-        APP_LOGI("Get ability info ok, set info to want");
-        want.SetElementName(info->bundleName, info->name);
-    }
-    APP_LOGI("GetWantFromContext end.");
-    return want;
-}
 }  // namespace
 
 std::mutex DataShareHelper::oplock_;
-DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context)
+DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const Want &want)
 {
-    APP_LOGI("DataShareHelper::DataShareHelper only with context start");
+    APP_LOGI("DataShareHelper::DataShareHelper with context and want start");
     token_ = context->GetToken();
     context_ = std::shared_ptr<Context>(context);
+    want_ = want;
+    uri_ = nullptr;
     dataShareProxy_ = nullptr;
     dataShareConnection_ = DataShareConnection::GetInstance(context);
-    APP_LOGI("DataShareHelper::DataShareHelper only with context end");
+    APP_LOGI("DataShareHelper::DataShareHelper with context and want end");
 }
 
-DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
-    const sptr<IDataShare> &dataShareProxy)
+DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const Want &want,
+    const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
 {
     APP_LOGI("DataShareHelper::DataShareHelper start");
     token_ = context->GetToken();
     context_ = std::shared_ptr<Context>(context);
+    want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
     dataShareConnection_ = DataShareConnection::GetInstance(context);
@@ -106,10 +91,11 @@ void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
  * @brief Creates a DataShareHelper instance without specifying the Uri based on the given Context.
  *
  * @param context Indicates the Context object on OHOS.
+ * @param want Indicates the Want containing information about the target extension ability to connect.
  *
  * @return Returns the created DataShareHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<Context> &context)
+std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<Context> &context, const Want &want)
 {
     APP_LOGI("DataShareHelper::Creator with context start.");
     if (context == nullptr) {
@@ -120,11 +106,11 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<
     APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance(context);
     if (!dataShareConnection->IsExtAbilityConnected()) {
-        dataShareConnection->ConnectDataShareExtAbility(GetWantFromContext(context), context->GetToken());
+        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
     }
     APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
-    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context);
+    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want);
     if (ptrDataShareHelper == nullptr) {
         APP_LOGE("DataShareHelper::Creator (context) failed, create DataShareHelper failed");
         return nullptr;
@@ -136,16 +122,17 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<
 
 /**
  * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
- * between the ability using the Data template (Data ability for short) and the associated client process in
+ * between the ability using the Data template (data share for short) and the associated client process in
  * a DataShareHelper instance.
  *
  * @param context Indicates the Context object on OHOS.
+ * @param want Indicates the Want containing information about the target extension ability to connect.
  * @param uri Indicates the database table or disk file to operate.
  *
  * @return Returns the created DataShareHelper instance.
  */
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
-    const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri)
 {
     APP_LOGI("DataShareHelper::Creator with context uri called start.");
     if (context == nullptr) {
@@ -169,7 +156,7 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
 
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance(context);
     if (!dataShareConnection->IsExtAbilityConnected()) {
-        dataShareConnection->ConnectDataShareExtAbility(GetWantFromContext(context), context->GetToken());
+        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
     }
     dataShareProxy = dataShareConnection->GetDataShareProxy();
     if (dataShareProxy == nullptr) {
@@ -177,7 +164,7 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     }
     APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
-    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, uri, dataShareProxy);
+    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
     if (ptrDataShareHelper == nullptr) {
         APP_LOGE("DataShareHelper::Creator (context, uri) failed, create DataShareHelper failed");
         return nullptr;
@@ -188,7 +175,7 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
 }
 
 /**
- * @brief Releases the client resource of the Data ability.
+ * @brief Releases the client resource of the data share.
  * You should call this method to releases client resource after the data operations are complete.
  *
  * @return Returns true if the resource is successfully released; returns false otherwise.
@@ -234,7 +221,7 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::GetFileTypes before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::GetFileTypes after ConnectDataShareExtAbility.");
@@ -288,7 +275,7 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::OpenFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::OpenFile after ConnectDataShareExtAbility.");
@@ -342,7 +329,7 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::OpenRawFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::OpenRawFile after ConnectDataShareExtAbility.");
@@ -392,7 +379,7 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::Insert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Insert after ConnectDataShareExtAbility.");
@@ -444,7 +431,7 @@ int DataShareHelper::Update(
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::Update before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Update after ConnectDataShareExtAbility.");
@@ -494,7 +481,7 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::Delete before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Delete after ConnectDataShareExtAbility.");
@@ -547,7 +534,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::Query before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Query after ConnectDataShareExtAbility.");
@@ -577,8 +564,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
 }
 
 /**
- * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
- * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
+ * @brief Obtains the MIME type matching the data specified by the URI of the data share. This method should be
+ * implemented by a data share. Data abilities supports general data types, including text, HTML, and JPEG.
  *
  * @param uri Indicates the URI of the data.
  *
@@ -597,7 +584,7 @@ std::string DataShareHelper::GetType(Uri &uri)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::GetType before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::GetType after ConnectDataShareExtAbility.");
@@ -647,7 +634,7 @@ int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBu
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::BatchInsert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::BatchInsert after ConnectDataShareExtAbility.");
@@ -756,7 +743,7 @@ void DataShareHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAb
         auto datashare = registerMap_.find(dataObserver);
         if (datashare == registerMap_.end()) {
             if (!dataShareConnection_->IsExtAbilityConnected()) {
-                dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+                dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
             }
             dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
             registerMap_.emplace(dataObserver, dataShareProxy);
@@ -856,7 +843,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
 
     if (dataShareProxy_ == nullptr) {
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
     }
@@ -878,16 +865,16 @@ void DataShareHelper::NotifyChange(const Uri &uri)
 }
 
 /**
- * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
- * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
- * context has changed. If you implement URI normalization for a Data ability, you must also implement
+ * @brief Converts the given uri that refer to the data share into a normalized URI. A normalized URI can be used
+ * across devices, persisted, backed up, and restored. It can refer to the same item in the data share even if the
+ * context has changed. If you implement URI normalization for a data share, you must also implement
  * denormalizeUri(ohos.utils.net.Uri) to enable URI denormalization. After this feature is enabled, URIs passed to any
- * method that is called on the Data ability must require normalization verification and denormalization. The default
- * implementation of this method returns null, indicating that this Data ability does not support URI normalization.
+ * method that is called on the data share must require normalization verification and denormalization. The default
+ * implementation of this method returns null, indicating that this data share does not support URI normalization.
  *
  * @param uri Indicates the Uri object to normalize.
  *
- * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
+ * @return Returns the normalized Uri object if the data share supports URI normalization; returns null otherwise.
  */
 Uri DataShareHelper::NormalizeUri(Uri &uri)
 {
@@ -902,7 +889,7 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::NormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::NormalizeUri after ConnectDataShareExtAbility.");
@@ -938,8 +925,8 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
  * @param uri uri Indicates the Uri object to denormalize.
  *
  * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed to
- * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
- * current environment.
+ * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in
+ * the current environment.
  */
 Uri DataShareHelper::DenormalizeUri(Uri &uri)
 {
@@ -954,7 +941,7 @@ Uri DataShareHelper::DenormalizeUri(Uri &uri)
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::DenormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::DenormalizeUri after ConnectDataShareExtAbility.");
@@ -1010,7 +997,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataShareHelper::ExecuteBatch(
     if (uri_ == nullptr) {
         APP_LOGI("DataShareHelper::ExecuteBatch before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(GetWantFromContext(context_), token_);
+            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::ExecuteBatch after ConnectDataShareExtAbility.");

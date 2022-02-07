@@ -46,10 +46,10 @@ sptr<DataShareConnection> DataShareConnection::GetInstance(const std::shared_ptr
 
 /**
  * @brief This method is called back to receive the connection result after an ability calls the
- * Ability#connectAbility(Intent, IAbilityConnection) method to connect it to a Service ability.
+ * ConnectAbility method to connect it to a extension ability.
  *
- * @param element: Indicates information about the connected Service ability.
- * @param remote: Indicates the remote proxy object of the Service ability.
+ * @param element: Indicates information about the connected extension ability.
+ * @param remote: Indicates the remote proxy object of the extension ability.
  * @param resultCode: Indicates the connection result code. The value 0 indicates a successful connection, and any
  * other value indicates a connection failure.
  */
@@ -71,11 +71,11 @@ void DataShareConnection::OnAbilityConnectDone(
 }
 
 /**
- * @brief This method is called back to receive the disconnection result after the connected Service ability crashes or
- * is killed. If the Service ability exits unexpectedly, all its connections are disconnected, and each ability
+ * @brief This method is called back to receive the disconnection result after the connected extension ability crashes
+ * or is killed. If the extension ability exits unexpectedly, all its connections are disconnected, and each ability
  * previously connected to it will call onAbilityDisconnectDone.
  *
- * @param element: Indicates information about the disconnected Service ability.
+ * @param element: Indicates information about the disconnected extension ability.
  * @param resultCode: Indicates the disconnection result code. The value 0 indicates a successful disconnection, and
  * any other value indicates a disconnection failure.
  */

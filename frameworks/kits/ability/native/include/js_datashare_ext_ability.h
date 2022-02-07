@@ -63,8 +63,8 @@ public:
         const sptr<IRemoteObject> &token) override;
 
     /**
-     * @brief Called when this datashare extension ability is started. You must override this function if you want to perform
-     *        some initialization operations during extension startup.
+     * @brief Called when this datashare extension ability is started. You must override this function if you want to
+     *        perform some initialization operations during extension startup.
      *
      * This function can be called only once in the entire lifecycle of an extension.
      * @param Want Indicates the {@link Want} structure containing startup information about the extension.
@@ -160,8 +160,8 @@ public:
      *
      * @return Returns the query result.
      */
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri, std::vector<std::string> &columns,
+        const NativeRdb::DataAbilityPredicates &predicates) override;
 
     /**
      * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be

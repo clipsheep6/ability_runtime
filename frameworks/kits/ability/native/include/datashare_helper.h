@@ -24,6 +24,7 @@
 #include "datashare_connection.h"
 #include "idatashare.h"
 #include "uri.h"
+#include "want.h"
 
 using Uri = OHOS::Uri;
 
@@ -47,21 +48,23 @@ public:
      * @brief Creates a DataShareHelper instance without specifying the Uri based on the given Context.
      *
      * @param context Indicates the Context object on OHOS.
+     * @param want Indicates the Want containing information about the target extension ability to connect.
      *
      * @return Returns the created DataShareHelper instance where Uri is not specified.
      */
-    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<Context> &context);
+    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<Context> &context, const Want &want);
 
     /**
      * @brief Creates a DataShareHelper instance with the Uri specified based on the given Context.
      *
      * @param context Indicates the Context object on OHOS.
+     * @param want Indicates the Want containing information about the target extension ability to connect.
      * @param uri Indicates the database table or disk file to operate.
      *
      * @return Returns the created DataShareHelper instance with a specified Uri.
      */
     static std::shared_ptr<DataShareHelper> Creator(
-        const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri);
+        const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief Releases the client resource of the Data share.
@@ -231,28 +234,25 @@ public:
         const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
 private:
-    DataShareHelper(const std::shared_ptr<Context> &context);
-    DataShareHelper(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
+    DataShareHelper(const std::shared_ptr<Context> &context, const Want &want);
+    DataShareHelper(const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri,
         const sptr<IDataShare> &dataShareProxy);
-
     void AddDataShareDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-
     bool CheckUriParam(const Uri &uri);
     bool CheckOhosUri(const Uri &uri);
 
-    sptr<IRemoteObject> token_ = nullptr;
+    sptr<IRemoteObject> token_ = {};
     std::shared_ptr<Context> context_ = nullptr;
+    Want want_ = {};
     std::shared_ptr<Uri> uri_ = nullptr;
-    bool isSystemCaller_ = false;
     sptr<IDataShare> dataShareProxy_ = nullptr;
+    bool isSystemCaller_ = false;
     std::mutex lock_;
     static std::mutex oplock_;
-
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;
     std::map<sptr<AAFwk::IDataAbilityObserver>, sptr<IDataShare>> registerMap_;
     std::map<sptr<AAFwk::IDataAbilityObserver>, std::string> uriMap_;
-
     sptr<DataShareConnection> dataShareConnection_ = nullptr;
 };
 
@@ -269,7 +269,6 @@ public:
 private:
     RemoteDiedHandler handler_;
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_DATASHARE_HELPER_H

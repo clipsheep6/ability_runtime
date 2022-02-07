@@ -25,13 +25,14 @@ namespace NativeRdb {
 class AbsSharedResultSet;
 class DataAbilityPredicates;
 class ValuesBucket;
-} 
+}
 namespace AAFwk {
 class IDataAbilityObserver;
 }
 namespace AppExecFwk {
 class DataAbilityResult;
 class DataAbilityOperation;
+
 class IDataShare : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"OHOS.AppExecFwk.IDataShare");

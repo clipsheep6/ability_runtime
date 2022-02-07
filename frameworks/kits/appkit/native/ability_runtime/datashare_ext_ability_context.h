@@ -26,8 +26,8 @@ namespace AbilityRuntime {
  */
 class DataShareExtAbilityContext : public ExtensionContext {
 public:
-    DataShareExtAbilityContext();
-    virtual ~DataShareExtAbilityContext();
+    DataShareExtAbilityContext() = default;
+    virtual ~DataShareExtAbilityContext() = default;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
