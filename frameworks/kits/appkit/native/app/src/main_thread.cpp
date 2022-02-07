@@ -55,6 +55,8 @@ std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
+const std::string LOCAL_BUNDLE_CODE_PATH = "/data/storage/el1/bundle/";
+const std::string PATH_SEPARATOR = "/";
 }
 
 #define ACEABILITY_LIBRARY_LOADER
@@ -785,7 +787,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         APP_LOGE("MainThread::handleLaunchApplication CheckForHandleLaunchApplication failed");
         return;
     }
-    LoadAbilityLibrary(appLaunchData.GetApplicationInfo().moduleSourceDirs);
+    std::vector<std::string> localPaths;
+    ChangeToLocalPath(appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
+    LoadAbilityLibrary(localPaths);
     LoadAppLibrary();
 
     ApplicationInfo appInfo = appLaunchData.GetApplicationInfo();
@@ -902,6 +906,22 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     APP_LOGI("MainThread::handleLaunchApplication called end.");
+}
+
+void MainThread::ChangeToLocalPath(const std::vector<std::string> &sourceDirs,
+    std::vector<std::string> &localPath)
+{
+    for (auto item : sourceDirs) {
+        if (item.empty()) {
+            continue;
+        }
+
+        auto pos = item.find_last_of(PATH_SEPARATOR);
+        if (pos == std::string::npos) {
+            continue;
+        }
+        localPath.emplace_back(LOCAL_BUNDLE_CODE_PATH + item.substr(pos));
+    }
 }
 
 void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
