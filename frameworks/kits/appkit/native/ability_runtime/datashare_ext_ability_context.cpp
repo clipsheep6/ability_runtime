@@ -17,5 +17,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+    DataShareExtAbilityContext::DataShareExtAbilityContext() {}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -20,10 +20,9 @@
 #include "data_ability_predicates.h"
 #include "datashare_ext_ability.h"
 #include "js_runtime.h"
+#include "native_engine/native_reference.h"
+#include "native_engine/native_value.h"
 #include "values_bucket.h"
-
-class NativeReference;
-class NativeValue;
 
 namespace OHOS {
 namespace AbilityRuntime {
