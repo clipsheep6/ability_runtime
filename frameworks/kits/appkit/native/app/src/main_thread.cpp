@@ -55,8 +55,8 @@ std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
+const std::string ABS_BUNDLE_CODE_PATH = "/data/app/el1/bundle/public/";
 const std::string LOCAL_BUNDLE_CODE_PATH = "/data/storage/el1/bundle/";
-const std::string PATH_SEPARATOR = "/";
 }
 
 #define ACEABILITY_LIBRARY_LOADER
@@ -738,7 +738,9 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("MainThread::handleLaunchApplication moduleResPaths count: %{public}zu start",
         bundleInfo.moduleResPaths.size());
-    for (auto moduleResPath : bundleInfo.moduleResPaths) {
+    std::vector<std::string> resPaths;
+    ChangeToLocalPath(bundleInfo.moduleResPaths, resPaths);
+    for (auto moduleResPath : resPaths) {
         if (!moduleResPath.empty()) {
             APP_LOGI("MainThread::handleLaunchApplication length: %{public}zu, moduleResPath: %{public}s",
                 moduleResPath.length(),
@@ -915,12 +917,8 @@ void MainThread::ChangeToLocalPath(const std::vector<std::string> &sourceDirs,
         if (item.empty()) {
             continue;
         }
-
-        auto pos = item.find_last_of(PATH_SEPARATOR);
-        if (pos == std::string::npos) {
-            continue;
-        }
-        localPath.emplace_back(LOCAL_BUNDLE_CODE_PATH + item.substr(pos));
+        localPath.emplace_back(
+            std::regex_replace(item, std::regex(ABS_BUNDLE_CODE_PATH), LOCAL_BUNDLE_CODE_PATH));
     }
 }
 
