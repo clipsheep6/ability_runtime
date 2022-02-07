@@ -16,6 +16,7 @@
 #include "main_thread.h"
 
 #include <new>
+#include <regex>
 
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
