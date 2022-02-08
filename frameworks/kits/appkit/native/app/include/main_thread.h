@@ -473,7 +473,8 @@ private:
 
     void LoadAppLibrary();
 
-    void ChangeToLocalPath(const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath);
+    void ChangeToLocalPath(const std::string &bundleName,
+        const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath);
 
     /**
      *
