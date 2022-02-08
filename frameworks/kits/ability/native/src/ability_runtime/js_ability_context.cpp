@@ -40,6 +40,15 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERROR_CODE_ONE = 1;
 
+class StartAbilityByCallParameters {
+public:
+    sptr<IRemoteObject> remoteCallee = nullptr;
+    std::shared_ptr<CallerCallBack> callerCallBack = nullptr;
+    std::weak_ptr<AbilityContext> weak_context;
+    std::mutex mutexlock;
+    std::condition_variable condition;
+};
+
 void JsAbilityContext::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
     HILOG_INFO("JsAbilityContext::Finalizer is called");
@@ -226,54 +235,110 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
 
 NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    int errCode = 0;
-    sptr<IRemoteObject> remoteCallee;
-    if (info.argc != ARGC_ONE || info.argv[0]->TypeOf() != NATIVE_OBJECT) {
+    HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
+    constexpr size_t ARGC_ONE = 1;
+    constexpr size_t ARGC_TWO = 2;
+    if (info.argc < ARGC_ONE || info.argv[0]->TypeOf() != NATIVE_OBJECT) {
         HILOG_ERROR("int put params count error");
         return engine.CreateUndefined();
     }
+
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
         reinterpret_cast<napi_value>(info.argv[0]), want);
-    NativeValue* callerComplex = nullptr;
-    std::mutex mutexlock;
-    std::condition_variable condition;
-    auto callBackDone = [&mutexlock, &condition, &remoteCallee](const sptr<IRemoteObject> &obj) {
-        std::unique_lock<std::mutex> lock(mutexlock);
-        remoteCallee = obj;
-        condition.notify_all();
-        HILOG_INFO("OnStartAbilityByCall callBackDone is called");
+
+    StartAbilityByCallParameters *callParameters = new (std::nothrow) StartAbilityByCallParameters();
+    if (callParameters == nullptr) {
+        HILOG_ERROR("callParameters create error");
+        return engine.CreateUndefined();
+    }
+    HILOG_INFO("OnStartAbilityByCall callParameters is %{public}p", callParameters);
+
+    callParameters->weak_context = context_;
+    callParameters->callerCallBack = std::make_shared<CallerCallBack>();
+    auto callBackDone = [callParameters](const sptr<IRemoteObject> &obj) {
+        HILOG_INFO("OnStartAbilityByCall callBackDone is called begin callParameters is %{public}p", callParameters);
+        if (callParameters != nullptr) {
+            callParameters->remoteCallee = obj;
+        } else {
+            HILOG_ERROR("OnStartAbilityByCall callBackDone callParameters is nullptr");
+        }
+        HILOG_INFO("OnStartAbilityByCall callBackDone mutexlock");
+        std::unique_lock<std::mutex> lock(callParameters->mutexlock);
+        HILOG_INFO("OnStartAbilityByCall callBackDone mutexlock notify");
+        callParameters->condition.notify_all();
+        HILOG_INFO("OnStartAbilityByCall callBackDone is called end");
     };
     auto releaseListen = [](const std::string &str) {
         HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
     };
-    auto context = context_.lock();
-    constexpr int CALLER_TIME_OUT = 5; // 5s
-    if (!context) {
-        HILOG_ERROR("context is released");
-        errCode = -1;
-        return engine.CreateUndefined();
-    }
-    std::shared_ptr<CallerCallBack> callerCallBack = std::make_shared<CallerCallBack>();
-    callerCallBack->SetCallBack(callBackDone);
-    callerCallBack->SetOnRelease(releaseListen);
-    HILOG_INFO("OnStartAbilityByCall execute is StartAbility");
-    errCode = context->StartAbility(want, callerCallBack);
-    if (remoteCallee == nullptr) {
-        HILOG_INFO("OnStartAbilityByCall lock mutexlock Done");
-        std::unique_lock<std::mutex> lock(mutexlock);
-        HILOG_INFO("OnStartAbilityByCall lock waiting callBackDone");
-        if (condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
-            remoteCallee = nullptr;
-            errCode = -1;
-            HILOG_ERROR("Waiting callee timeout");
-            return engine.CreateUndefined();
-        }
-    } else {
-        HILOG_INFO("OnStartAbilityByCall remoteCallee isn~t nullptr");
-    }
-    callerComplex = CreateJsCallerComplex(engine, context, remoteCallee, callerCallBack);
-    return callerComplex;
+    callParameters->callerCallBack->SetCallBack(callBackDone);
+    callParameters->callerCallBack->SetOnRelease(releaseListen);
+    AsyncTask::ExecuteCallback callExecute =
+        [callParameters, want] (
+            NativeEngine& engine, AsyncTask& task) {
+            constexpr int CALLER_TIME_OUT = 10; // 10s
+            if (callParameters == nullptr) {
+                HILOG_ERROR("callParameters is released");
+                return;
+            }
+            HILOG_INFO("OnStartAbilityByCall callExecute callParameters is %{public}p", callParameters);
+            auto context = callParameters->weak_context.lock();
+            if (context == nullptr) {
+                HILOG_ERROR("context is released");
+                return;
+            }
+
+            HILOG_INFO("OnStartAbilityByCall execute is StartAbility");
+            if (context->StartAbility(want, callParameters->callerCallBack) != 0) {
+                HILOG_ERROR("StartAbility is failed");
+                return;
+            }
+            HILOG_INFO("OnStartAbilityByCall lock waiting callBackDone");
+            if (callParameters->remoteCallee == nullptr) {
+                HILOG_INFO("OnStartAbilityByCall lock mutexlock");
+                std::unique_lock<std::mutex> lock(callParameters->mutexlock);
+                if (callParameters->condition.wait_for(
+                    lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
+                    HILOG_ERROR("Waiting callee timeout");
+                }
+            }
+            HILOG_DEBUG("JsAbilityContext::%{public}s, end", "OnStartAbilityByCall::ExecuteCallback");
+        };
+    AsyncTask::CompleteCallback callComplete =
+        [callParameters] (
+            NativeEngine& engine, AsyncTask& task, int32_t status) {
+            HILOG_DEBUG("JsAbilityContext::%{public}s, begin callParameters is %{public}p", "OnStartAbilityByCall::CompleteCallback", callParameters);
+            if (callParameters == nullptr) {
+                HILOG_ERROR("callParameters is released");
+                task.Reject(engine, CreateJsError(engine, -1, "callParameters Create Call Failed."));
+                // delete callParameters;
+                // callParameters = nullptr;
+                return;
+            }
+
+            auto context = callParameters->weak_context.lock();
+            if (context != nullptr && callParameters->callerCallBack != nullptr &&
+                callParameters->remoteCallee != nullptr) {
+                task.Resolve(engine, CreateJsCallerComplex(engine, context, callParameters->remoteCallee,
+                    callParameters->callerCallBack));
+            } else {
+                task.Reject(engine, CreateJsError(engine, -1, "callParameters Create Call Failed."));
+            }
+
+            // delete callParameters;
+            // callParameters = nullptr;
+            HILOG_DEBUG("JsAbilityContext::%{public}s, end", "OnStartAbilityByCall::CompleteCallback");
+        };
+
+    NativeValue* lastParam = ((info.argc == ARGC_TWO) ? info.argv[ARGC_ONE] : nullptr);
+    NativeValue* retsult = nullptr;
+    AsyncTask::Schedule(
+        engine,
+        CreateAsyncTaskWithLastParam(engine, lastParam, std::move(callExecute), std::move(callComplete), &retsult));
+
+    HILOG_DEBUG("JsAbilityContext::%{public}s, called end", __func__);
+    return retsult;
 }
 
 NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, NativeCallbackInfo& info)
