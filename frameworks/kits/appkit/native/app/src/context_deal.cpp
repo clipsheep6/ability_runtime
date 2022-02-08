@@ -33,9 +33,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
-const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public/";
 const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle/";
-const std::string FILE_SEPARATOR = "/";
 }
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
 const std::string ContextDeal::CONTEXT_DEAL_CODE_CACHE("code_cache");
@@ -134,8 +132,7 @@ std::string ContextDeal::GetBundleCodePath()
         return "";
     }
 
-    std::regex pattern(ABS_CODE_PATH + applicationInfo_->bundleName + FILE_SEPARATOR);
-    return std::regex_replace(applicationInfo_->codePath, pattern, LOCAL_CODE_PATH);
+    return LOCAL_CODE_PATH;
 }
 
 /**
