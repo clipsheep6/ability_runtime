@@ -35,6 +35,7 @@ namespace AppExecFwk {
 namespace {
 const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public/";
 const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle/";
+const std::string FILE_SEPARATOR = "/";
 }
 const std::string ContextDeal::CONTEXT_DEAL_FILE_SEPARATOR("/");
 const std::string ContextDeal::CONTEXT_DEAL_CODE_CACHE("code_cache");
@@ -129,8 +130,12 @@ void ContextDeal::SetApplicationContext(const std::shared_ptr<Context> &context)
  */
 std::string ContextDeal::GetBundleCodePath()
 {
-    return (applicationInfo_ != nullptr) ?
-        std::regex_replace(applicationInfo_->codePath, std::regex(ABS_CODE_PATH), LOCAL_CODE_PATH) : "";
+    if (applicationInfo_ == nullptr) {
+        return "";
+    }
+
+    std::regex pattern(ABS_CODE_PATH + applicationInfo_->bundleName + FILE_SEPARATOR);
+    return std::regex_replace(applicationInfo_->codePath, pattern, LOCAL_CODE_PATH);
 }
 
 /**

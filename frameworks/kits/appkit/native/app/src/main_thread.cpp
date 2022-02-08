@@ -58,6 +58,7 @@ constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 const std::string ABS_BUNDLE_CODE_PATH = "/data/app/el1/bundle/public/";
 const std::string LOCAL_BUNDLE_CODE_PATH = "/data/storage/el1/bundle/";
+const std::string FILE_SEPARATOR = "/";
 }
 
 #define ACEABILITY_LIBRARY_LOADER
@@ -740,7 +741,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     APP_LOGI("MainThread::handleLaunchApplication moduleResPaths count: %{public}zu start",
         bundleInfo.moduleResPaths.size());
     std::vector<std::string> resPaths;
-    ChangeToLocalPath(bundleInfo.moduleResPaths, resPaths);
+    ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
     for (auto moduleResPath : resPaths) {
         if (!moduleResPath.empty()) {
             APP_LOGI("MainThread::handleLaunchApplication length: %{public}zu, moduleResPath: %{public}s",
@@ -791,7 +792,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
     std::vector<std::string> localPaths;
-    ChangeToLocalPath(appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
+    ChangeToLocalPath(appLaunchData.GetApplicationInfo().bundleName,
+        appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
     LoadAbilityLibrary(localPaths);
     LoadAppLibrary();
 
@@ -911,15 +913,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     APP_LOGI("MainThread::handleLaunchApplication called end.");
 }
 
-void MainThread::ChangeToLocalPath(const std::vector<std::string> &sourceDirs,
-    std::vector<std::string> &localPath)
+void MainThread::ChangeToLocalPath(const std::string &bundleName,
+    const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath)
 {
     for (auto item : sourceDirs) {
         if (item.empty()) {
             continue;
         }
+        std::regex pattern(ABS_BUNDLE_CODE_PATH + bundleName + FILE_SEPARATOR);
         localPath.emplace_back(
-            std::regex_replace(item, std::regex(ABS_BUNDLE_CODE_PATH), LOCAL_BUNDLE_CODE_PATH));
+            std::regex_replace(item, pattern, LOCAL_BUNDLE_CODE_PATH));
     }
 }
 
