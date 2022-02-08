@@ -2244,6 +2244,7 @@ void AbilityManagerService::StartingLauncherAbility()
     /* First stage, hardcoding for the first launcher App */
     auto userId = GetUserId();
     Want want;
+    want.AddEntity(Want::FLAG_HOME_INTENT_FROM_SYSTEM);
     want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME);
     while (!(iBundleManager_->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
         userId, abilityInfo))) {
