@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-import { AsyncCallback } from "../basic";
-import { ResultSet } from '../data/rdb/resultSet';
-import ExtensionContext from "../application/ExtensionContext";
-import Want from '../@ohos.application.Want';
-import dataAbility from '../@ohos.data.dataAbility';
-import rdb from '../@ohos.data.rdb';
+import { AsyncCallback } from "./basic";
+import { ResultSet } from './data/rdb/resultSet';
+import ExtensionContext from "./application/ExtensionContext";
+import Want from './@ohos.application.Want';
+import dataAbility from './@ohos.data.dataAbility';
+import rdb from './@ohos.data.rdb';
 /**
  * class of datashare extension ability.
  *
