@@ -31,7 +31,8 @@
         "build": {
             "sub_component": [
                 "//foundation/aafwk/standard/zidl/test/native:zidl_client_test",
-                "//foundation/aafwk/standard/zidl/test/native:zidl_server_test"
+                "//foundation/aafwk/standard/zidl/test/native:zidl_server_test",
+                "//foundation/aafwk/standard/zidl:zidl"
             ],
             "inner_kits": [],
             "test": []
