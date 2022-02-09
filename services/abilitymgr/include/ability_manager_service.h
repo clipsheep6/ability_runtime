@@ -899,6 +899,11 @@ private:
      */
     bool Init();
     /**
+     * initialization of u0 user.
+     *
+     */
+    void InitU0User();
+    /**
      * starting lanucher ability.
      *
      */
