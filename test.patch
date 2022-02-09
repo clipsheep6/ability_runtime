@@ -1,0 +1,160 @@
+diff --git a/frameworks/kits/appkit/native/app/src/main_thread.cpp b/frameworks/kits/appkit/native/app/src/main_thread.cpp
+index 2fed3156..36672f26 100644
+--- a/frameworks/kits/appkit/native/app/src/main_thread.cpp
++++ b/frameworks/kits/appkit/native/app/src/main_thread.cpp
+@@ -55,6 +55,7 @@ std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
+ namespace {
+ constexpr int32_t DELIVERY_TIME = 200;
+ constexpr int32_t DISTRIBUTE_TIME = 100;
++constexpr int32_t UNSPECIFIED_USERID = -2;
+ }
+ 
+ #define ACEABILITY_LIBRARY_LOADER
+@@ -824,7 +825,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
+     BundleInfo bundleInfo;
+     APP_LOGI("MainThread::handleLaunchApplication length: %{public}zu, bundleName: %{public}s",
+         appInfo.bundleName.length(), appInfo.bundleName.c_str());
+-    bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
++    if (!bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, UNSPECIFIED_USERID)) {
++        APP_LOGE("GetBundleInfo fail");
++        return;
++    }
+ 
+     if (!InitResourceManager(resourceManager, contextDeal, appInfo, bundleInfo)) {
+         APP_LOGE("MainThread::handleLaunchApplication InitResourceManager failed");
+diff --git a/services/abilitymgr/include/ability_config.h b/services/abilitymgr/include/ability_config.h
+index 0bf081fb..8cbb024f 100644
+--- a/services/abilitymgr/include/ability_config.h
++++ b/services/abilitymgr/include/ability_config.h
+@@ -28,6 +28,7 @@ const std::string SYSTEM_UI_BUNDLE_NAME = "com.ohos.systemui";
+ const std::string SYSTEM_UI_STATUS_BAR = "com.ohos.systemui.statusbar.MainAbility";
+ const std::string SYSTEM_UI_NAVIGATION_BAR = "com.ohos.systemui.navigationbar.MainAbility";
+ const std::string SYSTEM_DIALOG_NAME = "com.ohos.systemui.systemdialog.MainAbility";
++const std::string SYSTEM_UI_ABILITY_NAME = "com.ohos.systemui.ServiceExtAbility";
+ 
+ const std::string SYSTEM_DIALOG_REQUEST_PERMISSIONS = "OHOS_RESULT_PERMISSIONS_LIST_YES";
+ const std::string SYSTEM_DIALOG_CALLER_BUNDLENAME = "OHOS_RESULT_CALLER_BUNDLERNAME";
+diff --git a/services/abilitymgr/include/ability_manager_service.h b/services/abilitymgr/include/ability_manager_service.h
+index 83668027..23de0ace 100644
+--- a/services/abilitymgr/include/ability_manager_service.h
++++ b/services/abilitymgr/include/ability_manager_service.h
+@@ -916,6 +916,11 @@ private:
+      *
+      */
+     bool Init();
++    /**
++     * initialization of u0 user.
++     *
++     */
++    void InitU0User();
+     /**
+      * starting lanucher ability.
+      *
+@@ -944,6 +949,12 @@ private:
+      */
+     void StartingContactsAbility();
+ 
++    /**
++     * starting system ui ServiceExt abilites.
++     *
++     */
++    void StartingSystemUiAbility();
++
+     /**
+      * starting mms ability.
+      *
+diff --git a/services/abilitymgr/src/ability_manager_service.cpp b/services/abilitymgr/src/ability_manager_service.cpp
+index 489943e7..8fb9616f 100755
+--- a/services/abilitymgr/src/ability_manager_service.cpp
++++ b/services/abilitymgr/src/ability_manager_service.cpp
+@@ -188,6 +188,7 @@ bool AbilityManagerService::Init()
+     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(0);
+     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
+ 
++    InitU0User();
+     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
+     if (HiviewDFX::Watchdog::GetInstance().AddThread("AMSWatchdog", handler_, amsTimeOut) != 0) {
+         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
+@@ -215,6 +216,16 @@ bool AbilityManagerService::Init()
+     return true;
+ }
+ 
++void AbilityManagerService::InitU0User()
++{
++    InitConnectManager(U0_USER_ID, false);
++    InitDataAbilityManager(U0_USER_ID, false);
++    InitPendWantManager(U0_USER_ID, false);
++    SetStackManager(U0_USER_ID, false);
++    InitMissionListManager(U0_USER_ID, false);
++}
++
++
+ void AbilityManagerService::OnStop()
+ {
+     HILOG_INFO("Stop service.");
+@@ -1516,7 +1527,7 @@ int AbilityManagerService::AttachAbilityThread(
+     HILOG_INFO("Attach ability thread.");
+     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
+ 
+-    if (!VerificationToken(token)) {
++    if (!VerificationToken(token) && !VerificationAllToken(token)) {
+         return ERR_INVALID_VALUE;
+     }
+ 
+@@ -2014,7 +2025,7 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
+ {
+     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+     HILOG_INFO("Schedule connect ability done.");
+-    if (!VerificationToken(token)) {
++    if (!VerificationToken(token) && !VerificationAllToken(token)) {
+         return ERR_INVALID_VALUE;
+     }
+ 
+@@ -3173,24 +3184,37 @@ void AbilityManagerService::StartSystemApplication()
+ 
+     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
+         HILOG_INFO("start all");
+-        StartingSystemUiAbility(SatrtUiMode::STARTUIBOTH);
++        StartingSystemUiAbility();
+         return;
+     }
+ 
+-    if (amsConfigResolver_->GetStatusBarState()) {
+-        HILOG_INFO("start status bar");
+-        StartingSystemUiAbility(SatrtUiMode::STATUSBAR);
+-    }
+-
+-    if (amsConfigResolver_->GetNavigationBarState()) {
+-        HILOG_INFO("start navigation bar");
+-        StartingSystemUiAbility(SatrtUiMode::NAVIGATIONBAR);
+-    }
++    StartingSystemUiAbility();
+ 
+     // Location may change
+     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
+ }
+ 
++void AbilityManagerService::StartingSystemUiAbility()
++{
++    HILOG_DEBUG("%{public}s", __func__);
++    AppExecFwk::AbilityInfo systemUiInfo;
++    if (!iBundleManager_) {
++        HILOG_INFO("bms server is null");
++        return;
++    }
++    Want systemUiWant;
++    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME);
++    uint32_t waitCnt = 0;
++    // Wait 10 minutes for the installation to complete.
++    while (!iBundleManager_->QueryAbilityInfo(systemUiWant, systemUiInfo) && waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
++        HILOG_INFO("Waiting query system ui info completed.");
++        usleep(REPOLL_TIME_MICRO_SECONDS);
++        waitCnt++;
++    }
++    (void)StartAbility(systemUiWant, U0_USER_ID, DEFAULT_INVAL_VALUE);
++}
++
++
+ void AbilityManagerService::ConnectBmsService()
+ {
+     HILOG_DEBUG("%{public}s", __func__);
