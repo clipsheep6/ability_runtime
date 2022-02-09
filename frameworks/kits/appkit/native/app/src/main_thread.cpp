@@ -55,6 +55,7 @@ std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
+constexpr int32_t ANY_USERID = -4;
 }
 
 #define ACEABILITY_LIBRARY_LOADER
@@ -824,7 +825,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     BundleInfo bundleInfo;
     APP_LOGI("MainThread::handleLaunchApplication length: %{public}zu, bundleName: %{public}s",
         appInfo.bundleName.length(), appInfo.bundleName.c_str());
-    bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
+    if (!bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, ANY_USERID)) {
+        APP_LOGE("GetBundleInfo fail");
+	return;
+    }
 
     if (!InitResourceManager(resourceManager, contextDeal, appInfo, bundleInfo)) {
         APP_LOGE("MainThread::handleLaunchApplication InitResourceManager failed");
