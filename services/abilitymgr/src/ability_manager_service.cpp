@@ -1526,7 +1526,7 @@ int AbilityManagerService::AttachAbilityThread(
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
 
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
@@ -2024,7 +2024,7 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule connect ability done.");
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
