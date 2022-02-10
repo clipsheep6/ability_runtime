@@ -243,7 +243,7 @@ napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info in
  *
  * @return The return value from NAPI C++ to JS for the module.
  */
-napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info);info
+napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info);
 
 napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo);
 
