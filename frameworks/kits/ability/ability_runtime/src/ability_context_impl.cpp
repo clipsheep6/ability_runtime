@@ -276,7 +276,7 @@ ErrCode AbilityContextImpl::TerminateSelf()
     return err;
 }
 
-sptr<IRemoteObject> AbilityContextImpl::GetAbilityToken()
+sptr<IRemoteObject> AbilityContextImpl::GetToken()
 {
     return token_;
 }
@@ -342,6 +342,22 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
         HILOG_ERROR("AbilityContextImpl::SetMissionLabel is failed %{public}d", err);
     }
     return err;
+}
+
+void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    abilityCallback_ = abilityCallback;
+}
+
+int AbilityContextImpl::GetCurrentWindowMode()
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        return AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;
+    }
+    return abilityCallback->GetCurrentWindowMode();
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

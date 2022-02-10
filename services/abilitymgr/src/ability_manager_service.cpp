@@ -59,12 +59,14 @@ const int32_t U0_USER_ID = 0;
 static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
+constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t EXTENSION_SUPPORT_API_VERSION = 8;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const int32_t MAX_NUMBER_OF_CONNECT_BMS = 15;
 const std::string EMPTY_DEVICE_ID = "";
 const std::string PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
+const std::string PERMISSION_SET_ABILITY_CONTROLLER = "ohos.permission.SET_ABILITY_CONTROLLER";
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -2390,7 +2392,9 @@ int AbilityManagerService::GenerateAbilityRequest(
         }
     }
 
-    request.appInfo = request.abilityInfo.applicationInfo;
+    auto appName = request.abilityInfo.applicationInfo.name;
+    auto appFlag = AppExecFwk::ApplicationFlag::GET_APPLICATION_INFO_WITH_PERMISSION;
+    bms->GetApplicationInfo(appName, appFlag, userId, request.appInfo);
     if (request.appInfo.name.empty() || request.appInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
@@ -3853,9 +3857,23 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
     bool imAStabilityTest)
 {
     HILOG_DEBUG("%{public}s, imAStabilityTest: %{public}d", __func__, imAStabilityTest);
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bms nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleName;
+    int uid = IPCSkeleton::GetCallingUid();
+    bms->GetBundleNameForUid(uid, bundleName);
+    HILOG_INFO("%{public}s, bundleName: %{public}s, uid = %{public}d", __func__, bundleName.c_str(), uid);
+    if (bms->CheckPermission(bundleName, PERMISSION_SET_ABILITY_CONTROLLER) == 0) {
+        HILOG_ERROR("PERMISSION_SET_ABILITY_CONTROLLER check failed");
+        return CHECK_PERMISSION_FAILED;
+    }
     std::lock_guard<std::recursive_mutex> guard(globalLock_);
     abilityController_ = abilityController;
     controllerIsAStabilityTest_ = imAStabilityTest;
+    HILOG_DEBUG("%{public}s, end", __func__);
     return ERR_OK;
 }
 
@@ -3928,7 +3946,6 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.writePermission = extensionInfo.writePermission;
     abilityInfo.extensionAbilityType = extensionInfo.type;
     abilityInfo.visible = extensionInfo.visible;
-    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
     abilityInfo.resourcePath = extensionInfo.resourcePath;
     abilityInfo.enabled = extensionInfo.enabled;
     abilityInfo.isModuleJson = true;
@@ -3945,7 +3962,8 @@ int32_t AbilityManagerService::GetAbilityInfoFromExtension(const Want &want, App
     std::string abilityName = elementName.GetAbilityName();
     AppExecFwk::BundleMgrClient bundleClient;
     AppExecFwk::BundleInfo bundleInfo;
-    if (!bundleClient.GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO, bundleInfo)) {
+    if (!bundleClient.GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO, bundleInfo,
+        GetUserId())) {
         HILOG_ERROR("Failed to get bundle info when generate ability request.");
         return RESOLVE_APP_ERR;
     }
@@ -3958,6 +3976,7 @@ int32_t AbilityManagerService::GetAbilityInfoFromExtension(const Want &want, App
         found = true;
         HILOG_DEBUG("GetExtensionAbilityInfo, extension ability info found, name=%{public}s", abilityName.c_str());
         abilityInfo.applicationName = bundleInfo.applicationInfo.name;
+        abilityInfo.applicationInfo = bundleInfo.applicationInfo;
         InitAbilityInfoFromExtension(extensionInfo, abilityInfo);
         break;
     }
@@ -4057,6 +4076,37 @@ int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject
 {
     HILOG_DEBUG("enter");
     return MinimizeAbility(token);
+}
+
+int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag)
+{
+    HILOG_DEBUG("DoAbilityForeground, sceneFlag:%{public}d", flag);
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    auto missionId = GetMissionIdByAbilityToken(token);
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
+
+    abilityRecord->lifeCycleStateInfo_.sceneFlag = flag;
+    int ret = currentMissionListManager_->MoveMissionToFront(missionId, false);
+    abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
+    return ret;
+}
+
+int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag)
+{
+    HILOG_DEBUG("DoAbilityBackground, sceneFlag:%{public}d", flag);
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    abilityRecord->lifeCycleStateInfo_.sceneFlag = flag;
+    int ret = MinimizeAbility(token);
+    abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
+    return ret;
 }
 
 int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)

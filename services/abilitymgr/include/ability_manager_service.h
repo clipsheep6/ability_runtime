@@ -821,6 +821,24 @@ public:
      */
     virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
 
+    /**
+     * Calls this interface to move the ability to the foreground.
+     *
+     * @param token, ability's token.
+     * @param flag, use for lock or unlock flag and so on.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override;
+
+    /**
+     * Calls this interface to move the ability to the background.
+     *
+     * @param token, ability's token.
+     * @param flag, use for lock or unlock flag and so on.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
+
     bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
@@ -845,7 +863,7 @@ public:
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
     static constexpr uint32_t BACKGROUND_TIMEOUT = 10000;     // ms
     static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 500;          // ms
+    static constexpr uint32_t CONNECT_TIMEOUT = 3000;         // ms
     static constexpr uint32_t DISCONNECT_TIMEOUT = 500;       // ms
     static constexpr uint32_t COMMAND_TIMEOUT = 5000;         // ms
     static constexpr uint32_t SYSTEM_UI_TIMEOUT = 5000;       // ms

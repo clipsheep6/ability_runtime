@@ -139,6 +139,9 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     }
 
     application_ = application;
+    if (abilityContext_ != nullptr) {
+        abilityContext_->RegisterAbilityCallback(weak_from_this());
+    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -250,15 +253,6 @@ void Ability::OnStop()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     APP_LOGI("%{public}s begin.", __func__);
-    if (scene_ != nullptr) {
-        scene_ = nullptr;
-        onSceneDestroyed();
-    }
-    if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityStop.", __func__);
-        abilityWindow_->OnPostAbilityStop();
-        APP_LOGI("%{public}s end abilityWindow_->OnPostAbilityStop.", __func__);
-    }
     if (abilityLifecycleExecutor_ == nullptr) {
         APP_LOGE("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
@@ -270,6 +264,25 @@ void Ability::OnStop()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
+    APP_LOGI("%{public}s end.", __func__);
+}
+
+/**
+ * @brief Release the window and ability.
+ */
+void Ability::Destroy()
+{
+    APP_LOGI("%{public}s begin.", __func__);
+    // Release the scene.
+    if (scene_ != nullptr) {
+        scene_ = nullptr;
+        onSceneDestroyed();
+    }
+
+    // Release the window.
+    if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        abilityWindow_->OnPostAbilityStop(); // Ability will been released when window destroy.
+    }
     APP_LOGI("%{public}s end.", __func__);
 }
 
@@ -435,13 +448,15 @@ void Ability::OnBackground()
                 APP_LOGE("Ability::OnBackground error. scene_ == nullptr.");
                 return;
             }
-            scene_->GoBackground();
+            APP_LOGI("GoBackground sceneFlag:%{public}d.", sceneFlag_);
+            scene_->GoBackground(sceneFlag_);
         } else {
             if (abilityWindow_ == nullptr) {
                 APP_LOGE("Ability::OnBackground error. abilityWindow_ == nullptr.");
                 return;
             }
-            abilityWindow_->OnPostAbilityBackground();
+            APP_LOGI("OnPostAbilityBackground sceneFlag:%{public}d.", sceneFlag_);
+            abilityWindow_->OnPostAbilityBackground(sceneFlag_);
         }
         APP_LOGI("%{public}s end OnPostAbilityBackground.", __func__);
     }
@@ -1623,7 +1638,7 @@ bool Ability::OnContinue(WantParams &wantParams)
  *
  * @return A string represents page ability stack info, empty if failed;
  */
-const std::string& Ability::GetContentInfo()
+std::string Ability::GetContentInfo()
 {
     if (scene_ == nullptr) {
         return "";
@@ -3240,6 +3255,12 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
     APP_LOGI("Ability::GetWindowOption window mode is %{public}d.", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
 
+    if (want.GetElement().GetBundleName() == LAUNCHER_BUNDLE_NAME &&
+        want.GetElement().GetAbilityName() == LAUNCHER_ABILITY_NAME) {
+        APP_LOGI("Set window type for launcher");
+        option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_WALLPAPER);
+    }
+
     APP_LOGI("%{public}s end", __func__);
     return option;
 }
@@ -3247,8 +3268,9 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 void Ability::DoOnForeground(const Want& want)
 {
     if (abilityWindow_ != nullptr) {
-        APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityForeground.", __func__);
-        abilityWindow_->OnPostAbilityForeground();
+        APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityForeground, sceneFlag:%{public}d.",
+            __func__, sceneFlag_);
+        abilityWindow_->OnPostAbilityForeground(sceneFlag_);
         APP_LOGI("%{public}s end abilityWindow_->OnPostAbilityForeground.", __func__);
     } else {
         APP_LOGI("========================abilityWindow_ != nullptr ======================");
@@ -3263,6 +3285,20 @@ void Ability::DoOnForeground(const Want& want)
 sptr<IRemoteObject> Ability::CallRequest()
 {
     return nullptr;
+}
+
+int Ability::GetCurrentWindowMode()
+{
+    APP_LOGI("%{public}s start", __func__);
+    auto windowMode = static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED);
+    if (scene_ == nullptr) {
+        return windowMode;
+    }
+    auto window = scene_->GetMainWindow();
+    if (window != nullptr) {
+        windowMode = static_cast<int>(window->GetMode());
+    }
+    return windowMode;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

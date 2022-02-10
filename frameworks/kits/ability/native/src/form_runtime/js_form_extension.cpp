@@ -26,6 +26,7 @@
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "napi_common_util.h"
 #include "napi_common_want.h"
 
 namespace OHOS {
@@ -49,12 +50,12 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 {
     HILOG_INFO("JsFormExtension::Init begin.");
     FormExtension::Init(record, application, handler, token);
-    std::string srcPath(Extension::abilityInfo_->package);
-    srcPath.append("/assets/js/");
-    if (!Extension::abilityInfo_->srcPath.empty()) {
-        srcPath.append(Extension::abilityInfo_->srcPath).append("/");
+    std::string srcPath;
+    GetSrcPath(srcPath);
+    if (srcPath.empty()) {
+        HILOG_ERROR("Failed to get srcPath");
+        return;
     }
-    srcPath.append(Extension::abilityInfo_->name).append(".abc");
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
@@ -137,6 +138,15 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     }
 
     AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
+    nativeDataValue = nativeObject->GetProperty("image");
+    if (nativeDataValue != nullptr) {
+        std::map<std::string, int> rawImageDataMap;
+        UnwrapRawImageDataMap(*nativeEngine, nativeDataValue, rawImageDataMap);
+        HILOG_INFO("Image number is %{public}zu", rawImageDataMap.size());
+        for (auto entry : rawImageDataMap) {
+            formData.AddImageData(entry.first, entry.second);
+        }
+    }
     formProviderInfo.SetFormData(formData);
     HILOG_INFO("%{public}s called end.", __func__);
     return formProviderInfo;
@@ -265,6 +275,63 @@ NativeValue* JsFormExtension::CallObjectMethod(const char* name, NativeValue* co
     }
     HILOG_INFO("JsFormExtension::CallFunction(%{public}s), success", name);
     return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
+}
+
+void JsFormExtension::GetSrcPath(std::string &srcPath)
+{
+    if (!Extension::abilityInfo_->isModuleJson) {
+        /* temporary compatibility api8 + config.json */
+        srcPath.append(Extension::abilityInfo_->package);
+        srcPath.append("/assets/js/");
+        if (!Extension::abilityInfo_->srcPath.empty()) {
+            srcPath.append(Extension::abilityInfo_->srcPath);
+        }
+        srcPath.append("/").append(Extension::abilityInfo_->name).append(".abc");
+        return;
+    }
+
+    if (!Extension::abilityInfo_->srcEntrance.empty()) {
+        srcPath.append(Extension::abilityInfo_->moduleName + "/");
+        srcPath.append(Extension::abilityInfo_->srcEntrance);
+        srcPath.erase(srcPath.rfind('.'));
+        srcPath.append(".abc");
+    }
+}
+
+bool JsFormExtension::UnwrapRawImageDataMap(NativeEngine& engine, NativeValue* argv,
+    std::map<std::string, int>& rawImageDataMap)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    auto env = reinterpret_cast<napi_env>(&engine);
+    auto param = reinterpret_cast<napi_value>(argv);
+
+    if (!IsTypeForNapiValue(env, param, napi_object)) {
+        return false;
+    }
+
+    napi_valuetype jsValueType = napi_undefined;
+    napi_value jsProNameList = nullptr;
+    uint32_t jsProCount = 0;
+
+    NAPI_CALL_BASE(env, napi_get_property_names(env, param, &jsProNameList), false);
+    NAPI_CALL_BASE(env, napi_get_array_length(env, jsProNameList, &jsProCount), false);
+    HILOG_INFO("%{public}s called. Property size=%{public}d.", __func__, jsProCount);
+
+    napi_value jsProName = nullptr;
+    napi_value jsProValue = nullptr;
+    for (uint32_t index = 0; index < jsProCount; index++) {
+        NAPI_CALL_BASE(env, napi_get_element(env, jsProNameList, index, &jsProName), false);
+
+        std::string strProName = UnwrapStringFromJS(env, jsProName);
+        HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+        NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsProValue), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
+        int natValue = UnwrapInt32FromJS(env, jsProValue);
+        rawImageDataMap.emplace(strProName, natValue);
+        HILOG_INFO("%{public}s called. Property value=%{public}d.", __func__, natValue);
+    }
+
+    return true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

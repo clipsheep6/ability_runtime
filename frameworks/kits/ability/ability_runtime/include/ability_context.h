@@ -16,6 +16,7 @@
 #ifndef ABILITY_RUNTIME_ABILITY_CONTEXT_H
 #define ABILITY_RUNTIME_ABILITY_CONTEXT_H
 
+#include "foundation/aafwk/standard/frameworks/kits/ability/native/include/iability_callback.h"
 #include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "foundation/aafwk/standard/interfaces/innerkits/app_manager/include/appmgr/configuration.h"
 
@@ -162,13 +163,6 @@ public:
 
     virtual ErrCode TerminateSelf() = 0;
 
-     /**
-     * @brief Obtains token.
-     *
-     * @return Returns the token.
-     */
-    virtual sptr<IRemoteObject> GetAbilityToken() = 0;
-
     /**
      * @brief Requests certain permissions from the system.
      * This method is called for permission request. This is an asynchronous method. When it is executed,
@@ -234,6 +228,10 @@ public:
     virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
 
     virtual std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const = 0;
+
+    virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
+
+    virtual int GetCurrentWindowMode() = 0;
 
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;

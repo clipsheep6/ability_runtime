@@ -13,26 +13,18 @@
  * limitations under the License.
  */
 
-#include "extension_context.h"
-
-#include "hilog_wrapper.h"
+#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_CALLBACK_INTERFACE_H
+#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_CALLBACK_INTERFACE_H
 
 namespace OHOS {
-namespace AbilityRuntime {
-const size_t ExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("ExtensionContext"));
-
-void ExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
-{
-    if (abilityInfo == nullptr) {
-        HILOG_ERROR("ExtensionContext::SetAbilityInfo Info == nullptr");
-        return;
-    }
-    abilityInfo_ = abilityInfo;
-}
-
-std::shared_ptr<AppExecFwk::AbilityInfo> ExtensionContext::GetAbilityInfo() const
-{
-    return abilityInfo_;
-}
-}  // namespace AbilityRuntime
+namespace AppExecFwk {
+class IAbilityCallback {
+public:
+    /**
+     * @brief Called back at ability context.
+     */
+    virtual int GetCurrentWindowMode() = 0;
+};
+}  // namespace AppExecFwk
 }  // namespace OHOS
+#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_CALLBACK_INTERFACE_H

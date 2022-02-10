@@ -22,6 +22,7 @@
 
 #include "context.h"
 #include "datashare_connection.h"
+#include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "idatashare.h"
 #include "uri.h"
 #include "want.h"
@@ -52,7 +53,8 @@ public:
      *
      * @return Returns the created DataShareHelper instance where Uri is not specified.
      */
-    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<Context> &context, const Want &want);
+    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+        const AAFwk::Want &want);
 
     /**
      * @brief Creates a DataShareHelper instance with the Uri specified based on the given Context.
@@ -63,8 +65,20 @@ public:
      *
      * @return Returns the created DataShareHelper instance with a specified Uri.
      */
-    static std::shared_ptr<DataShareHelper> Creator(
-        const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri);
+    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<Context> &context,
+        const AAFwk::Want &want, const std::shared_ptr<Uri> &uri);
+
+    /**
+     * @brief Creates a DataShareHelper instance with the Uri specified based on the given Context.
+     *
+     * @param context Indicates the Context object on OHOS.
+     * @param want Indicates the Want containing information about the target extension ability to connect.
+     * @param uri Indicates the database table or disk file to operate.
+     *
+     * @return Returns the created DataShareHelper instance with a specified Uri.
+     */
+    static std::shared_ptr<DataShareHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+        const AAFwk::Want &want, const std::shared_ptr<Uri> &uri);
 
     /**
      * @brief Releases the client resource of the Data share.
@@ -234,9 +248,11 @@ public:
         const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
 private:
-    DataShareHelper(const std::shared_ptr<Context> &context, const Want &want);
-    DataShareHelper(const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri,
-        const sptr<IDataShare> &dataShareProxy);
+    DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want);
+    DataShareHelper(const std::shared_ptr<Context> &context, const AAFwk::Want &want,
+        const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy);
+    DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
+        const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy);
     void AddDataShareDeathRecipient(const sptr<IRemoteObject> &token);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     bool CheckUriParam(const Uri &uri);
@@ -244,7 +260,7 @@ private:
 
     sptr<IRemoteObject> token_ = {};
     std::shared_ptr<Context> context_ = nullptr;
-    Want want_ = {};
+    AAFwk::Want want_ = {};
     std::shared_ptr<Uri> uri_ = nullptr;
     sptr<IDataShare> dataShareProxy_ = nullptr;
     bool isSystemCaller_ = false;

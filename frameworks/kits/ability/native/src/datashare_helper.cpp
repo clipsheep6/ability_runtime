@@ -33,19 +33,19 @@ const std::string SCHEME_DATASHARE = "datashare";
 }  // namespace
 
 std::mutex DataShareHelper::oplock_;
-DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const Want &want)
+DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+    const AAFwk::Want &want)
 {
     APP_LOGI("DataShareHelper::DataShareHelper with context and want start");
     token_ = context->GetToken();
-    context_ = std::shared_ptr<Context>(context);
     want_ = want;
     uri_ = nullptr;
     dataShareProxy_ = nullptr;
-    dataShareConnection_ = DataShareConnection::GetInstance(context);
+    dataShareConnection_ = DataShareConnection::GetInstance();
     APP_LOGI("DataShareHelper::DataShareHelper with context and want end");
 }
 
-DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const Want &want,
+DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const AAFwk::Want &want,
     const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
 {
     APP_LOGI("DataShareHelper::DataShareHelper start");
@@ -54,7 +54,19 @@ DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const 
     want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
-    dataShareConnection_ = DataShareConnection::GetInstance(context);
+    dataShareConnection_ = DataShareConnection::GetInstance();
+    APP_LOGI("DataShareHelper::DataShareHelper end");
+}
+
+DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+    const AAFwk::Want &want, const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
+{
+    APP_LOGI("DataShareHelper::DataShareHelper start");
+    token_ = context->GetToken();
+    want_ = want;
+    uri_ = uri;
+    dataShareProxy_ = dataShareProxy;
+    dataShareConnection_ = DataShareConnection::GetInstance();
     APP_LOGI("DataShareHelper::DataShareHelper end");
 }
 
@@ -95,7 +107,8 @@ void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
  *
  * @return Returns the created DataShareHelper instance where Uri is not specified.
  */
-std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<Context> &context, const Want &want)
+std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
 {
     APP_LOGI("DataShareHelper::Creator with context start.");
     if (context == nullptr) {
@@ -104,7 +117,7 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<
     }
 
     APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
-    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance(context);
+    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
     if (!dataShareConnection->IsExtAbilityConnected()) {
         dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
     }
@@ -132,7 +145,7 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(const std::shared_ptr<
  * @return Returns the created DataShareHelper instance.
  */
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
-    const std::shared_ptr<Context> &context, const Want &want, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<Context> &context, const AAFwk::Want &want, const std::shared_ptr<Uri> &uri)
 {
     APP_LOGI("DataShareHelper::Creator with context uri called start.");
     if (context == nullptr) {
@@ -154,7 +167,62 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<IDataShare> dataShareProxy = nullptr;
 
-    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance(context);
+    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
+    if (!dataShareConnection->IsExtAbilityConnected()) {
+        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
+    }
+    dataShareProxy = dataShareConnection->GetDataShareProxy();
+    if (dataShareProxy == nullptr) {
+        APP_LOGW("DataShareHelper::Creator get invalid dataShareProxy");
+    }
+    APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
+
+    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
+    if (ptrDataShareHelper == nullptr) {
+        APP_LOGE("DataShareHelper::Creator (context, uri) failed, create DataShareHelper failed");
+        return nullptr;
+    }
+
+    APP_LOGI("DataShareHelper::Creator with context uri called end.");
+    return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
+}
+
+/**
+ * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
+ * between the ability using the Data template (data share for short) and the associated client process in
+ * a DataShareHelper instance.
+ *
+ * @param context Indicates the Context object on OHOS.
+ * @param want Indicates the Want containing information about the target extension ability to connect.
+ * @param uri Indicates the database table or disk file to operate.
+ *
+ * @return Returns the created DataShareHelper instance.
+ */
+std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
+    const std::shared_ptr<Uri> &uri)
+{
+    APP_LOGI("DataShareHelper::Creator with context uri called start.");
+    if (context == nullptr) {
+        APP_LOGE("DataShareHelper::Creator (context, uri) failed, context == nullptr");
+        return nullptr;
+    }
+
+    if (uri == nullptr) {
+        APP_LOGE("DataShareHelper::Creator (context, uri) failed, uri == nullptr");
+        return nullptr;
+    }
+
+    if (uri->GetScheme() != SCHEME_DATASHARE) {
+        APP_LOGE("DataShareHelper::Creator (context, uri) failed, the Scheme is not datashare, Scheme: %{public}s",
+            uri->GetScheme().c_str());
+        return nullptr;
+    }
+
+    APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
+    sptr<IDataShare> dataShareProxy = nullptr;
+
+    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
     if (!dataShareConnection->IsExtAbilityConnected()) {
         dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
     }

@@ -19,7 +19,6 @@
 #include <memory>
 
 #include "ability_connect_callback_stub.h"
-#include "context.h"
 #include "event_handler.h"
 #include "idatashare.h"
 #include "want.h"
@@ -28,17 +27,15 @@ namespace OHOS {
 namespace AppExecFwk {
 class DataShareConnection : public AAFwk::AbilityConnectionStub {
 public:
-    explicit DataShareConnection(const std::shared_ptr<Context> &context);
+    DataShareConnection() = default;
     virtual ~DataShareConnection() = default;
 
     /**
      * @brief get singleton of Class DataShareConnection
      *
-     * @param context: the running context for appcontext
-     *
      * @return The singleton of DataShareConnection
      */
-    static sptr<DataShareConnection> GetInstance(const std::shared_ptr<Context> &context);
+    static sptr<DataShareConnection> GetInstance();
 
     /**
      * @brief This method is called back to receive the connection result after an ability calls the
@@ -66,7 +63,7 @@ public:
     /**
      * @brief connect remote ability of DataShareExtAbility.
      */
-    void ConnectDataShareExtAbility(const Want &want, const sptr<IRemoteObject> &token);
+    void ConnectDataShareExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token);
 
     /**
      * @brief disconnect remote ability of DataShareExtAbility.
@@ -90,7 +87,6 @@ public:
 private:
     static sptr<DataShareConnection> instance_;
     static std::mutex mutex_;
-    std::shared_ptr<Context> context_;
     std::atomic<bool> isConnected_ = {false};
     sptr<IDataShare> dataShareProxy_;
 };

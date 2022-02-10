@@ -68,11 +68,14 @@ public:
     void MinimizeAbility() override;
 
     ErrCode TerminateSelf() override;
-    sptr<IRemoteObject> GetAbilityToken() override;
+
+    sptr<IRemoteObject> GetToken() override;
+
     void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
         int requestCode, PermissionRequestTask &&task) override;
     void OnRequestPermissionsFromUserResult(
         int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) override;
+
     ErrCode RestoreWindowStage(void* contentStorage) override;
 
     /**
@@ -97,7 +100,7 @@ public:
      *
      * @param token The token represents ability.
      */
-    inline void SetToken(const sptr<IRemoteObject> &token)
+    void SetToken(const sptr<IRemoteObject> &token) override
     {
         token_ = token;
     }
@@ -134,6 +137,17 @@ public:
      */
     ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) override;
 
+    /**
+     * regist ability callback
+     *
+     * @param abilityCallback Indicates the abilityCallback object.
+     */
+    void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) override;
+
+    /**
+     * get current window mode
+     */
+    int GetCurrentWindowMode() override;
 private:
     sptr<IRemoteObject> token_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
@@ -143,6 +157,7 @@ private:
     void* contentStorage_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_;
     sptr<LocalCallContainer> localCallContainer_;
+    std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -40,6 +40,7 @@
 #include "form_provider_info.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/key_event.h"
 #include "foundation/multimodalinput/input/interfaces/native/innerkits/event/include/pointer_event.h"
+#include "iability_callback.h"
 #include "iremote_object.h"
 #include "pac_map.h"
 #include "want.h"
@@ -76,6 +77,7 @@ class Ability : public IAbilityEvent,
                 public AbilityContext,
                 public FormCallbackInterface,
                 public IAbilityContinuation,
+                public IAbilityCallback,
                 public std::enable_shared_from_this<Ability> {
 public:
     friend class PageAbilityImpl;
@@ -894,6 +896,11 @@ public:
     bool StopAbility(const AAFwk::Want &want) override;
 
     /**
+     * @brief Release the window and ability.
+     */
+    void Destroy();
+
+    /**
      * @brief Posts a scheduled Runnable task to a new non-UI thread.
      * The task posted via this method will be executed in a new thread, which allows you to perform certain
      * time-consuming operations. To use this method, you must also override the supportHighPerformanceUI() method.
@@ -1300,7 +1307,7 @@ public:
      *
      * @return A string represents page ability stack info, empty if failed;
      */
-    virtual const std::string& GetContentInfo();
+    virtual std::string GetContentInfo();
 
     /**
      * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
@@ -1385,13 +1392,19 @@ public:
      * @return None.
      */
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
-	
+
 	/**
      * @brief request a remote object of callee from this ability.
      * @return Returns the remote object of callee.
      */
     virtual sptr<IRemoteObject> CallRequest();
 
+    /**
+     * @brief Called back at ability context.
+     */
+    virtual int GetCurrentWindowMode() override;
+
+    uint32_t sceneFlag_ = 0;
 protected:
     /**
      * @brief Acquire a form provider remote object.
@@ -1595,7 +1608,6 @@ private:
      */
     bool ReAcquireForm(const int64_t formId, const Want &want);
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_H

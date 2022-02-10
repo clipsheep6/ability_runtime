@@ -139,12 +139,12 @@
             "header_base": "//foundation/aafwk/standard/common/task_dispatcher/include",
             "header_files": [
               "dispatcher/parallel_task_dispatcher.h",
-              "dispatcher/task_dispatcher_context",
+              "dispatcher/task_dispatcher_context.h",
               "threading/runnable.h",
               "task/task.h"
             ]
           },
-          "name": "//foundation/aafwk/standard/common:common_target"
+          "name": "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher"
         }
       ],
       "test_list": [
@@ -171,16 +171,6 @@
         "//foundation/aafwk/standard/tools/test:systemtest",
         "//foundation/aafwk/standard/tools/test:moduletest",
         "//foundation/aafwk/standard/tools/test:unittest"
-      ]
-    },
-    "zidl": {
-      "module_list": [
-        "//foundation/aafwk/standard/zidl/test/native:zidl_client_test",
-        "//foundation/aafwk/standard/zidl/test/native:zidl_server_test"
-      ],
-      "inner_kits": [
-      ],
-      "test_list": [
       ]
     },
     "form_runtime": {

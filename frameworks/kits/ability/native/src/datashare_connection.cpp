@@ -23,22 +23,18 @@ namespace OHOS {
 namespace AppExecFwk {
 sptr<DataShareConnection> DataShareConnection::instance_ = nullptr;
 std::mutex DataShareConnection::mutex_;
-DataShareConnection::DataShareConnection(const std::shared_ptr<Context> &context) : context_(context)
-{}
 
 /**
  * @brief get singleton of Class DataShareConnection
  *
- * @param context: the running context for appcontext
- *
  * @return The singleton of DataShareConnection
  */
-sptr<DataShareConnection> DataShareConnection::GetInstance(const std::shared_ptr<Context> &context)
+sptr<DataShareConnection> DataShareConnection::GetInstance()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if (instance_ == nullptr) {
-            instance_ = sptr<DataShareConnection>(new (std::nothrow) DataShareConnection(context));
+            instance_ = sptr<DataShareConnection>(new (std::nothrow) DataShareConnection());
         }
     }
     return instance_;
@@ -90,7 +86,7 @@ void DataShareConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 /**
  * @brief connect remote ability of DataShareExtAbility.
  */
-void DataShareConnection::ConnectDataShareExtAbility(const Want &want, const sptr<IRemoteObject> &token)
+void DataShareConnection::ConnectDataShareExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
 {
     APP_LOGI("%{public}s called begin", __func__);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
