@@ -188,6 +188,8 @@ bool AbilityManagerService::Init()
     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(0);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
 
+    InitU0User();
+
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
     if (HiviewDFX::Watchdog::GetInstance().AddThread("AMSWatchdog", handler_, amsTimeOut) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
@@ -213,6 +215,15 @@ bool AbilityManagerService::Init()
     handler_->PostTask(creatWhiteListTask, "creatWhiteList");
     HILOG_INFO("Init success.");
     return true;
+}
+
+void AbilityManagerService::InitU0User()
+{
+    InitConnectManager(U0_USER_ID, false);
+    InitDataAbilityManager(U0_USER_ID, false);
+    InitPendWantManager(U0_USER_ID, false);
+    SetStackManager(U0_USER_ID, false);
+    InitMissionListManager(U0_USER_ID, false);
 }
 
 void AbilityManagerService::OnStop()
@@ -1522,7 +1533,7 @@ int AbilityManagerService::AttachAbilityThread(
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
 
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
@@ -2020,7 +2031,7 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule connect ability done.");
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
