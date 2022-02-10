@@ -66,7 +66,7 @@ declare namespace particleAbility {
    * Keep this Service ability in the background and display a notification bar.
    *
    * @since 7
-   * @sysCap SystemCapability.ResourceSchedule.BackgroundTaskManager.ContinuousTask
+   * @syscap SystemCapability.ResourceSchedule.BackgroundTaskManager.ContinuousTask
    * @permission ohos.permission.KEEP_BACKGROUND_RUNNING
    * @param id Identifies the notification bar information.
    * @param request Indicates the notificationRequest instance containing information for displaying a notification bar.
@@ -79,7 +79,7 @@ declare namespace particleAbility {
    * Cancel background running of this ability to free up system memory.
    *
    * @since 7
-   * @sysCap SystemCapability.ResourceSchedule.BackgroundTaskManager.ContinuousTask
+   * @syscap SystemCapability.ResourceSchedule.BackgroundTaskManager.ContinuousTask
    * @deprecated
    */
   function cancelBackgroundRunning(callback: AsyncCallback<void>): void;
