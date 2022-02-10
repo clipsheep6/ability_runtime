@@ -516,12 +516,6 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
     HILOG_INFO("%{public}s, called", __func__);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND_NEW) &&
-        !abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING_NEW)) {
-        HILOG_WARN("Ability state is invalid, not foregroundnew or foregerounding_new.");
-        return ERR_OK;
-    }
-
     MoveToBackgroundTask(abilityRecord);
     UpdateMissionTimeStamp(abilityRecord);
     return ERR_OK;
