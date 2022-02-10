@@ -188,6 +188,7 @@ bool AbilityManagerService::Init()
     kernalAbilityManager_ = std::make_shared<KernalAbilityManager>(0);
     CHECK_POINTER_RETURN_BOOL(kernalAbilityManager_);
 
+    InitU0User();
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
     if (HiviewDFX::Watchdog::GetInstance().AddThread("AMSWatchdog", handler_, amsTimeOut) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
@@ -214,6 +215,16 @@ bool AbilityManagerService::Init()
     HILOG_INFO("Init success.");
     return true;
 }
+
+void AbilityManagerService::InitU0User()
+{
+    InitConnectManager(U0_USER_ID, false);
+    InitDataAbilityManager(U0_USER_ID, false);
+    InitPendWantManager(U0_USER_ID, false);
+    SetStackManager(U0_USER_ID, false);
+    InitMissionListManager(U0_USER_ID, false);
+}
+
 
 void AbilityManagerService::OnStop()
 {
@@ -1522,7 +1533,7 @@ int AbilityManagerService::AttachAbilityThread(
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
 
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
@@ -2020,7 +2031,7 @@ int AbilityManagerService::ScheduleConnectAbilityDone(
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule connect ability done.");
-    if (!VerificationToken(token)) {
+    if (!VerificationToken(token) && !VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
 
@@ -3179,23 +3190,36 @@ void AbilityManagerService::StartSystemApplication()
 
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
-        StartingSystemUiAbility(SatrtUiMode::STARTUIBOTH);
+        StartingSystemUiAbility();
         return;
     }
 
-    if (amsConfigResolver_->GetStatusBarState()) {
-        HILOG_INFO("start status bar");
-        StartingSystemUiAbility(SatrtUiMode::STATUSBAR);
-    }
-
-    if (amsConfigResolver_->GetNavigationBarState()) {
-        HILOG_INFO("start navigation bar");
-        StartingSystemUiAbility(SatrtUiMode::NAVIGATIONBAR);
-    }
+    StartingSystemUiAbility();
 
     // Location may change
     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }
+
+void AbilityManagerService::StartingSystemUiAbility()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    AppExecFwk::AbilityInfo systemUiInfo;
+    if (!iBundleManager_) {
+        HILOG_INFO("bms server is null");
+        return;
+    }
+    Want systemUiWant;
+    systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME);
+    uint32_t waitCnt = 0;
+    // Wait 10 minutes for the installation to complete.
+    while (!iBundleManager_->QueryAbilityInfo(systemUiWant, systemUiInfo) && waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
+        HILOG_INFO("Waiting query system ui info completed.");
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+        waitCnt++;
+    }
+    (void)StartAbility(systemUiWant, U0_USER_ID, DEFAULT_INVAL_VALUE);
+}
+
 
 void AbilityManagerService::ConnectBmsService()
 {
@@ -3845,10 +3869,6 @@ int32_t AbilityManagerService::GetValidUserId(const Want &want, const int32_t us
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
     int32_t userIdValid = DEFAULT_INVAL_VALUE;
-    if (IsSystemUI(want.GetBundle())) {
-        HILOG_DEBUG("systemUI ability, user is default");
-        return MAIN_USER_ID;
-    }
 
     if (DEFAULT_INVAL_VALUE == userId) {
         userIdValid = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
