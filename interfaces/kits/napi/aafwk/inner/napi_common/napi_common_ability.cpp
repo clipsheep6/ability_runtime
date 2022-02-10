@@ -3505,6 +3505,8 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
 napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, Notification::WantAgent::WantAgent *&wantAgent)
 {
     napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
+    NAPI_ASSERT(env, valuetype == napi_object, "Wrong argument type. Object expected.");
     napi_value wantAgentParam = nullptr;
     napi_value result = nullptr;
 
@@ -3529,7 +3531,10 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
         return;
     }
-    asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
+    if (asyncCallbackInfo->errCode == NAPI_ERR_PARAM_INVALID) {
+        HILOG_ERROR("parse input param failed");
+        return;
+    }
     if (asyncCallbackInfo->ability == nullptr) {
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         HILOG_ERROR("%{public}s ability == nullptr", __func__);
@@ -3658,17 +3663,19 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
     size_t paramNums = 3;
     const size_t minParamNums = 2;
     const size_t maxParamNums = 3;
-    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value args[maxParamNums] = {nullptr};
     napi_value ret = 0;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNums, args, NULL, NULL));
 
-    if (paramNums < minParamNums || paramNums > maxParamNums || paramNums > ARGS_MAX_COUNT) {
+    if (paramNums < minParamNums || paramNums > maxParamNums) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;
     }
 
-    UnwrapParamForWantAgent(env, args[1], asyncCallbackInfo->wantAgent);
+    if (UnwrapParamForWantAgent(env, args[1], asyncCallbackInfo->wantAgent) == nullptr) {
+        asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
+    }
 
     if (paramNums == maxParamNums) {
         ret = StartBackgroundRunningAsync(env, args, maxParamNums - 1, asyncCallbackInfo);
