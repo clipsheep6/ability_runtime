@@ -14,6 +14,8 @@
  */
 #include "context_container.h"
 
+#include <regex>
+
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "app_log_wrapper.h"
@@ -23,6 +25,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 constexpr int DEFAULT_USERID = 100;
+const std::string ABS_BUNDLE_CODE_PATH = "/data/app/el1/bundle/public/";
+const std::string LOCAL_BUNDLE_CODE_PATH = "/data/storage/el1/bundle/";
+const std::string FILE_SEPARATOR = "/";
 /**
  * Attaches a Context object to the current ability.
  * Generally, this method is called after Ability is loaded to provide the application context for the current ability.
@@ -673,7 +678,16 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
 
     APP_LOGI(
         "ContextContainer::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
-    for (auto moduleResPath : bundleInfo.moduleResPaths) {
+    std::vector<std::string> moduleResPaths;
+    std::regex pattern(ABS_BUNDLE_CODE_PATH + bundleInfo.name + FILE_SEPARATOR);
+    for (auto item : bundleInfo.moduleResPaths) {
+        if (item.empty()) {
+            continue;
+        }
+        moduleResPaths.emplace_back(std::regex_replace(item, pattern, LOCAL_BUNDLE_CODE_PATH));
+    }
+
+    for (auto moduleResPath : moduleResPaths) {
         if (!moduleResPath.empty()) {
             APP_LOGI("ContextContainer::InitResourceManager length: %{public}zu, moduleResPath: %{public}s",
                 moduleResPath.length(),
