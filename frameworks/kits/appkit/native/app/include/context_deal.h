@@ -25,6 +25,7 @@ namespace AppExecFwk {
 class ContextDeal : public Context, public std::enable_shared_from_this<ContextDeal> {
 public:
     ContextDeal() = default;
+    explicit ContextDeal(bool isCreateBySystemApp);
     virtual ~ContextDeal() = default;
 
     /**
@@ -759,6 +760,7 @@ private:
     std::shared_ptr<TaskDispatcher> mainTaskDispatcher_;
     std::shared_ptr<EventRunner> mainEventRunner_;
     std::shared_ptr<HapModuleInfo> hapModuleInfoLocal_ = nullptr;
+    bool isCreateBySystemApp_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

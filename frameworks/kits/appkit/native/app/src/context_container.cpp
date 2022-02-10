@@ -24,9 +24,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-constexpr int DEFAULT_USERID = 100;
-const std::string ABS_BUNDLE_CODE_PATH = "/data/app/el1/bundle/public/";
-const std::string LOCAL_BUNDLE_CODE_PATH = "/data/storage/el1/bundle/";
+constexpr int CURRENT_USERID = -2;
+const std::string ABS_BUNDLE_CODE_PATH = "/data/app/el1/bundle/public";
+const std::string LOCAL_BUNDLES_PATH = "/data/bundles";
 const std::string FILE_SEPARATOR = "/";
 /**
  * Attaches a Context object to the current ability.
@@ -642,7 +642,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     APP_LOGI("ContextContainer::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
         bundleName.length(),
         bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, DEFAULT_USERID);
+    bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, CURRENT_USERID);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         APP_LOGE("ContextContainer::CreateBundleContext GetBundleInfo is error");
@@ -654,7 +654,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
         APP_LOGE("ContextContainer::CreateBundleContext appContext is nullptr");
         return nullptr;
     }
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
+    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>(true);
     if (deal == nullptr) {
         APP_LOGE("ContextContainer::CreateBundleContext bundleName is empty");
         return nullptr;
@@ -679,12 +679,12 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
     APP_LOGI(
         "ContextContainer::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
     std::vector<std::string> moduleResPaths;
-    std::regex pattern(ABS_BUNDLE_CODE_PATH + bundleInfo.name + FILE_SEPARATOR);
+    std::regex pattern(ABS_BUNDLE_CODE_PATH);
     for (auto item : bundleInfo.moduleResPaths) {
         if (item.empty()) {
             continue;
         }
-        moduleResPaths.emplace_back(std::regex_replace(item, pattern, LOCAL_BUNDLE_CODE_PATH));
+        moduleResPaths.emplace_back(std::regex_replace(item, pattern, LOCAL_BUNDLES_PATH));
     }
 
     for (auto moduleResPath : moduleResPaths) {
