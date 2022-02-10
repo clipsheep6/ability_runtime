@@ -69,6 +69,8 @@ public:
 
     int MoveMissionToFront(int32_t missionId);
 
+    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher);
+
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
      *
@@ -325,7 +327,7 @@ private:
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
-    int MinimizeAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser);
+    int MinimizeAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     std::shared_ptr<AbilityRecord> GetCurrentTopAbilityLocked() const;
     std::shared_ptr<MissionList> GetTargetMissionList(
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
