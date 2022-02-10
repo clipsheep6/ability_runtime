@@ -54,9 +54,10 @@ public:
      * MinimizeAbility, minimize the special ability.
      *
      * @param token, ability token.
+     * @param fromUser mark the minimize operation source.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int MinimizeAbility(const sptr<IRemoteObject> &token);
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser);
 
     int RegisterMissionListener(const sptr<IMissionListener> &listener);
 
