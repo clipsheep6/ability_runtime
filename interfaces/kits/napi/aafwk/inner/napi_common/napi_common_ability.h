@@ -225,6 +225,26 @@ napi_value AcquireDataAbilityHelperWrap(
  */
 napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
+/**
+ * @brief start background running.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info info);
+
+/**
+ * @brief cancel background running.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info);
+
 napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo);
 
 bool CheckAbilityType(const CBBase *cbBase);
