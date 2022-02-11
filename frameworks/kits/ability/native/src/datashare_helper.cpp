@@ -91,7 +91,6 @@ void DataShareHelper::AddDataShareDeathRecipient(const sptr<IRemoteObject> &toke
 void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     APP_LOGI("'%{public}s start':", __func__);
-    std::lock_guard<std::mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
     dataShareProxy_ = nullptr;
@@ -251,7 +250,6 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
 bool DataShareHelper::Release()
 {
     APP_LOGI("DataShareHelper::Release start.");
-    std::lock_guard<std::mutex> guard(lock_);
     if (uri_ == nullptr) {
         APP_LOGE("DataShareHelper::Release failed, uri_ is nullptr");
         return false;
@@ -279,7 +277,6 @@ bool DataShareHelper::Release()
 std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
 {
     APP_LOGI("DataShareHelper::GetFileTypes start.");
-    std::lock_guard<std::mutex> guard(lock_);
     std::vector<std::string> matchedMIMEs;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -333,7 +330,6 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
 int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
 {
     APP_LOGI("DataShareHelper::OpenFile start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int fd = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -387,7 +383,6 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
 int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
 {
     APP_LOGI("DataShareHelper::OpenRawFile start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int fd = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -437,7 +432,6 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
 int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     APP_LOGI("DataShareHelper::Insert start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int index = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -489,7 +483,6 @@ int DataShareHelper::Update(
     Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     APP_LOGI("DataShareHelper::Update start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int index = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -539,7 +532,6 @@ int DataShareHelper::Update(
 int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     APP_LOGI("DataShareHelper::Delete start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int index = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -591,7 +583,6 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     APP_LOGI("DataShareHelper::Query start.");
-    std::lock_guard<std::mutex> guard(lock_);
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
 
     if (!CheckUriParam(uri)) {
@@ -642,7 +633,6 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
 std::string DataShareHelper::GetType(Uri &uri)
 {
     APP_LOGI("DataShareHelper::GetType start.");
-    std::lock_guard<std::mutex> guard(lock_);
     std::string type;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -692,7 +682,6 @@ std::string DataShareHelper::GetType(Uri &uri)
 int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     APP_LOGI("DataShareHelper::BatchInsert start.");
-    std::lock_guard<std::mutex> guard(lock_);
     int ret = -1;
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -947,7 +936,6 @@ void DataShareHelper::NotifyChange(const Uri &uri)
 Uri DataShareHelper::NormalizeUri(Uri &uri)
 {
     APP_LOGI("DataShareHelper::NormalizeUri start.");
-    std::lock_guard<std::mutex> guard(lock_);
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
@@ -999,7 +987,6 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
 Uri DataShareHelper::DenormalizeUri(Uri &uri)
 {
     APP_LOGI("DataShareHelper::DenormalizeUri start.");
-    std::lock_guard<std::mutex> guard(lock_);
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
         APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
