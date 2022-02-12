@@ -882,6 +882,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             application_->GetRuntime());
         LoadAndRegisterExtension("system/lib/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
             application_->GetRuntime());
+        LoadAndRegisterExtension("system/lib/libworkschedextension.z.so", "WorkSchedulerExtension",
+            application_->GetRuntime());
     }
 
     contextDeal->initResourceManager(resourceManager);
