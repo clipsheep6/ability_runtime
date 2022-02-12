@@ -38,6 +38,19 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const std::string DATASHARE_CLASS_NAME = "DataShareHelper";
+constexpr int NO_ERROR = 0;
+constexpr int INVALID_PARAMETER = -1;
+
+std::string NapiValueToStringUtf8(napi_env env, napi_value value)
+{
+    std::string result = "";
+    return UnwrapStringFromJS(env, value, result);
+}
+
+bool NapiValueToArrayStringUtf8(napi_env env, napi_value param, std::vector<std::string> &result)
+{
+    return UnwrapArrayStringFromJS(env, param, result);
+}
 }
 
 std::list<std::shared_ptr<DataShareHelper>> g_dataShareHelperList;
@@ -201,65 +214,28 @@ napi_value DataShareHelperConstructor(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
-
-    napi_value prop = nullptr;
-    NAPI_CALL(env, napi_get_named_property(env, argv[PARAM1], "bundleName", &prop));
-    std::string wantBundleName = NapiValueToStringUtf8(env, prop);
-    HILOG_INFO("want BundleName: %{public}s", wantBundleName.c_str());
-
-    NAPI_CALL(env, napi_get_named_property(env, argv[PARAM1], "abilityName", &prop));
-    std::string wantAbilityName = NapiValueToStringUtf8(env, prop);
-    HILOG_INFO("want AbilityName: %{public}s", wantAbilityName.c_str());
-
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
-    HILOG_INFO("want info (BundleName): %{public}s", want.GetElement().GetBundleName().c_str());
-    HILOG_INFO("want info (AbilityName): %{public}s", want.GetElement().GetAbilityName().c_str());
-
     std::string strUri = NapiValueToStringUtf8(env, argv[PARAM2]);
-    HILOG_INFO("want Uri: %{public}s", strUri.c_str());
-
-    HILOG_INFO("data list size %{public}zu", g_dataShareHelperList.size());
-
     std::shared_ptr<DataShareHelper> dataShareHelper = nullptr;
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, argv[PARAM0], isStageMode);
     if (status != napi_ok || !isStageMode) {
         auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
-        if (ability == nullptr) {
-            HILOG_ERROR("%{public}s, failed to get native context instance.", __func__);
-            return nullptr;
-        }
+        NAPI_ASSERT(env, ability != nullptr, "DataShareHelperConstructor: failed to get native ability");
         HILOG_INFO("FA Model: ability = %{public}p strUri = %{public}s", ability, strUri.c_str());
         dataShareHelper = DataShareHelper::Creator(ability->GetContext(), want, std::make_shared<Uri>(strUri));
     } else {
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
-        if (context == nullptr) {
-            HILOG_ERROR("Failed to get native context instance");
-            return nullptr;
-        }
+        NAPI_ASSERT(env, context != nullptr, "DataShareHelperConstructor: failed to get native context");
         HILOG_INFO("Stage Model: context = %{public}p strUri = %{public}s", context.get(), strUri.c_str());
         dataShareHelper = DataShareHelper::Creator(context, want, std::make_shared<Uri>(strUri));
     }
-
-    if (dataShareHelper == nullptr) {
-        HILOG_INFO("%{public}s, dataShareHelper is nullptr", __func__);
-        return nullptr;
-    }
-    HILOG_INFO("dataShareHelper = %{public}p", dataShareHelper.get());
+    NAPI_ASSERT(env, dataShareHelper != nullptr, "DataShareHelperConstructor: dataShareHelper is nullptr");
     g_dataShareHelperList.emplace_back(dataShareHelper);
-    HILOG_INFO("dataShareHelperList.size = %{public}zu", g_dataShareHelperList.size());
-
-    napi_wrap(
-        env,
-        thisVar,
-        dataShareHelper.get(),
-        [](napi_env env, void *data, void *hint) {
+    napi_wrap(env, thisVar, dataShareHelper.get(), [](napi_env env, void *data, void *hint) {
             DataShareHelper *objectInfo = static_cast<DataShareHelper *>(data);
-            HILOG_INFO("DSHelper finalize_cb objectInfo = %{public}p", objectInfo);
-            HILOG_INFO("DSHelper finalize_cb regInstances_.size = %{public}zu", registerInstances_.size());
-            auto helper = std::find_if(registerInstances_.begin(),
-                registerInstances_.end(),
+            auto helper = std::find_if(registerInstances_.begin(), registerInstances_.end(),
                 [&objectInfo](const DSHelperOnOffCB *helper) { return helper->dataShareHelper == objectInfo; });
             if (helper != registerInstances_.end()) {
                 HILOG_INFO("DataShareHelper finalize_cb find helper");
@@ -267,16 +243,9 @@ napi_value DataShareHelperConstructor(napi_env env, napi_callback_info info)
                 delete *helper;
                 registerInstances_.erase(helper);
             }
-            HILOG_INFO("DSHelper finalize_cb regInstances_.size = %{public}zu", registerInstances_.size());
-            g_dataShareHelperList.remove_if(
-                [objectInfo](const std::shared_ptr<DataShareHelper> &dataShareHelper) {
-                    return objectInfo == dataShareHelper.get();
-                });
-            HILOG_INFO("DSHelper finalize_cb dataShareHelperList.size = %{public}zu", g_dataShareHelperList.size());
-        },
-        nullptr,
-        nullptr);
-
+            g_dataShareHelperList.remove_if([objectInfo](const std::shared_ptr<DataShareHelper> &dataShareHelper) {
+                    return objectInfo == dataShareHelper.get(); });
+        }, nullptr, nullptr);
     HILOG_INFO("%{public}s,called end", __func__);
     return thisVar;
 }
@@ -976,78 +945,57 @@ napi_value NAPI_UnRegister(napi_env env, napi_callback_info info)
 napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DSHelperOnOffCB *offCB)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    size_t argcAsync = ARGS_THREE;
+    size_t argc = ARGS_THREE;
     const size_t argcPromise = ARGS_TWO;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = 0;
     napi_value thisVar = nullptr;
-
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
-        return nullptr;
-    }
-
-    offCB->result = NO_ERROR;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &thisVar, nullptr));
+    NAPI_ASSERT(env, argc <= argCountWithAsync && argc <= ARGS_MAX_COUNT, "UnRegisterWrap: Wrong argument count");
+    offCB->result = INVALID_PARAMETER;
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         std::string type = NapiValueToStringUtf8(env, args[PARAM0]);
         if (type == "dataChange") {
-            HILOG_INFO("%{public}s, Wrong type=%{public}s", __func__, type.c_str());
-        } else {
-            HILOG_ERROR("%{public}s, Wrong argument type %{public}s.", __func__, type.c_str());
-            offCB->result = INVALID_PARAMETER;
+            offCB->result = NO_ERROR;
         }
-    } else {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
-        offCB->result = INVALID_PARAMETER;
     }
-
     offCB->uri = "";
-    if (argcAsync > ARGS_TWO) {
-        // parse uri and callback
+    if (argc > ARGS_TWO) {
         NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
         if (valuetype == napi_string) {
             offCB->uri = NapiValueToStringUtf8(env, args[PARAM1]);
-            HILOG_INFO("%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
         } else {
-            HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
             offCB->result = INVALID_PARAMETER;
         }
         NAPI_CALL(env, napi_typeof(env, args[PARAM2], &valuetype));
         if (valuetype == napi_function) {
             NAPI_CALL(env, napi_create_reference(env, args[PARAM2], 1, &offCB->cbBase.cbInfo.callback));
         } else {
-            HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
             offCB->result = INVALID_PARAMETER;
         }
     } else {
-        // parse uri or callback
         NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetype));
         if (valuetype == napi_string) {
             offCB->uri = NapiValueToStringUtf8(env, args[PARAM1]);
-            HILOG_INFO("%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
         } else if (valuetype == napi_function) {
             NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &offCB->cbBase.cbInfo.callback));
         } else {
-            HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
             offCB->result = INVALID_PARAMETER;
         }
     }
-
+    HILOG_INFO("%{public}s,uri=%{public}s", __func__, offCB->uri.c_str());
     DataShareHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
-    HILOG_INFO("DataShareHelper objectInfo = %{public}p", objectInfo);
     offCB->dataShareHelper = objectInfo;
-
-    ret = UnRegisterAsync(env, args, argcAsync, argcPromise, offCB);
+    ret = UnRegisterAsync(env, args, argc, argcPromise, offCB);
     return ret;
 }
 
 napi_value UnRegisterAsync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DSHelperOnOffCB *offCB)
+    napi_env env, napi_value *args, size_t argc, const size_t argcPromise, DSHelperOnOffCB *offCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (args == nullptr || offCB == nullptr) {
@@ -1094,13 +1042,11 @@ static void FindRegisterObsByCallBack(napi_env env, DSHelperOnOffCB *data)
             [callbackA, strUri](const DSHelperOnOffCB *helper) {
                 bool result = false;
                 if (helper == nullptr || helper->cbBase.cbInfo.callback == nullptr) {
-                    HILOG_ERROR("UnRegisterExecuteCB %{public}s is nullptr",
-                        ((helper == nullptr) ? "helper" : "helper->cbBase.cbInfo.callback"));
+                    HILOG_ERROR("%{public}s is nullptr", ((helper == nullptr) ? "helper" : "cbBase.cbInfo.callback"));
                     return result;
                 }
                 if (helper->uri != strUri) {
-                    HILOG_ERROR("UnRegisterExecuteCB find uri inconsistent, h=[%{public}s] u=[%{public}s]",
-                        helper->uri.c_str(), strUri.c_str());
+                    HILOG_ERROR("uri inconsistent, h=[%{public}s] u=[%{public}s]", helper->uri.c_str(), strUri.c_str());
                     return result;
                 }
                 napi_value callbackB = 0;
@@ -1109,13 +1055,14 @@ static void FindRegisterObsByCallBack(napi_env env, DSHelperOnOffCB *data)
                 HILOG_INFO("NAPI_UnRegister cb equals status=%{public}d result=%{public}d.", ret, result);
                 return result;
             });
+
         if (helper != registerInstances_.end()) {
             data->NotifyList.emplace_back(*helper);
             registerInstances_.erase(helper);
-                HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
+            HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
         } else {
             HILOG_INFO("NAPI_UnRegister not match any callback. %{public}zu", registerInstances_.size());
-            break;  // not match any callback
+            break;
         }
     } while (true);
     HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB FindRegisterObsByCallBack Called End.");
@@ -3060,7 +3007,7 @@ napi_value QueryWrap(napi_env env, napi_callback_info info, DSHelperQueryCB *que
     std::vector<std::string> result;
     bool arrayStringbool = false;
     arrayStringbool = NapiValueToArrayStringUtf8(env, args[PARAM1], result);
-    if (arrayStringbool == false) {
+    if (!arrayStringbool) {
         HILOG_ERROR("%{public}s, The return value of arraystringbool is false", __func__);
     }
     queryCB->columns = result;

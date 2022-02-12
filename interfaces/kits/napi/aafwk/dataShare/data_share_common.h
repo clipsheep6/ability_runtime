@@ -32,13 +32,6 @@ using AbilityStartSetting = OHOS::AppExecFwk::AbilityStartSetting;
 
 namespace OHOS {
 namespace AppExecFwk {
-enum ErrorCode {
-    NO_ERROR = 0,
-    INVALID_PARAMETER = -1,
-    ABILITY_NOT_FOUND = -2,
-    PERMISSION_DENY = -3,
-};
-
 struct CallAbilityParam {
     Want want;
     int requestCode = 0;
@@ -268,17 +261,6 @@ struct ShowOnLockScreenCB {
     CBBase cbBase;
     bool isShow;
 };
-
-static inline std::string NapiValueToStringUtf8(napi_env env, napi_value value)
-{
-    std::string result = "";
-    return UnwrapStringFromJS(env, value, result);
-}
-
-static inline bool NapiValueToArrayStringUtf8(napi_env env, napi_value param, std::vector<std::string> &result)
-{
-    return UnwrapArrayStringFromJS(env, param, result);
-}
 
 struct DSHelperGetTypeCB {
     CBBase cbBase;
