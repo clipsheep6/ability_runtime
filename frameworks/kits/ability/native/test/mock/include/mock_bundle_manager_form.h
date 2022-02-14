@@ -80,7 +80,7 @@ public:
     }
     virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
-        bundleName = "com.form.provider.service";
+        bundleName = "com.form.supply.service";
         return true;
     }
     virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override
@@ -269,7 +269,7 @@ public:
     };
     virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
-        bundleName = "com.form.provider.service";
+        bundleName = "com.form.supply.service";
         return true;
     };
     virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
