@@ -294,8 +294,9 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
     want.SetElementName(GRANT_ABILITY_BUNDLE_NAME, GRANT_ABILITY_ABILITY_NAME);
     want.SetParam(PERMISSION_KEY, permissions);
     permissionRequestCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    int32_t userId = 100;
     HILOG_DEBUG("%{public}s. Start calling StartAbility.", __func__);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, userId);
     HILOG_INFO("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
 }
 
