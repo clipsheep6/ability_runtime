@@ -1297,7 +1297,7 @@ void AbilityRecord::SetLastExitReason(const LastExitReason &reason)
     lifeCycleStateInfo_.launchParam.lastExitReason = reason;
 }
 
-void AbilityRecord::NotifyContinuationResult(const int32_t result)
+void AbilityRecord::NotifyContinuationResult(int32_t result)
 {
     HILOG_INFO("NotifyContinuationResult.");
     CHECK_POINTER(lifecycleDeal_);
