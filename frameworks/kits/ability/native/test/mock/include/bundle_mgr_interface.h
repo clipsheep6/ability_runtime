@@ -270,7 +270,7 @@ public:
         GET_MODULE_USAGE_RECORD,
         GET_SHORTCUT_INFO,
         GET_BUNDLE_INSTALLER,
-        NOTIFY_ACTIVITY_LIFE_STATUS,
+        NOTIFY_ABILITY_LIFE_STATUS,
     };
 };
 }  // namespace AppExecFwk
