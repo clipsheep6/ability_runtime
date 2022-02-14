@@ -24,12 +24,14 @@
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
 #include "app_log_wrapper.h"
+#include "background_task_mgr_helper.h"
 #include "bytrace.h"
 #include "connection_manager.h"
 #include "context_impl.h"
 #include "continuation_manager.h"
 #include "continuation_register_manager.h"
 #include "continuation_register_manager_proxy.h"
+#include "continuous_task_param.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
@@ -54,6 +56,7 @@
 #include "task_handler_client.h"
 #include "touch_event.h"
 #include "values_bucket.h"
+#include "want_agent.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1232,16 +1235,22 @@ void Ability::Dump(const std::string &extra)
  * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
  * notification bar.
  */
-void Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest)
-{}
+int Ability::KeepBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent)
+{
+    BackgroundTaskMgr::ContinuousTaskParam taskParam = BackgroundTaskMgr::ContinuousTaskParam(false, 0,
+        std::make_shared<Notification::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken());
+    return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStartBackgroundRunning(taskParam);
+}
 
 /**
  * @brief Cancels background running of this ability to free up system memory.
  * This method can be called only by Service abilities when the onStop() method is called.
  *
  */
-void Ability::CancelBackgroundRunning()
-{}
+int Ability::CancelBackgroundRunning()
+{
+    return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStopBackgroundRunning(abilityInfo_->name, GetToken());
+}
 
 /**
  * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
