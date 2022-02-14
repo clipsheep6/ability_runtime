@@ -23,6 +23,7 @@
 #include "js_mission_listener.h"
 #include "js_runtime_utils.h"
 #include "mission_snapshot.h"
+#include "napi/native_api.h"
 #include "pixel_map_napi.h"
 
 #include <mutex>
@@ -492,6 +493,7 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
         return nullptr;
     }
 
+    ImportImageModule(engine);
     std::unique_ptr<JsMissionManager> jsMissionManager = std::make_unique<JsMissionManager>();
     object->SetNativePointer(jsMissionManager.release(), JsMissionManager::Finalizer, nullptr);
 
@@ -507,6 +509,35 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "moveMissionToFront", JsMissionManager::MoveMissionToFront);
     BindNativeFunction(*engine, *object, "moveMissionToFront", JsMissionManager::MoveMissionToFront);
     return engine->CreateUndefined();
+}
+
+void ImportImageModule(NativeEngine* engine)
+{
+    auto env = reinterpret_cast<napi_env>(engine);
+    napi_value global;
+    napi_status result = napi_get_global(env, &global);
+    if (result != napi_ok) {
+        HILOG_ERROR("snapshot: Get global failed");
+        return;
+    }
+    napi_value requireNapi;
+    result = napi_get_named_property(env, global, "requireNapi", &requireNapi);
+    if (result != napi_ok) {
+        HILOG_ERROR("snapshot: Get requireNapi function in global failed");
+        return;
+    }
+    napi_value className;
+    result = napi_create_string_utf8(env, "multimedia.image", NAPI_AUTO_LENGTH, &className);
+    if (result != napi_ok) {
+        HILOG_ERROR("snapshot: Create require module name failed");
+        return;
+    }
+    napi_value classObject;
+    result = napi_call_function(env, global, requireNapi, 1, &className, &classObject);
+    if (result != napi_ok) {
+        HILOG_ERROR("snapshot: Call function requireNapi failed");
+        return;
+    }
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
