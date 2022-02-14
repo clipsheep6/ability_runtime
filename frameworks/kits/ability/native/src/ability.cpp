@@ -54,6 +54,7 @@
 #include "task_handler_client.h"
 #include "touch_event.h"
 #include "values_bucket.h"
+#include "want_agent.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1232,7 +1233,7 @@ void Ability::Dump(const std::string &extra)
  * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
  * notification bar.
  */
-void Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest)
+int Ability::KeepBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent)
 {}
 
 /**
@@ -1240,7 +1241,7 @@ void Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificat
  * This method can be called only by Service abilities when the onStop() method is called.
  *
  */
-void Ability::CancelBackgroundRunning()
+int Ability::CancelBackgroundRunning()
 {}
 
 /**
