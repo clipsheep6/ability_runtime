@@ -15,6 +15,7 @@
 
 #include "mission_manager.h"
 
+#include "ability_context.h"
 #include "ability_manager_client.h"
 #include "event_handler.h"
 #include "event_runner.h"
@@ -24,11 +25,13 @@
 #include "js_runtime_utils.h"
 #include "mission_snapshot.h"
 #include "pixel_map_napi.h"
+#include "start_options.h"
 
 #include <mutex>
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr size_t ARGC_ONE = 1;
 using namespace OHOS::AppExecFwk;
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 namespace {
@@ -108,6 +111,22 @@ public:
     }
 
 private:
+    std::shared_ptr<AbilityRuntime::AbilityContext> GetNativeAbilityContext(NativeValue* nativeContext)
+    {
+        if (nativeContext != nullptr) {
+            // Parse info->argv[0] as abilitycontext
+            auto objContext = AbilityRuntime::ConvertNativeValueTo<NativeObject>(nativeContext);
+            if (objContext == nullptr) {
+                HILOG_ERROR("ConvertNativeValueTo Context Object failed");
+                return nullptr;
+            }
+            auto context = static_cast<std::weak_ptr<AbilityRuntime::Context>*>(objContext->GetNativePointer());
+            auto abilityContext = Context::ConvertTo<AbilityRuntime::AbilityContext>(context->lock());
+            return abilityContext;
+        }
+        return nullptr;
+    }
+
     NativeValue* OnRegisterMissionListener(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
@@ -452,14 +471,30 @@ private:
             HILOG_ERROR("Parse missionId failed");
             errCode = ERR_NOT_OK;
         }
+        decltype(info.argc) unwrapArgc = 1;
 
+        AAFwk::StartOptions startOptions;
+        if (info.argc > ARGC_ONE && info.argv[1]->TypeOf() == NATIVE_OBJECT) {
+            HILOG_INFO("OnMoveMissionToFront context is used.");
+            auto abilityContext = GetNativeAbilityContext(info.argv[1]);
+            if (abilityContext != nullptr) {
+                auto windowMode = abilityContext->GetCurrentWindowMode();
+                if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+                    windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+                    startOptions.SetWindowMode(windowMode);
+                    unwrapArgc++;
+                }
+                HILOG_INFO("Window mode is %{public}d", windowMode);
+            }
+        }
         AsyncTask::CompleteCallback complete =
-            [missionId, errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            [missionId, errCode, startOptions, unwrapArgc](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 if (errCode != 0) {
                     task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
                     return;
                 }
-                auto ret = AbilityManagerClient::GetInstance()->MoveMissionToFront(missionId);
+                auto ret = (unwrapArgc == 1) ? AbilityManagerClient::GetInstance()->MoveMissionToFront(missionId) :
+                    AbilityManagerClient::GetInstance()->MoveMissionToFront(missionId, startOptions);
                 if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
@@ -467,7 +502,7 @@ private:
                 }
             };
 
-        NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
+        NativeValue* lastParam = (info.argc <= unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -504,7 +539,6 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "unlockMission", JsMissionManager::UnlockMission);
     BindNativeFunction(*engine, *object, "clearMission", JsMissionManager::ClearMission);
     BindNativeFunction(*engine, *object, "clearAllMissions", JsMissionManager::ClearAllMissions);
-    BindNativeFunction(*engine, *object, "moveMissionToFront", JsMissionManager::MoveMissionToFront);
     BindNativeFunction(*engine, *object, "moveMissionToFront", JsMissionManager::MoveMissionToFront);
     return engine->CreateUndefined();
 }
