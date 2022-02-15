@@ -682,7 +682,8 @@ HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_006, TestSize.Level2)
     CheckState(appRunningRecord, token, AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND);
 
     EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-    int32_t ret = serviceInner_->KillApplication(appInfo->bundleName);
+    auto uid = 1000;
+    int32_t ret = serviceInner_->KillApplication(appInfo->bundleName, uid);
     EXPECT_EQ(ret, 0);
     serviceInner_->OnRemoteDied(mockAppScheduler);  // A faked death recipient.
     auto record = serviceInner_->GetAppRunningRecordByAppRecordId(recordId);
@@ -1710,7 +1711,9 @@ HWTEST_F(AmsAppLifeCycleModuleTest, KillApplication_001, TestSize.Level1)
     EXPECT_EQ(2, static_cast<int>(appMap.size()));
     EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
     EXPECT_CALL(*mockAppScheduler1, ScheduleProcessSecurityExit()).Times(1);
-    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld0");
+
+    auto uid = 1000;
+    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld0", uid);
     EXPECT_EQ(ret, 0);
     serviceInner_->OnRemoteDied(mockAppScheduler);  // A faked death recipient.
     auto appMap1 = serviceInner_->appRunningManager_->GetAppRunningRecordMap();
@@ -1764,7 +1767,9 @@ HWTEST_F(AmsAppLifeCycleModuleTest, KillApplication_002, TestSize.Level1)
     auto appMap = serviceInner_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_EQ(2, static_cast<int>(appMap.size()));
     EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld103");
+
+    auto uid = 1000;
+    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld103", uid);
     EXPECT_EQ(ret, 0);
     serviceInner_->OnRemoteDied(mockAppScheduler);  // A faked death recipient.
     auto appMap1 = serviceInner_->appRunningManager_->GetAppRunningRecordMap();
@@ -1815,7 +1820,9 @@ HWTEST_F(AmsAppLifeCycleModuleTest, KillApplication_003, TestSize.Level1)
     auto appMap = serviceInner_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_EQ(1, static_cast<int>(appMap.size()));
     EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld101");
+
+    auto uid = 1000;
+    int32_t ret = serviceInner_->KillApplication("com.ohos.test.helloworld101", uid);
     EXPECT_EQ(ret, 0);
     serviceInner_->OnRemoteDied(mockAppScheduler);  // A faked death recipient.
     auto appMap1 = serviceInner_->appRunningManager_->GetAppRunningRecordMap();

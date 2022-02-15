@@ -37,7 +37,7 @@ sptr<IRemoteObject> DistributedClient::GetDmsProxy()
 }
 
 int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
-    int32_t callerUid, int32_t requestCode, uint32_t accessToken)
+    int32_t callerUid, int32_t requestCode)
 {
     HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
@@ -51,13 +51,12 @@ int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, requestCode);
-    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
 
-int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
-    int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid)
 {
     HILOG_INFO("called");
     if (connect == nullptr) {
@@ -78,7 +77,6 @@ int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, c
     PARCEL_WRITE_HELPER(data, RemoteObject, connect);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, callerPid);
-    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_REMOTE_ABILITY, data, reply);
 }
@@ -132,7 +130,7 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
 }
 
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
-    int32_t status, uint32_t accessToken)
+    int32_t status)
 {
     HILOG_INFO("called");
     sptr<IRemoteObject> remote = GetDmsProxy();
@@ -148,7 +146,6 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
     PARCEL_WRITE_HELPER(data, Int32, missionId);
     PARCEL_WRITE_HELPER(data, Int32, callerUid);
     PARCEL_WRITE_HELPER(data, Int32, status);
-    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_CONTINUATION, data, reply);
 }

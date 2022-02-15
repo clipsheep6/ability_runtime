@@ -44,7 +44,6 @@
 #include "iremote_object.h"
 #include "pac_map.h"
 #include "want.h"
-#include "want_agent.h"
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
@@ -673,14 +672,6 @@ public:
     virtual void Dump(const std::string &extra);
 
     /**
-     * @brief dump ability info
-     *
-     * @param params dump params that indicate different dump targets
-     * @param info dump ability info
-     */
-    virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
-
-    /**
      * @brief Keeps this Service ability in the background and displays a notification bar.
      * To use this method, you need to request the ohos.permission.KEEP_BACKGROUND_RUNNING permission from the system.
      * The ohos.permission.KEEP_BACKGROUND_RUNNING permission is of the normal level.
@@ -1014,21 +1005,6 @@ public:
      * </ul>
      */
     bool DeleteForm(const int64_t formId);
-
-    /**
-     * @brief Keep this Service ability in the background and displays a notification bar.
-     *
-     * @param wantAgent Indicates which ability to start when user click the notification bar.
-     * @return the method result code, 0 means succeed
-     */
-    virtual int StartBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent) final;
-
-    /**
-     * @brief Cancel background running of this ability to free up system memory.
-     *
-     * @return the method result code, 0 means succeed
-     */
-    virtual int StopBackgroundRunning() final;
 
     /**
      * @brief The form callback.
@@ -1460,13 +1436,6 @@ protected:
      * @return true if invoked resoreWindowStage in continuation.
      */
     bool IsRestoredInContinuation() const;
-
-    /**
-     * @brief wait for distributed object to complete sync
-     *
-     * @param want the want param.
-     */
-    void WaitingDistributedObjectSyncComplete(const Want& want);
 
     /**
      * @brief Notify continuation

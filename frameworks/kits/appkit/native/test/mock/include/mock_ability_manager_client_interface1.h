@@ -196,6 +196,11 @@ public:
     {
         return true;
     };
+    virtual bool CleanBundleCacheFiles(
+        const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback)
+    {
+        return true;
+    };
     virtual bool CleanBundleDataFiles(const std::string &bundleName, const int userId = 0)
     {
         return true;
@@ -221,7 +226,15 @@ public:
     {
         return true;
     };
+    virtual bool SetApplicationEnabled(const std::string &bundleName, bool isEnable)
+    {
+        return true;
+    };
     virtual bool IsAbilityEnabled(const AbilityInfo &abilityInfo)
+    {
+        return true;
+    };
+    virtual bool SetAbilityEnabled(const AbilityInfo &abilityInfo, bool isEnabled)
     {
         return true;
     };

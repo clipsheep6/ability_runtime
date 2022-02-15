@@ -45,26 +45,35 @@ const std::string DEF_LABEL1 = "PermissionFormRequireGrant";
 
 class FmsFormMgrNotifyInvisibleFormsTest : public testing::Test {
 public:
+    FmsFormMgrNotifyInvisibleFormsTest() : formMgrService_(nullptr)
+    {}
+    ~FmsFormMgrNotifyInvisibleFormsTest()
+    {}
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
 protected:
     sptr<OHOS::AppExecFwk::MockFormHostClient> token_;
-    std::shared_ptr<FormMgrService> formMgrService_;
+    sptr<BundleMgrService> mockBundleMgr_;
+    std::shared_ptr<FormMgrService> formMgrService_ = DelayedSingleton<FormMgrService>::GetInstance();
 };
 void FmsFormMgrNotifyInvisibleFormsTest::SetUpTestCase(void)
-{
-    FormBmsHelper::GetInstance().SetBundleManager(new BundleMgrService());
-}
+{}
 
 void FmsFormMgrNotifyInvisibleFormsTest::TearDownTestCase(void)
 {}
 
 void FmsFormMgrNotifyInvisibleFormsTest::SetUp(void)
 {
-    formMgrService_ = DelayedSingleton<FormMgrService>::GetInstance();
+    formMgrService_ = std::make_shared<FormMgrService>();
+
     formMgrService_->OnStart();
+
+    // mock BundleMgr
+    mockBundleMgr_ = new (std::nothrow) BundleMgrService();
+    ASSERT_TRUE(mockBundleMgr_ != nullptr);
+    FormBmsHelper::GetInstance().SetBundleManager(mockBundleMgr_);
 
     // token
     token_ = new (std::nothrow) OHOS::AppExecFwk::MockFormHostClient();
@@ -91,10 +100,7 @@ void FmsFormMgrNotifyInvisibleFormsTest::SetUp(void)
 }
 
 void FmsFormMgrNotifyInvisibleFormsTest::TearDown(void)
-{
-    formMgrService_->OnStop();
-    token_ = nullptr;
-}
+{}
 
 /**
  * @tc.number: FmsFormMgrNotifyInvisibleFormsTest_NotifyInvisibleForms_002

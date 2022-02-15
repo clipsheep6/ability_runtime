@@ -208,7 +208,7 @@ public:
      *
      * @return ERR_OK, return back success, others fail.
      */
-    virtual int32_t KillApplication(const std::string &bundleName);
+    virtual int32_t KillApplication(const std::string &bundleName, int32_t callerUid);
 
     /**
      * KillApplicationByUid, call KillApplicationByUid() through proxy object, kill the application.

@@ -129,11 +129,11 @@ public:
     {
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     }
-    virtual void NotifyContinuationResult(int32_t result) override
+    virtual void NotifyContinuationResult(const int32_t result) override
     {}
     virtual void ContinueAbility(const std::string& deviceId) override
     {}
-    virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override
+    virtual void DumpAbilityInfo(std::vector<std::string> &info) override
     {}
     virtual sptr<IRemoteObject> CallRequest() override
     {

@@ -341,18 +341,29 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     APP_LOGI("application is terminated");
 }
 
-int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
+int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName, int32_t callerUid)
 {
     if (!appRunningManager_) {
         APP_LOGE("appRunningManager_ is nullptr");
         return ERR_NO_INIT;
     }
 
+    auto userId = GetUserIdByUid(callerUid);
+    APP_LOGI("userId:%{public}d", userId);
+
+    auto bundleMgr_ = remoteClientManager_->GetBundleManager();
+    if (bundleMgr_ == nullptr) {
+        APP_LOGE("GetBundleManager fail");
+        return ERR_NO_INIT;
+    }
+    int uid = bundleMgr_->GetUidByBundleName(bundleName, userId);
+    APP_LOGI("uid value is %{public}d", uid);
+
     int result = ERR_OK;
     int64_t startTime = SystemTimeMillis();
     std::list<pid_t> pids;
 
-    if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
+    if (!appRunningManager_->ProcessExitByBundleNameAndUid(bundleName, uid, pids)) {
         APP_LOGI("The process corresponding to the package name did not start");
         return result;
     }
@@ -451,7 +462,9 @@ int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleNam
 void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName, int32_t callerUid, pid_t callerPid)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
-    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, Constants::DEFAULT_USERID);
+    auto userId = GetUserIdByUid(callerUid);
+    APP_LOGI("userId:%{public}d", userId);
+    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, userId);
 }
 
 void AppMgrServiceInner::ClearUpApplicationDataByUserId(
@@ -1721,23 +1734,9 @@ void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &inf
     }
 
     for (auto &bundle : infos) {
-        auto processName = bundle.applicationInfo.process.empty() ?
-            bundle.applicationInfo.bundleName : bundle.applicationInfo.process;
+        auto processName =
+            bundle.applicationInfo.process.empty() ? bundle.applicationInfo.bundleName : bundle.applicationInfo.process;
         APP_LOGI("processName = [%{public}s]", processName.c_str());
-
-        bool allElementNameEmpty = true;
-        for (auto hapModuleInfo : bundle.hapModuleInfos) {
-            if (!hapModuleInfo.mainElementName.empty()) {
-                // already start main element and process, no need start process again
-                allElementNameEmpty = false;
-                break;
-            }
-        }
-        if (!allElementNameEmpty) {
-            APP_LOGW("processName [%{public}s] Already exists ", processName.c_str());
-            continue;
-        }
-
         // Inspection records
         auto appRecord = appRunningManager_->CheckAppRunningRecordIsExist(
             bundle.applicationInfo.name, processName, bundle.applicationInfo.uid, bundle);

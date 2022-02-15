@@ -20,9 +20,6 @@ namespace OHOS {
 namespace AppExecFwk {
 class IAbilityCallback {
 public:
-    IAbilityCallback() = default;
-    virtual ~IAbilityCallback() = default;
-
     /**
      * @brief Called back at ability context.
      */

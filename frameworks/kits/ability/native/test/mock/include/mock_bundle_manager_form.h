@@ -146,6 +146,12 @@ public:
     {
         return true;
     }
+    // clears cache data of a specified application.
+    virtual bool CleanBundleCacheFiles(
+        const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override
+    {
+        return true;
+    }
     virtual bool CleanBundleDataFiles(const std::string &bundleName, const int userId) override
     {
         return true;
@@ -209,6 +215,10 @@ public:
     {
         return true;
     }
+    virtual bool SetApplicationEnabled(const std::string &bundleName, bool isEnable) override
+    {
+        return true;
+    }
 
     virtual bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
@@ -239,6 +249,7 @@ public:
         bool(const std::string &bundleName, const std::string &permission, const int userId));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
+    MOCK_METHOD2(SetAbilityEnabled, bool(const AbilityInfo &, bool));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));
     MOCK_METHOD2(GetAbilityIcon, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD1(RegisterAllPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
@@ -333,6 +344,12 @@ public:
     {
         return true;
     };
+    // clears cache data of a specified application.
+    virtual bool CleanBundleCacheFiles(
+        const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback) override
+    {
+        return true;
+    };
 
     virtual bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
     {
@@ -370,6 +387,10 @@ public:
             return false;
         }
 
+        return true;
+    };
+    virtual bool SetApplicationEnabled(const std::string &bundleName, bool isEnable) override
+    {
         return true;
     };
 
