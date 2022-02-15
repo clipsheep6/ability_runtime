@@ -50,32 +50,30 @@ void WatchDog::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event)
 
 void WatchDog::Init(const std::shared_ptr<EventHandler> &mainHandler, const std::shared_ptr<WatchDog> &watchDogHandler)
 {
-    APP_LOGI("watchdog is run !");
     WatchDog::appMainHandler_ = mainHandler;
     WatchDog::currentHandler_ = watchDogHandler;
-    struct itimerval tick;
-    tick.it_value.tv_sec = INI_TIMER_FIRST_SECOND;
-    tick.it_value.tv_usec = INI_ZERO;
-    tick.it_interval.tv_sec = INI_TIMER_SECOND;
-    tick.it_interval.tv_usec = INI_ZERO;
-
-    if (signal(SIGALRM, &WatchDog::Timer) == SIG_ERR) {
-        APP_LOGE("WatchDog::Timer signal fail.");
-    }
-
-    if (setitimer(ITIMER_REAL, &tick, NULL) < INI_ZERO) {
-        APP_LOGE("Init WatchDog timer failed");
+    if (watchDogThread_ == nullptr) {
+        watchDogThread_ = std::make_shared<std::thread>(&WatchDog::Timer, this);
+        APP_LOGI("Watchdog is running!");
     }
 }
 
 void WatchDog::Stop()
 {
     APP_LOGI("Watchdog is stop !");
+    stopWatchDog_.store(true);
+    if (watchDogThread_ != nullptr && watchDogThread_->joinable()) {
+        watchDogThread_->join();
+        watchDogThread_ = nullptr;
+    }
     if (watchDogRunner_) {
         watchDogRunner_.reset();
     }
     if (currentHandler_) {
         currentHandler_.reset();
+    }
+    if (appMainHandler_) {
+        appMainHandler_.reset();
     }
 }
 
@@ -89,14 +87,19 @@ bool WatchDog::GetAppMainThreadState()
     return appMainThreadIsAlive_;
 }
 
-void WatchDog::Timer(int sig)
+bool WatchDog::Timer()
 {
-    auto timeoutTask1 = [&]() {
-        appMainThreadIsAlive_ = false;
-        APP_LOGI("Waring : main thread is not response!");
-    };
-    currentHandler_->PostTask(timeoutTask1, MAIN_THREAD_IS_ALIVE_MSG, MAIN_THREAD_TIMEOUT_TIME);
-    appMainHandler_->SendEvent(MAIN_THREAD_IS_ALIVE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(INI_TIMER_FIRST_SECOND));
+    while (!stopWatchDog_) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(INI_TIMER_SECOND));
+        auto timeoutTask1 = [&]() {
+            appMainThreadIsAlive_ = false;
+            APP_LOGI("Waring : main thread is not response!");
+        };
+        currentHandler_->PostTask(timeoutTask1, MAIN_THREAD_IS_ALIVE_MSG, MAIN_THREAD_TIMEOUT_TIME);
+        appMainHandler_->SendEvent(MAIN_THREAD_IS_ALIVE);
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
