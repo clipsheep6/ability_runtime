@@ -153,6 +153,11 @@ bool BundleMgrProxy::IsSafeMode()
 {
     return true;
 }
+bool BundleMgrProxy::CleanBundleCacheFiles(
+    const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback)
+{
+    return true;
+}
 bool BundleMgrProxy::CleanBundleDataFiles(const std::string &bundleName, const int userId)
 {
     return true;
@@ -178,7 +183,15 @@ bool BundleMgrProxy::IsApplicationEnabled(const std::string &bundleName)
 {
     return true;
 }
+bool BundleMgrProxy::SetApplicationEnabled(const std::string &bundleName, bool isEnable)
+{
+    return true;
+}
 bool BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo)
+{
+    return true;
+}
+bool BundleMgrProxy::SetAbilityEnabled(const AbilityInfo &abilityInfo, bool isEnabled)
 {
     return true;
 }
@@ -386,6 +399,11 @@ bool BundleMgrService::IsSafeMode()
 {
     return true;
 }
+bool BundleMgrService::CleanBundleCacheFiles(
+    const std::string &bundleName, const sptr<ICleanCacheCallback> &cleanCacheCallback)
+{
+    return true;
+}
 bool BundleMgrService::CleanBundleDataFiles(const std::string &bundleName, const int userId)
 {
     return true;
@@ -411,7 +429,15 @@ bool BundleMgrService::IsApplicationEnabled(const std::string &bundleName)
 {
     return true;
 }
+bool BundleMgrService::SetApplicationEnabled(const std::string &bundleName, bool isEnable)
+{
+    return true;
+}
 bool BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo)
+{
+    return true;
+}
+bool BundleMgrService::SetAbilityEnabled(const AbilityInfo &abilityInfo, bool isEnabled)
 {
     return true;
 }

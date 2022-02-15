@@ -629,13 +629,9 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
-                    // 'aa dumpsys -i 10 -element -lastpage'
-                    // 'aa dumpsys -i 10 -render -lastpage'
-                    if (strcmp(optarg, "astpage")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
                 }
                 // 'aa dumpsys -l'
                 // 'aa dumpsys --mission-list'
@@ -652,12 +648,9 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                         return result;
                     }
                 } else {
-                    // 'aa dumpsys -i 10 -inspector'
-                    if (strcmp(optarg, "nspector")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
                 }
                 // 'aa dumpsys -i'
                 // 'aa dumpsys --ability'
@@ -667,12 +660,9 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
-                    // 'aa dumpsys -i 10 -element'
-                    if (strcmp(optarg, "lement")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
                 }
                 // 'aa dumpsys -e'
                 // 'aa dumpsys --extension'
@@ -694,12 +684,9 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
-                    // 'aa dumpsys -i 10 -render'
-                    if (strcmp(optarg, "ender")) {
-                        result = OHOS::ERR_INVALID_VALUE;
-                        resultReceiver_.append(HELP_MSG_DUMPSYS);
-                        return result;
-                    }
+                    result = OHOS::ERR_INVALID_VALUE;
+                    resultReceiver_.append(HELP_MSG_DUMPSYS);
+                    return result;
                 }
                 // 'aa dumpsys -r'
                 // 'aa dumpsys --process'

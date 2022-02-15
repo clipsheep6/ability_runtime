@@ -61,10 +61,8 @@ FormMgrService::FormMgrService()
 
 FormMgrService::~FormMgrService()
 {
-    if (formSysEventReceiver_ != nullptr) {
-        EventFwk::CommonEventManager::UnSubscribeCommonEvent(formSysEventReceiver_);
-        formSysEventReceiver_ = nullptr;
-    }
+    EventFwk::CommonEventManager::UnSubscribeCommonEvent(formSysEventReceiver_);
+    formSysEventReceiver_ = nullptr;
 }
 
 bool FormMgrService::IsReady() const

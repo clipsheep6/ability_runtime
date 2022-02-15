@@ -922,8 +922,7 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     }
 }
 
-void AbilityRecord::DumpAbilityState(
-    std::vector<std::string> &info, bool isClient, const std::vector<std::string> &params)
+void AbilityRecord::DumpAbilityState(std::vector<std::string> &info, bool isClient)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     std::string dumpInfo = "      AbilityRecord ID #" + std::to_string(recordId_);
@@ -955,10 +954,7 @@ void AbilityRecord::DumpAbilityState(
 
     // add dump client info
     if (isClient && scheduler_ && isReady_) {
-        scheduler_->DumpAbilityInfo(params, info);
-        if (!params.empty()) {
-            return;
-        }
+        scheduler_->DumpAbilityInfo(info);
         AppExecFwk::Configuration config;
         if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
             info.emplace_back("        configuration: " + config.GetName());
@@ -996,8 +992,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, bool isClient) c
     }
     // add dump client info
     if (isClient && scheduler_ && isReady_) {
-        std::vector<std::string> params;
-        scheduler_->DumpAbilityInfo(params, info);
+        scheduler_->DumpAbilityInfo(info);
         AppExecFwk::Configuration config;
         if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
             info.emplace_back("      configuration: " + config.GetName());
@@ -1297,7 +1292,7 @@ void AbilityRecord::SetLastExitReason(const LastExitReason &reason)
     lifeCycleStateInfo_.launchParam.lastExitReason = reason;
 }
 
-void AbilityRecord::NotifyContinuationResult(int32_t result)
+void AbilityRecord::NotifyContinuationResult(const int32_t result)
 {
     HILOG_INFO("NotifyContinuationResult.");
     CHECK_POINTER(lifecycleDeal_);
