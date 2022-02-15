@@ -1472,7 +1472,8 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_003, TestSize.Level1)
  */
 HWTEST_F(AmsAppLifeCycleTest, KillApplication_001, TestSize.Level1)
 {
-    int result = serviceInner_->KillApplication("hwei.ss.bb");
+    auto uid = 1000;
+    int result = serviceInner_->KillApplication("hwei.ss.bb", uid);
     EXPECT_EQ(ERR_OK, result);
 }
 
@@ -1512,7 +1513,8 @@ HWTEST_F(AmsAppLifeCycleTest, KillApplication_002, TestSize.Level1)
     appRecord->SetApplicationClient(client);
     EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
 
-    int ret = serviceInner_->KillApplication(abilityInfo->applicationName);
+    auto uid = 1000;
+    int ret = serviceInner_->KillApplication(abilityInfo->applicationName, uid);
     EXPECT_EQ(ERR_OK, ret);
 }
 

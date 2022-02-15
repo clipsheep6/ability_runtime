@@ -311,7 +311,7 @@ HWTEST_F(AmsMgrSchedulerTest, AmsMgrScheduler_008, TestSize.Level1)
     auto mockAppMgrServiceInner = GetMockAppMgrServiceInner();
     auto amsEventHandler = GetAmsEventHandler();
 
-    EXPECT_CALL(*mockAppMgrServiceInner, KillApplication(_)).Times(1).WillOnce(Return(ERR_OK));
+    EXPECT_CALL(*mockAppMgrServiceInner, KillApplication(_, _)).Times(1).WillOnce(Return(ERR_OK));
 
     // check params AppMgrServiceInner
     std::unique_ptr<AmsMgrScheduler> amsMgrScheduler2 = std::make_unique<AmsMgrScheduler>(nullptr, amsEventHandler);
