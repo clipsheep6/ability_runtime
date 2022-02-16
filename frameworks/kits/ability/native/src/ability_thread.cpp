@@ -1593,6 +1593,25 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
 
+    if (!currentAbility_) {
+        APP_LOGI("currentAbility is nullptr.");
+        return;
+    }
+
+    const auto ablityContext = currentAbility_->GetAbilityContext();
+    if (!ablityContext) {
+        APP_LOGI("current ability context is nullptr.");
+        return;
+    }
+
+    const auto localCallContainer = ablityContext->GetLocalCallContainer();
+    if (!localCallContainer) {
+        APP_LOGI("current ability context locall call container is nullptr.");
+        return;
+    }
+
+    localCallContainer->DumpCalls(info);
+
     APP_LOGI("localCallContainer need to get calls info.");
 }
 

@@ -111,6 +111,10 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-p", KEY_DUMPSYS_PENDING),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--process", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--ui", KEY_DUMPSYS_SYSTEM_UI),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-k", KEY_DUMPSYS_SYSTEM_UI),
 };
 
 const bool REGISTER_RESULT =
@@ -513,17 +517,6 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
-    return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
-}
-
-int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
-{
-    return TerminateAbilityWithFlag(token, resultCode, resultWant, false);
-}
-
-int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode,
-    const Want *resultWant, bool flag)
-{
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability for result: %{public}d", (resultWant != nullptr));
     if (!VerificationAllToken(token)) {
@@ -578,7 +571,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
             HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
             return ERR_INVALID_VALUE;
         }
-        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
+        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant);
     } else {
         auto stackManager = GetStackManagerByUserId(userId);
         if (!stackManager) {
@@ -1642,6 +1635,9 @@ void AbilityManagerService::DumpSysFuncInit()
     dumpsysFuncMap_[KEY_DUMPSYS_SERVICE] = &AbilityManagerService::DumpSysStateInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
+    dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
+    dumpsysFuncMap_[KEY_DUMPSYS_SYSTEM_UI] = &AbilityManagerService::SystemDumpSysStateInner;
+
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -1659,7 +1655,7 @@ void AbilityManagerService::DumpSysInner(
 }
 
 void AbilityManagerService::DumpSysMissionListInner(
-    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+    const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId)
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
@@ -1690,7 +1686,7 @@ void AbilityManagerService::DumpSysMissionListInner(
     }
 }
 void AbilityManagerService::DumpSysAbilityInner(
-    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+    const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId)
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
@@ -1756,18 +1752,34 @@ void AbilityManagerService::DumpSysStateInner(
 void AbilityManagerService::DumpSysPendingInner(
     const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
+    std::shared_ptr<PendingWantManager> targetManager;
     if (isUserID) {
         auto it = pendingWantManagers_.find(userId);
-        if (it != pendingWantManagers_.end()) {
-            it->second->Dump(info);
+        if (it == pendingWantManagers_.end()) {
+            info.push_back("error: No user found'.");
             return;
         }
-        info.push_back("error: No user found'.");
+        targetManager = it->second;
+    } else {
+        targetManager = pendingWantManager_;
+    }
+
+    CHECK_POINTER(targetManager);
+
+    std::vector<std::string> argList;
+    SplitStr(args, " ", argList);
+    if (argList.empty()) {
         return;
     }
 
-    CHECK_POINTER(pendingWantManager_);
-    pendingWantManager_->Dump(info);
+    if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
+        targetManager->DumpByRecordId(info, argList[1]);
+    } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
+        targetManager->Dump(info);
+    } else {
+        info.emplace_back("error: invalid argument, please see 'ability dumpsys -h'.");
+    }
+
 }
 
 void AbilityManagerService::DumpSysProcess(
@@ -1812,6 +1824,47 @@ void AbilityManagerService::DumpSysProcess(
             dumpInfo = "      state #" + appScheduler_->ConvertAppState(appState);
         }
         info.push_back(dumpInfo);
+    }
+}
+
+void AbilityManagerService::DataDumpSysStateInner(
+    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+{
+    std::shared_ptr<DataAbilityManager> targetManager;
+    if (isUserID) {
+        auto it = dataAbilityManagers_.find(userId);
+        if (it == dataAbilityManagers_.end()) {
+            info.push_back("error: No user found'.");
+            return;
+        }
+        targetManager = it->second;
+    } else {
+        targetManager = dataAbilityManager_;
+    }
+
+    CHECK_POINTER(targetManager);
+
+    std::vector<std::string> argList;
+    SplitStr(args, " ", argList);
+    if (argList.empty()) {
+        return;
+    }
+    if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
+        targetManager->DumpSysState(info, isClient, argList[1]);
+    } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
+        targetManager->DumpSysState(info, isClient);
+    } else {
+        info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
+    }
+}
+
+void AbilityManagerService::SystemDumpSysStateInner(
+    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+{
+    if (useNewMission_) {
+        kernalAbilityManager_->DumpSysState(info,isClient);
+    } else {
+        systemAppManager_->DumpSysState(info,isClient);
     }
 }
 
@@ -2212,11 +2265,12 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     HILOG_INFO("On app state changed.");
-    currentStackManager_->OnAppStateChanged(info);
     connectManager_->OnAppStateChanged(info);
     if (useNewMission_) {
+        currentMissionListManager_->OnAppStateChanged(info);
         kernalAbilityManager_->OnAppStateChanged(info);
     } else {
+        currentStackManager_->OnAppStateChanged(info);
         systemAppManager_->OnAppStateChanged(info);
     }
     dataAbilityManager_->OnAppStateChanged(info);
