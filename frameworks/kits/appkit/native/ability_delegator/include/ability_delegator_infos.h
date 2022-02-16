@@ -13,31 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
+#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H
+#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H
 
-#include <map>
 #include <string>
-#include <vector>
-
-#include "napi_common_data.h"
-#include "want.h"
-#include "want_params.h"
+#include "ability_lifecycle_executor.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-EXTERN_C_START
-
-napi_value WrapElementName(napi_env env, const ElementName &elementName);
-bool UnwrapElementName(napi_env env, napi_value param, ElementName &elementName);
-
-napi_value WrapWantParams(napi_env env, const AAFwk::WantParams &wantParams);
-bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantParams);
-
-napi_value WrapWant(napi_env env, const Want &want);
-bool UnwrapWant(napi_env env, napi_value param, Want &want);
-
-EXTERN_C_END
+struct ADelegatorAbilityProperty {
+    sptr<IRemoteObject> token_;
+    std::string name_;
+    AbilityLifecycleExecutor::LifecycleState lifecycleState_ {AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED};
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
+
+#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H

@@ -149,7 +149,9 @@ void AbilityStackModuleTest::SetUp(void)
 void AbilityStackModuleTest::TearDown(void)
 {
     GTEST_LOG_(INFO) << "TearDown";
-    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStop();
+    auto ams = DelayedSingleton<AbilityManagerService>::GetInstance();
+    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
+
     if (mockScheduler_ != nullptr) {
         mockScheduler_.clear();
     }

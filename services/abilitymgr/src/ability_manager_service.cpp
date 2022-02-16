@@ -288,6 +288,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
+    result = CheckStaticCfgPermission(abilityInfo);
+    if (result != ERR_OK) {
+        return result;
+    }
     result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo, callerUid);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -377,6 +381,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
+    result = CheckStaticCfgPermission(abilityInfo);
+    if (result != ERR_OK) {
+        return result;
+    }
     result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -459,6 +467,10 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
     auto abilityInfo = abilityRequest.abilityInfo;
+    result = CheckStaticCfgPermission(abilityInfo);
+    if (result != ERR_OK) {
+        return result;
+    }
     result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -490,7 +502,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             return systemAppManager_->StartAbility(abilityRequest);
         }
     }
-    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    abilityRequest.want.SetParam(StartOptions::STRING_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     if (useNewMission_) {
         userIdValid = abilityInfo.applicationInfo.singleUser ? DEFAULT_USER_ID : userIdValid;
@@ -594,11 +606,9 @@ int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode)
     HILOG_INFO("%{public}s", __func__);
     want.DumpInfo(0);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
     HILOG_INFO("AbilityManagerService::Try to StartRemoteAbility, callerUid = %{public}d", callerUid);
-    HILOG_INFO("AbilityManagerService::Try to StartRemoteAbility, AccessTokenID = %{public}d", accessToken);
-    int result = dmsClient.StartRemoteAbility(want, callerUid, requestCode, accessToken);
+    int result = dmsClient.StartRemoteAbility(want, callerUid, requestCode);
     if (result != ERR_NONE) {
         HILOG_ERROR("AbilityManagerService::StartRemoteAbility failed, result = %{public}d", result);
     }
@@ -939,6 +949,10 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return result;
     }
     auto abilityInfo = abilityRequest.abilityInfo;
+    result = CheckStaticCfgPermission(abilityInfo);
+    if (result != ERR_OK) {
+        return result;
+    }
     result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
@@ -970,10 +984,8 @@ int AbilityManagerService::ConnectRemoteAbility(const Want &want, const sptr<IRe
     HILOG_INFO("%{public}s begin ConnectAbilityRemote", __func__);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int32_t callerPid = IPCSkeleton::GetCallingPid();
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
-    HILOG_INFO("AbilityManagerService::Try to ConnectRemoteAbility, AccessTokenID = %{public}d", accessToken);
-    return dmsClient.ConnectRemoteAbility(want, connect, callerUid, callerPid, accessToken);
+    return dmsClient.ConnectRemoteAbility(want, connect, callerUid, callerPid);
 }
 
 int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection> &connect)
@@ -1022,15 +1034,13 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
     CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
 
     int32_t appUid = IPCSkeleton::GetCallingUid();
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
-    HILOG_INFO("AbilityManagerService::Try to StartContinuation, AccessTokenID = %{public}d", accessToken);
     int32_t missionId = GetMissionIdByAbilityToken(abilityToken);
     if (missionId == -1) {
         HILOG_ERROR("AbilityManagerService::StartContinuation failed to get missionId.");
         return ERR_INVALID_VALUE;
     }
     DistributedClient dmsClient;
-    auto result =  dmsClient.StartContinuation(want, missionId, appUid, status, accessToken);
+    auto result = dmsClient.StartContinuation(want, missionId, appUid, status);
     if (result != ERR_OK) {
         HILOG_ERROR("StartContinuation failed, result = %{public}d, notify caller", result);
         NotifyContinuationResult(missionId, result);
@@ -1046,7 +1056,7 @@ void AbilityManagerService::NotifyCompleteContinuation(const std::string &device
     dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess);
 }
 
-int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t result)
+int AbilityManagerService::NotifyContinuationResult(int32_t missionId, const int32_t result)
 {
     HILOG_INFO("Notify Continuation Result : %{public}d.", result);
 
@@ -1443,21 +1453,6 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
     return currentMissionListManager_->MoveMissionToFront(missionId);
 }
 
-int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
-{
-    HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
-    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
-
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
-    }
-
-    auto options = std::make_shared<StartOptions>(startOptions);
-    return currentMissionListManager_->MoveMissionToFront(missionId, options);
-}
-
 std::shared_ptr<AbilityRecord> AbilityManagerService::GetServiceRecordByElementName(const std::string &element)
 {
     return connectManager_->GetServiceRecordByElementName(element);
@@ -1516,6 +1511,10 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         abilityRequest.appInfo.name.c_str(),
         abilityRequest.appInfo.bundleName.c_str(),
         abilityRequest.abilityInfo.name.c_str());
+
+    if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != ERR_OK) {
+        return nullptr;
+    }
 
     CHECK_POINTER_AND_RETURN(dataAbilityManager_, nullptr);
     return dataAbilityManager_->Acquire(abilityRequest, tryBind, callerToken, isSystem);
@@ -1711,10 +1710,9 @@ void AbilityManagerService::DumpSysAbilityInner(
     if (argList.empty()) {
         return;
     }
-    if (argList.size() >= MIN_DUMP_ARGUMENT_NUM) {
+    if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
         HILOG_INFO("argList = %{public}s", argList[1].c_str());
-        std::vector<std::string> params(argList.begin() + MIN_DUMP_ARGUMENT_NUM, argList.end());
-        targetManager->DumpMissionListByRecordId(info, isClient, std::stoi(argList[1]), params);
+        targetManager->DumpMissionListByRecordId(info, isClient, std::stoi(argList[1]));
     } else {
         info.emplace_back("error: invalid argument, please see 'ability dumpsys -h'.");
     }
@@ -3227,7 +3225,8 @@ void AbilityManagerService::StartSystemApplication()
 
     StartingSystemUiAbility();
 
-    StartupResidentProcess();
+    // Location may change
+    DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }
 
 void AbilityManagerService::StartingSystemUiAbility()
@@ -4107,6 +4106,13 @@ int AbilityManagerService::GetCurrentTopAbility(sptr<IRemoteObject> &token)
     }
 
     token = abilityRecord->GetToken();
+    if (!token) {
+        HILOG_ERROR("Failed to get token");
+        return ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("bundleName : %{public}s, abilityName : %{public}s",
+        bundleName.data(), abilityRecord->GetAbilityInfo().name.data());
     return ERR_OK;
 }
 
@@ -4116,6 +4122,11 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
 
     auto missionId = GetMissionIdByAbilityToken(token);
+    if (missionId < 0) {
+        HILOG_ERROR("Invalid mission id.");
+        return ERR_INVALID_VALUE;
+    }
+
     return DelegatorMoveMissionToFront(missionId);
 }
 
@@ -4271,25 +4282,24 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
         abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) ||
         (abilityInfo.type == AppExecFwk::AbilityType::DATA)) {
         // just need check the read permission and write permission of extension ability or data ability
-        if (!abilityInfo.readPermission.empty()) {
-            int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission);
-            if (checkReadPermission == ERR_OK) {
-                return AppExecFwk::Constants::PERMISSION_GRANTED;
-            }
-            HILOG_WARN("verify access token fail, read permission: %{public}s", abilityInfo.readPermission.c_str());
+        if (!abilityInfo.readPermission.empty() &&
+            AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission)
+            != AppExecFwk::Constants::PERMISSION_GRANTED) {
+            HILOG_ERROR("verify access token failed, read permission: %{public}s",
+                abilityInfo.readPermission.c_str());
+            return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
         }
-        if (!abilityInfo.writePermission.empty()) {
-            int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission);
-            if (checkWritePermission == ERR_OK) {
-                return AppExecFwk::Constants::PERMISSION_GRANTED;
-            }
-            HILOG_WARN("verify access token fail, write permission: %{public}s", abilityInfo.writePermission.c_str());
+        if (!abilityInfo.writePermission.empty() &&
+            AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission)
+            != AppExecFwk::Constants::PERMISSION_GRANTED) {
+            HILOG_ERROR("verify access token failed, write permission: %{public}s",
+                abilityInfo.writePermission.c_str());
+            return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
         }
-
         if (!abilityInfo.readPermission.empty() || !abilityInfo.writePermission.empty()) {
             // 'readPermission' and 'writePermission' take precedence over 'permission'
             // when 'readPermission' or 'writePermission' is not empty, no need check 'permission'
-            return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
+            return ERR_OK;
         }
     }
 
@@ -4301,31 +4311,12 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     for (auto permission : abilityInfo.permissions) {
         if (AccessTokenKit::VerifyAccessToken(tokenId, permission)
             != AppExecFwk::Constants::PERMISSION_GRANTED) {
-            HILOG_ERROR("verify access token fail, permission: %{public}s", permission.c_str());
+            HILOG_ERROR("verify access token failed, permission: %{public}s", permission.c_str());
             return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
         }
     }
 
     return ERR_OK;
-}
-
-void AbilityManagerService::StartupResidentProcess()
-{
-    // Location may change
-    std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    (void)iBundleManager_->QueryKeepAliveBundleInfos(bundleInfos);
-    for (auto bundleInfo : bundleInfos) {
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (!hapModuleInfo.mainElementName.empty()) {
-                AppExecFwk::AbilityInfo abilityInfo;
-                Want want;
-                want.SetElementName(hapModuleInfo.bundleName, hapModuleInfo.mainElementName);
-                (void)StartAbility(want, USER_ID_NO_HEAD, DEFAULT_INVAL_VALUE); // user 0
-            }
-        }
-    }
-
-    DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

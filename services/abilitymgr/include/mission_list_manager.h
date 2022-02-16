@@ -27,7 +27,6 @@
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "snapshot.h"
-#include "start_options.h"
 #include "want.h"
 
 namespace OHOS {
@@ -68,10 +67,9 @@ public:
 
     int GetMissionInfo(int32_t missionId, MissionInfo &missionInfo);
 
-    int MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions = nullptr);
+    int MoveMissionToFront(int32_t missionId);
 
-    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher,
-        std::shared_ptr<StartOptions> startOptions = nullptr);
+    int MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher);
 
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.
@@ -266,14 +264,7 @@ public:
      */
     void DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args = "");
 
-    /**
-     * @brief dump mission list by id with params
-     *
-     * @param info dump result.
-     * @param params dump params.
-     */
-    void DumpMissionListByRecordId(
-        std::vector<std::string>& info, bool isClient, int32_t abilityRecordId, const std::vector<std::string>& params);
+    void DumpMissionListByRecordId(std::vector<std::string> &info, bool isClient, int32_t abilityRecordId);
 
     /**
      * @brief dump mission by id
@@ -305,6 +296,7 @@ public:
      * @param element, target ability name.
      */
     int ReleaseLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    
     /**
      * @brief register snapshotHandler
      * @param handler the snapshotHandler

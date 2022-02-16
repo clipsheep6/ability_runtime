@@ -268,7 +268,7 @@ public:
     {
         return 0;
     }
-    int NotifyContinuationResult(int32_t missionId, int32_t result) override
+    int NotifyContinuationResult(int32_t missionId, const int32_t result) override
     {
         return 0;
     }
@@ -329,10 +329,7 @@ public:
     {
         return 0;
     }
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override
-    {
-        return 0;
-    }
+
     virtual int SetMissionLabel(const sptr<IRemoteObject> &token,
         const std::string &lable) override
     {
@@ -717,7 +714,7 @@ public:
     {
         return 0;
     }
-    int NotifyContinuationResult(int32_t missionId, int32_t result) override
+    int NotifyContinuationResult(int32_t missionId, const int32_t result) override
     {
         return 0;
     }
@@ -803,10 +800,6 @@ public:
     }
 
     virtual int MoveMissionToFront(int32_t missionId) override
-    {
-        return 0;
-    }
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override
     {
         return 0;
     }

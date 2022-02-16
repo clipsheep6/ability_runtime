@@ -1736,7 +1736,7 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
     }
 }
 
-int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, int32_t result)
+int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, const int32_t result)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2004,32 +2004,6 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
         return ERR_INVALID_VALUE;
     }
     error = Remote()->SendRequest(IAbilityManager::MOVE_MISSION_TO_FRONT, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("move mission to front, SendRequest error: %d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
-int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOptions &startOptions)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("move mission to front , WriteInt32 fail.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
-        return INNER_ERR;
-    }
-    error = Remote()->SendRequest(IAbilityManager::MOVE_MISSION_TO_FRONT_BY_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("move mission to front, SendRequest error: %d", error);
         return error;
