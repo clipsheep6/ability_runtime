@@ -609,13 +609,11 @@ public:
     /**
      * @brief Move a mission to front.
      * @param missionId Id of target mission.
-     * @param startOptions Special startOptions for target mission.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode MoveMissionToFront(int32_t missionId);
-    ErrCode MoveMissionToFront(int32_t missionId, const StartOptions &startOptions);
-
+	
 	/**
      * Start Ability, connect session with common ability.
      *
@@ -751,16 +749,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
-
-    /**
-     * Set ability controller.
-     *
-     * @param abilityController, The ability controller.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
-        bool imAStabilityTest);
-
+    
 private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;

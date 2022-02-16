@@ -24,20 +24,17 @@
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
 #include "app_log_wrapper.h"
-#include "background_task_mgr_helper.h"
 #include "bytrace.h"
 #include "connection_manager.h"
 #include "context_impl.h"
 #include "continuation_manager.h"
 #include "continuation_register_manager.h"
 #include "continuation_register_manager_proxy.h"
-#include "continuous_task_param.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "data_uri_utils.h"
 #include "display_type.h"
-#include "distributed_objectstore.h"
 #include "form_host_client.h"
 #include "form_mgr.h"
 #include "form_provider_client.h"
@@ -81,7 +78,6 @@ static std::mutex formLock;
 
 constexpr int64_t SEC_TO_MILLISEC = 1000;
 constexpr int64_t MILLISEC_TO_NANOSEC = 1000000;
-constexpr int32_t DISTRIBUTED_OBJECT_TIMEOUT = 3000;
 
 Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
@@ -206,7 +202,7 @@ void Ability::OnStart(const Want &want)
         }
 
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
-        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        int displayId = want.GetIntParam(StartOptions::STRING_DISPLAY_ID, defualtDisplayId);
         APP_LOGI("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, windowType:%{public}d, "
             "displayId:%{public}d",
             abilityInfo_->bundleName.c_str(),
@@ -279,7 +275,6 @@ void Ability::Destroy()
     APP_LOGI("%{public}s begin.", __func__);
     // Release the scene.
     if (scene_ != nullptr) {
-        scene_->GoDestroy();
         scene_ = nullptr;
         onSceneDestroyed();
     }
@@ -418,43 +413,8 @@ bool Ability::IsRestoredInContinuation() const
     return false;
 }
 
-void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
-{
-    int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
-    std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-
-    APP_LOGI("continuation WaitingDistributedObjectSyncComplete begin");
-    auto timeout = [self = shared_from_this(), sessionId, originDeviceId]() {
-        APP_LOGI("DistributedObject sync timeout");
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, false, nullptr);
-    };
-
-    // std::shared_ptr<AppExecFwk::EventHandler> handler = handler_;
-    auto callback = [self = shared_from_this(), sessionId, originDeviceId]() {
-        APP_LOGI("DistributedObject sync complete");
-        if (self->handler_ != nullptr) {
-            self->handler_->RemoveTask("Waiting_Sync_Timeout");
-        }
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, true, nullptr);
-    };
-
-    std::string &bundleName = abilityInfo_->bundleName;
-    APP_LOGI("continuation TriggerRestore begin");
-    ObjectStore::DistributedObjectStore::GetInstance(bundleName)->TriggerRestore(callback);
-    APP_LOGI("continuation TriggerRestore end");
-
-    if (handler_ != nullptr) {
-        APP_LOGI("continuation set timeout begin");
-        handler_->PostTask(timeout, "Waiting_Sync_Timeout", DISTRIBUTED_OBJECT_TIMEOUT);
-        APP_LOGI("continuation set timeout end");
-    }
-}
-
 void Ability::NotityContinuationResult(const Want& want, bool success)
 {
-    APP_LOGI("NotityContinuationResult begin");
     std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> ReplicaHandler = continuationHandler_;
     reverseContinuationSchedulerReplica_ = sptr<ReverseContinuationSchedulerReplica>(
         new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
@@ -1263,15 +1223,6 @@ void Ability::Dump(const std::string &extra)
 }
 
 /**
- * @brief dump ability info
- *
- * @param params dump params that indicate different dump targets
- * @param info dump ability info
-*/
-void Ability::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
-{}
-
-/**
  * @brief Keeps this Service ability in the background and displays a notification bar.
  * To use this method, you need to request the ohos.permission.KEEP_BACKGROUND_RUNNING permission from the system.
  * The ohos.permission.KEEP_BACKGROUND_RUNNING permission is of the normal level.
@@ -1992,30 +1943,6 @@ bool Ability::DeleteForm(const int64_t formId)
     APP_LOGI("%{public}s called.", __func__);
     // delete form with formId
     return DeleteForm(formId, DELETE_FORM);
-}
-
-/**
- * @brief Keep this Service ability in the background and displays a notification bar.
- *
- * @param wantAgent Indicates which ability to start when user click the notification bar.
- * @return the method result code, 0 means succeed
- */
-int Ability::StartBackgroundRunning(const Notification::WantAgent::WantAgent &wantAgent)
-{
-    uint32_t defaultBgMode = 0;
-    BackgroundTaskMgr::ContinuousTaskParam taskParam = BackgroundTaskMgr::ContinuousTaskParam(false, defaultBgMode,
-        std::make_shared<Notification::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken());
-    return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStartBackgroundRunning(taskParam);
-}
-
-/**
- * @brief Cancel background running of this ability to free up system memory.
- *
- * @return the method result code, 0 means succeed
- */
-int Ability::StopBackgroundRunning()
-{
-    return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStopBackgroundRunning(abilityInfo_->name, GetToken());
 }
 
 /**
@@ -3345,13 +3272,6 @@ void Ability::DoOnForeground(const Want& want)
     if (abilityWindow_ != nullptr) {
         APP_LOGI("%{public}s begin abilityWindow_->OnPostAbilityForeground, sceneFlag:%{public}d.",
             __func__, sceneFlag_);
-        auto window = abilityWindow_->GetWindow();
-        if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
-            auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
-                AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-            window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-            APP_LOGI("set window mode = %{public}d.", windowMode);
-        }
         abilityWindow_->OnPostAbilityForeground(sceneFlag_);
         APP_LOGI("%{public}s end abilityWindow_->OnPostAbilityForeground.", __func__);
     } else {

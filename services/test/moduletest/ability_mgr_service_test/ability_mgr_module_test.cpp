@@ -201,19 +201,22 @@ static void OnStartAms()
 
 void AbilityMgrModuleTest::SetUpTestCase(void)
 {
+    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new (std::nothrow) BundleMgrService());
+
     abilityMgrServ_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     mockAppMgrClient_ = std::make_shared<MockAppMgrClient>();
+
     OnStartAms();
 }
 
 void AbilityMgrModuleTest::TearDownTestCase(void)
 {
-    abilityMgrServ_->OnStop();
+    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
+    abilityMgrServ_.reset();
     mockAppMgrClient_.reset();
 }
-
 void AbilityMgrModuleTest::SetUp(void)
 {
     scheduler_ = new MockAbilityScheduler();

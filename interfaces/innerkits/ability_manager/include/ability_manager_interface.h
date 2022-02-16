@@ -544,7 +544,7 @@ public:
 
     virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) = 0;
 
-    virtual int NotifyContinuationResult(int32_t missionId, int32_t result) = 0;
+    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) = 0;
 
     virtual int LockMissionForCleanup(int32_t missionId) = 0;
 
@@ -566,9 +566,7 @@ public:
     virtual int CleanAllMissions() = 0;
 
     virtual int MoveMissionToFront(int32_t missionId) = 0;
-
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) = 0;
-
+	
 	/**
      * Start Ability, connect session with common ability.
      *
@@ -671,7 +669,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) = 0;
-
+    
     /**
      * Calls this interface to move the ability to the foreground.
      *
@@ -862,9 +860,6 @@ public:
 
         // ipc id for ability background (55)
         DO_ABILITY_BACKGROUND,
-
-        // ipc id for move mission to front by options (56)
-        MOVE_MISSION_TO_FRONT_BY_OPTIONS,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

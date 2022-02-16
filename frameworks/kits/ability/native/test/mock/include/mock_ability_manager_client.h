@@ -125,9 +125,9 @@ public:
     {
         return std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>();
     };
-    virtual void NotifyContinuationResult(int32_t result) {};
+    virtual void NotifyContinuationResult(const int32_t result) {};
     virtual void ContinueAbility(const std::string& deviceId) {};
-    virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) {};
+    virtual void DumpAbilityInfo(std::vector<std::string> &info) {};
     virtual sptr<IRemoteObject> CallRequest()
     {
         return sptr<IRemoteObject>(nullptr);

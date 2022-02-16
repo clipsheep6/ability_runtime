@@ -215,7 +215,7 @@ public:
      * @param result, continuation result.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int NotifyContinuationResult(int32_t missionId, int32_t result) override;
+    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) override;
 
     /**
      * RegisterMissionListener, register remote device mission listener.
@@ -659,8 +659,6 @@ public:
 
     virtual int MoveMissionToFront(int32_t missionId) override;
 
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
-
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
@@ -1051,7 +1049,7 @@ private:
         const sptr<IRemoteObject> &callerToken,
         int32_t &userId);
 
-    int CheckMultiOsAccount(const int32_t userId);
+    bool JudgeMultiUserConcurrency(const AppExecFwk::AbilityInfo &info, const int32_t userId);
     /**
      * dumpsys info
      *
@@ -1108,8 +1106,6 @@ private:
     int32_t GetValidUserId(const Want &want, const int32_t userId);
 
     int DelegatorMoveMissionToFront(int32_t missionId);
-
-    void StartupResidentProcess();
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;

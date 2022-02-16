@@ -57,15 +57,14 @@ public:
     void TearDown();
 
 protected:
+    sptr<MockAbilityMgrService> mockAbilityMgrServ_;
+    sptr<BundleMgrService> mockBundleMgr_;
     sptr<MockFormHostClient> token_;
     std::shared_ptr<FormMgrService> formyMgrServ_ = DelayedSingleton<FormMgrService>::GetInstance();
 };
 
 void FmsFormMgrRequestFormTest::SetUpTestCase()
-{
-    FormBmsHelper::GetInstance().SetBundleManager(new BundleMgrService());
-    FormAmsHelper::GetInstance().SetAbilityManager(new MockAbilityMgrService());
-}
+{}
 
 void FmsFormMgrRequestFormTest::TearDownTestCase()
 {}
@@ -73,8 +72,15 @@ void FmsFormMgrRequestFormTest::TearDownTestCase()
 void FmsFormMgrRequestFormTest::SetUp()
 {
     formyMgrServ_->OnStart();
+
     token_ = new (std::nothrow) MockFormHostClient();
 
+    mockBundleMgr_ = new (std::nothrow) BundleMgrService();
+    ASSERT_TRUE(mockBundleMgr_ != nullptr);
+    FormBmsHelper::GetInstance().SetBundleManager(mockBundleMgr_);
+
+    mockAbilityMgrServ_ = new (std::nothrow) MockAbilityMgrService();
+    FormAmsHelper::GetInstance().SetAbilityManager(mockAbilityMgrServ_);
     // Permission install
     std::vector<Permission::PermissionDef> permList;
     Permission::PermissionDef permDef;

@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
-SUBDEMOSYSTEM_DIR = "//foundation/appexecfwk/standard/test/resource/amssystemtestability/abilitySrc/amsStDataAbility"
+SUBDEMOSYSTEM_DIR = "${system_test_app_path}/amsStDataAbility"
 EVENT_DIR = "//base/notification/ces_standard/cesfwk"
 
 config("verify_act_ability_config") {

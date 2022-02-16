@@ -53,6 +53,7 @@ void AbilityRecordTest::SetUpTestCase(void)
 void AbilityRecordTest::TearDownTestCase(void)
 {
     OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStop();
+    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
 }
 
 void AbilityRecordTest::SetUp(void)
