@@ -276,7 +276,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(want, userId);
+    int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -369,7 +369,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(want, userId);
+    int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -452,7 +452,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(want, userId);
+    int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -916,7 +916,7 @@ int AbilityManagerService::ConnectAbility(
         return ConnectRemoteAbility(want, connect->AsObject());
     }
 
-    int32_t validUserId = GetValidUserId(want, userId);
+    int32_t validUserId = GetValidUserId(userId);
     return ConnectLocalAbility(want, validUserId, connect, callerToken);
 }
 
@@ -2520,7 +2520,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Stop service ability.");
 
-    int32_t validUserId = GetValidUserId(want, userId);
+    int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
@@ -3903,7 +3903,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
     }
 }
 
-int32_t AbilityManagerService::GetValidUserId(const Want &want, const int32_t userId)
+int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
     int32_t validUserId = DEFAULT_INVAL_VALUE;
@@ -4027,10 +4027,11 @@ int32_t AbilityManagerService::GetAbilityInfoFromExtension(const Want &want, App
     AppExecFwk::BundleInfo bundleInfo;
     AppExecFwk::BundleMgrClient bundleClient;
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    if (!bundleClient.GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetUserId())) {
+    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    if (!bundleClient.GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId)) {
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, RESOLVE_APP_ERR);
-        if (!bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetUserId())) {
+        if (!bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId)) {
             HILOG_ERROR("Failed to get bundle info when generate ability request.");
             return RESOLVE_APP_ERR;
         }
