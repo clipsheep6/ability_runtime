@@ -96,7 +96,7 @@ public:
     MOCK_METHOD1(SetShowOnLockScreen, int(bool isAllow));
     MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
-    MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
+    MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, const int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
         int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams));
     MOCK_METHOD2(ContinueAbility, int(const std::string &deviceId, int32_t missionId));
@@ -112,7 +112,6 @@ public:
     MOCK_METHOD1(CleanMission, int(int32_t missionId));
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
-    MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions &startOptions));
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
     MOCK_METHOD1(ClearUpApplicationData, int(const std::string &));
 

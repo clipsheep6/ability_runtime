@@ -52,6 +52,7 @@ bool BundleMgrProxy::GetApplicationInfo(
 
 std::string BundleMgrProxy::GetAppType(const std::string &bundleName)
 {
+    GTEST_LOG_(INFO) << " BundleMgrProxy::GetAppTyp";
     return "system";
 }
 
@@ -104,17 +105,20 @@ bool BundleMgrService::GetApplicationInfo(
 
 std::string BundleMgrService::GetAppType(const std::string &bundleName)
 {
+    GTEST_LOG_(INFO) << " BundleMgrService::GetAppType";
     return "system";
 }
 
 bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
 {
+    GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = "Captain";
     return true;
 }
 
 bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
 {
+    GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = "Captain";
     return true;
 }

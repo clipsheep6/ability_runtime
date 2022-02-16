@@ -17,20 +17,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-StartOptions::StartOptions(const StartOptions &other)
-{
-    windowMode_ = other.windowMode_;
-    displayId_ = other.displayId_;
-}
 
-StartOptions &StartOptions::operator=(const StartOptions &other)
-{
-    if (this != &other) {
-        windowMode_ = other.windowMode_;
-        displayId_ = other.displayId_;
-    }
-    return *this;
-}
+const std::string StartOptions::STRING_DISPLAY_ID = "ohos.aafwk.displayId";
 
 bool StartOptions::ReadFromParcel(Parcel &parcel)
 {

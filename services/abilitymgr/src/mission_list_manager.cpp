@@ -145,14 +145,13 @@ int MissionListManager::GetMissionInfo(int32_t missionId, MissionInfo &missionIn
     return DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionInfoById(missionId, missionInfo);
 }
 
-int MissionListManager::MoveMissionToFront(int32_t missionId, std::shared_ptr<StartOptions> startOptions)
+int MissionListManager::MoveMissionToFront(int32_t missionId)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    return MoveMissionToFront(missionId, true, startOptions);
+    return MoveMissionToFront(missionId, true);
 }
 
-int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher,
-    std::shared_ptr<StartOptions> startOptions)
+int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromLauncher)
 {
     HILOG_INFO("move mission to front:%{public}d.", missionId);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
@@ -178,11 +177,7 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
         HILOG_ERROR("get target ability record failed, missionId: %{public}d", missionId);
         return MOVE_MISSION_FAILED;
     }
-    if (startOptions != nullptr) {
-        Want want(targetAbilityRecord->GetWant());
-        want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions->GetWindowMode());
-        targetAbilityRecord->SetWant(want);
-    }
+
     // schedule target ability to foreground.
     targetAbilityRecord->ProcessForegroundAbility();
     HILOG_DEBUG("SetMovingState, missionId: %{public}d", missionId);
@@ -1579,7 +1574,7 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 }
 
 void MissionListManager::DumpMissionListByRecordId(
-    std::vector<std::string> &info, bool isClient, int32_t abilityRecordId, const std::vector<std::string> &params)
+    std::vector<std::string> &info, bool isClient, int32_t abilityRecordId)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
@@ -1587,23 +1582,23 @@ void MissionListManager::DumpMissionListByRecordId(
     for (const auto& missionList : currentMissionLists_) {
         if (missionList && missionList != launcherList_) {
             HILOG_INFO("missionList begain to call DumpMissionListByRecordId %{public}s", __func__);
-            missionList->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+            missionList->DumpStateByRecordId(info, isClient, abilityRecordId);
         }
     }
 
     if (defaultStandardList_) {
         HILOG_INFO("defaultStandardList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultStandardList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultStandardList_->DumpStateByRecordId(info, isClient, abilityRecordId);
     }
 
     if (defaultSingleList_) {
         HILOG_INFO("defaultSingleList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultSingleList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultSingleList_->DumpStateByRecordId(info, isClient, abilityRecordId);
     }
 
     if (launcherList_) {
         HILOG_INFO("launcherList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        launcherList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        launcherList_->DumpStateByRecordId(info, isClient, abilityRecordId);
     }
 }
 void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args)
@@ -1962,21 +1957,31 @@ void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
 
 std::shared_ptr<AbilityRecord> MissionListManager::GetCurrentTopAbility(const std::string &bundleName)
 {
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+
     for (auto &missionList : currentMissionLists_) {
         if (!missionList) {
             HILOG_WARN("Invalid missionList.");
             continue;
         }
 
-        auto abilityRecord = missionList->GetLauncherRoot();
-        if (!abilityRecord) {
-            HILOG_ERROR("Invalid ability record.");
-            return {};
-        }
+        auto missions = missionList->GetAllMissions();
+        for (auto &mission : missions) {
+            if (!mission) {
+                HILOG_WARN("Invalid mission.");
+                continue;
+            }
 
-        auto appInfo = abilityRecord->GetApplicationInfo();
-        if (bundleName.compare(appInfo.bundleName)) {
-            return abilityRecord;
+            auto abilityRecord = mission->GetAbilityRecord();
+            if (!abilityRecord) {
+                HILOG_WARN("Invalid ability record.");
+                continue;
+            }
+
+            auto appInfo = abilityRecord->GetApplicationInfo();
+            if (bundleName.compare(appInfo.bundleName) == 0) {
+                return abilityRecord;
+            }
         }
     }
 

@@ -834,6 +834,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
+    // create contextImpl
+    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    contextImpl->SetResourceManager(resourceManager);
+    contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
+    contextImpl->InitAppContext();
+    application_->SetApplicationContext(contextImpl);
+
     bool moduelJson = false;
     bool isStageBased = false;
     if (!bundleInfo.hapModuleInfos.empty()) {
@@ -882,13 +889,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     application_->AttachBaseContext(contextDeal);
     application_->SetAbilityRecordMgr(abilityRecordMgr_);
     application_->SetConfiguration(config);
-
-    // create contextImpl
-    std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    contextImpl->SetResourceManager(resourceManager);
-    contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
-    contextImpl->InitAppContext();
-    application_->SetApplicationContext(contextImpl);
 
     applicationImpl_->SetRecordId(appLaunchData.GetRecordId());
     applicationImpl_->SetApplication(application_);
@@ -962,28 +962,16 @@ bool MainThread::AbilityDelegatorPrepare(const UserTestRecord &record)
         return false;
     }
 
-    auto delegator = std::make_shared<AbilityDelegator>(this, std::move(testRunner), record.observer);
+    auto delegator = std::make_shared<AbilityDelegator>(
+        application_->GetAppContext(), std::move(testRunner), record.observer);
     if (!delegator) {
         APP_LOGE("delegator is null");
         return false;
     }
-    delegator->Init();
     AbilityDelegatorRegistry::RegisterInstance(delegator, args);
 
     delegator->Prepare();
     return true;
-}
-
-int MainThread::FinishUserTest(const std::string &msg, const int &resultCode,
-    const std::string &bundleName, const sptr<IRemoteObject> &observer)
-{
-    APP_LOGI("MainThread::FinishUserTest");
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->FinishUserTest(
-        msg, resultCode, bundleName, observer);
-    if (err != ERR_OK) {
-        APP_LOGE("MainThread::FinishUserTest is failed %{public}d", err);
-    }
-    return ERR_OK;
 }
 
 /**
@@ -1294,7 +1282,7 @@ void MainThread::HandleConfigurationUpdated(const Configuration &config)
     APP_LOGI("MainThread::HandleConfigurationUpdated called end.");
 }
 
-void MainThread::TaskTimeoutDetected(const std::shared_ptr<EventRunner> &runner)
+void MainThread::TaskTimeoutDetected()
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
     APP_LOGI("MainThread::TaskTimeoutDetected called start.");
@@ -1303,14 +1291,14 @@ void MainThread::TaskTimeoutDetected(const std::shared_ptr<EventRunner> &runner)
         APP_LOGI("MainThread::TaskTimeoutDetected delivery timeout");
     };
     auto distributeTimeoutCallback = []() {
-        APP_LOGI("MainThread::TaskTimeoutDetected distribute timeout");
+        APP_LOGI("MainThread::TaskTimeoutDetected delivery timeout");
     };
 
-    if (runner !=nullptr && mainHandler_ != nullptr) {
-        runner->SetDeliveryTimeout(DELIVERY_TIME);
+    if (mainHandler_ != nullptr) {
+        mainHandler_->SetDeliveryTimeout(DELIVERY_TIME);
         mainHandler_->SetDeliveryTimeoutCallback(deliveryTimeoutCallback);
 
-        runner->SetDistributeTimeout(DISTRIBUTE_TIME);
+        mainHandler_->SetDistributeTimeout(DISTRIBUTE_TIME);
         mainHandler_->SetDistributeTimeoutCallback(distributeTimeoutCallback);
     }
     APP_LOGI("MainThread::TaskTimeoutDetected called end.");
@@ -1341,7 +1329,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
     if (!watchDogHandler_->PostTask(taskWatchDog)) {
         APP_LOGE("MainThread::Init WatchDog postTask task failed");
     }
-    TaskTimeoutDetected(runner);
+    TaskTimeoutDetected();
     /*
     watchDogHandler_->Init(mainHandler_, watchDogHandler_);
     APP_LOGI("MainThread:Init before CreateRunner.");

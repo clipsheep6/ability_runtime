@@ -670,7 +670,7 @@ public:
      * dump ability state info.
      *
      */
-    void DumpAbilityState(std::vector<std::string> &info, bool isClient, const std::vector<std::string> &params);
+    void DumpAbilityState(std::vector<std::string> &info, bool isClient);
 
     void SetStartTime();
 
@@ -755,7 +755,7 @@ public:
     void SetLaunchReason(const LaunchReason &reason);
     void SetLastExitReason(const LastExitReason &reason);
     void ContinueAbility(const std::string& deviceId);
-    void NotifyContinuationResult(int32_t result);
+    void NotifyContinuationResult(const int32_t result);
     std::shared_ptr<MissionList> GetOwnedMissionList() const;
 
     void SetUseNewMission();
