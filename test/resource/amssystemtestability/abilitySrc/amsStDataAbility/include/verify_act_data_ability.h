@@ -41,13 +41,10 @@ public:
     virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values) override;
 
     std::vector<std::shared_ptr<NativeRdb::AbsSharedResultSet>> sharedList_;
-};
 
-class InsertTestOpenCallback : public NativeRdb::RdbOpenCallback {
-public:
-    int OnCreate(NativeRdb::RdbStore &rdbStore) override;
-    int OnUpgrade(NativeRdb::RdbStore &rdbStore, int oldVersion, int newVersion) override;
-    static const std::string CREATE_TABLE_TEST;
+    virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override;
+    virtual Uri NormalizeUri(const Uri &uri) override;
+    virtual Uri DenormalizeUri(const Uri &uri) override;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

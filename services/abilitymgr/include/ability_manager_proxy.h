@@ -530,7 +530,7 @@ public:
 
     virtual void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess) override;
 
-    virtual int NotifyContinuationResult(int32_t missionId, int32_t result) override;
+    virtual int NotifyContinuationResult(int32_t missionId, const int32_t result) override;
 
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
 
@@ -555,9 +555,7 @@ public:
     virtual int CleanAllMissions() override;
 
     virtual int MoveMissionToFront(int32_t missionId) override;
-
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override;
-
+	
 	/**
      * Start Ability, connect session with common ability.
      *
@@ -668,7 +666,7 @@ public:
      * @param pid The not response process ID.
      */
     virtual bool SendANRProcessID(int pid) override;
-
+    
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

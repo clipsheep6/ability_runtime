@@ -57,6 +57,8 @@ void AbilityServiceStartTest::SetUp()
 void AbilityServiceStartTest::TearDown()
 {
     aams_->OnStop();
+    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
+    aams_ = nullptr;
 }
 
 /*
