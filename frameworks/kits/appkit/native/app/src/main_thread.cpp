@@ -1418,6 +1418,14 @@ void MainThread::Start()
         return;
     }
 
+    APP_LOGI("MainThread::main Register sig handle start");
+    struct sigaction sigAct;    
+    sigemptyset(&sigAct.sa_mask);
+    sigAct.sa_flags = 0;    
+    sigAct.sa_handler = &MainThread::HandleANRProcess;
+    sigaction(SIGUSR1, &sigAct, NULL);
+    APP_LOGI("MainThread::main Register sig handle end");
+
     APP_LOGI("MainThread::main called start Init");
     thread->Init(runner, runnerWatchDog);
     APP_LOGI("MainThread::main called end Init");
