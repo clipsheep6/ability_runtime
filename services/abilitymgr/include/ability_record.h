@@ -666,6 +666,8 @@ public:
      */
     void Dump(std::vector<std::string> &info);
 
+    void DumpSys(std::vector<std::string> &info, bool isClient = false);
+
     /**
      * dump ability state info.
      *

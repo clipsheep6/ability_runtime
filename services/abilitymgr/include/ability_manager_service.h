@@ -144,17 +144,6 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
     /**
-     * CloseAbility, close the special ability.
-     *
-     * @param token, the token of the ability to terminate.
-     * @param resultCode, the resultCode of the ability to terminate.
-     * @param resultWant, the Want of the ability to return.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr) override;
-
-    /**
      * MinimizeAbility, minimize the special ability.
      *
      * @param token, ability token.
@@ -913,6 +902,8 @@ public:
         KEY_DUMPSYS_SERVICE,
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
+        KEY_DUMPSYS_DATA,
+        KEY_DUMPSYS_SYSTEM_UI,
     };
 
     friend class AbilityStackManager;
@@ -925,8 +916,6 @@ protected:
     void OnAppStateChanged(const AppInfo &info) override;
 
 private:
-    int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr, bool flag = true);
     /**
      * initialization of ability manager service.
      *
@@ -1071,17 +1060,21 @@ private:
      */
     void DumpSysFuncInit();
     void DumpSysInner(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysAbilityInner(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysStateInner(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysPendingInner(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysProcess(
-        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DataDumpSysStateInner(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void SystemDumpSysStateInner(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
 
     void InitConnectManager(int32_t userId, bool switchUser);
     void InitDataAbilityManager(int32_t userId, bool switchUser);

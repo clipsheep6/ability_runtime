@@ -81,6 +81,8 @@ public:
      */
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
 
+    void OnAppStateChanged(const AppInfo &info);
+
     /**
      * attach ability thread ipc object.
      *
@@ -124,11 +126,10 @@ public:
      * @param abilityRecord the ability to terminate
      * @param resultCode the terminate data
      * @param resultWant the terminate data
-     * @param flag mark terminate flag
      * @return int error code
      */
     int TerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        int resultCode, const Want *resultWant, bool flag);
+        int resultCode, const Want *resultWant);
 
     /**
      * @brief Terminate ability with caller
@@ -143,9 +144,8 @@ public:
      * @brief remove the mission from the mission list
      *
      * @param abilityRecord the ability need to remove
-     * @param flag mark is terminate or close
      */
-    void RemoveTerminatingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
+    void RemoveTerminatingAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     /**
      * @brief remove the mission list from the mission list manager
@@ -364,7 +364,7 @@ private:
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
     int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission);
-    int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
+    int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
@@ -379,6 +379,7 @@ private:
     void GetAllForegroundAbilities(std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
         std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
+    bool IsPC();
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const std::string &flag) const;
 
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
