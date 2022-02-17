@@ -118,7 +118,6 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-
     LoadAbility(token, preToke, abilityInfo, appInfo, want);
     return NO_ERROR;
 }
