@@ -80,7 +80,9 @@
               "appmgr/iapp_state_callback.h",
               "appmgr/app_state_callback_host.h",
               "appmgr/app_mgr_constants.h",
-              "appmgr/app_process_data.h"
+              "appmgr/app_process_data.h",
+              "appmgr/render_scheduler_interface.h",
+              "appmgr/render_scheduler_host.h"
             ]
           },
           "name": "//foundation/aafwk/standard/interfaces/innerkits/app_manager:app_manager"

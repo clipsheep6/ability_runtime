@@ -194,6 +194,20 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
+    /**
+     * Start webview render process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartRenderProcess() override;
+
+    /**
+     * Render process call this to attach ams.
+     *
+     * @param app, information needed to start the Application.
+     */
+    virtual void AttachRenderProcess(const sptr<IRemoteObject> &renderApp) override;
+
 private:
     bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

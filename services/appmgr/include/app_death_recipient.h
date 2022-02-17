@@ -26,6 +26,8 @@ class AppMgrServiceInner;
 
 class AppDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
+    explicit AppDeathRecipient(bool isRenderProcess = false);
+
     virtual void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
     /**
@@ -43,6 +45,7 @@ public:
     void SetAppMgrServiceInner(const std::shared_ptr<AppMgrServiceInner> &serviceInner);
 
 private:
+    bool isRenderProcess_;
     std::weak_ptr<AMSEventHandler> handler_;
     std::weak_ptr<AppMgrServiceInner> appMgrServiceInner_;
 };

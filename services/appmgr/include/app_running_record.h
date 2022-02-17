@@ -33,6 +33,7 @@
 #include "priority_object.h"
 #include "app_lifecycle_deal.h"
 #include "module_running_record.h"
+#include "app_spawn_msg_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -41,6 +42,38 @@ const int RESTART_RESIDENT_PROCESS_MAX_TIMES = 15;
 }
 class AbilityRunningRecord;
 class AppMgrServiceInner;
+class AppRunningRecord;
+
+/**
+ * @class RenderRecord
+ * Record webview render process info.
+ */
+class RenderRecord {
+public:
+    RenderRecord(pid_t hostPid, std::weak_ptr<AppRunningRecord> host);
+
+    virtual ~RenderRecord();
+
+    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid,
+        const std::shared_ptr<AppRunningRecord> &host);
+
+    void SetPid(pid_t pid);
+    pid_t GetPid();
+    pid_t GetHostPid();
+    std::shared_ptr<AppRunningRecord> GetHostRecord();
+    sptr<IRemoteObject> GetScheduler();
+    void SetScheduler(const sptr<IRemoteObject> &scheduler);
+    void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
+    void RegisterDeathRecipient();
+
+private:
+    pid_t pid_ = 0;
+    pid_t hostPid_ = 0;
+    std::weak_ptr<AppRunningRecord> host_; // webview host
+    sptr<IRemoteObject> renderScheduler_;
+    sptr<AppDeathRecipient> deathRecipient_ = nullptr;
+};
+
 class AppRunningRecord : public std::enable_shared_from_this<AppRunningRecord> {
 public:
     static int64_t appEventId_;
@@ -450,6 +483,11 @@ public:
     void ScheduleAcceptWantDone();
     const AAFwk::Want &GetSpecifiedWant() const;
 
+    void SetRenderRecord(const std::shared_ptr<RenderRecord> &record);
+    std::shared_ptr<RenderRecord> GetRenderRecord();
+    void SetStartMsg(const AppSpawnStartMsg &msg);
+    AppSpawnStartMsg GetStartMsg();
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
@@ -528,6 +566,10 @@ private:
     std::string moduleName_;
 
     UserTestRecord userTestRecord_;
+
+    // render record
+    std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
+    AppSpawnStartMsg startMsg_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

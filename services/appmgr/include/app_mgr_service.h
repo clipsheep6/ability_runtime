@@ -215,6 +215,10 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
+    virtual int StartRenderProcess() override;
+
+    virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
+
 private:
     /**
      * Init, Initialize application services.

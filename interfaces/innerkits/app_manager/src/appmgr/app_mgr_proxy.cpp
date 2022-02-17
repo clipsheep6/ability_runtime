@@ -584,5 +584,50 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
         return;
     }
 }
+
+int AppMgrProxy::StartRenderProcess()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        APP_LOGE("WriteInterfaceToken faild");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    int32_t ret =
+        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS), data, reply, option);
+    if (ret != NO_ERROR) {
+        APP_LOGW("StartRenderProcess SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler)
+{
+    if (!renderScheduler) {
+        APP_LOGE("renderScheduler is null");
+        return;
+    }
+
+    APP_LOGD("AttachRenderProcess start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(renderScheduler)) {
+        APP_LOGE("renderScheduler write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(IAppMgr::Message::ATTACH_RENDER_PROCESS, data, reply)) {
+        APP_LOGE("SendTransactCmd ATTACH_RENDER_PROCESS faild");
+        return;
+    }
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

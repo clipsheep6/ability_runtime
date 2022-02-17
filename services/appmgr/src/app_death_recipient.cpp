@@ -24,6 +24,11 @@ namespace {
 const std::string TASK_ON_REMOTE_DIED = "OnRemoteDiedTask";
 }
 
+AppDeathRecipient::AppDeathRecipient(bool isRenderProcess)
+    : DeathRecipient(), isRenderProcess_(isRenderProcess)
+{
+}
+
 void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
@@ -42,7 +47,7 @@ void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         return;
     }
 
-    std::function<void()> onRemoteDiedFunc = std::bind(&AppMgrServiceInner::OnRemoteDied, serviceInner, remote);
+    auto onRemoteDiedFunc = std::bind(&AppMgrServiceInner::OnRemoteDied, serviceInner, remote, isRenderProcess_);
     handler->PostTask(onRemoteDiedFunc, TASK_ON_REMOTE_DIED);
 }
 

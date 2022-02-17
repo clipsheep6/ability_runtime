@@ -25,6 +25,7 @@
 #include "app_mgr_constants.h"
 #include "bundle_info.h"
 #include "iapp_state_callback.h"
+#include "render_scheduler_interface.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
@@ -254,6 +255,20 @@ public:
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+
+    /**
+     * Start webview render process, called by webview host.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartRenderProcess();
+
+    /**
+     * Render process call this to attach ams.
+     *
+     * @param app, information needed to start the Application.
+     */
+    virtual void AttachRenderProcess(const sptr<IRenderScheduler> &renderScheduler);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

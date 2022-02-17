@@ -44,6 +44,7 @@ const std::string TASK_CLEAR_UP_APPLICATION_DATA = "ClearUpApplicationDataTask";
 const std::string TASK_STARTUP_RESIDENT_PROCESS = "StartupResidentProcess";
 const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
 const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
+const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -398,6 +399,28 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
     handler_->PostTask(task);
+}
+
+int32_t AppMgrService::StartRenderProcess()
+{
+    if (!IsReady()) {
+        APP_LOGE("StartRenderProcess failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid());
+}
+
+void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
+{
+    if (!IsReady()) {
+        APP_LOGE("AttachRenderProcess failed, not ready.");
+        return;
+    }
+
+    auto pid = IPCSkeleton::GetCallingPid();
+    auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess, appMgrServiceInner_, pid, scheduler);
+    handler_->PostTask(fun, TASK_ATTACH_RENDER_PROCESS);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
