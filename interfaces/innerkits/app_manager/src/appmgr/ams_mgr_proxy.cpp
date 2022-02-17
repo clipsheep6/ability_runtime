@@ -37,7 +37,7 @@ bool AmsMgrProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const AAFwk::Want &want)
+    const std::shared_ptr<AAFwk::Want> &want)
 {
     APP_LOGD("start");
     if (!abilityInfo || !appInfo) {
