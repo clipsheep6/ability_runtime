@@ -1343,9 +1343,14 @@ void AppMgrServiceInner::ClearRecentAppList()
     appProcessManager_->ClearRecentAppList();
 }
 
-void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote)
+void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess)
 {
     APP_LOGE("On remote died.");
+    if (isRenderProcess) {
+        OnRenderRemoteDied(remote);
+        return;
+    }
+
     auto appRecord = appRunningManager_->OnRemoteDied(remote);
     if (appRecord) {
         for (const auto &item : appRecord->GetAbilities()) {
@@ -2147,6 +2152,113 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration()
 {
     return configuration_;
+}
+
+int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid)
+{
+    APP_LOGI("start render process, webview hostpid:%{public}d", hostPid);
+    if (hostPid <= 0) {
+        APP_LOGE("invalid webview host pid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!appRunningManager_) {
+        APP_LOGE("appRunningManager_ is , not start render process");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        APP_LOGE("no such appRecord, hostpid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto renderRecord = appRecord->GetRenderRecord();
+    if (renderRecord) {
+        APP_LOGW("already exit render process,do not request again, hostpid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid, appRecord);
+    if (!renderRecord) {
+        APP_LOGE("create render record failed, hostpid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    return StartRenderProcessImpl(renderRecord, appRecord);
+}
+
+void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRemoteObject> &scheduler)
+{
+    if (pid <= 0) {
+        APP_LOGE("invalid render process pid:%{public}d", pid);
+        return;
+    }
+    if (!scheduler) {
+        APP_LOGE("render scheduler is null");
+        return;
+    }
+
+    if (!appRunningManager_) {
+        APP_LOGE("appRunningManager_ is null");
+        return;
+    }
+
+    APP_LOGI("attach render process pid:%{public}d", pid);
+    auto appRecord = appRunningManager_->GetAppRunningRecordByRenderPid(pid);
+    if (!appRecord) {
+        APP_LOGE("no such app Record, pid:%{public}d", pid);
+        return;
+    }
+
+    auto renderRecord = appRecord->GetRenderRecord();
+    if (!renderRecord) {
+        APP_LOGE("no such render Record, pid:%{public}d", pid);
+        return;
+    }
+
+    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient(true);
+    appDeathRecipient->SetEventHandler(eventHandler_);
+    appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
+    renderRecord->SetScheduler(scheduler);
+    renderRecord->SetDeathRecipient(appDeathRecipient);
+    renderRecord->RegisterDeathRecipient();
+}
+
+int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
+    const std::shared_ptr<AppRunningRecord> appRecord)
+{
+    if (!renderRecord || !appRecord) {
+        APP_LOGE("renderRecord or appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto webviewSpawnClient = remoteClientManager_->GetWebviewSpawnClient();
+    if (!webviewSpawnClient) {
+        APP_LOGE("webviewSpawnClient is null");
+        return ERR_INVALID_VALUE;
+    }
+
+    AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    pid_t pid = 0;
+    ErrCode errCode = webviewSpawnClient->StartProcess(startMsg, pid);
+    if (FAILED(errCode)) {
+        APP_LOGE("failed to spawn new render process, errCode %{public}08x", errCode);
+        return ERR_INVALID_VALUE;
+    }
+    appRecord->SetRenderRecord(renderRecord);
+    renderRecord->SetPid(pid);
+    APP_LOGI("start render process successed, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
+        renderRecord->GetHostPid(), pid, startMsg.uid);
+    return 0;
+}
+
+void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    APP_LOGE("On render remote died.");
+    if (appRunningManager_) {
+        appRunningManager_->OnRemoteRenderDied(remote);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

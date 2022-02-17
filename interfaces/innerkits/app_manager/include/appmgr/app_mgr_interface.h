@@ -201,6 +201,20 @@ public:
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
 
+    /**
+     * Start webview render process, called by webview host.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartRenderProcess() = 0;
+
+    /**
+     * Render process call this to attach ams.
+     *
+     * @param app, information needed to start the Application.
+     */
+    virtual void AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler) = 0;
+
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
@@ -223,6 +237,8 @@ public:
         GET_FOREGROUND_APPLICATIONS,
         START_USER_TEST_PROCESS,
         SCHEDULE_ACCEPT_WANT_DONE,
+        START_RENDER_PROCESS,
+        ATTACH_RENDER_PROCESS,
     };
 };
 }  // namespace AppExecFwk
