@@ -65,7 +65,7 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
     std::function<void()> loadAbilityFunc =
-        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo);
+        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
 
     amsHandler_->PostTask(loadAbilityFunc, TASK_LOAD_ABILITY);
 }
