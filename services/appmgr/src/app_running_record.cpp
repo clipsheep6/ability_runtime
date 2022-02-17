@@ -997,6 +997,5 @@ AppSpawnStartMsg AppRunningRecord::GetStartMsg()
 {
     return startMsg_;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
