@@ -1564,12 +1564,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
     APP_LOGI("%{public}s begin.", __func__);
     if (!params.empty()) {
         if (abilityImpl_->IsStageBasedModel()) {
-            auto scene = currentAbility_->GetScene();
-            if (scene == nullptr) {
-                APP_LOGE("DumpAbilityInfo scene == nullptr");
-                return;
-            }
-            auto window = scene->GetMainWindow();
+            auto window = currentAbility_->GetWindow();
             if (window == nullptr) {
                 APP_LOGE("DumpAbilityInfo window == nullptr");
                 return;
@@ -1581,7 +1576,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
 
         return;
     }
-    std::string dumpInfo = "        event:";
+    std::string dumpInfo = "      event:";
     info.push_back(dumpInfo);
 
     if (!abilityHandler_) {
@@ -1597,25 +1592,6 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
     dumpInfo = "";
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
-
-    if (!currentAbility_) {
-        APP_LOGI("currentAbility is nullptr.");
-        return;
-    }
-
-    const auto ablityContext = currentAbility_->GetAbilityContext();
-    if (!ablityContext) {
-        APP_LOGI("current ability context is nullptr.");
-        return;
-    }
-
-    const auto localCallContainer = ablityContext->GetLocalCallContainer();
-    if (!localCallContainer) {
-        APP_LOGI("current ability context locall call container is nullptr.");
-        return;
-    }
-
-    localCallContainer->DumpCalls(info);
 
     APP_LOGI("localCallContainer need to get calls info.");
 }

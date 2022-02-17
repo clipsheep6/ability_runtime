@@ -69,8 +69,6 @@ public:
 
     ErrCode TerminateSelf() override;
 
-    ErrCode CloseAbility() override;
-
     sptr<IRemoteObject> GetToken() override;
 
     void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
@@ -115,16 +113,6 @@ public:
     std::unique_ptr<NativeReference>& GetContentStorage() override
     {
         return contentStorage_;
-    }
-
-    /**
-     * @brief Get LocalCallContainer.
-     *
-     * @return Returns the LocalCallContainer.
-     */
-    sptr<LocalCallContainer> GetLocalCallContainer() override
-    {
-        return localCallContainer_;
     }
 
     void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) override;

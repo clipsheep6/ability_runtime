@@ -55,11 +55,6 @@ public:
     {
         return 0;
     }
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr) override
-    {
-        return 0;
-    }
     virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override
     {
         return 0;
@@ -407,6 +402,11 @@ public:
         return 0;
     }
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override
+    {
+        return 0;
+    }
+    
+    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {
         return 0;
     }

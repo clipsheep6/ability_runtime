@@ -156,17 +156,6 @@ public:
     ErrCode TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
 
     /**
-     * CloseAbility with want, return want from ability manager service.
-     *
-     * @param token Ability token.
-     * @param resultCode resultCode.
-     * @param Want Ability want returned.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr);
-
-    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param callerToken, caller ability token.
@@ -333,6 +322,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode KillProcess(const std::string &bundleName);
+
+    /**
+     * Force ability timeout.
+     *
+     * @param abilityName.
+     * @param state. ability lifecycle state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ForceTimeoutForTest(const std::string &abilityName, const std::string &state);
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,

@@ -475,9 +475,6 @@ private:
 
     void LoadAppLibrary();
 
-    void ChangeToLocalPath(const std::string &bundleName,
-        const std::vector<std::string> &sourceDirs, std::vector<std::string> &localPath);
-
     /**
      *
      * @brief Close the ability library loaded.

@@ -41,7 +41,7 @@ void AbilitySchedulerProxy::ScheduleAbilityTransaction(const Want &want, const L
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
     if (!WriteInterfaceToken(data)) {
         return;
     }

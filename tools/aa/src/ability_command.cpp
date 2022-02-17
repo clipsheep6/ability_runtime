@@ -53,7 +53,7 @@ const struct option LONG_OPTIONS_DUMP[] = {
     {"mission-infos", no_argument, nullptr, 'S'},
     {nullptr, 0, nullptr, 0},
 };
-const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::kd::u:c";
+const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::u:c";
 const struct option LONG_OPTIONS_DUMPSYS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"all", no_argument, nullptr, 'a'},
@@ -62,8 +62,6 @@ const struct option LONG_OPTIONS_DUMPSYS[] = {
     {"extension", no_argument, nullptr, 'e'},
     {"pending", no_argument, nullptr, 'p'},
     {"process", no_argument, nullptr, 'r'},
-    {"data", no_argument, nullptr, 'd'},
-    {"ui", no_argument, nullptr, 'k'},
     {"userId", required_argument, nullptr, 'u'},
     {"client", no_argument, nullptr, 'c'},
     {nullptr, 0, nullptr, 0},
@@ -84,9 +82,11 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"screen", std::bind(&AbilityManagerShellCommand::RunAsScreenCommand, this)},
         {"start", std::bind(&AbilityManagerShellCommand::RunAsStartAbility, this)},
         {"stop-service", std::bind(&AbilityManagerShellCommand::RunAsStopService, this)},
-        {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
+        {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpCommand, this)},
+        {"dumpsys", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
+        {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
     };
 
     return OHOS::ERR_OK;
@@ -627,7 +627,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 break;
             }
             case 'l': {
-                if (isfirstCommand == false && optarg == nullptr) {
+                if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
                     // 'aa dumpsys -i 10 -element -lastpage'
@@ -665,7 +665,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 break;
             }
             case 'e': {
-                if (isfirstCommand == false && optarg == nullptr) {
+                if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
                     // 'aa dumpsys -i 10 -element'
@@ -680,7 +680,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 break;
             }
             case 'p': {
-                if (isfirstCommand == false && optarg == nullptr) {
+                if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
                     result = OHOS::ERR_INVALID_VALUE;
@@ -692,7 +692,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 break;
             }
             case 'r': {
-                if (isfirstCommand == false && optarg == nullptr) {
+                if (isfirstCommand == false) {
                     isfirstCommand = true;
                 } else {
                     // 'aa dumpsys -i 10 -render'
@@ -704,36 +704,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 }
                 // 'aa dumpsys -r'
                 // 'aa dumpsys --process'
-                break;
-            }
-            case 'd': {
-                if (isfirstCommand == false && optarg == nullptr) {
-                    isfirstCommand = true;
-                } else {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                }
-                // 'aa dumpsys -d'
-                // 'aa dumpsys --data'
-                break;
-            }
-            case 'k': {
-                if (isfirstCommand == false) {
-                    isfirstCommand = true;
-                    if (isUserID == true) {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append("-k is no userID option\n");
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                    }
-                } else {
-                    result = OHOS::ERR_INVALID_VALUE;
-                    resultReceiver_.append(HELP_MSG_DUMPSYS);
-                    return result;
-                }
-                // 'aa dumpsys -k'
-                // 'aa dumpsys --UI'
                 break;
             }
             case 'u': {
@@ -771,7 +741,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     } else {
         if (isfirstCommand != true) {
             result = OHOS::ERR_INVALID_VALUE;
-            resultReceiver_.append(HELP_MSG_NO_OPTION);
             resultReceiver_.append(HELP_MSG_DUMPSYS);
             return result;
         }
@@ -909,6 +878,36 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
     } else {
         HILOG_INFO("%{public}s result = %{public}d", STRING_FORCE_STOP_NG.c_str(), result);
         resultReceiver_ = STRING_FORCE_STOP_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(result));
+    }
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunForceTimeoutForTest()
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    if (argList_.empty()) {
+        resultReceiver_.append(HELP_MSG_FORCE_TIMEOUT + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    ErrCode result = OHOS::ERR_OK;
+    if (argList_.size() == 1 && argList_[0] == HELP_MSG_FORCE_TIMEOUT_CLEAN) {
+        HILOG_INFO("clear ability timeout flags.");
+        result = AbilityManagerClient::GetInstance()->ForceTimeoutForTest(argList_[0], "");
+    } else if (argList_.size() == 2){
+        HILOG_INFO("Ability name : %{public}s, state: %{public}s", argList_[0].c_str(), argList_[1].c_str());
+        result = AbilityManagerClient::GetInstance()->ForceTimeoutForTest(argList_[0], argList_[1]);
+    } else {
+        resultReceiver_.append(HELP_MSG_FORCE_TIMEOUT + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    if (result == OHOS::ERR_OK) {
+        HILOG_INFO("%{public}s", STRING_FORCE_TIMEOUT_OK.c_str());
+        resultReceiver_ = STRING_FORCE_TIMEOUT_OK + "\n";
+    } else {
+        HILOG_INFO("%{public}s result = %{public}d", STRING_FORCE_TIMEOUT_NG.c_str(), result);
+        resultReceiver_ = STRING_FORCE_TIMEOUT_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
     }
     return result;

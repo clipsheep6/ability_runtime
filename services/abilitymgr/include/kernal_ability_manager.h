@@ -79,8 +79,6 @@ public:
 
     void DumpState(std::vector<std::string> &info);
 
-    void DumpSysState(std::vector<std::string> &info, bool isClient);
-
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
 
     void OnTimeOut(uint32_t msgId, int64_t eventId);
@@ -156,6 +154,7 @@ private:
     void CompleteForeground(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     bool RemoveAbilityRecord(std::shared_ptr<AbilityRecord> ability);
+    void PrintTimeOutLog(std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
 private:
     std::recursive_mutex stackLock_;

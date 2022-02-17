@@ -79,7 +79,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     }
     HILOG_INFO("JsServiceExtension::Init CreateJsServiceExtensionContext.");
     NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
-    auto shellContextRef = jsRuntime_.LoadSystemModule("application.ServiceExtAbilityContext", &contextObj, ARGC_ONE);
+    auto shellContextRef = jsRuntime_.LoadSystemModule("application.ServiceExtensionContext", &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();
     HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
@@ -123,7 +123,6 @@ void JsServiceExtension::OnStop()
     CallObjectMethod("onDestroy");
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
-        ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         HILOG_INFO("The service extension connection is not disconnected.");
     }
     HILOG_INFO("%{public}s end.", __func__);
