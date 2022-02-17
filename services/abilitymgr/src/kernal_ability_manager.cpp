@@ -330,7 +330,7 @@ void KernalAbilityManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityR
     abilityRecord->SetAbilityState(AbilityState::INITIAL);
     auto timeoutTask = [ams, abilityRecord]() {
         if (abilityRecord) {
-            ams->StartSystemUi(abilityRecord->GetAbilityInfo().name);
+            ams->StartingSystemUiAbility();
         }
     };
     handler->PostTask(timeoutTask, "SystemUi_Die_" + name, AbilityManagerService::RESTART_TIMEOUT);
@@ -364,7 +364,7 @@ void KernalAbilityManager::OnTimeOut(uint32_t msgId, int64_t eventId)
             };
             handler->PostTask(task);
             auto timeoutTask = [ams, name]() {
-                ams->StartSystemUi(name);
+                ams->StartingSystemUiAbility();
                 HILOG_ERROR("System UI on time out event: restart:%{public}s", name.c_str());
             };
             handler->PostTask(timeoutTask, "SystemUi_Timeout_" + name, AbilityManagerService::RESTART_TIMEOUT);
