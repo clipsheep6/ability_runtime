@@ -703,12 +703,7 @@ public:
     void GetMaxRestartNum(int &max);
     bool IsUseNewMission();
 
-    /**
-     * wait for starting system ui.
-     *
-     */
-    void StartSystemUi(const std::string name);
-
+    void StartingSystemUiAbility();
     void HandleLoadTimeOut(int64_t eventId);
     void HandleActiveTimeOut(int64_t eventId);
     void HandleInactiveTimeOut(int64_t eventId);
@@ -956,13 +951,7 @@ private:
      *
      */
     void StartingContactsAbility();
-
-    /**
-     * starting system ui ServiceExt abilites.
-     *
-     */
-    void StartingSystemUiAbility();
-
+    
     /**
      * starting mms ability.
      *
@@ -1051,7 +1040,8 @@ private:
         const sptr<IRemoteObject> &callerToken,
         int32_t &userId);
 
-    int CheckMultiOsAccount(const int32_t userId);
+    bool JudgeMultiUserConcurrency(const AppExecFwk::AbilityInfo &info, const int32_t userId);
+
     /**
      * dumpsys info
      *
@@ -1105,8 +1095,7 @@ private:
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
 
-    int32_t GetValidUserId(const Want &want, const int32_t userId);
-
+    int32_t GetValidUserId(const int32_t userId);
     int DelegatorMoveMissionToFront(int32_t missionId);
 
     void StartupResidentProcess();
