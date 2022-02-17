@@ -52,7 +52,7 @@ AmsMgrScheduler::~AmsMgrScheduler()
 
 void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const AAFwk::Want &want)
+    const std::shared_ptr<AAFwk::Want> &want)
 {
     if (!abilityInfo || !appInfo) {
         APP_LOGE("param error");
