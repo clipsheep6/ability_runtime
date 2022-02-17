@@ -113,15 +113,5 @@ bool LocalCallRecord::IsExistCallBack() const
 {
     return (callers_.size() > 0);
 }
-
-int LocalCallRecord::GetRecordId()
-{
-    return recordId_;
-}
-
-std::vector<std::shared_ptr<CallerCallBack>> LocalCallRecord::GetCallers()
-{
-    return callers_;
-}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -165,13 +165,6 @@ ErrCode AbilityManagerClient::TerminateAbilityResult(const sptr<IRemoteObject> &
     return abms->TerminateAbilityResult(token, startId);
 }
 
-ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
-{
-    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
-    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    return abms->CloseAbility(token, resultCode, resultWant);
-}
-
 ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
@@ -352,6 +345,14 @@ ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->KillProcess(bundleName);
+}
+
+ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+    return abms->ForceTimeoutForTest(abilityName, state);
 }
 
 ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName)

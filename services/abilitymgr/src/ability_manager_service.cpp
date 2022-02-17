@@ -112,10 +112,6 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-p", KEY_DUMPSYS_PENDING),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--process", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--ui", KEY_DUMPSYS_SYSTEM_UI),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-k", KEY_DUMPSYS_SYSTEM_UI),
 };
 
 const bool REGISTER_RESULT =
@@ -280,7 +276,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(userId);
+    int32_t validUserId = GetValidUserId(want, userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -373,7 +369,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(userId);
+    int32_t validUserId = GetValidUserId(want, userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -456,7 +452,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    int32_t validUserId = GetValidUserId(userId);
+    int32_t validUserId = GetValidUserId(want, userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
@@ -527,17 +523,6 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
-    return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
-}
-
-int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
-{
-    return TerminateAbilityWithFlag(token, resultCode, resultWant, false);
-}
-
-int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode,
-    const Want *resultWant, bool flag)
-{
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability for result: %{public}d", (resultWant != nullptr));
     if (!VerificationAllToken(token)) {
@@ -592,7 +577,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
             HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
             return ERR_INVALID_VALUE;
         }
-        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
+        return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant);
     } else {
         auto stackManager = GetStackManagerByUserId(userId);
         if (!stackManager) {
@@ -920,7 +905,7 @@ int AbilityManagerService::ConnectAbility(
         return ConnectRemoteAbility(want, connect->AsObject());
     }
 
-    int32_t validUserId = GetValidUserId(userId);
+    int32_t validUserId = GetValidUserId(want, userId);
     return ConnectLocalAbility(want, validUserId, connect, callerToken);
 }
 
@@ -1594,6 +1579,13 @@ int AbilityManagerService::AttachAbilityThread(
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     auto type = abilityInfo.type;
 
+    // force timeout ability for test
+    if (IsNeedTimeoutForTest(abilityInfo.name, AbilityRecord::ConvertAbilityState(AbilityState::INITIAL))) {
+        HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s", 
+        abilityInfo.name.c_str());
+        return ERR_OK;
+    }
+
     int returnCode = -1;
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(userId);
@@ -1661,8 +1653,6 @@ void AbilityManagerService::DumpSysFuncInit()
     dumpsysFuncMap_[KEY_DUMPSYS_SERVICE] = &AbilityManagerService::DumpSysStateInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
-    dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_SYSTEM_UI] = &AbilityManagerService::SystemDumpSysStateInner;
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -1680,7 +1670,7 @@ void AbilityManagerService::DumpSysInner(
 }
 
 void AbilityManagerService::DumpSysMissionListInner(
-    const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId)
+    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
@@ -1711,7 +1701,7 @@ void AbilityManagerService::DumpSysMissionListInner(
     }
 }
 void AbilityManagerService::DumpSysAbilityInner(
-    const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId)
+    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
@@ -1777,33 +1767,18 @@ void AbilityManagerService::DumpSysStateInner(
 void AbilityManagerService::DumpSysPendingInner(
     const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
-    std::shared_ptr<PendingWantManager> targetManager;
     if (isUserID) {
         auto it = pendingWantManagers_.find(userId);
-        if (it == pendingWantManagers_.end()) {
-            info.push_back("error: No user found'.");
+        if (it != pendingWantManagers_.end()) {
+            it->second->Dump(info);
             return;
         }
-        targetManager = it->second;
-    } else {
-        targetManager = pendingWantManager_;
-    }
-
-    CHECK_POINTER(targetManager);
-
-    std::vector<std::string> argList;
-    SplitStr(args, " ", argList);
-    if (argList.empty()) {
+        info.push_back("error: No user found'.");
         return;
     }
 
-    if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->DumpByRecordId(info, argList[1]);
-    } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->Dump(info);
-    } else {
-        info.emplace_back("error: invalid argument, please see 'ability dumpsys -h'.");
-    }
+    CHECK_POINTER(pendingWantManager_);
+    pendingWantManager_->Dump(info);
 }
 
 void AbilityManagerService::DumpSysProcess(
@@ -1848,47 +1823,6 @@ void AbilityManagerService::DumpSysProcess(
             dumpInfo = "      state #" + appScheduler_->ConvertAppState(appState);
         }
         info.push_back(dumpInfo);
-    }
-}
-
-void AbilityManagerService::DataDumpSysStateInner(
-    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
-{
-    std::shared_ptr<DataAbilityManager> targetManager;
-    if (isUserID) {
-        auto it = dataAbilityManagers_.find(userId);
-        if (it == dataAbilityManagers_.end()) {
-            info.push_back("error: No user found'.");
-            return;
-        }
-        targetManager = it->second;
-    } else {
-        targetManager = dataAbilityManager_;
-    }
-
-    CHECK_POINTER(targetManager);
-
-    std::vector<std::string> argList;
-    SplitStr(args, " ", argList);
-    if (argList.empty()) {
-        return;
-    }
-    if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->DumpSysState(info, isClient, argList[1]);
-    } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
-        targetManager->DumpSysState(info, isClient);
-    } else {
-        info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
-    }
-}
-
-void AbilityManagerService::SystemDumpSysStateInner(
-    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
-{
-    if (useNewMission_) {
-        kernalAbilityManager_->DumpSysState(info, isClient);
-    } else {
-        systemAppManager_->DumpSysState(info, isClient);
     }
 }
 
@@ -2096,6 +2030,16 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     auto type = abilityInfo.type;
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
 
+    // force timeout ability for test
+    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+    if (IsNeedTimeoutForTest(abilityInfo.name, 
+        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)))) {
+        HILOG_WARN("force timeout ability for test, state:%{public}s, ability: %{public}s",
+        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)).c_str(),
+        abilityInfo.name.c_str());
+        return ERR_OK;
+    }
+
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(userId);
         if (!connectManager) {
@@ -2289,12 +2233,11 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     HILOG_INFO("On app state changed.");
+    currentStackManager_->OnAppStateChanged(info);
     connectManager_->OnAppStateChanged(info);
     if (useNewMission_) {
-        currentMissionListManager_->OnAppStateChanged(info);
         kernalAbilityManager_->OnAppStateChanged(info);
     } else {
-        currentStackManager_->OnAppStateChanged(info);
         systemAppManager_->OnAppStateChanged(info);
     }
     dataAbilityManager_->OnAppStateChanged(info);
@@ -2583,7 +2526,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Stop service ability.");
 
-    int32_t validUserId = GetValidUserId(userId);
+    int32_t validUserId = GetValidUserId(want, userId);
 
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequestLocal(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
@@ -3966,7 +3909,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
     }
 }
 
-int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
+int32_t AbilityManagerService::GetValidUserId(const Want &want, const int32_t userId)
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
     int32_t validUserId = DEFAULT_INVAL_VALUE;
@@ -4090,11 +4033,10 @@ int32_t AbilityManagerService::GetAbilityInfoFromExtension(const Want &want, App
     AppExecFwk::BundleInfo bundleInfo;
     AppExecFwk::BundleMgrClient bundleClient;
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    if (!bundleClient.GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId)) {
+    if (!bundleClient.GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetUserId())) {
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, RESOLVE_APP_ERR);
-        if (!bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, userId)) {
+        if (!bms->GetBundleInfo(bundleName, bundleFlag, bundleInfo, GetUserId())) {
             HILOG_ERROR("Failed to get bundle info when generate ability request.");
             return RESOLVE_APP_ERR;
         }
@@ -4358,6 +4300,32 @@ void AbilityManagerService::StartingScreenLockAbility()
     }
 }
 
+int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+{
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != AbilityUtil::ROOT_UID) {
+        HILOG_ERROR("calling uid has no permission to force timeout.");
+        return INVALID_DATA; 
+    }
+    if (abilityName.empty()) {
+        HILOG_ERROR("abilityName is empty.");
+        return INVALID_DATA; 
+    }
+    if (abilityName == "clean") {
+        timeoutMap_.clear();
+        return ERR_OK;
+    }
+    if (state != AbilityRecord::ConvertAbilityState(AbilityState::INITIAL) && 
+        state != AbilityRecord::ConvertAbilityState(AbilityState::FOREGROUND_NEW) && 
+        state != AbilityRecord::ConvertAbilityState(AbilityState::BACKGROUND_NEW) && 
+        state != AbilityRecord::ConvertAbilityState(AbilityState::TERMINATING)) {
+        HILOG_ERROR("lifecycle state is invalid.");
+        return INVALID_DATA;
+    }
+    timeoutMap_.insert(std::make_pair(state, abilityName));
+    return ERR_OK;
+}
+
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -4402,6 +4370,16 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     return ERR_OK;
+}
+
+bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const
+{
+    for (auto iter = timeoutMap_.begin(); iter != timeoutMap_.end(); iter++) {
+        if (iter->first == state && iter->second == abilityName) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void AbilityManagerService::StartupResidentProcess()

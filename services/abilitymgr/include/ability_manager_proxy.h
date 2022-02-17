@@ -116,17 +116,6 @@ public:
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
 
     /**
-     * CloseAbility, close the special ability.
-     *
-     * @param token, the token of the ability to terminate.
-     * @param resultCode, the resultCode of the ability to terminate.
-     * @param resultWant, the Want of the ability to return.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int CloseAbility(
-        const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
-
-    /**
      * MinimizeAbility, minimize the special ability.
      *
      * @param token, ability token.
@@ -335,6 +324,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int KillProcess(const std::string &bundleName) override;
+
+    /**
+     * force timeout ability.
+     *
+     * @param abilityName.
+     * @param state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 
     /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
@@ -673,8 +671,6 @@ private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
     bool WriteInterfaceToken(MessageParcel &data);
-    // flag = true : terminate; flag = false : close
-    int TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant, bool flag);
 
 private:
     static inline BrokerDelegator<AbilityManagerProxy> delegator_;

@@ -29,7 +29,8 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
                              "  help                        list available commands\n"
                              "  start                       start ability with options\n"
                              "  stop-service                stop service with options\n"
-                             "  dump                        dump the ability info\n"
+                             "  dump                        dump the ability stack info\n"
+                             "  dumpsys                     dump the ability info\n"
                              "  force-stop <bundle-name>    force stop the process with bundle name\n"
                              "  test                        start the test framework with options\n";
 
@@ -62,24 +63,17 @@ const std::string HELP_MSG_DUMP = "usage: aa dump <options>\n"
                                   "  -e, --serv                   dump the service abilities\n"
                                   "  -d, --data                   dump the data abilities\n";
 
-const std::string HELP_MSG_DUMPSYS = "usage: aa dump <options>\n"
+const std::string HELP_MSG_DUMPSYS = "usage: aa dumpsys <options>\n"
                                   "options list:\n"
                                   "  -h, --help                   list available commands\n"
                                   "  -a, --all                    dump all abilities\n"
                                   "  -l, --mission-list           dump mission list\n"
                                   "  -i, --ability                dump abilityRecordId\n"
-                                  "  -e, --extension              dump elementName (API7 ExtensionRecords,"
-                                                                  "API8 serviceAbilityRecords)\n"
+                                  "  -e, --extension              dump elementName\n"
                                   "  -p, --pending                dump pendingWantRecordId\n"
                                   "  -r, --process                dump process\n"
-                                  "  -d, --data                   dump the data abilities\n"
-                                  "  -k, --ui                     dump the kenarl ability list ui stack\n"
                                   "  -u, --userId                 userId\n"
-                                  "  -c, --client                 client\n"
-                                  "  -c, -u are auxiliary parameters and cannot be used alone\n"
-                                  "  The original -s parameter is invalid\n"
-                                  "  The original -m parameter is invalid\n";
-
+                                  "  -c, --client                 client\n";
 
 const std::string HELP_MSG_TEST =
     "usage: aa test <options>\n"
@@ -90,6 +84,10 @@ const std::string HELP_MSG_TEST =
     start the test framework with options\n";
 
 const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
+const std::string HELP_MSG_FORCE_TIMEOUT = 
+    "usage: aa force-timeout <ability-name> <INITIAL|FOREGROUND_NEW|BACKGROUND_NEW|TERMINATING>\n"
+    "usage: aa force-timeout clean.";
+const std::string HELP_MSG_FORCE_TIMEOUT_CLEAN = "clean";
 
 const std::string HELP_MSG_NO_ABILITY_NAME_OPTION = "error: -a <ability-name> is expected";
 const std::string HELP_MSG_NO_BUNDLE_NAME_OPTION = "error: -b <bundle-name> is expected";
@@ -109,6 +107,9 @@ const std::string STRING_SCREEN_POWER_OFF_NG = "error: failed to power off scree
 
 const std::string STRING_FORCE_STOP_OK = "force stop process successfully.";
 const std::string STRING_FORCE_STOP_NG = "error: failed to force stop process.";
+
+const std::string STRING_FORCE_TIMEOUT_OK = "force ability timeout successfully.";
+const std::string STRING_FORCE_TIMEOUT_NG = "error: failed to force ability timeout.";
 
 const std::string STRING_START_USER_TEST_OK = "start user test successfully.";
 const std::string STRING_START_USER_TEST_NG = "error: failed to start user test.";
@@ -136,9 +137,12 @@ private:
     ErrCode RunAsDumpCommand();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    ErrCode RunForceTimeoutForTest();
 
     ErrCode RunAsDumpCommandOptopt();
     ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);
+    ErrCode RunAsDumpSysCommandOptopt();
+
     ErrCode RunAsTestCommand();
     bool IsTestCommandIntegrity(const std::map<std::string, std::string> &params);
     ErrCode TestCommandError(const std::string &info);

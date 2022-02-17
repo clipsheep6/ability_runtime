@@ -142,15 +142,9 @@ bool CallContainer::CallRequestDone(const sptr<IRemoteObject> & callStub)
     return true;
 }
 
-void CallContainer::Dump(std::vector<std::string> &info) const
+void CallContainer::Dump(std::vector<std::string> &info, const std::string &args) const
 {
     HILOG_INFO("Dump call records.");
-    for (auto &iter : callRecordMap_) {
-        auto callRecord = iter.second;
-        if (callRecord) {
-            callRecord->Dump(info);
-        }
-    }
 }
 
 bool CallContainer::IsNeedToCallRequest() const

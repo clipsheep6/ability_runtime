@@ -186,12 +186,6 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
 
 int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
-    return TerminateAbility(token, resultCode, resultWant, true);
-}
-
-int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
-    int resultCode, const Want *resultWant, bool flag)
-{
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -202,10 +196,6 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     }
     if (!data.WriteParcelable(token) || !data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
         HILOG_ERROR("data write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteBool(flag)) {
-        HILOG_ERROR("data write flag failed.");
         return INNER_ERR;
     }
     error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
@@ -236,11 +226,6 @@ int AbilityManagerProxy::TerminateAbilityByCaller(const sptr<IRemoteObject> &cal
         return error;
     }
     return reply.ReadInt32();
-}
-
-int AbilityManagerProxy::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
-{
-    return TerminateAbility(token, resultCode, resultWant, false);
 }
 
 int AbilityManagerProxy::ConnectAbility(
@@ -882,6 +867,31 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
         return ERR_INVALID_VALUE;
     }
     int error = Remote()->SendRequest(IAbilityManager::KILL_PROCESS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString16(Str8ToStr16(abilityName))) {
+        HILOG_ERROR("abilityName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString16(Str8ToStr16(state))) {
+        HILOG_ERROR("abilityName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int error = Remote()->SendRequest(IAbilityManager::FORCE_TIMEOUT, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;

@@ -20,6 +20,7 @@
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
+#include <map>
 
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
@@ -142,17 +143,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
-
-    /**
-     * CloseAbility, close the special ability.
-     *
-     * @param token, the token of the ability to terminate.
-     * @param resultCode, the resultCode of the ability to terminate.
-     * @param resultWant, the Want of the ability to return.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr) override;
 
     /**
      * MinimizeAbility, minimize the special ability.
@@ -863,6 +853,15 @@ public:
      */
     virtual bool SendANRProcessID(int pid) override;
 
+    /**
+     * force timeout ability.
+     *
+     * @param abilityName.
+     * @param state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -913,8 +912,6 @@ public:
         KEY_DUMPSYS_SERVICE,
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
-        KEY_DUMPSYS_DATA,
-        KEY_DUMPSYS_SYSTEM_UI,
     };
 
     friend class AbilityStackManager;
@@ -927,8 +924,6 @@ protected:
     void OnAppStateChanged(const AppInfo &info) override;
 
 private:
-    int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
-        const Want *resultWant = nullptr, bool flag = true);
     /**
      * initialization of ability manager service.
      *
@@ -1073,21 +1068,17 @@ private:
      */
     void DumpSysFuncInit();
     void DumpSysInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysMissionListInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysAbilityInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysStateInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysPendingInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
     void DumpSysProcess(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
-    void DataDumpSysStateInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
-    void SystemDumpSysStateInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+        const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId);
 
     void InitConnectManager(int32_t userId, bool switchUser);
     void InitDataAbilityManager(int32_t userId, bool switchUser);
@@ -1124,10 +1115,11 @@ private:
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
 
-    int32_t GetValidUserId(const int32_t userId);
+    int32_t GetValidUserId(const Want &want, const int32_t userId);
 
     int DelegatorMoveMissionToFront(int32_t missionId);
 
+    bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
     void StartupResidentProcess();
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
@@ -1170,6 +1162,8 @@ private:
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
     std::recursive_mutex globalLock_;
+
+    std::multimap<std::string, std::string> timeoutMap_;
 };
 
 }  // namespace AAFwk
