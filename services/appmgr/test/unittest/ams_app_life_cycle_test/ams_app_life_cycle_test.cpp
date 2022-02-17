@@ -120,7 +120,7 @@ std::shared_ptr<AppRunningRecord> AmsAppLifeCycleTest::StartProcessAndLoadAbilit
 
     serviceInner_->SetAppSpawnClient(mockClientPtr);
 
-    serviceInner_->LoadAbility(token, preToken, abilityInfo, appInfo);
+    serviceInner_->LoadAbility(token, preToken, abilityInfo, appInfo, nullptr);
     BundleInfo bundleInfo;
     bundleInfo.appId = "com.ohos.test.helloworld_code123";
     auto record = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(
@@ -282,7 +282,7 @@ std::shared_ptr<AbilityRunningRecord> AmsAppLifeCycleTest::AddNewAbility(
 {
     auto newAbilityInfo = GetAbilityInfoByIndex(index);
     sptr<IRemoteObject> newToken = new (std::nothrow) MockAbilityToken();
-    serviceInner_->LoadAbility(newToken, nullptr, newAbilityInfo, GetApplication());
+    serviceInner_->LoadAbility(newToken, nullptr, newAbilityInfo, GetApplication(), nullptr);
     auto newAbilityRecord = appRecord->GetAbilityRunningRecordByToken(newToken);
     EXPECT_NE(newAbilityRecord, nullptr);
     return newAbilityRecord;
@@ -296,7 +296,7 @@ std::shared_ptr<AbilityRunningRecord> AmsAppLifeCycleTest::AddNewAbility(
     auto app = GetApplication();
     app->uid = uid;
     sptr<IRemoteObject> newToken = new (std::nothrow) MockAbilityToken();
-    serviceInner_->LoadAbility(newToken, nullptr, newAbilityInfo, app);
+    serviceInner_->LoadAbility(newToken, nullptr, newAbilityInfo, app, nullptr);
     auto newAbilityRecord = appRecord->GetAbilityRunningRecordByToken(newToken);
     EXPECT_NE(newAbilityRecord, nullptr);
     return newAbilityRecord;
@@ -1382,7 +1382,7 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_001, TestSize.Level1)
     EXPECT_NE(abilityRecord, nullptr);
     AbilityState abilityState = abilityRecord->GetState();
     ApplicationState appState = appRecord->GetState();
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
     EXPECT_EQ(abilityState, abilityRecord->GetState());
     EXPECT_EQ(appState, appRecord->GetState());
 
@@ -1495,7 +1495,7 @@ HWTEST_F(AmsAppLifeCycleTest, KillApplication_002, TestSize.Level1)
 
     serviceInner_->SetAppSpawnClient(mockClientPtr);
 
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
     BundleInfo bundleInfo;
     bundleInfo.appId = "com.ohos.test.helloworld_code123";
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(
