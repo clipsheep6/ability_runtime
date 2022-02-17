@@ -55,7 +55,7 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     data.WriteParcelable(preToken);
     data.WriteParcelable(abilityInfo.get());
     data.WriteParcelable(appInfo.get());
-    if (!data.WriteParcelable(want)) {
+    if (!data.WriteParcelable(want.get())) {
         APP_LOGE("Write data want failed.");
         return;
     }

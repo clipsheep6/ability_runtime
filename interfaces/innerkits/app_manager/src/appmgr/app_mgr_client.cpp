@@ -47,7 +47,7 @@ AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, con
             std::shared_ptr<AbilityInfo> abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
             std::shared_ptr<ApplicationInfo> appInfoPtr = std::make_shared<ApplicationInfo>(appInfo);
             std::shared_ptr<AAFwk::Want> wantPtr = std::make_shared<AAFwk::Want>(want);
-            amsService->LoadAbility(token, preToken, abilityInfoPtr, appInfoPtr, want);
+            amsService->LoadAbility(token, preToken, abilityInfoPtr, appInfoPtr, wantPtr);
             return AppMgrResultCode::RESULT_OK;
         }
     }

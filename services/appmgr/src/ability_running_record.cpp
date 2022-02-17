@@ -19,8 +19,8 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AAFwk::Want> &want) : info_(info), token_(token), want_(want)
+AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const std::shared_ptr<AAFwk::Want> &want,
+    const sptr<IRemoteObject> &token) : info_(info), want_(want), token_(token)
 {}
 
 AbilityRunningRecord::~AbilityRunningRecord()
