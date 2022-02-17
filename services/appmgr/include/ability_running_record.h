@@ -29,8 +29,7 @@ namespace OHOS {
 namespace AppExecFwk {
 class AbilityRunningRecord {
 public:
-    AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const std::shared_ptr<AAFwk::Want> &want,
-        const sptr<IRemoteObject> &token);
+    AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token);
     virtual ~AbilityRunningRecord();
 
     /**
@@ -53,6 +52,8 @@ public:
      * @return Returns the ability want.
      */
     const std::shared_ptr<AAFwk::Want> &GetWant() const;
+
+    void SetWant(const std::shared_ptr<AAFwk::Want> &want);
 
     /**
      * @brief Obtains the token of the ability.
@@ -178,7 +179,7 @@ private:
     bool isTerminating_ = false;
     AbilityState state_ = AbilityState::ABILITY_STATE_BEGIN;
     std::shared_ptr<AbilityInfo> info_;
-    std::shared_ptr<AAFwk::Want> want_;
+    std::shared_ptr<AAFwk::Want> want_ = nullptr;
     sptr<IRemoteObject> token_;
     sptr<IRemoteObject> preToken_;
 };
