@@ -2832,7 +2832,7 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t eventId)
                 item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, eventId);
             }
         }
-     }
+    }
 }
 
 void AbilityManagerService::HandleActiveTimeOut(int64_t eventId)
