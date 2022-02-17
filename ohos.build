@@ -81,7 +81,7 @@
               "appmgr/app_state_callback_host.h",
               "appmgr/app_mgr_constants.h",
               "appmgr/app_process_data.h",
-              "appmgr/render_scheduler_interface.h",
+              "appmgr/irender_scheduler.h",
               "appmgr/render_scheduler_host.h"
             ]
           },

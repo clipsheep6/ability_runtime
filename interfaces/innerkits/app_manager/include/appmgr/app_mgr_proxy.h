@@ -202,7 +202,7 @@ public:
     virtual int StartRenderProcess() override;
 
     /**
-     * Render process call this to attach ams.
+     * Render process call this to attach app manager service.
      *
      * @param app, information needed to start the Application.
      */

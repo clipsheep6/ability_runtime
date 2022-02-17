@@ -16,7 +16,7 @@
 #ifndef FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPEXECFWK_CORE_INCLUDE_APPMGR_RENDER_SCHEDULER_HOST_H
 #define FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPEXECFWK_CORE_INCLUDE_APPMGR_RENDER_SCHEDULER_HOST_H
 
-#include "render_scheduler_interface.h"
+#include "irender_scheduler.h"
 
 #include "iremote_object.h"
 #include "iremote_stub.h"
