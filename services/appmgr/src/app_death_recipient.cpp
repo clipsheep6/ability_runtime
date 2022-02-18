@@ -24,11 +24,6 @@ namespace {
 const std::string TASK_ON_REMOTE_DIED = "OnRemoteDiedTask";
 }
 
-AppDeathRecipient::AppDeathRecipient(bool isRenderProcess)
-    : DeathRecipient(), isRenderProcess_(isRenderProcess)
-{
-}
-
 void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
@@ -59,6 +54,11 @@ void AppDeathRecipient::SetEventHandler(const std::shared_ptr<AMSEventHandler> &
 void AppDeathRecipient::SetAppMgrServiceInner(const std::shared_ptr<AppMgrServiceInner> &serviceInner)
 {
     appMgrServiceInner_ = serviceInner;
+}
+
+void AppDeathRecipient::SetIsRenderProcess(bool isRenderProcess)
+{
+    isRenderProcess_ = isRenderProcess;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

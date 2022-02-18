@@ -2217,9 +2217,10 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRemote
         return;
     }
 
-    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient(true);
+    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
     appDeathRecipient->SetEventHandler(eventHandler_);
     appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
+    appDeathRecipient->SetIsRenderProcess(true);
     renderRecord->SetScheduler(scheduler);
     renderRecord->SetDeathRecipient(appDeathRecipient);
     renderRecord->RegisterDeathRecipient();
