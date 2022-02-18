@@ -94,7 +94,6 @@ ohos_shared_library("libfms") {
     "//base/notification/ans_standard/frameworks/wantagent:wantagent_innerkits",
     "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
     "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/distributeddata:distributeddata_inner",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr:distributedschedsvr",
     "//utils/native/base:utils",
 
     #  "//third_party/libuuid:libuuid_static",
