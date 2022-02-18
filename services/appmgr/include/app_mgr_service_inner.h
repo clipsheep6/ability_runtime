@@ -425,7 +425,7 @@ public:
      * @param isRenderProcess is render process died.
      * @return
      */
-    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false);
 
     /**
      * AddAppDeathRecipient, Add monitoring death application record.
