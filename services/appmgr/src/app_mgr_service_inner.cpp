@@ -57,14 +57,8 @@ const int32_t SIGNAL_KILL = 9;
 const std::string REQ_PERMISSION = "ohos.permission.LOCATION_IN_BACKGROUND";
 constexpr int32_t SYSTEM_UID = 1000;
 constexpr int32_t USER_SCALE = 200000;
+constexpr int32_t CURRENT_USERID = -2;
 #define ENUM_TO_STRING(s) #s
-
-constexpr int32_t BASE_USER_RANGE = 200000;
-
-int32_t GetUserIdByUid(int32_t uid)
-{
-    return uid / BASE_USER_RANGE;
-}
 }  // namespace
 
 using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -176,9 +170,8 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         return false;
     }
 
-    auto userId = GetUserIdByUid(abilityInfo.applicationInfo.uid);
     bool bundleMgrResult = bundleMgr_->GetBundleInfo(appInfo->bundleName,
-        BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId);
+        BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, CURRENT_USERID);
     if (!bundleMgrResult) {
         APP_LOGE("GetBundleInfo is fail");
         return false;
@@ -451,9 +444,8 @@ int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleNam
 void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName, int32_t callerUid, pid_t callerPid)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
-    auto userId = GetUserIdByUid(callerUid);
-    APP_LOGI("userId:%{public}d", userId);
-    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, userId);
+    APP_LOGI("userId:%{public}d", CURRENT_USERID);
+    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, CURRENT_USERID);
 }
 
 void AppMgrServiceInner::ClearUpApplicationDataByUserId(
@@ -1229,12 +1221,11 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         return;
     }
 
-    auto userId = GetUserIdByUid(uid);
     AppSpawnStartMsg startMsg;
     BundleInfo bundleInfo;
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     bool bundleMgrResult = bundleMgr_->GetBundleInfos(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-        bundleInfos, userId);
+        bundleInfos, CURRENT_USERID);
     if (!bundleMgrResult) {
         APP_LOGE("GetBundleInfo is fail");
         return;
