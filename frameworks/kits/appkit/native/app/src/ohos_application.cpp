@@ -473,7 +473,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         }
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
-        abilityStage->OnCreate();
+        abilityStage->OnCreate(*(abilityRecord->GetWant()));
         abilityStages_[moduleName] = abilityStage;
     } else {
         abilityStage = iterator->second;

@@ -90,9 +90,12 @@ public:
      * Notify application to launch ability.
      *
      * @param The ability info.
+     * @param The ability token.
+     * @param The ability want.
      * @return
      */
-    virtual void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &) override;
+    virtual void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
+        const AAFwk::Want &) override;
 
     /**
      * ScheduleCleanAbility, call ScheduleCleanAbility() through proxy project,

@@ -37,7 +37,7 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
     }
 }
 
-void AbilityStage::OnCreate() const
+void AbilityStage::OnCreate(const AAFwk::Want &want) const
 {
     HILOG_INFO("AbilityStage::OnCreate come");
 }

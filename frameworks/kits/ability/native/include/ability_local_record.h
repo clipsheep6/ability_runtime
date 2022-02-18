@@ -123,6 +123,10 @@ public:
     * @return None.
     */
     void SetCompatibleVersion(int compatibleVersion);
+
+    void SetWant(const AAFwk::Want &want);
+
+    const AAFwk::Want &GetWant();
 private:
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
     sptr<IRemoteObject> token_;
@@ -131,6 +135,7 @@ private:
     std::shared_ptr<AbilityImpl> abilityImpl_ = nullptr;  // store abilityImpl
     sptr<AbilityThread> abilityThread_;
     int compatibleVersion_ = 0;
+    AAFwk::Want want_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

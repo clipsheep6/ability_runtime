@@ -164,15 +164,8 @@ public:
      */
     void ScheduleAbilityStage(const HapModuleInfo &abilityStage) override;
 
-    /**
-     *
-     * @brief launch the application.
-     *
-     * @param info The launchdata of the application witch launced.
-     * @param token The launchdata of the application witch launced.
-     *
-     */
-    void ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token) override;
+    void ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
+        const Want &want) override;
 
     /**
      *
