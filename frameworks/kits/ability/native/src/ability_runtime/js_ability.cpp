@@ -41,8 +41,14 @@ Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 }
 
 JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
-{}
-JsAbility::~JsAbility() = default;
+{
+    HILOG_INFO("ZZZ JsAbility Create %{public}p %{public}p", this, &jsRuntime_);
+}
+
+JsAbility::~JsAbility()
+{
+    HILOG_INFO("ZZZ JsAbility Delete %{public}p %{public}p", this, &jsRuntime_);
+}
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
@@ -408,8 +414,7 @@ void JsAbility::OnRequestPermissionsFromUserResult(
 
 void JsAbility::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc)
 {
-    HILOG_INFO("JsAbility::CallObjectMethod(%{public}s", name);
-
+    HILOG_INFO("ZZZ JsAbility::CallObjectMethod(%{public}s %{public}p %{public}p", name, this, &jsRuntime_);
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found Ability.js");
         return;

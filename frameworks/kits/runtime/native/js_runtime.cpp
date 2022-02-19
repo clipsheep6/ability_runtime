@@ -234,10 +234,16 @@ bool MakeFilePath(const std::string& codePath, const std::string& modulePath, st
 std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
 {
     std::unique_ptr<JsRuntime> instance = std::make_unique<ArkJsRuntime>();
+    HILOG_INFO("ZZZ JsRuntime Create %{public}p", instance.get());
     if (!instance->Initialize(options)) {
         return std::unique_ptr<Runtime>();
     }
     return instance;
+}
+
+JsRuntime::~JsRuntime()
+{
+    HILOG_INFO("ZZZ JsRuntime Delete %{public}p", this);
 }
 
 bool JsRuntime::Initialize(const Options& options)

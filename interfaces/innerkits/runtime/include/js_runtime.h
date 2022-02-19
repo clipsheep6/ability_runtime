@@ -37,7 +37,7 @@ class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<Runtime> Create(const Options& options);
 
-    ~JsRuntime() override = default;
+    ~JsRuntime();
 
     NativeEngine& GetNativeEngine() const
     {
