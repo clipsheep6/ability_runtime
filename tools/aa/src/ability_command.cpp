@@ -567,7 +567,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     bool isfirstCommand = false;
     std::string args;
 
-    for (auto it = argList_.begin();it != argList_.end();it++) {
+    for (auto it = argList_.begin(); it != argList_.end(); it++) {
         if (*it == "-c" || *it == "--client") {
             if (isClient == false) {
                 isClient = true;
