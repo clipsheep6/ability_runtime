@@ -26,6 +26,7 @@
 #include "app_log_wrapper.h"
 #include "app_mgr_constants.h"
 #include "perf_profile.h"
+#include "xcollie/watchdog.h"
 
 #include "system_environment_information.h"
 
@@ -34,6 +35,7 @@ namespace AppExecFwk {
 namespace {
 static const int EXPERIENCE_MEM_THRESHOLD = 20;
 static const float PERCENTAGE = 100.0;
+const int APPMS_TIME_OUT = 5000;
 const std::string TASK_ATTACH_APPLICATION = "AttachApplicationTask";
 const std::string TASK_APPLICATION_FOREGROUNDED = "ApplicationForegroundedTask";
 const std::string TASK_APPLICATION_BACKGROUNDED = "ApplicationBackgroundedTask";
@@ -146,6 +148,9 @@ ErrCode AppMgrService::Init()
     }
     if (appMgrServiceInner_->ProcessOptimizerInit() != ERR_OK) {
         APP_LOGE("init failed without process optimizer");
+    }
+    if (HiviewDFX::Watchdog::GetInstance().AddThread("AppMSWatchdog", handler_, APPMS_TIME_OUT) != 0) {
+        APP_LOGE("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
     APP_LOGI("init success");
     return ERR_OK;
@@ -398,6 +403,14 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
     handler_->PostTask(task);
+}
+
+int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

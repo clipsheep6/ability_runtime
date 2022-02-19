@@ -156,6 +156,7 @@ private:
     void CompleteForeground(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     bool RemoveAbilityRecord(std::shared_ptr<AbilityRecord> ability);
+    void PrintTimeOutLog(std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
 private:
     std::recursive_mutex stackLock_;

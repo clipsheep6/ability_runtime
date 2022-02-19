@@ -109,6 +109,7 @@ ohos_shared_library("abilityms") {
     "device_manager_base:devicemanagersdk",
     "dsoftbus_standard:softbus_client",
     "hicollie_native:libhicollie",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "resmgr_standard:global_resmgr",

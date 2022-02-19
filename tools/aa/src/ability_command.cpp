@@ -95,6 +95,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"dump", std::bind(&AbilityManagerShellCommand::RunAsDumpsysCommand, this)},
         {"force-stop", std::bind(&AbilityManagerShellCommand::RunAsForceStop, this)},
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
+        {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
         {"ApplicationNotRespondin", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID, this)},
     };
 
@@ -566,8 +567,8 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     bool isfirstCommand = false;
     std::string args;
 
-    for (size_t i = 0; i < argList_.size(); i++) {
-        if (argList_[i] == "-c" || argList_[i] == "--client") {
+    for (auto it = argList_.begin(); it != argList_.end(); it++) {
+        if (*it == "-c" || *it == "--client") {
             if (isClient == false) {
                 isClient = true;
             } else {
@@ -575,9 +576,13 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 resultReceiver_.append(HELP_MSG_DUMPSYS);
                 return result;
             }
-
-        } else if (argList_[i] == "-u" || argList_[i] == "--userId") {
-            (void)StrToInt(argList_[i + 1], userID);
+        } else if (*it == "-u" || *it == "--userId") {
+            if (it + 1 == argList_.end()) {
+                result = OHOS::ERR_INVALID_VALUE;
+                resultReceiver_.append(HELP_MSG_DUMPSYS);
+                return result;
+            }
+            (void)StrToInt(*(it + 1), userID);
             if (userID == DEFAULT_INVAL_VALUE) {
                 result = OHOS::ERR_INVALID_VALUE;
                 resultReceiver_.append(HELP_MSG_DUMPSYS);
@@ -590,11 +595,10 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
                 resultReceiver_.append(HELP_MSG_DUMPSYS);
                 return result;
             }
-
-        } else if (argList_[i] == std::to_string(userID)) {
+        } else if (*it == std::to_string(userID)) {
             continue;
         } else {
-            args += argList_[i];
+            args += *it;
             args += " ";
         }
     }
@@ -918,6 +922,36 @@ ErrCode AbilityManagerShellCommand::RunAsForceStop()
     } else {
         HILOG_INFO("%{public}s result = %{public}d", STRING_FORCE_STOP_NG.c_str(), result);
         resultReceiver_ = STRING_FORCE_STOP_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(result));
+    }
+    return result;
+}
+
+ErrCode AbilityManagerShellCommand::RunForceTimeoutForTest()
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    if (argList_.empty()) {
+        resultReceiver_.append(HELP_MSG_FORCE_TIMEOUT + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    ErrCode result = OHOS::ERR_OK;
+    if (argList_.size() == NUMBER_ONE && argList_[0] == HELP_MSG_FORCE_TIMEOUT_CLEAN) {
+        HILOG_INFO("clear ability timeout flags.");
+        result = AbilityManagerClient::GetInstance()->ForceTimeoutForTest(argList_[0], "");
+    } else if (argList_.size() == NUMBER_TWO) {
+        HILOG_INFO("Ability name : %{public}s, state: %{public}s", argList_[0].c_str(), argList_[1].c_str());
+        result = AbilityManagerClient::GetInstance()->ForceTimeoutForTest(argList_[0], argList_[1]);
+    } else {
+        resultReceiver_.append(HELP_MSG_FORCE_TIMEOUT + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    if (result == OHOS::ERR_OK) {
+        HILOG_INFO("%{public}s", STRING_FORCE_TIMEOUT_OK.c_str());
+        resultReceiver_ = STRING_FORCE_TIMEOUT_OK + "\n";
+    } else {
+        HILOG_INFO("%{public}s result = %{public}d", STRING_FORCE_TIMEOUT_NG.c_str(), result);
+        resultReceiver_ = STRING_FORCE_TIMEOUT_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
     }
     return result;

@@ -20,7 +20,15 @@
 #include "ability_util.h"
 #include "app_scheduler.h"
 #include "hilog_wrapper.h"
+#include "hisysevent.h"
 
+namespace {
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
+constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+}
 namespace OHOS {
 namespace AAFwk {
 KernalAbilityManager::KernalAbilityManager(int userId) : userId_(userId)
@@ -343,6 +351,40 @@ void KernalAbilityManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityR
     };
     handler->PostTask(timeoutTask, "SystemUi_Die_" + name, AbilityManagerService::RESTART_TIMEOUT);
 }
+void KernalAbilityManager::PrintTimeOutLog(std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+{
+    if (ability == nullptr) {
+        HILOG_ERROR("ability is nullptr");
+        return;
+    }
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+    std::string msgContent;
+    switch (msgId) {
+        case AbilityManagerService::LOAD_TIMEOUT_MSG:
+            msgContent = "ability load timeout";
+            break;
+        case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
+            msgContent = "ability active timeout";
+            break;
+        case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
+            msgContent = "ability inactive timeout";
+            break;
+        case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG:
+            msgContent = "ability foreground timeout";
+            break;
+        default:
+            return;
+    }
+    std::string eventType = "LIFECYCLE_TIMEOUT";
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_UID, std::to_string(processInfo.uid_),
+        EVENT_KEY_PID, std::to_string(processInfo.pid_),
+        EVENT_KEY_PACKAGE_NAME, processInfo.bundleNames,
+        EVENT_KEY_PROCESS_NAME, processInfo.processName_,
+        EVENT_KEY_MESSAGE, msgContent);
+}
 void KernalAbilityManager::OnTimeOut(uint32_t msgId, int64_t eventId)
 {
     std::lock_guard<std::recursive_mutex> guard(stackLock_);
@@ -360,6 +402,7 @@ void KernalAbilityManager::OnTimeOut(uint32_t msgId, int64_t eventId)
     auto handler = ams->GetEventHandler();
     CHECK_POINTER(handler);
 
+    PrintTimeOutLog(abilityRecord, msgId);
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
         case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG: {
