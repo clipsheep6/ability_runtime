@@ -624,6 +624,7 @@ public:
      *
      */
     std::list<std::shared_ptr<CallerRecord>> GetCallerRecordList() const;
+    std::shared_ptr<AbilityRecord> GetCallerRecord() const;
 
     /**
      * get connecting record from list.
