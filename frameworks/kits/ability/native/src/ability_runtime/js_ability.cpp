@@ -473,5 +473,21 @@ void JsAbility::DoOnForeground(const Want &want)
     scene_->GoForeground(Ability::sceneFlag_);
     HILOG_INFO("%{public}s end scene_->GoForeground.", __func__);
 }
+
+void JsAbility::RequsetFocus(const Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (scene_ == nullptr) {
+        return;
+    }
+    auto window = scene_->GetMainWindow();
+    if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+        auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
+            AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
+        window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+        HILOG_INFO("set window mode = %{public}d.", windowMode);
+    }
+    scene_->GoForeground(Ability::sceneFlag_);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
