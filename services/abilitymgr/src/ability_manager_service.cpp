@@ -3210,10 +3210,12 @@ void AbilityManagerService::StartSystemApplication()
 
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
+	StartingSettingsDataAbility();
         StartingSystemUiAbility();
         return;
     }
 
+    StartingSettingsDataAbility();
     StartingSystemUiAbility();
 
     StartupResidentProcess();
@@ -3789,7 +3791,6 @@ void AbilityManagerService::StartSystemAbilityByUser(int32_t userId)
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
         StartingLauncherAbility();
-        StartingSettingsDataAbility();
         StartingScreenLockAbility();
         return;
     }
@@ -3797,11 +3798,6 @@ void AbilityManagerService::StartSystemAbilityByUser(int32_t userId)
     if (amsConfigResolver_->GetStartLauncherState()) {
         HILOG_INFO("start launcher");
         StartingLauncherAbility();
-    }
-
-    if (amsConfigResolver_->GetStartSettingsDataState()) {
-        HILOG_INFO("start settingsdata");
-        StartingSettingsDataAbility();
     }
 
     if (amsConfigResolver_->GetStartScreenLockState()) {
