@@ -252,10 +252,8 @@ private:
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     void* libRdbHandle_ = nullptr;
-    void* libDataAbilityHandle_ = nullptr;
     RdbValueBucketNewInstance rdbValueBucketNewInstance_ = nullptr;
     RdbResultSetProxyGetNativeObject rdbResultSetProxyGetNativeObject_ = nullptr;
-    DataAbilityPredicatesNewInstance dataAbilityPredicatesNewInstance_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

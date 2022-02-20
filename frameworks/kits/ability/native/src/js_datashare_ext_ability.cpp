@@ -27,6 +27,7 @@
 #include "napi/native_node_api.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include "napi_data_ability_predicates.h"
 #include "napi_remote_object.h"
 
 namespace OHOS {
@@ -38,10 +39,8 @@ constexpr size_t ARGC_THREE = 3;
 constexpr int INVALID_VALUE = -1;
 #if BINDER_IPC_32BIT
 const std::string LIB_RDB_PATH = "/system/lib/module/data/librdb.z.so";
-const std::string LIB_DATA_ABILITY_PATH = "/system/lib/module/data/libdataability.z.so";
 #else
 const std::string LIB_RDB_PATH = "/system/lib64/module/data/librdb.z.so";
-const std::string LIB_DATA_ABILITY_PATH = "/system/lib64/module/data/libdataability.z.so";
 #endif
 }
 
@@ -142,26 +141,12 @@ void JsDataShareExtAbility::LoadLibrary()
     if (rdbResultSetProxyGetNativeObject_ == nullptr) {
         HILOG_ERROR("symbol not found: %{public}s", dlerror());
     }
-
-    libDataAbilityHandle_ = dlopen(LIB_DATA_ABILITY_PATH.c_str(), RTLD_LAZY);
-    if (libDataAbilityHandle_ == nullptr) {
-        HILOG_ERROR("dlopen failed: %{public}s", dlerror());
-    }
-
-    dataAbilityPredicatesNewInstance_ = reinterpret_cast<DataAbilityPredicatesNewInstance>(
-        dlsym(libDataAbilityHandle_, "NAPI_OHOS_Data_DataAbilityJsKit_DataAbilityPredicatesProxy_NewInstance"));
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("symbol not found: %{public}s", dlerror());
-    }
 }
 
 void JsDataShareExtAbility::UnloadLibrary()
 {
     if (libRdbHandle_ != nullptr) {
         dlclose(libRdbHandle_);
-    }
-    if (libDataAbilityHandle_ != nullptr) {
-        dlclose(libDataAbilityHandle_);
     }
 }
 
@@ -212,8 +197,11 @@ NativeValue* JsDataShareExtAbility::CallObjectMethod(const char* name, NativeVal
         HILOG_ERROR("Failed to get '%{public}s' from DataShareExtAbility object", name);
         return nullptr;
     }
+
+    HILOG_INFO("JsDataShareExtAbility::CallFunction(%{public}s)", name);
+    auto ret = handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
     HILOG_INFO("JsDataShareExtAbility::CallFunction(%{public}s), success", name);
-    return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
+    return ret;
 }
 
 void JsDataShareExtAbility::GetSrcPath(std::string &srcPath)
@@ -372,10 +360,7 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         HILOG_ERROR("%{public}s invalid instance of ValuesBucket.", __func__);
         return ret;
     }
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
@@ -386,9 +371,15 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return ret;
     }
 
+    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
+    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
+    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -419,18 +410,21 @@ int JsDataShareExtAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     }
 
     ret = DataShareExtAbility::Delete(uri, predicates);
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
     napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
 
+    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
+    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
+    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -461,10 +455,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
     }
 
     ret = DataShareExtAbility::Query(uri, columns, predicates);
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
@@ -484,9 +475,15 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
         napi_set_element(env, napiColumns, index++, result);
     }
 
+    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
+    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
+    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
