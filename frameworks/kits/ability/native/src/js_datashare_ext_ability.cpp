@@ -380,7 +380,7 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
     napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
-            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -424,7 +424,7 @@ int JsDataShareExtAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
     napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
-            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -482,7 +482,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
     napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
-            env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
