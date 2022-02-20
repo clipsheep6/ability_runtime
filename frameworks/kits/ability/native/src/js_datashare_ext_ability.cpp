@@ -17,6 +17,7 @@
 
 #include "ability_info.h"
 #include "accesstoken_kit.h"
+#include "dataobs_mgr_client.h"
 #include "datashare_stub_impl.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -27,6 +28,7 @@
 #include "napi/native_node_api.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include "napi_data_ability_predicates.h"
 #include "napi_remote_object.h"
 
 namespace OHOS {
@@ -38,15 +40,14 @@ constexpr size_t ARGC_THREE = 3;
 constexpr int INVALID_VALUE = -1;
 #if BINDER_IPC_32BIT
 const std::string LIB_RDB_PATH = "/system/lib/module/data/librdb.z.so";
-const std::string LIB_DATA_ABILITY_PATH = "/system/lib/module/data/libdataability.z.so";
 #else
 const std::string LIB_RDB_PATH = "/system/lib64/module/data/librdb.z.so";
-const std::string LIB_DATA_ABILITY_PATH = "/system/lib64/module/data/libdataability.z.so";
 #endif
 }
 
 using namespace OHOS::AppExecFwk;
 using OHOS::Security::AccessToken::AccessTokenKit;
+using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
 
 JsDataShareExtAbility* JsDataShareExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
@@ -142,26 +143,12 @@ void JsDataShareExtAbility::LoadLibrary()
     if (rdbResultSetProxyGetNativeObject_ == nullptr) {
         HILOG_ERROR("symbol not found: %{public}s", dlerror());
     }
-
-    libDataAbilityHandle_ = dlopen(LIB_DATA_ABILITY_PATH.c_str(), RTLD_LAZY);
-    if (libDataAbilityHandle_ == nullptr) {
-        HILOG_ERROR("dlopen failed: %{public}s", dlerror());
-    }
-
-    dataAbilityPredicatesNewInstance_ = reinterpret_cast<DataAbilityPredicatesNewInstance>(
-        dlsym(libDataAbilityHandle_, "NAPI_OHOS_Data_DataAbilityJsKit_DataAbilityPredicatesProxy_NewInstance"));
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("symbol not found: %{public}s", dlerror());
-    }
 }
 
 void JsDataShareExtAbility::UnloadLibrary()
 {
     if (libRdbHandle_ != nullptr) {
         dlclose(libRdbHandle_);
-    }
-    if (libDataAbilityHandle_ != nullptr) {
-        dlclose(libDataAbilityHandle_);
     }
 }
 
@@ -212,8 +199,11 @@ NativeValue* JsDataShareExtAbility::CallObjectMethod(const char* name, NativeVal
         HILOG_ERROR("Failed to get '%{public}s' from DataShareExtAbility object", name);
         return nullptr;
     }
+
+    HILOG_INFO("JsDataShareExtAbility::CallFunction(%{public}s)", name);
+    auto ret = handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
     HILOG_INFO("JsDataShareExtAbility::CallFunction(%{public}s), success", name);
-    return handleScope.Escape(nativeEngine.CallFunction(value, method, argv, argc));
+    return ret;
 }
 
 void JsDataShareExtAbility::GetSrcPath(std::string &srcPath)
@@ -372,10 +362,7 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         HILOG_ERROR("%{public}s invalid instance of ValuesBucket.", __func__);
         return ret;
     }
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
@@ -386,9 +373,14 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return ret;
     }
 
+    NativeValue* nativeObj = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeObj));
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -419,18 +411,20 @@ int JsDataShareExtAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     }
 
     ret = DataShareExtAbility::Delete(uri, predicates);
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
     napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
 
+    NativeValue* nativeObj = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeObj));
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -461,10 +455,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
     }
 
     ret = DataShareExtAbility::Query(uri, columns, predicates);
-    if (dataAbilityPredicatesNewInstance_ == nullptr) {
-        HILOG_ERROR("%{public}s invalid instance of DataAbilityPredicates.", __func__);
-        return ret;
-    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = reinterpret_cast<napi_env>(&jsRuntime_.GetNativeEngine());
     napi_value napiUri = nullptr;
@@ -484,9 +475,14 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
         napi_set_element(env, napiColumns, index++, result);
     }
 
+    NativeValue* nativeObj = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeObj));
+    OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
+
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
     *predicatesPtr = predicates;
-    napi_value napiPredicates = dataAbilityPredicatesNewInstance_(env, predicatesPtr);
+    napi_value napiPredicates = OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::NewInstance(
+        env, std::shared_ptr<OHOS::NativeRdb::DataAbilityPredicates>(predicatesPtr));
     if (napiPredicates == nullptr) {
         HILOG_ERROR("%{public}s failed to make new instance of dataAbilityPredicates.", __func__);
         return ret;
@@ -595,6 +591,17 @@ bool JsDataShareExtAbility::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
 {
     HILOG_INFO("%{public}s begin.", __func__);
     DataShareExtAbility::RegisterObserver(uri, dataObserver);
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->RegisterObserver(uri, dataObserver);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s obsMgrClient->RegisterObserver error return %{public}d", __func__, ret);
+        return false;
+    }
     HILOG_INFO("%{public}s end.", __func__);
     return true;
 }
@@ -603,6 +610,17 @@ bool JsDataShareExtAbility::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
 {
     HILOG_INFO("%{public}s begin.", __func__);
     DataShareExtAbility::UnregisterObserver(uri, dataObserver);
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->UnregisterObserver(uri, dataObserver);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s obsMgrClient->UnregisterObserver error return %{public}d", __func__, ret);
+        return false;
+    }
     HILOG_INFO("%{public}s end.", __func__);
     return true;
 }
@@ -610,9 +628,20 @@ bool JsDataShareExtAbility::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
 bool JsDataShareExtAbility::NotifyChange(const Uri &uri)
 {
     HILOG_INFO("%{public}s begin.", __func__);
-    auto ret = DataShareExtAbility::NotifyChange(uri);
+    DataShareExtAbility::NotifyChange(uri);
+    auto obsMgrClient = DataObsMgrClient::GetInstance();
+    if (obsMgrClient == nullptr) {
+        HILOG_ERROR("%{public}s obsMgrClient is nullptr", __func__);
+        return false;
+    }
+
+    ErrCode ret = obsMgrClient->NotifyChange(uri);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s obsMgrClient->NotifyChange error return %{public}d", __func__, ret);
+        return false;
+    }
     HILOG_INFO("%{public}s end.", __func__);
-    return ret;
+    return true;
 }
 
 Uri JsDataShareExtAbility::NormalizeUri(const Uri &uri)

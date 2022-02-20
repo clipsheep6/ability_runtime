@@ -795,9 +795,7 @@ napi_value RegisterWrap(napi_env env, napi_callback_info info, DSHelperOnOffCB *
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
         std::string type = NapiValueToStringUtf8(env, args[PARAM0]);
-        if (type == "dataChange") {
-            HILOG_INFO("%{public}s, Wrong type=%{public}s", __func__, type.c_str());
-        } else {
+        if (type != "dataChange") {
             HILOG_ERROR("%{public}s, Wrong argument type is %{public}s.", __func__, type.c_str());
             onCB->result = INVALID_PARAMETER;
         }
@@ -1870,7 +1868,7 @@ void NormalizeUriExecuteCB(napi_env env, void *data)
     if (normalizeuriCB->dataShareHelper != nullptr) {
         normalizeuriCB->execResult = INVALID_PARAMETER;
         if (!normalizeuriCB->uri.empty()) {
-        OHOS::Uri uri(normalizeuriCB->uri);
+            OHOS::Uri uri(normalizeuriCB->uri);
             uriValue = normalizeuriCB->dataShareHelper->NormalizeUri(uri);
             normalizeuriCB->result = uriValue.ToString();
             normalizeuriCB->execResult = NO_ERROR;
