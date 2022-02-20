@@ -371,9 +371,8 @@ int JsDataShareExtAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return ret;
     }
 
-    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
-    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
-    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    NativeValue* nativeValue = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeValue));
     OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
 
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
@@ -416,9 +415,8 @@ int JsDataShareExtAbility::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     napi_value napiUri = nullptr;
     napi_create_string_utf8(env, uri.ToString().c_str(), NAPI_AUTO_LENGTH, &napiUri);
 
-    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
-    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
-    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    NativeValue* nativeValue = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeValue));
     OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
 
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
@@ -475,9 +473,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> JsDataShareExtAbility::Query(cons
         napi_set_element(env, napiColumns, index++, result);
     }
 
-    NativeValue* nValue = jsRuntime_.GetNativeEngine().CreateObject();
-    NativeObject* nObj = ConvertNativeValueTo<NativeObject>(nValue);
-    napi_value exports = reinterpret_cast<napi_value>(nObj);
+    NativeValue* nativeValue = jsRuntime_.GetNativeEngine().CreateObject();
+    napi_value exports = reinterpret_cast<napi_value>(ConvertNativeValueTo<NativeObject>(nativeValue));
     OHOS::DataAbilityJsKit::DataAbilityPredicatesProxy::Init(env, exports);
 
     OHOS::NativeRdb::DataAbilityPredicates* predicatesPtr = new OHOS::NativeRdb::DataAbilityPredicates();
