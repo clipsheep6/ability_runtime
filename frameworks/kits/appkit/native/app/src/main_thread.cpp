@@ -430,8 +430,15 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     APP_LOGI("MainThread::ScheduleAbilityStageInfo end.");
 }
 
-void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AAFwk::Want> &want)
+/**
+ *
+ * @brief launch the application.
+ *
+ * @param info The launchdata of the application witch launced.
+ * @param token The launchdata of the application witch launced.
+ *
+ */
+void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token)
 {
     APP_LOGI("MainThread::scheduleLaunchAbility called start.");
     APP_LOGI(
@@ -444,7 +451,6 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     }
     sptr<IRemoteObject> abilityToken = token;
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
-    abilityRecord->SetWant(want);
 
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
@@ -705,6 +711,10 @@ bool MainThread::InitCreate(
     if (contextDeal == nullptr) {
         APP_LOGE("MainThread::InitCreate create contextDeal failed");
         return false;
+    }
+
+    if (watchDogHandler_ != nullptr) {
+        watchDogHandler_->SetApplicationInfo(applicationInfo_);
     }
 
     contextDeal->SetProcessInfo(processInfo_);
@@ -1352,8 +1362,9 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
         APP_LOGE("MainThread::Init WatchDog postTask task failed");
     }
     TaskTimeoutDetected(runner);
-    // watchDogHandler_->Init(mainHandler_, watchDogHandler_)
-    // APP_LOGI("MainThread:Init before CreateRunner.")
+
+    watchDogHandler_->Init(mainHandler_, watchDogHandler_);
+    APP_LOGI("MainThread:Init before CreateRunner.");
     TaskHandlerClient::GetInstance()->CreateRunner();
     APP_LOGI("MainThread:Init after CreateRunner.");
     APP_LOGI("MainThread:Init end.");
