@@ -42,7 +42,7 @@ public:
 
     AbilityStage() = default;
     virtual ~AbilityStage() = default;
-    virtual void OnCreate() const;
+    virtual void OnCreate(const AAFwk::Want &want) const;
     virtual void OnDestory() const;
     virtual std::string OnAcceptWant(const AAFwk::Want &want);
     virtual void Init(std::shared_ptr<Context> context);

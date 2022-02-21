@@ -483,7 +483,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         }
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
-        abilityStage->OnCreate();
+        abilityStage->OnCreate(abilityRecord->GetWant());
         abilityStages_[moduleName] = abilityStage;
     } else {
         abilityStage = iterator->second;
@@ -525,7 +525,8 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     }
     auto abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *moduleInfo);
     abilityStage->Init(stageContext);
-    abilityStage->OnCreate();
+    Want want;
+    abilityStage->OnCreate(want);
     abilityStages_[hapModuleInfo.moduleName] = abilityStage;
     APP_LOGE("OHOSApplication::%{public}s: abilityStage insert and initialization", __func__);
     return true;
