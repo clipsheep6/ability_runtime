@@ -330,9 +330,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
-        if (listenerController_) {
-            listenerController_->NotifyMissionCreated(info.missionInfo.id);
-        }
     }
 }
 
@@ -794,6 +791,13 @@ void MissionListManager::CompleteForegroundNew(const std::shared_ptr<AbilityReco
         if (listenerController_) {
             listenerController_->NotifyMissionMovedToFront(mission->GetMissionId());
         }
+    }
+
+    if (mission && !mission->IsNotifyCreated()) {
+        if (listenerController_) {
+            listenerController_->NotifyMissionCreated(mission->GetMissionId());
+        }
+        mission->MarkNotifyCreated();
     }
 
     auto self(shared_from_this());
@@ -1408,7 +1412,6 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
     abilityRecord->SetMission(mission);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
-    listenerController_->NotifyMissionCreated(innerMissionInfo.missionInfo.id);
     return newMissionList;
 }
 
