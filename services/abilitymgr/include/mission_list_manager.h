@@ -355,6 +355,7 @@ private:
         const std::shared_ptr<Mission> &mission);
     void MoveMissionListToTop(const std::shared_ptr<MissionList> &missionList);
     void MoveNoneTopMissionToDefaultList(const std::shared_ptr<Mission> &mission);
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
     int DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -382,9 +383,12 @@ private:
     void GetForegroundAbilities(const std::shared_ptr<MissionList>& missionList,
         std::list<std::shared_ptr<AbilityRecord>>& foregroundList);
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const std::string &flag) const;
-
+    
+    // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void HandleTimeoutAndResumeTopAbility(const std::shared_ptr<AbilityRecord> &ability);
+    void MoveToDefaultList(const std::shared_ptr<AbilityRecord> &ability);
 
     // new version for call inner function.
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
