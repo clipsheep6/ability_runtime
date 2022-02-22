@@ -26,7 +26,6 @@ AppRunningRecord::AppRunningRecord(
     : appRecordId_(recordId), processName_(processName)
 {
     if (info) {
-        appInfo_ = info;
         mainBundleName_ = info->bundleName;
         isLauncherApp_ = info->isLauncherApp;
         isClonedApp_ = info->isCloned;

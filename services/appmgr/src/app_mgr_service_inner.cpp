@@ -37,7 +37,6 @@
 #include "permission/permission_kit.h"
 #include "system_ability_definition.h"
 #include "locale_config.h"
-#include "uri_permission_manager_client.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -111,7 +110,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     }
 
     std::string processName;
-    MakeProcessName(processName, abilityInfo, appInfo);
+    MakeProcessName(processName, hapModuleInfo, appInfo, bundleInfo);
     APP_LOGI("processName = [%{public}s]", processName.c_str());
 
     auto appRecord =
@@ -153,16 +152,27 @@ bool AppMgrServiceInner::CheckLoadabilityConditions(const sptr<IRemoteObject> &t
     return true;
 }
 
-void AppMgrServiceInner::MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo)
+void AppMgrServiceInner::MakeProcessName(std::string &processName, const HapModuleInfo &hapModuleInfo,
+    const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo)
 {
-    if (!abilityInfo || !appInfo) {
+    if (!appInfo) {
         return;
     }
-    if (!abilityInfo->process.empty()) {
-        processName = abilityInfo->process;
-        return;
+
+    bool moduelJson = false;
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
     }
+    APP_LOGI("moduelJson:%{public}d size:%{public}d",
+        moduelJson, (int32_t)bundleInfo.hapModuleInfos.size());
+
+    if(moduelJson){
+        if(!hapModuleInfo.process.empty()){
+            processName = hapModuleInfo.process;
+            return;
+        }
+    }
+
     if (!appInfo->process.empty()) {
         processName = appInfo->process;
         return;
@@ -1372,13 +1382,6 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote)
     APP_LOGE("On remote died.");
     auto appRecord = appRunningManager_->OnRemoteDied(remote);
     if (appRecord) {
-        // clear uri permission
-        auto upmClient = AAFwk::UriPermissionManagerClient::GetInstance();
-        auto appInfo = appRecord->GetApplicationInfo();
-        if (appInfo && upmClient) {
-            upmClient->RemoveUriPermission(appInfo->accessTokenId);
-        }
-
         for (const auto &item : appRecord->GetAbilities()) {
             const auto &abilityRecord = item.second;
             OptimizerAbilityStateChanged(abilityRecord, AbilityState::ABILITY_STATE_TERMINATED);
@@ -2080,7 +2083,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         APP_LOGE("abilityInfoPtr is nullptr.");
         return;
     }
-    MakeProcessName(processName, abilityInfoPtr, appInfo);
+    MakeProcessName(processName, hapModuleInfo, appInfo, bundleInfo);
 
     std::vector<HapModuleInfo> hapModules;
     hapModules.emplace_back(hapModuleInfo);

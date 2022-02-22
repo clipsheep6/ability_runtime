@@ -21,19 +21,19 @@ extern const char _binary_datashare_ext_ability_context_abc_start[];
 extern const char _binary_datashare_ext_ability_context_abc_end[];
 
 extern "C" __attribute__((constructor))
-void NAPI_application_DataShareExtensionAbilityContext_AutoRegister()
+void NAPI_application_DataShareExtAbilityContext_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.DataShareExtensionAbilityContext",
-        .fileName = "application/libdatashareextensionabilitycontext_napi.so/DataShareExtensionAbilityContext.js",
+        .name = "application.DataShareExtAbilityContext",
+        .fileName = "application/libdatashareextabilitycontext_napi.so/DataShareExtAbilityContext.js",
     };
 
     moduleManager->Register(&newModuleInfo);
 }
 
 extern "C" __attribute__((visibility("default")))
-void NAPI_application_DataShareExtensionAbilityContext_GetJSCode(const char **buf, int *bufLen)
+void NAPI_application_DataShareExtAbilityContext_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_datashare_ext_ability_context_js_start;
@@ -44,9 +44,9 @@ void NAPI_application_DataShareExtensionAbilityContext_GetJSCode(const char **bu
     }
 }
 
-// datashare extension ability context JS register
+// ability_context JS register
 extern "C" __attribute__((visibility("default")))
-void NAPI_application_DataShareExtensionAbilityContext_GetABCCode(const char **buf, int *buflen)
+void NAPI_application_DataShareExtAbilityContext_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_datashare_ext_ability_context_abc_start;
