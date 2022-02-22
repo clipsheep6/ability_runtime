@@ -563,8 +563,8 @@ private:
 
     bool GetBundleInfo(const std::string &bundelName, BundleInfo &bundleInfo);
 
-    void MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo);
+    void MakeProcessName(std::string &processName, const HapModuleInfo &hapModuleInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo);
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process

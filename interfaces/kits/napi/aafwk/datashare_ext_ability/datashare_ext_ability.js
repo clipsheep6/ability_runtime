@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-class DataShareExtensionAbility {
+class DataShareExtAbility {
     onCreate(want) {
         console.log('onCreate, want:' + want.abilityName);
     }
@@ -63,4 +63,4 @@ class DataShareExtensionAbility {
     }
 }
 
-export default DataShareExtensionAbility
+export default DataShareExtAbility
