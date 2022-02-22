@@ -497,7 +497,7 @@ void AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
             }
 
             auto scheduler = renderRecord->GetScheduler();
-            return scheduler && scheduler == object;
+            return scheduler && scheduler->AsObject() == object;
         });
     if (it != appRunningRecordMap_.end()) {
         auto appRecord = it->second;

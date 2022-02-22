@@ -436,7 +436,8 @@ AppMgrResultCode AppMgrClient::UpdateConfiguration(const Configuration &config)
     return AppMgrResultCode::RESULT_OK;
 }
 
-int AppMgrClient::StartRenderProcess()
+int AppMgrClient::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
 {
     if (!remote_) {
         ConnectAppMgrService();
@@ -444,7 +445,7 @@ int AppMgrClient::StartRenderProcess()
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
     if (service != nullptr) {
-        return service->StartRenderProcess();
+        return service->StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }

@@ -585,14 +585,31 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
     }
 }
 
-int AppMgrProxy::StartRenderProcess()
+int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
 {
+    if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
+        APP_LOGE("Invalid params, renderParam:%{public}s, ipcFd:%{public}d, sharedFd:%{public}d",
+            renderParam.c_str(), ipcFd, sharedFd);
+        return -1;
+    }
+
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
         APP_LOGE("WriteInterfaceToken faild");
         return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteString(renderParam)) {
+        APP_LOGE("want paramSize failed.");
+        return -1;
+    }
+
+    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd)) {
+        APP_LOGE("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
+        return -1;
     }
 
     int32_t ret =
@@ -602,7 +619,13 @@ int AppMgrProxy::StartRenderProcess()
         return ret;
     }
 
-    return reply.ReadInt32();
+    auto result = reply.ReadInt32();
+    if (result != 0) {
+        APP_LOGW("StartRenderProcess failed, result: %{public}d", ret);
+        return ret;
+    }
+    renderPid = reply.ReadInt32();
+    return 0;
 }
 
 void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler)

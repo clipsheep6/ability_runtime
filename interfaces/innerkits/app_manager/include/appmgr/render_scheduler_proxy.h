@@ -28,12 +28,20 @@ namespace AppExecFwk {
  */
 class RenderSchedulerProxy : public IRemoteProxy<IRenderScheduler> {
 public:
-    explicit RenderSchedulerProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IRenderScheduler>(impl)
-    {}
-    virtual ~RenderSchedulerProxy()
-    {}
+    explicit RenderSchedulerProxy(const sptr<IRemoteObject> &impl);
+
+    virtual ~RenderSchedulerProxy() = default;
+
+    /**
+     * Notify Browser's fd to render process.
+     *
+     * @param ipcFd, ipc file descriptior for web browser and render process.
+     * @param sharedFd, shared memory file descriptior.
+     */
+    virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd) override;
 
 private:
+    bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<RenderSchedulerProxy> delegator_;
 };
 }  // namespace AppExecFwk

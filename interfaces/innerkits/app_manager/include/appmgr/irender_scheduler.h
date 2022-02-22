@@ -27,6 +27,18 @@ namespace AppExecFwk {
 class IRenderScheduler : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.RenderScheduler");
+
+    /**
+     * Notify Browser's fd to render process.
+     *
+     * @param ipcFd, ipc file descriptior for web browser and render process.
+     * @param sharedFd, shared memory file descriptior.
+     */
+    virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd) = 0;
+
+    enum class Message {
+        NOTIFY_BROWSER_FD = 1,
+    };
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

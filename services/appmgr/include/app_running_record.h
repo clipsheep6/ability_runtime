@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include "iremote_object.h"
+#include "irender_scheduler.h"
 #include "ability_running_record.h"
 #include "ability_state_data.h"
 #include "application_info.h"
@@ -50,27 +51,34 @@ class AppRunningRecord;
  */
 class RenderRecord {
 public:
-    RenderRecord(pid_t hostPid, std::weak_ptr<AppRunningRecord> host);
+    RenderRecord(pid_t hostPid, const std::string& renderParam,
+        int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
 
     virtual ~RenderRecord();
 
-    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid,
-        const std::shared_ptr<AppRunningRecord> &host);
+    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid, const std::string& renderParam,
+        int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
 
     void SetPid(pid_t pid);
     pid_t GetPid();
     pid_t GetHostPid();
+    std::string GetRenderParam();
+    int32_t GetIpcFd();
+    int32_t GetSharedFd();
     std::shared_ptr<AppRunningRecord> GetHostRecord();
-    sptr<IRemoteObject> GetScheduler();
-    void SetScheduler(const sptr<IRemoteObject> &scheduler);
+    sptr<IRenderScheduler> GetScheduler();
+    void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
 
 private:
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
+    std::string renderParam_;
+    int32_t ipcFd_ = 0;
+    int32_t sharedFd_ = 0;
     std::weak_ptr<AppRunningRecord> host_; // webview host
-    sptr<IRemoteObject> renderScheduler_;
+    sptr<IRenderScheduler> renderScheduler_;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
 };
 

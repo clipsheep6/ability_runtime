@@ -204,9 +204,14 @@ public:
     /**
      * Start webview render process, called by webview host.
      *
+     * @param renderParam, params passed to renderprocess.
+     * @param ipcFd, ipc file descriptior for web browser and render process.
+     * @param sharedFd, shared memory file descriptior.
+     * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess() = 0;
+    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+        int32_t sharedFd, pid_t &renderPid) = 0;
 
     /**
      * Render process call this to attach app manager service.
