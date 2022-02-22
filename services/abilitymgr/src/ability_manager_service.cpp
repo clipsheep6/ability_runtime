@@ -4043,7 +4043,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
-    int32_t validUserId = DEFAULT_INVAL_VALUE;
+    int32_t validUserId = userId;
 
     if (DEFAULT_INVAL_VALUE == userId) {
         validUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
@@ -4052,9 +4052,8 @@ int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
         if (validUserId == U0_USER_ID) {
             validUserId = GetUserId();
         }
-    } else {
-        validUserId = userId;
     }
+
     return validUserId;
 }
 int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &abilityController,
