@@ -567,22 +567,10 @@ public:
 
     void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
-    /**
-     * Start webview render process.
-     *
-     * @param hostPid, webvie host pid.
-     *
-     * @return
-     */
-    virtual int32_t StartRenderProcess(const pid_t hostPid);
+    virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
+        int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
 
-    /**
-     * AttachRenderProcess, render process attach to app mgr service.
-     *
-     * @param scheduler render process scheduler.
-     *
-     */
-    virtual void AttachRenderProcess(const pid_t pid, const sptr<IRemoteObject> &scheduler);
+    virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 
 private:
 
@@ -809,7 +797,7 @@ private:
     void GetGlobalConfiguration();
 
     int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-        const std::shared_ptr<AppRunningRecord> appRecord);
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
 
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 

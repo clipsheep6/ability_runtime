@@ -401,14 +401,16 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     handler_->PostTask(task);
 }
 
-int32_t AppMgrService::StartRenderProcess()
+int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
 {
     if (!IsReady()) {
         APP_LOGE("StartRenderProcess failed, AppMgrService not ready.");
         return ERR_INVALID_OPERATION;
     }
 
-    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid());
+    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
+        renderParam, ipcFd, sharedFd, renderPid);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
@@ -419,7 +421,8 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
     }
 
     auto pid = IPCSkeleton::GetCallingPid();
-    auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess, appMgrServiceInner_, pid, scheduler);
+    auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
+        appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
     handler_->PostTask(fun, TASK_ATTACH_RENDER_PROCESS);
 }
 }  // namespace AppExecFwk

@@ -16,10 +16,12 @@
 #ifndef FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPEXECFWK_CORE_INCLUDE_APPMGR_RENDER_SCHEDULER_HOST_H
 #define FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPEXECFWK_CORE_INCLUDE_APPMGR_RENDER_SCHEDULER_HOST_H
 
-#include "irender_scheduler.h"
+#include <map>
 
+#include "irender_scheduler.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"
+#include "nocopyable.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,8 +31,19 @@ namespace AppExecFwk {
  */
 class RenderSchedulerHost : public IRemoteStub<IRenderScheduler> {
 public:
-    RenderSchedulerHost() {}
-    virtual ~RenderSchedulerHost() {}
+    RenderSchedulerHost();
+    virtual ~RenderSchedulerHost();
+
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+private:
+    int32_t HandleNotifyBrowserFd(MessageParcel &data, MessageParcel &reply);
+
+    using RenderSchedulerFunc = int32_t (RenderSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
+    std::map<uint32_t, RenderSchedulerFunc> memberFuncMap_;
+
+    DISALLOW_COPY_AND_MOVE(RenderSchedulerHost);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

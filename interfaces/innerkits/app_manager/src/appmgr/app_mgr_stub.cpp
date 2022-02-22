@@ -349,9 +349,17 @@ int32_t AppMgrStub::HandleScheduleAcceptWantDone(MessageParcel &data, MessagePar
 
 int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t result = StartRenderProcess();
+    std::string renderParam = data.ReadString();
+    int32_t ipcFd = data.ReadFileDescriptor();
+    int32_t sharedFd = data.ReadFileDescriptor();
+    int32_t renderPid = 0;
+    int32_t result = StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
     if (!reply.WriteInt32(result)) {
         APP_LOGE("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(renderPid)) {
+        APP_LOGE("write renderPid error.");
         return ERR_INVALID_VALUE;
     }
     return result;

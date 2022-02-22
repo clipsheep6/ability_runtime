@@ -195,11 +195,16 @@ public:
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
     /**
-     * Start webview render process.
+     * Start webview render process, called by webview host.
      *
+     * @param renderParam, params passed to renderprocess.
+     * @param ipcFd, ipc file descriptior for web browser and render process.
+     * @param sharedFd, shared memory file descriptior.
+     * @param renderPid, created render pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartRenderProcess() override;
+    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+        int32_t sharedFd, pid_t &renderPid) override;
 
     /**
      * Render process call this to attach app manager service.

@@ -53,6 +53,7 @@ constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
 const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
+const std::string RENDER_PARAM = "invalidparam";
 const int32_t SIGNAL_KILL = 9;
 const std::string REQ_PERMISSION = "ohos.permission.LOCATION_IN_BACKGROUND";
 constexpr int32_t SYSTEM_UID = 1000;
@@ -1253,6 +1254,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
     startMsg.apl = (*bundleInfoIter).applicationInfo.appPrivilegeLevel;
     startMsg.bundleName = bundleName;
+    startMsg.renderParam = RENDER_PARAM;
     APP_LOGD("StartProcess come, accessTokenId: %{public}d, apl: %{public}s, bundleName: %{public}s",
         startMsg.accessTokenId, startMsg.apl.c_str(), bundleName.c_str());
 
@@ -2154,11 +2156,13 @@ std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration(
     return configuration_;
 }
 
-int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid)
+int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
+    int32_t ipcFd, int32_t sharedFd, pid_t &renderPid)
 {
     APP_LOGI("start render process, webview hostpid:%{public}d", hostPid);
-    if (hostPid <= 0) {
-        APP_LOGE("invalid webview host pid:%{public}d", hostPid);
+    if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
+        APP_LOGE("invalid param, hostPid:%{public}d, renderParam:%{public}s, ipcFd:%{public}d, sharedFd:%{public}d",
+            hostPid, renderParam.c_str(), ipcFd, sharedFd);
         return ERR_INVALID_VALUE;
     }
 
@@ -2179,16 +2183,16 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid)
         return ERR_INVALID_VALUE;
     }
 
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid, appRecord);
+    renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, appRecord);
     if (!renderRecord) {
         APP_LOGE("create render record failed, hostpid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 
-    return StartRenderProcessImpl(renderRecord, appRecord);
+    return StartRenderProcessImpl(renderRecord, appRecord, renderPid);
 }
 
-void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRemoteObject> &scheduler)
+void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler)
 {
     if (pid <= 0) {
         APP_LOGE("invalid render process pid:%{public}d", pid);
@@ -2224,10 +2228,13 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRemote
     renderRecord->SetScheduler(scheduler);
     renderRecord->SetDeathRecipient(appDeathRecipient);
     renderRecord->RegisterDeathRecipient();
+
+    // notify fd to render process
+    scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(), renderRecord->GetSharedFd());
 }
 
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-    const std::shared_ptr<AppRunningRecord> appRecord)
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid)
 {
     if (!renderRecord || !appRecord) {
         APP_LOGE("renderRecord or appRecord is nullptr.");
@@ -2241,12 +2248,14 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     }
 
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    startMsg.renderParam = renderRecord->GetRenderParam();
     pid_t pid = 0;
     ErrCode errCode = webviewSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
         APP_LOGE("failed to spawn new render process, errCode %{public}08x", errCode);
         return ERR_INVALID_VALUE;
     }
+    renderPid = pid;
     appRecord->SetRenderRecord(renderRecord);
     renderRecord->SetPid(pid);
     APP_LOGI("start render process successed, hostPid:%{public}d, pid:%{public}d uid:%{public}d",

@@ -66,6 +66,14 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         return false;
     }
 
+    // build with webview spawn
+    /*
+    if (strcpy_s(msg_->renderCmd, sizeof(msg_->renderCmd), startMsg.renderParam.c_str()) != EOK) {
+        APP_LOGE("failed to transform renderCmd!");
+        return false;
+    }
+    */
+
     isValid_ = true;
     DumpMsg();
     return isValid_;
