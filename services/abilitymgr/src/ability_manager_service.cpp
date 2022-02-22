@@ -250,7 +250,8 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
 
 int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("%{public}s, ability is %{public}s, userId is %{public}d",
+        __func__, want.GetElement().GetURI().c_str(), userId);
     return StartAbilityInner(want, nullptr, requestCode, -1, userId);
 }
 
@@ -282,16 +283,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return CALLER_ISNOT_SYSTEMAPP;
     }
 
-    HILOG_DEBUG("%{public}s begin.", __func__);
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
         return ERR_INVALID_VALUE;
     }
 
     int32_t validUserId = GetValidUserId(userId);
-
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -395,7 +394,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -488,7 +487,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -2709,7 +2708,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
+    auto result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -4113,7 +4112,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
-    int32_t validUserId = DEFAULT_INVAL_VALUE;
+    int32_t validUserId = userId;
 
     if (DEFAULT_INVAL_VALUE == userId) {
         validUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
@@ -4122,9 +4121,8 @@ int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
         if (validUserId == U0_USER_ID) {
             validUserId = GetUserId();
         }
-    } else {
-        validUserId = userId;
     }
+
     return validUserId;
 }
 int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &abilityController,
@@ -4465,23 +4463,6 @@ bool AbilityManagerService::JudgeMultiUserConcurrency(const AppExecFwk::AbilityI
     }
 
     return true;
-}
-
-int AbilityManagerService::GenerateAbilityRequestLocal(
-    const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t &userId)
-{
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-    if ((userId == U0_USER_ID) && (result != ERR_OK)) {
-        HILOG_DEBUG("Generate ability request error. But userId is 0, Use current user get.");
-        userId = GetUserId();
-        result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request error. userId = %{public}d", userId);
-            return result;
-        }
-    }
-    return result;
 }
 
 void AbilityManagerService::StartingScreenLockAbility()
