@@ -94,8 +94,7 @@ public:
         scheduled_ |= LAUNCH_APPLICATION_SCHEDULED;
         appLaunchTime++;
     }
-    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &) override
+    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &) override
     {
         scheduled_ |= LAUNCH_ABILITY_SCHEDULED;
         abilityLaunchTime++;

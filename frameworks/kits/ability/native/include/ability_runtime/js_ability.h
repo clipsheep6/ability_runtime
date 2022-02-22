@@ -66,7 +66,6 @@ public:
 
 protected:
     void DoOnForeground(const Want &want) override;
-    void RequsetFocus(const Want &want) override;
 
 private:
     void CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0);

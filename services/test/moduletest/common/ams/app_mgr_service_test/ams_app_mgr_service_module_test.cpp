@@ -53,8 +53,7 @@ public:
     {}
     void ScheduleLaunchApplication(const AppLaunchData &, const Configuration &) override
     {}
-    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &) override
+    void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &) override
     {}
     void ScheduleCleanAbility(const sptr<IRemoteObject> &) override
     {}

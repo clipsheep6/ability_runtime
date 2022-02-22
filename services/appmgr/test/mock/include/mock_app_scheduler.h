@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_TEST_UNITEST_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_H
-#define FOUNDATION_APPEXECFWK_TEST_UNITEST_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_H
+#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_UNITEST_AMS_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_H
+#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_UNITEST_AMS_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_H
 
 #include "gmock/gmock.h"
 #include "refbase.h"
@@ -32,8 +32,7 @@ public:
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
     MOCK_METHOD0(ScheduleTerminateApplication, void());
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData &, const Configuration &config));
-    MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &));
+    MOCK_METHOD2(ScheduleLaunchAbility, void(const AbilityInfo &, const sptr<IRemoteObject> &));
     MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject> &));
     MOCK_METHOD1(ScheduleProfileChanged, void(const Profile &));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration &config));
@@ -45,4 +44,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_TEST_UNITEST_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_H
+#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_UNITEST_AMS_APP_LIFE_CYCLE_TEST_MOCK_APP_SCHEDULER_CLIENT_H
