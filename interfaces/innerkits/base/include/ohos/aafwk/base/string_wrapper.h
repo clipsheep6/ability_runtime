@@ -25,7 +25,7 @@ public:
     inline String(const std::string &str) : string_(str)
     {}
 
-    inline ~String()
+      inline ~String()
     {}
 
     IINTERFACE_DECL();
