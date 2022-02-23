@@ -55,6 +55,9 @@ DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const 
     want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
+    if (dataShareProxy_ != nullptr) {
+        AddDataShareDeathRecipient(dataShareProxy_->AsObject());
+    }
     dataShareConnection_ = DataShareConnection::GetInstance();
     APP_LOGI("DataShareHelper::DataShareHelper end");
 }
@@ -67,6 +70,9 @@ DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Con
     want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
+    if (dataShareProxy_ != nullptr) {
+        AddDataShareDeathRecipient(dataShareProxy_->AsObject());
+    }
     dataShareConnection_ = DataShareConnection::GetInstance();
     APP_LOGI("DataShareHelper::DataShareHelper end");
 }
@@ -92,6 +98,7 @@ void DataShareHelper::AddDataShareDeathRecipient(const sptr<IRemoteObject> &toke
 void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     APP_LOGI("'%{public}s start':", __func__);
+    std::lock_guard<std::mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
     dataShareProxy_ = nullptr;
@@ -261,6 +268,7 @@ bool DataShareHelper::Release()
         dataShareConnection_->DisconnectDataShareExtAbility();
     }
     APP_LOGI("DataShareHelper::Release after DisconnectDataShareExtAbility.");
+    std::lock_guard<std::mutex> guard(lock_);
     dataShareProxy_ = nullptr;
     uri_.reset();
     APP_LOGI("DataShareHelper::Release end.");
@@ -291,7 +299,7 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::GetFileTypes after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -346,7 +354,7 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::OpenFile after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -401,7 +409,7 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::OpenRawFile after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -452,7 +460,7 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Insert after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -505,7 +513,7 @@ int DataShareHelper::Update(
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Update after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -556,7 +564,7 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Delete after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -610,7 +618,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::Query after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -661,7 +669,7 @@ std::string DataShareHelper::GetType(Uri &uri)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::GetType after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -712,7 +720,7 @@ int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBu
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::BatchInsert after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -970,7 +978,7 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::NormalizeUri after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
@@ -1023,7 +1031,7 @@ Uri DataShareHelper::DenormalizeUri(Uri &uri)
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         APP_LOGI("DataShareHelper::DenormalizeUri after ConnectDataShareExtAbility.");
-        if (isSystemCaller_ && dataShareProxy_) {
+        if (dataShareProxy_ != nullptr) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
     } else {
