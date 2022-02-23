@@ -415,6 +415,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
 {
+    APP_LOGD("AttachRenderProcess called.");
     if (!IsReady()) {
         APP_LOGE("AttachRenderProcess failed, not ready.");
         return;

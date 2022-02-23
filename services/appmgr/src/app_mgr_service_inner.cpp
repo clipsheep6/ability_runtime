@@ -2195,6 +2195,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 
 void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler)
 {
+    APP_LOGD("attach render process start");
     if (pid <= 0) {
         APP_LOGE("invalid render process pid:%{public}d", pid);
         return;
