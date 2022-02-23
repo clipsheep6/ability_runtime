@@ -1277,6 +1277,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     APP_LOGI("newPid:%{public}d uid:%{public}d", pid, startMsg.uid);
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
+    appRecord->SetStartMsg(startMsg);
     OptimizerAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
     appRecord->SetAppMgrServiceInner(weak_from_this());
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
