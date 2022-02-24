@@ -3701,8 +3701,13 @@ void AbilityManagerService::OnAcceptWantResponse(
 
 void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
 {
-    return;
+    HILOG_DEBUG("%{public}s called.", __func__);
+    if (!currentMissionListManager_) {
+        return;
+    }
+    currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
+
 int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
 {
     HILOG_DEBUG("Get running ability infos.");
@@ -4051,6 +4056,9 @@ int AbilityManagerService::SendANRProcessID(int pid)
             HILOG_ERROR("Kill app not response process failed");
         }
     };
+    if (!SetANRMissionByProcessID(pid)) {
+        HILOG_ERROR("Set app not response mission record failed");
+    }
     handler_->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
     if (kill(pid, SIGUSR1) != ERR_OK) {
         HILOG_ERROR("Send sig to app not response process failed");
@@ -4469,6 +4477,24 @@ bool AbilityManagerService::VerifyUriPermisson(const AbilityRequest &abilityRequ
         if (uriPermMgrClient->VerifyUriPermission(uri, Want::FLAG_AUTH_READ_URI_PERMISSION, targetTokenId)) {
             return true;
         }
+    }
+    return false;
+}
+
+bool AbilityManagerService::SetANRMissionByProcessID(int pid)
+{
+    std::vector<sptr<IRemoteObject>> tokens;
+    if (appScheduler_->GetAbilityRecordsByProcessID(pid, tokens) != ERR_OK) {
+        HILOG_ERROR("Get ability record failed.");
+        return false;
+    }
+    if (appScheduler_) {
+        for (auto &item : tokens) {
+            auto abilityRecord = currentMissionListManager_->GetAbilityRecordByToken(item);
+            auto mission = abilityRecord->GetMission();
+            mission->SetANRState();
+        }
+        return true;
     }
     return false;
 }

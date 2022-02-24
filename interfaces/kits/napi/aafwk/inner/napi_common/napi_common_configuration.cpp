@@ -50,17 +50,13 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapInt32ToJS(env, ConvertColorMode(configuration.GetItem(GlobalConfigurationKey::SYSTEM_COLORMODE)));
     SetPropertyValueByPropertyName(env, jsObject, "colorMode", jsValue);
 
-    int32_t displayId = ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID));
-
-    std::string direction = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DIRECTION);
-    jsValue = WrapInt32ToJS(env, ConvertDirection(direction));
+    jsValue = WrapInt32ToJS(env, ConvertDirection(configuration.GetItem(ConfigurationInner::APPLICATION_DIRECTION)));
     SetPropertyValueByPropertyName(env, jsObject, "direction", jsValue);
 
-    std::string density = configuration.GetItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI);
-    jsValue = WrapInt32ToJS(env, ConvertDensity(density));
+    jsValue = WrapInt32ToJS(env, ConvertDensity(configuration.GetItem(ConfigurationInner::APPLICATION_DENSITYDPI)));
     SetPropertyValueByPropertyName(env, jsObject, "screenDensity", jsValue);
 
-    jsValue = WrapInt32ToJS(env, displayId);
+    jsValue = WrapInt32ToJS(env, ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID)));
     SetPropertyValueByPropertyName(env, jsObject, "displayId", jsValue);
 
     return jsObject;

@@ -18,11 +18,6 @@ class ExtAbilityContext extends Context {
     constructor(obj) {
         super(obj);
         this.currentHapModuleInfo = obj.currentHapModuleInfo
-        this.config = obj.config
-    }
-
-    onUpdateConfiguration(config) {
-        this.config = config
     }
 }
 
