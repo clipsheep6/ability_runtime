@@ -104,6 +104,19 @@ public:
     bool IsMovingState() const;
 
     /**
+     * @brief mark that this mission has already notified.
+     *
+     */
+    void MarkNotifyCreated();
+
+    /**
+     * @brief check whether this mission has notified.
+     *
+     * @return the notifyCreated_.
+     */
+    bool IsNotifyCreated() const;
+
+    /**
      * @brief dump mission
      *
      * @param info dump result.
@@ -117,6 +130,7 @@ private:
     std::weak_ptr<MissionList> ownerMissionList_;
     bool lockedState_ = false;
     bool isMovingToFront_ = false;
+    bool notifyCreated_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

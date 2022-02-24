@@ -94,6 +94,16 @@ bool Mission::IsMovingState() const
     return isMovingToFront_;
 }
 
+void Mission::MarkNotifyCreated()
+{
+    notifyCreated_ = true;
+}
+
+bool Mission::IsNotifyCreated() const
+{
+    return notifyCreated_;
+}
+
 void Mission::Dump(std::vector<std::string> &info)
 {
     std::string dumpInfo = "    Mission ID #" + std::to_string(missionId_);
