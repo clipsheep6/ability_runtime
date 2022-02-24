@@ -4006,9 +4006,15 @@ void AbilityManagerService::StartSystemAbilityByUser(int32_t userId)
 
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
+        StartingSettingsDataAbility();
         StartingLauncherAbility();
         StartingScreenLockAbility();
         return;
+    }
+
+    if (amsConfigResolver_->GetStartSettingsDataState()) {
+        HILOG_INFO("start settingsdata");
+        StartingSettingsDataAbility();
     }
 
     if (amsConfigResolver_->GetStartLauncherState()) {
