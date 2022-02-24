@@ -50,7 +50,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 using OHOS::AAFwk::Want;
-
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
     AppMgrServiceInner();
@@ -552,6 +551,15 @@ public:
 
     void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
+    /**
+     *  Get the token of ability records by process ID.
+     *
+     * @param pid The process id.
+     * @param tokens The token of ability records.
+     * @return Returns true on success, others on failure.
+     */
+    int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
+
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount);
@@ -800,7 +808,8 @@ private:
      * @return
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
-
+    void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<sptr<IApplicationStateObserver>> appStateObservers_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;

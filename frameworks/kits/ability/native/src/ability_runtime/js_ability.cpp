@@ -305,10 +305,9 @@ void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
 
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
-    auto fullConfig = GetAbilityContext()->GetConfiguration();
-    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, fullConfig);
+    JsAbilityContext::ConfigurationUpdated(&nativeEngine, shellContextRef_, GetAbilityContext()->GetConfiguration());
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(
-        reinterpret_cast<napi_env>(&nativeEngine), *fullConfig);
+        reinterpret_cast<napi_env>(&nativeEngine), configuration);
     NativeValue* jsConfiguration = reinterpret_cast<NativeValue*>(napiConfiguration);
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
 }

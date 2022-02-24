@@ -444,7 +444,7 @@ public:
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
     const AAFwk::Want &GetSpecifiedWant() const;
-
+    void SendEventForSpecifiedAbility(uint32_t msg, int64_t timeOut);
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
