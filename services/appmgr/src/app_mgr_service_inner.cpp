@@ -30,6 +30,7 @@
 #include "common_event.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "errors.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
@@ -61,6 +62,9 @@ constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 
 constexpr int32_t BASE_USER_RANGE = 200000;
+
+constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
+constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -1365,6 +1369,13 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         OptimizerAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED);
         RemoveAppFromRecentListById(appRecord->GetRecordId());
         OnProcessDied(appRecord);
+
+        // kill render if exist.
+        auto renderRecord = appRecord->GetRenderRecord();
+        if (renderRecord && renderRecord->GetPid() > 0) {
+            APP_LOGD("Kill render process when webviehost died.");
+            KillProcessByPid(renderRecord->GetPid());
+        }
     }
 
     if (appRecord && appRecord->IsKeepAliveApp()) {
@@ -2180,8 +2191,9 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 
     auto renderRecord = appRecord->GetRenderRecord();
     if (renderRecord) {
-        APP_LOGW("already exit render process,do not request again, hostpid:%{public}d", hostPid);
-        return ERR_INVALID_VALUE;
+        APP_LOGW("already exit render process,do not request again, renderPid:%{public}d", renderRecord->GetPid());
+        renderPid = renderRecord->GetPid();
+        return ERR_ALREADY_EXIST_RENDER;
     }
 
     renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, appRecord);
