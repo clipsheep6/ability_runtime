@@ -620,11 +620,11 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcF
     }
 
     auto result = reply.ReadInt32();
+    renderPid = reply.ReadInt32();
     if (result != 0) {
         APP_LOGW("StartRenderProcess failed, result: %{public}d", ret);
         return ret;
     }
-    renderPid = reply.ReadInt32();
     return 0;
 }
 
