@@ -238,6 +238,8 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data);
 
 std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 
+std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_APPEXECFWK_NAPI_COMMON_UTIL_H

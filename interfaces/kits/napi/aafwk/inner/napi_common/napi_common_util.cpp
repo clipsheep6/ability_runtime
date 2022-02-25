@@ -1117,5 +1117,28 @@ std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue)
     return result;
 }
 
+std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
+{
+    bool isTypedArray = false;
+    if (napi_is_typedarray(env, jsValue, &isTypedArray) != napi_ok || !isTypedArray) {
+        return {};
+    }
+
+    napi_typedarray_type type;
+    size_t length = 0;
+    napi_value buffer = nullptr;
+    size_t offset = 0;
+    NAPI_CALL_BASE(env, napi_get_typedarray_info(env, jsValue, &type, &length, nullptr, &buffer, &offset), {});
+    if (type != napi_uint8_array) {
+        return {};
+    }
+    std::string *data = nullptr;
+    size_t total = 0;
+    NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total), {});
+    length = std::min<size_t>(length, total - offset);
+    std::vector<std::string> result(sizeof(std::string) + length);
+    memcpy_s(result.data(), result.size(), &data[offset], length);
+    return result;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
