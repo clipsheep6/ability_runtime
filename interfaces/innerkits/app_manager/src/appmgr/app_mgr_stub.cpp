@@ -74,6 +74,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleStartUserTestProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::SCHEDULE_ACCEPT_WANT_DONE)] =
         &AppMgrStub::HandleScheduleAcceptWantDone;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS)] =
+        &AppMgrStub::HandleStartRenderProcess;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::ATTACH_RENDER_PROCESS)] =
+        &AppMgrStub::HandleAttachRenderProcess;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -340,6 +344,31 @@ int32_t AppMgrStub::HandleScheduleAcceptWantDone(MessageParcel &data, MessagePar
     auto flag = data.ReadString();
 
     ScheduleAcceptWantDone(recordId, *want, flag);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply)
+{
+    std::string renderParam = data.ReadString();
+    int32_t ipcFd = data.ReadFileDescriptor();
+    int32_t sharedFd = data.ReadFileDescriptor();
+    int32_t renderPid = 0;
+    int32_t result = StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
+    if (!reply.WriteInt32(result)) {
+        APP_LOGE("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(renderPid)) {
+        APP_LOGE("write renderPid error.");
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+
+int32_t AppMgrStub::HandleAttachRenderProcess(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> scheduler = data.ReadParcelable<IRemoteObject>();
+    AttachRenderProcess(scheduler);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

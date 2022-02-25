@@ -408,9 +408,10 @@ public:
      * OnRemoteDied, Equipment death notification.
      *
      * @param remote, Death client.
+     * @param isRenderProcess is render process died.
      * @return
      */
-    void OnRemoteDied(const wptr<IRemoteObject> &remote);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false);
 
     /**
      * AddAppDeathRecipient, Add monitoring death application record.
@@ -551,6 +552,11 @@ public:
     void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
 
     void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
+
+    virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
+        int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
+
+    virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 
 private:
 
@@ -775,6 +781,11 @@ private:
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
 
     void GetGlobalConfiguration();
+
+    int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
+
+    void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 
 private:
     /**
