@@ -707,6 +707,10 @@ bool MainThread::InitCreate(
         return false;
     }
 
+    if (watchDogHandler_ != nullptr) {
+        watchDogHandler_->SetApplicationInfo(applicationInfo_);
+    }
+
     contextDeal->SetProcessInfo(processInfo_);
     contextDeal->SetApplicationInfo(applicationInfo_);
     contextDeal->SetProfile(appProfile_);
@@ -898,6 +902,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     application_->AttachBaseContext(contextDeal);
     application_->SetAbilityRecordMgr(abilityRecordMgr_);
     application_->SetConfiguration(config);
+    contextImpl->SetConfiguration(application_->GetConfiguration());
 
     applicationImpl_->SetRecordId(appLaunchData.GetRecordId());
     applicationImpl_->SetApplication(application_);
@@ -1352,8 +1357,9 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
         APP_LOGE("MainThread::Init WatchDog postTask task failed");
     }
     TaskTimeoutDetected(runner);
-    // watchDogHandler_->Init(mainHandler_, watchDogHandler_)
-    // APP_LOGI("MainThread:Init before CreateRunner.")
+
+    watchDogHandler_->Init(mainHandler_, watchDogHandler_);
+    APP_LOGI("MainThread:Init before CreateRunner.");
     TaskHandlerClient::GetInstance()->CreateRunner();
     APP_LOGI("MainThread:Init after CreateRunner.");
     APP_LOGI("MainThread:Init end.");

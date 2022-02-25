@@ -31,7 +31,6 @@
 #include "data_ability_manager.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
-#include "kernal_ability_manager.h"
 #include "kernal_system_app_manager.h"
 #include "mission_list_manager.h"
 #include "system_ability.h"
@@ -308,6 +307,12 @@ public:
      */
     virtual int ScheduleConnectAbilityDone(
         const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject) override;
+
+    /**
+     * starting system ui ServiceExt abilites.
+     *
+     */
+    void StartingSystemUiAbility();
 
     /**
      * ScheduleDisconnectAbilityDone, service ability call this interface while session was disconnected.
@@ -713,13 +718,6 @@ public:
     void OnCallConnectDied(std::shared_ptr<CallRecord> callRecord);
     void GetMaxRestartNum(int &max);
     bool IsUseNewMission();
-
-    /**
-     * wait for starting system ui.
-     *
-     */
-    void StartSystemUi(const std::string name);
-
     void HandleLoadTimeOut(int64_t eventId);
     void HandleActiveTimeOut(int64_t eventId);
     void HandleInactiveTimeOut(int64_t eventId);
@@ -976,12 +974,6 @@ private:
     void StartingContactsAbility();
 
     /**
-     * starting system ui ServiceExt abilites.
-     *
-     */
-    void StartingSystemUiAbility();
-
-    /**
      * starting mms ability.
      *
      */
@@ -1110,7 +1102,7 @@ private:
     void SwitchToUser(int32_t userId);
     void StartLauncherAbility(int32_t userId);
     void SwitchToUser(int32_t oldUserId, int32_t userId);
-    void SwitchManagers(int32_t userId);
+    void SwitchManagers(int32_t userId, bool switchUser = true);
     void StartUserApps(int32_t userId);
     void StartSystemAbilityByUser(int32_t userId);
     void PauseOldUser(int32_t userId);
@@ -1173,7 +1165,6 @@ private:
     bool useNewMission_ {false};
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
-    std::shared_ptr<KernalAbilityManager> kernalAbilityManager_;
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
