@@ -2320,7 +2320,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     pid_t pid = 0;
     ErrCode errCode = webviewSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
-        APP_LOGE("failed to spawn new render process, errCode %{public}08x", errCode);
+        APP_LOGE("failed to spawn new render process, errCode: %{public}08x", errCode);
         return ERR_INVALID_VALUE;
     }
     renderPid = pid;
