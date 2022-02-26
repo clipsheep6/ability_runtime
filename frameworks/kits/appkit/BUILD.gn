@@ -170,7 +170,6 @@ ohos_shared_library("appkit_native") {
     "bytrace_standard:bytrace_core",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "hisysevent_native:libhisysevent",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
