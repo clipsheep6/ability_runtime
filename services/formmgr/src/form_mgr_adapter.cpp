@@ -14,6 +14,7 @@
  */
 
 #include <cinttypes>
+#include <regex>
 
 #include "appexecfwk_errors.h"
 #include "app_log_wrapper.h"
@@ -585,12 +586,10 @@ int FormMgrAdapter::CastTempForm(const int64_t formId, const sptr<IRemoteObject>
         APP_LOGE("%{public}s fail, add form user uid error, formId:%{public}" PRId64 ".", __func__, matchedFormId);
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
-
-    if (!FormDataMgr::GetInstance().GetFormRecord(matchedFormId, formRecord)) {
-        APP_LOGE("%{public}s fail, not exist such form:%{public}" PRId64 ".", __func__, matchedFormId);
-        return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
+    if (std::find(formRecord.formUserUids.begin(), formRecord.formUserUids.end(),
+        callingUid) == formRecord.formUserUids.end()) {
+        formRecord.formUserUids.emplace_back(callingUid);
     }
-
     if (ErrCode errorCode = FormDbCache::GetInstance().UpdateDBRecord(matchedFormId, formRecord); errorCode != ERR_OK) {
         APP_LOGE("%{public}s fail, update db record error, formId:%{public}" PRId64 ".", __func__, matchedFormId);
         return errorCode;
@@ -1211,7 +1210,9 @@ ErrCode FormMgrAdapter::CreateFormItemInfo(const BundleInfo &bundleInfo,
         if (formInfo.moduleName == item.moduleName) {
             itemInfo.AddHapSourceDirs(item.moduleSourceDir);
         }
-        itemInfo.AddModuleInfo(item.moduleName, item.moduleSourceDir);
+        auto moduleSourceDir = std::regex_replace(item.moduleSourceDir, std::regex(Constants::ABS_CODE_PATH),
+            Constants::LOCAL_BUNDLES);
+        itemInfo.AddModuleInfo(item.moduleName, moduleSourceDir);
     }
     return ERR_OK;
 }

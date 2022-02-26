@@ -81,11 +81,9 @@ inline bool ConvertFromJsValue(NativeEngine& engine, NativeValue* jsValue, T& va
         if (stringValue == nullptr) {
             return false;
         }
-        size_t len = stringValue->GetLength() + 1;
-        auto buffer = std::make_unique<char[]>(len);
-        size_t strLength = 0;
-        stringValue->GetCString(buffer.get(), len, &strLength);
-        value = buffer.get();
+        size_t len = stringValue->GetLength();
+        value.resize(len);
+        stringValue->GetCString(value.data(), len, &len);
         return true;
     } else if constexpr (std::is_enum_v<ValueType>) {
         auto numberValue = ConvertNativeValueTo<NativeNumber>(jsValue);

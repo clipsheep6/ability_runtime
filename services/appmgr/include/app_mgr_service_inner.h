@@ -122,6 +122,13 @@ public:
     virtual void RegisterAppStateCallback(const sptr<IAppStateCallback> &callback);
 
     /**
+     * StopAllProcess, Terminate all processes.
+     *
+     * @return
+     */
+    virtual void StopAllProcess();
+
+    /**
      * AbilityBehaviorAnalysis, ability behavior analysis assistant process optimization.
      *
      * @param token, the unique identification to start the ability.
@@ -234,6 +241,16 @@ public:
      * @return
      */
     virtual void ClearUpApplicationData(const std::string &bundleName, const int32_t callerUid, const pid_t callerPid);
+
+    /**
+     * IsBackgroundRunningRestricted, Checks whether the process of this application is forbidden
+     * to run in the background.
+     *
+     * @param bundleName, bundle name in Application record.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t IsBackgroundRunningRestricted(const std::string &bundleName);
 
     /**
      * GetAllRunningProcesses, Obtains information about application processes that are running on the device.
@@ -391,10 +408,9 @@ public:
      * OnRemoteDied, Equipment death notification.
      *
      * @param remote, Death client.
-     * @param isRenderProcess is render process died.
      * @return
      */
-    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote);
 
     /**
      * AddAppDeathRecipient, Add monitoring death application record.
@@ -435,6 +451,23 @@ public:
     virtual void OptimizerAppStateChanged(
         const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
 
+    /**
+     * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
+     *
+     * @param time, The timeout(second) recorded when the application enters the background .
+     *
+     * @return Success or Failure .
+     */
+    void SetAppFreezingTime(int time);
+
+    /**
+     * GetAppFreezingTime, Getting the Freezing Time of APP Background.
+     *
+     * @param time, The timeout(second) recorded when the application enters the background .
+     *
+     * @return Success or Failure .
+     */
+    void GetAppFreezingTime(int &time);
     void HandleTimeOut(const InnerEvent::Pointer &event);
 
     void SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler);
@@ -527,11 +560,6 @@ public:
      * @return Returns true on success, others on failure.
      */
     int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
-
-    virtual int32_t StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
-        int32_t ipcFd, int32_t sharedFd, pid_t &renderPid);
-
-    virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 
 private:
 
@@ -757,13 +785,6 @@ private:
 
     void GetGlobalConfiguration();
 
-    void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
-
-    int StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
-
-    void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
-
 private:
     /**
      * ClearUpApplicationData, clear the application data.
@@ -777,12 +798,6 @@ private:
      */
     void ClearUpApplicationDataByUserId(const std::string &bundleName,
         int32_t callerUid, pid_t callerPid, const int userId);
-
-    int VerifyProcessPermission();
-
-    int VerifyAccountPermission(const std::string &permissionName, const int userId);
-
-    int VerifyObserverPermission();
 
 private:
     /**

@@ -23,9 +23,7 @@
 #include "form_bms_helper.h"
 #include "form_info_storage_mgr.h"
 #include "form_util.h"
-#include "ipc_skeleton.h"
 #include "json_serializer.h"
-#include "permission_verification.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -276,22 +274,10 @@ ErrCode FormInfoMgr::Remove(const std::string &bundleName)
 
 ErrCode FormInfoMgr::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
-    bool hasPermission = CheckBundlePermission();
     std::shared_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
-    if (hasPermission) {
-        for (const auto &bundleFormInfo: bundleFormInfoMap_) {
-            if (bundleFormInfo.second != nullptr) {
-                bundleFormInfo.second->GetAllFormsInfo(formInfos);
-            }
-        }
-    } else {
-        for (const auto &bundleFormInfo: bundleFormInfoMap_) {
-            if (IsCaller(bundleFormInfo.first)) {
-                if (bundleFormInfo.second != nullptr) {
-                    bundleFormInfo.second->GetAllFormsInfo(formInfos);
-                }
-                return ERR_OK;
-            }
+    for (const auto &bundleFormInfo: bundleFormInfoMap_) {
+        if (bundleFormInfo.second != nullptr) {
+            bundleFormInfo.second->GetAllFormsInfo(formInfos);
         }
     }
     return ERR_OK;
@@ -302,10 +288,6 @@ ErrCode FormInfoMgr::GetFormsInfoByBundle(const std::string &bundleName, std::ve
     if (bundleName.empty()) {
         APP_LOGE("bundleName is empty.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
-    }
-
-    if (!CheckBundlePermission() && !IsCaller(bundleName)) {
-        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
     std::shared_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
@@ -327,10 +309,6 @@ ErrCode FormInfoMgr::GetFormsInfoByModule(const std::string &bundleName, const s
     if (bundleName.empty()) {
         APP_LOGE("bundleName is empty.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
-    }
-
-    if (!CheckBundlePermission() && !IsCaller(bundleName)) {
-        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
     std::shared_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
@@ -368,40 +346,6 @@ std::shared_ptr<BundleFormInfo> FormInfoMgr::GetOrCreateBundleFromInfo(const std
     auto bundleFormInfoPtr = std::make_shared<BundleFormInfo>(bundleName);
     bundleFormInfoMap_[bundleName] = bundleFormInfoPtr;
     return bundleFormInfoPtr;
-}
-
-bool FormInfoMgr::IsCaller(std::string bundleName)
-{
-    auto bms = FormBmsHelper::GetInstance().GetBundleMgr();
-    if (!bms) {
-        return false;
-    }
-    AppExecFwk::BundleInfo bundleInfo;
-    bool ret = bms->GetBundleInfo(bundleName, GET_BUNDLE_DEFAULT, bundleInfo, FormUtil::GetCurrentAccountId());
-    if (!ret) {
-        APP_LOGE("Failed to get bundle info.");
-        return false;
-    }
-    auto callerToken = IPCSkeleton::GetCallingTokenID();
-    if (bundleInfo.applicationInfo.accessTokenId == callerToken) {
-        return true;
-    }
-    return false;
-}
-
-bool FormInfoMgr::CheckBundlePermission()
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return true;
-    }
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AppExecFwk::Constants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
-    if (isCallingPerm) {
-        return true;
-    }
-    APP_LOGE("Permission verification failed");
-    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
