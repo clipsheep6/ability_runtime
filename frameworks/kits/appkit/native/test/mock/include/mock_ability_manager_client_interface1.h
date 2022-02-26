@@ -225,10 +225,6 @@ public:
     {
         return true;
     };
-    virtual std::string GetAbilityIcon(const std::string &bundleName, const std::string &className)
-    {
-        return std::string("");
-    };
     virtual bool CanRequestPermission(
         const std::string &bundleName, const std::string &permissionName, const int userId)
     {

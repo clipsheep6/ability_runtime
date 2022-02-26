@@ -182,10 +182,6 @@ bool BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo)
 {
     return true;
 }
-std::string BundleMgrProxy::GetAbilityIcon(const std::string &bundleName, const std::string &className)
-{
-    return "";
-}
 bool BundleMgrProxy::CanRequestPermission(
     const std::string &bundleName, const std::string &permissionName, const int userId)
 {
@@ -414,10 +410,6 @@ bool BundleMgrService::IsApplicationEnabled(const std::string &bundleName)
 bool BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo)
 {
     return true;
-}
-std::string BundleMgrService::GetAbilityIcon(const std::string &bundleName, const std::string &className)
-{
-    return "";
 }
 bool BundleMgrService::CanRequestPermission(
     const std::string &bundleName, const std::string &permissionName, const int userId)
