@@ -160,6 +160,8 @@ void TerminateAbilityTest::OnStartAms()
 
         int userId = g_aams->GetUserId();
         g_aams->SetStackManager(userId, true);
+        g_aams->systemAppManager_ = std::make_shared<KernalSystemAppManager>(userId);
+        EXPECT_TRUE(g_aams->systemAppManager_);
 
         g_aams->eventLoop_->Run();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -2130,11 +2130,11 @@ bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemot
         missionId, abilityToken, missionSnapshot);
 }
 
-void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
+void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
-    auto func = [&info, isPerm](const std::shared_ptr<Mission> &mission) {
+    auto func = [&info](const std::shared_ptr<Mission> &mission) {
         if (!mission) {
             return;
         }
@@ -2144,15 +2144,19 @@ void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
             return;
         }
 
-        if (isPerm) {
-            DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRunningInfo(info, ability);
-        } else {
-            auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-            auto tokenID = ability->GetApplicationInfo().accessTokenId;
-            if (callingTokenId == tokenID) {
-                DelayedSingleton<AbilityManagerService>::GetInstance()->GetAbilityRunningInfo(info, ability);
-            }
-        }
+        AbilityRunningInfo runningInfo;
+        AppExecFwk::RunningProcessInfo processInfo;
+
+        runningInfo.ability = ability->GetWant().GetElement();
+        runningInfo.startTime = ability->GetStartTime();
+        runningInfo.abilityState = static_cast<int>(ability->GetAbilityState());
+
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+        runningInfo.pid = processInfo.pid_;
+        runningInfo.uid = processInfo.uid_;
+        runningInfo.processName = processInfo.processName_;
+        info.emplace_back(runningInfo);
     };
     if (!(defaultStandardList_->GetAllMissions().empty())) {
         auto list = defaultStandardList_->GetAllMissions();

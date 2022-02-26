@@ -233,7 +233,19 @@ private:
      */
     ErrCode Init();
 
+    /**
+     * @brief Permission check by callingUid.
+     * @param formId the id of the form.
+     * @return Returns true on success, false on failure.
+     */
     bool CheckFormPermission();
+
+    /**
+     * @brief Permission check.
+     * @param bundleName bundleName.
+     * @return Returns true on success, false on failure.
+     */
+    bool CheckFormPermission(const std::string &bundleName) const;
 private:
     ServiceRunningState state_;
 

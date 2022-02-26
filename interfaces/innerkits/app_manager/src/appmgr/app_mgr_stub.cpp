@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,10 +48,16 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_MGR_INSTANCE)] = &AppMgrStub::HandleGetAmsMgr;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_CLEAR_UP_APPLICATION_DATA)] =
         &AppMgrStub::HandleClearUpApplicationData;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_IS_BACKGROUND_RUNNING_RESTRICTED)] =
+        &AppMgrStub::HandleIsBackgroundRunningRestricted;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RUNNING_PROCESSES)] =
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_SET_APP_FREEZING_TIME)] =
+        &AppMgrStub::HandleSetAppFreezingTime;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_APP_FREEZING_TIME)] =
+        &AppMgrStub::HandleGetAppFreezingTime;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_SYSTEM_MEMORY_ATTR)] =
         &AppMgrStub::HandleGetSystemMemoryAttr;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -70,10 +76,6 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleScheduleAcceptWantDone;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ABILITY_RECORDS_BY_PROCESS_ID)] =
         &AppMgrStub::HandleGetAbilityRecordsByProcessID;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS)] =
-        &AppMgrStub::HandleStartRenderProcess;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::ATTACH_RENDER_PROCESS)] =
-        &AppMgrStub::HandleAttachRenderProcess;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -175,6 +177,15 @@ int32_t AppMgrStub::HandleClearUpApplicationData(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleIsBackgroundRunningRestricted(MessageParcel &data, MessageParcel &reply)
+{
+    BYTRACE(BYTRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    int32_t result = IsBackgroundRunningRestricted(bundleName);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessageParcel &reply)
 {
     BYTRACE(BYTRACE_TAG_APP);
@@ -207,6 +218,22 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetAppFreezingTime(MessageParcel &data, MessageParcel &reply)
+{
+    BYTRACE(BYTRACE_TAG_APP);
+    SetAppFreezingTime(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAppFreezingTime(MessageParcel &data, MessageParcel &reply)
+{
+    BYTRACE(BYTRACE_TAG_APP);
+    int time = 0;
+    GetAppFreezingTime(time);
+    reply.WriteInt32(time);
     return NO_ERROR;
 }
 
@@ -334,31 +361,6 @@ int32_t AppMgrStub::HandleGetAbilityRecordsByProcessID(MessageParcel &data, Mess
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply)
-{
-    std::string renderParam = data.ReadString();
-    int32_t ipcFd = data.ReadFileDescriptor();
-    int32_t sharedFd = data.ReadFileDescriptor();
-    int32_t renderPid = 0;
-    int32_t result = StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
-    if (!reply.WriteInt32(result)) {
-        APP_LOGE("write result error.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteInt32(renderPid)) {
-        APP_LOGE("write renderPid error.");
-        return ERR_INVALID_VALUE;
-    }
-    return result;
-}
-
-int32_t AppMgrStub::HandleAttachRenderProcess(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> scheduler = data.ReadParcelable<IRemoteObject>();
-    AttachRenderProcess(scheduler);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

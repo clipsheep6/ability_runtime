@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,6 @@
 #include "app_mgr_constants.h"
 #include "bundle_info.h"
 #include "iapp_state_callback.h"
-#include "irender_scheduler.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
@@ -83,6 +82,13 @@ public:
      * @return Returns RESULT_OK on success, others on failure.
      */
     virtual AppMgrResultCode ConnectAppMgrService();
+
+    /**
+     * Ability manager resst.
+     *
+     * @return Returns RESULT_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode Reset();
 
     /**
      * AbilityBehaviorAnalysis, ability behavior analysis assistant process optimization.
@@ -169,6 +175,23 @@ public:
      */
     virtual AppMgrResultCode GetConfiguration(Configuration& config);
 
+    /**
+     * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
+     *
+     * @param time, The timeout recorded when the application enters the background .
+     *
+     * @return Success or Failure .
+     */
+    virtual AppMgrResultCode SetAppFreezingTime(int time);
+
+    /**
+     * GetAppFreezingTime, Getting the Freezing Time of APP Background.
+     *
+     * @param time, The timeout recorded when the application enters the background .
+     *
+     * @return Success or Failure .
+     */
+    virtual AppMgrResultCode GetAppFreezingTime(int &time);
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token);
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
@@ -232,25 +255,6 @@ public:
      * @return Returns true on success, others on failure.
      */
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
-
-    /**
-     * Start webview render process, called by webview host.
-     *
-     * @param renderParam, params passed to renderprocess.
-     * @param ipcFd, ipc file descriptior for web browser and render process.
-     * @param sharedFd, shared memory file descriptior.
-     * @param renderPid, created render pid.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-        int32_t sharedFd, pid_t &renderPid);
-
-    /**
-     * Render process call this to attach app manager service.
-     *
-     * @param renderScheduler, scheduler of render process.
-     */
-    virtual void AttachRenderProcess(const sptr<IRenderScheduler> &renderScheduler);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

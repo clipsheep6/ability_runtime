@@ -586,12 +586,10 @@ int FormMgrAdapter::CastTempForm(const int64_t formId, const sptr<IRemoteObject>
         APP_LOGE("%{public}s fail, add form user uid error, formId:%{public}" PRId64 ".", __func__, matchedFormId);
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
-
-    if (!FormDataMgr::GetInstance().GetFormRecord(matchedFormId, formRecord)) {
-        APP_LOGE("%{public}s fail, not exist such form:%{public}" PRId64 ".", __func__, matchedFormId);
-        return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
+    if (std::find(formRecord.formUserUids.begin(), formRecord.formUserUids.end(),
+        callingUid) == formRecord.formUserUids.end()) {
+        formRecord.formUserUids.emplace_back(callingUid);
     }
-
     if (ErrCode errorCode = FormDbCache::GetInstance().UpdateDBRecord(matchedFormId, formRecord); errorCode != ERR_OK) {
         APP_LOGE("%{public}s fail, update db record error, formId:%{public}" PRId64 ".", __func__, matchedFormId);
         return errorCode;

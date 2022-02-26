@@ -32,6 +32,7 @@
 #include "data_ability_manager.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
+#include "kernal_system_app_manager.h"
 #include "mission_list_manager.h"
 #include "system_ability.h"
 #include "uri.h"
@@ -746,9 +747,6 @@ public:
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
     virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
     int GetProcessRunningInfosByUserId(std::vector<AppExecFwk::RunningProcessInfo> &info, int32_t userId);
-    void GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info, std::shared_ptr<AbilityRecord> &abilityRecord);
-    void GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord, const int32_t userId,
-        std::vector<ExtensionRunningInfo> &info);
 
     int GetMissionSaveTime() const;
 
@@ -1141,10 +1139,6 @@ private:
     bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
     void StartupResidentProcess();
 
-    int VerifyMissionPermission();
-
-    int VerifyAccountPermission(int32_t userId);
-
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
 
@@ -1175,6 +1169,7 @@ private:
     std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;
     std::unordered_map<int, std::shared_ptr<PendingWantManager>> pendingWantManagers_;
     std::shared_ptr<PendingWantManager> pendingWantManager_;
+    std::shared_ptr<KernalSystemAppManager> systemAppManager_;
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;

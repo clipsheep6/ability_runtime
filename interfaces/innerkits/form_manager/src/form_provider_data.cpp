@@ -16,7 +16,6 @@
 #include <cinttypes>
 #include <fstream>
 #include <iostream>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "form_provider_data.h"
@@ -106,10 +105,6 @@ void FormProviderData::AddImageData(std::string picName, char *data, int32_t siz
         return;
     }
 
-    auto iterator = rawImageBytesMap_.find(picName);
-    if (iterator != rawImageBytesMap_.end()) {
-        delete[] iterator->second.first;
-    }
     rawImageBytesMap_[picName] = std::make_pair(data, size);
 
     imageDataState_ = IMAGE_DATA_STATE_ADDED;
@@ -123,24 +118,34 @@ void FormProviderData::AddImageData(std::string picName, char *data, int32_t siz
 void FormProviderData::AddImageData(std::string picName, int fd)
 {
     HILOG_INFO("%{public}s called", __func__);
-    if (fd < 0) {
+    if (fd <= 0) {
+        return;
+    }
+    std::string fdPath = "/proc/self/fd/" + std::to_string(fd);
+    char fileName[PATH_MAX + 1] = {0};
+    int ret = readlink(fdPath.c_str(), fileName, PATH_MAX);
+    if (ret < 0 || ret > PATH_MAX) {
+        HILOG_ERROR("Get fileName failed, ret is: %{public}d!", ret);
+        return;
+    }
+    fileName[ret] = '\0';
+
+    std::ifstream file(fileName, std::ios::in | std::ios::binary | std::ios::ate);
+    if (!file.is_open()) {
+        HILOG_INFO("open failed");
         return;
     }
 
-    int32_t size = lseek(fd, 0L, SEEK_END);
-    if (size <= 0) {
-        HILOG_ERROR("Get file size failed, errno is %{public}d", errno);
+    file.seekg(0, std::ios::end);
+    int32_t size = file.tellg();
+    HILOG_INFO("File size %{public}d", size);
+    if (size < 0) {
         return;
     }
-    HILOG_INFO("File size is %{public}d", size);
-    if (lseek(fd, 0L, SEEK_SET) == -1) {
-        return;
-    }
+    file.seekg(0, std::ios::beg);
     char *data = new char[size];
-    if (read(fd, data, size) < 0) {
-        HILOG_ERROR("Read failed, errno is %{public}d", errno);
-        return;
-    }
+    file.read(data, size);
+    file.close();
     AddImageData(picName, data, size);
     HILOG_INFO("%{public}s called end.", __func__);
 }

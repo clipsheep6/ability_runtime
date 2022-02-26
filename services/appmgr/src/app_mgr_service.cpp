@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,7 +44,6 @@ const std::string TASK_CLEAR_UP_APPLICATION_DATA = "ClearUpApplicationDataTask";
 const std::string TASK_STARTUP_RESIDENT_PROCESS = "StartupResidentProcess";
 const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
 const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
-const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -269,6 +268,14 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
     return ERR_OK;
 }
 
+int32_t AppMgrService::IsBackgroundRunningRestricted(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->IsBackgroundRunningRestricted(bundleName);
+}
+
 int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
     if (!IsReady()) {
@@ -283,6 +290,24 @@ int32_t AppMgrService::GetProcessRunningInfosByUserId(std::vector<RunningProcess
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetProcessRunningInfosByUserId(info, userId);
+}
+
+void AppMgrService::SetAppFreezingTime(int time)
+{
+    APP_LOGI("set app freeze time %{public}d", time);
+    if (!IsReady()) {
+        return;
+    }
+    appMgrServiceInner_->SetAppFreezingTime(time);
+}
+
+void AppMgrService::GetAppFreezingTime(int &time)
+{
+    if (!IsReady()) {
+        return;
+    }
+    appMgrServiceInner_->GetAppFreezingTime(time);
+    APP_LOGE("get app freeze time %{public}d ", time);
 }
 
 /**
@@ -381,32 +406,6 @@ int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
-}
-
-int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, pid_t &renderPid)
-{
-    if (!IsReady()) {
-        APP_LOGE("StartRenderProcess failed, AppMgrService not ready.");
-        return ERR_INVALID_OPERATION;
-    }
-
-    return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
-        renderParam, ipcFd, sharedFd, renderPid);
-}
-
-void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
-{
-    APP_LOGD("AttachRenderProcess called.");
-    if (!IsReady()) {
-        APP_LOGE("AttachRenderProcess failed, not ready.");
-        return;
-    }
-
-    auto pid = IPCSkeleton::GetCallingPid();
-    auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
-        appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
-    handler_->PostTask(fun, TASK_ATTACH_RENDER_PROCESS);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
