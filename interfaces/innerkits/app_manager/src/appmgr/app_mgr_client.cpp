@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,19 +100,6 @@ AppMgrResultCode AppMgrClient::RegisterAppStateCallback(const sptr<IAppStateCall
         sptr<IAmsMgr> amsService = service->GetAmsMgr();
         if (amsService != nullptr) {
             amsService->RegisterAppStateCallback(callback);
-            return AppMgrResultCode::RESULT_OK;
-        }
-    }
-    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
-}
-
-AppMgrResultCode AppMgrClient::Reset()
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
-    if (service != nullptr) {
-        sptr<IAmsMgr> amsService = service->GetAmsMgr();
-        if (amsService != nullptr) {
-            amsService->Reset();
             return AppMgrResultCode::RESULT_OK;
         }
     }
@@ -243,26 +230,6 @@ AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)
             }
         }
         return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
-    }
-    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
-}
-
-AppMgrResultCode AppMgrClient::SetAppFreezingTime(int time)
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
-    if (service != nullptr) {
-        service->SetAppFreezingTime(time);
-        return AppMgrResultCode::RESULT_OK;
-    }
-    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
-}
-
-AppMgrResultCode AppMgrClient::GetAppFreezingTime(int &time)
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
-    if (service != nullptr) {
-        service->GetAppFreezingTime(time);
-        return AppMgrResultCode::RESULT_OK;
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
@@ -446,6 +413,38 @@ int AppMgrClient::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
     }
 
     return service->GetAbilityRecordsByProcessID(pid, tokens);
+}
+
+int AppMgrClient::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
+{
+    if (!remote_) {
+        ConnectAppMgrService();
+    }
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
+    if (service != nullptr) {
+        return service->StartRenderProcess(renderParam, ipcFd, sharedFd, renderPid);
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+void AppMgrClient::AttachRenderProcess(const sptr<IRenderScheduler> &renderScheduler)
+{
+    if (!renderScheduler) {
+        APP_LOGI("renderScheduler is nullptr");
+        return;
+    }
+
+    if (!remote_) {
+        ConnectAppMgrService();
+    }
+
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(remote_);
+    if (service != nullptr) {
+        APP_LOGI("AttachRenderProcess");
+        service->AttachRenderProcess(renderScheduler->AsObject());
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

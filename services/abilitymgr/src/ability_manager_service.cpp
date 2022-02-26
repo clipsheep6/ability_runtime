@@ -41,6 +41,8 @@
 #include "lock_screen_white_list.h"
 #include "mission/mission_info_converter.h"
 #include "mission_info_mgr.h"
+#include "permission_constants.h"
+#include "permission_verification.h"
 #include "sa_mgr_client.h"
 #include "softbus_bus_center.h"
 #include "string_ex.h"
@@ -262,9 +264,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
-    if (userId != INVALID_USER_ID && !CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -358,9 +360,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability setting.");
 
-    if (userId != INVALID_USER_ID && !CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
@@ -443,9 +445,9 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability options.");
 
-    if (userId != INVALID_USER_ID && !CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
@@ -630,7 +632,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     if ((resultWant != nullptr) &&
         AbilityUtil::IsSystemDialogAbility(
-        abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
+            abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_KEY) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_CALLER_BUNDLENAME) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_REQUEST_PERMISSIONS)) {
@@ -970,9 +972,9 @@ int AbilityManagerService::ConnectAbility(
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    if (userId != INVALID_USER_ID && !CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (CheckIfOperateRemote(want)) {
@@ -1370,11 +1372,10 @@ int AbilityManagerService::LockMissionForCleanup(int32_t missionId)
     HILOG_INFO("request unlock mission for clean up all, id :%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
-
     return currentMissionListManager_->SetMissionLockedState(missionId, true);
 }
 
@@ -1383,11 +1384,10 @@ int AbilityManagerService::UnlockMissionForCleanup(int32_t missionId)
     HILOG_INFO("request unlock mission for clean up all, id :%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
-
     return currentMissionListManager_->SetMissionLockedState(missionId, false);
 }
 
@@ -1395,13 +1395,11 @@ int AbilityManagerService::RegisterMissionListener(const sptr<IMissionListener> 
 {
     HILOG_INFO("request RegisterMissionListener ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
-
     return currentMissionListManager_->RegisterMissionListener(listener);
 }
 
@@ -1409,13 +1407,11 @@ int AbilityManagerService::UnRegisterMissionListener(const sptr<IMissionListener
 {
     HILOG_INFO("request RegisterMissionListener ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
-
     return currentMissionListManager_->UnRegisterMissionListener(listener);
 }
 
@@ -1424,11 +1420,10 @@ int AbilityManagerService::GetMissionInfos(const std::string& deviceId, int32_t 
 {
     HILOG_INFO("request GetMissionInfos.");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (CheckIsRemote(deviceId)) {
@@ -1456,11 +1451,10 @@ int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t m
 {
     HILOG_INFO("request GetMissionInfo, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     if (CheckIsRemote(deviceId)) {
@@ -1493,11 +1487,10 @@ int AbilityManagerService::CleanMission(int32_t missionId)
 {
     HILOG_INFO("request CleanMission, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     return currentMissionListManager_->ClearMission(missionId);
@@ -1507,11 +1500,10 @@ int AbilityManagerService::CleanAllMissions()
 {
     HILOG_INFO("request CleanAllMissions ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     return currentMissionListManager_->ClearAllMissions();
@@ -1521,11 +1513,10 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     return currentMissionListManager_->MoveMissionToFront(missionId);
@@ -1535,11 +1526,10 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
 {
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
-    CHECK_POINTER_AND_RETURN(iBundleManager_, ERR_NO_INIT);
 
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not system app");
-        return CALLER_ISNOT_SYSTEMAPP;
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
     }
 
     auto options = std::make_shared<StartOptions>(startOptions);
@@ -1665,18 +1655,21 @@ int AbilityManagerService::AttachAbilityThread(
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
-
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
-
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     auto type = abilityInfo.type;
-
+    // force timeout ability for test
+    if (IsNeedTimeoutForTest(abilityInfo.name, AbilityRecord::ConvertAbilityState(AbilityState::INITIAL))) {
+        HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s",
+            abilityInfo.name.c_str());
+        return ERR_OK;
+    }
     int returnCode = -1;
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(userId);
@@ -1709,7 +1702,6 @@ int AbilityManagerService::AttachAbilityThread(
             returnCode = stackManager->AttachAbilityThread(scheduler, token);
         }
     }
-
     return returnCode;
 }
 
@@ -2158,15 +2150,21 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
     }
-
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN_LOG(abilityRecord, ERR_INVALID_VALUE, "Ability record is nullptr.");
-
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     HILOG_DEBUG("state:%{public}d  name:%{public}s", state, abilityInfo.name.c_str());
     auto type = abilityInfo.type;
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
-
+    // force timeout ability for test
+    int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
+    if (IsNeedTimeoutForTest(abilityInfo.name,
+        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)))) {
+        HILOG_WARN("force timeout ability for test, state:%{public}s, ability: %{public}s",
+            AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)).c_str(),
+            abilityInfo.name.c_str());
+        return ERR_OK;
+    }
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(userId);
         if (!connectManager) {
@@ -2705,11 +2703,6 @@ bool AbilityManagerService::IsUseNewMission()
 int AbilityManagerService::KillProcess(const std::string &bundleName)
 {
     HILOG_DEBUG("Kill process, bundleName: %{public}s", bundleName.c_str());
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
-    }
-
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, KILL_PROCESS_FAILED);
     int32_t userId = GetUserId();
@@ -2734,10 +2727,6 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
 int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName)
 {
     HILOG_DEBUG("ClearUpApplicationData, bundleName: %{public}s", bundleName.c_str());
-    if (!CheckCallerIsSystemAppByIpc()) {
-        HILOG_ERROR("caller is not systemApp");
-        return CALLER_ISNOT_SYSTEMAPP;
-    }
     int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName);
     if (ret != ERR_OK) {
         return CLEAR_APPLICATION_DATA_FAIL;
@@ -2748,6 +2737,13 @@ int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName)
 int AbilityManagerService::UninstallApp(const std::string &bundleName)
 {
     HILOG_DEBUG("Uninstall app, bundleName: %{public}s", bundleName.c_str());
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getpid();
+    if (callingPid != pid) {
+        HILOG_ERROR("%{public}s: Not bundleMgr call.", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
     CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_NO_INIT);
     currentStackManager_->UninstallApp(bundleName);
     CHECK_POINTER_AND_RETURN(pendingWantManager_, ERR_NO_INIT);
@@ -3617,6 +3613,12 @@ int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, con
 int AbilityManagerService::StartUser(int userId)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
     if (userController_) {
         return userController_->StartUser(userId, true);
     }
@@ -3626,6 +3628,12 @@ int AbilityManagerService::StartUser(int userId)
 int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
     auto ret = -1;
     if (userController_) {
         ret = userController_->StopUser(userId);
@@ -3651,27 +3659,15 @@ void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::
 {
     return;
 }
+
 int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
 {
     HILOG_DEBUG("Get running ability infos.");
-    auto bundleMgr = GetBundleManager();
-    if (!bundleMgr) {
-        HILOG_ERROR("bundleMgr is nullptr.");
-        return INNER_ERR;
-    }
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
 
-    auto callerUid = IPCSkeleton::GetCallingUid();
-    auto isSystem = bundleMgr->CheckIsSystemAppByUid(callerUid);
-    HILOG_DEBUG("callerUid : %{public}d, isSystem : %{public}d", callerUid, static_cast<int>(isSystem));
-
-    if (!isSystem) {
-        HILOG_ERROR("callar is not system app.");
-        return INNER_ERR;
-    }
-
-    currentMissionListManager_->GetAbilityRunningInfos(info);
-    connectManager_->GetAbilityRunningInfos(info);
-    dataAbilityManager_->GetAbilityRunningInfos(info);
+    currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
+    connectManager_->GetAbilityRunningInfos(info, isPerm);
+    dataAbilityManager_->GetAbilityRunningInfos(info, isPerm);
 
     return ERR_OK;
 }
@@ -3679,22 +3675,9 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
 int AbilityManagerService::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info)
 {
     HILOG_DEBUG("Get extension infos, upperLimit : %{public}d", upperLimit);
-    auto bundleMgr = GetBundleManager();
-    if (!bundleMgr) {
-        HILOG_ERROR("bundleMgr is nullptr.");
-        return INNER_ERR;
-    }
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
 
-    auto callerUid = IPCSkeleton::GetCallingUid();
-    auto isSystem = bundleMgr->CheckIsSystemAppByUid(callerUid);
-    HILOG_DEBUG("callerUid : %{public}d, isSystem : %{public}d", callerUid, static_cast<int>(isSystem));
-
-    if (!isSystem) {
-        HILOG_ERROR("callar is not system app.");
-        return INNER_ERR;
-    }
-
-    connectManager_->GetExtensionRunningInfos(upperLimit, info, GetUserId());
+    connectManager_->GetExtensionRunningInfos(upperLimit, info, GetUserId(), isPerm);
     return ERR_OK;
 }
 
@@ -3720,6 +3703,12 @@ void AbilityManagerService::ClearUserData(int32_t userId)
 
 int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return 0;
+    }
+
     if (!currentMissionListManager_) {
         HILOG_ERROR("snapshot: currentMissionListManager_ is nullptr.");
         return INNER_ERR;
@@ -3732,6 +3721,11 @@ int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>&
 int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot)
 {
+    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
     if (CheckIsRemote(deviceId)) {
         HILOG_INFO("get remote mission snapshot.");
         return GetRemoteMissionSnapshotInfo(deviceId, missionId, missionSnapshot);
@@ -3993,6 +3987,12 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
 
 int AbilityManagerService::SendANRProcessID(int pid)
 {
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
     int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
     auto timeoutTask = [pid]() {
         if (kill(pid, SIGKILL) != ERR_OK) {
@@ -4355,6 +4355,32 @@ void AbilityManagerService::StartingScreenLockAbility()
     }
 }
 
+int AbilityManagerService::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
+{
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != AbilityUtil::ROOT_UID) {
+        HILOG_ERROR("calling uid has no permission to force timeout.");
+        return INVALID_DATA;
+    }
+    if (abilityName.empty()) {
+        HILOG_ERROR("abilityName is empty.");
+        return INVALID_DATA;
+    }
+    if (abilityName == "clean") {
+        timeoutMap_.clear();
+        return ERR_OK;
+    }
+    if (state != AbilityRecord::ConvertAbilityState(AbilityState::INITIAL) &&
+        state != AbilityRecord::ConvertAbilityState(AbilityState::FOREGROUND_NEW) &&
+        state != AbilityRecord::ConvertAbilityState(AbilityState::BACKGROUND_NEW) &&
+        state != AbilityRecord::ConvertAbilityState(AbilityState::TERMINATING)) {
+        HILOG_ERROR("lifecycle state is invalid.");
+        return INVALID_DATA;
+    }
+    timeoutMap_.insert(std::make_pair(state, abilityName));
+    return ERR_OK;
+}
+
 int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo)
 {
     auto tokenId = IPCSkeleton::GetCallingTokenID();
@@ -4399,6 +4425,16 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     return AppExecFwk::Constants::PERMISSION_GRANTED;
+}
+
+bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const
+{
+    for (auto iter = timeoutMap_.begin(); iter != timeoutMap_.end(); iter++) {
+        if (iter->first == state && iter->second == abilityName) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool AbilityManagerService::VerifyUriPermisson(const AbilityRequest &abilityRequest, const Want &want)
@@ -4465,6 +4501,58 @@ void AbilityManagerService::StartupResidentProcess()
     }
 
     DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
+}
+
+int AbilityManagerService::VerifyMissionPermission()
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return ERR_OK;
+    }
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_MANAGE_MISSION);
+    if (isCallingPerm) {
+        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
+        return ERR_OK;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return CHECK_PERMISSION_FAILED;
+}
+
+void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info,
+    std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    AbilityRunningInfo runningInfo;
+    AppExecFwk::RunningProcessInfo processInfo;
+
+    runningInfo.ability = abilityRecord->GetWant().GetElement();
+    runningInfo.startTime = abilityRecord->GetStartTime();
+    runningInfo.abilityState = static_cast<int>(abilityRecord->GetAbilityState());
+
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
+    runningInfo.pid = processInfo.pid_;
+    runningInfo.uid = processInfo.uid_;
+    runningInfo.processName = processInfo.processName_;
+    info.emplace_back(runningInfo);
+}
+
+int AbilityManagerService::VerifyAccountPermission(int32_t userId)
+{
+    if ((userId < 0) || (userController_ && (userController_->GetCurrentUserId() == userId))) {
+        return ERR_OK;
+    }
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return ERR_OK;
+    }
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
+    if (isCallingPerm) {
+        return ERR_OK;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return CHECK_PERMISSION_FAILED;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

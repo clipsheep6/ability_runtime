@@ -113,6 +113,7 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want)
 
     // get current userId
     int32_t currentUserId = want.GetIntParam(Constants::PARAM_FORM_USER_ID, DEFAULT_USER_ID);
+    APP_LOGI("%{public}s, current user, userId:%{public}d", __func__, currentUserId);
     if (currentUserId != record.userId) {
         FormDataMgr::GetInstance().SetNeedRefresh(formId, true);
         APP_LOGE("%{public}s, not current user, just set refresh flag, userId:%{public}d", __func__, record.userId);
@@ -369,7 +370,7 @@ int FormProviderMgr::MessageEvent(const int64_t formId, const FormRecord &record
 void FormProviderMgr::IncreaseTimerRefreshCount(const int64_t formId)
 {
     FormRecord record;
-    if (FormDataMgr::GetInstance().GetFormRecord(formId, record)) {
+    if (!FormDataMgr::GetInstance().GetFormRecord(formId, record)) {
         APP_LOGE("%{public}s failed, not exist such form:%{public}" PRId64 ".", __func__, formId);
         return;
     }

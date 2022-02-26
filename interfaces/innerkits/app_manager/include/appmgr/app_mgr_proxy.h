@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,15 +99,6 @@ public:
     virtual int32_t ClearUpApplicationData(const std::string &bundleName) override;
 
     /**
-     * IsBackgroundRunningRestricted, call IsBackgroundRunningRestricted() through proxy project,
-     * Checks whether the process of this application is forbidden to run in the background.
-     *
-     * @param bundleName, bundle name in Application record.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int32_t IsBackgroundRunningRestricted(const std::string &bundleName) override;
-
-    /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
      * Obtains information about application processes that are running on the device.
      *
@@ -124,24 +115,6 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
-
-    /**
-     * SetAppSuspendTimes, Setting the Freezing Time of APP Background.
-     *
-     * @param time, The timeout recorded when the application enters the background .
-     *
-     * @return Success or Failure .
-     */
-    virtual void SetAppFreezingTime(int time) override;
-
-    /**
-     * GetAppFreezingTime, Getting the Freezing Time of APP Background.
-     *
-     * @param time, The timeout recorded when the application enters the background .
-     *
-     * @return Success or Failure .
-     */
-    virtual void GetAppFreezingTime(int &time) override;
 
     /**
      * Get system memory information.
@@ -202,6 +175,25 @@ public:
      * @return Returns true on success, others on failure.
      */
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
+
+    /**
+     * Start webview render process, called by webview host.
+     *
+     * @param renderParam, params passed to renderprocess.
+     * @param ipcFd, ipc file descriptior for web browser and render process.
+     * @param sharedFd, shared memory file descriptior.
+     * @param renderPid, created render pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+        int32_t sharedFd, pid_t &renderPid) override;
+
+    /**
+     * Render process call this to attach app manager service.
+     *
+     * @param renderApp, information needed to start the Application.
+     */
+    virtual void AttachRenderProcess(const sptr<IRemoteObject> &renderApp) override;
 
 private:
     bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);

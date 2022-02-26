@@ -33,6 +33,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
 
   sources = [
     "${services_path}/appmgr/src/ability_running_record.cpp",
+    "${services_path}/appmgr/src/app_death_recipient.cpp",
     "${services_path}/appmgr/src/app_mgr_service_inner.cpp",
     "${services_path}/appmgr/src/app_running_record.cpp",
     "${services_path}/appmgr/src/app_spawn_client.cpp",
@@ -53,6 +54,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "${appexecfwk_path}/libs/libeventhandler:libeventhandler_target",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",
+    "${services_path}/common:perm_verification",
     "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits",
     "//foundation/aafwk/standard/services/appmgr:libams",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",

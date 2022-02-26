@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -226,34 +226,6 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
-int32_t AppMgrProxy::IsBackgroundRunningRestricted(const std::string &bundleName)
-{
-    APP_LOGD("start");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        return ERR_FLATTEN_OBJECT;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        APP_LOGE("Remote() is NULL");
-        return ERR_NULL_OBJECT;
-    }
-    if (!data.WriteString(bundleName)) {
-        APP_LOGE("parcel WriteString failed");
-        return ERR_FLATTEN_OBJECT;
-    }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppMgr::Message::APP_IS_BACKGROUND_RUNNING_RESTRICTED), data, reply, option);
-    if (ret != NO_ERROR) {
-        APP_LOGW("SendRequest is failed, error code: %{public}d", ret);
-        return ret;
-    }
-    APP_LOGD("end");
-    return reply.ReadInt32();
-}
-
 int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
     APP_LOGD("start");
@@ -324,46 +296,6 @@ bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, Me
         return false;
     }
     return true;
-}
-
-void AppMgrProxy::SetAppFreezingTime(int time)
-{
-    APP_LOGD("start");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-
-    if (!data.WriteInt32(time)) {
-        APP_LOGE("parcel WriteInt32 failed");
-        return;
-    }
-    if (!SendTransactCmd(IAppMgr::Message::APP_SET_APP_FREEZING_TIME, data, reply)) {
-        APP_LOGE("SendTransactCmd faild");
-        return;
-    }
-    APP_LOGD("end");
-}
-
-void AppMgrProxy::GetAppFreezingTime(int &time)
-{
-    APP_LOGD("start");
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        APP_LOGE("WriteInterfaceToken faild");
-        return;
-    }
-
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_APP_FREEZING_TIME, data, reply)) {
-        APP_LOGE("SendTransactCmd faild");
-        return;
-    }
-    time = reply.ReadInt32();
-    APP_LOGE("get freeze time : %{public}d ", time);
 }
 
 /**
@@ -604,6 +536,74 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
         tokens.emplace_back(iRemote);
     }
     return reply.ReadInt32();
+}
+
+int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
+    int32_t sharedFd, pid_t &renderPid)
+{
+    if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
+        APP_LOGE("Invalid params, renderParam:%{public}s, ipcFd:%{public}d, sharedFd:%{public}d",
+            renderParam.c_str(), ipcFd, sharedFd);
+        return -1;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        APP_LOGE("WriteInterfaceToken faild");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteString(renderParam)) {
+        APP_LOGE("want paramSize failed.");
+        return -1;
+    }
+
+    if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd)) {
+        APP_LOGE("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
+        return -1;
+    }
+
+    int32_t ret =
+        Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::START_RENDER_PROCESS), data, reply, option);
+    if (ret != NO_ERROR) {
+        APP_LOGW("StartRenderProcess SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    auto result = reply.ReadInt32();
+    renderPid = reply.ReadInt32();
+    if (result != 0) {
+        APP_LOGW("StartRenderProcess failed, result: %{public}d", ret);
+        return ret;
+    }
+    return 0;
+}
+
+void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler)
+{
+    if (!renderScheduler) {
+        APP_LOGE("renderScheduler is null");
+        return;
+    }
+
+    APP_LOGD("AttachRenderProcess start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteParcelable(renderScheduler)) {
+        APP_LOGE("renderScheduler write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(IAppMgr::Message::ATTACH_RENDER_PROCESS, data, reply)) {
+        APP_LOGE("SendTransactCmd ATTACH_RENDER_PROCESS faild");
+        return;
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

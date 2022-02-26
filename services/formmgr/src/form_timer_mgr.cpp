@@ -829,7 +829,7 @@ bool FormTimerMgr::UpdateAtTimerAlarm()
         return true;
     }
 
-    int nextWakeUpTime = findedItem.updateAtTime;
+    long nextWakeUpTime = findedItem.updateAtTime;
     tmAtTime.tm_sec = 0;
     tmAtTime.tm_hour = findedItem.refreshTask.hour;
     tmAtTime.tm_min = findedItem.refreshTask.min;
@@ -1202,6 +1202,7 @@ void FormTimerMgr::ExecTimerTask(const FormTimer &timerTask)
         }
         // multi user
         if (IsActiveUser(timerTask.userId)) {
+            APP_LOGI("timerTask.userId is current user");
             want.SetParam(Constants::PARAM_FORM_USER_ID, timerTask.userId);
         }
         APP_LOGI("%{public}s, userId:%{public}d", __func__, timerTask.userId);
@@ -1291,9 +1292,13 @@ void FormTimerMgr::TimerReceiver::OnReceiveEvent(const EventFwk::CommonEventData
  */
 bool FormTimerMgr::IsActiveUser(const int32_t userId)
 {
-    bool isOsAccountActived = false;
-    AccountSA::OsAccountManager::IsOsAccountActived(userId, isOsAccountActived);
-    return isOsAccountActived;
+    std::vector<int32_t> activeList;
+    auto refCode = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeList);
+    auto iter = std::find(activeList.begin(), activeList.end(), userId);
+    if (iter != activeList.end() && refCode == ERR_OK) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

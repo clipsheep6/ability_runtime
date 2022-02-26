@@ -20,6 +20,7 @@
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
+#include <map>
 
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
@@ -745,6 +746,9 @@ public:
     virtual int GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info) override;
     virtual int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info) override;
     int GetProcessRunningInfosByUserId(std::vector<AppExecFwk::RunningProcessInfo> &info, int32_t userId);
+    void GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info, std::shared_ptr<AbilityRecord> &abilityRecord);
+    void GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord, const int32_t userId,
+        std::vector<ExtensionRunningInfo> &info);
 
     int GetMissionSaveTime() const;
 
@@ -862,6 +866,15 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int SendANRProcessID(int pid) override;
+
+    /**
+     * force timeout ability.
+     *
+     * @param abilityName.
+     * @param state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
@@ -1125,7 +1138,12 @@ private:
 
     int DelegatorMoveMissionToFront(int32_t missionId);
 
+    bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
     void StartupResidentProcess();
+
+    int VerifyMissionPermission();
+
+    int VerifyAccountPermission(int32_t userId);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
@@ -1169,6 +1187,8 @@ private:
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
     std::recursive_mutex globalLock_;
+
+    std::multimap<std::string, std::string> timeoutMap_;
 };
 
 }  // namespace AAFwk
