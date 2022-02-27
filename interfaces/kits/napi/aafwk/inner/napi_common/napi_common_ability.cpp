@@ -765,7 +765,8 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
     return ret;
 }
 
-napi_value NAPI_IsUpdatingConfigurationsWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
+napi_value NAPI_IsUpdatingConfigurationsWrap(
+    napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s called", __func__);
     size_t argc = ARGS_MAX_COUNT;

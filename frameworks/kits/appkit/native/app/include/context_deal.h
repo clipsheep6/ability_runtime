@@ -175,16 +175,16 @@ public:
     std::string GetCacheDir() override;
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      * @return true Is updating configurations
      * @return false is not updating configurations
      */
     bool IsUpdatingConfigurations() override;
 
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      * @return true print drawn completed success
      * @return false print drawn completed fail
      */

@@ -57,7 +57,7 @@ napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, Ability
 
 napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 /**
- * @brief 
+ * @brief
  *
  * @param env The environment that the Node-API call is invoked under.
  * @param info The callback info passed into the callback function.
@@ -67,7 +67,7 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
 napi_value NAPI_IsUpdatingConfigurationsCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 /**
- * @brief 
+ * @brief
  *
  * @param env The environment that the Node-API call is invoked under.
  * @param info The callback info passed into the callback function.

@@ -3040,11 +3040,11 @@ napi_value NAPI_GetPreferencesDirSync(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief 
- * 
- * @param env 
- * @param info 
- * @return napi_value 
+ * @brief
+ *
+ * @param env
+ * @param info
+ * @return napi_value
  */
 napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
 {
@@ -3053,11 +3053,11 @@ napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief 
- * 
- * @param env 
- * @param info 
- * @return napi_value 
+ * @brief
+ *
+ * @param env
+ * @param info
+ * @return napi_value
  */
 napi_value NAPI_PrintDrawnCompleted(napi_env env, napi_callback_info info)
 {

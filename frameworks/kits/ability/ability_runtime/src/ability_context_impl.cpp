@@ -66,12 +66,12 @@ std::string AbilityContextImpl::GetDistributedFilesDir()
 
 bool AbilityContextImpl::IsUpdatingConfigurations()
 {
-     return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
+    return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
 }
 
 bool AbilityContextImpl::PrintDrawnCompleted()
 {
-   return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
+    return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
 }
 
 void AbilityContextImpl::SwitchArea(int mode)

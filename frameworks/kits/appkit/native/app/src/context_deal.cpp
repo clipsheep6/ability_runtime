@@ -316,7 +316,7 @@ bool ContextDeal::IsUpdatingConfigurations()
 
 bool ContextDeal::PrintDrawnCompleted()
 {
-   return false;
+    return false;
 }
 
 /**

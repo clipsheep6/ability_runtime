@@ -766,6 +766,5 @@ bool AbilityContext::PrintDrawnCompleted()
 {
     return ContextContainer::PrintDrawnCompleted();
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

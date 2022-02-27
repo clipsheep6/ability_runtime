@@ -172,22 +172,22 @@ std::shared_ptr<Global::Resource::ResourceManager> Ability::GetResourceManager()
 
 /**
  * @brief IsUpdatingConfigurations
- * 
- * @return true 
- * @return false 
+ *
+ * @return true
+ * @return false
  */
-bool  Ability::IsUpdatingConfigurations() 
+bool Ability::IsUpdatingConfigurations()
 {
     return AbilityContext::IsUpdatingConfigurations();
 }
 
 /**
  * @brief PrintDrawnCompleted
- * 
- * @return true 
- * @return false 
+ *
+ * @return true
+ * @return false
  */
-bool  Ability::PrintDrawnCompleted() 
+bool Ability::PrintDrawnCompleted()
 {
     return AbilityContext::PrintDrawnCompleted();
 }

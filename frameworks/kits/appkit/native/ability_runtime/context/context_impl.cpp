@@ -92,7 +92,7 @@ bool ContextImpl::IsUpdatingConfigurations()
 
 bool ContextImpl::PrintDrawnCompleted()
 {
-   return false;
+    return false;
 }
 
 std::string ContextImpl::GetDatabaseDir()

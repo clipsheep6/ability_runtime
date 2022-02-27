@@ -121,16 +121,16 @@ public:
 
     /**
      * @brief isUpdatingConfigurations
-     * 
-     * @return true  or false 
+     *
+     * @return true  or false
      */
     virtual bool IsUpdatingConfigurations() = 0;
+    
     /**
      * @brief PrintDrawnCompleted
-     * 
-     * @return true  or false 
+     *
+     * @return true  or false
      */
-   
     virtual bool PrintDrawnCompleted() = 0;
 
     /**

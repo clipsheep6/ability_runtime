@@ -1133,7 +1133,7 @@ void ContextContainer::SetShowOnLockScreen(bool isAllow)
 
 bool ContextContainer::IsUpdatingConfigurations()
 {
-     if (baseContext_ != nullptr) {
+    if (baseContext_ != nullptr) {
         return baseContext_->IsUpdatingConfigurations();
     }
     return false;
@@ -1141,7 +1141,7 @@ bool ContextContainer::IsUpdatingConfigurations()
 
 bool ContextContainer::PrintDrawnCompleted()
 {
-     if (baseContext_ != nullptr) {
+    if (baseContext_ != nullptr) {
         return baseContext_->PrintDrawnCompleted();
     }
     return false;

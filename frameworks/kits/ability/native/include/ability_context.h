@@ -67,14 +67,14 @@ public:
 
     /**
      * @brief IsUpdatingConfigurations
-     * 
+     *
      * @return true  or false
      */
     bool IsUpdatingConfigurations() override;
 
     /**
      * @brief PrintDrawnCompleted
-     * 
+     *
      * @return true  or false
      */
     bool PrintDrawnCompleted() override;
