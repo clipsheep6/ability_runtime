@@ -31,6 +31,7 @@
 #include "common_event.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "hisysevent.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "ipc_skeleton.h"
@@ -41,6 +42,7 @@
 #include "system_ability_definition.h"
 #include "locale_config.h"
 #include "uri_permission_manager_client.h"
+
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -69,6 +71,21 @@ constexpr int32_t BASE_USER_RANGE = 200000;
 
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
+const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "LIFECYCLE_TIMEOUT";
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
+constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+
+// Msg length is less than 48 characters
+const std::string EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
+const std::string EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT = "Terminate Application TimeOut!";
+const std::string EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT = "Add Ability Stage TimeOut!";
+const std::string EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT = "Start Specified Ability TimeOut!";
+const std::string EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT = "Start Process Specified Ability TimeOut!";
+const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
+
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -551,13 +568,15 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
 {
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
 
+    std::vector<int32_t> ids;
+    auto result = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
+    APP_LOGD("ids size : %{public}d", static_cast<int>(ids.size()));
+
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
         const auto &appRecord = item.second;
         int32_t userId = static_cast<int32_t>(appRecord->GetUid() / USER_SCALE);
-        bool isExist = false;
-        auto errCode = AccountSA::OsAccountManager::IsOsAccountActived(userId, isExist);
-        if ((errCode == ERR_OK) && isExist) {
+        if ((std::find(ids.begin(), ids.end(), userId) != ids.end()) && (result == ERR_OK)) {
             if (isPerm) {
                 GetRunningProcesses(appRecord, info);
             } else {
@@ -1597,6 +1616,7 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         APP_LOGE("appRunningManager or event is nullptr");
         return;
     }
+    SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
     switch (event->GetInnerEventId()) {
         case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
             appRunningManager_->HandleTerminateTimeOut(event->GetParam());
@@ -1604,10 +1624,11 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
             HandleTerminateApplicationTimeOut(event->GetParam());
             break;
+        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
         case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
             HandleAddAbilityStageTimeOut(event->GetParam());
             break;
-        case AMSEventHandler::START_MULTI_INSTANCES_ABILITY_MSG:
+        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
             HandleStartSpecifiedAbilityTimeOut(event->GetParam());
             break;
         default:
@@ -1653,6 +1674,12 @@ void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId
         APP_LOGE("appRecord is nullptr");
         return;
     }
+
+    auto abilityRecord = appRecord->GetAbilityRunningRecord(eventId);
+    if (!abilityRecord) {
+        APP_LOGE("abilityRecord is nullptr");
+        return;
+    }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     OptimizerAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND);
     appRecord->RemoveAppDeathRecipient();
@@ -1683,15 +1710,11 @@ void AppMgrServiceInner::HandleAddAbilityStageTimeOut(const int64_t eventId)
         return;
     }
 
-    appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
-    appRecord->RemoveAppDeathRecipient();
-    pid_t pid = appRecord->GetPriorityObject()->GetPid();
-    KillProcessByPid(pid);
-    appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
+    if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
+    }
 
-    OptimizerAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED);
-    RemoveAppFromRecentListById(appRecord->GetRecordId());
-    OnProcessDied(appRecord);
+    KillApplicationByRecord(appRecord);
 }
 
 int AppMgrServiceInner::CompelVerifyPermission(const std::string &permission, int pid, int uid, std::string &message)
@@ -1763,7 +1786,7 @@ void AppMgrServiceInner::GetRunningProcessInfoByToken(
     appRunningManager_->GetRunningProcessInfoByToken(token, info);
 }
 
-void AppMgrServiceInner::LoadResidentProcess()
+void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::BundleInfo> &infos)
 {
     APP_LOGI("%{public}s called", __func__);
     pid_t callingPid = IPCSkeleton::GetCallingPid();
@@ -1773,19 +1796,7 @@ void AppMgrServiceInner::LoadResidentProcess()
         return;
     }
 
-    if (!CheckRemoteClient()) {
-        APP_LOGE("GetBundleManager fail");
-        return;
-    }
-
-    std::vector<BundleInfo> infos;
-    auto funRet = remoteClientManager_->GetBundleManager()->QueryKeepAliveBundleInfos(infos);
-    if (!funRet) {
-        APP_LOGE("QueryKeepAliveBundleInfos fail!");
-        return;
-    }
-
-    APP_LOGI("Get KeepAlive BundleInfo Size : [%{public}d]", static_cast<int>(infos.size()));
+    APP_LOGI("bundle info size: [%{public}d]", static_cast<int>(infos.size()));
     StartResidentProcess(infos, -1);
 }
 
@@ -1806,19 +1817,6 @@ void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &inf
         auto processName = bundle.applicationInfo.process.empty() ?
             bundle.applicationInfo.bundleName : bundle.applicationInfo.process;
         APP_LOGI("processName = [%{public}s]", processName.c_str());
-
-        bool allElementNameEmpty = true;
-        for (auto hapModuleInfo : bundle.hapModuleInfos) {
-            if (!hapModuleInfo.mainElementName.empty()) {
-                // already start main element and process, no need start process again
-                allElementNameEmpty = false;
-                break;
-            }
-        }
-        if (!allElementNameEmpty) {
-            APP_LOGW("processName [%{public}s] Already exists ", processName.c_str());
-            continue;
-        }
 
         // Inspection records
         auto appRecord = appRunningManager_->CheckAppRunningRecordIsExist(
@@ -2157,10 +2155,11 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             APP_LOGE("start process [%{public}s] failed!", processName.c_str());
             return;
         }
-
+        appRecord->SetEventHandler(eventHandler_);
+        appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
+            AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
         StartProcess(appInfo->name, processName, appRecord, appInfo->uid, appInfo->bundleName);
 
-        appRecord->SetEventHandler(eventHandler_);
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
         appRecord->AddModules(appInfo, hapModules);
     } else {
@@ -2213,7 +2212,25 @@ void AppMgrServiceInner::ScheduleAcceptWantDone(
 }
 
 void AppMgrServiceInner::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId)
-{}
+{
+    APP_LOGD("called start specified ability time out!");
+    if (!appRunningManager_) {
+        APP_LOGE("appRunningManager_ is nullptr");
+        return;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecord(eventId);
+    if (!appRecord) {
+        APP_LOGE("appRecord is nullptr");
+        return;
+    }
+
+    if (appRecord->IsStartSpecifiedAbility() && startSpecifiedAbilityResponse_) {
+        startSpecifiedAbilityResponse_->OnTimeoutResponse(appRecord->GetSpecifiedWant());
+    }
+
+    KillApplicationByRecord(appRecord);
+}
 
 void AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
 {
@@ -2262,6 +2279,93 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration()
 {
     return configuration_;
+}
+
+void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    APP_LOGD("Kill application by appRecord.");
+
+    if (!appRecord) {
+        APP_LOGD("appRecord is nullptr.");
+        return;
+    }
+
+    auto pid = appRecord->GetPriorityObject()->GetPid();
+    appRecord->SetTerminating();
+    appRecord->ScheduleProcessSecurityExit();
+
+    auto startTime = SystemTimeMillis();
+    std::list<pid_t> pids = {pid};
+    if (WaitForRemoteProcessExit(pids, startTime)) {
+        APP_LOGD("The remote process exited successfully");
+        return;
+    }
+
+    auto result = KillProcessByPid(pid);
+    if (result < 0) {
+        APP_LOGE("Kill application by app record, pid: %{public}d", pid);
+    }
+}
+
+void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_t eventId)
+{
+    APP_LOGD("called AppMgrServiceInner SendHiSysEvent!");
+    if (!appRunningManager_) {
+        APP_LOGE("appRunningManager_ is nullptr");
+        return;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecord(eventId);
+    if (!appRecord) {
+        APP_LOGE("appRecord is nullptr");
+        return;
+    }
+
+    std::string eventName = EVENT_NAME_LIFECYCLE_TIMEOUT;
+    std::string pidStr = std::to_string(appRecord->GetPriorityObject()->GetPid());
+    std::string uidStr = std::to_string(appRecord->GetUid());
+    std::string packageName = appRecord->GetBundleName();
+    std::string processName = appRecord->GetProcessName();
+    std::string msg;
+    switch (innerEventId) {
+        case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
+            msg = EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT;
+            break;
+        case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
+            msg = EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT;
+            break;
+        case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
+            msg = EVENT_MESSAGE_ADD_ABILITY_STAGE_INFO_TIMEOUT;
+            break;
+        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            msg = EVENT_MESSAGE_START_PROCESS_SPECIFIED_ABILITY_TIMEOUT;
+            break;
+        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            msg = EVENT_MESSAGE_START_SPECIFIED_ABILITY_TIMEOUT;
+            break;
+        default:
+            msg = EVENT_MESSAGE_DEFAULT;
+            break;
+    }
+
+    APP_LOGD("SendHiSysEvent, eventName=%{public}s, uidStr=%{public}s, pidStr=%{public}s, \
+        packageName=%{public}s, processName=%{public}s, msg=%{public}s",
+        eventName.c_str(),
+        uidStr.c_str(),
+        pidStr.c_str(),
+        packageName.c_str(),
+        processName.c_str(),
+        msg.c_str());
+
+    OHOS::HiviewDFX::HiSysEvent::Write(
+        OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
+        eventName,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_PID, pidStr,
+        EVENT_KEY_UID, uidStr,
+        EVENT_KEY_PACKAGE_NAME, packageName,
+        EVENT_KEY_PROCESS_NAME, processName,
+        EVENT_KEY_MESSAGE, msg);
 }
 
 int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)

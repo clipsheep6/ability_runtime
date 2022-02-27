@@ -90,8 +90,6 @@ const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerServic
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-e", KEY_DUMP_SERVICE),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--data", KEY_DUMP_DATA),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-d", KEY_DUMP_DATA),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--ui", KEY_DUMP_SYSTEM_UI),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("-u", KEY_DUMP_SYSTEM_UI),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-focus", KEY_DUMP_FOCUS_ABILITY),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-f", KEY_DUMP_FOCUS_ABILITY),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--win-mode", KEY_DUMP_WINDOW_MODE),
@@ -117,8 +115,6 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--ui", KEY_DUMPSYS_SYSTEM_UI),
-    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-k", KEY_DUMPSYS_SYSTEM_UI),
 };
 
 const bool REGISTER_RESULT =
@@ -278,7 +274,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -372,7 +368,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -457,7 +453,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, requestCode, abilityRequest, callerToken, validUserId);
+    auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -1715,7 +1711,6 @@ void AbilityManagerService::DumpFuncInit()
     dumpFuncMap_[KEY_DUMP_WAIT_QUEUE] = &AbilityManagerService::DumpWaittingAbilityQueueInner;
     dumpFuncMap_[KEY_DUMP_SERVICE] = &AbilityManagerService::DumpStateInner;
     dumpFuncMap_[KEY_DUMP_DATA] = &AbilityManagerService::DataDumpStateInner;
-    dumpFuncMap_[KEY_DUMP_SYSTEM_UI] = &AbilityManagerService::SystemDumpStateInner;
     dumpFuncMap_[KEY_DUMP_FOCUS_ABILITY] = &AbilityManagerService::DumpFocusMapInner;
     dumpFuncMap_[KEY_DUMP_WINDOW_MODE] = &AbilityManagerService::DumpWindowModeInner;
     dumpFuncMap_[KEY_DUMP_MISSION_LIST] = &AbilityManagerService::DumpMissionListInner;
@@ -1731,7 +1726,6 @@ void AbilityManagerService::DumpSysFuncInit()
     dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
     dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
-    dumpsysFuncMap_[KEY_DUMPSYS_SYSTEM_UI] = &AbilityManagerService::SystemDumpSysStateInner;
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -1951,11 +1945,6 @@ void AbilityManagerService::DataDumpSysStateInner(
     }
 }
 
-void AbilityManagerService::SystemDumpSysStateInner(
-    const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
-{
-}
-
 void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::string> &info)
 {
     if (useNewMission_) {
@@ -2090,10 +2079,6 @@ void AbilityManagerService::DataDumpStateInner(const std::string &args, std::vec
     } else {
         info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
     }
-}
-
-void AbilityManagerService::SystemDumpStateInner(const std::string &args, std::vector<std::string> &info)
-{
 }
 
 void AbilityManagerService::DumpState(const std::string &args, std::vector<std::string> &info)
@@ -2536,8 +2521,11 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (want.GetAction().compare(ACTION_CHOOSE) == 0) {
         return ShowPickerDialog(want, userId);
     }
-    bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
-        userId, request.abilityInfo);
+    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    bms->QueryAbilityInfo(
+        want, abilityInfoFlag, userId, request.abilityInfo);
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
         // try to find extension
         int ret = GetAbilityInfoFromExtension(want, request.abilityInfo, userId);
@@ -2554,7 +2542,9 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
 
     auto appName = request.abilityInfo.applicationInfo.name;
-    auto appFlag = AppExecFwk::ApplicationFlag::GET_APPLICATION_INFO_WITH_PERMISSION;
+    auto appFlag = (AppExecFwk::ApplicationFlag::GET_APPLICATION_INFO_WITH_PERMISSION |
+        AppExecFwk::ApplicationFlag::GET_APPLICATION_INFO_WITH_PERMISSION |
+        AppExecFwk::ApplicationFlag::GET_APPLICATION_INFO_WITH_METADATA);
     bms->GetApplicationInfo(appName, appFlag, userId, request.appInfo);
     if (request.appInfo.name.empty() || request.appInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
@@ -2570,7 +2560,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
     request.compatibleVersion = bundleInfo.compatibleVersion;
     request.uid = bundleInfo.uid;
-
+    request.abilityInfo.applicationInfo = request.appInfo;
     return ERR_OK;
 }
 
@@ -2620,7 +2610,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
     int32_t validUserId = GetValidUserId(userId);
 
     AbilityRequest abilityRequest;
-    auto result = GenerateAbilityRequestLocal(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
+    auto result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
@@ -3297,7 +3287,7 @@ void AbilityManagerService::StartSystemApplication()
 
     StartingSettingsDataAbility();
     StartingSystemUiAbility();
-    StartupResidentProcess();
+    StartupResidentProcess(U0_USER_ID);
 }
 
 void AbilityManagerService::StartingSystemUiAbility()
@@ -3553,21 +3543,20 @@ int AbilityManagerService::ReleaseAbility(
 int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
-
     auto abilityInfo = abilityRequest.abilityInfo;
     auto callerUid = abilityRequest.callerUid;
     auto targetUid = abilityInfo.applicationInfo.uid;
-
     if (AbilityUtil::ROOT_UID == callerUid) {
         HILOG_DEBUG("uid is root,ability cannot be called.");
         return RESOLVE_CALL_NO_PERMISSIONS;
     }
-
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-
-    auto isSystemApp = bms->CheckIsSystemAppByUid(callerUid);
-    if (callerUid != SYSTEM_UID && !isSystemApp) {
+    auto isCallerSystemApp = bms->CheckIsSystemAppByUid(callerUid);
+    auto isTargetSystemApp = bms->CheckIsSystemAppByUid(targetUid);
+    HILOG_ERROR("isCallerSystemApp:%{public}d, isTargetSystemApp:%{public}d",
+        isCallerSystemApp, isTargetSystemApp);
+    if (callerUid != SYSTEM_UID && !isCallerSystemApp) {
         HILOG_DEBUG("caller is common app.");
         std::string bundleName;
         bool result = bms->GetBundleNameForUid(callerUid, bundleName);
@@ -3575,7 +3564,7 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
             HILOG_ERROR("GetBundleNameForUid frome bms fail.");
             return RESOLVE_CALL_NO_PERMISSIONS;
         }
-        if (bundleName != abilityInfo.bundleName && callerUid != targetUid) {
+        if (bundleName != abilityInfo.bundleName && callerUid != targetUid && !isTargetSystemApp) {
             HILOG_ERROR("the bundlename of caller is different from target one, caller: %{public}s "
                         "target: %{public}s",
                 bundleName.c_str(),
@@ -3585,9 +3574,7 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
     } else {
         HILOG_DEBUG("caller is systemapp or system ability.");
     }
-
     HILOG_DEBUG("the caller has permission to resolve the callproxy of common ability.");
-
     // check whether the target ability is singleton mode and page type.
     if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
         abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
@@ -3596,7 +3583,6 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
         HILOG_ERROR("called ability is not common ability or singleton.");
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
-
     return ERR_OK;
 }
 
@@ -3657,7 +3643,11 @@ void AbilityManagerService::OnAcceptWantResponse(
 
 void AbilityManagerService::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
 {
-    return;
+    HILOG_DEBUG("%{public}s called.", __func__);
+    if (!currentMissionListManager_) {
+        return;
+    }
+    currentMissionListManager_->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
 
 int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
@@ -3946,7 +3936,7 @@ void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 {
     HILOG_DEBUG("%{public}s  userId = %{public}d", __func__, userId);
-    int32_t validUserId = DEFAULT_INVAL_VALUE;
+    int32_t validUserId = userId;
 
     if (DEFAULT_INVAL_VALUE == userId) {
         validUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
@@ -3955,8 +3945,6 @@ int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
         if (validUserId == U0_USER_ID) {
             validUserId = GetUserId();
         }
-    } else {
-        validUserId = userId;
     }
     return validUserId;
 }
@@ -4069,6 +4057,7 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.isModuleJson = true;
     abilityInfo.isStageBasedModel = true;
     abilityInfo.process = extensionInfo.process;
+    abilityInfo.metadata = extensionInfo.metadata;
     abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
     return 0;
 }
@@ -4242,9 +4231,8 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
-    abilityRecord->lifeCycleStateInfo_.sceneFlag = flag;
-    abilityRecord->ForegroundAbility();
-    abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
+    abilityRecord->lifeCycleStateInfo_.sceneFlagBak = flag;
+    abilityRecord->ProcessForegroundAbility(flag);
     return ERR_OK;
 }
 
@@ -4308,23 +4296,6 @@ bool AbilityManagerService::JudgeMultiUserConcurrency(const AppExecFwk::AbilityI
     }
 
     return true;
-}
-
-int AbilityManagerService::GenerateAbilityRequestLocal(
-    const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t &userId)
-{
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    int result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-    if ((userId == U0_USER_ID) && (result != ERR_OK)) {
-        HILOG_DEBUG("Generate ability request error. But userId is 0, Use current user get.");
-        userId = GetUserId();
-        result = GenerateAbilityRequest(want, requestCode, request, callerToken, userId);
-        if (result != ERR_OK) {
-            HILOG_ERROR("Generate ability request error. userId = %{public}d", userId);
-            return result;
-        }
-    }
-    return result;
 }
 
 void AbilityManagerService::StartingScreenLockAbility()
@@ -4478,29 +4449,97 @@ bool AbilityManagerService::SetANRMissionByProcessID(int pid)
     return false;
 }
 
-void AbilityManagerService::StartupResidentProcess()
+void AbilityManagerService::StartupResidentProcess(int userId)
 {
     // Location may change
     auto bms = GetBundleManager();
     if (bms == nullptr) {
-        HILOG_INFO("StartupResidentProcess bms is nullptr");
+        HILOG_ERROR("StartupResidentProcess bms is nullptr");
         return;
     }
 
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    (void)iBundleManager_->QueryKeepAliveBundleInfos(bundleInfos);
-    for (auto bundleInfo : bundleInfos) {
-        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (!hapModuleInfo.mainElementName.empty()) {
-                AppExecFwk::AbilityInfo abilityInfo;
-                Want want;
-                want.SetElementName(hapModuleInfo.bundleName, hapModuleInfo.mainElementName);
-                (void)StartAbility(want, USER_ID_NO_HEAD, DEFAULT_INVAL_VALUE); // user 0
+    bool getBundleInfos = iBundleManager_->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, userId);
+    if (!getBundleInfos) {
+        HILOG_ERROR("get bundle infos failed");
+        return;
+    }
+
+    HILOG_INFO("StartupResidentProcess GetBundleInfos size: %{public}u, userId: %{public}d",
+        bundleInfos.size(), userId);
+
+    StartMainElement(userId, bundleInfos);
+    if (!bundleInfos.empty()) {
+        DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess(bundleInfos);
+    }
+}
+
+void AbilityManagerService::StartMainElement(int userId, std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    std::set<uint32_t> needEraseIndexSet;
+
+    for (int i = 0; i< bundleInfos.size(); i++) {
+        if (!bundleInfos[i].isKeepAlive) {
+            needEraseIndexSet.insert(i);
+            continue;
+        }
+        for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
+            std::string mainElement;
+            if (!hapModuleInfo.isModuleJson) {
+                // old application model
+                mainElement = hapModuleInfo.mainAbility;
+                if (mainElement.empty()) {
+                    continue;
+                }
+                needEraseIndexSet.insert(i);
+                std::string uriStr;
+                bool getDataAbilityInfo = GetDataAbilityUri(hapModuleInfo.abilityInfos, mainElement, uriStr);
+                if (getDataAbilityInfo) {
+                    // dataability, need use AcquireDataAbility
+                    Uri uri(uriStr);
+                    (void)AcquireDataAbility(uri, true, nullptr);
+                    continue;
+                }
+            } else {
+                // new application model
+                mainElement = hapModuleInfo.mainElementName;
+                if (mainElement.empty()) {
+                    continue;
+                }
+                needEraseIndexSet.insert(i);
             }
+
+            // startAbility
+            AppExecFwk::AbilityInfo abilityInfo;
+            Want want;
+            want.SetElementName(hapModuleInfo.bundleName, mainElement);
+            (void)StartAbility(want, userId, DEFAULT_INVAL_VALUE);
         }
     }
 
-    DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess();
+    // delete item which process has been started.
+    for (auto iter = needEraseIndexSet.rbegin(); iter != needEraseIndexSet.rend(); iter++) {
+        bundleInfos.erase(bundleInfos.begin() + *iter);
+    }
+}
+
+bool AbilityManagerService::GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+    const std::string &mainAbility, std::string &uri)
+{
+    if (abilityInfos.empty() || mainAbility.empty()) {
+        HILOG_ERROR("abilityInfos or mainAbility is empty. mainAbility: %{public}s", mainAbility.c_str());
+        return false;
+    }
+
+    for (auto abilityInfo : abilityInfos) {
+        if (abilityInfo.type == AppExecFwk::AbilityType::DATA &&
+            abilityInfo.name == mainAbility) {
+            uri = abilityInfo.uri;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 int AbilityManagerService::VerifyMissionPermission()

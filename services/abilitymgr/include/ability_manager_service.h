@@ -912,7 +912,6 @@ public:
         KEY_DUMP_WAIT_QUEUE,
         KEY_DUMP_SERVICE,
         KEY_DUMP_DATA,
-        KEY_DUMP_SYSTEM_UI,
         KEY_DUMP_FOCUS_ABILITY,
         KEY_DUMP_WINDOW_MODE,
         KEY_DUMP_MISSION_LIST,
@@ -927,7 +926,6 @@ public:
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
         KEY_DUMPSYS_DATA,
-        KEY_DUMPSYS_SYSTEM_UI,
     };
 
     friend class AbilityStackManager;
@@ -1056,7 +1054,6 @@ private:
     void DumpWaittingAbilityQueueInner(const std::string &args, std::vector<std::string> &info);
     void DumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DataDumpStateInner(const std::string &args, std::vector<std::string> &info);
-    void SystemDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DumpFocusMapInner(const std::string &args, std::vector<std::string> &info);
     void DumpWindowModeInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
@@ -1066,14 +1063,6 @@ private:
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
-
-
-    int GenerateAbilityRequestLocal(
-        const Want &want,
-        int requestCode,
-        AbilityRequest &request,
-        const sptr<IRemoteObject> &callerToken,
-        int32_t &userId);
 
     bool JudgeMultiUserConcurrency(const AppExecFwk::AbilityInfo &info, const int32_t userId);
     /**
@@ -1094,8 +1083,6 @@ private:
     void DumpSysProcess(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DataDumpSysStateInner(
-        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
-    void SystemDumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
 
     void InitConnectManager(int32_t userId, bool switchUser);
@@ -1139,7 +1126,8 @@ private:
     int DelegatorMoveMissionToFront(int32_t missionId);
 
     bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
-    void StartupResidentProcess();
+
+    void StartupResidentProcess(int userId);
 
     int VerifyMissionPermission();
 
@@ -1157,6 +1145,11 @@ private:
     bool VerifyUriPermisson(const AbilityRequest &abilityRequest, const Want &want);
 
     bool SetANRMissionByProcessID(int pid);
+
+    void StartMainElement(int userId, std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+
+    bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+        const std::string &mainAbility, std::string &uri);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
