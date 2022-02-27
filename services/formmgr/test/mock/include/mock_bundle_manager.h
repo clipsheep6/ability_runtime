@@ -45,10 +45,6 @@ public:
     MOCK_METHOD2(RegisterPermissionsChanged,
         bool(const std::vector<int> &uids, const sptr<OnPermissionChangedCallback> &callback));
     MOCK_METHOD1(UnregisterPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
-    std::string GetAbilityIcon(const std::string &bundleName, const std::string &className) override
-    {
-        return "AbilityIcon";
-    }
     bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override
     {
         return true;
@@ -269,10 +265,6 @@ public:
 
     std::string GetAppType(const std::string &bundleName) override;
     virtual int GetUidByBundleName(const std::string &bundleName, const int userId) override;
-    virtual std::string GetAbilityIcon(const std::string &bundleName, const std::string &className) override
-    {
-        return "AbilityIcon";
-    }
     virtual bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
     virtual bool GetApplicationInfos(

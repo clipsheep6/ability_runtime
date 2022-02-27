@@ -1185,8 +1185,8 @@ ErrCode FormMgrAdapter::CreateFormItemInfo(const BundleInfo &bundleInfo,
         return ERR_APPEXECFWK_FORM_GET_INFO_FAILED;
     }
     itemInfo.SetHostBundleName(hostBundleName);
-    std::string icon = iBundleMgr->GetAbilityIcon(bundleInfo.name, formInfo.abilityName);
-    itemInfo.SetIcon(icon);
+    //std::string icon = iBundleMgr->GetAbilityIcon(bundleInfo.name, formInfo.abilityName);
+    //itemInfo.SetIcon(icon);
 
     itemInfo.SetAbilityName(formInfo.abilityName);
     itemInfo.SetModuleName(formInfo.moduleName); // formInfo.moduleName: bundleMagr do not set
