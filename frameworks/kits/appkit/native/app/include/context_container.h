@@ -72,6 +72,22 @@ public:
      */
     virtual const std::shared_ptr<AbilityInfo> GetAbilityInfo() override;
 
+     /**
+      * @brief IsUpdatingConfigurations
+      * 
+      * @return true 
+      * @return false 
+      */
+    virtual  bool IsUpdatingConfigurations() override;
+
+    /**
+     * @brief PrintDrawnCompleted
+     * 
+     * @return true 
+     * @return false 
+     */
+    virtual  bool PrintDrawnCompleted() override;
+
     /**
      * @brief Obtains the Context object of the application.
      *

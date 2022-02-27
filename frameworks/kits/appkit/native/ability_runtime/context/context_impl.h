@@ -53,6 +53,20 @@ public:
     std::string GetCacheDir() override;
 
     /**
+     * @brief IsUpdatingConfigurations
+     * 
+     * @return true  or false
+     */
+    bool IsUpdatingConfigurations() override;
+
+    /**
+     * @brief PrintDrawnCompleted
+     * 
+     * @return true  or false
+     */
+    bool PrintDrawnCompleted() override;
+
+    /**
      * @brief Obtains the temporary directory.
      *
      * @return Returns the application temporary directory.

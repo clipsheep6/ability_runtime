@@ -120,6 +120,20 @@ public:
     virtual std::string GetFilesDir() = 0;
 
     /**
+     * @brief isUpdatingConfigurations
+     * 
+     * @return true  or false 
+     */
+    virtual bool IsUpdatingConfigurations() = 0;
+    /**
+     * @brief PrintDrawnCompleted
+     * 
+     * @return true  or false 
+     */
+   
+    virtual bool PrintDrawnCompleted() = 0;
+
+    /**
      * @brief Obtains the local database path.
      * If the local database path does not exist, the system creates one and returns the created path.
      *

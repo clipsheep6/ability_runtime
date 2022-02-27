@@ -175,6 +175,22 @@ public:
     std::string GetCacheDir() override;
 
     /**
+     * @brief 
+     * 
+     * @return true Is updating configurations
+     * @return false is not updating configurations
+     */
+    bool IsUpdatingConfigurations() override;
+
+    /**
+     * @brief 
+     * 
+     * @return true print drawn completed success
+     * @return false print drawn completed fail
+     */
+    bool PrintDrawnCompleted() override;
+
+    /**
      * @brief Obtains the application-specific code-cache directory on the device's internal storage.
      * The system will delete any files stored in this location both when your specific application is upgraded,
      * and when the entire platform is upgraded.

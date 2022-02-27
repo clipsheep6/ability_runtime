@@ -171,6 +171,28 @@ std::shared_ptr<Global::Resource::ResourceManager> Ability::GetResourceManager()
 }
 
 /**
+ * @brief IsUpdatingConfigurations
+ * 
+ * @return true 
+ * @return false 
+ */
+bool  Ability::IsUpdatingConfigurations() 
+{
+    return AbilityContext::IsUpdatingConfigurations();
+}
+
+/**
+ * @brief PrintDrawnCompleted
+ * 
+ * @return true 
+ * @return false 
+ */
+bool  Ability::PrintDrawnCompleted() 
+{
+    return AbilityContext::PrintDrawnCompleted();
+}
+
+/**
  * Will be called when ability start. You should override this function
  *
  * @param want ability start information
@@ -241,9 +263,8 @@ void Ability::OnStart(const Want &want)
             int32_t width = display->GetWidth();
             int32_t height = display->GetHeight();
             auto configuration = application_->GetConfiguration();
-            configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION,
-                GetDirectionStr(height, width));
-            configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+            configuration->AddItem(ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
+            configuration->AddItem(ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
             configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
             UpdateContextConfiguration();
 
@@ -3466,8 +3487,8 @@ void Ability::OnChange(Rosen::DisplayId displayId, Rosen::DisplayChangeEvent cha
 
     // Notify ability
     Configuration newConfig;
-    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
-    newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+    newConfig.AddItem(ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
+    newConfig.AddItem(ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();

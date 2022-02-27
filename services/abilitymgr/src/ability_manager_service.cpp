@@ -52,6 +52,7 @@
 #include "ui_service_mgr_client.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
+#include "parameter.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -70,6 +71,10 @@ constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const int32_t MAX_NUMBER_OF_CONNECT_BMS = 15;
 const std::string EMPTY_DEVICE_ID = "";
+const int32_t APP_MEMORY_SIZE = 512;
+const bool isRamConstrainedDevice = false;
+const std::string APP_MEMORY_MAX_SIZE_PARAMETER = "const.product.dalvikheaplimit";
+const std::string RAM_CONSTRAINED_DEVICE_SIGN = "const.product.islowram";
 const std::string PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
 const std::string PERMISSION_SET_ABILITY_CONTROLLER = "ohos.permission.SET_ABILITY_CONTROLLER";
@@ -3386,6 +3391,34 @@ void AbilityManagerService::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &me
     std::string memConfig = memJson.dump();
 
     appScheduler->GetSystemMemoryAttr(memoryInfo, memConfig);
+}
+
+int AbilityManagerService::GetAppMemorySize()
+{
+    const char *key = "const.product.dalvikheaplimit";
+    const char *def = "10.1.0";
+    char *valueGet = nullptr;
+    unsigned int len = 128;
+    int ret = GetParameter(key, def, valueGet, len);
+    if (valueGet != nullptr) {
+        HILOG_INFO("AbilityManagerService GetAppMemorySize value is not nullptr");
+        return ret;
+    }
+    return APP_MEMORY_SIZE;
+}
+
+bool AbilityManagerService::IsRamConstrainedDevice()
+{
+    const char *key = "const.product.islowram";
+    const char *def = "10.1.0";
+    char *valueGet = nullptr;
+    unsigned int len = 128;
+    GetParameter(key, def, valueGet, len);
+    if (valueGet != nullptr) {
+        HILOG_INFO("AbilityManagerService IsRamConstrainedDevice value is not nullptr");
+        return true;
+    }
+    return isRamConstrainedDevice;
 }
 
 int AbilityManagerService::GetMissionSaveTime() const

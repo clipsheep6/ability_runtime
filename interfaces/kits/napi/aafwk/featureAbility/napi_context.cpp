@@ -3040,6 +3040,32 @@ napi_value NAPI_GetPreferencesDirSync(napi_env env, napi_callback_info info)
 }
 
 /**
+ * @brief 
+ * 
+ * @param env 
+ * @param info 
+ * @return napi_value 
+ */
+napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    return NAPI_IsUpdatingConfigurationsCommon(env, info, AbilityType::PAGE);
+}
+
+/**
+ * @brief 
+ * 
+ * @param env 
+ * @param info 
+ * @return napi_value 
+ */
+napi_value NAPI_PrintDrawnCompleted(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    return NAPI_PrintDrawnCompletedCommon(env, info, AbilityType::PAGE);
+}
+
+/**
  * @brief Context NAPI module registration.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -3066,6 +3092,8 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getCallingBundle", NAPI_GetCallingBundle),
         DECLARE_NAPI_FUNCTION("getOrCreateLocalDir", NAPI_GetOrCreateLocalDir),
         DECLARE_NAPI_FUNCTION("getFilesDir", NAPI_GetFilesDir),
+        DECLARE_NAPI_FUNCTION("isUpdatingConfigurations", NAPI_IsUpdatingConfigurations),
+        DECLARE_NAPI_FUNCTION("printDrawnCompleted", NAPI_PrintDrawnCompleted),
         DECLARE_NAPI_FUNCTION("getDatabaseDirSync", NAPI_GetDatabaseDirSync),
         DECLARE_NAPI_FUNCTION("getPreferencesDirSync", NAPI_GetPreferencesDirSync),
         DECLARE_NAPI_FUNCTION("getCacheDir", NAPI_GetCacheDir),

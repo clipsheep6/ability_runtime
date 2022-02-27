@@ -160,6 +160,20 @@ public:
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
 
     /**
+     * @brief Obtains a resource manager.
+     *
+     * @return Returns a ResourceManager object.
+     */
+    bool IsUpdatingConfigurations() override;
+
+        /**
+     * @brief Obtains a resource manager.
+     *
+     * @return Returns a ResourceManager object.
+     */
+    bool PrintDrawnCompleted() override;
+
+    /**
      * @brief Inflates UI controls by using ComponentContainer.
      * You can create a ComponentContainer instance that contains multiple components.
      *

@@ -229,12 +229,28 @@ napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCa
 void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data);
 
 /**
+ * @brief The callback at the end of the asynchronous callback.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param data Point to asynchronous processing of data.
+ */
+void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data);
+
+/**
  * @brief The callback at the end of the Promise callback.
  *
  * @param env The environment that the Node-API call is invoked under.
  * @param data Point to asynchronous processing of data.
  */
 void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data);
+
+/**
+ * @brief The callback at the end of the Promise callback.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param data Point to asynchronous processing of data.
+ */
+void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *data);
 
 std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 

@@ -1064,6 +1064,36 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
     asyncCallbackInfo = nullptr;
 }
 
+void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
+        return;
+    }
+    napi_value callback = 0;
+    napi_value undefined = 0;
+    napi_get_undefined(env, &undefined);
+    napi_value callResult = 0;
+    napi_value result[ARGS_TWO] = {nullptr};
+    result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);
+    if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
+        result[PARAM1] = WrapVoidToJS(env);
+    } else {
+        result[PARAM1] = WrapUndefinedToJS(env);
+    }
+    if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+        napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
+        napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult);
+        napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
+    }
+
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+    asyncCallbackInfo = nullptr;
+}
+
 /**
  * @brief The callback at the end of the Promise callback.
  *
@@ -1083,6 +1113,28 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
     napi_value result = 0;
     if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
         WrapThreadReturnData(env, &asyncCallbackInfo->native_data, &result);
+        napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+    } else {
+        result = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);
+        napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
+    }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+    asyncCallbackInfo = nullptr;
+}
+
+void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+
+    AsyncJSCallbackInfo *asyncCallbackInfo = (AsyncJSCallbackInfo *)data;
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
+        return;
+    }
+    napi_value result = 0;
+    if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
+        result = WrapVoidToJS(env);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
     } else {
         result = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);

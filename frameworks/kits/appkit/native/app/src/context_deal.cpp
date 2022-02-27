@@ -309,6 +309,16 @@ std::string ContextDeal::GetCacheDir()
     return (applicationInfo_ != nullptr) ? applicationInfo_->cacheDir : "";
 }
 
+bool ContextDeal::IsUpdatingConfigurations()
+{
+    return false;
+}
+
+bool ContextDeal::PrintDrawnCompleted()
+{
+   return false;
+}
+
 /**
  * @brief Obtains the application-specific code-cache directory on the device's internal storage.
  * The system will delete any files stored in this location both when your specific application is upgraded,

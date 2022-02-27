@@ -336,14 +336,71 @@ void GetFilesDirExecuteCallback(napi_env env, void *data)
     asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetFilesDir();
     HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
 }
+
+void IsUpdatingConfigurationsExecuteCallback(napi_env env, void *data)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("%{public}s. asyncCallbackInfo is null", __func__);
+        return;
+    }
+
+    asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
+    asyncCallbackInfo->native_data.data_type = NVT_NONE;
+    if (asyncCallbackInfo->ability == nullptr) {
+        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
+        return;
+    }
+
+    if (!CheckAbilityType(asyncCallbackInfo)) {
+        HILOG_ERROR("%{public}s wrong ability type", __func__);
+        asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
+        asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
+        return;
+    }
+
+    asyncCallbackInfo->native_data.data_type = NVT_BOOL;
+    asyncCallbackInfo->native_data.bool_value = asyncCallbackInfo->ability->IsUpdatingConfigurations();
+    HILOG_INFO("%{public}s end", __func__);
+}
+
 /**
- * @brief GetFilesDir processing function.
+ * @brief PrintDrawnCompleted asynchronous processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
+ * @param data Point to asynchronous processing of data.
  */
+void PrintDrawnCompletedExecuteCallback(napi_env env, void *data)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("%{public}s. asyncCallbackInfo is null", __func__);
+        return;
+    }
+
+    asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
+    asyncCallbackInfo->native_data.data_type = NVT_NONE;
+    if (asyncCallbackInfo->ability == nullptr) {
+        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
+        return;
+    }
+
+    if (!CheckAbilityType(asyncCallbackInfo)) {
+        HILOG_ERROR("%{public}s wrong ability type", __func__);
+        asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
+        asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
+        return;
+    }
+
+    asyncCallbackInfo->native_data.data_type = NVT_NONE;
+    asyncCallbackInfo->native_data.bool_value = asyncCallbackInfo->ability->PrintDrawnCompleted();
+    HILOG_INFO("%{public}s end", __func__);
+}
+
 napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s called", __func__);
@@ -699,6 +756,126 @@ napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info,
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_GetExternalCacheDirWrap(env, info, asyncCallbackInfo);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("%{public}s end", __func__);
+    return ret;
+}
+
+napi_value NAPI_IsUpdatingConfigurationsWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value jsthis = 0;
+    void *data = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
+
+    if (argc > ARGS_ONE) {
+        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        return nullptr;
+    }
+
+    if (argc == ARGS_ONE) {
+        if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
+            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            return nullptr;
+        }
+    }
+
+    AsyncParamEx asyncParamEx;
+    if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        asyncParamEx.resource = "NAPI_IsUpdatingConfigurationsCallback";
+        asyncParamEx.execute = IsUpdatingConfigurationsExecuteCallback;
+        asyncParamEx.complete = CompleteAsyncCallbackWork;
+
+        return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
+    } else {
+        HILOG_INFO("%{public}s called. promise.", __func__);
+        asyncParamEx.resource = "NAPI_IsUpdatingConfigurationsPromise";
+        asyncParamEx.execute = IsUpdatingConfigurationsExecuteCallback;
+        asyncParamEx.complete = CompletePromiseCallbackWork;
+
+        return ExecutePromiseCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
+    }
+}
+
+napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    size_t argc = ARGS_MAX_COUNT;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+    napi_value jsthis = 0;
+    void *data = nullptr;
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
+
+    if (argc > ARGS_ONE) {
+        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        return nullptr;
+    }
+
+    if (argc == ARGS_ONE) {
+        if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
+            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            return nullptr;
+        }
+    }
+
+    AsyncParamEx asyncParamEx;
+    if (asyncCallbackInfo->cbInfo.callback != nullptr) {
+        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        asyncParamEx.resource = "NAPI_PrintDrawnCompletedCallback";
+        asyncParamEx.execute = PrintDrawnCompletedExecuteCallback;
+        asyncParamEx.complete = CompleteAsyncVoidCallbackWork;
+
+        return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
+    } else {
+        HILOG_INFO("%{public}s called. promise.", __func__);
+        asyncParamEx.resource = "NAPI_PrintDrawnCompletedPromise";
+        asyncParamEx.execute = PrintDrawnCompletedExecuteCallback;
+        asyncParamEx.complete = CompletePromiseVoidCallbackWork;
+
+        return ExecutePromiseCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
+    }
+}
+
+napi_value NAPI_IsUpdatingConfigurationsCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        return WrapVoidToJS(env);
+    }
+
+    asyncCallbackInfo->abilityType = abilityType;
+    napi_value ret = NAPI_IsUpdatingConfigurationsWrap(env, info, asyncCallbackInfo);
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("%{public}s end", __func__);
+    return ret;
+}
+
+napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        return WrapVoidToJS(env);
+    }
+
+    asyncCallbackInfo->abilityType = abilityType;
+    napi_value ret = NAPI_PrintDrawnCompletedWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s ret == nullptr", __func__);
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);

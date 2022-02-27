@@ -970,6 +970,27 @@ int AbilityManagerStub::GetSystemMemoryAttrInner(MessageParcel &data, MessagePar
     return NO_ERROR;
 }
 
+int AbilityManagerStub::GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result = GetAppMemorySize();
+    HILOG_ERROR("GetAppMemorySizeInner result %{public}d", result);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("GetAppMemorySize error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::IsRamConstrainedDeviceInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto result = IsRamConstrainedDevice();
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::ContinueMissionInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string srcDeviceId = data.ReadString();
