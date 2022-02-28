@@ -3040,11 +3040,12 @@ napi_value NAPI_GetPreferencesDirSync(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief
+ * @brief Checks whether the configuration of this ability is changing.
  *
- * @param env
- * @param info
- * @return napi_value
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return Returns true if the configuration of this ability is changing and false otherwise.
  */
 napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
 {
@@ -3053,11 +3054,12 @@ napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
 }
 
 /**
- * @brief
+ * @brief Informs the system of the time required for drawing this Page ability.
  *
- * @param env
- * @param info
- * @return napi_value
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
  */
 napi_value NAPI_PrintDrawnCompleted(napi_env env, napi_callback_info info)
 {

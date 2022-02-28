@@ -210,7 +210,7 @@ struct HapModuleInfoCB {
     HapModuleInfo_ hapModuleInfo;
 };
 
-struct AppVersionInfo_ {
+struct AppVersionInfo {
     std::string appName;
     std::string versionName;
     int32_t versionCode = 0;
@@ -218,7 +218,7 @@ struct AppVersionInfo_ {
 
 struct AppVersionInfoCB {
     CBBase cbBase;
-    AppVersionInfo_ appVersionInfo;
+    AppVersionInfo appVersionInfo;
 };
 
 struct DataAbilityHelperCB {

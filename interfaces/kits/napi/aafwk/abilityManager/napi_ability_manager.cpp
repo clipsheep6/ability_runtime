@@ -2244,7 +2244,7 @@ static void GetAppMemorySizeExecute(napi_env env, void *data)
 {
     CallbackInfo *cb = static_cast<CallbackInfo *>(data);
     cb->result = GetAbilityManagerInstance()->GetAppMemorySize();
-    HILOG_ERROR("%{public}s, result = %{public}d", __func__, cb->result);
+    HILOG_INFO("%{public}s, result = %{public}d", __func__, cb->result);
 }
 
 static void GetAppMemorySizePromiseComplete(napi_env env, napi_status status, void *data)

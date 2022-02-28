@@ -719,15 +719,16 @@ public:
     virtual void SetShowOnLockScreen(bool isAllow) = 0;
 
     /**
-     * @brief isUpdatingConfigurations
+     * @brief Checks whether the configuration of this ability is changing.
      *
-     * @return true  or false
+     * @return Returns true if the configuration of this ability is changing and false otherwise.
      */
     virtual bool IsUpdatingConfigurations() = 0;
+
     /**
-     * @brief PrintDrawnCompleted
+     * @brief Informs the system of the time required for drawing this Page ability.
      *
-     * @return true  or false
+     * @return Returns the notification is successful or fail
      */
     virtual bool PrintDrawnCompleted() = 0;
 

@@ -1662,12 +1662,12 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("WriteInterfaceToken faild");
-        return INNER_ERR;
+        return false;
     }
     auto error = Remote()->SendRequest(IAbilityManager::IS_RAM_CONSTRAINED_DEVICE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
+        return false;
     }
     return reply.ReadBool();
 }

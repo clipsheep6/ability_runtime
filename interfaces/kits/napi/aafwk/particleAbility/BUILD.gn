@@ -27,6 +27,8 @@ ohos_shared_library("particleability") {
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/common/include",
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/napi_dataability/include",
     "//foundation/distributeddatamgr/appdatamgr/frameworks/jskitsimpl/napi_resultset/include",
+    "//third_party/jsoncpp",
+    "//third_party/jsoncpp/include/json",
   ]
 
   sources = [
@@ -50,6 +52,7 @@ ohos_shared_library("particleability") {
     "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [

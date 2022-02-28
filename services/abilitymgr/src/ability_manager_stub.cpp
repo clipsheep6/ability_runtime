@@ -116,6 +116,8 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[UPDATE_CONFIGURATION] = &AbilityManagerStub::UpdateConfigurationInner;
     requestFuncMap_[SET_SHOW_ON_LOCK_SCREEN] = &AbilityManagerStub::SetShowOnLockScreenInner;
     requestFuncMap_[GET_SYSTEM_MEMORY_ATTR] = &AbilityManagerStub::GetSystemMemoryAttrInner;
+    requestFuncMap_[GET_APP_MEMORY_SIZE] = &AbilityManagerStub::GetAppMemorySizeInner;
+    requestFuncMap_[IS_RAM_CONSTRAINED_DEVICE] = &AbilityManagerStub::IsRamConstrainedDeviceInner;
     requestFuncMap_[CLEAR_UP_APPLICATION_DATA] = &AbilityManagerStub::ClearUpApplicationDataInner;
     requestFuncMap_[LOCK_MISSION_FOR_CLEANUP] = &AbilityManagerStub::LockMissionForCleanupInner;
     requestFuncMap_[UNLOCK_MISSION_FOR_CLEANUP] = &AbilityManagerStub::UnlockMissionForCleanupInner;
@@ -973,7 +975,7 @@ int AbilityManagerStub::GetSystemMemoryAttrInner(MessageParcel &data, MessagePar
 int AbilityManagerStub::GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t result = GetAppMemorySize();
-    HILOG_ERROR("GetAppMemorySizeInner result %{public}d", result);
+    HILOG_INFO("GetAppMemorySizeInner result %{public}d", result);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("GetAppMemorySize error");
         return ERR_INVALID_VALUE;

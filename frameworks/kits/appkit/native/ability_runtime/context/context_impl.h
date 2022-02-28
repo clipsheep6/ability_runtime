@@ -53,16 +53,16 @@ public:
     std::string GetCacheDir() override;
 
     /**
-     * @brief IsUpdatingConfigurations
+     * @brief Checks whether the configuration of this ability is changing.
      *
-     * @return true  or false
+     * @return Returns true if the configuration of this ability is changing and false otherwise.
      */
     bool IsUpdatingConfigurations() override;
 
     /**
-     * @brief PrintDrawnCompleted
+     * @brief Informs the system of the time required for drawing this Page ability.
      *
-     * @return true  or false
+     * @return Returns the notification is successful or fail
      */
     bool PrintDrawnCompleted() override;
 

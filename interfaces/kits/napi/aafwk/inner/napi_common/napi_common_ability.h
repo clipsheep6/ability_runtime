@@ -56,25 +56,11 @@ napi_value NAPI_GetOrCreateDistributedDirCommon(napi_env env, napi_callback_info
 napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
 napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
-/**
- * @brief
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
+
 napi_value NAPI_IsUpdatingConfigurationsCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
 
-/**
- * @brief
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param info The callback info passed into the callback function.
- *
- * @return The return value from NAPI C++ to JS for the module.
- */
 napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info, AbilityType abilityType);
+
 /**
  * @brief Obtains the type of this application.
  *

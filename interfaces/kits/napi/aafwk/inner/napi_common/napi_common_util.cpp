@@ -1172,7 +1172,9 @@ std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue)
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
 {
     bool isTypedArray = false;
-    if (napi_is_typedarray(env, jsValue, &isTypedArray) != napi_ok || !isTypedArray) {
+    napi_status status = napi_is_typedarray(env, jsValue, &isTypedArray);
+    if (status != napi_ok || !isTypedArray) {
+        HILOG_INFO("%{public}s called, napi_is_typedarray error", __func__);
         return {};
     }
 
@@ -1182,6 +1184,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     size_t offset = 0;
     NAPI_CALL_BASE(env, napi_get_typedarray_info(env, jsValue, &type, &length, nullptr, &buffer, &offset), {});
     if (type != napi_uint8_array) {
+        HILOG_ERROR("%{public}s called, napi_uint8_array is null", __func__);
         return {};
     }
     std::string *data = nullptr;

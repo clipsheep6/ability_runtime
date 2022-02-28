@@ -509,13 +509,13 @@ napi_value NAPI_GetOrCreateDistributedDirWrap(
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_ERROR("%{public}s called, parameters is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
             return nullptr;
         }
     }
@@ -543,7 +543,7 @@ napi_value NAPI_GetOrCreateDistributedDirCommon(napi_env env, napi_callback_info
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
         return WrapVoidToJS(env);
     }
 
@@ -612,13 +612,13 @@ napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, parameters is invalid.", __func__);
+        HILOG_ERROR("%{public}s called, parameters is invalid.", __func__);
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
             return nullptr;
         }
     }
@@ -646,7 +646,7 @@ napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, Ability
     HILOG_INFO("%{public}s called", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
         return WrapVoidToJS(env);
     }
 
@@ -1996,7 +1996,7 @@ AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
     return appVersionInfoCB;
 }
 
-void SaveAppVersionInfo(AppVersionInfo_ &appVersionInfo, const std::string appName, const std::string versionName,
+void SaveAppVersionInfo(AppVersionInfo &appVersionInfo, const std::string appName, const std::string versionName,
     const int32_t versionCode)
 {
     HILOG_INFO("%{public}s called.", __func__);
