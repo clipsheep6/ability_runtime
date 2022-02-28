@@ -568,6 +568,8 @@ private:
     bool isSpecifiedAbility_ = false;
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
+    bool isDebugApp_ = false;
+    uint32_t addStageTimeout_ = AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT;
 
     UserTestRecord userTestRecord_;
 
