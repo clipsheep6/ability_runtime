@@ -418,7 +418,7 @@ private:
     /**
      * @brief set next refresht time locked.
      * @param formId The form's id.
-     * @param nextTime next refresh time.
+     * @param nextTime next refresh time(min).
      * @param userId User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
