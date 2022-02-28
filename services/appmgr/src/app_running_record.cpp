@@ -20,6 +20,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const std::string DEBUG_APP = "debugApp";
+}
 int64_t AppRunningRecord::appEventId_ = 0;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string& renderParam,
@@ -361,8 +364,7 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
     HapModuleInfo hapModuleInfo;
     if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
         if (!eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
-            SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
-                AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
+            SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, addStageTimeout_);
         } else {
             APP_LOGI("%{public}s START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG is exist, don't set new event.", __func__);
         }
@@ -977,6 +979,10 @@ void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
     isSpecifiedAbility_ = flag;
     SpecifiedWant_ = want;
     moduleName_ = moduleName;
+    isDebugApp_ = want.GetBoolParam(DEBUG_APP, false);
+    if (isDebugApp_) {
+        addStageTimeout_ = AMSEventHandler::ADD_ABILITY_STAGE_INFO_WITH_DEBUG_TIMEOUT;
+    }
 }
 
 bool AppRunningRecord::IsStartSpecifiedAbility() const
