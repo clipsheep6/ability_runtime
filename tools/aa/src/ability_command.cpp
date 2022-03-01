@@ -348,14 +348,14 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
         },
     };
 
-    return OHOS::ERR_OK;
+    return AbilityManagerClient::GetInstance()->Connect();
 }
 
 ErrCode AbilityManagerShellCommand::init()
 {
     ErrCode result = AbilityManagerClient::GetInstance()->Connect();
 
-    return result;
+    return resultReceiver_.append(HELP_MSG);
 }
 
 ErrCode AbilityManagerShellCommand::RunAsHelpCommand()
@@ -566,7 +566,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     int userID = DEFAULT_INVAL_VALUE;
     bool isfirstCommand = false;
     std::string args;
-
     for (auto it = argList_.begin(); it != argList_.end(); it++) {
         if (*it == "-c" || *it == "--client") {
             if (isClient == false) {
@@ -597,14 +596,13 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
             }
         } else if (*it == std::to_string(userID)) {
             continue;
-        } else {
+        } break {
             args += *it;
             args += " ";
         }
     }
 
     while (true) {
-
         int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
 
         HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);

@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mock_form_host_client.h"
 #include <gtest/gtest.h>
 #include "appexecfwk_errors.h"
 #include "app_log_wrapper.h"
 #include "errors.h"
-#include "mock_form_host_client.h"
 #include "string_ex.h"
 
 namespace OHOS {

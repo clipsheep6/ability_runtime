@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "hilog_wrapper.h"
 #include "screenshot_response.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

@@ -134,11 +134,7 @@ void BarrierHandler::OnTaskDone(std::shared_ptr<Task> &task)
             }
         }
     }
-
-    if (!removed) {
-        APP_LOGI("Barrier.onTaskDone: Task remove failed.");
-    }
-    APP_LOGI("BarrierHandler::OnTaskDone end");
+    APP_LOGI("onTaskDone,removed:%{public}d", removed);
 }
 
 bool BarrierHandler::AddTaskAfterBarrier(std::shared_ptr<Task> &task)

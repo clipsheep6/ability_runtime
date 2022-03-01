@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
 #include "mock_bundle_manager.h"
+#include <gtest/gtest.h>
 
 #include "ability_info.h"
 #include "application_info.h"

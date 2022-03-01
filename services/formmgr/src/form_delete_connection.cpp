@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include "form_delete_connection.h"
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
 #include "app_log_wrapper.h"
 #include "form_constants.h"
-#include "form_delete_connection.h"
 #include "form_supply_callback.h"
 #include "form_task_mgr.h"
 #include "ipc_types.h"
