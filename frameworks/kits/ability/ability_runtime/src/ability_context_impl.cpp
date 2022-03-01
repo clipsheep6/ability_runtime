@@ -74,7 +74,7 @@ void AbilityContextImpl::SwitchArea(int mode)
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
+    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility. token is %{public}p, %{public}p", token_.GetRefPtr(), this);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
     return err;
@@ -91,7 +91,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want &want, int
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode)
 {
-    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
+    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility. token is %{public}p, %{public}p", token_.GetRefPtr(), this);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
     return err;
@@ -272,7 +272,7 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, %{public}p", __func__, token_.GetRefPtr(), this);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
