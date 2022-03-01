@@ -405,6 +405,7 @@ void ContextImpl::InitAppContext()
 
 void ContextImpl::SetToken(const sptr<IRemoteObject> &token)
 {
+    HILOG_DEBUG("ContextImpl::SetToken come, token is %{public}p", token.GetRefPtr());
     if (token == nullptr) {
         HILOG_DEBUG("ContextImpl::SetToken failed, application is nullptr");
         return;

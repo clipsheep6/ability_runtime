@@ -20,7 +20,6 @@
 #include "ability_manager_client.h"
 #include "bytrace.h"
 #include "connection_manager.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

@@ -20,6 +20,7 @@
 
 #include "context_impl.h"
 #include "configuration.h"
+#include "hilog_wrapper.h"
 #include "local_call_container.h"
 
 namespace OHOS {
