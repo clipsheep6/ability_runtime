@@ -348,14 +348,14 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
         },
     };
 
-    return AbilityManagerClient::GetInstance()->Connect();
+    return OHOS::ERR_OK;
 }
 
 ErrCode AbilityManagerShellCommand::init()
 {
     ErrCode result = AbilityManagerClient::GetInstance()->Connect();
 
-    return resultReceiver_.append(HELP_MSG);
+    return result;
 }
 
 ErrCode AbilityManagerShellCommand::RunAsHelpCommand()
@@ -596,7 +596,7 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
             }
         } else if (*it == std::to_string(userID)) {
             continue;
-        } break {
+        } else {
             args += *it;
             args += " ";
         }

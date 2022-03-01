@@ -43,7 +43,7 @@ int LmksUtils::RemoveProcess(pid_t pid)
 {
     auto procName = GetProcName(pid);
     if (procName.empty()) {
-        HiLog::Error(LABEL, "pid %{public}d process name emptry", pid);
+        HiLog::Error(LABEL, "pid %{public}d process name empty", pid);
         return -1;
     }
 
