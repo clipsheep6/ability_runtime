@@ -104,6 +104,7 @@ public:
      */
     void SetToken(const sptr<IRemoteObject> &token) override
     {
+        HILOG_DEBUG("AbilityContextImpl::SetToken. token is %{public}p", token.GetRefPtr());
         token_ = token;
     }
 
