@@ -71,7 +71,7 @@ bool AbilityContextImpl::IsUpdatingConfigurations()
 
 bool AbilityContextImpl::PrintDrawnCompleted()
 {
-    return stageContext_ ? stageContext_->IsUpdatingConfigurations() : false;
+    return stageContext_ ? stageContext_->PrintDrawnCompleted() : false;
 }
 
 void AbilityContextImpl::SwitchArea(int mode)
