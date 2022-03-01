@@ -38,7 +38,7 @@ ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
         return ERR_INVALID_VALUE;
     }
 
-    APP_LOGI("%{public}s. Start calling ams->StartAbility.", __func__);
+    APP_LOGI("%{public}s. Start calling ams->StartAbility, token is %{public}p", __func__, token_.GetRefPtr());
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     APP_LOGI("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
     if (err != ERR_OK) {
@@ -55,7 +55,7 @@ ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const Ab
         return ERR_INVALID_VALUE;
     }
 
-    APP_LOGI("%{public}s. Start calling ams->StartAbility.", __func__);
+    APP_LOGI("%{public}s. Start calling ams->StartAbility, token is %{public}p", __func__, token_.GetRefPtr());
     ErrCode err =
         AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, abilityStartSetting, token_, requestCode);
     APP_LOGI("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
@@ -90,12 +90,12 @@ ErrCode AbilityContext::TerminateAbility()
 
     switch (info->type) {
         case AppExecFwk::AbilityType::PAGE:
-            APP_LOGI("%{public}s begin ams->TerminateAbility for PAGE.", __func__);
+            APP_LOGI("%{public}s begin ams->TerminateAbility for PAGE, token is %{public}p", __func__, token_.GetRefPtr());
             err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
             APP_LOGI("%{public}s end ams->TerminateAbility for PAGE, ret=%{public}d", __func__, err);
             break;
         case AppExecFwk::AbilityType::SERVICE:
-            APP_LOGI("%{public}s begin ams->TerminateAbility for SERVICE.", __func__);
+            APP_LOGI("%{public}s begin ams->TerminateAbility for SERVICE, token is %{public}p", __func__, token_.GetRefPtr());
             err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
             APP_LOGI("%{public}s end ams->TerminateAbility for SERVICE, ret=%{public}d", __func__, err);
             break;

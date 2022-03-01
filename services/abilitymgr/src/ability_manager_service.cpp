@@ -246,7 +246,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         HILOG_ERROR("StartAbility with continuation flags is not allowed!");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("%{public}s, caller token is %{public}p", __func__, callerToken.GetRefPtr());
     if (CheckIfOperateRemote(want)) {
         HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode);
@@ -579,11 +579,13 @@ void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUs
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    HILOG_DEBUG("TerminateAbility, token is %{public}p", token.GetRefPtr());
     return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
 }
 
 int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    HILOG_DEBUG("CloseAbility, token is %{public}p", token.GetRefPtr());
     return TerminateAbilityWithFlag(token, resultCode, resultWant, false);
 }
 
@@ -1669,7 +1671,7 @@ int AbilityManagerService::AttachAbilityThread(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Attach ability thread.");
+    HILOG_INFO("Attach ability thread, token is %{public}p", token.GetRefPtr());
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
@@ -2978,7 +2980,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 
 bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("VerificationAllToken.");
+    HILOG_INFO("VerificationAllToken, token is %{public}p", token.GetRefPtr());
 
     if (useNewMission_) {
         for (auto item: missionListManagers_) {

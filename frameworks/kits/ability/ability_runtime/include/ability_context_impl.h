@@ -20,6 +20,7 @@
 
 #include "context_impl.h"
 #include "configuration.h"
+#include "hilog_wrapper.h"
 #include "local_call_container.h"
 
 namespace OHOS {
@@ -104,6 +105,7 @@ public:
      */
     void SetToken(const sptr<IRemoteObject> &token) override
     {
+        HILOG_DEBUG("AbilityContextImpl::SetToken. token is %{public}p", token.GetRefPtr());
         token_ = token;
     }
 

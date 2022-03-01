@@ -101,7 +101,7 @@ Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime
 void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
-    APP_LOGI("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin, token is %{public}p", __func__, token.GetRefPtr());
     abilityInfo_ = abilityInfo;
     handler_ = handler;
     AbilityContext::token_ = token;
