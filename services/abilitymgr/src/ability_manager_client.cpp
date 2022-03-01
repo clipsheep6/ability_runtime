@@ -118,8 +118,8 @@ ErrCode AbilityManagerClient::StartAbility(
     const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
-    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d",
-        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, userId=%{public}d, caller token is %{public}p",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId, callerToken.GetRefPtr());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->StartAbility(want, callerToken, userId, requestCode);
 }
@@ -128,6 +128,8 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartS
     const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, caller token is %{public}p",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), callerToken.GetRefPtr());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->StartAbility(want, abilityStartSetting, callerToken, userId, requestCode);
 }
@@ -136,8 +138,8 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
     const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
-    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s",
-        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, caller token is %{public}p",
+        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), callerToken.GetRefPtr());
     HILOG_INFO("%{public}s called, userId=%{public}d, windowMode_=%{public}d, displayId_=%{public}d",
         __func__, userId, startOptions.GetWindowMode(), startOptions.GetDisplayID());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
@@ -147,6 +149,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, token is %{public}p", __func__, token.GetRefPtr());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
@@ -154,6 +157,7 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token,
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
 {
     CHECK_REMOTE_OBJECT_AND_RETURN(remoteObject_, ABILITY_SERVICE_NOT_CONNECTED);
+    HILOG_INFO("%{public}s called, caller token is %{public}p", __func__, callerToken.GetRefPtr());
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->TerminateAbilityByCaller(callerToken, requestCode);
 }

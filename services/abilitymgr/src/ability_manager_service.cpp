@@ -246,7 +246,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         HILOG_ERROR("StartAbility with continuation flags is not allowed!");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("%{public}s, caller token is %{public}p", __func__, callerToken.GetRefPtr());
     if (CheckIfOperateRemote(want)) {
         HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode);
@@ -579,11 +579,13 @@ void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUs
 
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    HILOG_DEBUG("TerminateAbility, token is %{public}p", token.GetRefPtr());
     return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
 }
 
 int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
+    HILOG_DEBUG("CloseAbility, token is %{public}p", token.GetRefPtr());
     return TerminateAbilityWithFlag(token, resultCode, resultWant, false);
 }
 
