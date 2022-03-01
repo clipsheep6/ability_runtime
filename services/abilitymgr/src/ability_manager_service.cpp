@@ -75,7 +75,6 @@ const std::string EMPTY_DEVICE_ID = "";
 const int32_t APP_MEMORY_SIZE = 512;
 const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
-const int32_t SIZE_10 = 10;
 const bool isRamConstrainedDevice = false;
 const std::string APP_MEMORY_MAX_SIZE_PARAMETER = "const.product.dalvikheaplimit";
 const std::string RAM_CONSTRAINED_DEVICE_SIGN = "const.product.islowram";
@@ -3416,7 +3415,7 @@ int AbilityManagerService::GetAppMemorySize()
             }
             while (valueGet[i] >= '0' && valueGet[i] < '9') {
                 int t = valueGet[i] - '0';
-                size[index] = size[index] * SIZE_10 + t;
+                size[index] = size[index] * 10 + t;
                 i++;
             }
             index++;

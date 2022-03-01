@@ -36,10 +36,6 @@ void TestObserverProxy::TestStatus(const std::string &msg, const int &resultCode
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
-
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
@@ -71,10 +67,6 @@ void TestObserverProxy::TestFinished(const std::string &msg, const int &resultCo
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return;
-    }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
@@ -109,10 +101,6 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
-
-    if (!data.WriteInterfaceToken(GetDescriptor())) {
-        return result;
-    }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {

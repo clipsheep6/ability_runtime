@@ -85,6 +85,7 @@ ohos_shared_library("abilityms") {
     "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits",
     "//base/global/i18n_standard/frameworks/intl:intl_util",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime:ability_context_native",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
@@ -101,7 +102,6 @@ ohos_shared_library("abilityms") {
     "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
     "//third_party/libpng:libpng",
     "//utils/native/base:utils",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
   ]
 
   external_deps = [
