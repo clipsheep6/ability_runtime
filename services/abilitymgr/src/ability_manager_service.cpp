@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <csignal>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "ability_info.h"
 #include "ability_manager_errors.h"
