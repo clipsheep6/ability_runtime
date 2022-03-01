@@ -1649,7 +1649,7 @@ int AbilityManagerService::AttachAbilityThread(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Attach ability thread, token is %{public}p", token);
+    HILOG_INFO("Attach ability thread, token is %{public}p", token.GetRefPtr());
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
     if (!VerificationAllToken(token)) {
         return ERR_INVALID_VALUE;
@@ -2952,7 +2952,7 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 
 bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("VerificationAllToken, token is %{public}p", token);
+    HILOG_INFO("VerificationAllToken, token is %{public}p", token.GetRefPtr());
 
     if (useNewMission_) {
         for (auto item: missionListManagers_) {
