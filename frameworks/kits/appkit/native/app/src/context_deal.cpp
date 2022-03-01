@@ -743,7 +743,7 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     want.SetElement(name);
     std::vector<AbilityInfo> abilityInfos;
     bool isSuc = ptr->QueryAbilityInfos(want, abilityInfos);
-    if(isSuc){
+    if (isSuc) {
         hapModuleInfoLocal_->abilityInfos = abilityInfos;
     }
     APP_LOGI("ContextDeal::GetHapModuleInfo end");

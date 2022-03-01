@@ -2623,7 +2623,7 @@ void ParseIn(AppExecFwk::PacMap &pacMap, std::string &value_str, NativeRdb::Data
     HILOG_INFO("ParseJsonKey in value_str1:%{public}s ", inValue.c_str());
     std::vector<std::string> value_vec;
     Stringsplit(inValue, ",", value_vec);
-    if (value_vec.size() >= 2) {
+    if (value_vec.size() >= ARGS_TWO) {
         std::vector<std::string> in_vec;
         in_vec.push_back(value_vec[0]);
         in_vec.push_back(value_vec[1]);
@@ -2649,7 +2649,7 @@ void ParseNotIn(AppExecFwk::PacMap &pacMap, std::string &value_str, NativeRdb::D
     HILOG_INFO("ParseJsonKey notIn value_str1:%{public}s ", inValue.c_str());
     std::vector<std::string> value_vec;
     Stringsplit(inValue, ",", value_vec);
-    if (value_vec.size() >= 2) {
+    if (value_vec.size() >= ARGS_TWO) {
         std::vector<std::string> in_vec;
         in_vec.push_back(value_vec[0]);
         in_vec.push_back(value_vec[1]);
@@ -3210,7 +3210,6 @@ napi_value CallUpdateWrap(napi_env env, napi_value thisVar, napi_callback_info i
     updateCB->cbBase.asyncWork = nullptr;
     updateCB->cbBase.deferred = nullptr;
     updateCB->cbBase.ability = nullptr;
-
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetype));
     if (valuetype == napi_string) {
@@ -3224,17 +3223,15 @@ napi_value CallUpdateWrap(napi_env env, napi_value thisVar, napi_callback_info i
         predicateArg = NapiValueToStringUtf8(env, args[PARAM2]);
         HILOG_INFO("%{public}s,predicateArg=%{public}s", __func__, predicateArg.c_str());
     }
-
     updateCB->pacMap.Clear();
     AnalysisPacMap(updateCB->pacMap, env, args[PARAM3]);
     ParseJsonKey(predicateArg, updateCB->pacMap, updateCB->predicates);
     updateCB->valueBucket.Clear();
-
     std::set<std::string> set_update = updateCB->pacMap.GetKeys();
     std::set<std::string>::iterator it;
     for (it = set_update.begin(); it != set_update.end(); it++) {
-        std::string pacValue = updateCB->pacMap.GetStringValue(*it, "123##*##abc");
-        if (pacValue != "123##*##abc") {
+        std::string pacValue = updateCB->pacMap.GetStringValue(*it, "");
+        if (pacValue != "") {
             updateCB->valueBucket.PutString(*it, pacValue);
         } else {
             updateCB->valueBucket.PutDouble(*it, updateCB->pacMap.GetDoubleValue(*it, DBL_MIN));
@@ -3244,21 +3241,11 @@ napi_value CallUpdateWrap(napi_env env, napi_value thisVar, napi_callback_info i
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     HILOG_INFO("%{public}s,DataAbilityHelper objectInfo = %{public}p", __func__, objectInfo);
     updateCB->dataAbilityHelper = objectInfo;
-
     napi_value ret = nullptr;
     if (argcAsync > argcPromise) {
         ret = CallUpdateAsync(env, args, ARGS_FOUR, updateCB);
     } else {
         ret = CallUpdatePromise(env, updateCB);
-    }
-
-    if (ret == nullptr) {
-        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (updateCB != nullptr) {
-            delete updateCB;
-            updateCB = nullptr;
-        }
-        ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
