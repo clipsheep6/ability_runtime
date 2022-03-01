@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
+#include "form_provider_data.h"
 #include <cinttypes>
 #include <fstream>
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "form_provider_data.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "string_ex.h"

@@ -566,7 +566,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     int userID = DEFAULT_INVAL_VALUE;
     bool isfirstCommand = false;
     std::string args;
-
     for (auto it = argList_.begin(); it != argList_.end(); it++) {
         if (*it == "-c" || *it == "--client") {
             if (isClient == false) {
@@ -604,7 +603,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     }
 
     while (true) {
-
         int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
 
         HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);

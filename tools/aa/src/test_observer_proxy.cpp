@@ -42,7 +42,7 @@ void TestObserverProxy::TestStatus(const std::string &msg, const int &resultCode
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return;
     }
 
@@ -78,7 +78,7 @@ void TestObserverProxy::TestFinished(const std::string &msg, const int &resultCo
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return;
     }
 
@@ -116,7 +116,7 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return result;
     }
 

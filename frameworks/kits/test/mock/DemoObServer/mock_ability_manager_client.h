@@ -56,7 +56,7 @@ sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
         retval = remoteProxy;
 
         if (retval == nullptr) {
-        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock result retval is  nullptr called";
+        GTEST_LOG_(INFO) << "mock_ability_thread_for_data_observer:mock result retval is nullptr called";
         }
     } else {
         retval = iter->second;

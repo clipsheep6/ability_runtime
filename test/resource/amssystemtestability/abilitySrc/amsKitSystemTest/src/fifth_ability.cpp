@@ -621,7 +621,7 @@ void FifthAbility::WantParamsMarshallingCase7(int code)
     wParams.Marshalling(in);
     WantParams *wantParamsOut = WantParams::Unmarshalling(in);
 #ifdef WANT_PARAM_USE_LONG
-    bool result = (Long)::Unbox(ILong::Query(wantParamsOut->GetParam(key))) == value);
+    bool result = (Long)::Unbox(ILong::Query(wantParamsOut->GetParam(key))) == value;
 #else
     bool result = (String::Unbox(IString::Query(wantParamsOut->GetParam(key))) == strValue);
 #endif

@@ -64,27 +64,27 @@ public:
     /**
      * @brief Set refresh enable flag.
      * @param formId The Id of the form.
-     * @param flag True for enbale, false for disable.
+     * @param flag True for enable, false for disable.
      */
     void SetEnableRefresh(int64_t formId, bool flag);
 
     /**
      * @brief Refresh enable or not.
      * @param formId The Id of the form.
-     * @return true on enbale, false on disable..
+     * @return true on enable, false on disable..
      */
     bool IsEnableRefresh(int64_t formId) const;
 
     /**
      * @brief Set need refresh enable flag.
      * @param formId The Id of the form.
-     * @param flag True for enbale, false for disable.
+     * @param flag True for enable, false for disable.
      */
     void SetNeedRefresh(int64_t formId, bool flag);
     /**
      * @brief Need Refresh enable or not.
      * @param formId The Id of the form.
-     * @return true on enbale, false on disable..
+     * @return true on enable, false on disable..
      */
     bool IsNeedRefresh(int64_t formId) const;
 
