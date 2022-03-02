@@ -85,7 +85,7 @@ void AbilityContextImpl::SwitchArea(int mode)
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
     return err;
@@ -102,7 +102,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want &want, int
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode)
 {
-    HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
     return err;
@@ -123,7 +123,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(
 
 ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
 {
-    HILOG_DEBUG("%{public}s. Start calling StartAbilityForResult.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     HILOG_INFO("%{public}s. End calling StartAbilityForResult. ret=%{public}d", __func__, err);
@@ -144,7 +144,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
 ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode, RuntimeTask &&task)
 {
-    HILOG_DEBUG("%{public}s. Start calling StartAbilityForResult.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("%{public}s. End calling StartAbilityForResult. ret=%{public}d", __func__, err);
@@ -165,7 +165,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode)
 {
-    HILOG_DEBUG("%{public}s. Start calling TerminateAbilityWithResult.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
     HILOG_INFO("%{public}s. End calling TerminateAbilityWithResult. ret=%{public}d", __func__, err);
     return err;
@@ -283,7 +283,7 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
@@ -295,7 +295,7 @@ ErrCode AbilityContextImpl::TerminateSelf()
 
 ErrCode AbilityContextImpl::CloseAbility()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin, token is %{public}p, this is %{public}p", __func__, token_.GetRefPtr(), this);
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->CloseAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
