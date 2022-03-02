@@ -22,8 +22,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-using ErrCode = int32_t;
-
 class UriPermissionManagerClient : public DelayedSingleton<UriPermissionManagerClient> {
 public:
     UriPermissionManagerClient() = default;
@@ -58,7 +56,7 @@ public:
     void RemoveUriPermission(const Security::AccessToken::AccessTokenID tokenId);
 
 private:
-    ErrCode ConnectUriPermService();
+    sptr<IUriPermissionManager> ConnectUriPermService();
     DISALLOW_COPY_AND_MOVE(UriPermissionManagerClient);
 
     class UpmsDeathRecipient : public IRemoteObject::DeathRecipient {
