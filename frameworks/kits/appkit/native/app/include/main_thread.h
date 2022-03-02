@@ -210,6 +210,15 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    /**
+     *
+     * @brief The handle of application not response process.
+     *
+     * @param sigMessage Recieve the sig message.
+     *
+     */
+    void ScheduleANRProcess() override;
+
 private:
     /**
      *
@@ -380,6 +389,8 @@ private:
 
     /**
      *
+<<<<<<< HEAD
+=======
      * @brief The handle of application not response process.
      *
      * @param sigMessage Receive the sig message.
@@ -389,6 +400,7 @@ private:
 
     /**
      *
+>>>>>>> fff6911f2ac5821fdd646cc15e9e3557e9a2e398
      * @brief Check whether the OHOSApplication is ready.
      *
      * @return if the OHOSApplication is ready, return true. else return false.
@@ -407,6 +419,15 @@ private:
      *
      */
     bool AbilityDelegatorPrepare(const UserTestRecord &record);
+
+    /**
+     *
+     * @brief The handle of application not response process.
+     *
+     * @param sigMessage Recieve the sig message.
+     *
+     */
+    void HandleScheduleANRProcess();
 
     class MainHandler : public EventHandler {
     public:
