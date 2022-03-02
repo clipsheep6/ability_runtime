@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ TestObserverProxy::TestObserverProxy(const sptr<IRemoteObject> &object) : IRemot
 
 TestObserverProxy::~TestObserverProxy()
 {
-    HILOG_INFO("test observer proxy is destoryed");
+    HILOG_INFO("test observer proxy is destroyed");
 }
 
 void TestObserverProxy::TestStatus(const std::string &msg, const int &resultCode)
@@ -41,7 +41,7 @@ void TestObserverProxy::TestStatus(const std::string &msg, const int &resultCode
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return;
     }
 
@@ -76,7 +76,7 @@ void TestObserverProxy::TestFinished(const std::string &msg, const int &resultCo
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return;
     }
 
@@ -113,7 +113,7 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Failed to send cmd to service due to remote objetc is null");
+        HILOG_ERROR("Failed to send cmd to service due to remote object is null");
         return result;
     }
 

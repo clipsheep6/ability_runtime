@@ -242,7 +242,7 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
 
 int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
 {
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("%{public}s coldStart:%{public}d", __func__, want.GetBoolParam("coldStart", false));
     return StartAbilityInner(want, nullptr, requestCode, -1, userId);
 }
 
@@ -1669,6 +1669,7 @@ int AbilityManagerService::ReleaseDataAbility(
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManager(dataAbilityScheduler);
     if (!dataAbilityManager) {
         HILOG_ERROR("dataAbilityScheduler is not exists");
+        return ERR_INVALID_VALUE;
     }
 
     return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSystem);
