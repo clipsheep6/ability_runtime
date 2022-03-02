@@ -433,7 +433,7 @@ public:
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
-	
+
 	 /**
      * UpdateConfiguration, ANotify application update system environment changes.
      *
@@ -714,6 +714,17 @@ private:
      * @return
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
+    /**
+     * Notify application status.
+     *
+     * @param bundleName Indicates the name of the bundle.
+     * @param bundleName Indicates the name of the bundle.
+     * @param eventData Indicates the event defined by CommonEventSupport
+     *
+     * @return
+     */
+    void NotifyAppStatusByCallerUid(const std::string &bundleName, const int32_t userId, const int32_t callerUid,
+        const std::string &eventData);
     void KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendHiSysEvent(const int32_t innerEventId, const int64_t eventId);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
