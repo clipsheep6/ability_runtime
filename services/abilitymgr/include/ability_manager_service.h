@@ -17,6 +17,7 @@
 #define OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
+#include <shared_mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
@@ -1179,6 +1180,7 @@ private:
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
     std::recursive_mutex globalLock_;
+    std::shared_mutex managersMutex_;
 
     std::multimap<std::string, std::string> timeoutMap_;
 };
