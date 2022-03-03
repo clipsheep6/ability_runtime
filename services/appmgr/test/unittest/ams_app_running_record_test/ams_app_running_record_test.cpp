@@ -1383,7 +1383,6 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilities_002, TestSize.Level1)
  * EnvConditions: Mobile that can run ohos test framework
  * CaseDescription: Remove ModuleRecord
  */
-
 HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
 {
     auto abilityInfo = std::make_shared<AbilityInfo>();
@@ -1416,6 +1415,58 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
     record->RemoveModuleRecord(moduleRecord);
     auto moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 1);
+}
+
+/*
+ * Feature: AMS
+ * Function: UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints: Environmental Change Notification
+ * EnvConditions: NA
+ * CaseDescription: Make an environment object and update
+ */
+HWTEST_F(AmsAppRunningRecordTest, UpdateConfiguration_001, TestSize.Level1)
+{
+    auto testLanguge = std::string("ch-zh");
+    auto configUpdate = [testLanguge](const Configuration &config){
+        auto l = config.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
+        EXPECT_TRUE(testLanguge == l);
+    };
+
+    Configuration config;
+    config.AddItem(GlobalConfigurationKey::SYSTEM_LANGUAGE, testLanguge);
+    auto record = GetTestAppRunningRecord();
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleConfigurationUpdated(_))
+        .Times(1)
+        .WillOnce(testing::Invoke(configUpdate));
+
+    record->UpdateConfiguration(config);
+}
+
+/*
+ * Feature: AMS
+ * Function: UpdateConfiguration
+ * SubFunction: NA
+ * FunctionPoints: Environmental Change Notification
+ * EnvConditions: NA
+ * CaseDescription: Make an environment object and update
+ */
+HWTEST_F(AmsAppRunningRecordTest, UpdateConfiguration_002, TestSize.Level1)
+{
+    auto test = std::string("colour");
+    auto configUpdate = [test](const Configuration &config){
+        auto l = config.GetItem(GlobalConfigurationKey::SYSTEM_COLORMODE);
+        EXPECT_TRUE(test == l);
+    };
+
+    Configuration config;
+    config.AddItem(GlobalConfigurationKey::SYSTEM_COLORMODE, test);
+    auto record = GetTestAppRunningRecord();
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleConfigurationUpdated(_))
+        .Times(1)
+        .WillOnce(testing::Invoke(configUpdate));
+
+    record->UpdateConfiguration(config);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
