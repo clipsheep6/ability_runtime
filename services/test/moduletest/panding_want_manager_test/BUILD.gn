@@ -50,6 +50,7 @@ ohos_moduletest("PandingWantMgrTest") {
   deps = [
     "${innerkits_path}/base:base",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
+    "${innerkits_path}/uri:zuri",
     "${innerkits_path}/want:want",
     "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits",
     "//base/global/i18n_standard/frameworks/intl:intl_util",
@@ -63,7 +64,6 @@ ohos_moduletest("PandingWantMgrTest") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
-    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmservice",
