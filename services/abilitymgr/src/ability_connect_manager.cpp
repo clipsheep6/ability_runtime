@@ -587,16 +587,21 @@ void AbilityConnectManager::RemoveAll()
 
 void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
+    HILOG_ERROR("LoadAbility 1");
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(abilityRecord);
-
+    HILOG_ERROR("LoadAbility 2");
     PostTimeOutTask(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
-
+    HILOG_ERROR("LoadAbility 3");
     sptr<Token> token = abilityRecord->GetToken();
     sptr<Token> perToken = nullptr;
+    HILOG_ERROR("LoadAbility 4");
     if (abilityRecord->IsCreateByConnect()) {
+        HILOG_ERROR("LoadAbility 5");
         perToken = iface_cast<Token>(abilityRecord->GetConnectingRecord()->GetToken());
+        HILOG_ERROR("LoadAbility 6");
     } else {
+        HILOG_ERROR("LoadAbility 7");
         auto callerList = abilityRecord->GetCallerRecordList();
         if (!callerList.empty() && callerList.back()) {
             auto caller = callerList.back()->GetCaller();
@@ -605,6 +610,7 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
             }
         }
     }
+    HILOG_ERROR("LoadAbility 8");
     DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token, perToken, abilityRecord->GetAbilityInfo(), abilityRecord->GetApplicationInfo(),
         abilityRecord->GetWant());
