@@ -140,6 +140,20 @@ bool BundleMgrService::GetBundleInfo(
         bundleInfo.jointUserId = "";
         bundleInfo.appId = bundleName + "_xxx";
     }
+    if(bundleName == "KeepAliveApplication") {
+        HapModuleInfo hapModuleInfo;
+        hapModuleInfo.moduleName = "KeepAliveApplication";
+        ApplicationInfo appInfo;
+        appInfo.name = "KeepAliveApp";
+        appInfo.bundleName = bundleName;
+        appInfo.uid = 2100;
+       
+        bundleInfo.uid = 2100;
+        bundleInfo.name = bundleName;
+        bundleInfo.applicationInfo = appInfo;
+        bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
+    }
+
     return true;
 }
 bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
@@ -156,6 +170,7 @@ bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<
 bool BundleMgrService::GetBundleInfos(
     const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId)
 {
+    GTEST_LOG_(INFO) << "BundleMgrService::GetBundleInfos";
     bundleInfos = bundleInfos_;
     return true;
 }
