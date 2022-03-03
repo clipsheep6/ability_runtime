@@ -31,7 +31,7 @@ JsTestRunner::JsTestRunner(JsRuntime &jsRuntime, const std::shared_ptr<AbilityDe
 {
     std::string srcPath;
     srcPath.append(args->GetTestBundleName());
-    srcPath.append("/assets/js/");
+    srcPath.append("/assets/js/TestRunner/");
     srcPath.append(args->GetTestRunnerClassName());
     srcPath.append(".abc");
     APP_LOGI("JsTestRunner srcPath is %{public}s", srcPath.c_str());
