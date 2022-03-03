@@ -898,6 +898,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 return;
             }
             application_->SetRuntime(std::move(runtime));
+            AbilityLoader::GetInstance().RegisterAbility("Ability", [application = application_]() {
+            return Ability::Create(application->GetRuntime());
+        });
         }
         if (!AbilityDelegatorPrepare(usertestInfo)) {
             return;
