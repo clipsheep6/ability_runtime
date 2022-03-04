@@ -13,19 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef FORM_ABILITY_H_
-#define FORM_ABILITY_H_
+#ifndef NAPI_FORM_HOST_H_
+#define NAPI_FORM_HOST_H_
 
 #include "ability.h"
-#include "form_info.h"
-#include "form_js_info.h"
-#include "form_provider_info.h"
-#include "hilog_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
 #include "nlohmann/json.hpp"
-#include "want.h"
 
 struct AsyncDelFormCallbackInfo {
     napi_env env;
@@ -55,28 +50,6 @@ struct AsyncRequestFormCallbackInfo {
     napi_deferred deferred;
     napi_ref callback;
     int64_t formId;
-    int result;
-};
-
-struct AsyncNextRefreshTimeFormCallbackInfo {
-    napi_env env;
-    OHOS::AppExecFwk::Ability *ability;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback;
-    int64_t formId;
-    int32_t time;
-    int result;
-};
-
-struct AsyncUpdateFormCallbackInfo {
-    napi_env env;
-    OHOS::AppExecFwk::Ability *ability;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback;
-    int64_t formId;
-    std::shared_ptr<OHOS::AppExecFwk::FormProviderData> formProviderData;
     int result;
 };
 
@@ -154,8 +127,6 @@ struct AsyncGetFormsInfoCallbackInfo {
 napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info);
 napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info);
 napi_value NAPI_RequestForm(napi_env env, napi_callback_info info);
-napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info);
-napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info);
 napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info);
 napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info);
 napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info);
@@ -165,4 +136,4 @@ napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info);
 napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info);
 napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info);
 
-#endif /* FORM_ABILITY_H_ */
+#endif /* NAPI_FORM_HOST_H_ */
