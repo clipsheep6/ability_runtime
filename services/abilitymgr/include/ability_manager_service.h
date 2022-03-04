@@ -338,13 +338,6 @@ public:
     std::shared_ptr<AbilityEventHandler> GetEventHandler();
 
     /**
-     * SetStackManager, set the user id of stack manager.
-     *
-     * @param userId, user id.
-     */
-    void SetStackManager(int userId, bool switchUser);
-
-    /**
      * GetStackManager, get the current stack manager.
      *
      * @return Returns AbilityStackManager ptr.
@@ -368,14 +361,6 @@ public:
     virtual void DumpState(const std::string &args, std::vector<std::string> &info) override;
     virtual void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
-
-    /**
-     * Obtains information about ability stack that are running on the device.
-     *
-     * @param stackInfo Ability stack info.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int GetAllStackInfo(StackInfo &stackInfo) override;
 
     /**
      * Destroys this Service ability if the number of times it

@@ -94,17 +94,6 @@ void KitTestAbilityManager::StartAbilitySelf(
     StartAbility(want);
 }
 
-void KitTestAbilityManager::GetAllStackInfo(MissionStackInfo &missionStackInfo, int stackID)
-{
-    StackInfo stackInfo = AbilityManager::GetInstance().GetAllStackInfo();
-    for (const auto &missionInfo : stackInfo.missionStackInfos) {
-        if (missionInfo.id == stackID) {
-            missionStackInfo = missionInfo;
-            break;
-        }
-    }
-}
-
 // GetAllRunningProcesses ST kit case
 void KitTestAbilityManager::AbilityManagerGetAllRunningProcessesCase1(int code)
 {
@@ -181,80 +170,6 @@ void KitTestAbilityManager::AbilityManagerGetAllRunningProcessesCase10(int code)
     APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllRunningProcessesCase10");
     auto index = 5;
     StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllRunningProcesses, index, code);
-}
-
-// GetAllStackInfo ST kit case
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase1(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase1");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 1);
-    bool result = (missionStackInfo.missionRecords.size() == 1);
-    TestUtils::PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase2(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase2");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 1);
-    auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
-    bool result = (abilityInfos[0].mainName.compare(currentAbilityName) == 0);
-    TestUtils::PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase3(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase3");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 0);
-    bool result = (missionStackInfo.missionRecords.size() == 1);
-    TestUtils::PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase4(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase4");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 0);
-    auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
-    bool result = (abilityInfos[0].mainName.compare(launchAbilityName) == 0);
-    TestUtils::PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase5(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase5");
-    auto index = 0;
-    StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllStackInfo, index, code);
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase6(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase6");
-    auto index = 1;
-    StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllStackInfo, index, code);
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase7(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase7");
-    auto index = 2;
-    StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllStackInfo, index, code);
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase8(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase8");
-    auto index = 3;
-    StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllStackInfo, index, code);
-}
-
-void KitTestAbilityManager::AbilityManagerGetAllStackInfoCase9(int code)
-{
-    APP_LOGI("KitTestAbilityManager::AbilityManagerGetAllStackInfoCase9");
-    auto index = 4;
-    StartAbilitySelf(bundleName, abilityName, AbilityManagerApi::GetAllStackInfo, index, code);
 }
 
 // QueryRecentAbilityMissionInfo ST kit case

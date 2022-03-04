@@ -363,33 +363,6 @@ HWTEST_F(IpcAbilityMgrModuleTest, AbilityMgrService_IPC_010, TestSize.Level1)
  * Feature: AAFwk
  * Function: AbilityManagerService
  * SubFunction: IPC of client and server
- * FunctionPoints: GetAllStackInfo
- * EnvConditions: NA
- * CaseDescription: verify GetAllStackInfo IPC between client and server.
- */
-HWTEST_F(IpcAbilityMgrModuleTest, AbilityMgrService_IPC_011, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "IpcAbilityMgrModuleTest AbilityMgrService_IPC_011 start";
-
-    for (int i = 0; i < COUNT; i++) {
-        sptr<MockAbilityMgrService> mockAbilityMgr(new MockAbilityMgrService());
-        sptr<IAbilityManager> abilityMgrClient = iface_cast<IAbilityManager>(mockAbilityMgr);
-
-        StackInfo stackInfo;
-        EXPECT_CALL(*mockAbilityMgr, GetAllStackInfo(_))
-            .Times(1)
-            .WillOnce(InvokeWithoutArgs(mockAbilityMgr.GetRefPtr(), &MockAbilityMgrService::Post));
-        abilityMgrClient->GetAllStackInfo(stackInfo);
-        mockAbilityMgr->Wait();
-    }
-
-    GTEST_LOG_(INFO) << "IpcAbilityMgrModuleTest AbilityMgrService_IPC_011 end";
-}
-
-/*
- * Feature: AAFwk
- * Function: AbilityManagerService
- * SubFunction: IPC of client and server
  * FunctionPoints: ScheduleCommandAbilityDone
  * EnvConditions: NA
  * CaseDescription: verify ScheduleCommandAbilityDone IPC between client and server.

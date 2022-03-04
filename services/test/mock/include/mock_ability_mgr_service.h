@@ -57,7 +57,6 @@ public:
         void(const std::string &args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID));
     MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject> &, int startId));
     MOCK_METHOD2(StopServiceAbility, int(const Want &, int32_t userId));
-    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
     MOCK_METHOD3(GetRecentMissions, int(const int32_t, const int32_t, std::vector<AbilityMissionInfo> &));
     MOCK_METHOD2(GetMissionSnapshot, int(const int32_t, MissionPixelMap &));
     MOCK_METHOD1(RemoveMission, int(int));

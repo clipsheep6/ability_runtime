@@ -155,8 +155,6 @@ int32_t UserController::StopUser(int32_t userId)
         return -1;
     }
 
-    BroadcastUserStopping(userId);
-
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
         HILOG_ERROR("appScheduler is null");
@@ -177,8 +175,6 @@ int32_t UserController::StopUser(int32_t userId)
         return -1;
     }
     abilityManagerService->ClearUserData(userId);
-
-    BroadcastUserStopped(userId);
     return 0;
 }
 
@@ -286,16 +282,6 @@ void UserController::BroadcastUserBackground(int32_t userId)
 void UserController::BroadcastUserForeground(int32_t userId)
 {
     // todo: broadcast event user switch to fg.
-}
-
-void UserController::BroadcastUserStopping(int32_t userId)
-{
-    // todo
-}
-
-void UserController::BroadcastUserStopped(int32_t userId)
-{
-    // todo
 }
 
 void UserController::SendSystemUserStart(int32_t userId)

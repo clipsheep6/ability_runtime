@@ -77,7 +77,6 @@ public:
     int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE);
 
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
     MOCK_METHOD3(
         GetRecentMissions, int(const int32_t numMax, const int32_t flags, std::vector<AbilityMissionInfo> &recentList));
     MOCK_METHOD2(GetMissionSnapshot, int(const int32_t missionId, MissionPixelMap &missionPixelMap));

@@ -145,11 +145,6 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::GetAllStackInfo(StackInfo &stackInfo)
-{
-    return ERR_OK;
-}
-
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want)
 {
     return ERR_OK;

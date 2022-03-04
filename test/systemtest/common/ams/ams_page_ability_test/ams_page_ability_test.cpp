@@ -117,7 +117,6 @@ public:
     void ClearSystem();
     void ShowDump();
     static bool SubscribeEvent();
-    static void GetAllStackInfo(MissionStackInfo &missionStackInfo);
     class AppEventSubscriber : public CommonEventSubscriber {
     public:
         explicit AppEventSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp)
@@ -275,18 +274,6 @@ bool AmsPageAbilityTest::SubscribeEvent()
     subscribeInfo.SetPriority(1);
     auto subscriber = std::make_shared<AppEventSubscriber>(subscribeInfo);
     return CommonEventManager::SubscribeCommonEvent(subscriber);
-}
-
-void AmsPageAbilityTest::GetAllStackInfo(MissionStackInfo &missionStackInfo)
-{
-    StackInfo stackInfo;
-    abilityMs_->GetAllStackInfo(stackInfo);
-    for (const auto &stackInfo : stackInfo.missionStackInfos) {
-        if (stackInfo.id == 1) {
-            missionStackInfo = stackInfo;
-            break;
-        }
-    }
 }
 
 void AmsPageAbilityTest::AppEventSubscriber::OnReceiveEvent(const CommonEventData &data)
@@ -737,7 +724,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_1000, Function | MediumTest | Leve
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName3 + abilityStateOnActive, abilityStateCountOne), 0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName2 + abilityStateOnBackground, abilityStateCountOne), 0);
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 2);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     // ability in mission #2 from top to bottom
@@ -1362,7 +1348,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_2600, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName4, abilityName2, abilityName1, abilityName3};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 2);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     // ability in mission from top to bottom
@@ -1508,7 +1493,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_2800, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName3, abilityName5, abilityName2, abilityName1};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     // ability in mission from top to bottom
@@ -1652,7 +1636,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_3000, Function | MediumTest | Leve
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName5 + abilityStateOnBackground, abilityStateCountOne), 0);
 
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     // ability in mission from top to bottom
@@ -2672,7 +2655,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_5300, Function | MediumTest | Leve
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName3 + abilityStateOnActive, abilityStateCountOne), 0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName2 + abilityStateOnBackground, abilityStateCountOne), 0);
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 2);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     // ability in mission #2 from top to bottom
@@ -3058,7 +3040,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6200, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName3, abilityName5, abilityName2, abilityName1};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     EXPECT_EQ(0, abilityInfos[0].mainName.compare(abilityName3));
@@ -3125,7 +3106,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6300, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName1, abilityName2, abilityName1, abilityName3, abilityName5};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     EXPECT_EQ(0, abilityInfos[0].mainName.compare(abilityName1));
@@ -3193,7 +3173,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6400, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName2, abilityName2, abilityName1, abilityName3, abilityName5};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     EXPECT_EQ(0, abilityInfos[0].mainName.compare(abilityName2));
@@ -3264,7 +3243,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6500, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName1, abilityName2, abilityName1, abilityName3, abilityName5};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     EXPECT_EQ(0, abilityInfos[0].mainName.compare(abilityName1));
@@ -3335,7 +3313,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6600, Function | MediumTest | Leve
     std::vector<std::string> expectedResult = {abilityName2, abilityName1, abilityName3, abilityName5};
     EXPECT_TRUE(MTDumpUtil::GetInstance()->CompStrVec(result, expectedResult));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 3);
     auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
     EXPECT_EQ(0, abilityInfos[0].mainName.compare(abilityName2));
@@ -3397,7 +3374,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6700, Function | MediumTest | Leve
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName1 + abilityStateOnStop, abilityStateCountOne), 0);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 0);
     ExpectAbilityCurrentState(launcherAbilityName, AbilityState_Test::ACTIVE, AbilityState_Test::ACTIVATING, DUMP_ALL);
 }
@@ -3458,7 +3434,6 @@ HWTEST_F(AmsPageAbilityTest, AMS_Page_Ability_6800, Function | MediumTest | Leve
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event_, abilityName1 + abilityStateOnStop, abilityStateCountOne), 0);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo);
     EXPECT_TRUE(missionStackInfo.missionRecords.size() == 0);
     ExpectAbilityCurrentState(launcherAbilityName, AbilityState_Test::ACTIVE, AbilityState_Test::ACTIVATING, DUMP_ALL);
 }

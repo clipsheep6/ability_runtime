@@ -50,7 +50,6 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[DISCONNECT_ABILITY_DONE] = &AbilityManagerStub::ScheduleDisconnectAbilityDoneInner;
     requestFuncMap_[ADD_WINDOW_INFO] = &AbilityManagerStub::AddWindowInfoInner;
     requestFuncMap_[TERMINATE_ABILITY_RESULT] = &AbilityManagerStub::TerminateAbilityResultInner;
-    requestFuncMap_[LIST_STACK_INFO] = &AbilityManagerStub::GetAllStackInfoInner;
     requestFuncMap_[GET_RECENT_MISSION] = &AbilityManagerStub::GetRecentMissionsInner;
     requestFuncMap_[REMOVE_MISSION] = &AbilityManagerStub::RemoveMissionInner;
     requestFuncMap_[REMOVE_STACK] = &AbilityManagerStub::RemoveStackInner;
@@ -266,21 +265,6 @@ int AbilityManagerStub::TerminateAbilityResultInner(MessageParcel &data, Message
     int startId = data.ReadInt32();
     int32_t result = TerminateAbilityResult(token, startId);
     reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetAllStackInfoInner(MessageParcel &data, MessageParcel &reply)
-{
-    StackInfo stackInfo;
-    int32_t result = GetAllStackInfo(stackInfo);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("GetAllStackInfo result error");
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteParcelable(&stackInfo)) {
-        HILOG_ERROR("GetAllStackInfo error");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 

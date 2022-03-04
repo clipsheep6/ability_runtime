@@ -45,18 +45,6 @@ void AbilityManager::MoveMissionToTop(int missionId)
     }
 }
 
-StackInfo AbilityManager::GetAllStackInfo() const
-{
-    APP_LOGD("%s, %d", __func__, __LINE__);
-    StackInfo info;
-    ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->GetAllStackInfo(info);
-    if (error != ERR_OK) {
-        APP_LOGE("%s failed, error : %d", __func__, error);
-    }
-
-    return info;
-}
-
 std::vector<AbilityMissionInfo> AbilityManager::QueryRecentAbilityMissionInfo(int numMax, int flags) const
 {
     APP_LOGD("%s, %d", __func__, __LINE__);

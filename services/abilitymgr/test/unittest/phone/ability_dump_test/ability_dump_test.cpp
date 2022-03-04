@@ -146,7 +146,6 @@ void AbilityDumpTest::OnStartAms()
         EXPECT_TRUE(g_abilityMs->pendingWantManager_);
 
         int userId = g_abilityMs->GetUserId();
-        g_abilityMs->SetStackManager(userId, true);
         EXPECT_TRUE(g_abilityMs->GetStackManager());
         g_abilityMs->stackManagers_.emplace(0, g_abilityMs->GetStackManager());
 

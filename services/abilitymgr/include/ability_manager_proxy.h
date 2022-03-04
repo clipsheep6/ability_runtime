@@ -264,14 +264,6 @@ public:
     virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
-     * Obtains information about ability stack that are running on the device.
-     *
-     * @param stackInfo Ability stack info.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int GetAllStackInfo(StackInfo &stackInfo) override;
-
-    /**
      * Get the list of the missions that the user has recently launched,
      * with the most recent being first and older ones after in order.
      *

@@ -94,8 +94,6 @@ private:
     void UserBootDone(std::shared_ptr<UserItem> &item);
     void BroadcastUserBackground(int32_t userId);
     void BroadcastUserForeground(int32_t userId);
-    void BroadcastUserStopping(int32_t userId);
-    void BroadcastUserStopped(int32_t userId);
 
     void SendSystemUserStart(int32_t userId);
     void SendSystemUserCurrent(int32_t oldUserId, int32_t newUserId);

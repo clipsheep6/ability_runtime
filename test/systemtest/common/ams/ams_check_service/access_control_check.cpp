@@ -64,7 +64,6 @@ HWTEST_F(AccessControlCheck, Access_Control_Check_0100, Function | MediumTest | 
         return;
     }
     StackInfo stackInfo;
-    EXPECT_TRUE(abilityManager->GetAllStackInfo(stackInfo) == ERR_OK);
     EXPECT_TRUE(stackInfo.missionStackInfos.size() > 0);
 }
 

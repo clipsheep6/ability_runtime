@@ -40,7 +40,6 @@ public:
         std::vector<RunningProcessInfo> &info, const std::string &processName, AppProcessState expectedState, int code);
     void ProcessStateNotEqual(
         std::vector<RunningProcessInfo> &info, const std::string &processName, AppProcessState expectedState, int code);
-    void GetAllStackInfo(AAFwk::MissionStackInfo &missionStackInfo, int stackID);
 
     // GetAllRunningProcesses ST kit case
     void AbilityManagerGetAllRunningProcessesCase1(int code);
@@ -49,13 +48,6 @@ public:
     void AbilityManagerGetAllRunningProcessesCase4(int code);
     void AbilityManagerGetAllRunningProcessesCase5(int code);
     void AbilityManagerGetAllRunningProcessesCase6(int code);
-
-    // GetAllStackInfo ST kit case
-    void AbilityManagerGetAllStackInfoCase1(int code);
-    void AbilityManagerGetAllStackInfoCase2(int code);
-    void AbilityManagerGetAllStackInfoCase3(int code);
-    void AbilityManagerGetAllStackInfoCase4(int code);
-    void AbilityManagerGetAllStackInfoCase5(int code);
 
     // QueryRecentAbilityMissionInfo ST kit case
     void AbilityManagerQueryRecentAbilityMissionInfoCase1(int code);
@@ -93,12 +85,6 @@ private:
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase4(code); }},
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase5(code); }},
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase6(code); }}}},
-        {static_cast<int>(AbilityManagerApi::GetAllStackInfo),
-            {{[this](int code) { AbilityManagerGetAllStackInfoCase1(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase2(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase3(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase4(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase5(code); }}}},
         {static_cast<int>(AbilityManagerApi::QueryRecentAbilityMissionInfo),
             {{[this](int code) { AbilityManagerQueryRecentAbilityMissionInfoCase1(code); }},
                 {[this](int code) { AbilityManagerQueryRecentAbilityMissionInfoCase2(code); }},
