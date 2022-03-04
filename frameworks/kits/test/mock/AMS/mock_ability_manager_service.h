@@ -87,8 +87,6 @@ public:
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
     int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
-    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
-
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(KillProcess, int(const std::string &bundleName));
     MOCK_METHOD1(UninstallApp, int(const std::string &bundleName));

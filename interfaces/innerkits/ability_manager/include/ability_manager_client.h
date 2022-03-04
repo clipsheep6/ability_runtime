@@ -256,13 +256,6 @@ public:
     ErrCode Connect();
 
     /**
-     * Get all stack info from ability manager service.
-     *
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode GetAllStackInfo(StackInfo &stackInfo);
-
-    /**
      * Destroys this Service ability by Want.
      *
      * @param want, Special want for service type's ability.

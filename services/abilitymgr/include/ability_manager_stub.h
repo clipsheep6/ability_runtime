@@ -66,7 +66,6 @@ private:
     int ScheduleDisconnectAbilityDoneInner(MessageParcel &data, MessageParcel &reply);
     int AddWindowInfoInner(MessageParcel &data, MessageParcel &reply);
     int TerminateAbilityResultInner(MessageParcel &data, MessageParcel &reply);
-    int GetAllStackInfoInner(MessageParcel &data, MessageParcel &reply);
     int GetRecentMissionsInner(MessageParcel &data, MessageParcel &reply);
     int RemoveMissionInner(MessageParcel &data, MessageParcel &reply);
     int RemoveStackInner(MessageParcel &data, MessageParcel &reply);

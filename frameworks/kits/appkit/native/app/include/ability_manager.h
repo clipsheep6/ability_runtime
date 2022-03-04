@@ -55,13 +55,6 @@ public:
     void MoveMissionToTop(int missionId);
 
     /**
-     * Get all stack info from ability manager service.
-     *
-     * @return Return stack information
-     */
-    StackInfo GetAllStackInfo() const;
-
-    /**
      * Query recent Ability Mission info.
      * @param numMax The maximum number of entries to return in the list. The
      * actual number returned may be smaller, depending on how many tasks the

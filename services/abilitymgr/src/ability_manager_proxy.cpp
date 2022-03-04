@@ -636,40 +636,6 @@ int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId)
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetAllStackInfo(StackInfo &stackInfo)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        HILOG_ERROR("remote is nullptr.");
-        return ERR_UNKNOWN_OBJECT;
-    }
-    error = remote->SendRequest(IAbilityManager::LIST_STACK_INFO, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    int32_t result = reply.ReadInt32();
-    if (result != ERR_OK) {
-        HILOG_ERROR("Read info failed, err %{public}d", result);
-        return result;
-    }
-    std::unique_ptr<StackInfo> info(reply.ReadParcelable<StackInfo>());
-    if (!info) {
-        HILOG_ERROR("Read info failed.");
-        return ERR_UNKNOWN_OBJECT;
-    }
-    stackInfo = *info;
-    return result;
-}
-
 template <typename T>
 int AbilityManagerProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos)
 {

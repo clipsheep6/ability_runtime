@@ -192,7 +192,6 @@ static void OnStartAms()
         EXPECT_TRUE(AbilityMgrModuleTest::abilityMgrServ_->pendingWantManager_);
 
         int userId = AbilityMgrModuleTest::abilityMgrServ_->GetUserId();
-        AbilityMgrModuleTest::abilityMgrServ_->SetStackManager(userId, true);
         AbilityMgrModuleTest::abilityMgrServ_->stackManagers_.emplace(0,
             AbilityMgrModuleTest::abilityMgrServ_->GetStackManager());
 

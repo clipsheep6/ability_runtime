@@ -94,8 +94,6 @@ void AbilityStackModuleTest::OnStartabilityMs(std::shared_ptr<AbilityManagerServ
         abilityMs->currentMissionListManager_->Init();
         abilityMs->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs->pendingWantManager_);
-        int userId = abilityMs->GetUserId();
-        abilityMs->SetStackManager(userId, true);
         abilityMs->stackManagers_.emplace(0, abilityMs->GetStackManager());
         abilityMs->eventLoop_->Run();
         return;

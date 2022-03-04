@@ -121,10 +121,6 @@ public:
     {
         return 0;
     }
-    virtual int GetAllStackInfo(AAFwk::StackInfo &stackInfo) override
-    {
-        return 0;
-    }
     virtual int GetRecentMissions(
         const int32_t numMax, const int32_t flags, std::vector<AAFwk::AbilityMissionInfo> &recentList) override
     {

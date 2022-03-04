@@ -40,7 +40,6 @@ public:
         std::vector<RunningProcessInfo> &info, const std::string &processName, AppProcessState expectedState, int code);
     void StartAbilitySelf(
         const std::string &bundleName, const std::string &abilityNmae, AbilityManagerApi api, int codeIndex, int code);
-    void GetAllStackInfo(AAFwk::MissionStackInfo &missionStackInfo, int stackID);
 
     // GetAllRunningProcesses ST kit case
     void AbilityManagerGetAllRunningProcessesCase1(int code);
@@ -53,17 +52,6 @@ public:
     void AbilityManagerGetAllRunningProcessesCase8(int code);
     void AbilityManagerGetAllRunningProcessesCase9(int code);
     void AbilityManagerGetAllRunningProcessesCase10(int code);
-
-    // GetAllStackInfo ST kit case
-    void AbilityManagerGetAllStackInfoCase1(int code);
-    void AbilityManagerGetAllStackInfoCase2(int code);
-    void AbilityManagerGetAllStackInfoCase3(int code);
-    void AbilityManagerGetAllStackInfoCase4(int code);
-    void AbilityManagerGetAllStackInfoCase5(int code);
-    void AbilityManagerGetAllStackInfoCase6(int code);
-    void AbilityManagerGetAllStackInfoCase7(int code);
-    void AbilityManagerGetAllStackInfoCase8(int code);
-    void AbilityManagerGetAllStackInfoCase9(int code);
 
     // QueryRecentAbilityMissionInfo ST kit case
     void QueryRecentAbilityMissionInfoParam(int numMax, int code, std::size_t size, int flags);
@@ -124,16 +112,6 @@ private:
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase8(code); }},
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase9(code); }},
                 {[this](int code) { AbilityManagerGetAllRunningProcessesCase10(code); }}}},
-        {static_cast<int>(AbilityManagerApi::GetAllStackInfo),
-            {{[this](int code) { AbilityManagerGetAllStackInfoCase1(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase2(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase3(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase4(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase5(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase6(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase7(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase8(code); }},
-                {[this](int code) { AbilityManagerGetAllStackInfoCase9(code); }}}},
         {static_cast<int>(AbilityManagerApi::QueryRecentAbilityMissionInfo),
             {{[this](int code) { AbilityManagerQueryRecentAbilityMissionInfoCase1(code); }},
                 {[this](int code) { AbilityManagerQueryRecentAbilityMissionInfoCase2(code); }},

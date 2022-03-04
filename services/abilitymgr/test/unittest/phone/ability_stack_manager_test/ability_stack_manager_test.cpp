@@ -100,9 +100,6 @@ void AbilityStackManagerTest::OnStartabilityMs()
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs_->pendingWantManager_);
 
-        int userId = abilityMs_->GetUserId();
-        abilityMs_->SetStackManager(userId, true);
-
         abilityMs_->eventLoop_->Run();
 
         return;

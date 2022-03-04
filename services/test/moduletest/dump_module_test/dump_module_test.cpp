@@ -141,8 +141,6 @@ void DumpModuleTest::OnStartAms()
         g_abilityMs->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(g_abilityMs->pendingWantManager_);
 
-        int userId = g_abilityMs->GetUserId();
-        g_abilityMs->SetStackManager(userId, true);
         g_abilityMs->stackManagers_.emplace(0, g_abilityMs->GetStackManager());
         g_abilityMs->eventLoop_->Run();
         GTEST_LOG_(INFO) << "OnStart success";
@@ -552,49 +550,6 @@ HWTEST_F(DumpModuleTest, dump_module_test_09, TestSize.Level2)
     args = "-m 1";
     g_abilityMs->DumpState(args, dumpInfo);
     EXPECT_EQ(2UL, dumpInfo.size());
-}
-
-/*
- * Feature: Aafwk
- * Function: GetAllStackInfo
- * SubFunction: NA
- * FunctionPoints: test AbilityManagerService GetAllStackInfo
- * EnvConditions: System running normally
- * CaseDescription: Get info of all stacks
- */
-
-HWTEST_F(DumpModuleTest, dump_module_test_010, TestSize.Level2)
-{
-    std::string args;
-    StackInfo stackInfo;
-    g_abilityMs->GetAllStackInfo(stackInfo);
-
-    int findFlag = 0;
-    for (auto &stackInfo : stackInfo.missionStackInfos) {
-        for (auto &missionRecord : stackInfo.missionRecords) {
-
-            if (SearchAbilityNameFromStackInfo(G_TESTABILITY1.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-            if (SearchAbilityNameFromStackInfo(G_TESTABILITY2.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-            if (SearchAbilityNameFromStackInfo(G_TESTABILITY3.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-            if (SearchAbilityNameFromStackInfo(G_TESTABILITY4.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-            if (SearchAbilityNameFromStackInfo(G_TESTABILITY6.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-            if (SearchAbilityNameFromStackInfo(G_LAUNCHABILITY.GetAbilityName(), missionRecord.abilityRecordInfos)) {
-                ++findFlag;
-            }
-        }
-    }
-
-    EXPECT_EQ(6, findFlag);
 }
 
 /*

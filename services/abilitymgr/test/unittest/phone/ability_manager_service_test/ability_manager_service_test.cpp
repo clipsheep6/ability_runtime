@@ -146,7 +146,6 @@ void AbilityManagerServiceTest::OnStartAms()
         abilityMs_->currentMissionListManager_ = std::make_shared<MissionListManager>(0);
         abilityMs_->currentMissionListManager_->Init();
         int userId = abilityMs_->GetUserId();
-        abilityMs_->SetStackManager(userId, true);
         EXPECT_TRUE(abilityMs_->GetStackManager());
         abilityMs_->stackManagers_.emplace(0, abilityMs_->GetStackManager());
         abilityMs_->eventLoop_->Run();
@@ -595,20 +594,6 @@ HWTEST_F(AbilityManagerServiceTest, Interface_012, TestSize.Level1)
     OHOS::sptr<Token> token = new Token(record);
     auto res1 = abilityMs_->AbilityTransitionDone(token, OHOS::AAFwk::AbilityState::ACTIVE, saveData);
     EXPECT_EQ(res1, OHOS::ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: SetStackManager and GetStackManager
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SetStackManager and GetStackManager
- * EnvConditions: NA
- * CaseDescription: Verify set and get
- */
-HWTEST_F(AbilityManagerServiceTest, Interface_013, TestSize.Level1)
-{
-    abilityMs_->SetStackManager(0, true);
-    EXPECT_NE(nullptr, abilityMs_->GetStackManager());
 }
 
 /*
@@ -1114,51 +1099,6 @@ HWTEST_F(AbilityManagerServiceTest, Interface_025, TestSize.Level1)
     auto result5 = abilityMs_->ScheduleCommandAbilityDone(service->GetToken());
     WaitUntilTaskFinished();
     EXPECT_EQ(result5, ERR_INVALID_VALUE);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: GetAllStackInfo
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetAllStackInfo
- * EnvConditions: NA
- * CaseDescription: Verify getallstackenfo results
- */
-HWTEST_F(AbilityManagerServiceTest, Interface_026, TestSize.Level1)
-{
-    EXPECT_TRUE(abilityMs_ != nullptr);
-    Want want;
-    ElementName element("device", "com.ix.hiMusic", "MusicAbility");
-    want.SetElement(element);
-    auto result = StartAbility(want);
-    WaitUntilTaskFinished();
-    EXPECT_EQ(OHOS::ERR_OK, result);
-    auto stackManager = abilityMs_->GetStackManager();
-    auto topAbility = stackManager->GetCurrentTopAbility();
-    topAbility->SetAbilityState(AAFwk::AbilityState::ACTIVE);
-
-    Want want1;
-    ElementName element1("device", "com.ix.hiMusic", "MusicTopAbility");
-    want1.SetElement(element1);
-    auto result1 = StartAbility(want1);
-    WaitUntilTaskFinished();
-    EXPECT_EQ(OHOS::ERR_OK, result1);
-    stackManager = abilityMs_->GetStackManager();
-    topAbility = stackManager->GetCurrentTopAbility();
-    topAbility->SetAbilityState(AAFwk::AbilityState::ACTIVE);
-
-    Want want2;
-    ElementName element2("device", "com.ix.hiMusic", "MusicTopAbility");
-    want2.SetElement(element2);
-    auto result2 = StartAbility(want2);
-    WaitUntilTaskFinished();
-    EXPECT_EQ(OHOS::ERR_OK, result2);
-    stackManager = abilityMs_->GetStackManager();
-    topAbility = stackManager->GetCurrentTopAbility();
-
-    StackInfo info;
-    stackManager->GetAllStackInfo(info);
-    EXPECT_EQ(static_cast<int>(info.missionStackInfos.size()), 2);
 }
 
 /*

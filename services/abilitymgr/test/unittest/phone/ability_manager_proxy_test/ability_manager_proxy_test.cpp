@@ -446,25 +446,6 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_019, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: GetAllStackInfo
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetAllStackInfo
- * EnvConditions: NA
- * CaseDescription: Verify the normal conditions of getAllStackInfo
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_0020, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    StackInfo stackInfo;
-    proxy_->GetAllStackInfo(stackInfo);
-
-    EXPECT_EQ(IAbilityManager::LIST_STACK_INFO, mock_->code_);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: GetRecentMissions
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetRecentMissions

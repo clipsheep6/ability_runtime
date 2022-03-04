@@ -110,17 +110,6 @@ void KitTestAbilityManagerSecond::ProcessStateNotEqual(
     PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
 }
 
-void KitTestAbilityManagerSecond::GetAllStackInfo(MissionStackInfo &missionStackInfo, int stackID)
-{
-    StackInfo stackInfo = AbilityManager::GetInstance().GetAllStackInfo();
-    for (const auto &stackInfo : stackInfo.missionStackInfos) {
-        if (stackInfo.id == stackID) {
-            missionStackInfo = stackInfo;
-            break;
-        }
-    }
-}
-
 // GetAllRunningProcesses ST kit case
 void KitTestAbilityManagerSecond::AbilityManagerGetAllRunningProcessesCase1(int code)
 {
@@ -168,59 +157,6 @@ void KitTestAbilityManagerSecond::AbilityManagerGetAllRunningProcessesCase6(int 
             result = true;
         }
     }
-    PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-// GetAllStackInfo ST kit case
-void KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase1(int code)
-{
-    APP_LOGI("KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase1");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 0);
-    bool result = (missionStackInfo.missionRecords.size() == 1);
-    PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase2(int code)
-{
-    APP_LOGI("KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase2");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 0);
-    auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
-    bool result = (abilityInfos[0].mainName.compare(launchAbilityName) == 0);
-    PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase3(int code)
-{
-    APP_LOGI("KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase3");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 1);
-    bool result = (missionStackInfo.missionRecords.size() == 1);
-    PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase4(int code)
-{
-    APP_LOGI("KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase4");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 1);
-    bool result = false;
-    if (missionStackInfo.missionRecords.size() == 1) {
-        result = (missionStackInfo.missionRecords[0].abilityRecordInfos.size() == numTwo);
-    }
-    PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
-}
-
-void KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase5(int code)
-{
-    APP_LOGI("KitTestAbilityManagerSecond::AbilityManagerGetAllStackInfoCase5");
-    MissionStackInfo missionStackInfo;
-    GetAllStackInfo(missionStackInfo, 1);
-    auto abilityInfos = missionStackInfo.missionRecords[0].abilityRecordInfos;
-    bool currentResult = (abilityInfos[0].mainName.compare(currentAbilityName) == 0);
-    bool topResult = (abilityInfos[1].mainName.compare(topAbilityName) == 0);
-    bool result = (currentResult && topResult);
     PublishEvent(g_respPageManagerAbilityST, code, std::to_string(result));
 }
 

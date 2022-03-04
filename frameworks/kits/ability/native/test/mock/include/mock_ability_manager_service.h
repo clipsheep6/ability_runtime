@@ -114,7 +114,6 @@ public:
         return 0;
     }
 
-    MOCK_METHOD1(GetAllStackInfo, int(StackInfo &stackInfo));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));

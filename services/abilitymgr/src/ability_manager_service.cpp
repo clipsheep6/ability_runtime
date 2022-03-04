@@ -195,8 +195,6 @@ bool AbilityManagerService::Init()
     }
     useNewMission_ = amsConfigResolver_->IsUseNewMission();
 
-    SetStackManager(userId, true);
-
     InitMissionListManager(userId, true);
 
     SwitchManagers(U0_USER_ID, false);
@@ -2294,23 +2292,6 @@ std::shared_ptr<AbilityEventHandler> AbilityManagerService::GetEventHandler()
     return handler_;
 }
 
-void AbilityManagerService::SetStackManager(int userId, bool switchUser)
-{
-    auto iterator = stackManagers_.find(userId);
-    if (iterator != stackManagers_.end()) {
-        if (switchUser) {
-            currentStackManager_ = iterator->second;
-        }
-    } else {
-        auto manager = std::make_shared<AbilityStackManager>(userId);
-        manager->Init();
-        stackManagers_.emplace(userId, manager);
-        if (switchUser) {
-            currentStackManager_ = manager;
-        }
-    }
-}
-
 void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
 {
     bool find = false;
@@ -2530,14 +2511,6 @@ int AbilityManagerService::GenerateAbilityRequest(
     HILOG_DEBUG("End, app name: %{public}s, bundle name: %{public}s, uid: %{public}d",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
 
-    return ERR_OK;
-}
-
-int AbilityManagerService::GetAllStackInfo(StackInfo &stackInfo)
-{
-    HILOG_DEBUG("Get all stack info.");
-    CHECK_POINTER_AND_RETURN(currentStackManager_, ERR_NO_INIT);
-    currentStackManager_->GetAllStackInfo(stackInfo);
     return ERR_OK;
 }
 
@@ -2848,7 +2821,6 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     HILOG_INFO("Verification token.");
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
     CHECK_POINTER_RETURN_BOOL(connectManager_);
-    CHECK_POINTER_RETURN_BOOL(currentStackManager_);
     CHECK_POINTER_RETURN_BOOL(currentMissionListManager_);
 
     if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
@@ -3720,7 +3692,6 @@ void AbilityManagerService::UserStarted(int32_t userId)
 {
     HILOG_INFO("%{public}s", __func__);
     InitConnectManager(userId, false);
-    SetStackManager(userId, false);
     InitMissionListManager(userId, false);
     InitDataAbilityManager(userId, false);
     InitPendWantManager(userId, false);
@@ -3742,7 +3713,6 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 {
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----begin", __func__, userId);
     InitConnectManager(userId, switchUser);
-    SetStackManager(userId, switchUser);
     InitMissionListManager(userId, switchUser);
     InitDataAbilityManager(userId, switchUser);
     InitPendWantManager(userId, switchUser);
