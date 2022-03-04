@@ -19,8 +19,9 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "hilog_wrapper.h"
 #include "napi/native_node_api.h"
-#include "napi_form_manager.h"
+#include "napi_form_host.h"
 
 EXTERN_C_START
 
@@ -39,8 +40,6 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("deleteForm", NAPI_DeleteForm),
         DECLARE_NAPI_FUNCTION("releaseForm", NAPI_ReleaseForm),
         DECLARE_NAPI_FUNCTION("requestForm", NAPI_RequestForm),
-        DECLARE_NAPI_FUNCTION("setFormNextRefreshTime", NAPI_SetFormNextRefreshTime),
-        DECLARE_NAPI_FUNCTION("updateForm", NAPI_UpdateForm),
         DECLARE_NAPI_FUNCTION("castTempForm", NAPI_CastTempForm),
         DECLARE_NAPI_FUNCTION("notifyVisibleForms", NAPI_NotifyVisibleForms),
         DECLARE_NAPI_FUNCTION("notifyInvisibleForms", NAPI_NotifyInvisibleForms),
@@ -64,7 +63,7 @@ static napi_module _module = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = Init,
-    .nm_modname = "ability.formManager",
+    .nm_modname = "application.formHost",
     .nm_priv = ((void *)0),
     .reserved = {0}
 };

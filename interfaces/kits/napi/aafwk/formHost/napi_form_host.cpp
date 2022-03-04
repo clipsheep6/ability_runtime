@@ -13,13 +13,16 @@
  * limitations under the License.
  */
 
-#include "napi_form_manager.h"
+#include "napi_form_host.h"
 
 #include <cinttypes>
 #include <regex>
 #include <uv.h>
 #include <vector>
 
+#include "form_info.h"
+#include "hilog_wrapper.h"
+#include "napi_form_util.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "runtime.h"
@@ -33,27 +36,7 @@ namespace {
     constexpr size_t ARGS_SIZE_ONE = 1;
     constexpr size_t ARGS_SIZE_TWO = 2;
     constexpr size_t ARGS_SIZE_THREE = 3;
-    constexpr int INT_64_LENGTH = 19;
-    constexpr int ZERO_VALUE = 0;
-    constexpr int64_t INT_64_MAX_VALUE = 0x7FFFFFFFFFFFFFFF;
-    constexpr int DECIMAL_VALUE = 10;
-    constexpr int BASE_NUMBER = 9;
     constexpr int REF_COUNT = 1;
-    OHOS::AppExecFwk::Ability* g_ability = nullptr;
-}
-
-/**
- * @brief NapiGetResut
- *
- * @param[in] env The environment that the Node-API call is invoked under
- *
- * @return napi_value
- */
-napi_value NapiGetResut(napi_env env, int iResult)
-{
-    napi_value result;
-    NAPI_CALL(env, napi_create_int32(env, iResult, &result));
-    return result;
 }
 
 /**
@@ -63,7 +46,7 @@ napi_value NapiGetResut(napi_env env, int iResult)
  *
  * @return OHOS::AppExecFwk::Ability*
  */
-OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env)
+static OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env)
 {
     // get global value
     napi_value global = nullptr;
@@ -86,66 +69,6 @@ OHOS::AppExecFwk::Ability* GetGlobalAbility(napi_env env)
         HILOG_INFO("%{public}s, Use Local tmp Ability for Stage Module", __func__);
     }
     return ability;
-}
-
-/**
- * @brief Convert string to int64_t
- *
- * @param[in] strInfo The string information
- * @param[out] int64Value Convert string to int64_t
- *
- * @return Return the convert result
- */
-static bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value)
-{
-    size_t strLength = strInfo.size();
-    if (strLength == ZERO_VALUE) {
-        int64Value = ZERO_VALUE;
-        return true;
-    }
-    std::regex pattern("^0|-?[1-9][0-9]{0,18}$"); // "^-?[0-9]{1,19}$"
-    std::smatch match;
-    if (regex_match(strInfo, match, pattern)) {
-        HILOG_DEBUG("%{public}s, regex_match successed.", __func__);
-        if (strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1) != "-") { // maximum: 9223372036854775807
-            if (strLength < INT_64_LENGTH) {
-                int64Value = std::stoll(strInfo);
-                return true;
-            }
-            int maxSubValue = std::stoi(strInfo.substr(ZERO_VALUE, ZERO_VALUE + 1));
-            if (strLength == INT_64_LENGTH && maxSubValue < BASE_NUMBER) {
-                int64Value = std::stoll(strInfo);
-                return true;
-            }
-            // Means 0x7FFFFFFFFFFFFFFF remove the first number:(2^63 - 1 - 9 * 10 ^ 19)
-            int subValue = std::stoll(strInfo.substr(ZERO_VALUE + 1, INT_64_LENGTH - 1));
-            if (strLength == INT_64_LENGTH && subValue <= INT_64_MAX_VALUE - BASE_NUMBER *
-                pow(DECIMAL_VALUE, INT_64_LENGTH - 1)) {
-                int64Value = std::stoll(strInfo);
-                return true;
-            }
-        }
-        if (strLength < INT_64_LENGTH + 1) { // The minimum value: -9223372036854775808
-            int64Value = std::stoll(strInfo);
-            return true;
-        }
-        if (strLength == INT_64_LENGTH + 1) {
-            int minSubValue = std::stoi(strInfo.substr(1, 1));
-            if (minSubValue < BASE_NUMBER) {
-                int64Value = std::stoll(strInfo);
-                return true;
-            }
-
-            // Means 0x8000000000000000 remove the first number:-(2^63 - 9 * 10 ^ 19)
-            if (std::stoll(strInfo.substr(ZERO_VALUE + 2, INT_64_LENGTH - 1)) <=
-                (INT_64_MAX_VALUE - BASE_NUMBER * pow(DECIMAL_VALUE, INT_64_LENGTH) + 1)) {
-                int64Value = std::stoll(strInfo);
-                return true;
-            }
-        }
-    }
-    HILOG_DEBUG("%{public}s, regex_match failed.", __func__);
-    return false;
 }
 
 /**
@@ -500,7 +423,7 @@ static void InnerReleaseForm(napi_env env, AsyncReleaseFormCallbackInfo* const a
 }
 
 // NAPI_ReleaseForm InnerReleaseForm callback execute
-auto NAPI_ReleaseFormAsyncExecute = [](napi_env env, void *data) {
+napi_async_execute_callback NAPI_ReleaseFormAsyncExecute = [](napi_env env, void *data) {
     HILOG_INFO("NAPI_ReleaseForm InnerReleaseForm execute callback");
     AsyncReleaseFormCallbackInfo *asyncCallbackInfo =
     (AsyncReleaseFormCallbackInfo *)data;
@@ -508,7 +431,7 @@ auto NAPI_ReleaseFormAsyncExecute = [](napi_env env, void *data) {
 };
 
 // NAPI_ReleaseForm callback complete
-auto NAPI_ReleaseFormAsyncComplete = [](napi_env env, napi_status status, void *data) {
+napi_async_complete_callback NAPI_ReleaseFormAsyncComplete = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("NAPI_ReleaseForm compeleted callback");
     AsyncReleaseFormCallbackInfo *asyncCallbackInfo =
     (AsyncReleaseFormCallbackInfo *)data;
@@ -529,7 +452,7 @@ auto NAPI_ReleaseFormAsyncComplete = [](napi_env env, napi_status status, void *
 };
 
 // NAPI_ReleaseForm promise Complete
-auto NAPI_ReleaseFormPromiseComplete = [](napi_env env, napi_status status, void *data) {
+napi_async_complete_callback NAPI_ReleaseFormPromiseComplete = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("%{public}s, promise complete", __func__);
     AsyncReleaseFormCallbackInfo *asyncCallbackInfo =
     (AsyncReleaseFormCallbackInfo *)data;
@@ -796,323 +719,6 @@ napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
             [](napi_env env, napi_status status, void *data) {
                 HILOG_INFO("%{public}s, promise complete", __func__);
                 AsyncRequestFormCallbackInfo *asyncCallbackInfo = (AsyncRequestFormCallbackInfo *)data;
-
-                napi_value result;
-                napi_create_int32(env, asyncCallbackInfo->result, &result);
-                napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-                delete asyncCallbackInfo;
-            },
-            (void *)asyncCallbackInfo,
-            &asyncCallbackInfo->asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-        return promise;
-    }
-}
-
-/**
- * @brief  Call native kit function: SetFormNextRefreshTime
- *
- * @param[in] env The environment that the Node-API call is invoked under
- * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- *
- * @return void
- */
-static void InnerSetFormNextRefreshTime(napi_env env, AsyncNextRefreshTimeFormCallbackInfo* const asyncCallbackInfo)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    OHOS::AppExecFwk::Ability *ability = asyncCallbackInfo->ability;
-    bool ret = ability->SetFormNextRefreshTime(asyncCallbackInfo->formId, asyncCallbackInfo->time);
-    if (ret) {
-        asyncCallbackInfo->result = 1;
-    } else {
-        asyncCallbackInfo->result = 0;
-    }
-    HILOG_DEBUG("%{public}s, end", __func__);
-}
-
-/**
- * @brief  The implementation of Node-API interface: setFormNextRefreshTime
- *
- * @param[in] env The environment that the Node-API call is invoked under
- * @param[out] info An opaque datatype that is passed to a callback function
- *
- * @return This is an opaque pointer that is used to represent a JavaScript value
- */
-napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-
-    // Check the number of the arguments
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > ARGS_SIZE_THREE || argc < ARGS_SIZE_TWO) {
-        HILOG_ERROR("%{public}s, wrong number of arguments.", __func__);
-        return nullptr;
-    }
-    HILOG_INFO("%{public}s, argc = [%{public}zu]", __func__, argc);
-
-    // Check the value type of the arguments
-    napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_string, "The arguments[0] type of setFormNextRefreshTime is incorrect,\
-    expected type is string.");
-
-    std::string strFormId = GetStringFromNAPI(env, argv[0]);
-    int64_t formId;
-    bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
-    NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of setFormNextRefreshTime is incorrect,\
-    expected type is string and the content must be numeric,\
-    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
-
-    valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
-    NAPI_ASSERT(env, valueType == napi_number, "The arguments[1] type of setFormNextRefreshTime is incorrect,\
-    expected type is number.");
-
-    int32_t time;
-    napi_get_value_int32(env, argv[1], &time);
-
-    AsyncNextRefreshTimeFormCallbackInfo *asyncCallbackInfo = new
-    AsyncNextRefreshTimeFormCallbackInfo {
-        .env = env,
-        .ability = GetGlobalAbility(env),
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-        .callback = nullptr,
-        .formId = formId,
-        .time = time,
-        .result = 0,
-    };
-
-    if (argc == ARGS_SIZE_THREE) {
-        HILOG_INFO("%{public}s, asyncCallback.", __func__);
-
-        // Check the value type of the arguments
-        valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of setFormNextRefreshTime is incorrect,\
-        expected type is function.");
-
-        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
-
-        napi_value resourceName;
-        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("%{public}s, napi_create_async_work running", __func__);
-
-                AsyncNextRefreshTimeFormCallbackInfo *asyncCallbackInfo =
-                (AsyncNextRefreshTimeFormCallbackInfo *)data;
-
-                InnerSetFormNextRefreshTime(env, asyncCallbackInfo);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                AsyncNextRefreshTimeFormCallbackInfo *asyncCallbackInfo =
-                (AsyncNextRefreshTimeFormCallbackInfo *)data;
-
-                HILOG_INFO("%{public}s, napi_create_async_work complete", __func__);
-
-                if (asyncCallbackInfo->callback != nullptr) {
-                    napi_value result;
-                    napi_create_int32(env, asyncCallbackInfo->result, &result);
-                    napi_value callback;
-                    napi_value undefined;
-                    napi_get_undefined(env, &undefined);
-                    napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-                    napi_value callResult;
-                    napi_call_function(env, undefined, callback, ARGS_SIZE_ONE, &result, &callResult);
-                    napi_delete_reference(env, asyncCallbackInfo->callback);
-                }
-                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-                delete asyncCallbackInfo;
-            },
-            (void *)asyncCallbackInfo,
-            &asyncCallbackInfo->asyncWork);
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
-    } else {
-        HILOG_INFO("%{public}s, promise.", __func__);
-        napi_deferred deferred;
-        napi_value promise;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo->deferred = deferred;
-
-        napi_value resourceName;
-        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("%{public}s, promise running", __func__);
-                AsyncNextRefreshTimeFormCallbackInfo *asyncCallbackInfo =
-                (AsyncNextRefreshTimeFormCallbackInfo *)data;
-
-                InnerSetFormNextRefreshTime(env, asyncCallbackInfo);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                HILOG_INFO("%{public}s, promise complete", __func__);
-                AsyncNextRefreshTimeFormCallbackInfo *asyncCallbackInfo =
-                (AsyncNextRefreshTimeFormCallbackInfo *)data;
-
-                napi_value result;
-                napi_create_int32(env, asyncCallbackInfo->result, &result);
-                napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
-                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-                delete asyncCallbackInfo;
-            },
-            (void *)asyncCallbackInfo,
-            &asyncCallbackInfo->asyncWork);
-        napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-        return promise;
-    }
-}
-
-/**
- * @brief  Call native kit function: UpdateForm
- *
- * @param[in] env The environment that the Node-API call is invoked under
- * @param[out] asyncCallbackInfo Reference, callback info via Node-API
- *
- * @return void
- */
-static void InnerUpdateForm(napi_env env, AsyncUpdateFormCallbackInfo* const asyncCallbackInfo)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    OHOS::AppExecFwk::Ability *ability = asyncCallbackInfo->ability;
-    bool ret = ability->UpdateForm(asyncCallbackInfo->formId, *asyncCallbackInfo->formProviderData);
-    if (ret) {
-        asyncCallbackInfo->result = 1;
-    } else {
-        asyncCallbackInfo->result = 0;
-    }
-    HILOG_DEBUG("%{public}s, end", __func__);
-}
-
-/**
- * @brief  The implementation of Node-API interface: updateForm
- *
- * @param[in] env The environment that the Node-API call is invoked under
- * @param[out] info An opaque datatype that is passed to a callback function
- *
- * @return This is an opaque pointer that is used to represent a JavaScript value
- */
-napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-
-    // Check the number of the arguments
-    size_t argc = ARGS_SIZE_THREE;
-    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
-    if (argc > ARGS_SIZE_THREE || argc < ARGS_SIZE_TWO) {
-        HILOG_ERROR("%{public}s, wrong number of arguments.", __func__);
-        return nullptr;
-    }
-    HILOG_INFO("%{public}s, argc = [%{public}zu]", __func__, argc);
-
-    // Check the value type of the arguments
-    napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
-    NAPI_ASSERT(env, valueType == napi_string, "The arguments[0] type of updateForm is incorrect,\
-    expected type is string.");
-
-    std::string strFormId = GetStringFromNAPI(env, argv[0]);
-    int64_t formId;
-    bool isConversionSucceeded = ConvertStringToInt64(strFormId, formId);
-    NAPI_ASSERT(env, isConversionSucceeded, "The arguments[0] type of updateForm is incorrect,\
-    expected type is string and the content must be numeric,\
-    value range is: 0x8000000000000000~0x7FFFFFFFFFFFFFFF.");
-
-    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType));
-    NAPI_ASSERT(env, valueType == napi_string, "The arguments[1] type of updateForm is incorrect,\
-    expected type is string.");
-
-    OHOS::AppExecFwk::FormProviderData *formProviderData = nullptr;
-    napi_unwrap(env, argv[1], (void**)&formProviderData);
-
-    AsyncUpdateFormCallbackInfo *asyncCallbackInfo = new
-    AsyncUpdateFormCallbackInfo {
-        .env = env,
-        .ability = GetGlobalAbility(env),
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-        .callback = nullptr,
-        .formId = formId,
-        .formProviderData = std::shared_ptr<OHOS::AppExecFwk::FormProviderData>(formProviderData),
-        .result = 0,
-    };
-
-    if (argc == ARGS_SIZE_THREE) {
-        HILOG_INFO("%{public}s, asyncCallback.", __func__);
-
-        // Check the value type of the arguments
-        valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
-        NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of updateForm is incorrect,\
-        expected type is function.");
-
-        napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
-
-        napi_value resourceName;
-        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("%{public}s, napi_create_async_work running", __func__);
-                AsyncUpdateFormCallbackInfo *asyncCallbackInfo = (AsyncUpdateFormCallbackInfo *)data;
-                InnerUpdateForm(env, asyncCallbackInfo);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                AsyncUpdateFormCallbackInfo *asyncCallbackInfo = (AsyncUpdateFormCallbackInfo *)data;
-                HILOG_INFO("%{public}s, napi_create_async_work complete", __func__);
-
-                if (asyncCallbackInfo->callback != nullptr) {
-                    napi_value result;
-                    napi_create_int32(env, asyncCallbackInfo->result, &result);
-                    napi_value callback;
-                    napi_value undefined;
-                    napi_get_undefined(env, &undefined);
-                    napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
-                    napi_value callResult;
-                    napi_call_function(env, undefined, callback, ARGS_SIZE_ONE, &result, &callResult);
-                    napi_delete_reference(env, asyncCallbackInfo->callback);
-                }
-                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-                delete asyncCallbackInfo;
-            },
-            (void *)asyncCallbackInfo,
-            &asyncCallbackInfo->asyncWork);
-        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
-    } else {
-        HILOG_INFO("%{public}s, promise.", __func__);
-        napi_deferred deferred;
-        napi_value promise;
-        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        asyncCallbackInfo->deferred = deferred;
-
-        napi_value resourceName;
-        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
-            [](napi_env env, void *data) {
-                HILOG_INFO("%{public}s, promise running", __func__);
-                AsyncUpdateFormCallbackInfo *asyncCallbackInfo = (AsyncUpdateFormCallbackInfo *)data;
-                InnerUpdateForm(env, asyncCallbackInfo);
-            },
-            [](napi_env env, napi_status status, void *data) {
-                HILOG_INFO("%{public}s, promise complete", __func__);
-                AsyncUpdateFormCallbackInfo *asyncCallbackInfo = (AsyncUpdateFormCallbackInfo *)data;
 
                 napi_value result;
                 napi_create_int32(env, asyncCallbackInfo->result, &result);
@@ -2108,7 +1714,7 @@ static void InnerGetAllFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo* co
 }
 
 // NAPI_GetAllFormsInfo callback execute
-auto NAPI_GetAllFormsInfoAsyncExecute = [](napi_env env, void *data) {
+napi_async_execute_callback NAPI_GetAllFormsInfoAsyncExecute = [](napi_env env, void *data) {
     HILOG_INFO("NAPI_GetAllFormsInfo execute callback");
     AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo =
     (AsyncGetFormsInfoCallbackInfo *)data;
@@ -2116,7 +1722,7 @@ auto NAPI_GetAllFormsInfoAsyncExecute = [](napi_env env, void *data) {
 };
 
 // NAPI_GetFormsInfo callback complete
-auto NAPI_GetFormsInfoAsyncComplete = [](napi_env env, napi_status status, void *data) {
+napi_async_complete_callback NAPI_GetFormsInfoAsyncComplete = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("NAPI_GetFormsInfo compeleted callback");
     AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo =
     (AsyncGetFormsInfoCallbackInfo *)data;
@@ -2149,7 +1755,7 @@ auto NAPI_GetFormsInfoAsyncComplete = [](napi_env env, napi_status status, void 
 };
 
 // NAPI_GetFormsInfo promise Complete
-auto NAPI_GetFormsInfoPromiseComplete = [](napi_env env, napi_status status, void *data) {
+napi_async_complete_callback NAPI_GetFormsInfoPromiseComplete = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("%{public}s, promise complete", __func__);
     AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo =
     (AsyncGetFormsInfoCallbackInfo *)data;
@@ -2300,7 +1906,6 @@ static void InnerGetFormsInfoByModule(napi_env env, AsyncGetFormsInfoCallbackInf
         asyncCallbackInfo->bundleName,
         asyncCallbackInfo->moduleName,
         asyncCallbackInfo->formInfos);
-
     if (ret) {
         asyncCallbackInfo->result = 1;
     } else {
