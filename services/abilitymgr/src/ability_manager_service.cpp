@@ -200,6 +200,8 @@ bool AbilityManagerService::Init()
     InitMissionListManager(userId, true);
 
     SwitchManagers(U0_USER_ID, false);
+    StartingSettingsDataAbility();
+
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
     if (HiviewDFX::Watchdog::GetInstance().AddThread("AMSWatchdog", handler_, amsTimeOut) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
@@ -3190,12 +3192,9 @@ void AbilityManagerService::StartSystemApplication()
 
     if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
         HILOG_INFO("start all");
-        StartingSettingsDataAbility();
         StartingSystemUiAbility();
         return;
     }
-
-    StartingSettingsDataAbility();
     StartingSystemUiAbility();
     StartupResidentProcess(U0_USER_ID);
 }
