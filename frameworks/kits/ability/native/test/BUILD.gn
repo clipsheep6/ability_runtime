@@ -197,7 +197,9 @@ ohos_unittest("ability_lifecycle_executor_test") {
 
 ohos_unittest("ability_context_for_task_dispacher_test") {
   module_out_path = module_output_path
-  sources = [ "unittest/ability_context_for_task_dispacher_test.cpp" ]
+  sources = [
+    "unittest/ability_context_for_task_dispacher_test.cpp",
+  ]
 
   include_dirs = [ "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include" ]
 
@@ -372,7 +374,9 @@ ohos_unittest("scene_created_test") {
 
   configs = [ ":module_ability_context_config" ]
 
-  sources = [ "unittest/scene_created_test.cpp" ]
+  sources = [
+    "unittest/scene_created_test.cpp",
+  ]
 
   deps = [
     "${INNERKITS_PATH}/want:want",
@@ -401,7 +405,9 @@ ohos_unittest("data_ability_helper_test") {
   module_out_path = module_output_path
   include_dirs = [ "//foundation/aafwk/standard/services/abilitymgr/include" ]
 
-  sources = [ "unittest/data_ability_helper_test.cpp" ]
+  sources = [
+    "unittest/data_ability_helper_test.cpp",
+  ]
 
   configs = [ ":module_ability_context_config" ]
 
@@ -431,7 +437,9 @@ ohos_unittest("data_ability_helper_test") {
 
 ohos_unittest("data_ability_operation_test") {
   module_out_path = module_output_path
-  sources = [ "unittest/data_ability_operation_test.cpp" ]
+  sources = [
+    "unittest/data_ability_operation_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -591,6 +599,33 @@ ohos_unittest("ability_thread_test") {
     "native_appdatamgr:native_dataability",
     "native_appdatamgr:native_rdb",
   ]
+}
+
+ohos_unittest("ability_thread_call_request_test") {
+  module_out_path = module_output_path
+  sources = [
+    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/context_container.cpp",
+    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
+    "unittest/ability_thread_call_request_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${INNERKITS_PATH}/want:want",
+    "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
+    "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
+    "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
+    "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [ "ability_runtime:runtime" ]
 }
 
 ohos_unittest("form_provider_client_test") {
@@ -871,7 +906,9 @@ ohos_unittest("data_uri_utils_test") {
 
 ohos_unittest("pac_map_test") {
   module_out_path = module_output_path
-  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/pac_map_test.cpp" ]
+  sources = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/pac_map_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -927,7 +964,9 @@ ohos_unittest("ability_permission_test") {
 
 ohos_unittest("task_handler_client_test") {
   module_out_path = module_output_path
-  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/task_handler_client_test.cpp" ]
+  sources = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/task_handler_client_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -949,7 +988,9 @@ ohos_unittest("task_handler_client_test") {
 ohos_unittest("ability_thread_for_ability_on_configuration_update") {
   module_out_path = module_output_path
 
-  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/ability_thread_for_ability_on_configuration_update.cpp" ]
+  sources = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/ability_thread_for_ability_on_configuration_update.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -974,7 +1015,9 @@ ohos_unittest("ability_thread_for_ability_on_configuration_update") {
 
 ohos_unittest("data_ability_result_test") {
   module_out_path = module_output_path
-  sources = [ "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/data_ability_result_test.cpp" ]
+  sources = [
+    "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/data_ability_result_test.cpp",
+  ]
 
   configs = [ ":module_private_config" ]
 
@@ -1094,6 +1137,7 @@ group("unittest") {
     # ":ability_test",
     ":ability_thread_dataability_test",
     ":ability_thread_test",
+    ":ability_thread_call_request_test",
     ":continuation_test",
 
     # ":data_ability_helper_test",
