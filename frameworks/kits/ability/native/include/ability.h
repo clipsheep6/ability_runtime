@@ -94,16 +94,12 @@ class Ability : public IAbilityEvent,
                 public AbilityContext,
 #ifdef SUPPORT_GRAPHICS
                 public FormCallbackInterface,
+                public OHOS::Rosen::DisplayManager::IDisplayListener,
+                public OHOS::Rosen::IDisplayMoveListener,
 #endif
                 public IAbilityContinuation,
                 public IAbilityCallback,
-                public std::enable_shared_from_this<Ability>
-#ifdef SUPPORT_GRAPHICS
-                ,
-                public OHOS::Rosen::DisplayManager::IDisplayListener,
-                public OHOS::Rosen::IDisplayMoveListener 
-#endif
-                {
+                public std::enable_shared_from_this<Ability> {
 public:
 #ifdef SUPPORT_GRAPHICS
     friend class PageAbilityImpl;
