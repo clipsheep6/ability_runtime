@@ -12,6 +12,7 @@
 # limitations under the License.
 
 declare_args() {
-    ability_runtime_graphics = true
-    ability_runtime_power = true
+  ability_runtime_graphics = true
+  ability_runtime_power = true
 }
+
