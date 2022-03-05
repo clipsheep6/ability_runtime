@@ -15,22 +15,28 @@
 
 #include <gtest/gtest.h>
 
+#include "ability_manager_errors.h"
 #define private public
 #define protected public
+#include "ability_record.h"
 #include "app_scheduler.h"
 #undef private
 #undef protected
-
 #include "app_state_call_back_mock.h"
-#include "ability_record.h"
-#include "element_name.h"
 #include "app_process_data.h"
+#include "element_name.h"
 
+using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int32_t USER_ID = 100;
+const std::string STRING_APP_STATE = "BEGIN";
+}  // namespace
+
 class AppSchedulerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -71,6 +77,55 @@ AbilityRequest AppSchedulerTest::GenerateAbilityRequest(const std::string &devic
     abilityRequest.appInfo = appinfo;
 
     return abilityRequest;
+}
+
+/**
+ * @tc.name: AppScheduler_GetConfiguration_0100
+ * @tc.desc: GetConfiguration
+ * @tc.type: FUNC
+ * @tc.require: SR000GH1GO
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_GetConfiguration_0100, TestSize.Level1)
+{
+    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = nullptr;
+
+    Configuration config;
+    auto result = DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config);
+
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_GetProcessRunningInfosByUserId_0100
+ * @tc.desc: GetProcessRunningInfosByUserId
+ * @tc.type: FUNC
+ * @tc.require: SR000GH1GO
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_GetProcessRunningInfosByUserId_0100, TestSize.Level1)
+{
+    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = nullptr;
+
+    std::vector<RunningProcessInfo> info;
+    int32_t userId = USER_ID;
+    auto result = DelayedSingleton<AppScheduler>::GetInstance()->GetProcessRunningInfosByUserId(info, userId);
+
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_ConvertAppState_0100
+ * @tc.desc: ConvertAppState
+ * @tc.type: FUNC
+ * @tc.require: SR000GH1GO
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_ConvertAppState_0100, TestSize.Level1)
+{
+    DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = nullptr;
+
+    AppState state;
+    auto result = DelayedSingleton<AppScheduler>::GetInstance()->ConvertAppState(state);
+
+    EXPECT_EQ(result, STRING_APP_STATE);
 }
 
 /*

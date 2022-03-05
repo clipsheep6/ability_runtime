@@ -1077,11 +1077,7 @@ void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
     napi_get_undefined(env, &undefined);
     napi_value callResult = 0;
     napi_value result[ARGS_TWO] = {nullptr};
-
-    if (asyncCallbackInfo->error_code) {
-        NAPI_CALL_RETURN_VOID(env, napi_create_int32(env, asyncCallbackInfo->error_code, &result[PARAM0]));
-    }
-    
+    result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->error_code);
     if (asyncCallbackInfo->error_code == NAPI_ERR_NO_ERROR) {
         result[PARAM1] = WrapVoidToJS(env);
     } else {
@@ -1178,7 +1174,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     bool isTypedArray = false;
     napi_status status = napi_is_typedarray(env, jsValue, &isTypedArray);
     if (status != napi_ok || !isTypedArray) {
-        HILOG_ERROR("%{public}s called, napi_is_typedarray error", __func__);
+        HILOG_INFO("%{public}s called, napi_is_typedarray error", __func__);
         return {};
     }
 
@@ -1196,10 +1192,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     NAPI_CALL_BASE(env, napi_get_arraybuffer_info(env, buffer, reinterpret_cast<void **>(&data), &total), {});
     length = std::min<size_t>(length, total - offset);
     std::vector<std::string> result(sizeof(std::string) + length);
-    int retCode = memcpy_s(result.data(), result.size(), &data[offset], length);
-    if (retCode != 0) {
-        return {};
-    }
+    memcpy_s(result.data(), result.size(), &data[offset], length);
     return result;
 }
 }  // namespace AppExecFwk

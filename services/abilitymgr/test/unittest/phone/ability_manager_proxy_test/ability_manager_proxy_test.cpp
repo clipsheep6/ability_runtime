@@ -51,6 +51,30 @@ void AbilityManagerProxyTest::SetUp()
     proxy_ = std::make_shared<AbilityManagerProxy>(mock_);
 }
 
+/**
+ * @tc.name: AbilityManagerProxy_DumpSysState_0100
+ * @tc.desc: DumpMissionListByRecordId
+ * @tc.type: FUNC
+ * @tc.require: SR000GH1GO
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 start");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    std::string args;
+    std::vector<std::string> info;
+    bool isClient = false;
+    bool isUserID = true;
+    int userId = 100;
+    proxy_->DumpSysState(args, info, isClient, isUserID, userId);
+
+    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 end");
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: StartAbility
