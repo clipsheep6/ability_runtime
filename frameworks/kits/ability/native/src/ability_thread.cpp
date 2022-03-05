@@ -1596,11 +1596,11 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
     return abilityContextImpl;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     APP_LOGI("%{public}s begin.", __func__);
     if (!params.empty()) {
-#ifdef SUPPORT_GRAPHICS
         if (abilityImpl_->IsStageBasedModel()) {
             auto scene = currentAbility_->GetScene();
             if (scene == nullptr) {
@@ -1614,11 +1614,8 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
             }
             window->DumpInfo(params, info);
         } else {
-#endif
             currentAbility_->Dump(params, info);
-#ifdef SUPPORT_GRAPHICS
         }
-#endif
 
         return;
     }
@@ -1660,6 +1657,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
 
     APP_LOGI("localCallContainer need to get calls info.");
 }
+#endif
 
 sptr<IRemoteObject> AbilityThread::CallRequest()
 {
