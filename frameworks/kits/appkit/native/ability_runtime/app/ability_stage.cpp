@@ -24,7 +24,7 @@ namespace AbilityRuntime {
 std::shared_ptr<AbilityStage> AbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
-    if (!runtime) {
+    if (!runtime || !hapModuleInfo.isStageBasedModel) {
         return std::make_shared<AbilityStage>();
     }
 
