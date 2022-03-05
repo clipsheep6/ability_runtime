@@ -40,6 +40,8 @@ struct InnerMissionInfo {
     MissionInfo missionInfo;
     std::string missionName;
     bool isSingletonMode;
+    std::string bundleName;
+    int32_t uid;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);
