@@ -199,6 +199,7 @@ bool AbilityManagerService::Init()
 
     InitMissionListManager(userId, true);
 
+    ConnectBmsService();
     SwitchManagers(U0_USER_ID, false);
     StartingSettingsDataAbility();
 
