@@ -234,5 +234,23 @@ HWTEST_F(AbilitySchedulerStubTest, AbilitySchedulerStub_009, TestSize.Level0)
     auto res = stub_->OnRemoteRequest(IAbilityScheduler::NOTIFY_CONTINUATION_RESULT, data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/**
+ * @tc.name: AbilitySchedulerStub_010
+ * @tc.desc: test DumpAbilityInfo
+ * @tc.type: FUNC
+ * @tc.require: SR000GH1GO
+ */
+HWTEST_F(AbilitySchedulerStubTest, AbilitySchedulerStub_010, TestSize.Level0)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    int32_t result = 0;
+    data.WriteInt32(result);
+    auto res = stub_->OnRemoteRequest(IAbilityScheduler::DUMP_ABILITY_RUNNER_INNER, data, reply, option);
+    EXPECT_EQ(res, NO_ERROR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

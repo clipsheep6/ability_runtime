@@ -628,8 +628,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
         abilityRequest.compatibleVersion);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
-        std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
+    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert({ dataAbilityName, dataAbilityRecord });
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
@@ -667,8 +666,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
         abilityRequest.compatibleVersion);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
-        std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
+    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert({ dataAbilityName, dataAbilityRecord });
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
@@ -706,8 +704,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest.compatibleVersion);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
-        std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
+    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert({ dataAbilityName, dataAbilityRecord });
 
     ElementName element2("device", "com.ix.hiMusic", "MusicAbilityOther");
     want.SetElement(element2);
@@ -722,8 +719,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest2.compatibleVersion);
     dataAbilityRecord2->ability_ = abilityRecord2;
     const std::string dataAbilityName2(abilityRequest2.abilityInfo.bundleName + '.' + abilityRequest2.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
-        std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName2, dataAbilityRecord2));
+    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert({ dataAbilityName2, dataAbilityRecord2 });
 
     std::vector<AbilityRunningInfo> infos;
     abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
