@@ -24,7 +24,10 @@ group("systemtest") {
 
   deps = [
     "common/ams:systemtest",
-    "common/fms:systemtest",
     "common/task_dispatcher:systemtest_task",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "common/fms:systemtest" ]
+  }
 }
