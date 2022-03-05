@@ -33,7 +33,6 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AAFwk {
-
 class AbilityRecordTest : public testing::TestWithParam<OHOS::AAFwk::AbilityState> {
 public:
     static void SetUpTestCase(void);

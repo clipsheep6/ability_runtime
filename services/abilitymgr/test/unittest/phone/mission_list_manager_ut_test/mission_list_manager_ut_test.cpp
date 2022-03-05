@@ -62,11 +62,14 @@ void MissionListManagerTest::TearDown(void)
 
 class MissionListManagerTestStub : public IRemoteStub<IAbilityConnection> {
 public:
-    MissionListManagerTestStub(){};
-    virtual ~MissionListManagerTestStub(){};
+    MissionListManagerTestStub() {};
+    virtual ~MissionListManagerTestStub() {};
 
     virtual int OnRemoteRequest(
-        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) { return 0; };
+        uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
+    {
+        return 0;
+    };
 
     virtual void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) {};
@@ -85,7 +88,8 @@ public:
     MissionListManagerTestAbilityThreadStub() {};
     ~MissionListManagerTestAbilityThreadStub() {};
 
-    sptr<IRemoteObject> CallRequest() {
+    sptr<IRemoteObject> CallRequest()
+    {
         sptr<MissionListManagerTestStub> remote = new (std::nothrow) MissionListManagerTestStub();
         return remote->AsObject();
     }

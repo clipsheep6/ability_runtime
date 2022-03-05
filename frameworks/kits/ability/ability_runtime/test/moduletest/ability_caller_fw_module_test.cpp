@@ -81,7 +81,6 @@ void AbilityCallerTest::TearDown(void)
  */
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0100, Function | MediumTest | Level1)
 {
-
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 
@@ -140,7 +139,6 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTe
  */
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0100, Function | MediumTest | Level1)
 {
-
     Want want;
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
 
@@ -175,7 +173,6 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0200, Function | Medium
  */
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0100, Function | MediumTest | Level1)
 {
-
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
 

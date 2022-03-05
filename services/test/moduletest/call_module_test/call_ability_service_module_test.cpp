@@ -44,7 +44,6 @@ namespace {
 
 namespace OHOS {
 namespace AAFwk {
-
 static void WaitUntilTaskFinished()
 {
     const uint32_t maxRetryCount = 1000;
@@ -198,90 +197,6 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_002, TestSize.Level1)
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(ERR_OK, abilityMs_->CheckCallPermissions(abilityRequest_));
-}
-
-/**
- * @tc.name: StartAbilityByCall_001
- * @tc.desc: Verify function StartAbilityByCall return RESOLVE_ABILITY_ERR
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(AbilityManagerServiceTest, StartAbilityByCall_001, TestSize.Level1)
-{
-    Want want;
-    sptr<IAbilityConnection> connect = new MockAbilityConnectCallback();
-    EXPECT_EQ(RESOLVE_ABILITY_ERR, abilityMs_->StartAbilityByCall(want, connect, nullptr));
-}
-
-/**
- * @tc.name: StartAbilityByCall_002
- * @tc.desc: Verify function StartAbilityByCall return RESOLVE_CALL_ABILITY_VERSION_ERR
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(AbilityManagerServiceTest, StartAbilityByCall_002, TestSize.Level1)
-{
-    std::string localDeviceId;
-    bool getLocalDeviceId = abilityMs_->GetLocalDeviceId(localDeviceId);
-    EXPECT_EQ(true, getLocalDeviceId);
-    Want want;
-    ElementName element(localDeviceId, "com.ix.hiMusic", "MusicAbility");
-    want.SetElement(element);
-    sptr<IAbilityConnection> connect = new MockAbilityConnectCallback();
-    EXPECT_EQ(RESOLVE_CALL_ABILITY_VERSION_ERR, abilityMs_->StartAbilityByCall(want, connect, nullptr));
-}
-
-/**
- * @tc.name: StartAbilityByCall_003
- * @tc.desc: Verify function StartAbilityByCall return RESOLVE_CALL_NO_PERMISSIONS
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(AbilityManagerServiceTest, StartAbilityByCall_003, TestSize.Level1)
-{
-    std::string localDeviceId;
-    bool getLocalDeviceId = abilityMs_->GetLocalDeviceId(localDeviceId);
-    EXPECT_EQ(true, getLocalDeviceId);
-    Want want;
-    ElementName element(localDeviceId, "com.ix.hiworld", "MusicAbility");
-    want.SetElement(element);
-    sptr<IAbilityConnection> connect = new MockAbilityConnectCallback();
-    EXPECT_EQ(RESOLVE_CALL_NO_PERMISSIONS, abilityMs_->StartAbilityByCall(want, connect, nullptr));
-}
-
-/**
- * @tc.name: ReleaseAbility_001
- * @tc.desc: Verify function ReleaseAbility return ERR_INVALID_VALUE
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(AbilityManagerServiceTest, ReleaseAbility_001, TestSize.Level1)
-{
-    std::string localDeviceId;
-    bool getLocalDeviceId = abilityMs_->GetLocalDeviceId(localDeviceId);
-    EXPECT_EQ(true, getLocalDeviceId);
-    Want want;
-    ElementName element(localDeviceId, "com.ix.hiworld", "MusicAbility");
-    want.SetElement(element);
-    EXPECT_EQ(ERR_INVALID_VALUE, abilityMs_->ReleaseAbility(nullptr, element));
-}
-
-/**
- * @tc.name: ReleaseAbility_002
- * @tc.desc: Verify function ReleaseAbility return RELEASE_CALL_ABILITY_INNER_ERR
- * @tc.type: FUNC
- * @tc.require:
- */
-HWTEST_F(AbilityManagerServiceTest, ReleaseAbility_002, TestSize.Level1)
-{
-    std::string localDeviceId;
-    bool getLocalDeviceId = abilityMs_->GetLocalDeviceId(localDeviceId);
-    EXPECT_EQ(true, getLocalDeviceId);
-    Want want;
-    ElementName element(localDeviceId, "com.ix.hiworld", "MusicAbility");
-    want.SetElement(element);
-    sptr<IAbilityConnection> connect = new MockAbilityConnectCallback();
-    EXPECT_EQ(RELEASE_CALL_ABILITY_INNER_ERR, abilityMs_->ReleaseAbility(connect, element));
 }
 
 /**

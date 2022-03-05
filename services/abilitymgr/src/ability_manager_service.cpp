@@ -3477,6 +3477,18 @@ int AbilityManagerService::StartAbilityByCall(
         return RESOLVE_CALL_NO_PERMISSIONS;
     }
 
+    HILOG_DEBUG("abilityInfo.applicationInfo.singleUser is %{public}s",
+        abilityRequest.abilityInfo.applicationInfo.singleUser ? "true" : "false");
+    if (abilityRequest.abilityInfo.applicationInfo.singleUser) {
+        auto missionListManager = GetListManagerByUserId(U0_USER_ID);
+        if (missionListManager == nullptr) {
+            HILOG_ERROR("missionListManager is Null. userId=%{public}d", U0_USER_ID);
+            return ERR_INVALID_VALUE;
+        }
+
+        return missionListManager->ResolveLocked(abilityRequest);
+    }
+
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
 

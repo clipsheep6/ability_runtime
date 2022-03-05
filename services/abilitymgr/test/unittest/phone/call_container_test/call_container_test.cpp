@@ -63,7 +63,6 @@ private:
     std::shared_ptr<CallContainer> callContainer_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
     int MOCK_MAIN_USER_ID = 100;
-
 };
 
 void CallContainerTest::SetUpTestCase(void)

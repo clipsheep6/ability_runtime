@@ -26,9 +26,7 @@ namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
-
-class CurrentAbilityTest: public Ability
-{
+class CurrentAbilityTest : public Ability {
 public:
     sptr<IRemoteObject> CallRequest()
     {
@@ -116,7 +114,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0200, Fun
  */
 HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0300, Function | MediumTest | Level3)
 {
-     GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 start";
+    GTEST_LOG_(INFO) << "AaFwk_AbilityThread_CallRequest_0300 start";
 
     AbilityThread *abilitythread = new (std::nothrow) AbilityThread();
     EXPECT_NE(abilitythread, nullptr);

@@ -71,7 +71,8 @@ void LocalCallContainerTest::TearDown(void)
  */
 HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::Local_Call_Container_StartAbilityInner_0100 begain";
+    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
+        "Local_Call_Container_StartAbilityInner_0100 begain";
 
     sptr<LocalCallContainer> localCallContainer = new (std::nothrow)LocalCallContainer();
 
@@ -80,11 +81,14 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0100, Fu
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
-    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::Local_Call_Container_StartAbilityInner_0100 begain1";
+    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
+        "Local_Call_Container_StartAbilityInner_0100 begain1";
     ErrCode ret = localCallContainer->StartAbilityInner(want, callback, nullptr);
-    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::Local_Call_Container_StartAbilityInner_0100 begain2";
+    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
+        "Local_Call_Container_StartAbilityInner_0100 begain2";
     EXPECT_TRUE(ret == ERR_OK);
-    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::Local_Call_Container_StartAbilityInner_0100 end";
+    GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
+        "Local_Call_Container_StartAbilityInner_0100 end";
 }
 
 /**

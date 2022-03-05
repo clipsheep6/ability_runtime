@@ -44,7 +44,6 @@ namespace {
 
 namespace OHOS {
 namespace AAFwk {
-
 static void WaitUntilTaskFinished()
 {
     const uint32_t maxRetryCount = 1000;
