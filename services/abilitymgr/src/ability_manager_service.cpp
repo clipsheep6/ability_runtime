@@ -2859,10 +2859,12 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
     }
 
     if (dataAbilityManager_->GetAbilityRecordByToken(token)) {
+        HILOG_INFO("Verification token4.");
         return true;
     }
 
     if (connectManager_->GetServiceRecordByToken(token)) {
+        HILOG_INFO("Verification token5.");
         return true;
     }
 

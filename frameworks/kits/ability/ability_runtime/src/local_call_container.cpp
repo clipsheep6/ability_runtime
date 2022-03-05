@@ -77,7 +77,9 @@ int LocalCallContainer::StartAbilityInner(
 
 int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 {
+    HILOG_DEBUG("LocalCallContainer::Release begain.");
     auto isExist = [&callback](auto &record) {
+        HILOG_DEBUG("LocalCallContainer::Release begain1.");
         return record.second->RemoveCaller(callback);
     };
 
@@ -95,6 +97,7 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 
     if (record->IsExistCallBack()) {
         // just release callback.
+        HILOG_DEBUG("LocalCallContainer::Release begain2.");
         return ERR_OK;
     }
 
@@ -112,7 +115,7 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
     }
 
     callProxyRecords_.erase(iter);
-
+    HILOG_DEBUG("LocalCallContainer::Release end.");
     return ERR_OK;
 }
 
@@ -180,7 +183,6 @@ bool LocalCallContainer::GetCallLocalreocrd(
         localCallRecord = iter->second;
         return true;
     }
-
     return false;
 }
 
