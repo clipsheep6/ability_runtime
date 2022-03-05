@@ -17,7 +17,6 @@
 #define OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
-#include <shared_mutex>
 #include <singleton.h>
 #include <thread_ex.h>
 #include <unordered_map>
@@ -956,7 +955,7 @@ private:
      * starting lanucher ability.
      *
      */
-    bool StartingLauncherAbility(bool isBoot);
+    void StartingLauncherAbility();
     /**
      * starting settings data ability.
      *
@@ -1103,8 +1102,8 @@ private:
     void StartLauncherAbility(int32_t userId);
     void SwitchToUser(int32_t oldUserId, int32_t userId);
     void SwitchManagers(int32_t userId, bool switchUser = true);
-    void StartUserApps(int32_t userId, bool isBoot);
-    void StartSystemAbilityByUser(int32_t userId, bool isBoot);
+    void StartUserApps(int32_t userId);
+    void StartSystemAbilityByUser(int32_t userId);
     void PauseOldUser(int32_t userId);
     void PauseOldStackManager(int32_t userId);
     void PauseOldMissionListManager(int32_t userId);
@@ -1181,7 +1180,6 @@ private:
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
     std::recursive_mutex globalLock_;
-    std::shared_mutex managersMutex_;
 
     std::multimap<std::string, std::string> timeoutMap_;
 };

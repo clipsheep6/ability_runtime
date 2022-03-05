@@ -63,8 +63,6 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         // install or update
         APP_LOGI("%{public}s, bundle changed, bundleName: %{public}s", __func__, bundleName.c_str());
-        int userId = want.GetIntParam(KEY_USER_ID, 0);
-        HandleProviderUpdated(bundleName, userId);
         HandleBundleFormInfoChanged(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         APP_LOGI("%{public}s, bundle removed, bundleName: %{public}s", __func__, bundleName.c_str());
@@ -72,8 +70,7 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
         HandleBundleFormInfoRemoved(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_ABILITY_UPDATED) {
         APP_LOGI("%{public}s, bundle updated, bundleName: %{public}s", __func__, bundleName.c_str());
-        int userId = want.GetIntParam(KEY_USER_ID, 0);
-        HandleProviderUpdated(bundleName, userId);
+        HandleProviderUpdated(bundleName);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED) {
         int uid = want.GetIntParam(KEY_UID, 0);
         HandleBundleDataCleared(bundleName, uid);
@@ -91,14 +88,13 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
 /**
  * @brief Handle provider updated event.
  * @param bundleName bundle name.
- * @param userId user ID.
  * @param uid uid.
  */
-void FormSysEventReceiver::HandleProviderUpdated(const std::string &bundleName, const int userId)
+void FormSysEventReceiver::HandleProviderUpdated(const std::string &bundleName)
 {
-    APP_LOGI("%{public}s, bundleName:%{public}s, userId:%{public}d.", __func__, bundleName.c_str(), userId);
     std::vector<FormRecord> formInfos;
-    if (!FormDataMgr::GetInstance().GetFormRecord(bundleName, formInfos)) {
+    bool bResult = FormDataMgr::GetInstance().GetFormRecord(bundleName, formInfos);
+    if (!bResult) {
         APP_LOGI("%{public}s, no form info.", __func__);
         return;
     }
@@ -131,8 +127,11 @@ void FormSysEventReceiver::HandleProviderUpdated(const std::string &bundleName, 
         }
 
         APP_LOGI("%{public}s, no such form anymore, delete it:%{public}s", __func__, formRecord.formName.c_str());
-        (!formRecord.formTempFlg) ? FormDbCache::GetInstance().DeleteFormInfo(formId) :
+        if (!formRecord.formTempFlg) {
+            FormDbCache::GetInstance().DeleteFormInfo(formId);
+        } else {
             FormDataMgr::GetInstance().DeleteTempForm(formId);
+        }
         removedForms.emplace_back(formId);
         FormDataMgr::GetInstance().DeleteFormRecord(formId);
     }
@@ -149,7 +148,6 @@ void FormSysEventReceiver::HandleProviderUpdated(const std::string &bundleName, 
 
     APP_LOGI("%{public}s, refresh form", __func__);
     Want want;
-    want.SetParam(Constants::PARAM_FORM_USER_ID, userId);
     for (const int64_t id : updatedForms) {
         FormProviderMgr::GetInstance().RefreshForm(id, want);
     }

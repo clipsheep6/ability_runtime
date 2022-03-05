@@ -21,6 +21,7 @@
 #include "ability_state.h"
 #include "app_log_wrapper.h"
 #include "context_deal.h"
+#include "foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h"
 #include "mock_ability_token.h"
 #include "ohos_application.h"
 #include "page_ability_impl.h"

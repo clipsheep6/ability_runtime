@@ -23,8 +23,8 @@ config("module_private_config") {
   include_dirs = [
     "//base/global/i18n_standard/frameworks/intl/include",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/include/appmgr",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri/include",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk_L2/content",
+    "//EOSP/communication/libsoftbus/../../../foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk_L2/content",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/test/mock/include",
@@ -36,6 +36,7 @@ config("module_private_config") {
     "//foundation/aafwk/standard/frameworks/kits/fmskit/native/include",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base/include",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
     "//foundation/distributeddatamgr/distributeddatamgr/interfaces/innerkits/app_distributeddata/include",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/include",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler/include",
@@ -60,7 +61,7 @@ config("module_ability_context_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/include/appmgr",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri/include",
+    "//EOSP/communication/libsoftbus/../../../foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
     "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/mock/include",
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/test/mock/include",
@@ -108,10 +109,11 @@ ohos_unittest("ability_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
     "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
     "//foundation/aafwk/standard/interfaces/innerkits/base:base",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
+    "//foundation/aafwk/standard/interfaces/innerkits/base:base",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gmock_main",
@@ -407,13 +409,13 @@ ohos_unittest("data_ability_helper_test") {
 
   deps = [
     "${INNERKITS_PATH}/base:base",
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
     "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
     "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -436,7 +438,6 @@ ohos_unittest("data_ability_operation_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
@@ -447,6 +448,7 @@ ohos_unittest("data_ability_operation_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -475,7 +477,6 @@ ohos_unittest("ability_impl_active_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -487,6 +488,7 @@ ohos_unittest("ability_impl_active_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -512,7 +514,6 @@ ohos_unittest("ability_impl_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/i18n_standard/frameworks/intl:intl_util",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
@@ -526,6 +527,7 @@ ohos_unittest("ability_impl_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/multimodalinput/input/frameworks/proxy:libmmi-common",
     "//third_party/googletest:gtest_main",
@@ -555,6 +557,7 @@ ohos_unittest("ability_thread_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h",
     "mock/include/mock_ability_manager_client.cpp",
     "mock/include/sys_mgr_client_mock.cpp",
     "unittest/ability_thread_test.cpp",
@@ -563,7 +566,6 @@ ohos_unittest("ability_thread_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -576,6 +578,7 @@ ohos_unittest("ability_thread_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gtest_main",
@@ -646,6 +649,7 @@ ohos_unittest("data_ability_impl_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h",
     "unittest/data_ability_impl_test.cpp",
   ]
 
@@ -653,7 +657,6 @@ ohos_unittest("data_ability_impl_test") {
 
   deps = [
     "${INNERKITS_PATH}/base:base",
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -665,6 +668,7 @@ ohos_unittest("data_ability_impl_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gtest_main",
@@ -693,6 +697,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h",
     "unittest/data_ability_impl_file_secondpart_test.cpp",
   ]
 
@@ -700,7 +705,6 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
 
   deps = [
     "${INNERKITS_PATH}/base:base",
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -712,6 +716,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gtest_main",
@@ -740,6 +745,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h",
     "unittest/data_ability_impl_file_test.cpp",
   ]
 
@@ -747,7 +753,6 @@ ohos_unittest("data_ability_impl_file_test") {
 
   deps = [
     "${INNERKITS_PATH}/base:base",
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -759,6 +764,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gtest_main",
@@ -787,6 +793,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/src/ohos_application.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
+    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include/uri.h",
     "mock/include/mock_ability_manager_client.cpp",
     "mock/include/sys_mgr_client_mock.cpp",
     "unittest/ability_thread_dataability_test.cpp",
@@ -795,7 +802,6 @@ ohos_unittest("ability_thread_dataability_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -808,6 +814,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//foundation/graphic/standard:libwmclient",
     "//third_party/googletest:gtest_main",
@@ -849,15 +856,16 @@ ohos_unittest("data_uri_utils_test") {
   sources = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native/src/data_uri_utils.cpp",
     "//foundation/aafwk/standard/frameworks/kits/ability/native/test/unittest/data_uri_utils_test.cpp",
+    "//foundation/distributedschedule/dmsfwk/utils/native/source/uri.cpp",
   ]
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
     "//foundation/aafwk/standard/frameworks/kits/appkit:appkit_native",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
@@ -980,8 +988,8 @@ ohos_unittest("data_ability_result_test") {
 
   deps = [
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/interfaces/innerkits/uri:zuri",
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -1050,7 +1058,6 @@ ohos_unittest("continuation_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${INNERKITS_PATH}/uri:zuri",
     "${INNERKITS_PATH}/want:want",
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//foundation/aafwk/standard/common/task_dispatcher:task_dispatcher",
@@ -1062,6 +1069,7 @@ ohos_unittest("continuation_test") {
     "//foundation/appexecfwk/standard/common:libappexecfwk_common",
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "//foundation/distributedschedule/dmsfwk/interfaces/innerkits/uri:zuri",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

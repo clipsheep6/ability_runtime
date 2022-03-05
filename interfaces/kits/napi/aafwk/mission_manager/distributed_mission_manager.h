@@ -22,6 +22,7 @@
 #include "mission_continue_stub.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "parcel_helper.h"
 #include "securec.h"
 #include "want.h"
 #include "remote_mission_listener_stub.h"

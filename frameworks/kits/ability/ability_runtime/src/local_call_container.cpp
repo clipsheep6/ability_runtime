@@ -63,9 +63,9 @@ int LocalCallContainer::StartAbilityInner(
             HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
             return ERR_INVALID_VALUE;
         }
-        sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this);
+        sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
         HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
-        return abilityClient->StartAbilityByCall(want, this, callerToken);
+        return abilityClient->StartAbilityByCall(want, connect, callerToken);
     }
     // already finish call request.
     HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) begin");
@@ -105,7 +105,7 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
         HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
         return ERR_INVALID_VALUE;
     }
-    sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this);
+    sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
     if (abilityClient->ReleaseAbility(connect, elementName) != ERR_OK) {
         HILOG_ERROR("ReleaseAbility failed.");
         return ERR_INVALID_VALUE;
