@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/aafwk/standard/feature.gni")
 
 config("appmgr_test_service_config") {
   include_dirs = [
@@ -36,7 +37,9 @@ ohos_source_set("appmgr_test_service") {
     "//third_party/jsoncpp/include",
   ]
 
-  sources = [ "src/appmgr_test_service.cpp" ]
+  sources = [
+    "src/appmgr_test_service.cpp",
+  ]
 
   configs = [ ":appmgr_test_service_config" ]
   cflags = []
@@ -52,7 +55,9 @@ ohos_source_set("appmgr_test_service") {
     "//utils/native/base:utils",
   ]
 
-  public_deps = [ "//foundation/graphic/standard:libwmservice" ]
+  if (ability_runtime_graphics) {
+    public_deps += [ "//foundation/graphic/standard:libwmservice" ]
+  }
 
   external_deps = [
     "bundle_framework:appexecfwk_core",
