@@ -28,16 +28,12 @@ ohos_moduletest("AmsAppLifeCycleModuleTest") {
   deps = [
     "${services_path}/common:perm_verification",
     "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
   ]
 
-  external_deps = [
-    "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
-  ]
+  external_deps = [ "ipc:ipc_core" ]
 }
 
 group("moduletest") {
   testonly = true
-  deps = [ ":AmsAppLifeCycleModuleTest" ]
+  # deps = [ ":AmsAppLifeCycleModuleTest" ]
 }

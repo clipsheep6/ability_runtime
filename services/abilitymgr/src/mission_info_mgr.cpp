@@ -179,7 +179,8 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
     return true;
 }
 
-static bool DoesNotShowInTheMissionList(int32_t startMethod) {
+static bool DoesNotShowInTheMissionList(int32_t startMethod)
+{
     switch (static_cast<StartMethod>(startMethod)) {
         case StartMethod::START_CALL:
             return true;

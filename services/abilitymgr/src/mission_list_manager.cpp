@@ -288,25 +288,24 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
 
 static int32_t CallType2StartMethod(int32_t callType)
 {
-    switch (callType)
-    {
-    case AbilityCallType::INVALID_TYPE:
-        return static_cast<int32_t>(StartMethod::START_NORMAL);
-    case AbilityCallType::CALL_REQUEST_TYPE:
-        return static_cast<int32_t>(StartMethod::START_CALL);
-    default:
-        break;
+    switch (callType) {
+        case AbilityCallType::INVALID_TYPE:
+            return static_cast<int32_t>(StartMethod::START_NORMAL);
+        case AbilityCallType::CALL_REQUEST_TYPE:
+            return static_cast<int32_t>(StartMethod::START_CALL);
+        default:
+            break;
     }
     return -1;
 }
 
-static bool CallTypeFilter(int32_t callType) {
-    switch (callType)
-    {
-    case AbilityCallType::CALL_REQUEST_TYPE:
-        return true;
-    default:
-        break;
+static bool CallTypeFilter(int32_t callType)
+{
+    switch (callType) {
+        case AbilityCallType::CALL_REQUEST_TYPE:
+            return true;
+        default:
+            break;
     }
     return false;
 }
@@ -380,8 +379,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
             HILOG_INFO("targetMission UpdateMissionId(%{public}d, %{public}d) failed", info.missionInfo.id,
                 startMethod);
         }
-        HILOG_DEBUG("Update Mission Id UpdateMissionId(%{public}d, %{public}d) end", info.missionInfo.id,
-                startMethod);
+        HILOG_DEBUG("Update MissionId UpdateMissionId(%{public}d, %{public}d) end", info.missionInfo.id, startMethod);
     }
 
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
@@ -661,7 +659,6 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("ability: %{public}s", element.c_str());
         abilityRecord->ForegroundAbility(abilityRecord->lifeCycleStateInfo_.sceneFlagBak);
-        abilityRecord->lifeCycleStateInfo_.sceneFlagBak = 0;
     }
 }
 

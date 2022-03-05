@@ -22,9 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace {
-const int32_t ERROR_USER_ID_U256 = 256;
-}
 using namespace OHOS::AAFwk;
 int BundleMgrProxy::QueryWantAbility(
     const AAFwk::Want &__attribute__((unused)) want, std::vector<AbilityInfo> &__attribute__((unused)) abilityInfos)
@@ -91,12 +88,6 @@ BundleMgrService::BundleMgrService()
     abilityInfoMap_.emplace(COM_IX_MUSICSERVICE, MusicServiceInfo);
     abilityInfoMap_.emplace(COM_IX_HIDATA, HiDataInfo);
     abilityInfoMap_.emplace(COM_IX_HIEXTENSION, HiExtensionInfo);
-    abilityInfoMap_.emplace(COM_IX_HIACCOUNT, HiAccountInfo);
-    abilityInfoMap_.emplace(COM_IX_HIBACKGROUNDMUSIC, HiBAckgroundMusicInfo);
-    abilityInfoMap_.emplace(COM_IX_HIBACKGROUNDDATA, HiBAckgroundDataInfo);
-    abilityInfoMap_.emplace(COM_IX_HISINGLEMUSIC, HiSingleMusicInfo);
-    abilityInfoMap_.emplace(COM_OHOS_TEST, TestInfo);
-    abilityInfoMap_.emplace(COM_IX_ACCOUNTSERVICE, AccountServiceInfo);
     GTEST_LOG_(INFO) << "BundleMgrService()";
 }
 
@@ -133,14 +124,8 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
             return true;
         }
     }
-    if (std::string::npos != elementTemp.GetBundleName().find("Service")) {
+    if (std::string::npos != elementTemp.GetBundleName().find("service")) {
         abilityInfo.type = AppExecFwk::AbilityType::SERVICE;
-    }
-    if (std::string::npos != elementTemp.GetBundleName().find("Data")) {
-        abilityInfo.type = AppExecFwk::AbilityType::DATA;
-    }
-    if (std::string::npos != elementTemp.GetBundleName().find("Extension")) {
-        abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
     }
     abilityInfo.name = elementTemp.GetAbilityName();
     abilityInfo.bundleName = elementTemp.GetBundleName();
@@ -160,11 +145,7 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &ab
 
 bool BundleMgrService::QueryAbilityInfo(const Want &want, int32_t flags, int32_t userId, AbilityInfo &abilityInfo)
 {
-    bool flag = QueryAbilityInfo(want, abilityInfo);
-    if (userId == ERROR_USER_ID_U256) {
-        abilityInfo.applicationInfo.singleUser = false;
-    }
-    return flag;
+    return QueryAbilityInfo(want, abilityInfo);
 }
 
 bool BundleMgrService::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
@@ -178,9 +159,8 @@ bool BundleMgrService::GetApplicationInfo(
     if (appName.empty()) {
         return false;
     }
-    appInfo.name = appName;
-    appInfo.bundleName = appName;
-    appInfo.uid = userId * BASE_USER_RANGE;
+    appInfo.name = "Helloworld";
+    appInfo.bundleName = "com.ix.hiworld";
     return true;
 }
 
@@ -203,7 +183,7 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
     }
 
     auto find = false;
-    // filter abilityms onstart
+    // filter ams onstart
     for (const auto &entity : entityVector) {
         if (entity == Want::FLAG_HOME_INTENT_FROM_SYSTEM && element.GetAbilityName().empty() &&
             element.GetBundleName().empty()) {
