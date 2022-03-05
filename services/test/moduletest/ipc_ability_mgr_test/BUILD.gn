@@ -13,13 +13,16 @@
 
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/aafwk/standard/feature.gni")
 
 module_output_path = "ability_runtime/mstabilitymgrservice"
 
 ohos_moduletest("IpcAbilityMgrServiceModuleTest") {
   module_out_path = module_output_path
   include_dirs = [ "//third_party/jsoncpp/include" ]
-  sources = [ "ipc_ability_mgr_module_test.cpp" ]
+  sources = [
+    "ipc_ability_mgr_module_test.cpp",
+  ]
 
   configs = [
     "${services_path}/test:aafwk_module_test_config",
@@ -40,9 +43,12 @@ ohos_moduletest("IpcAbilityMgrServiceModuleTest") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
-    "//third_party/libpng:libpng",
     "//utils/native/base:utils",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/libpng:libpng" ]
+  }
 
   external_deps = [
     "bundle_framework:appexecfwk_core",
@@ -54,5 +60,7 @@ ohos_moduletest("IpcAbilityMgrServiceModuleTest") {
 group("moduletest") {
   testonly = true
 
-  deps = [ ":IpcAbilityMgrServiceModuleTest" ]
+  deps = [
+    ":IpcAbilityMgrServiceModuleTest",
+  ]
 }
