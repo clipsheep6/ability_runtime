@@ -271,6 +271,7 @@ int AbilityRecord::TerminateAbility()
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityRecord::SetMissionRecord(const std::shared_ptr<MissionRecord> &missionRecord)
 {
     missionRecord_ = missionRecord;
@@ -301,6 +302,7 @@ int AbilityRecord::GetMissionRecordId() const
     }
     return DEFAULT_INVAL_VALUE;
 }
+#endif
 
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
 {
@@ -424,10 +426,12 @@ bool AbilityRecord::IsReady() const
     return isReady_;
 }
 
+#ifdef SUPPORT_GRAPHICS
 bool AbilityRecord::IsWindowAttached() const
 {
     return isWindowAttached_;
 }
+#endif
 
 bool AbilityRecord::IsLauncherAbility() const
 {
@@ -656,12 +660,14 @@ void AbilityRecord::RestoreAbilityState()
     isRestarting_ = false;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityRecord::TopActiveAbilityChanged(bool flag)
 {
     HILOG_INFO("%{public}s called, isTop: %{public}d", __func__, flag);
     CHECK_POINTER(scheduler_);
     scheduler_->NotifyTopActiveAbilityChanged(flag);
 }
+#endif
 
 void AbilityRecord::SetWant(const Want &want)
 {
@@ -786,6 +792,7 @@ std::shared_ptr<AbilityRecord> AbilityRecord::GetCallerRecord() const
     return callerList_.back()->GetCaller();
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityRecord::AddWindowInfo(int windowToken)
 {
     windowInfo_ = std::make_shared<WindowInfo>(windowToken);
@@ -796,6 +803,7 @@ void AbilityRecord::RemoveWindowInfo()
 {
     windowInfo_.reset();
 }
+#endif
 
 bool AbilityRecord::IsConnectListEmpty()
 {
@@ -840,10 +848,12 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
 {
     AppExecFwk::AbilityType type = GetAbilityInfo().type;
     switch (type) {
+#ifdef SUPPORT_GRAPHICS
         case AppExecFwk::AbilityType::PAGE: {
             typeStr = "PAGE";
             break;
         }
+#endif
         case AppExecFwk::AbilityType::SERVICE: {
             typeStr = "SERVICE";
             break;
@@ -1174,6 +1184,7 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut)
     handler->SendEvent(msg, eventId_, timeOut);
 }
 
+#ifdef SUPPORT_GRAPHICS
 bool AbilityRecord::SupportMultWindow() const
 {
     // LauncherAbility don't support multi window display.
@@ -1190,6 +1201,7 @@ void AbilityRecord::NotifyMultiWinModeChanged(const AbilityWindowConfiguration &
     CHECK_POINTER(scheduler_);
     scheduler_->NotifyMultiWinModeChanged(static_cast<int32_t>(winModeKey), flag);
 }
+#endif
 
 void AbilityRecord::SetInMovingState(bool isMoving)
 {
@@ -1270,6 +1282,7 @@ void AbilityRecord::ClearFlag()
     appState_ = AppState::END;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityRecord::SetLockScreenState(const bool isLock)
 {
     isLockScreenState_ = isLock;
@@ -1279,6 +1292,7 @@ bool AbilityRecord::GetLockScreenState() const
 {
     return isLockScreenState_;
 }
+#endif
 
 void AbilityRecord::SetMovingBackgroundFlag(bool isMoving)
 {
@@ -1290,6 +1304,7 @@ bool AbilityRecord::IsMovingBackground() const
     return isMovingBackground_;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityRecord::SetLockScreenRoot()
 {
     isLockScreenRoot_ = true;
@@ -1309,6 +1324,7 @@ bool AbilityRecord::GetPowerStateLockScreen() const
 {
     return isPowerStateLockScreen_;
 }
+#endif
 
 bool AbilityRecord::IsNewVersion()
 {
@@ -1333,6 +1349,7 @@ void AbilityRecord::NotifyContinuationResult(int32_t result)
     lifecycleDeal_->NotifyContinuationResult(result);
 }
 
+#ifdef SUPPORT_GRAPHICS
 std::shared_ptr<MissionList> AbilityRecord::GetOwnedMissionList() const
 {
     return missionList_.lock();
@@ -1356,6 +1373,7 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
     }
     mission_ = mission;
 }
+#endif
 
 void AbilityRecord::SetMinimizeReason(bool fromUser)
 {
@@ -1367,6 +1385,7 @@ bool AbilityRecord::IsMinimizeFromUser() const
     return minimizeReason_;
 }
 
+#ifdef SUPPORT_GRAPHICS
 std::shared_ptr<Mission> AbilityRecord::GetMission() const
 {
     return mission_.lock();
@@ -1376,6 +1395,7 @@ int32_t AbilityRecord::GetMissionId() const
 {
     return missionId_;
 }
+#endif
 
 void AbilityRecord::SetSpecifiedFlag(const std::string &flag)
 {
