@@ -3866,7 +3866,6 @@ void AbilityManagerService::StartSystemAbilityByUser(int32_t userId, bool isBoot
         HILOG_INFO("start all");
         StartingLauncherAbility(isBoot);
         StartingScreenLockAbility();
-#endif
         return;
     }
 
