@@ -81,6 +81,7 @@ private:
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;
     std::unique_ptr<NativeReference> jsAbilityObj_;
+    sptr<IRemoteObject> remoteCallee_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
