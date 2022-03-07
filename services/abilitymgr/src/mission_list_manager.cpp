@@ -1069,6 +1069,14 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
     HILOG_DEBUG("next top ability is %{public}s, state is %{public}d, minimizeReason is %{public}d",
         element.c_str(), needTopAbility->GetAbilityState(), needTopAbility->IsMinimizeFromUser());
 
+    // 5. if caller is recent, close
+    if (element.GetBundleName() == AbilityConfig::LAUNCHER_BUNDLE_NAME
+        && element.GetAbilityName() == AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME) {
+        HILOG_DEBUG("next to need is recent, just to launcher");
+        abilityRecord->SetNextAbilityRecord(launcherList_->GetLauncherRoot());
+        return;
+    }
+
     if (!needTopAbility->IsForeground() && !needTopAbility->IsMinimizeFromUser()) {
         HILOG_DEBUG("%{public}s is need to foreground", element.c_str());
         abilityRecord->SetNextAbilityRecord(needTopAbility);
