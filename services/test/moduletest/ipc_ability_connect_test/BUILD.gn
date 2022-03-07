@@ -13,14 +13,14 @@
 
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/aafwk/standard/feature.gni")
 
 module_output_path = "ability_runtime/mstabilitymgrservice"
 
 ohos_moduletest("IpcAbilityConnectModuleTest") {
   module_out_path = module_output_path
 
-  sources =
-      [ "${services_path}/abilitymgr/src/ability_connect_callback_stub.cpp" ]
+  sources = [ "${services_path}/abilitymgr/src/ability_connect_callback_stub.cpp" ]
 
   sources += [ "ipc_ability_connect_module_test.cpp" ]
 
@@ -35,9 +35,12 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/libpng:libpng",
     "//utils/native/base:utilsbase",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/libpng:libpng" ]
+  }
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -48,5 +51,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
 group("moduletest") {
   testonly = true
 
-  deps = [ ":IpcAbilityConnectModuleTest" ]
+  deps = [
+    ":IpcAbilityConnectModuleTest",
+  ]
 }
