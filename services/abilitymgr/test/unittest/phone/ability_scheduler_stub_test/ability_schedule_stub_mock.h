@@ -140,7 +140,7 @@ public:
     {}
     virtual sptr<IRemoteObject> CallRequest() override
     {
-        return sptr<IRemoteObject>(nullptr);
+        return sptr<IRemoteObject>(this);
     }
 };
 }  // namespace AAFwk
