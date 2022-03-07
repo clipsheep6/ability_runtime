@@ -1078,7 +1078,11 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
     if (elementName.GetBundleName() == AbilityConfig::LAUNCHER_BUNDLE_NAME
         && elementName.GetAbilityName() == AbilityConfig::LAUNCHER_RECENT_ABILITY_NAME) {
         HILOG_DEBUG("next to need is recent, just to launcher");
-        abilityRecord->SetNextAbilityRecord(launcherList_->GetLauncherRoot());
+        needTopAbility = launcherList_->GetLauncherRoot();
+    }
+
+    if (!needTopAbility) {
+        HILOG_DEBUG("needTopAbility of launcherRoot is null");
         return;
     }
 
