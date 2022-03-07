@@ -13,10 +13,16 @@
  * limitations under the License.
  */
 
-class StaticSubscriberExtension {
-    onReceiveEvent(event) {
-        console.log('onReceiveEvent, event:' + event.code);
-    }
-}
+#ifndef NAPI_FORM_UTIL_H_
+#define NAPI_FORM_UTIL_H_
 
-export default StaticSubscriberExtension
+#include "ability.h"
+#include "napi/native_api.h"
+#include "napi/native_common.h"
+#include "napi/native_node_api.h"
+#include "nlohmann/json.hpp"
+
+napi_value NapiGetResut(napi_env env, int iResult);
+bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value);
+
+#endif /* NAPI_FORM_UTIL_H_ */
