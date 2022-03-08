@@ -91,6 +91,38 @@ ohos_executable("aa") {
   part_name = "ability_tools"
 }
 
+ohos_executable("jwstest") {
+  sources = [ "src/jws_main.cpp" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    ":tools_aa_source_set",
+    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "${innerkits_path}/want:want",
+    "//utils/native/base:utils",
+    "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime:ability_context_native",
+  ]
+
+  external_deps = [
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  install_enable = true
+
+  subsystem_name = "aafwk"
+  part_name = "ability_tools"
+}
+
 group("tools_aa") {
-  deps = [ ":aa" ]
+  deps = [ 
+    ":aa",
+    ":jwstest"
+  ]
 }
