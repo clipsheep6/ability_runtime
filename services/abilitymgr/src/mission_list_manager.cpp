@@ -1032,6 +1032,11 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
 {
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("RemoveTerminatingAbility, ability is %{public}s", element.c_str());
+    if (GetAbilityFromTerminateList(abilityRecord->GetToken())) {
+        HILOG_DEBUG("find ability in terminating list, return");
+        return;
+    }
+
     auto missionList = abilityRecord->GetOwnedMissionList();
     CHECK_POINTER(missionList);
 
