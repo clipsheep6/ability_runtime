@@ -199,7 +199,6 @@ group("unittest") {
     "unittest/phone/data_ability_record_test:unittest",
     "unittest/phone/info_test:unittest",
     "unittest/phone/lifecycle_deal_test:unittest",
-    "unittest/phone/lifecycle_test:unittest",
     "unittest/phone/pending_want_key_test:unittest",
     "unittest/phone/pending_want_manager_dump_test:unittest",
     "unittest/phone/pending_want_manager_test:unittest",
@@ -217,7 +216,6 @@ group("unittest") {
 
   if (ability_runtime_graphics) {
     deps += [
-      "unittest/phone/ability_stack_manager_test:unittest",
       "unittest/phone/call_container_test:unittest",
       "unittest/phone/call_record_test:unittest",
       "unittest/phone/lock_screen_white_list_test:unittest",
