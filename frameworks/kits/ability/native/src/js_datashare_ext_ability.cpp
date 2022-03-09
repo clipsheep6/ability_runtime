@@ -724,3 +724,4 @@ napi_value JsDataShareExtAbility::MakePredicates(napi_env env, const NativeRdb::
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
+//namespace OHOS
