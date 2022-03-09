@@ -260,4 +260,5 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
+// namespace OHOS
 #endif // FOUNDATION_ABILITYRUNTIME_OHOS_JS_DATASHARE_EXT_ABILITY_H
