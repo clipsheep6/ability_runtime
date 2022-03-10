@@ -18,7 +18,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS::AppExecFwk {
 namespace {
@@ -30,7 +30,7 @@ HdcRegister::HdcRegister() : registerHandler_(nullptr)
 {
     registerHandler_ = dlopen("libhdc_register.z.so", RTLD_LAZY);
     if (registerHandler_ == nullptr) {
-        HILOG_ERROR("HdcRegister::StartHdcRegister failed to open register library");
+        APP_LOGE("HdcRegister::StartHdcRegister failed to open register library");
     }
 }
 
@@ -47,34 +47,34 @@ HdcRegister& HdcRegister::Get()
 
 void HdcRegister::StartHdcRegister(const std::string& bundleName)
 {
-    HILOG_INFO("HdcRegister::StartHdcRegister begin");
+    APP_LOGI("HdcRegister::StartHdcRegister begin");
     if (registerHandler_ == nullptr) {
-        HILOG_ERROR("HdcRegister::StartHdcRegister registerHandler_ is nullptr");
+        APP_LOGE("HdcRegister::StartHdcRegister registerHandler_ is nullptr");
         return;
     }
     StartRegister startRegister = (StartRegister)dlsym(registerHandler_, "StartConnect");
     if (startRegister == nullptr) {
-        HILOG_ERROR("HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
+        APP_LOGE("HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
         return;
     }
     startRegister(bundleName);
-    HILOG_INFO("HdcRegister::StartHdcRegister end");
+    APP_LOGI("HdcRegister::StartHdcRegister end");
 }
 
 void HdcRegister::StopHdcRegister()
 {
-    HILOG_ERROR("HdcRegister::StopHdcRegister begin");
+    APP_LOGE("HdcRegister::StopHdcRegister begin");
     if (registerHandler_ == nullptr) {
-        HILOG_ERROR("HdcRegister::StopHdcRegister registerHandler_ is nullptr");
+        APP_LOGE("HdcRegister::StopHdcRegister registerHandler_ is nullptr");
         return;
     }
     StopRegister stopRegister = (StopRegister)dlsym(registerHandler_, "StopConnect");
     if (stopRegister == nullptr) {
-        HILOG_ERROR("HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
+        APP_LOGE("HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
         return;
     }
     dlclose(registerHandler_);
     registerHandler_ = nullptr;
-    HILOG_INFO("HdcRegister::StopHdcRegister end");
+    APP_LOGI("HdcRegister::StopHdcRegister end");
 }
 } // namespace OHOS::AppExecFwk

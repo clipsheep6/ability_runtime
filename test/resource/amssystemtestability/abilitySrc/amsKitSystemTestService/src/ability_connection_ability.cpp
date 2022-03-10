@@ -14,7 +14,7 @@
  */
 
 #include "ability_connection_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "base_ability.h"
 
 namespace OHOS {
@@ -30,7 +30,7 @@ void AbilityConnectionAbility::Init(const std::shared_ptr<AbilityInfo> &abilityI
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AbilityConnectionAbility::Init called.");
+    APP_LOGI("AbilityConnectionAbility::Init called.");
     BaseAbility::Init(abilityInfo, application, handler, token);
 
     SubscribeEvent();
@@ -51,7 +51,7 @@ void AbilityConnectionAbility::OnStart(const Want &want)
 {
     want_ = want;
     sequenceNumber_ = GetNoFromWantInfo(want);
-    HILOG_INFO("AbilityConnectionAbility::OnStart");
+    APP_LOGI("AbilityConnectionAbility::OnStart");
 
     BaseAbility::OnStart(want);
     TestUtils::PublishEvent(
@@ -60,7 +60,7 @@ void AbilityConnectionAbility::OnStart(const Want &want)
 
 void AbilityConnectionAbility::OnStop()
 {
-    HILOG_INFO("AbilityConnectionAbility::OnStop");
+    APP_LOGI("AbilityConnectionAbility::OnStop");
     BaseAbility::OnStop();
     TestUtils::PublishEvent(
         APP_ABILITY_CONNECTION_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INITIAL, "OnStop");
@@ -68,7 +68,7 @@ void AbilityConnectionAbility::OnStop()
 
 void AbilityConnectionAbility::OnActive()
 {
-    HILOG_INFO("AbilityConnectionAbility::OnActive");
+    APP_LOGI("AbilityConnectionAbility::OnActive");
     BaseAbility::OnActive();
     TestUtils::PublishEvent(
         APP_ABILITY_CONNECTION_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnActive");
@@ -76,7 +76,7 @@ void AbilityConnectionAbility::OnActive()
 
 void AbilityConnectionAbility::OnInactive()
 {
-    HILOG_INFO("AbilityConnectionAbility::OnInactive");
+    APP_LOGI("AbilityConnectionAbility::OnInactive");
     BaseAbility::OnInactive();
     TestUtils::PublishEvent(
         APP_ABILITY_CONNECTION_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnInactive");
@@ -84,7 +84,7 @@ void AbilityConnectionAbility::OnInactive()
 
 void AbilityConnectionAbility::OnBackground()
 {
-    HILOG_INFO("AbilityConnectionAbility::OnBackground");
+    APP_LOGI("AbilityConnectionAbility::OnBackground");
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
         APP_ABILITY_CONNECTION_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, "OnBackground");
@@ -92,7 +92,7 @@ void AbilityConnectionAbility::OnBackground()
 
 void AbilityConnectionAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("AbilityConnectionAbility::OnForeground");
+    APP_LOGI("AbilityConnectionAbility::OnForeground");
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
         APP_ABILITY_CONNECTION_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnForeground");
@@ -100,7 +100,7 @@ void AbilityConnectionAbility::OnForeground(const Want &want)
 
 void AbilityConnectionAbility::OnCommand(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("AbilityConnectionAbility::OnCommand");
+    APP_LOGI("AbilityConnectionAbility::OnCommand");
 
     BaseAbility::OnCommand(want, restart, startId);
     TestUtils::PublishEvent(
@@ -109,7 +109,7 @@ void AbilityConnectionAbility::OnCommand(const Want &want, bool restart, int sta
 
 sptr<IRemoteObject> AbilityConnectionAbility::OnConnect(const Want &want)
 {
-    HILOG_INFO("AbilityConnectionAbility::OnConnect");
+    APP_LOGI("AbilityConnectionAbility::OnConnect");
 
     sptr<IRemoteObject> ret = BaseAbility::OnConnect(want);
     TestUtils::PublishEvent(
@@ -119,7 +119,7 @@ sptr<IRemoteObject> AbilityConnectionAbility::OnConnect(const Want &want)
 
 void AbilityConnectionAbility::OnDisconnect(const Want &want)
 {
-    HILOG_INFO("AbilityConnectionAbility::OnDisconnect");
+    APP_LOGI("AbilityConnectionAbility::OnDisconnect");
 
     BaseAbility::OnDisconnect(want);
     TestUtils::PublishEvent(
@@ -403,10 +403,10 @@ void AbilityConnectionAbility::TestTerminateAbility()
 
 void AbilityConnectionAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO(
+    APP_LOGI(
         "AbilityConnectionAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
 
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), APP_ABILITY_CONNECTION_REQ_EVENT_NAME.c_str()) == 0) {
@@ -415,7 +415,7 @@ void AbilityConnectionAbilityEventSubscriber::OnReceiveEvent(const CommonEventDa
         if (func != mapTestFunc_.end()) {
             func->second();
         } else {
-            HILOG_INFO("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)",
+            APP_LOGI("AbilityConnectionAbilityEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)",
                 target.c_str());
         }
     }

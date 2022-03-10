@@ -83,5 +83,6 @@ ohos_unittest("FmsFormMgrMessageEventTest") {
 
 group("unittest") {
   testonly = true
-  # deps = [ ":FmsFormMgrMessageEventTest" ]
+
+  deps = [ ":FmsFormMgrMessageEventTest" ]
 }

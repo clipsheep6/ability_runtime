@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "event_handler.h"
 #include "form_constants.h"
 #include "form_callback_interface.h"
@@ -46,7 +46,7 @@ public:
 
     void OnDeathReceived()
     {
-        HILOG_INFO("%{public}s called.", __func__);
+        APP_LOGI("%{public}s called.", __func__);
     }
 
     /**
@@ -56,7 +56,7 @@ public:
      */
     void ProcessFormUpdate(const FormJsInfo &formJsInfo)
     {
-        HILOG_INFO("%{public}s called.", __func__);
+        APP_LOGI("%{public}s called.", __func__);
     }
 
     /**
@@ -66,7 +66,7 @@ public:
      */
     void ProcessFormUninstall(const int64_t formId)
     {
-        HILOG_INFO("%{public}s called.", __func__);
+        APP_LOGI("%{public}s called.", __func__);
     }
 };
 }  // namespace AppExecFwk

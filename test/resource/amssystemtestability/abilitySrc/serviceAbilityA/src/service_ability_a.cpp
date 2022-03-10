@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "service_ability_a.h"
-// #include "hilog_wrapper.h"
+// #include "app_log_wrapper.h"
 // #include "iremote_broker.h"
 // #include "iremote_object.h"
 // #include "iremote_proxy.h"
@@ -25,17 +25,17 @@ namespace OHOS {
 namespace AppExecFwk {
 void ServiceAbilityA::OnStart(const Want &want)
 {
-    HILOG_INFO("ServiceAbilityA OnStart");
+    APP_LOGI("ServiceAbilityA OnStart");
     Ability::OnStart(want);
 }
 void ServiceAbilityA::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    HILOG_INFO("ServiceAbilityA::OnCommand");
+    APP_LOGI("ServiceAbilityA::OnCommand");
     Ability::OnCommand(want, restart, startId);
 }
 sptr<IRemoteObject> ServiceAbilityA::OnConnect(const Want &want)
 {
-    HILOG_INFO("ServiceAbilityA::OnConnect");
+    APP_LOGI("ServiceAbilityA::OnConnect");
     sptr<IServiceRemoteTest> remoteObject = sptr<IServiceRemoteTest>(new (std::nothrow) TestAbilityConnection());
 
     Ability::OnConnect(want);
@@ -43,12 +43,12 @@ sptr<IRemoteObject> ServiceAbilityA::OnConnect(const Want &want)
 }
 void ServiceAbilityA::OnDisconnect(const Want &want)
 {
-    HILOG_INFO("ServiceAbilityA::OnDisconnect");
+    APP_LOGI("ServiceAbilityA::OnDisconnect");
     Ability::OnDisconnect(want);
 }
 void ServiceAbilityA::OnStop()
 {
-    HILOG_INFO("ServiceAbilityA::OnStop");
+    APP_LOGI("ServiceAbilityA::OnStop");
     Ability::OnStop();
 }
 REGISTER_AA(ServiceAbilityA);

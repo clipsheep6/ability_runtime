@@ -17,8 +17,8 @@
 
 #include "string_ex.h"
 
-#include "ability_base_log_wrapper.h"
-#include "parcel_macro_base.h"
+#include "app_log_wrapper.h"
+#include "parcel_macro.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -59,17 +59,17 @@ void ElementName::ClearElement(ElementName *element)
 ElementName::ElementName(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName)
     : deviceId_(deviceId), bundleName_(bundleName), abilityName_(abilityName)
 {
-    ABILITYBASE_LOGD("instance is created with parameters");
+    APP_LOGD("instance is created with parameters");
 }
 
 ElementName::ElementName()
 {
-    ABILITYBASE_LOGD("instance is created without parameter");
+    APP_LOGD("instance is created without parameter");
 }
 
 ElementName::~ElementName()
 {
-    ABILITYBASE_LOGD("instance is destroyed");
+    APP_LOGD("instance is destroyed");
 }
 
 std::string ElementName::GetURI() const
@@ -95,7 +95,7 @@ ElementName *ElementName::Unmarshalling(Parcel &parcel)
 {
     ElementName *elementName = new (std::nothrow) ElementName();
     if (elementName && !elementName->ReadFromParcel(parcel)) {
-        ABILITYBASE_LOGW("read from parcel failed");
+        APP_LOGW("read from parcel failed");
         delete elementName;
         elementName = nullptr;
     }

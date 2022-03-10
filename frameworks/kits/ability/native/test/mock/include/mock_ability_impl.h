@@ -49,7 +49,6 @@ public:
         this->Inactive();
     }
 
-#ifdef SUPPORT_GRAPHICS
     void ImplForeground(const Want &want)
     {
         this->Foreground(want);
@@ -59,7 +58,6 @@ public:
     {
         this->Background();
     }
-#endif
 
     void SetlifecycleState(int state)
     {

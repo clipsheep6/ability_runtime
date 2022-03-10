@@ -14,7 +14,7 @@
  */
 
 #include "ability_delegator_registry.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "js_runtime_utils.h"
 #include "runner_runtime/js_test_runner.h"
 
@@ -24,13 +24,13 @@ std::unique_ptr<TestRunner> JsTestRunner::Create(const std::unique_ptr<Runtime> 
     const std::shared_ptr<AbilityDelegatorArgs> &args, const AppExecFwk::BundleInfo &bundleInfo)
 {
     if (!args) {
-        HILOG_ERROR("Invalid ability delegator args");
+        APP_LOGE("Invalid ability delegator args");
         return nullptr;
     }
 
     auto pTestRunner = new (std::nothrow) JsTestRunner(static_cast<JsRuntime &>(*runtime), args, bundleInfo);
     if (!pTestRunner) {
-        HILOG_ERROR("Failed to create test runner");
+        APP_LOGE("Failed to create test runner");
         return nullptr;
     }
 
@@ -62,7 +62,7 @@ JsTestRunner::JsTestRunner(
     srcPath.append(testRunnerName);
     srcPath.append(".abc");
 
-    HILOG_INFO("JsTestRunner srcPath is %{public}s", srcPath.c_str());
+    APP_LOGI("JsTestRunner srcPath is %{public}s", srcPath.c_str());
 
     std::string moduleName;
     jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath);
@@ -72,26 +72,26 @@ JsTestRunner::~JsTestRunner() = default;
 
 void JsTestRunner::Prepare()
 {
-    HILOG_INFO("Enter");
+    APP_LOGI("Enter");
     TestRunner::Prepare();
     CallObjectMethod("onPrepare");
-    HILOG_INFO("End");
+    APP_LOGI("End");
 }
 
 void JsTestRunner::Run()
 {
-    HILOG_INFO("Enter");
+    APP_LOGI("Enter");
     TestRunner::Run();
     CallObjectMethod("onRun");
-    HILOG_INFO("End");
+    APP_LOGI("End");
 }
 
 void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, size_t argc)
 {
-    HILOG_INFO("JsTestRunner::CallObjectMethod(%{public}s)", name);
+    APP_LOGI("JsTestRunner::CallObjectMethod(%{public}s)", name);
 
     if (!jsTestRunnerObj_) {
-        HILOG_ERROR("Not found test_runner.js");
+        APP_LOGE("Not found test_runner.js");
         ReportFinished("Not found test_runner.js");
         return;
     }
@@ -102,14 +102,14 @@ void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, 
     NativeValue *value = jsTestRunnerObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get Test Runner object");
+        APP_LOGE("Failed to get Test Runner object");
         ReportFinished("Failed to get Test Runner object");
         return;
     }
 
     NativeValue *methodOnCreate = obj->GetProperty(name);
     if (methodOnCreate == nullptr) {
-        HILOG_ERROR("Failed to get '%{public}s' from Test Runner object", name);
+        APP_LOGE("Failed to get '%{public}s' from Test Runner object", name);
         ReportStatus("Failed to get " + std::string(name) + " from Test Runner object");
         return;
     }
@@ -118,10 +118,10 @@ void JsTestRunner::CallObjectMethod(const char *name, NativeValue *const *argv, 
 
 void JsTestRunner::ReportFinished(const std::string &msg)
 {
-    HILOG_INFO("Enter");
+    APP_LOGI("Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        HILOG_ERROR("delegator is null");
+        APP_LOGE("delegator is null");
         return;
     }
 
@@ -130,10 +130,10 @@ void JsTestRunner::ReportFinished(const std::string &msg)
 
 void JsTestRunner::ReportStatus(const std::string &msg)
 {
-    HILOG_INFO("Enter");
+    APP_LOGI("Enter");
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
-        HILOG_ERROR("delegator is null");
+        APP_LOGE("delegator is null");
         return;
     }
 

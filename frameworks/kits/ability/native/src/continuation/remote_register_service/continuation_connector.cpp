@@ -15,8 +15,8 @@
 
 #include "continuation_connector.h"
 
+#include "app_log_wrapper.h"
 #include "continuation_device_callback_proxy.h"
-#include "hilog_wrapper.h"
 #include "remote_register_service_proxy.h"
 
 namespace OHOS {
@@ -62,14 +62,14 @@ sptr<ContinuationConnector> ContinuationConnector::GetInstance(const std::weak_p
 void ContinuationConnector::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("ContinuationConnector::OnAbilityConnectDone failed, remote is nullptr");
+        APP_LOGE("ContinuationConnector::OnAbilityConnectDone failed, remote is nullptr");
         return;
     }
     remoteRegisterService_ = iface_cast<RemoteRegisterServiceProxy>(remoteObject);
     if (remoteRegisterService_ == nullptr) {
-        HILOG_ERROR("ContinuationConnector::OnAbilityConnectDone failed, remoteRegisterService_ is nullptr");
+        APP_LOGE("ContinuationConnector::OnAbilityConnectDone failed, remoteRegisterService_ is nullptr");
         return;
     }
     isConnected_.store(true);
@@ -80,7 +80,7 @@ void ContinuationConnector::OnAbilityConnectDone(
         }
         continuationRequestList_.clear();
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 /**
@@ -94,10 +94,10 @@ void ContinuationConnector::OnAbilityConnectDone(
  */
 void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     remoteRegisterService_ = nullptr;
     isConnected_.store(false);
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 /**
@@ -107,18 +107,18 @@ void ContinuationConnector::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
  */
 void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppExecFwk::ContinuationRequest> &request)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
-        HILOG_ERROR("ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
+        APP_LOGE("ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
         return;
     }
     if (request == nullptr) {
-        HILOG_ERROR("ContinuationConnector::BindRemoteRegisterAbility failed, request is nullptr");
+        APP_LOGE("ContinuationConnector::BindRemoteRegisterAbility failed, request is nullptr");
         return;
     }
     if (IsAbilityConnected()) {
-        HILOG_INFO("ContinuationConnector::BindRemoteRegisterAbility, remote register bounded");
+        APP_LOGI("ContinuationConnector::BindRemoteRegisterAbility, remote register bounded");
         request->Execute();
         return;
     }
@@ -128,7 +128,7 @@ void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppE
         continuationRequestList_.push_back(request);
     }
     BindRemoteRegisterAbility();
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 /**
@@ -136,17 +136,17 @@ void ContinuationConnector::BindRemoteRegisterAbility(const std::shared_ptr<AppE
  */
 void ContinuationConnector::UnbindRemoteRegisterAbility()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
-        HILOG_ERROR("ContinuationConnector::UnbindRemoteRegisterAbility failed, context_.lock is nullptr");
+        APP_LOGE("ContinuationConnector::UnbindRemoteRegisterAbility failed, context_.lock is nullptr");
         return;
     }
 
     tmpcontext->DisconnectAbility(this);
     isConnected_.store(false);
     remoteRegisterService_ = nullptr;
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 /**
@@ -168,13 +168,13 @@ bool ContinuationConnector::IsAbilityConnected()
  */
 bool ContinuationConnector::Unregister(int token)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     if (remoteRegisterService_ == nullptr) {
-        HILOG_ERROR("ContinuationConnector::Unregister failed, remoteRegisterService_ is nullptr");
+        APP_LOGE("ContinuationConnector::Unregister failed, remoteRegisterService_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return remoteRegisterService_->Unregister(token);
 }
 
@@ -189,13 +189,13 @@ bool ContinuationConnector::Unregister(int token)
  */
 bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &deviceId, int status)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     if (remoteRegisterService_ == nullptr) {
-        HILOG_ERROR("ContinuationConnector::UpdateConnectStatus failed, remoteRegisterService_ is nullptr");
+        APP_LOGE("ContinuationConnector::UpdateConnectStatus failed, remoteRegisterService_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return remoteRegisterService_->UpdateConnectStatus(token, deviceId, status);
 }
 
@@ -208,12 +208,12 @@ bool ContinuationConnector::UpdateConnectStatus(int token, const std::string &de
  */
 bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraParams &parameter)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     if (remoteRegisterService_ == nullptr) {
-        HILOG_ERROR("ContinuationConnector::ShowDeviceList failed, remoteRegisterService_ is nullptr");
+        APP_LOGE("ContinuationConnector::ShowDeviceList failed, remoteRegisterService_ is nullptr");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return remoteRegisterService_->ShowDeviceList(token, parameter);
 }
 
@@ -230,25 +230,25 @@ bool ContinuationConnector::ShowDeviceList(int token, const AppExecFwk::ExtraPar
 int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string bundleName,
     const AppExecFwk::ExtraParams &parameter, std::shared_ptr<IContinuationDeviceCallback> &callback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr pcontext = context.lock();
     if (pcontext == nullptr) {
-        HILOG_ERROR("ContinuationConnector::Register failed, pcontext is nullptr");
+        APP_LOGE("ContinuationConnector::Register failed, pcontext is nullptr");
         return -1;
     }
     if (remoteRegisterService_ == nullptr) {
-        HILOG_ERROR("ContinuationConnector::Register failed, remoteRegisterService_ is nullptr");
+        APP_LOGE("ContinuationConnector::Register failed, remoteRegisterService_ is nullptr");
         return -1;
     }
     sptr<IRemoteObject> token = pcontext->GetToken();
     if (token == nullptr) {
-        HILOG_ERROR("ContinuationConnector::Register failed, token is nullptr");
+        APP_LOGE("ContinuationConnector::Register failed, token is nullptr");
         return -1;
     }
 
     sptr<ContinuationDeviceCallbackProxy> callBackSptr(new (std::nothrow) ContinuationDeviceCallbackProxy(callback));
 
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return remoteRegisterService_->Register(bundleName, token, parameter, callBackSptr);
 }
 
@@ -257,17 +257,17 @@ int ContinuationConnector::Register(std::weak_ptr<Context> &context, std::string
  */
 void ContinuationConnector::BindRemoteRegisterAbility()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr tmpcontext = context_.lock();
     if (tmpcontext == nullptr) {
-        HILOG_ERROR("ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
+        APP_LOGE("ContinuationConnector::BindRemoteRegisterAbility failed, context_.lock is nullptr");
         return;
     }
     Want want;
     want.SetElementName(CONNECTOR_DEVICE_ID, CONNECTOR_BUNDLE_NAME, CONNECTOR_ABILITY_NAME);
     want.AddFlags(Want::FLAG_NOT_OHOS_COMPONENT);
     tmpcontext->ConnectAbility(want, this);
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 }  // namespace AppExecFwk

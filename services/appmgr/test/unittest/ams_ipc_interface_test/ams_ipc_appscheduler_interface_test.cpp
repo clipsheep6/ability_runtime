@@ -15,8 +15,8 @@
 
 #include "app_scheduler_proxy.h"
 #include <gtest/gtest.h>
+#include "app_log_wrapper.h"
 #include "app_scheduler_host.h"
-#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_application.h"
 
@@ -67,7 +67,7 @@ void AmsIpcAppSchedulerInterfaceTest::TearDown()
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_001, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_001 start");
+    APP_LOGD("AppSchedulerInterfaceTest_001 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -76,7 +76,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_001, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleForegroundApplication();
     mockApplication->Wait();
-    HILOG_DEBUG("AppSchedulerInterfaceTest_001 end");
+    APP_LOGD("AppSchedulerInterfaceTest_001 end");
 }
 
 /*
@@ -89,7 +89,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_001, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_002, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_002 start");
+    APP_LOGD("AppSchedulerInterfaceTest_002 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -98,7 +98,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_002, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleBackgroundApplication();
     mockApplication->Wait();
-    HILOG_DEBUG("AppSchedulerInterfaceTest_002 end");
+    APP_LOGD("AppSchedulerInterfaceTest_002 end");
 }
 
 /*
@@ -111,7 +111,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_002, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_003, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_003 start");
+    APP_LOGD("AppSchedulerInterfaceTest_003 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -120,7 +120,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_003, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleTerminateApplication();
     mockApplication->Wait();
-    HILOG_DEBUG("AppSchedulerInterfaceTest_003 end");
+    APP_LOGD("AppSchedulerInterfaceTest_003 end");
 }
 
 /*
@@ -133,7 +133,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_003, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_004, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_004 start");
+    APP_LOGD("AppSchedulerInterfaceTest_004 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
     int level = 1;
@@ -146,7 +146,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_004, TestSize.Level1)
 
     int shrinkLevel = mockApplication->GetShrinkLevel();
     EXPECT_EQ(level, shrinkLevel);
-    HILOG_DEBUG("AppSchedulerInterfaceTest_004 end");
+    APP_LOGD("AppSchedulerInterfaceTest_004 end");
 }
 
 /*
@@ -159,7 +159,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_004, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_005, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_005 start");
+    APP_LOGD("AppSchedulerInterfaceTest_005 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -168,7 +168,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_005, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleLowMemory();
     mockApplication->Wait();
-    HILOG_DEBUG("AppSchedulerInterfaceTest_005 end");
+    APP_LOGD("AppSchedulerInterfaceTest_005 end");
 }
 
 /*
@@ -181,7 +181,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_005, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_006, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_006 start");
+    APP_LOGD("AppSchedulerInterfaceTest_006 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -207,7 +207,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_006, TestSize.Level1)
 
     bool isEqual = mockApplication->CompareAppLaunchData(launchData);
     EXPECT_EQ(true, isEqual);
-    HILOG_DEBUG("AppSchedulerInterfaceTest_006 end");
+    APP_LOGD("AppSchedulerInterfaceTest_006 end");
 }
 
 /*
@@ -220,7 +220,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_006, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_008, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_008 start");
+    APP_LOGD("AppSchedulerInterfaceTest_008 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
@@ -229,7 +229,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_008, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleCleanAbility(GetMockToken());
     mockApplication->Wait();
-    HILOG_DEBUG("AppSchedulerInterfaceTest_008 end");
+    APP_LOGD("AppSchedulerInterfaceTest_008 end");
 }
 
 /*
@@ -242,7 +242,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_008, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_009, TestSize.Level1)
 {
-    HILOG_DEBUG("AppSchedulerInterfaceTest_009 start");
+    APP_LOGD("AppSchedulerInterfaceTest_009 start");
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
     std::string profileName("mockProfile");
@@ -256,7 +256,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_009, TestSize.Level1)
 
     bool isEqual = mockApplication->CompareProfile(profile);
     EXPECT_EQ(true, isEqual);
-    HILOG_DEBUG("AppSchedulerInterfaceTest_009 end");
+    APP_LOGD("AppSchedulerInterfaceTest_009 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

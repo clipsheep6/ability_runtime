@@ -80,5 +80,6 @@ ohos_unittest("FmsFormProviderMgrTest") {
 
 group("unittest") {
   testonly = true
-  # deps = [ ":FmsFormProviderMgrTest" ]
+
+  deps = [ ":FmsFormProviderMgrTest" ]
 }

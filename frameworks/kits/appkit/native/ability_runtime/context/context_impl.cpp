@@ -22,9 +22,7 @@
 #include "hilog_wrapper.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
-#ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
-#endif
 #include "os_account_manager.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
@@ -73,7 +71,7 @@ std::string ContextImpl::GetBundleCodeDir()
     if (IsCreateBySystemApp()) {
         dir = std::regex_replace(appInfo->codePath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
     } else {
-        dir = LOCAL_CODE_PATH;
+        dir = CONTEXT_DATA_STORAGE + CONTEXT_ELS[0] + CONTEXT_BUNDLE;
     }
     CreateDirIfNotExist(dir);
     HILOG_DEBUG("ContextImpl::GetBundleCodeDir:%{public}s", dir.c_str());
@@ -283,7 +281,6 @@ void ContextImpl::InitResourceManager(
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-#ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
     resConfig->SetLocaleInfo(locale);
@@ -295,7 +292,6 @@ void ContextImpl::InitResourceManager(
     } else {
         HILOG_ERROR("ContextImpl::InitResourceManager language: GetLocaleInfo is null.");
     }
-#endif
     resourceManager->UpdateResConfig(*resConfig);
     appContext->SetResourceManager(resourceManager);
 }

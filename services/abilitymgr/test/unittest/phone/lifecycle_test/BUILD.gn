@@ -67,5 +67,6 @@ ohos_unittest("lifecycle_test") {
 
 group("unittest") {
   testonly = true
-  # deps = [ ":lifecycle_test" ]
+
+  deps = [ ":lifecycle_test" ]
 }

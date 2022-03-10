@@ -14,8 +14,8 @@
  */
 
 #include "app_lifecycle_deal.h"
+#include "app_log_wrapper.h"
 #include "bytrace.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -28,7 +28,7 @@ AppLifeCycleDeal::~AppLifeCycleDeal()
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData_, const Configuration &config)
 {
     BYTRACE_NAME(BYTRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_INFO("AppLifeCycleDeal ScheduleLaunchApplication");
+    APP_LOGI("AppLifeCycleDeal ScheduleLaunchApplication");
     if (appThread_) {
         appThread_->ScheduleLaunchApplication(launchData_, config);
     }
@@ -37,7 +37,7 @@ void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData_, const
 void AppLifeCycleDeal::AddAbilityStage(const HapModuleInfo &abilityStage)
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -55,7 +55,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
 void AppLifeCycleDeal::ScheduleTerminate()
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -65,7 +65,7 @@ void AppLifeCycleDeal::ScheduleTerminate()
 void AppLifeCycleDeal::ScheduleForegroundRunning()
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -75,7 +75,7 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
 void AppLifeCycleDeal::ScheduleBackgroundRunning()
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -85,7 +85,7 @@ void AppLifeCycleDeal::ScheduleBackgroundRunning()
 void AppLifeCycleDeal::ScheduleTrimMemory(int32_t timeLevel)
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -95,7 +95,7 @@ void AppLifeCycleDeal::ScheduleTrimMemory(int32_t timeLevel)
 void AppLifeCycleDeal::LowMemoryWarning()
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -105,7 +105,7 @@ void AppLifeCycleDeal::LowMemoryWarning()
 void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
     appThread_->ScheduleCleanAbility(token);
@@ -114,7 +114,7 @@ void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 void AppLifeCycleDeal::ScheduleProcessSecurityExit()
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -134,7 +134,7 @@ sptr<IAppScheduler> AppLifeCycleDeal::GetApplicationClient() const
 void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName)
 {
     if (!appThread_) {
-        HILOG_ERROR("appThread_ is nullptr");
+        APP_LOGE("appThread_ is nullptr");
         return;
     }
 
@@ -143,9 +143,9 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
 
 void AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("call %{public}s", __func__);
+    APP_LOGI("call %{public}s", __func__);
     if (!appThread_) {
-        HILOG_INFO("appThread_ is null");
+        APP_LOGI("appThread_ is null");
         return;
     }
     appThread_->ScheduleConfigurationUpdated(config);

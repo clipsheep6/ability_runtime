@@ -26,9 +26,7 @@
 #include "ability_info.h"
 #include "ability_start_setting.h"
 #include "ability_token_stub.h"
-#ifdef SUPPORT_GRAPHICS
 #include "ability_window_configuration.h"
-#endif
 #include "app_scheduler.h"
 #include "application_info.h"
 #include "ability_record_info.h"
@@ -373,14 +371,12 @@ public:
      */
     bool IsReady() const;
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
      *
      * @return true : attached ,false: not attached
      */
     bool IsWindowAttached() const;
-#endif
 
     /**
      * check whether the ability is launcher.
@@ -600,7 +596,6 @@ public:
      */
     bool IsConnectListEmpty();
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * add ability's window info to record.
      *
@@ -618,7 +613,6 @@ public:
      *
      */
     std::shared_ptr<WindowInfo> GetWindowInfo() const;
-#endif
 
     /**
      * add caller record
@@ -732,10 +726,8 @@ public:
     bool IsAbilityState(const AbilityState &state) const;
     bool IsActiveState() const;
 
-#ifdef SUPPORT_GRAPHICS
     bool SupportMultWindow() const;
     void NotifyMultiWinModeChanged(const AbilityWindowConfiguration &winModeKey, bool flag);
-#endif
     void SetInMovingState(bool isMoving);
     bool GetInMovingState() const;
 
@@ -797,8 +789,6 @@ public:
 
     void SetSpecifiedFlag(const std::string &flag);
     std::string GetSpecifiedFlag() const;
-    void SetWindowMode(int32_t windowMode);
-    void RemoveWindowMode();
     LifeCycleStateInfo lifeCycleStateInfo_;                // target life state info
 
 protected:

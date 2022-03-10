@@ -15,7 +15,7 @@
 
 #include "app_state_callback_host.h"
 #include "appexecfwk_errors.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "app_state_callback_proxy.h"
@@ -37,12 +37,12 @@ int AppStateCallbackHost::OnRemoteRequest(
 
 void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject> &, const AbilityState)
 {
-    HILOG_DEBUG("OnAbilityRequestDone called");
+    APP_LOGD("OnAbilityRequestDone called");
 }
 
 void AppStateCallbackHost::OnAppStateChanged(const AppProcessData &)
 {
-    HILOG_DEBUG("OnAppStateChanged called");
+    APP_LOGD("OnAppStateChanged called");
 }
 
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)

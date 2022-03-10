@@ -20,11 +20,11 @@
 #include "iremote_object.h"
 
 #include "ability_info.h"
+#include "app_log_wrapper.h"
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
 #include "bytrace.h"
-#include "hilog_wrapper.h"
 #include "iapp_state_callback.h"
 
 namespace OHOS {
@@ -76,11 +76,11 @@ AmsMgrStub::~AmsMgrStub()
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("AmsMgrStub::OnReceived, code = %{public}d, flags= %{public}d.", code, option.GetFlags());
+    APP_LOGI("AmsMgrStub::OnReceived, code = %{public}d, flags= %{public}d.", code, option.GetFlags());
     std::u16string descriptor = AmsMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        APP_LOGE("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -101,19 +101,19 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
     sptr<IRemoteObject> preToke = data.ReadParcelable<IRemoteObject>();
     std::shared_ptr<AbilityInfo> abilityInfo(data.ReadParcelable<AbilityInfo>());
     if (!abilityInfo) {
-        HILOG_ERROR("ReadParcelable<AbilityInfo> failed");
+        APP_LOGE("ReadParcelable<AbilityInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     std::shared_ptr<ApplicationInfo> appInfo(data.ReadParcelable<ApplicationInfo>());
     if (!appInfo) {
-        HILOG_ERROR("ReadParcelable<ApplicationInfo> failed");
+        APP_LOGE("ReadParcelable<ApplicationInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     std::shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (!want) {
-        HILOG_ERROR("ReadParcelable want failed");
+        APP_LOGE("ReadParcelable want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -188,19 +188,19 @@ ErrCode AmsMgrStub::HandleKillProcessesByUserId(MessageParcel &data, MessageParc
 
 ErrCode AmsMgrStub::HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("enter");
+    APP_LOGI("enter");
 
     BYTRACE(BYTRACE_TAG_APP);
 
     std::string bundleName = data.ReadString();
     int accountId = data.ReadInt32();
 
-    HILOG_INFO("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    APP_LOGI("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
 
     int32_t result = KillProcessWithAccount(bundleName, accountId);
     reply.WriteInt32(result);
 
-    HILOG_INFO("end");
+    APP_LOGI("end");
 
     return NO_ERROR;
 }
@@ -261,7 +261,7 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByToken(MessageParcel &data, Mess
     auto token = data.ReadParcelable<IRemoteObject>();
     GetRunningProcessInfoByToken(token, processInfo);
     if (reply.WriteParcelable(&processInfo)) {
-        HILOG_ERROR("process info write failed.");
+        APP_LOGE("process info write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -271,13 +271,13 @@ int32_t AmsMgrStub::HandleStartSpecifiedAbility(MessageParcel &data, MessageParc
 {
     AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        APP_LOGE("want is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     AbilityInfo *abilityInfo = data.ReadParcelable<AbilityInfo>();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr.");
+        APP_LOGE("abilityInfo is nullptr.");
         return ERR_INVALID_VALUE;
     }
     StartSpecifiedAbility(*want, *abilityInfo);
@@ -307,11 +307,11 @@ int32_t AmsMgrStub::HandleGetConfiguration(MessageParcel &data, MessageParcel &r
     Configuration config;
     int ret = GetConfiguration(config);
     if (ret != ERR_OK) {
-        HILOG_ERROR("GetConfiguration error");
+        APP_LOGE("GetConfiguration error");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteParcelable(&config)) {
-        HILOG_ERROR("GetConfiguration error");
+        APP_LOGE("GetConfiguration error");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

@@ -16,12 +16,12 @@
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
+#include "app_log_wrapper.h"
 #include "form_ams_helper.h"
 #include "form_constants.h"
 #include "form_provider_mgr.h"
 #include "form_supply_callback.h"
 #include "form_util.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -48,23 +48,23 @@ sptr<FormSupplyCallback> FormSupplyCallback::GetInstance()
  */
 int FormSupplyCallback::OnAcquire(const FormProviderInfo &formProviderInfo, const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     long connectId = want.GetLongParam(Constants::FORM_CONNECT_ID, 0);
     int errCode = want.GetIntParam(Constants::PROVIDER_FLAG, ERR_OK);
     if (errCode != ERR_OK) {
         RemoveConnection(connectId);
-        HILOG_ERROR("%{public}s error, errCode: %{public}d", __func__, errCode);
+        APP_LOGE("%{public}s error, errCode: %{public}d", __func__, errCode);
         return errCode;
     }
 
     std::string strFormId  = want.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY);
     if (strFormId.empty()) {
-        HILOG_ERROR("%{public}s error, formId is empty.", __func__);
+        APP_LOGE("%{public}s error, formId is empty.", __func__);
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
     int64_t formId = std::stoll(strFormId);
     int type = want.GetIntParam(Constants::ACQUIRE_TYPE, 0);
-    HILOG_DEBUG("%{public}s come: %{public}" PRId64 ", %{public}ld, %{public}d", __func__,
+    APP_LOGD("%{public}s come: %{public}" PRId64 ", %{public}ld, %{public}d", __func__,
     formId, connectId, type);
     RemoveConnection(connectId);
 
@@ -74,9 +74,9 @@ int FormSupplyCallback::OnAcquire(const FormProviderInfo &formProviderInfo, cons
         case Constants::ACQUIRE_TYPE_RECREATE_FORM:
             return FormProviderMgr::GetInstance().UpdateForm(formId, formProviderInfo);
         default:
-            HILOG_WARN("%{public}s warning, onAcquired type: %{public}d", __func__, type);
+            APP_LOGW("%{public}s warning, onAcquired type: %{public}d", __func__, type);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
     return ERR_APPEXECFWK_FORM_INVALID_PARAM;
 }
 
@@ -87,12 +87,12 @@ int FormSupplyCallback::OnAcquire(const FormProviderInfo &formProviderInfo, cons
  */
 int FormSupplyCallback::OnEventHandle(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     long connectId = want.GetLongParam(Constants::FORM_CONNECT_ID, 0);
     std::string supplyInfo = want.GetStringParam(Constants::FORM_SUPPLY_INFO);
-    HILOG_DEBUG("%{public}s come: %{public}ld, %{public}s", __func__, connectId, supplyInfo.c_str());
+    APP_LOGD("%{public}s come: %{public}ld, %{public}s", __func__, connectId, supplyInfo.c_str());
     RemoveConnection(connectId);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
     return ERR_OK;
 }
 /**
@@ -101,7 +101,7 @@ int FormSupplyCallback::OnEventHandle(const Want &want)
  */
 void FormSupplyCallback::AddConnection(sptr<FormAbilityConnection> connection)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     std::lock_guard<std::mutex> lock_l(conMutex_);
     long connectKey = FormUtil::GetCurrentMillisecond();
     while (connections_.find(connectKey) != connections_.end()) {
@@ -109,7 +109,7 @@ void FormSupplyCallback::AddConnection(sptr<FormAbilityConnection> connection)
     }
     connection->SetConnectId(connectKey);
     connections_.emplace(connectKey, connection);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -118,7 +118,7 @@ void FormSupplyCallback::AddConnection(sptr<FormAbilityConnection> connection)
  */
 void FormSupplyCallback::RemoveConnection(long connectId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     std::lock_guard<std::mutex> lock_l(conMutex_);
     auto conIterator = connections_.find(connectId);
     if (conIterator != connections_.end()) {
@@ -126,15 +126,15 @@ void FormSupplyCallback::RemoveConnection(long connectId)
         if (connection != nullptr) {
             if (CanDisConnect(connection)) {
                 FormAmsHelper::GetInstance().DisConnectServiceAbility(connection);
-                HILOG_INFO("%{public}s end, disconnect service ability", __func__);
+                APP_LOGI("%{public}s end, disconnect service ability", __func__);
             } else {
                 FormAmsHelper::GetInstance().DisConnectServiceAbilityDelay(connection);
-                HILOG_INFO("%{public}s end, disconnect service ability delay", __func__);
+                APP_LOGI("%{public}s end, disconnect service ability delay", __func__);
             }
         }
         connections_.erase(connectId);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 /**
  * @brief check if disconnect ability or not.
@@ -142,19 +142,19 @@ void FormSupplyCallback::RemoveConnection(long connectId)
  */
 bool FormSupplyCallback::CanDisConnect(sptr<FormAbilityConnection> &connection)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     int count = 0;
     for(auto &conn : connections_) {
         if (connection->GetProviderKey() == conn.second->GetProviderKey()) {
-            HILOG_INFO("%{public}s, key: %{public}s", __func__, conn.second->GetProviderKey().c_str());
+            APP_LOGI("%{public}s, key: %{public}s", __func__, conn.second->GetProviderKey().c_str());
             count++;
             if (count > 1) {
-                HILOG_INFO("%{public}s end, true.", __func__);
+                APP_LOGI("%{public}s end, true.", __func__);
                 return true;
             }
         }
     }
-    HILOG_INFO("%{public}s end, false.", __func__);
+    APP_LOGI("%{public}s end, false.", __func__);
     return false;
 }
 }  // namespace AppExecFwk

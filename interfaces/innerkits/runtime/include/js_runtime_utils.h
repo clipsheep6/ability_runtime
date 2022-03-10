@@ -144,7 +144,7 @@ private:
 
 class AsyncTask final {
 public:
-    using ExecuteCallback = std::function<void()>;
+    using ExecuteCallback = std::function<void(NativeEngine&, AsyncTask&)>;
     using CompleteCallback = std::function<void(NativeEngine&, AsyncTask&, int32_t)>;
 
     static void Schedule(NativeEngine& engine, std::unique_ptr<AsyncTask>&& task);

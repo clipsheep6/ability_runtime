@@ -39,7 +39,7 @@ FwkAbilityStateMain::~FwkAbilityStateMain()
 
 void FwkAbilityStateMain::OnStart(const Want &want)
 {
-    HILOG_INFO("FwkAbilityStateMain::onStart");
+    APP_LOGI("FwkAbilityStateMain::onStart");
     SubscribeEvent();
     bIsBlockRestore = want.HasParameter("StartType1");
     bIsBlockSave = false;
@@ -49,21 +49,21 @@ void FwkAbilityStateMain::OnStart(const Want &want)
 
 void FwkAbilityStateMain::OnNewWant(const Want &want)
 {
-    HILOG_INFO("FwkAbilityStateMain::OnNewWant");
+    APP_LOGI("FwkAbilityStateMain::OnNewWant");
     Ability::OnNewWant(want);
     callback_seq += "OnNewWant";
 }
 
 void FwkAbilityStateMain::OnForeground(const Want &want)
 {
-    HILOG_INFO("FwkAbilityStateMain::OnForeground");
+    APP_LOGI("FwkAbilityStateMain::OnForeground");
     Ability::OnForeground(want);
     callback_seq += "OnForeground";
 }
 
 void FwkAbilityStateMain::OnStop()
 {
-    HILOG_INFO("FwkAbilityStateMain::onStop");
+    APP_LOGI("FwkAbilityStateMain::onStop");
     Ability::OnStop();
     CommonEventManager::UnSubscribeCommonEvent(subscriber_);
     callback_seq += "OnStop";
@@ -73,7 +73,7 @@ void FwkAbilityStateMain::OnStop()
 
 void FwkAbilityStateMain::OnActive()
 {
-    HILOG_INFO("FwkAbilityStateMain::OnActive");
+    APP_LOGI("FwkAbilityStateMain::OnActive");
     Ability::OnActive();
     callback_seq += "OnActive";
     TestUtils::PublishEvent(FwkAbilityState_Event_Resp_A, OnActiveCode, callback_seq);
@@ -82,14 +82,14 @@ void FwkAbilityStateMain::OnActive()
 
 void FwkAbilityStateMain::OnInactive()
 {
-    HILOG_INFO("FwkAbilityStateMain::OnInactive");
+    APP_LOGI("FwkAbilityStateMain::OnInactive");
     Ability::OnInactive();
     callback_seq += "OnInactive";
 }
 
 void FwkAbilityStateMain::OnBackground()
 {
-    HILOG_INFO("FwkAbilityStateMain::OnBackground");
+    APP_LOGI("FwkAbilityStateMain::OnBackground");
     Ability::OnBackground();
     callback_seq += "OnBackground";
     TestUtils::PublishEvent(FwkAbilityState_Event_Resp_A, OnBackgroundCode, callback_seq);
@@ -102,7 +102,7 @@ void FwkAbilityStateMain::OnBlockProcess(bool &bIsBlockFlag)
 
     if (bIsBlockFlag) {
         while (i-- > 0) {
-            HILOG_INFO("FwkAbilityStateMain::OnBlockProcess time left %{public}d", i);
+            APP_LOGI("FwkAbilityStateMain::OnBlockProcess time left %{public}d", i);
             sleep(1);
         }
         bIsBlockFlag = false;
@@ -111,7 +111,7 @@ void FwkAbilityStateMain::OnBlockProcess(bool &bIsBlockFlag)
 
 void FwkAbilityStateMain::OnSaveAbilityState(PacMap &outState)
 {
-    HILOG_INFO("FwkAbilityStateMain::OnSaveAbilityState");
+    APP_LOGI("FwkAbilityStateMain::OnSaveAbilityState");
     OnBlockProcess(bIsBlockSave);
     outState.PutIntValue(FwkAbilityState_SaveData_Int, iSaveData);
     Ability::OnSaveAbilityState(outState);
@@ -123,16 +123,16 @@ void FwkAbilityStateMain::OnRestoreAbilityState(const PacMap &inState)
     int iGetSaveData;
     PacMap tmpPacMap;
 
-    HILOG_INFO("FwkAbilityStateMain::OnRestoreAbilityState");
+    APP_LOGI("FwkAbilityStateMain::OnRestoreAbilityState");
     OnBlockProcess(bIsBlockRestore);
     Ability::OnRestoreAbilityState(inState);
     tmpPacMap = (PacMap)inState;
     iGetSaveData = tmpPacMap.GetIntValue(FwkAbilityState_SaveData_Int);
     if (iSaveData != iGetSaveData) {
         TestUtils::PublishEvent(FwkAbilityState_Event_Resp_A, OnRestoreCheckCode, "NotEqual");
-        HILOG_INFO("FwkAbilityStateMain::restore not equal %{public}d", iGetSaveData);
+        APP_LOGI("FwkAbilityStateMain::restore not equal %{public}d", iGetSaveData);
     } else {
-        HILOG_INFO("FwkAbilityStateMain::restore equal %{public}d", iGetSaveData);
+        APP_LOGI("FwkAbilityStateMain::restore equal %{public}d", iGetSaveData);
     }
     callback_seq += "OnRestoreAbilityState";
 }
@@ -161,14 +161,14 @@ void FwkAbilityStateMainSubscriber::OnReceiveEvent(const CommonEventData &data)
         if (mapAction_.find(target) != mapAction_.end()) {
             mapAction_[target](target, data.GetCode());
         } else {
-            HILOG_INFO("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
+            APP_LOGI("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }
 }
 
 void FwkAbilityStateMain::Action(std::string action, int code)
 {
-    HILOG_INFO("FwkAbilityStateMain::Action Called");
+    APP_LOGI("FwkAbilityStateMain::Action Called");
     if (mapAction_.find(action) != mapAction_.end()) {
         mapAction_[action](code);
     }
@@ -176,10 +176,10 @@ void FwkAbilityStateMain::Action(std::string action, int code)
 
 void FwkAbilityStateMain::DoCrash(std::string action, int code)
 {
-    HILOG_INFO("FwkAbilityStateMain::DoCrash Called");
+    APP_LOGI("FwkAbilityStateMain::DoCrash Called");
     CrashMaker *pcCrashMaker = nullptr;
     int a = pcCrashMaker->CrashTry();
-    HILOG_INFO("FwkAbilityStateMain::DoCrash Process %{public}d", a);
+    APP_LOGI("FwkAbilityStateMain::DoCrash Process %{public}d", a);
 }
 
 void FwkAbilityStateMain::StartNextAbility(int code)

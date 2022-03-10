@@ -14,7 +14,7 @@
  */
 #include "task_executor.h"
 
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,15 +30,15 @@ TaskExecutor::TaskExecutor(const std::shared_ptr<WorkerPoolConfig> &config) : Wo
 TaskExecutor::~TaskExecutor()
 {
     if ((consumer_) && consumer_->joinable()) {
-        HILOG_INFO("TaskExecutor::~TaskExecutor consumer is running");
+        APP_LOGI("TaskExecutor::~TaskExecutor consumer is running");
         consumer_->join();
     }
-    HILOG_INFO("TaskExecutor::~TaskExecutor");
+    APP_LOGI("TaskExecutor::~TaskExecutor");
 }
 
 void TaskExecutor::Execute(const std::shared_ptr<Task> &task)
 {
-    HILOG_INFO("TaskExecutor::Execute begin");
+    APP_LOGI("TaskExecutor::Execute begin");
     task->SetSequence(GetAndIncrement(sequence));
 
     std::shared_ptr<TaskExecutor> executor = shared_from_this();
@@ -47,21 +47,21 @@ void TaskExecutor::Execute(const std::shared_ptr<Task> &task)
         std::shared_ptr<PriorityTaskWrapper> priorityTaskWrapper =
             std::make_shared<PriorityTaskWrapper>(task->GetPriority(), task);
         if (pendingTasks_->Offer(priorityTaskWrapper) == false) {
-            HILOG_WARN("TaskExecutor::Execute rejected a task");
+            APP_LOGW("TaskExecutor::Execute rejected a task");
         }
     }
-    HILOG_INFO("TaskExecutor::Execute end");
+    APP_LOGI("TaskExecutor::Execute end");
 }
 
 ErrCode TaskExecutor::DoWorks(const std::shared_ptr<WorkerThread> &worker)
 {
-    HILOG_INFO("TaskExecutor::DoWorks begin");
+    APP_LOGI("TaskExecutor::DoWorks begin");
     if (worker == nullptr) {
-        HILOG_ERROR("TaskExecutor::DoWorks worker is nullptr");
+        APP_LOGE("TaskExecutor::DoWorks worker is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     if (worker->GetThread() == nullptr) {
-        HILOG_ERROR("TaskExecutor::DoWorks worker GetThread is nullptr");
+        APP_LOGE("TaskExecutor::DoWorks worker GetThread is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
 
@@ -69,7 +69,7 @@ ErrCode TaskExecutor::DoWorks(const std::shared_ptr<WorkerThread> &worker)
     bool isInterrupted = false;
     bool done = false;
     while (((task != nullptr && done == false) || ((task = GetTask(worker)) != nullptr))) {
-        HILOG_INFO("TaskExecutor::DoWorks loop tasks.");
+        APP_LOGI("TaskExecutor::DoWorks loop tasks.");
 
         BeforeRun(task);
 
@@ -84,7 +84,7 @@ ErrCode TaskExecutor::DoWorks(const std::shared_ptr<WorkerThread> &worker)
         done = true;
     }
     OnWorkerExit(worker, isInterrupted);
-    HILOG_INFO("TaskExecutor::DoWorks end");
+    APP_LOGI("TaskExecutor::DoWorks end");
     return ERR_OK;
 }
 std::shared_ptr<Task> TaskExecutor::GetTask(const std::shared_ptr<WorkerThread> &workerThread)
@@ -95,33 +95,33 @@ std::shared_ptr<Task> TaskExecutor::GetTask(const std::shared_ptr<WorkerThread> 
 
     for (;;) {
         if (terminated_.load() && pendingTasks_->Empty()) {
-            HILOG_INFO("TaskExecutor::GetTask end: loop thread %{public}s is terminated",
+            APP_LOGI("TaskExecutor::GetTask end: loop thread %{public}s is terminated",
                 workerThread->GetThreadName().c_str());
             DecrementThread();
             return nullRunnable;
         }
 
         int workerCount = GetWorkCount();
-        HILOG_INFO("TaskExecutor::GetTask  workerCount:%{public}d, GetCoreThreadCount: %{public}d",
+        APP_LOGI("TaskExecutor::GetTask  workerCount:%{public}d, GetCoreThreadCount: %{public}d",
             workerCount,
             GetCoreThreadCount());
         bool needCheckTimeout = (workerCount > GetCoreThreadCount());
         if (isTimeout && needCheckTimeout && pendingTasks_->Empty()) {
-            HILOG_INFO("TaskExecutor::GetTask isTimeout is true");
+            APP_LOGI("TaskExecutor::GetTask isTimeout is true");
             if (CompareAndDecNum(workerCount)) {
-                HILOG_INFO("TaskExecutor::GetTask end: loop thread %{public}s is timeout",
+                APP_LOGI("TaskExecutor::GetTask end: loop thread %{public}s is timeout",
                     workerThread->GetThreadName().c_str());
                 return nullRunnable;
             }
             continue;
         }
 
-        HILOG_INFO("TaskExecutor::GetTask need timeout=%{public}d", needCheckTimeout);
+        APP_LOGI("TaskExecutor::GetTask need timeout=%{public}d", needCheckTimeout);
         std::shared_ptr<PriorityTaskWrapper> next =
             needCheckTimeout ? pendingTasks_->Poll(GetKeepAliveTime()) : pendingTasks_->Take();
 
         if (next != nullptr && next->task_ != nullptr) {
-            HILOG_INFO("TaskExecutor::GetTask end: loop thread %{public}s get next task",
+            APP_LOGI("TaskExecutor::GetTask end: loop thread %{public}s get next task",
                 workerThread->GetThreadName().c_str());
             return next->task_;
         }
@@ -131,10 +131,10 @@ std::shared_ptr<Task> TaskExecutor::GetTask(const std::shared_ptr<WorkerThread> 
 
 void TaskExecutor::Terminate(bool force)
 {
-    HILOG_INFO("TaskExecutor::Terminate begin");
+    APP_LOGI("TaskExecutor::Terminate begin");
     TerminateConsumer();
     ClosePool(force);
-    HILOG_INFO("TaskExecutor::Terminate end");
+    APP_LOGI("TaskExecutor::Terminate end");
 }
 
 void TaskExecutor::AfterRun(const std::shared_ptr<Task> &task)
@@ -151,16 +151,16 @@ bool TaskExecutor::DelayExecute(const Runnable &task, long delayMs)
 {
     if (delayMs <= 0) {
         task();
-        HILOG_INFO("TaskExecutor::DelayExecute end and delayMs less than 0");
+        APP_LOGI("TaskExecutor::DelayExecute end and delayMs less than 0");
         return true;
     }
     if (terminated_.load()) {
-        HILOG_INFO("TaskExecutor::DelayExecute end and terminate");
+        APP_LOGI("TaskExecutor::DelayExecute end and terminate");
         return false;
     }
     std::shared_ptr<DelayTaskWrapper> delayTaskWrapper = std::make_shared<DelayTaskWrapper>(delayMs, task);
     if (delayTaskWrapper == nullptr) {
-        HILOG_INFO("TaskExecutor::DelayExecute end and delayTaskWrapper is nullptr");
+        APP_LOGI("TaskExecutor::DelayExecute end and delayTaskWrapper is nullptr");
         return false;
     }
     delayTasks_->Offer(delayTaskWrapper);
@@ -190,10 +190,10 @@ bool TaskExecutor::EnsureConsumeStarted()
             if (consumer_ == nullptr) {
                 consumer_ = std::make_shared<std::thread>(&TaskExecutor::Consume, this);
                 if (consumer_ == nullptr) {
-                    HILOG_ERROR("TaskExecutor::EnsureConsumeStarted consumer_ is nullptr");
+                    APP_LOGE("TaskExecutor::EnsureConsumeStarted consumer_ is nullptr");
                     return false;
                 }
-                HILOG_INFO("TaskExecutor::EnsureConsumeStarted start a delay task consumer");
+                APP_LOGI("TaskExecutor::EnsureConsumeStarted start a delay task consumer");
             }
         }
     }
@@ -204,16 +204,16 @@ void TaskExecutor::Consume()
 {
     for (;;) {
         if (terminated_.load() && delayTasks_->Empty()) {
-            HILOG_INFO("TaskExecutor::Consume delay task is empty");
+            APP_LOGI("TaskExecutor::Consume delay task is empty");
             break;
         }
         std::shared_ptr<DelayTaskWrapper> delayTaskWrapper = delayTasks_->Take();
         if (delayTaskWrapper == nullptr || delayTaskWrapper->runnable_ == nullptr) {
-            HILOG_ERROR("TaskExecutor::Consume delayTaskWrapper is nullptr");
+            APP_LOGE("TaskExecutor::Consume delayTaskWrapper is nullptr");
             return;
         }
         (delayTaskWrapper->runnable_)();
-        HILOG_INFO("TaskExecutor::Consume after run");
+        APP_LOGI("TaskExecutor::Consume after run");
     }
 }
 

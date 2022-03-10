@@ -14,7 +14,7 @@
  */
 
 #include "ability_manager.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "singleton.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
@@ -29,29 +29,29 @@ AbilityManager &AbilityManager::GetInstance()
 
 void AbilityManager::StartAbility(const Want &want, int requestCode = -1)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 }
 
 void AbilityManager::MoveMissionToTop(int missionId)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->MoveMissionToTop(missionId);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 }
 
 StackInfo AbilityManager::GetAllStackInfo() const
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     StackInfo info;
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->GetAllStackInfo(info);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 
     return info;
@@ -59,11 +59,11 @@ StackInfo AbilityManager::GetAllStackInfo() const
 
 std::vector<AbilityMissionInfo> AbilityManager::QueryRecentAbilityMissionInfo(int numMax, int flags) const
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     std::vector<AbilityMissionInfo> info;
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->GetRecentMissions(numMax, flags, info);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 
     return info;
@@ -71,12 +71,12 @@ std::vector<AbilityMissionInfo> AbilityManager::QueryRecentAbilityMissionInfo(in
 
 std::vector<AbilityMissionInfo> AbilityManager::QueryRunningAbilityMissionInfo(int numMax) const
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     std::vector<AbilityMissionInfo> info;
     ErrCode error =
         AAFwk::AbilityManagerClient::GetInstance()->GetRecentMissions(numMax, RECENT_IGNORE_UNAVAILABLE, info);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 
     return info;
@@ -84,20 +84,20 @@ std::vector<AbilityMissionInfo> AbilityManager::QueryRunningAbilityMissionInfo(i
 
 void AbilityManager::RemoveMissions(const std::vector<int> &missionId)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->RemoveMissions(missionId);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
     }
 }
 
 int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     if (appMgr_ == nullptr) {
-        HILOG_ERROR("%s, appMgr_ is nullptr", __func__);
+        APP_LOGE("%s, appMgr_ is nullptr", __func__);
         return ERR_NULL_OBJECT;
     }
 
@@ -106,12 +106,12 @@ int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 
 std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     std::vector<RunningProcessInfo> info;
     if (appMgr_ == nullptr) {
-        HILOG_ERROR("%s, appMgr_ is nullptr", __func__);
+        APP_LOGE("%s, appMgr_ is nullptr", __func__);
         return info;
     }
 
@@ -121,10 +121,10 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 
 int AbilityManager::KillProcessesByBundleName(const std::string &bundleName)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    APP_LOGD("%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        APP_LOGE("%s failed, error : %d", __func__, error);
         return error;
     }
     return ERR_OK;

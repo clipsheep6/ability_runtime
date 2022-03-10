@@ -18,11 +18,11 @@
 #include "ability_scheduler_interface.h"
 #include "ability_thread.h"
 #include "abs_shared_result_set.h"
+#include "app_log_wrapper.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
-#include "hilog_wrapper.h"
 #include "idatashare.h"
 #include "values_bucket.h"
 
@@ -37,45 +37,45 @@ std::mutex DataShareHelper::oplock_;
 DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want)
 {
-    HILOG_INFO("DataShareHelper::DataShareHelper with context and want start");
+    APP_LOGI("DataShareHelper::DataShareHelper with context and want start");
     token_ = context->GetToken();
     want_ = want;
     uri_ = nullptr;
     dataShareProxy_ = nullptr;
     dataShareConnection_ = DataShareConnection::GetInstance();
-    HILOG_INFO("DataShareHelper::DataShareHelper with context and want end");
+    APP_LOGI("DataShareHelper::DataShareHelper with context and want end");
 }
 
 DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const AAFwk::Want &want,
     const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
 {
-    HILOG_INFO("DataShareHelper::DataShareHelper start");
+    APP_LOGI("DataShareHelper::DataShareHelper start");
     token_ = context->GetToken();
     context_ = std::shared_ptr<Context>(context);
     want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
     dataShareConnection_ = DataShareConnection::GetInstance();
-    HILOG_INFO("DataShareHelper::DataShareHelper end");
+    APP_LOGI("DataShareHelper::DataShareHelper end");
 }
 
 DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const AAFwk::Want &want, const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
 {
-    HILOG_INFO("DataShareHelper::DataShareHelper start");
+    APP_LOGI("DataShareHelper::DataShareHelper start");
     token_ = context->GetToken();
     want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
     dataShareConnection_ = DataShareConnection::GetInstance();
-    HILOG_INFO("DataShareHelper::DataShareHelper end");
+    APP_LOGI("DataShareHelper::DataShareHelper end");
 }
 
 void DataShareHelper::AddDataShareDeathRecipient(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("DataShareHelper::AddDataShareDeathRecipient start.");
+    APP_LOGI("DataShareHelper::AddDataShareDeathRecipient start.");
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        HILOG_INFO("token RemoveDeathRecipient.");
+        APP_LOGI("token RemoveDeathRecipient.");
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
@@ -83,20 +83,20 @@ void DataShareHelper::AddDataShareDeathRecipient(const sptr<IRemoteObject> &toke
             new DataShareDeathRecipient(std::bind(&DataShareHelper::OnSchedulerDied, this, std::placeholders::_1));
     }
     if (token != nullptr) {
-        HILOG_INFO("token AddDeathRecipient.");
+        APP_LOGI("token AddDeathRecipient.");
         token->AddDeathRecipient(callerDeathRecipient_);
     }
-    HILOG_INFO("DataShareHelper::AddDataShareDeathRecipient end.");
+    APP_LOGI("DataShareHelper::AddDataShareDeathRecipient end.");
 }
 
 void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("'%{public}s start':", __func__);
+    APP_LOGI("'%{public}s start':", __func__);
     auto object = remote.promote();
     object = nullptr;
     dataShareProxy_ = nullptr;
     uri_ = nullptr;
-    HILOG_INFO("DataShareHelper::OnSchedulerDied end.");
+    APP_LOGI("DataShareHelper::OnSchedulerDied end.");
 }
 
 /**
@@ -110,26 +110,26 @@ void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
 {
-    HILOG_INFO("DataShareHelper::Creator with context start.");
+    APP_LOGI("DataShareHelper::Creator with context start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator (context) failed, context == nullptr");
+        APP_LOGE("DataShareHelper::Creator (context) failed, context == nullptr");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
     if (!dataShareConnection->IsExtAbilityConnected()) {
         dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
     }
-    HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
     DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want);
     if (ptrDataShareHelper == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator (context) failed, create DataShareHelper failed");
+        APP_LOGE("DataShareHelper::Creator (context) failed, create DataShareHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator with context end.");
+    APP_LOGI("DataShareHelper::Creator with context end.");
     return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
 }
 
@@ -147,24 +147,24 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     const std::shared_ptr<Context> &context, const AAFwk::Want &want, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("DataShareHelper::Creator with context, want and uri called start.");
+    APP_LOGI("DataShareHelper::Creator with context, want and uri called start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, context == nullptr");
+        APP_LOGE("DataShareHelper::Creator failed, context == nullptr");
         return nullptr;
     }
 
     if (uri == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, uri == nullptr");
+        APP_LOGE("DataShareHelper::Creator failed, uri == nullptr");
         return nullptr;
     }
 
     if (uri->GetScheme() != SCHEME_DATASHARE) {
-        HILOG_ERROR("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
+        APP_LOGE("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
             uri->GetScheme().c_str());
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<IDataShare> dataShareProxy = nullptr;
 
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
@@ -173,17 +173,17 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     }
     dataShareProxy = dataShareConnection->GetDataShareProxy();
     if (dataShareProxy == nullptr) {
-        HILOG_WARN("DataShareHelper::Creator get invalid dataShareProxy");
+        APP_LOGW("DataShareHelper::Creator get invalid dataShareProxy");
     }
-    HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
     DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
     if (ptrDataShareHelper == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, create DataShareHelper failed");
+        APP_LOGE("DataShareHelper::Creator failed, create DataShareHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator with context, want and uri called end.");
+    APP_LOGI("DataShareHelper::Creator with context, want and uri called end.");
     return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
 }
 
@@ -202,24 +202,24 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
     const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("DataShareHelper::Creator with runtime context, want and uri called start.");
+    APP_LOGI("DataShareHelper::Creator with runtime context, want and uri called start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, context == nullptr");
+        APP_LOGE("DataShareHelper::Creator failed, context == nullptr");
         return nullptr;
     }
 
     if (uri == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, uri == nullptr");
+        APP_LOGE("DataShareHelper::Creator failed, uri == nullptr");
         return nullptr;
     }
 
     if (uri->GetScheme() != SCHEME_DATASHARE) {
-        HILOG_ERROR("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
+        APP_LOGE("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
             uri->GetScheme().c_str());
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<IDataShare> dataShareProxy = nullptr;
 
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
@@ -228,17 +228,17 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     }
     dataShareProxy = dataShareConnection->GetDataShareProxy();
     if (dataShareProxy == nullptr) {
-        HILOG_WARN("DataShareHelper::Creator get invalid dataShareProxy");
+        APP_LOGW("DataShareHelper::Creator get invalid dataShareProxy");
     }
-    HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
     DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
     if (ptrDataShareHelper == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, create DataShareHelper failed");
+        APP_LOGE("DataShareHelper::Creator failed, create DataShareHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator with runtime context, want and uri called end.");
+    APP_LOGI("DataShareHelper::Creator with runtime context, want and uri called end.");
     return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
 }
 
@@ -250,20 +250,20 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
  */
 bool DataShareHelper::Release()
 {
-    HILOG_INFO("DataShareHelper::Release start.");
+    APP_LOGI("DataShareHelper::Release start.");
     if (uri_ == nullptr) {
-        HILOG_ERROR("DataShareHelper::Release failed, uri_ is nullptr");
+        APP_LOGE("DataShareHelper::Release failed, uri_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("DataShareHelper::Release before DisconnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Release before DisconnectDataShareExtAbility.");
     if (dataShareConnection_->IsExtAbilityConnected()) {
         dataShareConnection_->DisconnectDataShareExtAbility();
     }
-    HILOG_INFO("DataShareHelper::Release after DisconnectDataShareExtAbility.");
+    APP_LOGI("DataShareHelper::Release after DisconnectDataShareExtAbility.");
     dataShareProxy_ = nullptr;
     uri_.reset();
-    HILOG_INFO("DataShareHelper::Release end.");
+    APP_LOGI("DataShareHelper::Release end.");
     return true;
 }
 
@@ -277,20 +277,20 @@ bool DataShareHelper::Release()
  */
 std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
 {
-    HILOG_INFO("DataShareHelper::GetFileTypes start.");
+    APP_LOGI("DataShareHelper::GetFileTypes start.");
     std::vector<std::string> matchedMIMEs;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return matchedMIMEs;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::GetFileTypes before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetFileTypes before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::GetFileTypes after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetFileTypes after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -299,23 +299,23 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return matchedMIMEs;
     }
 
-    HILOG_INFO("DataShareHelper::GetFileTypes before dataShareProxy_->GetFileTypes.");
+    APP_LOGI("DataShareHelper::GetFileTypes before dataShareProxy_->GetFileTypes.");
     matchedMIMEs = dataShareProxy_->GetFileTypes(uri, mimeTypeFilter);
-    HILOG_INFO("DataShareHelper::GetFileTypes after dataShareProxy_->GetFileTypes.");
+    APP_LOGI("DataShareHelper::GetFileTypes after dataShareProxy_->GetFileTypes.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::GetFileTypes before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetFileTypes before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::GetFileTypes after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetFileTypes after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::GetFileTypes end.");
+    APP_LOGI("DataShareHelper::GetFileTypes end.");
     return matchedMIMEs;
 }
 
@@ -332,20 +332,20 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
  */
 int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("DataShareHelper::OpenFile start.");
+    APP_LOGI("DataShareHelper::OpenFile start.");
     int fd = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return fd;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::OpenFile before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::OpenFile after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenFile after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -354,22 +354,22 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return fd;
     }
 
-    HILOG_INFO("DataShareHelper::OpenFile before dataShareProxy_->OpenFile.");
+    APP_LOGI("DataShareHelper::OpenFile before dataShareProxy_->OpenFile.");
     fd = dataShareProxy_->OpenFile(uri, mode);
-    HILOG_INFO("DataShareHelper::OpenFile after dataShareProxy_->OpenFile.");
+    APP_LOGI("DataShareHelper::OpenFile after dataShareProxy_->OpenFile.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::OpenFile before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenFile before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::OpenFile after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenFile after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::OpenFile end.");
+    APP_LOGI("DataShareHelper::OpenFile end.");
     return fd;
 }
 
@@ -387,20 +387,20 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
  */
 int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("DataShareHelper::OpenRawFile start.");
+    APP_LOGI("DataShareHelper::OpenRawFile start.");
     int fd = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return fd;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::OpenRawFile before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenRawFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::OpenRawFile after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenRawFile after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -409,22 +409,22 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return fd;
     }
 
-    HILOG_INFO("DataShareHelper::OpenRawFile before dataShareProxy_->OpenRawFile.");
+    APP_LOGI("DataShareHelper::OpenRawFile before dataShareProxy_->OpenRawFile.");
     fd = dataShareProxy_->OpenRawFile(uri, mode);
-    HILOG_INFO("DataShareHelper::OpenRawFile after dataShareProxy_->OpenRawFile.");
+    APP_LOGI("DataShareHelper::OpenRawFile after dataShareProxy_->OpenRawFile.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::OpenRawFile before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenRawFile before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::OpenRawFile after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::OpenRawFile after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::OpenRawFile end.");
+    APP_LOGI("DataShareHelper::OpenRawFile end.");
     return fd;
 }
 
@@ -438,20 +438,20 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
  */
 int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    HILOG_INFO("DataShareHelper::Insert start.");
+    APP_LOGI("DataShareHelper::Insert start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Insert before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Insert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::Insert after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Insert after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -460,22 +460,22 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return index;
     }
 
-    HILOG_INFO("DataShareHelper::Insert before dataShareProxy_->Insert.");
+    APP_LOGI("DataShareHelper::Insert before dataShareProxy_->Insert.");
     index = dataShareProxy_->Insert(uri, value);
-    HILOG_INFO("DataShareHelper::Insert after dataShareProxy_->Insert.");
+    APP_LOGI("DataShareHelper::Insert after dataShareProxy_->Insert.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Insert before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Insert before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::Insert after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Insert after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::Insert end.");
+    APP_LOGI("DataShareHelper::Insert end.");
     return index;
 }
 
@@ -491,20 +491,20 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 int DataShareHelper::Update(
     Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataShareHelper::Update start.");
+    APP_LOGI("DataShareHelper::Update start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Update before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Update before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::Update after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Update after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -513,22 +513,22 @@ int DataShareHelper::Update(
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return index;
     }
 
-    HILOG_INFO("DataShareHelper::Update before dataShareProxy_->Update.");
+    APP_LOGI("DataShareHelper::Update before dataShareProxy_->Update.");
     index = dataShareProxy_->Update(uri, value, predicates);
-    HILOG_INFO("DataShareHelper::Update after dataShareProxy_->Update.");
+    APP_LOGI("DataShareHelper::Update after dataShareProxy_->Update.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Update before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Update before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::Update after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Update after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::Update end.");
+    APP_LOGI("DataShareHelper::Update end.");
     return index;
 }
 
@@ -542,20 +542,20 @@ int DataShareHelper::Update(
  */
 int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataShareHelper::Delete start.");
+    APP_LOGI("DataShareHelper::Delete start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Delete before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Delete before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::Delete after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Delete after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -564,22 +564,22 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return index;
     }
 
-    HILOG_INFO("DataShareHelper::Delete before dataShareProxy_->Delete.");
+    APP_LOGI("DataShareHelper::Delete before dataShareProxy_->Delete.");
     index = dataShareProxy_->Delete(uri, predicates);
-    HILOG_INFO("DataShareHelper::Delete after dataShareProxy_->Delete.");
+    APP_LOGI("DataShareHelper::Delete after dataShareProxy_->Delete.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Delete before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Delete before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::Delete after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Delete after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::Delete end.");
+    APP_LOGI("DataShareHelper::Delete end.");
     return index;
 }
 
@@ -595,21 +595,21 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataShareHelper::Query start.");
+    APP_LOGI("DataShareHelper::Query start.");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
 
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return resultset;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Query before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Query before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::Query after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Query after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -618,22 +618,22 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return resultset;
     }
 
-    HILOG_INFO("DataShareHelper::Query before dataShareProxy_->Query.");
+    APP_LOGI("DataShareHelper::Query before dataShareProxy_->Query.");
     resultset = dataShareProxy_->Query(uri, columns, predicates);
-    HILOG_INFO("DataShareHelper::Query after dataShareProxy_->Query.");
+    APP_LOGI("DataShareHelper::Query after dataShareProxy_->Query.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::Query before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Query before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::Query after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::Query after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::Query end.");
+    APP_LOGI("DataShareHelper::Query end.");
     return resultset;
 }
 
@@ -647,20 +647,20 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
  */
 std::string DataShareHelper::GetType(Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::GetType start.");
+    APP_LOGI("DataShareHelper::GetType start.");
     std::string type;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return type;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::GetType before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetType before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::GetType after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetType after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -669,22 +669,22 @@ std::string DataShareHelper::GetType(Uri &uri)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return type;
     }
 
-    HILOG_INFO("DataShareHelper::GetType before dataShareProxy_->GetType.");
+    APP_LOGI("DataShareHelper::GetType before dataShareProxy_->GetType.");
     type = dataShareProxy_->GetType(uri);
-    HILOG_INFO("DataShareHelper::GetType after dataShareProxy_->GetType.");
+    APP_LOGI("DataShareHelper::GetType after dataShareProxy_->GetType.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::GetType before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetType before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::GetType after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::GetType after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::GetType end.");
+    APP_LOGI("DataShareHelper::GetType end.");
     return type;
 }
 
@@ -698,20 +698,20 @@ std::string DataShareHelper::GetType(Uri &uri)
  */
 int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_INFO("DataShareHelper::BatchInsert start.");
+    APP_LOGI("DataShareHelper::BatchInsert start.");
     int ret = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return ret;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::BatchInsert before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::BatchInsert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::BatchInsert after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::BatchInsert after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -720,37 +720,37 @@ int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBu
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return ret;
     }
 
-    HILOG_INFO("DataShareHelper::BatchInsert before dataShareProxy_->BatchInsert.");
+    APP_LOGI("DataShareHelper::BatchInsert before dataShareProxy_->BatchInsert.");
     ret = dataShareProxy_->BatchInsert(uri, values);
-    HILOG_INFO("DataShareHelper::BatchInsert after dataShareProxy_->BatchInsert.");
+    APP_LOGI("DataShareHelper::BatchInsert after dataShareProxy_->BatchInsert.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::BatchInsert before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::BatchInsert before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::BatchInsert after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::BatchInsert after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::BatchInsert end.");
+    APP_LOGI("DataShareHelper::BatchInsert end.");
     return ret;
 }
 
 bool DataShareHelper::CheckUriParam(const Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::CheckUriParam start.");
+    APP_LOGI("DataShareHelper::CheckUriParam start.");
     Uri checkUri(uri.ToString());
     if (!CheckOhosUri(checkUri)) {
-        HILOG_ERROR("DataShareHelper::CheckUriParam failed. CheckOhosUri uri failed");
+        APP_LOGE("DataShareHelper::CheckUriParam failed. CheckOhosUri uri failed");
         return false;
     }
 
     if (uri_ != nullptr) {
         if (!CheckOhosUri(*uri_)) {
-            HILOG_ERROR("DataShareHelper::CheckUriParam failed. CheckOhosUri uri_ failed");
+            APP_LOGE("DataShareHelper::CheckUriParam failed. CheckOhosUri uri_ failed");
             return false;
         }
 
@@ -761,35 +761,35 @@ bool DataShareHelper::CheckUriParam(const Uri &uri)
         uri_->GetPathSegments(segments);
 
         if (checkSegments[0] != segments[0]) {
-            HILOG_ERROR("DataShareHelper::CheckUriParam failed. the datashare in uri doesn't equal the one in uri_.");
+            APP_LOGE("DataShareHelper::CheckUriParam failed. the datashare in uri doesn't equal the one in uri_.");
             return false;
         }
     }
-    HILOG_INFO("DataShareHelper::CheckUriParam end.");
+    APP_LOGI("DataShareHelper::CheckUriParam end.");
     return true;
 }
 
 bool DataShareHelper::CheckOhosUri(const Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::CheckOhosUri start.");
+    APP_LOGI("DataShareHelper::CheckOhosUri start.");
     Uri checkUri(uri.ToString());
     if (checkUri.GetScheme() != SCHEME_DATASHARE) {
-        HILOG_ERROR("DataShareHelper::CheckOhosUri failed. uri is not a datashare one.");
+        APP_LOGE("DataShareHelper::CheckOhosUri failed. uri is not a datashare one.");
         return false;
     }
 
     std::vector<std::string> segments;
     checkUri.GetPathSegments(segments);
     if (segments.empty()) {
-        HILOG_ERROR("DataShareHelper::CheckOhosUri failed. There is no segments in the uri.");
+        APP_LOGE("DataShareHelper::CheckOhosUri failed. There is no segments in the uri.");
         return false;
     }
 
     if (checkUri.GetPath() == "") {
-        HILOG_ERROR("DataShareHelper::CheckOhosUri failed. The path in the uri is empty.");
+        APP_LOGE("DataShareHelper::CheckOhosUri failed. The path in the uri is empty.");
         return false;
     }
-    HILOG_INFO("DataShareHelper::CheckOhosUri end.");
+    APP_LOGI("DataShareHelper::CheckOhosUri end.");
     return true;
 }
 
@@ -801,19 +801,20 @@ bool DataShareHelper::CheckOhosUri(const Uri &uri)
  */
 void DataShareHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("DataShareHelper::RegisterObserver start.");
+    APP_LOGI("DataShareHelper::RegisterObserver start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("%{public}s called. dataObserver is nullptr", __func__);
+        APP_LOGE("%{public}s called. dataObserver is nullptr", __func__);
         return;
     }
 
     Uri tmpUri(uri.ToString());
     std::lock_guard<std::mutex> lock_l(oplock_);
+    sptr<IDataShare> dataShareProxy = nullptr;
     if (uri_ == nullptr) {
         auto datashare = registerMap_.find(dataObserver);
         if (datashare == registerMap_.end()) {
@@ -821,29 +822,29 @@ void DataShareHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAb
                 dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
             }
             dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-            registerMap_.emplace(dataObserver, dataShareProxy_);
+            registerMap_.emplace(dataObserver, dataShareProxy);
             uriMap_.emplace(dataObserver, tmpUri.GetPath());
         } else {
             auto path = uriMap_.find(dataObserver);
             if (path->second != tmpUri.GetPath()) {
-                HILOG_ERROR("DataShareHelper::RegisterObserver failed input uri's path is not equal the one the "
+                APP_LOGE("DataShareHelper::RegisterObserver failed input uri's path is not equal the one the "
                          "observer used");
                 return;
             }
-            dataShareProxy_ = datashare->second;
+            dataShareProxy = datashare->second;
         }
     } else {
-        dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
+        dataShareProxy = dataShareProxy_;
     }
 
-    if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("DataShareHelper::RegisterObserver failed dataShareProxy_ == nullptr");
+    if (dataShareProxy == nullptr) {
+        APP_LOGE("DataShareHelper::RegisterObserver failed dataShareProxy == nullptr");
         registerMap_.erase(dataObserver);
         uriMap_.erase(dataObserver);
         return;
     }
-    dataShareProxy_->RegisterObserver(uri, dataObserver);
-    HILOG_INFO("DataShareHelper::RegisterObserver end.");
+    dataShareProxy->RegisterObserver(uri, dataObserver);
+    APP_LOGI("DataShareHelper::RegisterObserver end.");
 }
 
 /**
@@ -854,19 +855,20 @@ void DataShareHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAb
  */
 void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("DataShareHelper::UnregisterObserver start.");
+    APP_LOGI("DataShareHelper::UnregisterObserver start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("%{public}s called. dataObserver is nullptr", __func__);
+        APP_LOGE("%{public}s called. dataObserver is nullptr", __func__);
         return;
     }
 
     Uri tmpUri(uri.ToString());
     std::lock_guard<std::mutex> lock_l(oplock_);
+    sptr<IDataShare> dataShareProxy = nullptr;
     if (uri_ == nullptr) {
         auto datashare = registerMap_.find(dataObserver);
         if (datashare == registerMap_.end()) {
@@ -874,32 +876,32 @@ void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IData
         }
         auto path = uriMap_.find(dataObserver);
         if (path->second != tmpUri.GetPath()) {
-            HILOG_ERROR("DataShareHelper::UnregisterObserver failed input uri's path is not equal the one the "
+            APP_LOGE("DataShareHelper::UnregisterObserver failed input uri's path is not equal the one the "
                      "observer used");
             return;
         }
-        dataShareProxy_ = datashare->second;
+        dataShareProxy = datashare->second;
     } else {
-        dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
+        dataShareProxy = dataShareProxy_;
     }
 
-    if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("DataShareHelper::UnregisterObserver failed dataShareProxy_ == nullptr");
+    if (dataShareProxy == nullptr) {
+        APP_LOGE("DataShareHelper::UnregisterObserver failed dataShareProxy == nullptr");
         return;
     }
 
-    dataShareProxy_->UnregisterObserver(uri, dataObserver);
+    dataShareProxy->UnregisterObserver(uri, dataObserver);
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::UnregisterObserver before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::UnregisterObserver before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::UnregisterObserver after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::UnregisterObserver after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
     registerMap_.erase(dataObserver);
     uriMap_.erase(dataObserver);
-    HILOG_INFO("DataShareHelper::UnregisterObserver end.");
+    APP_LOGI("DataShareHelper::UnregisterObserver end.");
 }
 
 /**
@@ -909,9 +911,9 @@ void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IData
  */
 void DataShareHelper::NotifyChange(const Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::NotifyChange start.");
+    APP_LOGI("DataShareHelper::NotifyChange start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
@@ -925,7 +927,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return;
     }
 
@@ -937,7 +939,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
         }
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::NotifyChange end.");
+    APP_LOGI("DataShareHelper::NotifyChange end.");
 }
 
 /**
@@ -954,20 +956,20 @@ void DataShareHelper::NotifyChange(const Uri &uri)
  */
 Uri DataShareHelper::NormalizeUri(Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::NormalizeUri start.");
+    APP_LOGI("DataShareHelper::NormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return urivalue;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::NormalizeUri before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::NormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::NormalizeUri after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::NormalizeUri after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -976,22 +978,22 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return urivalue;
     }
 
-    HILOG_INFO("DataShareHelper::NormalizeUri before dataShareProxy_->NormalizeUri.");
+    APP_LOGI("DataShareHelper::NormalizeUri before dataShareProxy_->NormalizeUri.");
     urivalue = dataShareProxy_->NormalizeUri(uri);
-    HILOG_INFO("DataShareHelper::NormalizeUri after dataShareProxy_->NormalizeUri.");
+    APP_LOGI("DataShareHelper::NormalizeUri after dataShareProxy_->NormalizeUri.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::NormalizeUri before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::NormalizeUri before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::NormalizeUri after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::NormalizeUri after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::NormalizeUri end.");
+    APP_LOGI("DataShareHelper::NormalizeUri end.");
     return urivalue;
 }
 
@@ -1007,20 +1009,20 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
  */
 Uri DataShareHelper::DenormalizeUri(Uri &uri)
 {
-    HILOG_INFO("DataShareHelper::DenormalizeUri start.");
+    APP_LOGI("DataShareHelper::DenormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return urivalue;
     }
 
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::DenormalizeUri before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::DenormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::DenormalizeUri after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::DenormalizeUri after ConnectDataShareExtAbility.");
         if (isSystemCaller_ && dataShareProxy_) {
             AddDataShareDeathRecipient(dataShareProxy_->AsObject());
         }
@@ -1029,32 +1031,32 @@ Uri DataShareHelper::DenormalizeUri(Uri &uri)
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return urivalue;
     }
 
-    HILOG_INFO("DataShareHelper::DenormalizeUri before dataShareProxy_->DenormalizeUri.");
+    APP_LOGI("DataShareHelper::DenormalizeUri before dataShareProxy_->DenormalizeUri.");
     urivalue = dataShareProxy_->DenormalizeUri(uri);
-    HILOG_INFO("DataShareHelper::DenormalizeUri after dataShareProxy_->DenormalizeUri.");
+    APP_LOGI("DataShareHelper::DenormalizeUri after dataShareProxy_->DenormalizeUri.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::DenormalizeUri before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::DenormalizeUri before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::DenormalizeUri after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::DenormalizeUri after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::DenormalizeUri end.");
+    APP_LOGI("DataShareHelper::DenormalizeUri end.");
     return urivalue;
 }
 
 void DataShareDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("recv DataShareDeathRecipient death notice");
+    APP_LOGI("recv DataShareDeathRecipient death notice");
     if (handler_) {
         handler_(remote);
     }
-    HILOG_INFO("DataShareHelper::OnRemoteDied end.");
+    APP_LOGI("DataShareHelper::OnRemoteDied end.");
 }
 
 DataShareDeathRecipient::DataShareDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
@@ -1066,21 +1068,21 @@ DataShareDeathRecipient::~DataShareDeathRecipient()
 std::vector<std::shared_ptr<DataAbilityResult>> DataShareHelper::ExecuteBatch(
     const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("DataShareHelper::ExecuteBatch start");
+    APP_LOGI("DataShareHelper::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("DataShareHelper::ExecuteBatch. CheckUriParam uri failed");
+        APP_LOGE("DataShareHelper::ExecuteBatch. CheckUriParam uri failed");
         return results;
     }
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::ExecuteBatch before ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::ExecuteBatch before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
-        HILOG_INFO("DataShareHelper::ExecuteBatch after ConnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::ExecuteBatch after ConnectDataShareExtAbility.");
         if (dataShareProxy_ == nullptr) {
-            HILOG_ERROR("DataShareHelper::ExecuteBatch failed dataShareProxy_ == nullptr");
+            APP_LOGE("DataShareHelper::ExecuteBatch failed dataShareProxy_ == nullptr");
             return results;
         }
     } else {
@@ -1088,22 +1090,22 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataShareHelper::ExecuteBatch(
     }
 
     if (dataShareProxy_ == nullptr) {
-        HILOG_ERROR("%{public}s failed with invalid dataShareProxy_", __func__);
+        APP_LOGE("%{public}s failed with invalid dataShareProxy_", __func__);
         return results;
     }
 
-    HILOG_INFO("DataShareHelper::ExecuteBatch before dataShareProxy_->ExecuteBatch.");
+    APP_LOGI("DataShareHelper::ExecuteBatch before dataShareProxy_->ExecuteBatch.");
     results = dataShareProxy_->ExecuteBatch(operations);
-    HILOG_INFO("DataShareHelper::ExecuteBatch after dataShareProxy_->ExecuteBatch.");
+    APP_LOGI("DataShareHelper::ExecuteBatch after dataShareProxy_->ExecuteBatch.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataShareHelper::ExecuteBatch before DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::ExecuteBatch before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
-        HILOG_INFO("DataShareHelper::ExecuteBatch after DisconnectDataShareExtAbility.");
+        APP_LOGI("DataShareHelper::ExecuteBatch after DisconnectDataShareExtAbility.");
         dataShareProxy_ = nullptr;
     }
-    HILOG_INFO("DataShareHelper::ExecuteBatch end");
+    APP_LOGI("DataShareHelper::ExecuteBatch end");
     return results;
 }
 }  // namespace AppExecFwk

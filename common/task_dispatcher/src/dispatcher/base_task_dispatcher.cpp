@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "base_task_dispatcher.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -31,101 +31,101 @@ BaseTaskDispatcher::BaseTaskDispatcher(const std::string &dispatcherName, const 
 
 ErrCode BaseTaskDispatcher::SyncDispatchBarrier(const std::shared_ptr<Runnable> &task)
 {
-    HILOG_INFO("BaseTaskDispatcher::SyncDispatchBarrier called");
+    APP_LOGI("BaseTaskDispatcher::SyncDispatchBarrier called");
     return SyncDispatch(task);
 }
 
 ErrCode BaseTaskDispatcher::AsyncDispatchBarrier(const std::shared_ptr<Runnable> &task)
 {
-    HILOG_INFO("BaseTaskDispatcher::AsyncDispatchBarrier start");
+    APP_LOGI("BaseTaskDispatcher::AsyncDispatchBarrier start");
     std::shared_ptr<Revocable> revocable = AsyncDispatch(task);
     if (revocable != nullptr) {
-        HILOG_INFO("BaseTaskDispatcher::AsyncDispatchBarrier end");
+        APP_LOGI("BaseTaskDispatcher::AsyncDispatchBarrier end");
         return ERR_OK;
     }
-    HILOG_ERROR("BaseTaskDispatcher::AsyncDispatchBarrier revocable is nullptr");
+    APP_LOGE("BaseTaskDispatcher::AsyncDispatchBarrier revocable is nullptr");
     return ERR_APPEXECFWK_CHECK_FAILED;
 }
 
 std::shared_ptr<Group> BaseTaskDispatcher::CreateDispatchGroup()
 {
-    HILOG_INFO("BaseTaskDispatcher::CreateDispatchGroup called.");
+    APP_LOGI("BaseTaskDispatcher::CreateDispatchGroup called.");
     return std::make_shared<GroupImpl>();
 }
 
 std::shared_ptr<Revocable> BaseTaskDispatcher::AsyncGroupDispatch(
     const std::shared_ptr<Group> &group, const std::shared_ptr<Runnable> &task)
 {
-    HILOG_INFO("BaseTaskDispatcher::AsyncGroupDispatch called.");
+    APP_LOGI("BaseTaskDispatcher::AsyncGroupDispatch called.");
     return AsyncDispatch(task);
 }
 
 bool BaseTaskDispatcher::GroupDispatchWait(const std::shared_ptr<Group> &group, long timeout)
 {
-    HILOG_INFO("BaseTaskDispatcher::GroupDispatchWait start");
+    APP_LOGI("BaseTaskDispatcher::GroupDispatchWait start");
     if (group == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchWait group is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchWait group is nullptr");
         return false;
     }
     std::shared_ptr<GroupImpl> groupImpl = CastToGroupImpl(group);
     if (groupImpl == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchWait groupImpl is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchWait groupImpl is nullptr");
         return false;
     }
     bool result = groupImpl->AwaitAllTasks(timeout);
-    HILOG_INFO("BaseTaskDispatcher::GroupDispatchWait start");
+    APP_LOGI("BaseTaskDispatcher::GroupDispatchWait start");
     return result;
 }
 
 ErrCode BaseTaskDispatcher::GroupDispatchNotify(
     const std::shared_ptr<Group> &group, const std::shared_ptr<Runnable> &task)
 {
-    HILOG_INFO("BaseTaskDispatcher::GroupDispatchNotify start");
+    APP_LOGI("BaseTaskDispatcher::GroupDispatchNotify start");
     if (group == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify group cannot be null.");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify group cannot be null.");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     if (task == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify task cannot be null");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify task cannot be null");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     const std::function<void()> asyncDispatch = std::bind(&BaseTaskDispatcher::AsyncDispatch, this, task);
     if (asyncDispatch == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify asyncDispatch is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify asyncDispatch is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     std::shared_ptr<Runnable> ptrCallback = std::make_shared<Runnable>(asyncDispatch);
     if (ptrCallback == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify runnable is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify runnable is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     if (group == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify group is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify group is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     std::shared_ptr<GroupImpl> groupImpl = CastToGroupImpl(group);
     if (groupImpl == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify groupImpl is nullptr");
+        APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify groupImpl is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     if (groupImpl->AddNotification(ptrCallback)) {
-        HILOG_INFO("BaseTaskDispatcher::GroupDispatchNotify end");
+        APP_LOGI("BaseTaskDispatcher::GroupDispatchNotify end");
         return ERR_OK;
     }
-    HILOG_ERROR("BaseTaskDispatcher::GroupDispatchNotify addNotification failed");
+    APP_LOGE("BaseTaskDispatcher::GroupDispatchNotify addNotification failed");
     return ERR_APPEXECFWK_CHECK_FAILED;
 }
 
 ErrCode BaseTaskDispatcher::ApplyDispatch(const std::shared_ptr<IteratableTask<long>> &task, long iterations)
 {
-    HILOG_INFO("BaseTaskDispatcher::ApplyDispatch start");
+    APP_LOGI("BaseTaskDispatcher::ApplyDispatch start");
     if (task == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::ApplyDispatch task object is not set");
+        APP_LOGE("BaseTaskDispatcher::ApplyDispatch task object is not set");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
 
     if (iterations <= 0) {
-        HILOG_ERROR("BaseTaskDispatcher::ApplyDispatch iterations must giant than 0");
+        APP_LOGE("BaseTaskDispatcher::ApplyDispatch iterations must giant than 0");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
 
@@ -133,28 +133,28 @@ ErrCode BaseTaskDispatcher::ApplyDispatch(const std::shared_ptr<IteratableTask<l
     for (long i = 0L; i < iterations; ++i) {
         std::shared_ptr<Runnable> ptrCallback = std::make_shared<Runnable>([task, i]() { (*task)(i); });
         if (ptrCallback == nullptr) {
-            HILOG_ERROR("BaseTaskDispatcher::ApplyDispatch runnable is nullptr");
+            APP_LOGE("BaseTaskDispatcher::ApplyDispatch runnable is nullptr");
             return ERR_APPEXECFWK_CHECK_FAILED;
         }
         std::shared_ptr<Revocable> revocable = AsyncDispatch(ptrCallback);
         if (revocable == nullptr) {
-            HILOG_ERROR("BaseTaskDispatcher::ApplyDispatch revocable is nullptr, index:%{public}ld", i);
+            APP_LOGE("BaseTaskDispatcher::ApplyDispatch revocable is nullptr, index:%{public}ld", i);
             flag = false;
         }
     }
     if (flag) {
-        HILOG_INFO("BaseTaskDispatcher::ApplyDispatch end");
+        APP_LOGI("BaseTaskDispatcher::ApplyDispatch end");
         return ERR_OK;
     }
-    HILOG_INFO("BaseTaskDispatcher::ApplyDispatch failed");
+    APP_LOGI("BaseTaskDispatcher::ApplyDispatch failed");
     return ERR_APPEXECFWK_CHECK_FAILED;
 }
 
 ErrCode BaseTaskDispatcher::Check(const std::shared_ptr<Runnable> &task) const
 {
-    HILOG_INFO("BaseTaskDispatcher::Check called");
+    APP_LOGI("BaseTaskDispatcher::Check called");
     if (task == nullptr) {
-        HILOG_ERROR("dispatch task cannot be null.");
+        APP_LOGE("dispatch task cannot be null.");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     return ERR_OK;
@@ -162,12 +162,12 @@ ErrCode BaseTaskDispatcher::Check(const std::shared_ptr<Runnable> &task) const
 
 std::shared_ptr<GroupImpl> BaseTaskDispatcher::CastToGroupImpl(const std::shared_ptr<Group> &group)
 {
-    HILOG_INFO("BaseTaskDispatcher::CastToGroupImpl called");
+    APP_LOGI("BaseTaskDispatcher::CastToGroupImpl called");
     std::shared_ptr<GroupImpl> groupImpl_ptr = std::static_pointer_cast<GroupImpl>(group);
     if (groupImpl_ptr != nullptr) {
         return groupImpl_ptr;
     }
-    HILOG_ERROR("group cannot instance of groupImpl ");
+    APP_LOGE("group cannot instance of groupImpl ");
     return nullptr;
 }
 
@@ -184,14 +184,14 @@ TaskPriority BaseTaskDispatcher::GetPriority() const
 void BaseTaskDispatcher::TracePointBeforePost(
     std::shared_ptr<Task> &task, bool isAsyncTask, const std::string &dispatcherName) const
 {
-    HILOG_INFO("BaseTaskDispatcher::TracePointBeforePost called");
+    APP_LOGI("BaseTaskDispatcher::TracePointBeforePost called");
     if (task == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::TracePointBeforePost the task is nullptr");
+        APP_LOGE("BaseTaskDispatcher::TracePointBeforePost the task is nullptr");
         return;
     }
     std::string taskType = isAsyncTask ? "ASYNC_TASK_STRING" : "SYNC_TASK_STRING";
     long seq = task->GetSequence();
-    HILOG_INFO("BaseTaskDispatcher::TracePointBeforePost "
+    APP_LOGI("BaseTaskDispatcher::TracePointBeforePost "
              "log---TaskType:%{public}s,TaskSeq:%{public}ld,DispatcherName::%{public}s",
         taskType.c_str(),
         seq,
@@ -201,14 +201,14 @@ void BaseTaskDispatcher::TracePointBeforePost(
 void BaseTaskDispatcher::TracePointAfterPost(
     std::shared_ptr<Task> &task, bool isAsyncTask, const std::string &dispatcherName) const
 {
-    HILOG_INFO("BaseTaskDispatcher::TracePointAfterPost called");
+    APP_LOGI("BaseTaskDispatcher::TracePointAfterPost called");
     if (task == nullptr) {
-        HILOG_ERROR("BaseTaskDispatcher::TracePointAfterPost the task is nullptr");
+        APP_LOGE("BaseTaskDispatcher::TracePointAfterPost the task is nullptr");
         return;
     }
     std::string taskType = isAsyncTask ? "ASYNC_TASK_STRING" : "SYNC_TASK_STRING";
     long seq = task->GetSequence();
-    HILOG_INFO("BaseTaskDispatcher::TracePointAfterPost "
+    APP_LOGI("BaseTaskDispatcher::TracePointAfterPost "
              "log---TaskType:%{public}s,TaskSeq:%{public}ld,DispatcherName::%{public}s",
         taskType.c_str(),
         seq,

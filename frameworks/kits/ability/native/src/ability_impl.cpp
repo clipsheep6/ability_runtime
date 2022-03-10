@@ -15,9 +15,9 @@
 
 #include "ability_impl.h"
 
+#include "app_log_wrapper.h"
 #include "bytrace.h"
 #include "data_ability_predicates.h"
-#include "hilog_wrapper.h"
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -32,10 +32,10 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     std::shared_ptr<ContextDeal> &contextDeal)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityImpl::init begin");
+    APP_LOGI("AbilityImpl::init begin");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         ability == nullptr || contextDeal == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, token is nullptr, application is nullptr, handler is nullptr, record is "
+        APP_LOGE("AbilityImpl::init failed, token is nullptr, application is nullptr, handler is nullptr, record is "
                  "nullptr, ability is nullptr, contextDeal is nullptr");
         return;
     }
@@ -46,17 +46,15 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     handler_ = handler;
     auto info = record->GetAbilityInfo();
     isStageBasedModel_ = info && info->isStageBasedModel;
-#ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
         ability_->SetSceneListener(
             sptr<WindowLifeCycleImpl>(new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
     }
-#endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
     contextDeal_ = contextDeal;
-    HILOG_INFO("AbilityImpl::init end");
+    APP_LOGI("AbilityImpl::init end");
 }
 
 /**
@@ -67,43 +65,38 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
  */
 void AbilityImpl::Start(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Start ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Start ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
-#ifdef SUPPORT_GRAPHICS
+
     if ((ability_->GetAbilityInfo()->type == AbilityType::PAGE) &&
         (!ability_->GetAbilityInfo()->isStageBasedModel)) {
         ability_->HandleCreateAsContinuation(want);
     }
-#endif
-    HILOG_INFO("AbilityImpl::Start");
+
+    APP_LOGI("AbilityImpl::Start");
     ability_->OnStart(want);
-#ifdef SUPPORT_GRAPHICS
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
         lifecycleState_ = AAFwk::ABILITY_STATE_STARTED_NEW;
     } else {
-#endif
         if (ability_->GetAbilityInfo()->type == AbilityType::DATA) {
             lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
         } else {
             lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
         }
-#ifdef SUPPORT_GRAPHICS
     }
-#endif
 
     abilityLifecycleCallbacks_->OnAbilityStart(ability_);
-#ifdef SUPPORT_GRAPHICS
+
     // Multimodal Events Register
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (!ability_->GetAbilityInfo()->isStageBasedModel)) {
         WindowEventRegister();
     }
-#endif
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -113,27 +106,23 @@ void AbilityImpl::Start(const Want &want)
  */
 void AbilityImpl::Stop()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
     ability_->OnStop();
-#ifdef SUPPORT_GRAPHICS
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
         lifecycleState_ = AAFwk::ABILITY_STATE_STOPED_NEW;
     } else {
-#endif
         lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
-#ifdef SUPPORT_GRAPHICS
     }
-#endif
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
     ability_->Destroy(); // Release window and ability.
     ability_ = nullptr;
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -143,23 +132,23 @@ void AbilityImpl::Stop()
  */
 void AbilityImpl::Active()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Active ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Active ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl::Active");
+    APP_LOGI("AbilityImpl::Active");
     ability_->OnActive();
-#ifdef SUPPORT_GRAPHICS
+
     if ((lifecycleState_ == AAFwk::ABILITY_STATE_INACTIVE) && (ability_->GetAbilityInfo()->type == AbilityType::PAGE)) {
         ability_->OnTopActiveAbilityChanged(true);
         ability_->OnWindowFocusChanged(true);
     }
-#endif
+
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
     abilityLifecycleCallbacks_->OnAbilityActive(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -169,23 +158,23 @@ void AbilityImpl::Active()
  */
 void AbilityImpl::Inactive()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Inactive ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Inactive ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl::Inactive");
+    APP_LOGI("AbilityImpl::Inactive");
     ability_->OnInactive();
-#ifdef SUPPORT_GRAPHICS
+
     if ((lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE) && (ability_->GetAbilityInfo()->type == AbilityType::PAGE)) {
         ability_->OnTopActiveAbilityChanged(false);
         ability_->OnWindowFocusChanged(false);
     }
-#endif
+
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
     abilityLifecycleCallbacks_->OnAbilityInactive(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 bool AbilityImpl::IsStageBasedModel() const
@@ -202,21 +191,20 @@ int AbilityImpl::GetCompatibleVersion()
     return -1;
 }
 
-#ifdef SUPPORT_GRAPHICS
 void AbilityImpl::AfterUnFocused()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (!ability_ || !ability_->GetAbilityInfo() || !contextDeal_ || !handler_) {
-        HILOG_ERROR("AbilityImpl::AfterUnFocused failed");
+        APP_LOGE("AbilityImpl::AfterUnFocused failed");
         return;
     }
 
     if (ability_->GetAbilityInfo()->isStageBasedModel) {
-        HILOG_INFO("new version ability, do nothing when after unfocused.");
+        APP_LOGI("new version ability, do nothing when after unfocused.");
         return;
     }
 
-    HILOG_INFO("old version ability, window after unfocused.");
+    APP_LOGI("old version ability, window after unfocused.");
     auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
@@ -224,19 +212,19 @@ void AbilityImpl::AfterUnFocused()
         abilityImpl->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     auto owner = owner_.lock();
     if (owner && !owner->IsStageBasedModel()) {
         return;
     }
 
-    HILOG_INFO("new version ability, window after foreground.");
+    APP_LOGI("new version ability, window after foreground.");
     PacMap restoreData;
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
@@ -245,13 +233,13 @@ void AbilityImpl::WindowLifeCycleImpl::AfterForeground()
 void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     auto owner = owner_.lock();
     if (owner && !owner->IsStageBasedModel()) {
         return;
     }
 
-    HILOG_INFO("new version ability, window after background.");
+    APP_LOGI("new version ability, window after background.");
     PacMap restoreData;
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);
@@ -259,17 +247,17 @@ void AbilityImpl::WindowLifeCycleImpl::AfterBackground()
 
 void AbilityImpl::WindowLifeCycleImpl::AfterFocused()
 {
-    HILOG_INFO("%{public}s.", __func__);
+    APP_LOGI("%{public}s.", __func__);
 }
 
 void AbilityImpl::WindowLifeCycleImpl::AfterUnFocused()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     auto owner = owner_.lock();
     if (owner) {
         owner->AfterUnFocused();
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -280,13 +268,13 @@ void AbilityImpl::WindowLifeCycleImpl::AfterUnFocused()
  */
 void AbilityImpl::Foreground(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Foreground ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Foreground ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl::Foreground");
+    APP_LOGI("AbilityImpl::Foreground");
     ability_->OnForeground(want);
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
@@ -295,7 +283,7 @@ void AbilityImpl::Foreground(const Want &want)
         lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
     }
     abilityLifecycleCallbacks_->OnAbilityForeground(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -305,13 +293,13 @@ void AbilityImpl::Foreground(const Want &want)
  */
 void AbilityImpl::Background()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::Background ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::Background ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl::Background");
+    APP_LOGI("AbilityImpl::Background");
     ability_->OnLeaveForeground();
     ability_->OnBackground();
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
@@ -321,9 +309,8 @@ void AbilityImpl::Background()
         lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
     }
     abilityLifecycleCallbacks_->OnAbilityBackground(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
-#endif
 
 /**
  * @brief Save data and states of an ability when it is restored by the system. and Calling information back to Ability.
@@ -332,15 +319,15 @@ void AbilityImpl::Background()
  */
 void AbilityImpl::DispatchSaveAbilityState()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr || abilityLifecycleCallbacks_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::DispatchSaveAbilityState ability_ or abilityLifecycleCallbacks_ is nullptr");
+        APP_LOGE("AbilityImpl::DispatchSaveAbilityState ability_ or abilityLifecycleCallbacks_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl::DispatchSaveAbilityState");
+    APP_LOGI("AbilityImpl::DispatchSaveAbilityState");
     needSaveDate_ = true;
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -351,15 +338,15 @@ void AbilityImpl::DispatchSaveAbilityState()
  */
 void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::DispatchRestoreAbilityState ability_ is nullptr");
+        APP_LOGE("AbilityImpl::DispatchRestoreAbilityState ability_ is nullptr");
         return;
     }
 
     hasSaveData_ = true;
     restoreData_ = inState;
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
@@ -373,17 +360,17 @@ void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCy
  */
 sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::ConnectAbility ability_ is nullptr");
+        APP_LOGE("AbilityImpl::ConnectAbility ability_ is nullptr");
         return nullptr;
     }
 
-    HILOG_INFO("AbilityImpl:: ConnectAbility");
+    APP_LOGI("AbilityImpl:: ConnectAbility");
     sptr<IRemoteObject> object = ability_->OnConnect(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
     abilityLifecycleCallbacks_->OnAbilityActive(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 
     return object;
 }
@@ -395,14 +382,14 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
  */
 void AbilityImpl::DisconnectAbility(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::DisconnectAbility ability_ is nullptr");
+        APP_LOGE("AbilityImpl::DisconnectAbility ability_ is nullptr");
         return;
     }
 
     ability_->OnDisconnect(want);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -419,17 +406,17 @@ void AbilityImpl::DisconnectAbility(const Want &want)
  */
 void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::CommandAbility ability_ is nullptr");
+        APP_LOGE("AbilityImpl::CommandAbility ability_ is nullptr");
         return;
     }
 
-    HILOG_INFO("AbilityImpl:: CommandAbility");
+    APP_LOGI("AbilityImpl:: CommandAbility");
     ability_->OnCommand(want, restart, startId);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
     abilityLifecycleCallbacks_->OnAbilityActive(ability_);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -441,7 +428,6 @@ int AbilityImpl::GetCurrentState()
     return lifecycleState_;
 }
 
-#ifdef SUPPORT_GRAPHICS
 /**
  * @brief Execution the KeyDown callback of the ability
  * @param keyEvent Indicates the key-down event.
@@ -452,7 +438,7 @@ int AbilityImpl::GetCurrentState()
  */
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("AbilityImpl::DoKeyDown called");
+    APP_LOGI("AbilityImpl::DoKeyDown called");
 }
 
 /**
@@ -465,7 +451,7 @@ void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("AbilityImpl::DoKeyUp called");
+    APP_LOGI("AbilityImpl::DoKeyUp called");
 }
 
 /**
@@ -478,9 +464,8 @@ void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    HILOG_INFO("AbilityImpl::DoPointerEvent called");
+    APP_LOGI("AbilityImpl::DoPointerEvent called");
 }
-#endif
 
 /**
  * @brief Send the result code and data to be returned by this Page ability to the caller.
@@ -495,9 +480,9 @@ void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEven
  */
 void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::SendResult ability_ is nullptr");
+        APP_LOGE("AbilityImpl::SendResult ability_ is nullptr");
         return;
     }
 
@@ -520,24 +505,24 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
                 }
                 grantResult.push_back(intOK);
             }
-            HILOG_INFO("%{public}s begin OnRequestPermissionsFromUserResult.", __func__);
+            APP_LOGI("%{public}s begin OnRequestPermissionsFromUserResult.", __func__);
             ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantResult);
-            HILOG_INFO("%{public}s end OnRequestPermissionsFromUserResult.", __func__);
+            APP_LOGI("%{public}s end OnRequestPermissionsFromUserResult.", __func__);
         } else {
-            HILOG_INFO("%{public}s user cancel permissions.", __func__);
+            APP_LOGI("%{public}s user cancel permissions.", __func__);
         }
     } else if (resultData.HasParameter(PERMISSION_KEY)) {
         std::vector<std::string> permissions = resultData.GetStringArrayParam(PERMISSION_KEY);
         std::vector<int> grantedResult(permissions.size(), -1);
         if (resultCode > 0) {
             grantedResult = resultData.GetIntArrayParam(GRANTED_RESULT_KEY);
-            HILOG_INFO("%{public}s Get user granted result.", __func__);
+            APP_LOGI("%{public}s Get user granted result.", __func__);
         }
         ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantedResult);
     } else {
         ability_->OnAbilityResult(requestCode, resultCode, resultData);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -548,14 +533,14 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
  */
 void AbilityImpl::NewWant(const Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::NewWant ability_ is nullptr");
+        APP_LOGE("AbilityImpl::NewWant ability_ is nullptr");
         return;
     }
     ability_->SetWant(want);
     ability_->OnNewWant(want);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -568,7 +553,7 @@ void AbilityImpl::NewWant(const Want &want)
  */
 std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
-    HILOG_INFO("AbilityImpl::GetFileTypes");
+    APP_LOGI("AbilityImpl::GetFileTypes");
     std::vector<std::string> types;
     return types;
 }
@@ -586,7 +571,7 @@ std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::st
  */
 int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("AbilityImpl::OpenFile");
+    APP_LOGI("AbilityImpl::OpenFile");
     return -1;
 }
 
@@ -604,7 +589,7 @@ int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
  */
 int AbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("AbilityImpl::OpenRawFile");
+    APP_LOGI("AbilityImpl::OpenRawFile");
     return -1;
 }
 
@@ -618,7 +603,7 @@ int AbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
  */
 int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    HILOG_INFO("AbilityImpl::Insert");
+    APP_LOGI("AbilityImpl::Insert");
     return -1;
 }
 
@@ -634,7 +619,7 @@ int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 int AbilityImpl::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityImpl::Update");
+    APP_LOGI("AbilityImpl::Update");
     return -1;
 }
 
@@ -648,7 +633,7 @@ int AbilityImpl::Update(
  */
 int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityImpl::Delete");
+    APP_LOGI("AbilityImpl::Delete");
     return -1;
 }
 
@@ -664,7 +649,7 @@ int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityImpl::Query");
+    APP_LOGI("AbilityImpl::Query");
     return nullptr;
 }
 
@@ -678,7 +663,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
  */
 std::string AbilityImpl::GetType(const Uri &uri)
 {
-    HILOG_INFO("AbilityImpl::GetType");
+    APP_LOGI("AbilityImpl::GetType");
     return "";
 }
 
@@ -707,7 +692,7 @@ bool AbilityImpl::Reload(const Uri &uri, const PacMap &extras)
  */
 int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_INFO("AbilityImpl::BatchInsert");
+    APP_LOGI("AbilityImpl::BatchInsert");
     return -1;
 }
 
@@ -716,13 +701,13 @@ int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Values
  */
 void AbilityImpl::SerUriString(const std::string &uri)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (contextDeal_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::SerUriString contextDeal_ is nullptr");
+        APP_LOGE("AbilityImpl::SerUriString contextDeal_ is nullptr");
         return;
     }
     contextDeal_->SerUriString(uri);
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
 /**
@@ -733,7 +718,7 @@ void AbilityImpl::SerUriString(const std::string &uri)
 void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
     if (contextDeal_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::SetLifeCycleStateInfo contextDeal_ is nullptr");
+        APP_LOGE("AbilityImpl::SetLifeCycleStateInfo contextDeal_ is nullptr");
         return;
     }
     contextDeal_->SetLifeCycleStateInfo(info);
@@ -746,21 +731,21 @@ void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
  */
 bool AbilityImpl::CheckAndRestore()
 {
-    HILOG_INFO("AbilityImpl::CheckAndRestore called start");
+    APP_LOGI("AbilityImpl::CheckAndRestore called start");
     if (!hasSaveData_) {
-        HILOG_ERROR("AbilityImpl::CheckAndRestore hasSaveData_ is false");
+        APP_LOGE("AbilityImpl::CheckAndRestore hasSaveData_ is false");
         return false;
     }
 
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::CheckAndRestore ability_ is nullptr");
+        APP_LOGE("AbilityImpl::CheckAndRestore ability_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("AbilityImpl::CheckAndRestore ready to restore");
+    APP_LOGI("AbilityImpl::CheckAndRestore ready to restore");
     ability_->OnRestoreAbilityState(restoreData_);
 
-    HILOG_INFO("AbilityImpl::CheckAndRestore called end");
+    APP_LOGI("AbilityImpl::CheckAndRestore called end");
     return true;
 }
 
@@ -771,24 +756,24 @@ bool AbilityImpl::CheckAndRestore()
  */
 bool AbilityImpl::CheckAndSave()
 {
-    HILOG_INFO("AbilityImpl::CheckAndSave called start");
+    APP_LOGI("AbilityImpl::CheckAndSave called start");
     if (!needSaveDate_) {
-        HILOG_ERROR("AbilityImpl::CheckAndSave needSaveDate_ is false");
+        APP_LOGE("AbilityImpl::CheckAndSave needSaveDate_ is false");
         return false;
     }
 
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::CheckAndSave ability_ is nullptr");
+        APP_LOGE("AbilityImpl::CheckAndSave ability_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("AbilityImpl::CheckAndSave ready to save");
+    APP_LOGI("AbilityImpl::CheckAndSave ready to save");
     ability_->OnSaveAbilityState(restoreData_);
     abilityLifecycleCallbacks_->OnAbilitySaveState(restoreData_);
 
     needSaveDate_ = false;
 
-    HILOG_INFO("AbilityImpl::CheckAndSave called end");
+    APP_LOGI("AbilityImpl::CheckAndSave called end");
     return true;
 }
 
@@ -828,7 +813,7 @@ void AbilityImpl::SetCallingContext(
  */
 Uri AbilityImpl::NormalizeUri(const Uri &uri)
 {
-    HILOG_INFO("AbilityImpl::NormalizeUri");
+    APP_LOGI("AbilityImpl::NormalizeUri");
     return uri;
 }
 
@@ -844,7 +829,7 @@ Uri AbilityImpl::NormalizeUri(const Uri &uri)
  */
 Uri AbilityImpl::DenormalizeUri(const Uri &uri)
 {
-    HILOG_INFO("AbilityImpl::DenormalizeUri");
+    APP_LOGI("AbilityImpl::DenormalizeUri");
     return uri;
 }
 
@@ -853,36 +838,35 @@ Uri AbilityImpl::DenormalizeUri(const Uri &uri)
  */
 void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    APP_LOGI("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::ScheduleUpdateConfiguration ability_ is nullptr");
+        APP_LOGE("AbilityImpl::ScheduleUpdateConfiguration ability_ is nullptr");
         return;
     }
 
     if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-        HILOG_INFO("ability name: [%{public}s]", ability_->GetAbilityName().c_str());
+        APP_LOGI("ability name: [%{public}s]", ability_->GetAbilityName().c_str());
         ability_->OnConfigurationUpdatedNotify(config);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    APP_LOGI("%{public}s end.", __func__);
 }
 
-#ifdef SUPPORT_GRAPHICS
 void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const
 {
     int32_t code = keyEvent->GetKeyAction();
     if (code == MMI::KeyEvent::KEY_ACTION_DOWN) {
         abilityImpl_->DoKeyDown(keyEvent);
-        HILOG_INFO("AbilityImpl::OnKeyDown keyAction: %{public}d.", code);
+        APP_LOGI("AbilityImpl::OnKeyDown keyAction: %{public}d.", code);
     } else if (code == MMI::KeyEvent::KEY_ACTION_UP) {
         abilityImpl_->DoKeyUp(keyEvent);
-        HILOG_INFO("AbilityImpl::DoKeyUp keyAction: %{public}d.", code);
+        APP_LOGI("AbilityImpl::DoKeyUp keyAction: %{public}d.", code);
     }
 }
 
 void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const
 {
-    HILOG_INFO("AbilityImpl::DoPointerEvent called.");
+    APP_LOGI("AbilityImpl::DoPointerEvent called.");
     abilityImpl_->DoPointerEvent(pointerEvent);
 }
 
@@ -891,7 +875,7 @@ void AbilityImpl::InputEventConsumerImpl::OnInputEvent(std::shared_ptr<MMI::Poin
  */
 void AbilityImpl::WindowEventRegister()
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     if (!ability_->GetAbilityInfo()->isStageBasedModel) {
         auto window = ability_->GetWindow();
         if (window) {
@@ -901,7 +885,6 @@ void AbilityImpl::WindowEventRegister()
         }
     }
 }
-#endif
 
 /**
  * @brief Create a PostEvent timeout task. The default delay is 5000ms
@@ -911,7 +894,7 @@ void AbilityImpl::WindowEventRegister()
 std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(std::string taskstr)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::CreatePostEventTimeouter ability_ is nullptr");
+        APP_LOGE("AbilityImpl::CreatePostEventTimeouter ability_ is nullptr");
         return nullptr;
     }
 
@@ -921,7 +904,7 @@ std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(s
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("AbilityImpl::ExecuteBatch");
+    APP_LOGI("AbilityImpl::ExecuteBatch");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     return results;
 }
@@ -929,7 +912,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityImpl::ExecuteBatch(
 void AbilityImpl::ContinueAbility(const std::string& deviceId)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::ContinueAbility ability_ is nullptr");
+        APP_LOGE("AbilityImpl::ContinueAbility ability_ is nullptr");
         return;
     }
     ability_->ContinueAbilityWithStack(deviceId);
@@ -938,7 +921,7 @@ void AbilityImpl::ContinueAbility(const std::string& deviceId)
 void AbilityImpl::NotifyContinuationResult(int32_t result)
 {
     if (ability_ == nullptr) {
-        HILOG_ERROR("AbilityImpl::NotifyContinuationResult ability_ is nullptr");
+        APP_LOGE("AbilityImpl::NotifyContinuationResult ability_ is nullptr");
         return;
     }
     ability_->OnCompleteContinuation(result);

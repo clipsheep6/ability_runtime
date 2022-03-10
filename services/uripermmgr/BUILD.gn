@@ -47,10 +47,12 @@ ohos_shared_library("libupms") {
     "src/uri_permission_manager_stub_impl.cpp",
   ]
 
-  deps = [ "${innerkits_path}/uri_permission:uri_permission_mgr" ]
+  deps = [
+    "${innerkits_path}/uri_permission:uri_permission_mgr",
+    "${innerkits_path}/want:want",
+  ]
 
   external_deps = [
-    "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "hiviewdfx_hilog_native:libhilog",

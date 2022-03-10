@@ -89,6 +89,7 @@ ohos_unittest("FmsFormSetNextRefreshTest") {
 ###############################################################################
 group("unittest") {
   testonly = true
-  # deps = [ ":FmsFormSetNextRefreshTest" ]
+
+  deps = [ ":FmsFormSetNextRefreshTest" ]
 }
 ###############################################################################

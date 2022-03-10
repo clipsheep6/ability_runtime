@@ -107,11 +107,8 @@ int AbilityScheduler::BatchInsert(const Uri &uri, const std::vector<NativeRdb::V
     return -1;
 }
 
-#ifdef SUPPORT_GRAPHICS
 void AbilityScheduler::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 {}
-#endif
-
 Uri AbilityScheduler::NormalizeUri(const Uri &uri)
 {
     Uri urivalue("");
