@@ -62,8 +62,8 @@ ohos_systemtest("FmsAcquireFormTestMax") {
     "ces_standard:cesfwk_innerkits",
     "form_runtime:form_manager",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "input:libmmi-client",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
   ]
