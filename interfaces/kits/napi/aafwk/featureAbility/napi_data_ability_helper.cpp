@@ -2495,9 +2495,11 @@ void CallInsertAsyncCompleteCB(napi_env env, napi_status status, void *data)
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, insertCB->cbBase.cbInfo.callback, &callback));
 
-        napi_create_int32(env, insertCB->execResult, &result[PARAM0]);
+        if (insertCB->execResult != NO_ERROR) {
+            napi_create_int32(env, insertCB->execResult, &result[PARAM0]);
+        }
         result[PARAM1] = GetCallbackPacmapValue(env, insertCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult));
+        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
 
         if (insertCB->cbBase.cbInfo.callback != nullptr) {
             NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, insertCB->cbBase.cbInfo.callback));
@@ -2514,8 +2516,14 @@ void CallInsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
     HILOG_INFO("NAPI_Insert,  main event thread complete.");
     DAHelperInsertCB *insertCB = static_cast<DAHelperInsertCB *>(data);
     if (insertCB != nullptr) {
-        napi_value result = GetCallbackPacmapValue(env, insertCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, insertCB->cbBase.deferred, result));
+        napi_value result = nullptr;
+        if (insertCB->execResult != NO_ERROR) {
+            napi_create_int32(env, insertCB->execResult, &result);
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, insertCB->cbBase.deferred, result));
+        } else {
+            result = GetCallbackPacmapValue(env, insertCB->result);
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, insertCB->cbBase.deferred, result));
+        }
         NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, insertCB->cbBase.asyncWork));
     }
     delete insertCB;
@@ -2639,21 +2647,25 @@ void CallDeleteAsyncCompleteCB(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("NAPI_Delete, main event thread complete.");
     DAHelperDeleteCB *deleteCB = static_cast<DAHelperDeleteCB *>(data);
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value result[ARGS_TWO] = {nullptr};
-    napi_value callResult = nullptr;
-    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, deleteCB->cbBase.cbInfo.callback, &callback));
+    if (deleteCB != nullptr) {
+        napi_value callback = nullptr;
+        napi_value undefined = nullptr;
+        napi_value result[ARGS_TWO] = {nullptr};
+        napi_value callResult = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, deleteCB->cbBase.cbInfo.callback, &callback));
 
-    napi_create_int32(env, deleteCB->execResult, &result[PARAM0]);
-    result[PARAM1] = GetCallbackPacmapValue(env, deleteCB->result);
-    NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult));
+        if (deleteCB->execResult != NO_ERROR) {
+            napi_create_int32(env, deleteCB->execResult, &result[PARAM0]);
+        }
+        result[PARAM1] = GetCallbackPacmapValue(env, deleteCB->result);
+        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
 
-    if (deleteCB->cbBase.cbInfo.callback != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, deleteCB->cbBase.cbInfo.callback));
+        if (deleteCB->cbBase.cbInfo.callback != nullptr) {
+            NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, deleteCB->cbBase.cbInfo.callback));
+        }
+        NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
     }
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
     delete deleteCB;
     deleteCB = nullptr;
     HILOG_INFO("NAPI_Delete, main event thread complete end.");
@@ -2663,11 +2675,18 @@ void CallDeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
 {
     HILOG_INFO("NAPI_Delete,  main event thread complete.");
     DAHelperDeleteCB *deleteCB = static_cast<DAHelperDeleteCB *>(data);
+    if (deleteCB != nullptr) {
+        napi_value result = nullptr;
+        if (deleteCB->execResult != NO_ERROR) {
+            napi_create_int32(env, deleteCB->execResult, &result);
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, deleteCB->cbBase.deferred, result));
+        } else {
+            result = GetCallbackPacmapValue(env, deleteCB->result);
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, deleteCB->cbBase.deferred, result));
+        }
 
-    napi_value result = GetCallbackPacmapValue(env, deleteCB->result);
-    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, deleteCB->cbBase.deferred, result));
-
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
+        NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, deleteCB->cbBase.asyncWork));
+    }
     delete deleteCB;
     deleteCB = nullptr;
     HILOG_INFO("NAPI_Delete,  main event thread complete end.");
@@ -2803,9 +2822,11 @@ void CallUpdateAsyncCompleteCB(napi_env env, napi_status status, void *data)
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, updateCB->cbBase.cbInfo.callback, &callback));
 
-        napi_create_int32(env, updateCB->execResult, &result[PARAM0]);
+        if (updateCB->execResult != NO_ERROR) {
+            napi_create_int32(env, updateCB->execResult, &result[PARAM0]);
+        }
         result[PARAM1] = GetCallbackPacmapValue(env, updateCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult));
+        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
 
         if (updateCB->cbBase.cbInfo.callback != nullptr) {
             NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, updateCB->cbBase.cbInfo.callback));
@@ -2822,9 +2843,14 @@ void CallUpdatePromiseCompleteCB(napi_env env, napi_status status, void *data)
     HILOG_INFO("NAPI_Update,  main event thread complete.");
     DAHelperUpdateCB *updateCB = static_cast<DAHelperUpdateCB *>(data);
     if (updateCB != nullptr) {
-        napi_value result = GetCallbackPacmapValue(env, updateCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, updateCB->cbBase.deferred, result));
-
+        napi_value result = nullptr;
+        if (updateCB->execResult != NO_ERROR) {
+            napi_create_int32(env, updateCB->execResult, &result);
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, updateCB->cbBase.deferred, result));
+        } else {
+            result = GetCallbackPacmapValue(env, updateCB->result);
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, updateCB->cbBase.deferred, result));
+        }
         NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, updateCB->cbBase.asyncWork));
     }
     delete updateCB;
@@ -2954,9 +2980,11 @@ void CallQueryAsyncCompleteCB(napi_env env, napi_status status, void *data)
         NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
         NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, queryCB->cbBase.cbInfo.callback, &callback));
 
-        napi_create_int32(env, queryCB->execResult, &result[PARAM0]);
+        if (queryCB->execResult != NO_ERROR) {
+            napi_create_int32(env, queryCB->execResult, &result[PARAM0]);
+        }
         result[PARAM1] = GetQueryCallbackPacmapValue(env, queryCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, result, &callResult));
+        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
 
         if (queryCB->cbBase.cbInfo.callback != nullptr) {
             NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, queryCB->cbBase.cbInfo.callback));
@@ -2973,8 +3001,14 @@ void CallQueryPromiseCompleteCB(napi_env env, napi_status status, void *data)
     HILOG_INFO("NAPI_DAHelperQueryCB,  main event thread complete.");
     DAHelperQueryCB *queryCB = static_cast<DAHelperQueryCB *>(data);
     if (queryCB != nullptr) {
-        napi_value result = GetQueryCallbackPacmapValue(env, queryCB->result);
-        NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, queryCB->cbBase.deferred, result));
+        napi_value result = nullptr;
+        if (queryCB->execResult != NO_ERROR) {
+            napi_create_int32(env, queryCB->execResult, &result);
+            NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, queryCB->cbBase.deferred, result));
+        } else {
+            result = GetQueryCallbackPacmapValue(env, queryCB->result);
+            NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, queryCB->cbBase.deferred, result));
+        }
         NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, queryCB->cbBase.asyncWork));
     }
     delete queryCB;
@@ -3098,6 +3132,126 @@ napi_value CallQueryWrap(napi_env env, napi_value thisVar, napi_callback_info in
     return ret;
 }
 
+void CallErrorAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("NAPI_Query, main event thread complete.");
+    DAHelperErrorCB *errorCB = static_cast<DAHelperErrorCB *>(data);
+    if (errorCB != nullptr) {
+        napi_value callback = nullptr;
+        napi_value undefined = nullptr;
+        napi_value result[ARGS_TWO] = {nullptr};
+        napi_value callResult = nullptr;
+        NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
+        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, errorCB->cbBase.cbInfo.callback, &callback));
+
+        napi_create_int32(env, errorCB->execResult, &result[PARAM0]);
+        NAPI_CALL_RETURN_VOID(env, napi_call_function(env, undefined, callback, ARGS_TWO, &result[0], &callResult));
+
+        if (errorCB->cbBase.cbInfo.callback != nullptr) {
+            NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, errorCB->cbBase.cbInfo.callback));
+        }
+        NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, errorCB->cbBase.asyncWork));
+    }
+    delete errorCB;
+    errorCB = nullptr;
+    HILOG_INFO("NAPI_Query, main event thread complete end.");
+}
+
+void CallErrorPromiseCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("NAPI_DAHelperErrorCB,  main event thread complete.");
+    DAHelperErrorCB *errorCB = static_cast<DAHelperErrorCB *>(data);
+    if (errorCB != nullptr) {
+        napi_value result = nullptr;
+        napi_create_int32(env, errorCB->execResult, &result);
+        NAPI_CALL_RETURN_VOID(env, napi_reject_deferred(env, errorCB->cbBase.deferred, result));
+        NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, errorCB->cbBase.asyncWork));
+    }
+    delete errorCB;
+    errorCB = nullptr;
+    HILOG_INFO("NAPI_DAHelperErrorCB,  main event thread complete end.");
+}
+
+void CallErrorExecuteCB(napi_env env, void *data)
+{
+    HILOG_INFO("NAPI_CallError, worker pool thread execute.");
+    DAHelperErrorCB *errorCB = static_cast<DAHelperErrorCB *>(data);
+    if (errorCB != nullptr) {
+        errorCB->execResult = INVALID_PARAMETER;
+    } else {
+        HILOG_ERROR("NAPI_CallError, errorCB is null");
+    }
+    HILOG_INFO("NAPI_CallError, worker pool thread execute end.");
+}
+
+napi_value CallErrorAsync(napi_env env, napi_value *args, const size_t argCallback, DAHelperErrorCB *errorCB)
+{
+    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    if (args == nullptr || errorCB == nullptr) {
+        HILOG_ERROR("%{public}s, param or queryCB is null.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    napi_valuetype valuetype = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[argCallback], &valuetype));
+    if (valuetype == napi_function) {
+        NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &errorCB->cbBase.cbInfo.callback));
+    }
+
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, CallErrorExecuteCB, CallErrorAsyncCompleteCB,
+                       (void *)errorCB, &errorCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, errorCB->cbBase.asyncWork));
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    return result;
+}
+
+napi_value CallErrorPromise(napi_env env, DAHelperErrorCB *errorCB)
+{
+    HILOG_INFO("%{public}s, promise.", __func__);
+    if (errorCB == nullptr) {
+        HILOG_ERROR("%{public}s, param is null.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+    napi_deferred deferred;
+    napi_value promise = 0;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    errorCB->cbBase.deferred = deferred;
+
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, CallErrorExecuteCB, CallErrorPromiseCompleteCB,
+                       (void *)errorCB, &errorCB->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, errorCB->cbBase.asyncWork));
+    HILOG_INFO("%{public}s, promise end.", __func__);
+    return promise;
+}
+
+napi_value CallErrorWrap(napi_env env, napi_value thisVar, napi_callback_info info, napi_value *args, bool isPromise)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    DAHelperErrorCB *errorCB = new (std::nothrow) DAHelperErrorCB;
+    if (errorCB == nullptr) {
+        HILOG_ERROR("%{public}s, errorCB is null.", __func__);
+        return WrapVoidToJS(env);
+    }
+    errorCB->cbBase.cbInfo.env = env;
+    errorCB->cbBase.asyncWork = nullptr;
+    errorCB->cbBase.deferred = nullptr;
+    errorCB->cbBase.ability = nullptr;
+    napi_value ret = nullptr;
+    if (!isPromise) {
+        ret = CallErrorAsync(env, args, ARGS_FOUR, errorCB);
+    } else {
+        ret = CallErrorPromise(env, errorCB);
+    }
+    HILOG_INFO("%{public}s,end", __func__);
+    return ret;
+}
+
 /**
  * @brief Call processing function.
  *
@@ -3141,7 +3295,7 @@ napi_value CallWrap(napi_env env, napi_callback_info info)
     } else if (method == "query") {
         ret = CallQueryWrap(env, thisVar, info, args, isPromise);
     } else {
-        ret = WrapVoidToJS(env);
+        ret = CallErrorWrap(env, thisVar, info, args, isPromise);
     }
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
