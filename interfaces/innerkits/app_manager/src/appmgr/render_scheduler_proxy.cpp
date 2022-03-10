@@ -15,9 +15,9 @@
 
 #include "render_scheduler_proxy.h"
 
-#include "hilog_wrapper.h"
 #include "ipc_types.h"
 
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -28,7 +28,7 @@ RenderSchedulerProxy::RenderSchedulerProxy(
 bool RenderSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(RenderSchedulerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        APP_LOGE("write interface token failed");
         return false;
     }
     return true;
@@ -36,7 +36,7 @@ bool RenderSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 
 void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd)
 {
-    HILOG_DEBUG("NotifyBrowserFd start");
+    APP_LOGD("NotifyBrowserFd start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -45,22 +45,22 @@ void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd)
     }
 
     if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd)) {
-        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
+        APP_LOGE("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d", ipcFd, sharedFd);
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        APP_LOGE("Remote() is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IRenderScheduler::Message::NOTIFY_BROWSER_FD),
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        APP_LOGW("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("NotifyBrowserFd end");
+    APP_LOGD("NotifyBrowserFd end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

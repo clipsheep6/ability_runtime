@@ -16,12 +16,12 @@
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
+#include "app_log_wrapper.h"
 #include "form_cache_mgr.h"
 #include "form_constants.h"
 #include "form_data_mgr.h"
 #include "form_provider_mgr.h"
 #include "form_util.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 
 
@@ -29,12 +29,12 @@ namespace OHOS {
 namespace AppExecFwk {
 FormDataMgr::FormDataMgr()
 {
-    HILOG_INFO("create form data manager instance");
+    APP_LOGI("create form data manager instance");
     udidHash_ = 0L;
 }
 FormDataMgr::~FormDataMgr()
 {
-    HILOG_INFO("destroy form data manager instance");
+    APP_LOGI("destroy form data manager instance");
 }
 
 /**
@@ -46,7 +46,7 @@ FormDataMgr::~FormDataMgr()
  */
 FormRecord FormDataMgr::AllotFormRecord(const FormItemInfo &formInfo, const int callingUid, const int32_t userId)
 {
-    HILOG_INFO("%{public}s, allot form info", __func__);
+    APP_LOGI("%{public}s, allot form info", __func__);
     if (formInfo.IsTemporaryForm() && !ExistTempForm(formInfo.GetFormId())) {
         std::lock_guard<std::mutex> lock(formTempMutex_);
         tempForms_.emplace_back(formInfo.GetFormId());
@@ -55,13 +55,13 @@ FormRecord FormDataMgr::AllotFormRecord(const FormItemInfo &formInfo, const int 
     {
         std::lock_guard<std::mutex> lock(formRecordMutex_);
         if (formRecords_.empty()) { // formRecords_ is empty, create a new one
-            HILOG_DEBUG("%{public}s, form info not exist", __func__);
+            APP_LOGD("%{public}s, form info not exist", __func__);
             record = CreateFormRecord(formInfo, callingUid, userId);
             formRecords_.emplace(formInfo.GetFormId(), record);
         } else {
             auto info = formRecords_.find(formInfo.GetFormId());
             if (info == formRecords_.end()) {
-                HILOG_DEBUG("%{public}s, form info not find", __func__);
+                APP_LOGD("%{public}s, form info not find", __func__);
                 record = CreateFormRecord(formInfo, callingUid, userId);
                 formRecords_.emplace(formInfo.GetFormId(), record);
             } else {
@@ -69,7 +69,7 @@ FormRecord FormDataMgr::AllotFormRecord(const FormItemInfo &formInfo, const int 
             }
         }
     }
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
     return record;
 }
 /**
@@ -79,11 +79,11 @@ FormRecord FormDataMgr::AllotFormRecord(const FormItemInfo &formInfo, const int 
  */
 bool FormDataMgr::DeleteFormRecord(const int64_t formId)
 {
-    HILOG_INFO("%{public}s, delete form info", __func__);
+    APP_LOGI("%{public}s, delete form info", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto iter = formRecords_.find(formId);
     if (iter == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info is not exist", __func__);
+        APP_LOGE("%{public}s, form info is not exist", __func__);
         return true;
     }
     formRecords_.erase(iter);
@@ -101,12 +101,12 @@ bool FormDataMgr::DeleteFormRecord(const int64_t formId)
 bool FormDataMgr::AllotFormHostRecord(const FormItemInfo &info, const sptr<IRemoteObject> &callerToken,
     const int64_t formId, const int callingUid)
 {
-    HILOG_INFO("%{public}s, allot form Host info", __func__);
+    APP_LOGI("%{public}s, allot form Host info", __func__);
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     for (auto &record : clientRecords_) {
         if (callerToken == record.GetClientStub()) {
             record.AddForm(formId);
-            HILOG_INFO("%{public}s end", __func__);
+            APP_LOGI("%{public}s end", __func__);
             return true;
         }
     }
@@ -115,10 +115,10 @@ bool FormDataMgr::AllotFormHostRecord(const FormItemInfo &info, const sptr<IRemo
     if (isCreated) {
         hostRecord.AddForm(formId);
         clientRecords_.emplace_back(hostRecord);
-        HILOG_INFO("%{public}s end", __func__);
+        APP_LOGI("%{public}s end", __func__);
         return true;
     }
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
     return false;
 }
 /**
@@ -133,7 +133,7 @@ bool FormDataMgr::CreateHostRecord(const FormItemInfo &info, const sptr<IRemoteO
     const int callingUid, FormHostRecord& record)
 {
     if (callerToken == nullptr) {
-        HILOG_ERROR("%{public}s, invalid param", __func__);
+        APP_LOGE("%{public}s, invalid param", __func__);
         return false;
     }
 
@@ -149,7 +149,7 @@ bool FormDataMgr::CreateHostRecord(const FormItemInfo &info, const sptr<IRemoteO
  */
 FormRecord FormDataMgr::CreateFormRecord(const FormItemInfo &formInfo, const int callingUid, const int32_t userId) const
 {
-    HILOG_INFO("%{public}s, create form info", __func__);
+    APP_LOGI("%{public}s, create form info", __func__);
     FormRecord newRecord;
     newRecord.formId = formInfo.GetFormId();
     newRecord.userId = userId;
@@ -180,7 +180,7 @@ FormRecord FormDataMgr::CreateFormRecord(const FormItemInfo &formInfo, const int
     }
 
     formInfo.GetHapSourceDirs(newRecord.hapSourceDirs);
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
     return newRecord;
 }
 /**
@@ -212,7 +212,7 @@ void FormDataMgr::CreateFormInfo(const int64_t formId, const FormRecord &record,
 int FormDataMgr::CheckTempEnoughForm() const
 {
     if (tempForms_.size() >= Constants::MAX_TEMP_FORMS) {
-        HILOG_WARN("%{public}s, already exist %{public}d temp forms in system", __func__, Constants::MAX_TEMP_FORMS);
+        APP_LOGW("%{public}s, already exist %{public}d temp forms in system", __func__, Constants::MAX_TEMP_FORMS);
         return ERR_APPEXECFWK_FORM_MAX_SYSTEM_TEMP_FORMS;
     }
     return ERR_OK;
@@ -225,7 +225,7 @@ int FormDataMgr::CheckTempEnoughForm() const
  */
 int FormDataMgr::CheckEnoughForm(const int callingUid, const int32_t currentUserId) const
 {
-    HILOG_INFO("%{public}s, callingUid: %{public}d, current userId: %{public}d", __func__, callingUid, currentUserId);
+    APP_LOGI("%{public}s, callingUid: %{public}d, current userId: %{public}d", __func__, callingUid, currentUserId);
 
     int formsInSystem = 0;
     int callingUidFormCounts = 0;
@@ -233,13 +233,13 @@ int FormDataMgr::CheckEnoughForm(const int callingUid, const int32_t currentUser
         FormRecord record = recordPair.second;
         if ((record.userId == currentUserId) && !record.formTempFlg) {
             if (++formsInSystem >= Constants::MAX_FORMS) {
-                HILOG_WARN("%{public}s, already exist %{public}d forms in system", __func__, Constants::MAX_FORMS);
+                APP_LOGW("%{public}s, already exist %{public}d forms in system", __func__, Constants::MAX_FORMS);
                 return ERR_APPEXECFWK_FORM_MAX_SYSTEM_FORMS;
             }
             for (auto &userUid : record.formUserUids) {
                 if (userUid == callingUid) {
                     if (++callingUidFormCounts >= Constants::MAX_RECORD_PER_APP) {
-                        HILOG_WARN("%{public}s, already use %{public}d forms", __func__, Constants::MAX_RECORD_PER_APP);
+                        APP_LOGW("%{public}s, already use %{public}d forms", __func__, Constants::MAX_RECORD_PER_APP);
                         return ERR_APPEXECFWK_FORM_MAX_FORMS_PER_CLIENT;
                     }
                     break;
@@ -259,7 +259,7 @@ bool FormDataMgr::DeleteTempForm(const int64_t formId)
     std::lock_guard<std::mutex> lock(formTempMutex_);
     auto iter = std::find(tempForms_.begin(), tempForms_.end(), formId);
     if (iter == tempForms_.end()) {
-        HILOG_ERROR("%{public}s, temp form is not exist", __func__);
+        APP_LOGE("%{public}s, temp form is not exist", __func__);
         return false;
     }
     tempForms_.erase(iter);
@@ -298,10 +298,10 @@ bool FormDataMgr::IsCallingUidValid(const std::vector<int> &formUserUids) const
  */
 bool FormDataMgr::ModifyFormTempFlg(const int64_t formId, const bool formTempFlg)
 {
-    HILOG_INFO("%{public}s, modify form temp flag by formId", __func__);
+    APP_LOGI("%{public}s, modify form temp flag by formId", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     if (!ExistFormRecord(formId)) {
-        HILOG_ERROR("%{public}s, form info is not exist", __func__);
+        APP_LOGE("%{public}s, form info is not exist", __func__);
         return false;
     }
     formRecords_[formId].formTempFlg = formTempFlg;
@@ -315,10 +315,10 @@ bool FormDataMgr::ModifyFormTempFlg(const int64_t formId, const bool formTempFlg
  */
 bool FormDataMgr::AddFormUserUid(const int64_t formId, const int formUserUid)
 {
-    HILOG_INFO("%{public}s, add form user uid by formId", __func__);
+    APP_LOGI("%{public}s, add form user uid by formId", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     if (!ExistFormRecord(formId)) {
-        HILOG_ERROR("%{public}s, form info is not exist", __func__);
+        APP_LOGE("%{public}s, form info is not exist", __func__);
         return false;
     }
     if (std::find(formRecords_[formId].formUserUids.begin(), formRecords_[formId].formUserUids.end(),
@@ -335,7 +335,7 @@ bool FormDataMgr::AddFormUserUid(const int64_t formId, const int formUserUid)
  */
 bool FormDataMgr::DeleteFormUserUid(const int64_t formId, const int uid)
 {
-    HILOG_INFO("%{public}s, delete form user uid from form record", __func__);
+    APP_LOGI("%{public}s, delete form user uid from form record", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     if (ExistFormRecord(formId)) {
         auto iter = std::find(formRecords_.at(formId).formUserUids.begin(),
@@ -345,7 +345,7 @@ bool FormDataMgr::DeleteFormUserUid(const int64_t formId, const int uid)
         }
         return true;
     } else {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return false;
     }
 }
@@ -357,7 +357,7 @@ bool FormDataMgr::DeleteFormUserUid(const int64_t formId, const int uid)
  */
 bool FormDataMgr::UpdateFormRecord(const int64_t formId, const FormRecord &formRecord)
 {
-    HILOG_INFO("%{public}s, get form record by formId", __func__);
+    APP_LOGI("%{public}s, get form record by formId", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto info = formRecords_.find(formId);
     if (info != formRecords_.end()) {
@@ -374,16 +374,16 @@ bool FormDataMgr::UpdateFormRecord(const int64_t formId, const FormRecord &formR
  */
 bool FormDataMgr::GetFormRecord(const int64_t formId, FormRecord &formRecord) const
 {
-    HILOG_INFO("%{public}s, get form record by formId", __func__);
+    APP_LOGI("%{public}s, get form record by formId", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto info = formRecords_.find(formId);
     if (info == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return false;
     }
     formRecord = info->second;
 
-    HILOG_INFO("%{public}s, get form record successfully", __func__);
+    APP_LOGI("%{public}s, get form record successfully", __func__);
     return true;
 }
 /**
@@ -394,7 +394,7 @@ bool FormDataMgr::GetFormRecord(const int64_t formId, FormRecord &formRecord) co
  */
 bool FormDataMgr::GetFormRecord(const std::string &bundleName, std::vector<FormRecord> &formInfos)
 {
-    HILOG_INFO("%{public}s, get form record by bundleName", __func__);
+    APP_LOGI("%{public}s, get form record by bundleName", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     std::map<int64_t, FormRecord>::iterator itFormRecord;
     for (itFormRecord = formRecords_.begin(); itFormRecord != formRecords_.end(); itFormRecord++) {
@@ -405,7 +405,7 @@ bool FormDataMgr::GetFormRecord(const std::string &bundleName, std::vector<FormR
     if (formInfos.size() > 0) {
         return true;
     } else {
-        HILOG_INFO("%{public}s, form info not find", __func__);
+        APP_LOGI("%{public}s, form info not find", __func__);
         return false;
     }
 }
@@ -416,7 +416,7 @@ bool FormDataMgr::GetFormRecord(const std::string &bundleName, std::vector<FormR
  */
 bool FormDataMgr::ExistFormRecord(const int64_t formId) const
 {
-    HILOG_INFO("%{public}s, check form record is exist", __func__);
+    APP_LOGI("%{public}s, check form record is exist", __func__);
     return (formRecords_.count(formId) > 0);
 }
 /**
@@ -426,7 +426,7 @@ bool FormDataMgr::ExistFormRecord(const int64_t formId) const
  */
 bool FormDataMgr::HasFormUserUids(const int64_t formId) const
 {
-    HILOG_INFO("%{public}s, check form has user uids", __func__);
+    APP_LOGI("%{public}s, check form has user uids", __func__);
     FormRecord record;
     if (GetFormRecord(formId, record)) {
         return record.formUserUids.empty() ? false : true;
@@ -441,7 +441,7 @@ bool FormDataMgr::HasFormUserUids(const int64_t formId) const
  */
 bool FormDataMgr::GetFormHostRecord(const int64_t formId, FormHostRecord &formHostRecord) const
 {
-    HILOG_INFO("%{public}s, get form host record by formId", __func__);
+    APP_LOGI("%{public}s, get form host record by formId", __func__);
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     for (auto &record : clientRecords_) {
         if (record.Contains(formId)) {
@@ -450,7 +450,7 @@ bool FormDataMgr::GetFormHostRecord(const int64_t formId, FormHostRecord &formHo
         }
     }
 
-    HILOG_ERROR("%{public}s, form host record not find", __func__);
+    APP_LOGE("%{public}s, form host record not find", __func__);
     return false;
 }
 /**
@@ -461,7 +461,7 @@ bool FormDataMgr::GetFormHostRecord(const int64_t formId, FormHostRecord &formHo
  */
 bool FormDataMgr::DeleteHostRecord(const sptr<IRemoteObject> &callerToken, const int64_t formId)
 {
-    HILOG_INFO("%{public}s start, delete form host record", __func__);
+    APP_LOGI("%{public}s start, delete form host record", __func__);
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     std::vector<FormHostRecord>::iterator iter;
     for (iter = clientRecords_.begin(); iter != clientRecords_.end(); ++iter) {
@@ -474,7 +474,7 @@ bool FormDataMgr::DeleteHostRecord(const sptr<IRemoteObject> &callerToken, const
             break;
         }
     }
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
     return true;
 }
 /**
@@ -483,7 +483,7 @@ bool FormDataMgr::DeleteHostRecord(const sptr<IRemoteObject> &callerToken, const
  */
 void FormDataMgr::CleanHostRemovedForms(const std::vector<int64_t> &removedFormIds)
 {
-    HILOG_INFO("%{public}s start, delete form host record by formId list", __func__);
+    APP_LOGI("%{public}s start, delete form host record by formId list", __func__);
     std::vector<int64_t> matchedIds;
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     std::vector<FormHostRecord>::iterator itHostRecord;
@@ -495,12 +495,12 @@ void FormDataMgr::CleanHostRemovedForms(const std::vector<int64_t> &removedFormI
             }
         }
         if (!matchedIds.empty()) {
-            HILOG_INFO("%{public}s, OnFormUninstalled called", __func__);
+            APP_LOGI("%{public}s, OnFormUninstalled called", __func__);
             itHostRecord->OnFormUninstalled(matchedIds);
         }
     }
 
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
 }
 /**
  * @brief Handle form host died.
@@ -515,7 +515,7 @@ void FormDataMgr::HandleHostDied(const sptr<IRemoteObject> &remoteHost)
         for (itHostRecord = clientRecords_.begin(); itHostRecord != clientRecords_.end();) {
             if (remoteHost == itHostRecord->GetClientStub()) {
                 HandleHostDiedForTempForms(*itHostRecord, recordTempForms);
-                HILOG_INFO("find died client, remove it");
+                APP_LOGI("find died client, remove it");
                 itHostRecord->CleanResource();
                 itHostRecord = clientRecords_.erase(itHostRecord);
                 break;
@@ -584,7 +584,7 @@ int64_t FormDataMgr::GenerateFormId()
 {
     // generate udidHash_
     if (udidHash_ < 0) {
-        HILOG_ERROR("%{public}s fail, generateFormId no invalid udidHash_", __func__);
+        APP_LOGE("%{public}s fail, generateFormId no invalid udidHash_", __func__);
         return ERR_APPEXECFWK_FORM_COMMON_CODE;
     }
     return FormUtil::GenerateFormId(udidHash_);
@@ -601,7 +601,7 @@ bool FormDataMgr::GenerateUdidHash()
 
     bool bGenUdid = FormUtil::GenerateUdidHash(udidHash_);
     if (!bGenUdid) {
-        HILOG_ERROR("%{public}s, Failed to generate udid.", __func__);
+        APP_LOGE("%{public}s, Failed to generate udid.", __func__);
         return false;
     }
 
@@ -633,7 +633,7 @@ void FormDataMgr::SetUdidHash(const int64_t udidHash)
  */
 bool FormDataMgr::GetMatchedHostClient(const sptr<IRemoteObject> &callerToken, FormHostRecord &formHostRecord) const
 {
-    HILOG_INFO("%{public}s, get the matched form host record by client stub.", __func__);
+    APP_LOGI("%{public}s, get the matched form host record by client stub.", __func__);
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     for (const FormHostRecord &record : clientRecords_) {
         if (callerToken == record.GetClientStub()) {
@@ -642,7 +642,7 @@ bool FormDataMgr::GetMatchedHostClient(const sptr<IRemoteObject> &callerToken, F
         }
     }
 
-    HILOG_ERROR("%{public}s, form host record not find.", __func__);
+    APP_LOGE("%{public}s, form host record not find.", __func__);
     return false;
 }
 
@@ -656,7 +656,7 @@ void FormDataMgr::SetNeedRefresh(const int64_t formId, const bool needRefresh)
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.needRefresh = needRefresh;
@@ -672,7 +672,7 @@ void FormDataMgr::SetCountTimerRefresh(const int64_t formId, const bool countTim
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.isCountTimerRefresh = countTimerRefresh;
@@ -691,14 +691,14 @@ bool FormDataMgr::GetUpdatedForm(
     FormInfo &updatedForm)
 {
     if (targetForms.empty()) {
-        HILOG_ERROR("%{public}s error, targetForms is empty.", __func__);
+        APP_LOGE("%{public}s error, targetForms is empty.", __func__);
         return false;
     }
 
     for (const FormInfo &item : targetForms) {
         if (IsSameForm(record, item)) {
             updatedForm = item;
-            HILOG_DEBUG("%{public}s, find matched form.", __func__);
+            APP_LOGD("%{public}s, find matched form.", __func__);
             return true;
         }
     }
@@ -714,7 +714,7 @@ void FormDataMgr::SetEnableUpdate(const int64_t formId, const bool enableUpdate)
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.isEnableUpdate = enableUpdate;
@@ -737,7 +737,7 @@ void FormDataMgr::SetUpdateInfo(
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
 
@@ -771,7 +771,7 @@ bool FormDataMgr::IsSameForm(const FormRecord &record, const FormInfo &formInfo)
  */
 void FormDataMgr::CleanRemovedFormRecords(const std::string &bundleName, std::set<int64_t> &removedForms)
 {
-    HILOG_INFO("%{public}s, clean removed form records", __func__);
+    APP_LOGI("%{public}s, clean removed form records", __func__);
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     std::map<int64_t, FormRecord>::iterator itFormRecord;
     for (itFormRecord = formRecords_.begin(); itFormRecord != formRecords_.end();) {
@@ -790,7 +790,7 @@ void FormDataMgr::CleanRemovedFormRecords(const std::string &bundleName, std::se
  */
 void FormDataMgr::CleanRemovedTempFormRecords(const std::string &bundleName, std::set<int64_t> &removedForms)
 {
-    HILOG_INFO("%{public}s, clean removed form records", __func__);
+    APP_LOGI("%{public}s, clean removed form records", __func__);
     std::set<int64_t> removedTempForms;
     {
         std::lock_guard<std::mutex> lock(formRecordMutex_);
@@ -842,7 +842,7 @@ void FormDataMgr::SetFormCacheInited(const int64_t formId, bool isInited)
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.isInited = isInited;
@@ -858,7 +858,7 @@ void FormDataMgr::SetVersionUpgrade(const int64_t formId, const bool versionUpgr
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.versionUpgrade = versionUpgrade;
@@ -889,7 +889,7 @@ void FormDataMgr::UpdateFormProviderInfo(const int64_t formId, const FormProvide
     std::lock_guard<std::mutex> lock(formRecordMutex_);
     auto itFormRecord = formRecords_.find(formId);
     if (itFormRecord == formRecords_.end()) {
-        HILOG_ERROR("%{public}s, form info not find", __func__);
+        APP_LOGE("%{public}s, form info not find", __func__);
         return;
     }
     itFormRecord->second.formProviderInfo = formProviderInfo;
@@ -907,7 +907,7 @@ bool FormDataMgr::UpdateHostForm(const int64_t formId, const FormRecord &formRec
     std::vector<FormHostRecord>::iterator itHostRecord;
     for (itHostRecord = clientRecords_.begin(); itHostRecord != clientRecords_.end(); itHostRecord++) {
         bool enableRefresh = itHostRecord->IsEnableRefresh(formId);
-        HILOG_INFO("formId:%{public}" PRId64 " enableRefresh:%{public}d", formId, enableRefresh);
+        APP_LOGI("formId:%{public}" PRId64 " enableRefresh:%{public}d", formId, enableRefresh);
         if (enableRefresh) {
             // update form
             itHostRecord->OnUpdate(formId, formRecord);
@@ -932,20 +932,20 @@ int32_t FormDataMgr::UpdateHostFormFlag(
     const bool flag,
     std::vector<int64_t> &refreshForms)
 {
-    HILOG_INFO("%{public}s start, flag: %{public}d", __func__, flag);
+    APP_LOGI("%{public}s start, flag: %{public}d", __func__, flag);
     std::lock_guard<std::mutex> lock(formHostRecordMutex_);
     std::vector<FormHostRecord>::iterator itHostRecord;
     for (itHostRecord = clientRecords_.begin(); itHostRecord != clientRecords_.end(); itHostRecord++) {
         if (callerToken == itHostRecord->GetClientStub()) {
             for (const int64_t formId : formIds) {
                 if (formId <= 0) {
-                    HILOG_WARN("%{public}s, formId %{public}" PRId64 " is less than 0", __func__, formId);
+                    APP_LOGW("%{public}s, formId %{public}" PRId64 " is less than 0", __func__, formId);
                     continue;
                 }
 
                 int64_t matchedFormId = FindMatchedFormId(formId);
                 if (!itHostRecord->Contains(matchedFormId)) {
-                    HILOG_WARN("%{public}s, form %{public}d is not owned by this client, don't need to update flag",
+                    APP_LOGW("%{public}s, form %{public}d is not owned by this client, don't need to update flag",
                         __func__, (int32_t)formId);
                     continue;
                 }
@@ -953,42 +953,42 @@ int32_t FormDataMgr::UpdateHostFormFlag(
                 itHostRecord->SetEnableRefresh(matchedFormId, flag);
                 // set disable
                 if (!flag) {
-                    HILOG_INFO("%{public}s, flag is disable", __func__);
+                    APP_LOGI("%{public}s, flag is disable", __func__);
                     continue;
                 }
                 FormRecord formRecord;
                 if (GetFormRecord(matchedFormId, formRecord)) {
                     if (formRecord.needRefresh) {
-                        HILOG_INFO("%{public}s, formRecord need refresh", __func__);
+                        APP_LOGI("%{public}s, formRecord need refresh", __func__);
                         refreshForms.emplace_back(matchedFormId);
                         continue;
                     }
                 } else {
-                    HILOG_WARN("%{public}s, not exist such form:%{public}" PRId64 "", __func__, matchedFormId);
+                    APP_LOGW("%{public}s, not exist such form:%{public}" PRId64 "", __func__, matchedFormId);
                     continue;
                 }
 
                 // if set enable flag, should check whether to refresh form
                 if (!itHostRecord->IsNeedRefresh(matchedFormId)) {
-                    HILOG_INFO("%{public}s, host need not refresh", __func__);
+                    APP_LOGI("%{public}s, host need not refresh", __func__);
                     continue;
                 }
 
                 if (IsFormCached(formRecord)) {
-                    HILOG_INFO("%{public}s, form cached", __func__);
+                    APP_LOGI("%{public}s, form cached", __func__);
                     itHostRecord->OnUpdate(matchedFormId, formRecord);
                     itHostRecord->SetNeedRefresh(matchedFormId, false);
                 } else {
-                    HILOG_INFO("%{public}s, form no cache", __func__);
+                    APP_LOGI("%{public}s, form no cache", __func__);
                     refreshForms.emplace_back(matchedFormId);
                     continue;
                 }
             }
-            HILOG_INFO("%{public}s end.", __func__);
+            APP_LOGI("%{public}s end.", __func__);
             return ERR_OK;
         }
     }
-    HILOG_ERROR("%{public}s, can't find target client", __func__);
+    APP_LOGE("%{public}s, can't find target client", __func__);
     return ERR_APPEXECFWK_FORM_INVALID_PARAM;
 }
 /**
@@ -1095,7 +1095,7 @@ void FormDataMgr::ParseUpdateConfig(FormRecord &record, const FormItemInfo &info
  */
 void FormDataMgr::ParseIntervalConfig(FormRecord &record, const int configDuration) const
 {
-    HILOG_INFO("%{public}s, configDuration:%{public}d", __func__, configDuration);
+    APP_LOGI("%{public}s, configDuration:%{public}d", __func__, configDuration);
     if (configDuration <= Constants::MIN_CONFIG_DURATION) {
         record.updateDuration = Constants::MIN_PERIOD;
     } else if (configDuration >= Constants::MAX_CONFIG_DURATION) {
@@ -1103,7 +1103,7 @@ void FormDataMgr::ParseIntervalConfig(FormRecord &record, const int configDurati
     } else {
         record.updateDuration = configDuration * Constants::TIME_CONVERSION;
     }
-    HILOG_INFO("%{public}s end", __func__);
+    APP_LOGI("%{public}s end", __func__);
 }
 
 /**
@@ -1116,14 +1116,14 @@ void FormDataMgr::ParseAtTimerConfig(FormRecord &record, const FormItemInfo &inf
     record.isEnableUpdate = false;
     record.updateDuration = 0;
     std::string configAtTime = info.GetScheduledUpdateTime();
-    HILOG_INFO("%{public}s, parseAsUpdateAt updateAt:%{public}s", __func__, configAtTime.c_str());
+    APP_LOGI("%{public}s, parseAsUpdateAt updateAt:%{public}s", __func__, configAtTime.c_str());
     if (configAtTime.empty()) {
         return;
     }
 
     std::vector<std::string> temp = FormUtil::StringSplit(configAtTime, Constants::TIME_DELIMETER);
     if (temp.size() != Constants::UPDATE_AT_CONFIG_COUNT) {
-        HILOG_ERROR("%{public}s, invalid config", __func__);
+        APP_LOGE("%{public}s, invalid config", __func__);
         return;
     }
     int hour = -1;
@@ -1132,7 +1132,7 @@ void FormDataMgr::ParseAtTimerConfig(FormRecord &record, const FormItemInfo &inf
     min = std::stoi(temp[1]);
     if (hour < Constants::MIN_TIME || hour > Constants::MAX_HOUR || min < Constants::MIN_TIME || min >
         Constants::MAX_MININUTE) {
-        HILOG_ERROR("%{public}s, time is invalid", __func__);
+        APP_LOGE("%{public}s, time is invalid", __func__);
         return;
     }
     record.updateAtHour = hour;
@@ -1161,7 +1161,7 @@ bool FormDataMgr::IsFormCached(const FormRecord record)
  */
 void FormDataMgr::DeleteFormsByUserId(const int32_t userId, std::vector<int64_t> &removedFormIds)
 {
-    HILOG_INFO("%{public}s,  delete forms by userId", __func__);
+    APP_LOGI("%{public}s,  delete forms by userId", __func__);
 
     // handle formRecords_
     std::vector<int64_t> removedTempForms;

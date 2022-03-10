@@ -20,10 +20,10 @@
 #include "ability_constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
+#include "app_log_wrapper.h"
 #include "application_context.h"
 #include "directory_ex.h"
 #include "file_ex.h"
-#include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "spec_task_dispatcher.h"
@@ -69,12 +69,12 @@ std::shared_ptr<ProcessInfo> ContextDeal::GetProcessInfo() const
  */
 void ContextDeal::SetProcessInfo(const std::shared_ptr<ProcessInfo> &info)
 {
-    HILOG_INFO("ContextDeal::SetProcessInfo begin");
+    APP_LOGI("ContextDeal::SetProcessInfo begin");
     if (info == nullptr) {
-        HILOG_ERROR("ContextDeal::SetProcessInfo failed, info is empty");
+        APP_LOGE("ContextDeal::SetProcessInfo failed, info is empty");
         return;
     }
-    HILOG_INFO("ContextDeal::SetProcessInfo end");
+    APP_LOGI("ContextDeal::SetProcessInfo end");
     processInfo_ = info;
 }
 
@@ -96,13 +96,13 @@ std::shared_ptr<ApplicationInfo> ContextDeal::GetApplicationInfo() const
  */
 void ContextDeal::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &info)
 {
-    HILOG_INFO("ContextDeal::SetApplicationInfo begin");
+    APP_LOGI("ContextDeal::SetApplicationInfo begin");
     if (info == nullptr) {
-        HILOG_ERROR("ContextDeal::SetApplicationInfo failed, info is empty");
+        APP_LOGE("ContextDeal::SetApplicationInfo failed, info is empty");
         return;
     }
     applicationInfo_ = info;
-    HILOG_INFO("ContextDeal::SetApplicationInfo end");
+    APP_LOGI("ContextDeal::SetApplicationInfo end");
 }
 
 /**
@@ -122,13 +122,13 @@ std::shared_ptr<Context> ContextDeal::GetApplicationContext() const
  */
 void ContextDeal::SetApplicationContext(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("ContextDeal::SetApplicationContext begin");
+    APP_LOGI("ContextDeal::SetApplicationContext begin");
     if (context == nullptr) {
-        HILOG_ERROR("ContextDeal::SetApplicationContext failed, context is empty");
+        APP_LOGE("ContextDeal::SetApplicationContext failed, context is empty");
         return;
     }
     appContext_ = context;
-    HILOG_INFO("ContextDeal::SetApplicationContext end");
+    APP_LOGI("ContextDeal::SetApplicationContext end");
 }
 
 /**
@@ -181,13 +181,13 @@ const std::shared_ptr<AbilityInfo> ContextDeal::GetAbilityInfo()
  */
 void ContextDeal::SetAbilityInfo(const std::shared_ptr<AbilityInfo> &info)
 {
-    HILOG_INFO("ContextDeal::SetAbilityInfo begin");
+    APP_LOGI("ContextDeal::SetAbilityInfo begin");
     if (info == nullptr) {
-        HILOG_ERROR("ContextDeal::SetAbilityInfo failed, info is empty");
+        APP_LOGE("ContextDeal::SetAbilityInfo failed, info is empty");
         return;
     }
     abilityInfo_ = info;
-    HILOG_INFO("ContextDeal::SetAbilityInfo end");
+    APP_LOGI("ContextDeal::SetAbilityInfo end");
 }
 
 /**
@@ -207,13 +207,13 @@ std::shared_ptr<Context> ContextDeal::GetContext()
  */
 void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("ContextDeal::SetContext begin");
+    APP_LOGI("ContextDeal::SetContext begin");
     if (context == nullptr) {
-        HILOG_ERROR("ContextDeal::SetContext failed, context is empty");
+        APP_LOGE("ContextDeal::SetContext failed, context is empty");
         return;
     }
     abilityContext_ = context;
-    HILOG_INFO("ContextDeal::SetContext end");
+    APP_LOGI("ContextDeal::SetContext end");
 }
 
 /**
@@ -224,17 +224,17 @@ void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
  */
 sptr<IBundleMgr> ContextDeal::GetBundleManager() const
 {
-    HILOG_INFO("ContextDeal::GetBundleManager begin");
+    APP_LOGI("ContextDeal::GetBundleManager begin");
     auto bundleObj =
         OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
+        APP_LOGE("failed to get bundle manager service");
         return nullptr;
     }
-    HILOG_INFO("ContextDeal::GetBundleManager before iface_cast<bundleObj>");
+    APP_LOGI("ContextDeal::GetBundleManager before iface_cast<bundleObj>");
     sptr<IBundleMgr> bms = iface_cast<IBundleMgr>(bundleObj);
-    HILOG_INFO("ContextDeal::GetBundleManager after iface_cast<bundleObj>");
-    HILOG_INFO("ContextDeal::GetBundleManager end");
+    APP_LOGI("ContextDeal::GetBundleManager after iface_cast<bundleObj>");
+    APP_LOGI("ContextDeal::GetBundleManager end");
     return bms;
 }
 
@@ -255,13 +255,13 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManag
  */
 void ContextDeal::SetProfile(const std::shared_ptr<Profile> &profile)
 {
-    HILOG_INFO("ContextDeal::SetProfile begin");
+    APP_LOGI("ContextDeal::SetProfile begin");
     if (profile == nullptr) {
-        HILOG_ERROR("ContextDeal::SetProfile failed, profile is nullptr");
+        APP_LOGE("ContextDeal::SetProfile failed, profile is nullptr");
         return;
     }
     profile_ = profile;
-    HILOG_INFO("ContextDeal::SetProfile end");
+    APP_LOGI("ContextDeal::SetProfile end");
 }
 
 /**
@@ -283,10 +283,10 @@ std::shared_ptr<Profile> ContextDeal::GetProfile() const
  */
 bool ContextDeal::DeleteFile(const std::string &fileName)
 {
-    HILOG_INFO("ContextDeal::DeleteFile begin");
+    APP_LOGI("ContextDeal::DeleteFile begin");
     std::string path = GetDataDir() + CONTEXT_DEAL_FILE_SEPARATOR + fileName;
     bool ret = OHOS::RemoveFile(path);
-    HILOG_INFO("ContextDeal::DeleteFile end");
+    APP_LOGI("ContextDeal::DeleteFile end");
     return ret;
 }
 
@@ -375,18 +375,18 @@ std::string ContextDeal::GetDataDir()
  */
 std::string ContextDeal::GetDir(const std::string &name, int mode)
 {
-    HILOG_INFO("ContextDeal::GetDir begin");
+    APP_LOGI("ContextDeal::GetDir begin");
     if (applicationInfo_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetDir failed, applicationInfo_ == nullptr");
+        APP_LOGE("ContextDeal::GetDir failed, applicationInfo_ == nullptr");
         return "";
     }
     std::string dir = applicationInfo_->dataDir + CONTEXT_DEAL_FILE_SEPARATOR + name;
     if (!OHOS::FileExists(dir)) {
-        HILOG_INFO("ContextDeal::GetDir File is not exits");
+        APP_LOGI("ContextDeal::GetDir File is not exits");
         OHOS::ForceCreateDirectory(dir);
         OHOS::ChangeModeDirectory(dir, mode);
     }
-    HILOG_INFO("ContextDeal::GetDir end");
+    APP_LOGI("ContextDeal::GetDir end");
     return dir;
 }
 
@@ -437,14 +437,14 @@ std::string ContextDeal::GetFilesDir()
  */
 std::string ContextDeal::GetNoBackupFilesDir()
 {
-    HILOG_INFO("ContextDeal::GetNoBackupFilesDir begin");
+    APP_LOGI("ContextDeal::GetNoBackupFilesDir begin");
     std::string dir = applicationInfo_->dataDir + CONTEXT_DEAL_NO_BACKUP_Files;
     if (!OHOS::FileExists(dir)) {
-        HILOG_INFO("ContextDeal::GetDir GetNoBackupFilesDir is not exits");
+        APP_LOGI("ContextDeal::GetDir GetNoBackupFilesDir is not exits");
         OHOS::ForceCreateDirectory(dir);
         OHOS::ChangeModeDirectory(dir, MODE);
     }
-    HILOG_INFO("ContextDeal::GetNoBackupFilesDir end");
+    APP_LOGI("ContextDeal::GetNoBackupFilesDir end");
     return dir;
 }
 
@@ -525,7 +525,7 @@ std::string ContextDeal::GetBundleResourcePath()
  */
 ErrCode ContextDeal::StartAbility(const AAFwk::Want &want, int requestCode)
 {
-    HILOG_INFO("ContextDeal::StartAbility is called");
+    APP_LOGI("ContextDeal::StartAbility is called");
     return ERR_INVALID_VALUE;
 }
 
@@ -548,16 +548,16 @@ void ContextDeal::UnauthUriPermission(const std::string &permission, const Uri &
  */
 sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
 {
-    HILOG_INFO("ContextDeal::GetAbilityManager begin");
+    APP_LOGI("ContextDeal::GetAbilityManager begin");
     auto remoteObject = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("failed to get ability manager service");
+        APP_LOGE("failed to get ability manager service");
         return nullptr;
     }
-    HILOG_INFO("ContextDeal::SetPattern before iface_cast<remoteObject>");
+    APP_LOGI("ContextDeal::SetPattern before iface_cast<remoteObject>");
     sptr<AAFwk::IAbilityManager> ams = iface_cast<AAFwk::IAbilityManager>(remoteObject);
-    HILOG_INFO("ContextDeal::SetPattern after iface_cast<remoteObject>");
-    HILOG_INFO("ContextDeal::GetAbilityManager end");
+    APP_LOGI("ContextDeal::SetPattern after iface_cast<remoteObject>");
+    APP_LOGI("ContextDeal::GetAbilityManager end");
     return ams;
 }
 
@@ -571,14 +571,14 @@ sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
  */
 std::string ContextDeal::GetAppType()
 {
-    HILOG_INFO("ContextDeal::GetAppType begin");
+    APP_LOGI("ContextDeal::GetAppType begin");
     sptr<IBundleMgr> ptr = GetBundleManager();
     if (ptr == nullptr) {
-        HILOG_ERROR("GetAppType failed to get bundle manager service");
+        APP_LOGE("GetAppType failed to get bundle manager service");
         return "";
     }
     std::string retString = ptr->GetAppType(applicationInfo_->bundleName);
-    HILOG_INFO("ContextDeal::GetAppType end");
+    APP_LOGI("ContextDeal::GetAppType end");
     return retString;
 }
 
@@ -653,12 +653,12 @@ int ContextDeal::GetCurrentAccountId() const
 
 void ContextDeal::CreateDirIfNotExist(const std::string &dirPath) const
 {
-    HILOG_INFO("CreateDirIfNotExist: create directory if not exists.");
+    APP_LOGI("CreateDirIfNotExist: create directory if not exists.");
     if (!OHOS::FileExists(dirPath)) {
-        HILOG_INFO("ContextDeal::CreateDirIfNotExist File is not exits");
+        APP_LOGI("ContextDeal::CreateDirIfNotExist File is not exits");
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_INFO("CreateDirIfNotExist: create dir %{public}s failed.", dirPath.c_str());
+            APP_LOGI("CreateDirIfNotExist: create dir %{public}s failed.", dirPath.c_str());
             return;
         }
     }
@@ -673,7 +673,7 @@ void ContextDeal::CreateDirIfNotExist(const std::string &dirPath) const
  */
 std::string ContextDeal::GetDistributedDir()
 {
-    HILOG_INFO("ContextImpl::GetDistributedDir");
+    APP_LOGI("ContextImpl::GetDistributedDir");
     std::string dir;
     if (IsCreateBySystemApp()) {
         dir = CONTEXT_DISTRIBUTED_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
@@ -683,7 +683,7 @@ std::string ContextDeal::GetDistributedDir()
               ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
     }
     CreateDirIfNotExist(dir);
-    HILOG_INFO("ContextImpl::GetDistributedDir:%{public}s", dir.c_str());
+    APP_LOGI("ContextImpl::GetDistributedDir:%{public}s", dir.c_str());
     return dir;
 }
 /**
@@ -693,21 +693,21 @@ std::string ContextDeal::GetDistributedDir()
  */
 void ContextDeal::SetPattern(int patternId)
 {
-    HILOG_INFO("ContextDeal::SetPattern begin");
+    APP_LOGI("ContextDeal::SetPattern begin");
     if (resourceManager_ != nullptr) {
         if (!pattern_.empty()) {
             pattern_.clear();
         }
-        HILOG_INFO("ContextDeal::SetPattern before resourceManager_->GetPatternById");
+        APP_LOGI("ContextDeal::SetPattern before resourceManager_->GetPatternById");
         OHOS::Global::Resource::RState errval = resourceManager_->GetPatternById(patternId, pattern_);
-        HILOG_INFO("ContextDeal::SetPattern after resourceManager_->GetPatternById");
+        APP_LOGI("ContextDeal::SetPattern after resourceManager_->GetPatternById");
         if (errval != OHOS::Global::Resource::RState::SUCCESS) {
-            HILOG_ERROR("ContextDeal::SetPattern GetPatternById(patternId:%d) retval is %u", patternId, errval);
+            APP_LOGE("ContextDeal::SetPattern GetPatternById(patternId:%d) retval is %u", patternId, errval);
         }
     } else {
-        HILOG_ERROR("ContextDeal::SetPattern resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::SetPattern resourceManager_ is nullptr");
     }
-    HILOG_INFO("ContextDeal::SetPattern end");
+    APP_LOGI("ContextDeal::SetPattern end");
 }
 
 /**
@@ -734,7 +734,7 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     
     sptr<IBundleMgr> ptr = GetBundleManager();
     if (ptr == nullptr) {
-        HILOG_ERROR("GetAppType failed to get bundle manager service");
+        APP_LOGE("GetAppType failed to get bundle manager service");
         return hapModuleInfoLocal_;
     }
     Want want;
@@ -746,7 +746,7 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     if (isSuc) {
         hapModuleInfoLocal_->abilityInfos = abilityInfos;
     }
-    HILOG_INFO("ContextDeal::GetHapModuleInfo end");
+    APP_LOGI("ContextDeal::GetHapModuleInfo end");
     return hapModuleInfoLocal_;
 }
 
@@ -851,9 +851,9 @@ sptr<IRemoteObject> ContextDeal::GetToken()
  */
 void ContextDeal::initResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
-    HILOG_INFO("ContextDeal::initResourceManager. Start.");
+    APP_LOGI("ContextDeal::initResourceManager. Start.");
     resourceManager_ = resourceManager;
-    HILOG_INFO("ContextDeal::initResourceManager. End.");
+    APP_LOGI("ContextDeal::initResourceManager. End.");
 }
 
 /**
@@ -884,23 +884,23 @@ void ContextDeal::SerUriString(const std::string &uri)
  */
 std::string ContextDeal::GetString(int resId)
 {
-    HILOG_INFO("ContextDeal::GetString begin");
+    APP_LOGI("ContextDeal::GetString begin");
     if (resourceManager_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetString resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::GetString resourceManager_ is nullptr");
         return "";
     }
 
     std::string ret;
-    HILOG_INFO("ContextDeal::GetString before resourceManager_->GetStringById");
+    APP_LOGI("ContextDeal::GetString before resourceManager_->GetStringById");
     OHOS::Global::Resource::RState errval = resourceManager_->GetStringById(resId, ret);
-    HILOG_INFO("ContextDeal::GetString after resourceManager_->GetStringById");
+    APP_LOGI("ContextDeal::GetString after resourceManager_->GetStringById");
     if (errval == OHOS::Global::Resource::RState::SUCCESS) {
         return ret;
     } else {
-        HILOG_ERROR("ContextDeal::GetString GetStringById(resId:%d) retval is %u", resId, errval);
+        APP_LOGE("ContextDeal::GetString GetStringById(resId:%d) retval is %u", resId, errval);
         return "";
     }
-    HILOG_INFO("ContextDeal::GetString end");
+    APP_LOGI("ContextDeal::GetString end");
 }
 
 /**
@@ -912,23 +912,23 @@ std::string ContextDeal::GetString(int resId)
  */
 std::vector<std::string> ContextDeal::GetStringArray(int resId)
 {
-    HILOG_INFO("ContextDeal::GetStringArray begin");
+    APP_LOGI("ContextDeal::GetStringArray begin");
     if (resourceManager_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetStringArray resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::GetStringArray resourceManager_ is nullptr");
         return std::vector<std::string>();
     }
 
     std::vector<std::string> retv;
-    HILOG_INFO("ContextDeal::GetString before resourceManager_->GetStringArrayById");
+    APP_LOGI("ContextDeal::GetString before resourceManager_->GetStringArrayById");
     OHOS::Global::Resource::RState errval = resourceManager_->GetStringArrayById(resId, retv);
-    HILOG_INFO("ContextDeal::GetString after resourceManager_->GetStringArrayById");
+    APP_LOGI("ContextDeal::GetString after resourceManager_->GetStringArrayById");
     if (errval == OHOS::Global::Resource::RState::SUCCESS) {
         return retv;
     } else {
-        HILOG_ERROR("ContextDeal::GetStringArray GetStringArrayById(resId:%d) retval is %u", resId, errval);
+        APP_LOGE("ContextDeal::GetStringArray GetStringArrayById(resId:%d) retval is %u", resId, errval);
         return std::vector<std::string>();
     }
-    HILOG_INFO("ContextDeal::GetStringArray end");
+    APP_LOGI("ContextDeal::GetStringArray end");
 }
 
 /**
@@ -940,23 +940,23 @@ std::vector<std::string> ContextDeal::GetStringArray(int resId)
  */
 std::vector<int> ContextDeal::GetIntArray(int resId)
 {
-    HILOG_INFO("ContextDeal::GetIntArray begin");
+    APP_LOGI("ContextDeal::GetIntArray begin");
     if (resourceManager_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetIntArray resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::GetIntArray resourceManager_ is nullptr");
         return std::vector<int>();
     }
 
     std::vector<int> retv;
-    HILOG_INFO("ContextDeal::GetString before resourceManager_->GetIntArrayById");
+    APP_LOGI("ContextDeal::GetString before resourceManager_->GetIntArrayById");
     OHOS::Global::Resource::RState errval = resourceManager_->GetIntArrayById(resId, retv);
-    HILOG_INFO("ContextDeal::GetString after resourceManager_->GetIntArrayById");
+    APP_LOGI("ContextDeal::GetString after resourceManager_->GetIntArrayById");
     if (errval == OHOS::Global::Resource::RState::SUCCESS) {
         return retv;
     } else {
-        HILOG_ERROR("ContextDeal::GetIntArray GetIntArrayById(resId:%d) retval is %u", resId, errval);
+        APP_LOGE("ContextDeal::GetIntArray GetIntArrayById(resId:%d) retval is %u", resId, errval);
         return std::vector<int>();
     }
-    HILOG_INFO("ContextDeal::GetIntArray end");
+    APP_LOGI("ContextDeal::GetIntArray end");
 }
 
 /**
@@ -966,11 +966,11 @@ std::vector<int> ContextDeal::GetIntArray(int resId)
  */
 std::map<std::string, std::string> ContextDeal::GetTheme()
 {
-    HILOG_INFO("ContextDeal::GetTheme begin");
+    APP_LOGI("ContextDeal::GetTheme begin");
     if (theme_.empty()) {
         SetTheme(GetThemeId());
     }
-    HILOG_INFO("ContextDeal::GetTheme end");
+    APP_LOGI("ContextDeal::GetTheme end");
     return theme_;
 }
 
@@ -981,30 +981,30 @@ std::map<std::string, std::string> ContextDeal::GetTheme()
  */
 void ContextDeal::SetTheme(int themeId)
 {
-    HILOG_INFO("ContextDeal::SetTheme begin");
+    APP_LOGI("ContextDeal::SetTheme begin");
     if (resourceManager_ == nullptr) {
-        HILOG_ERROR("ContextDeal::SetTheme resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::SetTheme resourceManager_ is nullptr");
         return;
     }
 
     auto hapModInfo = GetHapModuleInfo();
     if (hapModInfo == nullptr) {
-        HILOG_ERROR("ContextDeal::SetTheme hapModInfo is nullptr");
+        APP_LOGE("ContextDeal::SetTheme hapModInfo is nullptr");
         return;
     }
 
     if (!theme_.empty()) {
         theme_.clear();
     }
-    HILOG_INFO("ContextDeal::GetString before resourceManager_->GetThemeById");
+    APP_LOGI("ContextDeal::GetString before resourceManager_->GetThemeById");
     OHOS::Global::Resource::RState errval = resourceManager_->GetThemeById(themeId, theme_);
-    HILOG_INFO("ContextDeal::GetString after resourceManager_->GetThemeById");
+    APP_LOGI("ContextDeal::GetString after resourceManager_->GetThemeById");
     if (errval != OHOS::Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("ContextDeal::SetTheme GetThemeById(themeId:%d) retval is %u", themeId, errval);
+        APP_LOGE("ContextDeal::SetTheme GetThemeById(themeId:%d) retval is %u", themeId, errval);
         return;
     }
 
-    HILOG_INFO("ContextDeal::SetTheme end");
+    APP_LOGI("ContextDeal::SetTheme end");
     return;
 }
 
@@ -1015,12 +1015,12 @@ void ContextDeal::SetTheme(int themeId)
  */
 std::map<std::string, std::string> ContextDeal::GetPattern()
 {
-    HILOG_INFO("ContextDeal::GetPattern begin");
+    APP_LOGI("ContextDeal::GetPattern begin");
     if (!pattern_.empty()) {
-        HILOG_INFO("ContextDeal::GetPattern end");
+        APP_LOGI("ContextDeal::GetPattern end");
         return pattern_;
     } else {
-        HILOG_ERROR("ContextDeal::GetPattern pattern_ is empty");
+        APP_LOGE("ContextDeal::GetPattern pattern_ is empty");
         return std::map<std::string, std::string>();
     }
 }
@@ -1034,23 +1034,23 @@ std::map<std::string, std::string> ContextDeal::GetPattern()
  */
 int ContextDeal::GetColor(int resId)
 {
-    HILOG_INFO("ContextDeal::GetColor begin");
+    APP_LOGI("ContextDeal::GetColor begin");
     if (resourceManager_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetColor resourceManager_ is nullptr");
+        APP_LOGE("ContextDeal::GetColor resourceManager_ is nullptr");
         return INVALID_RESOURCE_VALUE;
     }
 
     uint32_t ret = INVALID_RESOURCE_VALUE;
-    HILOG_INFO("ContextDeal::GetString before resourceManager_->GetColorById");
+    APP_LOGI("ContextDeal::GetString before resourceManager_->GetColorById");
     OHOS::Global::Resource::RState errval = resourceManager_->GetColorById(resId, ret);
-    HILOG_INFO("ContextDeal::GetString after resourceManager_->GetColorById");
+    APP_LOGI("ContextDeal::GetString after resourceManager_->GetColorById");
     if (errval == OHOS::Global::Resource::RState::SUCCESS) {
         return ret;
     } else {
-        HILOG_ERROR("ContextDeal::GetColor GetColorById(resId:%d) retval is %u", resId, errval);
+        APP_LOGE("ContextDeal::GetColor GetColorById(resId:%d) retval is %u", resId, errval);
         return INVALID_RESOURCE_VALUE;
     }
-    HILOG_INFO("ContextDeal::GetColor end");
+    APP_LOGI("ContextDeal::GetColor end");
 }
 
 /**
@@ -1064,7 +1064,7 @@ int ContextDeal::GetThemeId()
     if (hapModInfo != nullptr) {
         return -1;
     } else {
-        HILOG_ERROR("ContextDeal::GetThemeId hapModInfo is nullptr");
+        APP_LOGE("ContextDeal::GetThemeId hapModInfo is nullptr");
         return -1;
     }
 }
@@ -1096,12 +1096,12 @@ bool ContextDeal::TerminateAbilityResult(int startId)
  */
 int ContextDeal::GetDisplayOrientation()
 {
-    HILOG_INFO("ContextDeal::GetDisplayOrientation begin");
+    APP_LOGI("ContextDeal::GetDisplayOrientation begin");
     if (abilityInfo_ != nullptr) {
-        HILOG_INFO("ContextDeal::GetDisplayOrientation end");
+        APP_LOGI("ContextDeal::GetDisplayOrientation end");
         return static_cast<int>(abilityInfo_->orientation);
     } else {
-        HILOG_ERROR("ContextDeal::GetDisplayOrientation abilityInfo_ is nullptr");
+        APP_LOGE("ContextDeal::GetDisplayOrientation abilityInfo_ is nullptr");
         return static_cast<int>(DisplayOrientation::UNSPECIFIED);
     }
 }
@@ -1114,13 +1114,13 @@ int ContextDeal::GetDisplayOrientation()
  */
 std::string ContextDeal::GetPreferencesDir()
 {
-    HILOG_INFO("ContextDeal::GetPreferencesDir begin");
+    APP_LOGI("ContextDeal::GetPreferencesDir begin");
     if (!preferenceDir_.empty()) {
         return preferenceDir_;
     }
 
     if (abilityInfo_ == nullptr || applicationInfo_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetPreferencesDir %s is nullptr",
+        APP_LOGE("ContextDeal::GetPreferencesDir %s is nullptr",
             (abilityInfo_ == nullptr) ? "abilityInfo_" : "applicationInfo_");
         return "";
     }
@@ -1132,13 +1132,13 @@ std::string ContextDeal::GetPreferencesDir()
         std::string abilityname = abilityInfo_->name;
         size_t findpos = abilityname.find_last_of(".");
         if (findpos == std::string::npos) {
-            HILOG_ERROR("ContextDeal::GetPreferencesDir Find last of string failed.");
+            APP_LOGE("ContextDeal::GetPreferencesDir Find last of string failed.");
             return "";
         }
 
         abilityDirectoryName = abilityname.substr(findpos + 1, abilityname.length());
         if (abilityDirectoryName == "") {
-            HILOG_ERROR("ContextDeal::GetPreferencesDir abilityDirectoryName is nullptr");
+            APP_LOGE("ContextDeal::GetPreferencesDir abilityDirectoryName is nullptr");
             return "";
         }
     }
@@ -1147,20 +1147,20 @@ std::string ContextDeal::GetPreferencesDir()
                           CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_DIRNAME;
 
     if (!OHOS::FileExists(dataDir)) {
-        HILOG_INFO("ContextDeal::GetPreferencesDir File is not exits. Bengin create");
+        APP_LOGI("ContextDeal::GetPreferencesDir File is not exits. Bengin create");
         if (!OHOS::ForceCreateDirectory(dataDir)) {
-            HILOG_ERROR("ContextDeal::GetPreferencesDir ForceCreateDirectory return false. Create failed");
+            APP_LOGE("ContextDeal::GetPreferencesDir ForceCreateDirectory return false. Create failed");
             return "";
         }
         if (!OHOS::ChangeModeDirectory(dataDir, MODE)) {
-            HILOG_WARN("ContextDeal::GetPreferencesDir ChangeModeDirectory(%s, 0771) return false. Change failed",
+            APP_LOGW("ContextDeal::GetPreferencesDir ChangeModeDirectory(%s, 0771) return false. Change failed",
                 dataDir.c_str());
         }
-        HILOG_INFO("ContextDeal::GetPreferencesDir File create complete");
+        APP_LOGI("ContextDeal::GetPreferencesDir File create complete");
     }
 
     preferenceDir_ = dataDir;
-    HILOG_INFO("ContextDeal::GetPreferencesDir end");
+    APP_LOGI("ContextDeal::GetPreferencesDir end");
     return preferenceDir_;
 }
 
@@ -1171,10 +1171,10 @@ std::string ContextDeal::GetPreferencesDir()
  */
 void ContextDeal::SetColorMode(int mode)
 {
-    HILOG_INFO("ContextDeal::SetColorMode begin");
+    APP_LOGI("ContextDeal::SetColorMode begin");
     auto hapModInfo = GetHapModuleInfo();
     if (hapModInfo == nullptr) {
-        HILOG_ERROR("ContextDeal::SetColorMode hapModInfo is nullptr");
+        APP_LOGE("ContextDeal::SetColorMode hapModInfo is nullptr");
         return;
     }
 
@@ -1185,7 +1185,7 @@ void ContextDeal::SetColorMode(int mode)
     } else {  // default use AUTO
         hapModInfo->colorMode = ModuleColorMode::AUTO;
     }
-    HILOG_INFO("ContextDeal::SetColorMode end");
+    APP_LOGI("ContextDeal::SetColorMode end");
 }
 
 /**
@@ -1195,13 +1195,13 @@ void ContextDeal::SetColorMode(int mode)
  */
 int ContextDeal::GetColorMode()
 {
-    HILOG_INFO("ContextDeal::GetColorMode begin");
+    APP_LOGI("ContextDeal::GetColorMode begin");
     auto hapModInfo = GetHapModuleInfo();
     if (hapModInfo == nullptr) {
-        HILOG_ERROR("ContextDeal::GetColorMode hapModInfo is nullptr");
+        APP_LOGE("ContextDeal::GetColorMode hapModInfo is nullptr");
         return -1;
     }
-    HILOG_INFO("ContextDeal::GetColorMode end");
+    APP_LOGI("ContextDeal::GetColorMode end");
     return static_cast<int>(hapModInfo->colorMode);
 }
 
@@ -1241,21 +1241,21 @@ AAFwk::LifeCycleStateInfo ContextDeal::GetLifeCycleStateInfo() const
  */
 void ContextDeal::TerminateAndRemoveMission()
 {
-    HILOG_INFO("ContextDeal::TerminateAndRemoveMission begin");
+    APP_LOGI("ContextDeal::TerminateAndRemoveMission begin");
     auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityManagerClient == nullptr) {
-        HILOG_ERROR("ContextDeal::TerminateAndRemoveMission abilityManagerClient is nullptr");
+        APP_LOGE("ContextDeal::TerminateAndRemoveMission abilityManagerClient is nullptr");
         return;
     }
 
     std::vector<int32_t> removeIdList = {GetMissionId()};
-    HILOG_INFO("ContextDeal::TerminateAndRemoveMission before abilityManagerClient->RemoveMissions");
+    APP_LOGI("ContextDeal::TerminateAndRemoveMission before abilityManagerClient->RemoveMissions");
     ErrCode errval = abilityManagerClient->RemoveMissions(removeIdList);
-    HILOG_INFO("ContextDeal::TerminateAndRemoveMission after abilityManagerClient->RemoveMissions");
+    APP_LOGI("ContextDeal::TerminateAndRemoveMission after abilityManagerClient->RemoveMissions");
     if (errval != ERR_OK) {
-        HILOG_WARN("ContextDeal::TerminateAndRemoveMission RemoveMissions retval is ERROR(%d)", errval);
+        APP_LOGW("ContextDeal::TerminateAndRemoveMission RemoveMissions retval is ERROR(%d)", errval);
     }
-    HILOG_INFO("ContextDeal::TerminateAndRemoveMission end");
+    APP_LOGI("ContextDeal::TerminateAndRemoveMission end");
 }
 
 /**
@@ -1293,25 +1293,25 @@ std::shared_ptr<TaskDispatcher> ContextDeal::GetUITaskDispatcher()
  */
 std::shared_ptr<TaskDispatcher> ContextDeal::GetMainTaskDispatcher()
 {
-    HILOG_INFO("ContextDeal::GetMainTaskDispatcher begin");
+    APP_LOGI("ContextDeal::GetMainTaskDispatcher begin");
     if (mainTaskDispatcher_ != nullptr) {
         return mainTaskDispatcher_;
     }
 
     if (mainEventRunner_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetMainTaskDispatcher mainTaskDispatcher_ is nullptr");
+        APP_LOGE("ContextDeal::GetMainTaskDispatcher mainTaskDispatcher_ is nullptr");
         return nullptr;
     }
 
     std::shared_ptr<SpecDispatcherConfig> config =
         std::make_shared<SpecDispatcherConfig>(SpecDispatcherConfig::MAIN, TaskPriority::HIGH);
     if (config == nullptr) {
-        HILOG_ERROR("ContextDeal::GetMainTaskDispatcher config is nullptr");
+        APP_LOGE("ContextDeal::GetMainTaskDispatcher config is nullptr");
         return nullptr;
     }
 
     mainTaskDispatcher_ = std::make_shared<SpecTaskDispatcher>(config, mainEventRunner_);
-    HILOG_INFO("ContextDeal::GetMainTaskDispatcher end");
+    APP_LOGI("ContextDeal::GetMainTaskDispatcher end");
     return mainTaskDispatcher_;
 }
 
@@ -1326,14 +1326,14 @@ std::shared_ptr<TaskDispatcher> ContextDeal::GetMainTaskDispatcher()
 std::shared_ptr<TaskDispatcher> ContextDeal::CreateParallelTaskDispatcher(
     const std::string &name, const TaskPriority &priority)
 {
-    HILOG_INFO("ContextDeal::CreateParallelTaskDispatcher begin");
+    APP_LOGI("ContextDeal::CreateParallelTaskDispatcher begin");
     if (appContext_ == nullptr) {
-        HILOG_ERROR("ContextDeal::CreateParallelTaskDispatcher appContext_ is nullptr");
+        APP_LOGE("ContextDeal::CreateParallelTaskDispatcher appContext_ is nullptr");
         return nullptr;
     }
 
     std::shared_ptr<TaskDispatcher> task = appContext_->CreateParallelTaskDispatcher(name, priority);
-    HILOG_INFO("ContextDeal::CreateParallelTaskDispatcher end");
+    APP_LOGI("ContextDeal::CreateParallelTaskDispatcher end");
     return task;
 }
 
@@ -1348,14 +1348,14 @@ std::shared_ptr<TaskDispatcher> ContextDeal::CreateParallelTaskDispatcher(
 std::shared_ptr<TaskDispatcher> ContextDeal::CreateSerialTaskDispatcher(
     const std::string &name, const TaskPriority &priority)
 {
-    HILOG_INFO("ContextDeal::CreateSerialTaskDispatcher begin");
+    APP_LOGI("ContextDeal::CreateSerialTaskDispatcher begin");
     if (appContext_ == nullptr) {
-        HILOG_ERROR("ContextDeal::CreateSerialTaskDispatcher appContext_ is nullptr");
+        APP_LOGE("ContextDeal::CreateSerialTaskDispatcher appContext_ is nullptr");
         return nullptr;
     }
 
     std::shared_ptr<TaskDispatcher> task = appContext_->CreateSerialTaskDispatcher(name, priority);
-    HILOG_INFO("ContextDeal::CreateSerialTaskDispatcher end");
+    APP_LOGI("ContextDeal::CreateSerialTaskDispatcher end");
     return task;
 }
 
@@ -1368,14 +1368,14 @@ std::shared_ptr<TaskDispatcher> ContextDeal::CreateSerialTaskDispatcher(
  */
 std::shared_ptr<TaskDispatcher> ContextDeal::GetGlobalTaskDispatcher(const TaskPriority &priority)
 {
-    HILOG_INFO("ContextDeal::GetGlobalTaskDispatcher begin");
+    APP_LOGI("ContextDeal::GetGlobalTaskDispatcher begin");
     if (appContext_ == nullptr) {
-        HILOG_ERROR("ContextDeal::GetGlobalTaskDispatcher appContext_ is nullptr");
+        APP_LOGE("ContextDeal::GetGlobalTaskDispatcher appContext_ is nullptr");
         return nullptr;
     }
 
     std::shared_ptr<TaskDispatcher> task = appContext_->GetGlobalTaskDispatcher(priority);
-    HILOG_INFO("ContextDeal::GetGlobalTaskDispatcher end");
+    APP_LOGI("ContextDeal::GetGlobalTaskDispatcher end");
     return task;
 }
 
@@ -1396,27 +1396,27 @@ void ContextDeal::SetRunner(const std::shared_ptr<EventRunner> &runner)
  */
 bool ContextDeal::HapModuleInfoRequestInit()
 {
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit begin");
+    APP_LOGI("ContextDeal::HapModuleInfoRequestInit begin");
 
     sptr<IBundleMgr> ptr = GetBundleManager();
     if (ptr == nullptr) {
-        HILOG_ERROR("GetHapModuleInfo failed to get bundle manager service");
+        APP_LOGE("GetHapModuleInfo failed to get bundle manager service");
         return false;
     }
 
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("GetHapModuleInfo failed for abilityInfo_ is nullptr");
+        APP_LOGE("GetHapModuleInfo failed for abilityInfo_ is nullptr");
         return false;
     }
 
     hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit before IBundleMgr->GetBundleManager");
+    APP_LOGI("ContextDeal::HapModuleInfoRequestInit before IBundleMgr->GetBundleManager");
     if (!ptr->GetHapModuleInfo(*abilityInfo_.get(), *hapModuleInfoLocal_)) {
-        HILOG_ERROR("IBundleMgr::GetHapModuleInfo failed, will retval false value");
+        APP_LOGE("IBundleMgr::GetHapModuleInfo failed, will retval false value");
         return false;
     }
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit after IBundleMgr->GetBundleManager");
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit end");
+    APP_LOGI("ContextDeal::HapModuleInfoRequestInit after IBundleMgr->GetBundleManager");
+    APP_LOGI("ContextDeal::HapModuleInfoRequestInit end");
     return true;
 }
 
@@ -1466,12 +1466,12 @@ void ContextDeal::SetShowOnLockScreen(bool isAllow)
 {
     auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityManagerClient == nullptr) {
-        HILOG_ERROR("ContextDeal::SetShowOnLockScreen abilityManagerClient is nullptr");
+        APP_LOGE("ContextDeal::SetShowOnLockScreen abilityManagerClient is nullptr");
         return;
     }
     ErrCode errval = abilityManagerClient->SetShowOnLockScreen(isAllow);
     if (errval != ERR_OK) {
-        HILOG_ERROR("ContextDeal::SetShowOnLockScreen SetShowOnLockScreen retval is ERROR(%d)", errval);
+        APP_LOGE("ContextDeal::SetShowOnLockScreen SetShowOnLockScreen retval is ERROR(%d)", errval);
     }
 }
 }  // namespace AppExecFwk

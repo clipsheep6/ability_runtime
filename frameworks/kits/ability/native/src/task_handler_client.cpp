@@ -14,6 +14,7 @@
  */
 
 #include "task_handler_client.h"
+#include "app_log_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -40,18 +41,18 @@ TaskHandlerClient::~TaskHandlerClient()
 
 bool TaskHandlerClient::PostTask(std::function<void()> task, long delayTime)
 {
-    HILOG_INFO("TaskHandlerClient::PostTask called");
+    APP_LOGI("TaskHandlerClient::PostTask called");
 
     if (taskHandler_ == nullptr) {
         if (!CreateRunner()) {
-            HILOG_ERROR("TaskHandlerClient::PostTask failed, CreateRunner failed");
+            APP_LOGE("TaskHandlerClient::PostTask failed, CreateRunner failed");
             return false;
         }
     }
 
     bool ret = taskHandler_->PostTask(task, delayTime, EventQueue::Priority::LOW);
     if (!ret) {
-        HILOG_ERROR("TaskHandlerClient::PostTask failed, taskHandler_ PostTask failed");
+        APP_LOGE("TaskHandlerClient::PostTask failed, taskHandler_ PostTask failed");
     }
     return ret;
 }
@@ -61,12 +62,12 @@ bool TaskHandlerClient::CreateRunner()
     if (taskHandler_ == nullptr) {
         std::shared_ptr<EventRunner> runner = EventRunner::Create("TaskRunner");
         if (runner == nullptr) {
-            HILOG_ERROR("TaskHandlerClient::CreateRunner failed, runner is nullptr");
+            APP_LOGE("TaskHandlerClient::CreateRunner failed, runner is nullptr");
             return false;
         }
         taskHandler_ = std::make_shared<TaskHandler>(runner);
         if (taskHandler_ == nullptr) {
-            HILOG_ERROR("TaskHandlerClient::CreateRunner failed, taskHandler_ is nullptr");
+            APP_LOGE("TaskHandlerClient::CreateRunner failed, taskHandler_ is nullptr");
             return false;
         }
     }

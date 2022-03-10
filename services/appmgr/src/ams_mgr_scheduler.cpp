@@ -21,8 +21,8 @@
 #include "system_ability_definition.h"
 
 #include "app_death_recipient.h"
+#include "app_log_wrapper.h"
 #include "app_mgr_constants.h"
-#include "hilog_wrapper.h"
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -49,7 +49,7 @@ AmsMgrScheduler::AmsMgrScheduler(
 
 AmsMgrScheduler::~AmsMgrScheduler()
 {
-    HILOG_INFO("AmsMgrScheduler instance destroyed");
+    APP_LOGI("AmsMgrScheduler instance destroyed");
 }
 
 void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
@@ -57,12 +57,12 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     const std::shared_ptr<AAFwk::Want> &want)
 {
     if (!abilityInfo || !appInfo) {
-        HILOG_ERROR("param error");
+        APP_LOGE("param error");
         return;
     }
 
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrScheduler not Ready");
+        APP_LOGE("AmsMgrScheduler not Ready");
         return;
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
@@ -131,7 +131,7 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
 void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 {
     if (amsMgrServiceInner_->VerifyProcessPermission() == ERR_PERMISSION_DENIED) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        APP_LOGE("%{public}s: Permission verification failed", __func__);
         return;
     }
 
@@ -147,7 +147,7 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 {
     if (amsMgrServiceInner_->VerifyAccountPermission(AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES,
         userId) == ERR_PERMISSION_DENIED) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        APP_LOGE("%{public}s: Permission verification failed", __func__);
         return;
     }
 
@@ -161,21 +161,21 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 
 int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)
 {
-    HILOG_INFO("enter");
-    HILOG_INFO("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    APP_LOGI("enter");
+    APP_LOGI("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
 
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
 
-    HILOG_INFO("end");
+    APP_LOGI("end");
 
     return amsMgrServiceInner_->KillApplicationByUserId(bundleName, accountId);
 }
 
 void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AmsMgrScheduler AttachTimeOut begin");
+    APP_LOGI("AmsMgrScheduler AttachTimeOut begin");
     if (!IsReady()) {
         return;
     }
@@ -185,7 +185,7 @@ void AmsMgrScheduler::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 
 void AmsMgrScheduler::PrepareTerminate(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AmsMgrScheduler PrepareTerminate begin");
+    APP_LOGI("AmsMgrScheduler PrepareTerminate begin");
     if (!IsReady()) {
         return;
     }
@@ -213,11 +213,11 @@ int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, con
 bool AmsMgrScheduler::IsReady() const
 {
     if (!amsMgrServiceInner_) {
-        HILOG_ERROR("amsMgrServiceInner_ is null");
+        APP_LOGE("amsMgrServiceInner_ is null");
         return false;
     }
     if (!amsHandler_) {
-        HILOG_ERROR("amsHandler_ is null");
+        APP_LOGE("amsHandler_ is null");
         return false;
     }
     return true;
@@ -262,13 +262,13 @@ void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpe
 
 void AmsMgrScheduler::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("AmsMgrScheduler UpdateConfiguration begin");
+    APP_LOGI("AmsMgrScheduler UpdateConfiguration begin");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
         auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
         if (!isCallingPerm) {
-            HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+            APP_LOGE("%{public}s: Permission verification failed", __func__);
             return;
         }
     }
@@ -278,12 +278,12 @@ void AmsMgrScheduler::UpdateConfiguration(const Configuration &config)
     }
     auto task = [=]() { amsMgrServiceInner_->UpdateConfiguration(config); };
     amsHandler_->PostTask(task);
-    HILOG_INFO("AmsMgrScheduler UpdateConfiguration end");
+    APP_LOGI("AmsMgrScheduler UpdateConfiguration end");
 }
 
 int AmsMgrScheduler::GetConfiguration(Configuration& config)
 {
-    HILOG_INFO("AmsMgrScheduler GetConfiguration begin");
+    APP_LOGI("AmsMgrScheduler GetConfiguration begin");
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
@@ -291,7 +291,7 @@ int AmsMgrScheduler::GetConfiguration(Configuration& config)
         return ERR_INVALID_OPERATION;
     }
     config = *(amsMgrServiceInner_->GetConfiguration());
-    HILOG_INFO("AmsMgrScheduler GetConfiguration end");
+    APP_LOGI("AmsMgrScheduler GetConfiguration end");
     return ERR_OK;
 }
 }  // namespace AppExecFwk

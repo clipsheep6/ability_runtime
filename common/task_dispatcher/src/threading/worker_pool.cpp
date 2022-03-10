@@ -44,13 +44,13 @@ WorkerPool::~WorkerPool()
 {
     control_ = 0;
 
-    HILOG_INFO("WorkerPool::~WorkerPool");
+    APP_LOGI("WorkerPool::~WorkerPool");
 }
 
 bool WorkerPool::Init(const std::shared_ptr<WorkerPoolConfig> &config)
 {
-    if (!CheckConfigParams(config)) {
-        HILOG_ERROR("WorkerPool::checkConfigParams  parameters are illegal");
+    if (CheckConfigParams(config) == false) {
+        APP_LOGE("WorkerPool::checkConfigParams  parameters are illegal");
         return false;
     }
 
@@ -65,7 +65,7 @@ bool WorkerPool::Init(const std::shared_ptr<WorkerPoolConfig> &config)
 bool WorkerPool::CheckConfigParams(const std::shared_ptr<WorkerPoolConfig> &config)
 {
     if (config == nullptr) {
-        HILOG_ERROR("WorkerPool::CheckConfigParams config is nullptr");
+        APP_LOGE("WorkerPool::CheckConfigParams config is nullptr");
         return false;
     }
 
@@ -73,18 +73,18 @@ bool WorkerPool::CheckConfigParams(const std::shared_ptr<WorkerPoolConfig> &conf
     int coreThreadCount = config->GetCoreThreadCount();
 
     if (!CheckThreadCount(maxThreadCount, coreThreadCount)) {
-        HILOG_ERROR("WorkerPool::CheckConfigParams parameters are illegal, maxThreadCount %{public}d is less than "
+        APP_LOGE("WorkerPool::CheckConfigParams parameters are illegal, maxThreadCount %{public}d is less than "
                  "coreThreadCount %{public}d",
             maxThreadCount,
             coreThreadCount);
         return false;
     }
     if (!CheckMaxThreadCount(maxThreadCount)) {
-        HILOG_ERROR("WorkerPool::CheckConfigParams maxThreadCount %{public}d is illegal", maxThreadCount);
+        APP_LOGE("WorkerPool::CheckConfigParams maxThreadCount %{public}d is illegal", maxThreadCount);
         return false;
     }
     if (!CheckCoreThreadCount(coreThreadCount)) {
-        HILOG_ERROR("WorkerPool::CheckConfigParams coreThreadCount %{public}d is illegal", coreThreadCount);
+        APP_LOGE("WorkerPool::CheckConfigParams coreThreadCount %{public}d is illegal", coreThreadCount);
         return false;
     }
     return true;
@@ -141,20 +141,20 @@ std::map<std::string, long> WorkerPool::GetWorkerThreadsInfo(void)
 
 void WorkerPool::ClosePool(bool interrupt)
 {
-    HILOG_INFO("WorkerPool::ClosePool begin interrupt=%{public}d", interrupt);
+    APP_LOGI("WorkerPool::ClosePool begin interrupt=%{public}d", interrupt);
     std::unique_lock<std::mutex> mLock(poolLock_);
 
     AdvanceStateTo(CLOSING);
     InterruptWorkers();
 
-    HILOG_INFO("WorkerPool::ClosePool end");
+    APP_LOGI("WorkerPool::ClosePool end");
 }
 
 void WorkerPool::InterruptWorkers(void)
 {
-    HILOG_INFO("WorkerPool::InterruptWorkers begin");
+    APP_LOGI("WorkerPool::InterruptWorkers begin");
     if (guardThread_ == nullptr) {
-        HILOG_ERROR("WorkerPool::InterruptWorkers guardThread is nullptr");
+        APP_LOGE("WorkerPool::InterruptWorkers guardThread is nullptr");
         return;
     }
     poolLock_.unlock();
@@ -169,21 +169,21 @@ void WorkerPool::InterruptWorkers(void)
         std::unique_lock<std::mutex> lock(exitPoolLock_);
         exitGuard_.wait(lock);
         if (guardThread_->joinable()) {
-            HILOG_INFO("WorkerPool::InterruptWorkers guardThread_ joinable");
+            APP_LOGI("WorkerPool::InterruptWorkers guardThread_ joinable");
             guardThread_->join();
             // Prevent manual call again
             guardThread_ = nullptr;
         }
     }
 
-    HILOG_INFO("WorkerPool::InterruptWorkers end");
+    APP_LOGI("WorkerPool::InterruptWorkers end");
 }
 
 void WorkerPool::CreateGuardThread()
 {
-    HILOG_INFO("WorkerPool::CreateGuardThread START");
+    APP_LOGI("WorkerPool::CreateGuardThread START");
     if (guardThread_ != nullptr) {
-        HILOG_WARN("WorkerPool::CreateGuardThread guardThread_ is not nullptr");
+        APP_LOGW("WorkerPool::CreateGuardThread guardThread_ is not nullptr");
         return;
     }
     auto guardTask = [&]() {
@@ -201,11 +201,11 @@ void WorkerPool::CreateGuardThread()
             }
             if (stop_.load() && exitPool_.empty() && pool_.empty()) {
                 exitGuard_.notify_all();
-                HILOG_INFO("WorkerPool::CreateGuardThread break while");
+                APP_LOGI("WorkerPool::CreateGuardThread break while");
                 break;
             }
         }
-        HILOG_INFO("WorkerPool::CreateGuardThread STOP");
+        APP_LOGI("WorkerPool::CreateGuardThread STOP");
     };
 
     guardThread_ = std::make_shared<std::thread>(guardTask);
@@ -215,19 +215,19 @@ bool WorkerPool::AddWorker(const std::shared_ptr<Delegate> &delegate, const std:
 {
     bool added = false;
     if (!initFlag_.load()) {
-        HILOG_ERROR("WorkerPool::AddWorker workPool init failed");
+        APP_LOGE("WorkerPool::AddWorker workPool init failed");
         return added;
     }
     if (factory_ == nullptr) {
-        HILOG_ERROR("WorkerPool::AddWorker factory_ is nullptr");
+        APP_LOGE("WorkerPool::AddWorker factory_ is nullptr");
         return added;
     }
     if (task == nullptr) {
-        HILOG_ERROR("WorkerPool::AddWorker task is nullptr");
+        APP_LOGE("WorkerPool::AddWorker task is nullptr");
         return added;
     }
     if (delegate == nullptr) {
-        HILOG_ERROR("WorkerPool::AddWorker delegate is nullptr");
+        APP_LOGE("WorkerPool::AddWorker delegate is nullptr");
         return added;
     }
     std::unique_lock<std::mutex> mLock(poolLock_);
@@ -237,12 +237,12 @@ bool WorkerPool::AddWorker(const std::shared_ptr<Delegate> &delegate, const std:
         unsigned int value = control_.load();
         int num = GetWorkingThreadNum(value);
         if (num >= thread_limit_) {
-            HILOG_INFO("WorkerPool::AddWorker thread count exceed limits, num=%{public}d, limits=%{public}d", num,
+            APP_LOGI("WorkerPool::AddWorker thread count exceed limits, num=%{public}d, limits=%{public}d", num,
                 thread_limit_);
             break;
         }
         if (!IsRunning(value)) {
-            HILOG_INFO("WorkerPool::AddWorker thread pool is not running. value=%{public}d, closing=%{public}d, "
+            APP_LOGI("WorkerPool::AddWorker thread pool is not running. value=%{public}d, closing=%{public}d, "
                      "count_bits=%{public}d",
                 value,
                 CLOSING,
@@ -253,22 +253,22 @@ bool WorkerPool::AddWorker(const std::shared_ptr<Delegate> &delegate, const std:
         if (CompareAndIncThreadNum(num)) {
             newThread = std::make_shared<WorkerThread>(delegate, task, factory_);
             if (newThread == nullptr) {
-                HILOG_ERROR("WorkerPool::AddWorker create thread fail");
+                APP_LOGE("WorkerPool::AddWorker create thread fail");
                 break;
             }
 
             newThread->CreateThread();
 
-            HILOG_INFO("WorkerPool::AddWorker create new thread");
+            APP_LOGI("WorkerPool::AddWorker create new thread");
 
             pool_.emplace_back(newThread);
-            HILOG_INFO("WorkerPool::AddWorker pool_ add thread ,POOL SIZE: %{public}zu", pool_.size());
+            APP_LOGI("WorkerPool::AddWorker pool_ add thread ,POOL SIZE: %{public}zu", pool_.size());
 
             added = true;
             break;
         }
 
-        HILOG_WARN("WorkerPool::AddWorker set thread state error. retry. ");
+        APP_LOGW("WorkerPool::AddWorker set thread state error. retry. ");
     }
     return added;
 }
@@ -276,16 +276,16 @@ bool WorkerPool::AddWorker(const std::shared_ptr<Delegate> &delegate, const std:
 void WorkerPool::OnWorkerExit(const std::shared_ptr<WorkerThread> &worker, bool isInterrupted)
 {
     std::unique_lock<std::mutex> mLock(poolLock_);
-    HILOG_INFO("WorkerPool::OnWorkerExit start, pool size: %{public}zu", pool_.size());
+    APP_LOGI("WorkerPool::OnWorkerExit start, pool size: %{public}zu", pool_.size());
     for (auto it = pool_.begin(); it != pool_.end(); it++) {
         if ((*it).get() == worker.get()) {
-            HILOG_INFO("WorkerPool::OnWorkerExit erase current, size=%{public}zu, threads=%{public}d",
+            APP_LOGI("WorkerPool::OnWorkerExit erase current, size=%{public}zu, threads=%{public}d",
                 pool_.size(),
                 GetWorkingThreadNum(control_.load()));
             {
                 std::unique_lock<std::mutex> lock(exitPoolLock_);
                 exitPool_.emplace_back(worker);
-                HILOG_INFO("WorkerPool::OnWorkerExit exit notify all");
+                APP_LOGI("WorkerPool::OnWorkerExit exit notify all");
                 exit_.notify_all();
             }
             pool_.erase(it);
@@ -293,7 +293,7 @@ void WorkerPool::OnWorkerExit(const std::shared_ptr<WorkerThread> &worker, bool 
             break;
         }
     }
-    HILOG_INFO("WorkerPool::OnWorkerExit end");
+    APP_LOGI("WorkerPool::OnWorkerExit end");
 }
 
 void WorkerPool::AfterRun(const std::shared_ptr<Task> &task)
@@ -319,16 +319,16 @@ int WorkerPool::GetStateFromControl(unsigned int ctl)
 
 void WorkerPool::AdvanceStateTo(unsigned int target)
 {
-    HILOG_INFO("WorkerPool::AdvanceStateTo begin");
+    APP_LOGI("WorkerPool::AdvanceStateTo begin");
     for (;;) {
         unsigned int current = control_.load();
         if ((current >= target) ||
             CompareAndSet(control_, current, CombineToControl(target, GetWorkingThreadNum(current)))) {
-            HILOG_INFO("WorkerPool::AdvanceStateTo break");
+            APP_LOGI("WorkerPool::AdvanceStateTo break");
             break;
         }
     }
-    HILOG_INFO("WorkerPool::AdvanceStateTo end");
+    APP_LOGI("WorkerPool::AdvanceStateTo end");
 }
 
 int WorkerPool::CombineToControl(unsigned int state, unsigned int count)
@@ -345,12 +345,12 @@ bool WorkerPool::CompareAndIncThreadNum(int expect)
 
 void WorkerPool::DecrementThread(void)
 {
-    HILOG_INFO("WorkerPool::DecrementThread begin");
+    APP_LOGI("WorkerPool::DecrementThread begin");
     int curr = control_.load();
     while (!CompareAndDecThreadNum(curr)) {
         curr = control_.load();
     }
-    HILOG_INFO("WorkerPool::DecrementThread end");
+    APP_LOGI("WorkerPool::DecrementThread end");
 }
 
 bool WorkerPool::CompareAndDecThreadNum(int expect)

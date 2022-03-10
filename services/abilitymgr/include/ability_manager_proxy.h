@@ -357,11 +357,10 @@ public:
     /**
      * Uninstall app
      *
-     * @param bundleName bundle name of uninstalling app.
-     * @param uid uid of bundle.
+     * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
+    virtual int UninstallApp(const std::string &bundleName) override;
 
     /**
      * Moving mission to the specified stack by mission option(Enter floating window mode).

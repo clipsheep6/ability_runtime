@@ -14,7 +14,7 @@
  */
 
 #include "dummy_values_bucket.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -43,7 +43,7 @@ ValuesBucket *ValuesBucket::Unmarshalling(Parcel &parcel)
 {
     ValuesBucket *valuesBucket = new (std::nothrow) ValuesBucket();
     if (valuesBucket && !valuesBucket->ReadFromParcel(parcel)) {
-        HILOG_ERROR("ValuesBucket::Unmarshalling ReadFromParcel failed");
+        APP_LOGE("ValuesBucket::Unmarshalling ReadFromParcel failed");
         delete valuesBucket;
         valuesBucket = nullptr;
     }
@@ -58,7 +58,7 @@ ValuesBucket *ValuesBucket::Unmarshalling(Parcel &parcel)
 bool ValuesBucket::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString16(Str8ToStr16(testInf_))) {
-        HILOG_ERROR("valuesBucket::Marshalling WriteString16 failed");
+        APP_LOGE("valuesBucket::Marshalling WriteString16 failed");
         return false;
     }
     return true;

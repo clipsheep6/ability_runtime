@@ -14,6 +14,7 @@
  */
 
 #include "ohos/aafwk/content/skills.h"
+#include "parcel_macro.h"
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 namespace OHOS {

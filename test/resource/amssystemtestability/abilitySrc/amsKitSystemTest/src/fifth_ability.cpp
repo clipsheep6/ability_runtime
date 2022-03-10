@@ -14,7 +14,7 @@
  */
 
 #include "fifth_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "ohos/aafwk/base/array_wrapper.h"
 #include "ohos/aafwk/base/base_types.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
@@ -37,20 +37,20 @@ void FifthAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("FifthAbility::Init");
+    APP_LOGI("FifthAbility::Init");
     Ability::Init(abilityInfo, application, handler, token);
 }
 
 void FifthAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("FifthAbility::onStart");
+    APP_LOGI("FifthAbility::onStart");
     Ability::OnStart(want);
     SubscribeEvent();
 }
 
 void FifthAbility::OnStop()
 {
-    HILOG_INFO("FifthAbility::onStop");
+    APP_LOGI("FifthAbility::onStop");
     Ability::OnStop();
     CommonEventManager::UnSubscribeCommonEvent(subscriber);
     TestUtils::PublishEvent(g_EVENT_RESP_FIFTH, Ability::GetState(), "OnStop");
@@ -58,44 +58,44 @@ void FifthAbility::OnStop()
 
 void FifthAbility::OnActive()
 {
-    HILOG_INFO("FifthAbility::OnActive");
+    APP_LOGI("FifthAbility::OnActive");
     Ability::OnActive();
     TestUtils::PublishEvent(g_EVENT_RESP_FIFTH, Ability::GetState(), "OnActive");
 }
 
 void FifthAbility::OnInactive()
 {
-    HILOG_INFO("FifthAbility::OnInactive");
+    APP_LOGI("FifthAbility::OnInactive");
     Ability::OnInactive();
 }
 
 void FifthAbility::OnBackground()
 {
-    HILOG_INFO("FifthAbility::OnBackground");
+    APP_LOGI("FifthAbility::OnBackground");
     Ability::OnBackground();
 }
 
 void FifthAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("FifthAbility::OnForeground");
+    APP_LOGI("FifthAbility::OnForeground");
     Ability::OnForeground(want);
 }
 
 void FifthAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("FifthAbility::OnAbilityResult");
+    APP_LOGI("FifthAbility::OnAbilityResult");
     Ability::OnAbilityResult(requestCode, resultCode, resultData);
 }
 
 void FifthAbility::OnBackPressed()
 {
-    HILOG_INFO("FifthAbility::OnBackPressed");
+    APP_LOGI("FifthAbility::OnBackPressed");
     Ability::OnBackPressed();
 }
 
 void FifthAbility::OnNewWant(const Want &want)
 {
-    HILOG_INFO("FifthAbility::OnNewWant");
+    APP_LOGI("FifthAbility::OnNewWant");
     Ability::OnNewWant(want);
 }
 
@@ -116,9 +116,9 @@ void FifthAbility::SubscribeEvent()
 
 void FifthEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO("FifthEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("FifthEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("FifthEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("FifthEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("FifthEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("FifthEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), g_EVENT_REQU_FIFTH.c_str()) == 0) {
         auto target = data.GetData();
@@ -133,14 +133,14 @@ void FifthEventSubscriber::OnReceiveEvent(const CommonEventData &data)
         if (mapTestFunc_.find(caseInfo[handle]) != mapTestFunc_.end()) {
             mapTestFunc_[caseInfo[handle]](std::stoi(caseInfo[api]), std::stoi(caseInfo[code]), data.GetCode());
         } else {
-            HILOG_INFO("FifthEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
+            APP_LOGI("FifthEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }
 }
 
 void FifthAbility::TestWantParams(int apiIndex, int caseIndex, int code)
 {
-    HILOG_INFO("FifthAbility::TestWantParams");
+    APP_LOGI("FifthAbility::TestWantParams");
     if (mapCase_.find(apiIndex) != mapCase_.end()) {
         if (caseIndex < (int)mapCase_[apiIndex].size()) {
             mapCase_[apiIndex][caseIndex](code);
@@ -151,7 +151,7 @@ void FifthAbility::TestWantParams(int apiIndex, int caseIndex, int code)
 // set string param
 void FifthAbility::WantParamsSetParamCase1(int code)
 {
-    HILOG_INFO("WantParamsSetParamCase1");
+    APP_LOGI("WantParamsSetParamCase1");
     std::string key = "key";
     std::string value = "value";
     WantParams wParams;

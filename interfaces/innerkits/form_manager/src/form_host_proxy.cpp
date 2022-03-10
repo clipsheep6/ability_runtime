@@ -31,11 +31,11 @@ void FormHostProxy::OnAcquired(const FormJsInfo &formInfo)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
     }
 
     if (!data.WriteParcelable(&formInfo)) {
-        HILOG_ERROR("%{public}s, failed to write formInfo", __func__);
+        APP_LOGE("%{public}s, failed to write formInfo", __func__);
     }
 
     error = Remote()->SendRequest(
@@ -44,7 +44,7 @@ void FormHostProxy::OnAcquired(const FormJsInfo &formInfo)
         reply,
         option);
     if (error != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d", __func__, error);
+        APP_LOGE("%{public}s, failed to SendRequest: %{public}d", __func__, error);
     }
 }
 
@@ -61,16 +61,16 @@ void FormHostProxy::OnUpdate(const FormJsInfo &formInfo)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
     }
 
     if (!data.WriteParcelable(&formInfo)) {
-        HILOG_ERROR("%{public}s, failed to write formInfo", __func__);
+        APP_LOGE("%{public}s, failed to write formInfo", __func__);
     }
 
     error = Remote()->SendRequest(static_cast<uint32_t>(IFormHost::Message::FORM_HOST_ON_UPDATE), data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d", __func__, error);
+        APP_LOGE("%{public}s, failed to SendRequest: %{public}d", __func__, error);
     }
 }
 
@@ -87,11 +87,11 @@ void  FormHostProxy::OnUninstall(const std::vector<int64_t> &formIds)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
     }
 
     if (!data.WriteInt64Vector(formIds)) {
-        HILOG_ERROR("%{public}s, failed to write formIds", __func__);
+        APP_LOGE("%{public}s, failed to write formIds", __func__);
     }
 
     error = Remote()->SendRequest(
@@ -100,7 +100,7 @@ void  FormHostProxy::OnUninstall(const std::vector<int64_t> &formIds)
         reply,
         option);
     if (error != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d", __func__, error);
+        APP_LOGE("%{public}s, failed to SendRequest: %{public}d", __func__, error);
     }
 }
 
@@ -111,19 +111,19 @@ int  FormHostProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &par
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {
-            HILOG_ERROR("%{public}s, failed to read Parcelable infos", __func__);
+            APP_LOGE("%{public}s, failed to read Parcelable infos", __func__);
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
         parcelableInfos.emplace_back(*info);
     }
-    HILOG_INFO("%{public}s, get parcelable infos success", __func__);
+    APP_LOGI("%{public}s, get parcelable infos success", __func__);
     return ERR_OK;
 }
 
 bool  FormHostProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(FormHostProxy::GetDescriptor())) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
         return false;
     }
     return true;
