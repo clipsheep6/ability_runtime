@@ -322,8 +322,10 @@ bool JsRuntime::Initialize(const Options& options)
         HILOG_ERROR("Failed to create reference for global.requireNapi");
         return false;
     }
+    if (options.loadAce) {
+        OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+    }
 
-    OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
     codePath_ = options.codePath;
 
     auto moduleManager = NativeModuleManager::GetInstance();

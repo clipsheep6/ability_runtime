@@ -52,11 +52,10 @@ JsTestRunner::JsTestRunner(
     }
 
     std::string srcPath;
+    srcPath.append(prefix);
     if (bundleInfo.hapModuleInfos.back().isModuleJson) {
-        srcPath.append(prefix);
         srcPath.append("/ets/TestRunner/");
     } else {
-        srcPath.append(args->GetTestBundleName());
         srcPath.append("/assets/js/TestRunner/");
     }
     srcPath.append(testRunnerName);
