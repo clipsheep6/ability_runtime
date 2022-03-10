@@ -15,7 +15,7 @@
 
 #include "ability_ability.h"
 #include "ability_start_setting.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "test_utils.h"
 
 namespace OHOS {
@@ -26,7 +26,7 @@ void AbilityAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AbilityAbility::Init called.");
+    APP_LOGI("AbilityAbility::Init called.");
     BaseAbility::Init(abilityInfo, application, handler, token);
 
     SubscribeEvent();
@@ -72,12 +72,12 @@ bool AbilityAbility::SubscribeEvent()
 
 void AbilityAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("AbilityAbility::OnStart");
+    APP_LOGI("AbilityAbility::OnStart");
 
     sequenceNumber_ = GetNoFromWantInfo(want);
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s", sequenceNumber_.c_str());
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s", sequenceNumber_.c_str());
     want_ = want;
-    HILOG_INFO("AbilityAbility::OnStart");
+    APP_LOGI("AbilityAbility::OnStart");
     BaseAbility::OnStart(want);
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnStart");
 
@@ -86,7 +86,7 @@ void AbilityAbility::OnStart(const Want &want)
 
 void AbilityAbility::OnStop()
 {
-    HILOG_INFO("AbilityAbility::OnStop");
+    APP_LOGI("AbilityAbility::OnStop");
 
     BaseAbility::OnStop();
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INITIAL, "OnStop");
@@ -96,7 +96,7 @@ void AbilityAbility::OnStop()
 
 void AbilityAbility::OnActive()
 {
-    HILOG_INFO("AbilityAbility::OnActive");
+    APP_LOGI("AbilityAbility::OnActive");
 
     BaseAbility::OnActive();
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnActive");
@@ -106,7 +106,7 @@ void AbilityAbility::OnActive()
 
 void AbilityAbility::OnInactive()
 {
-    HILOG_INFO("AbilityAbility::OnInactive");
+    APP_LOGI("AbilityAbility::OnInactive");
 
     BaseAbility::OnInactive();
     TestUtils::PublishEvent(
@@ -117,7 +117,7 @@ void AbilityAbility::OnInactive()
 
 void AbilityAbility::OnBackground()
 {
-    HILOG_INFO("AbilityAbility::OnBackground");
+    APP_LOGI("AbilityAbility::OnBackground");
 
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
@@ -128,7 +128,7 @@ void AbilityAbility::OnBackground()
 
 void AbilityAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("AbilityAbility::OnForeground");
+    APP_LOGI("AbilityAbility::OnForeground");
 
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
@@ -139,7 +139,7 @@ void AbilityAbility::OnForeground(const Want &want)
 
 void AbilityAbility::OnCommand(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("AbilityAbility::OnCommand");
+    APP_LOGI("AbilityAbility::OnCommand");
 
     BaseAbility::OnCommand(want, restart, startId);
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnCommand");
@@ -149,7 +149,7 @@ void AbilityAbility::OnCommand(const Want &want, bool restart, int startId)
 
 sptr<IRemoteObject> AbilityAbility::OnConnect(const Want &want)
 {
-    HILOG_INFO("AbilityAbility::OnConnect");
+    APP_LOGI("AbilityAbility::OnConnect");
 
     sptr<IRemoteObject> ret = BaseAbility::OnConnect(want);
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnConnect");
@@ -161,7 +161,7 @@ sptr<IRemoteObject> AbilityAbility::OnConnect(const Want &want)
 
 void AbilityAbility::OnDisconnect(const Want &want)
 {
-    HILOG_INFO("AbilityAbility::OnDisconnect");
+    APP_LOGI("AbilityAbility::OnDisconnect");
 
     BaseAbility::OnDisconnect(want);
     TestUtils::PublishEvent(
@@ -172,7 +172,7 @@ void AbilityAbility::OnDisconnect(const Want &want)
 
 void AbilityAbility::OnNewWant(const Want &want)
 {
-    HILOG_INFO("AbilityAbility::OnNewWant");
+    APP_LOGI("AbilityAbility::OnNewWant");
 
     BaseAbility::OnNewWant(want);
     TestUtils::PublishEvent(
@@ -183,7 +183,7 @@ void AbilityAbility::OnNewWant(const Want &want)
 
 void AbilityAbility::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("AbilityAbility::OnNewWant");
+    APP_LOGI("AbilityAbility::OnNewWant");
 
     BaseAbility::OnAbilityResult(requestCode, resultCode, resultData);
     TestUtils::PublishEvent(APP_ABILITY_RESP_EVENT_NAME, requestCode, "OnAbilityResult");
@@ -198,7 +198,7 @@ void AbilityAbility::StopSelfAbility()
 
 void AbilityAbility::TestConnectAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -252,7 +252,7 @@ void AbilityAbility::TestConnectAbility()
 
 void AbilityAbility::TestStopAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -357,7 +357,7 @@ void AbilityAbility::TestDisconnectAbility()
 
 void AbilityAbility::TestStartAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -408,7 +408,7 @@ void AbilityAbility::TestStartAbility()
 
 void AbilityAbility::TestTerminateAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -558,7 +558,7 @@ void AbilityAbility::TestStartAbilityForResult()
 
 void AbilityAbility::TestAbilityStartAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -609,7 +609,7 @@ void AbilityAbility::TestAbilityStartAbility()
 
 void AbilityAbility::TestAbilityConnectAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -667,7 +667,7 @@ void AbilityAbility::TestAbilityConnectAbility()
 
 void AbilityAbility::TestAbilityStopAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -719,7 +719,7 @@ void AbilityAbility::TestAbilityStopAbility()
 
 void AbilityAbility::TestAbilityGetLifecycle()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -790,7 +790,7 @@ void AbilityAbility::caseIndexTwo()
 
 void AbilityAbility::TestAbilityDisconnectAbility()
 {
-    HILOG_INFO("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
+    APP_LOGI("AbilityAbility::OnStart sequenceNumber_ = %{public}s  %{public}d",
         sequenceNumber_.c_str(),
         std::stoi(AbilityAbility::sequenceNumber_));
 
@@ -844,9 +844,9 @@ void AbilityAbility::TestAbilityDisconnectAbility()
 
 void AbilityAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO("AbilityAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("AbilityAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("AbilityAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("AbilityAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("AbilityAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("AbilityAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
 
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), APP_ABILITY_REQ_EVENT_NAME.c_str()) == 0) {
@@ -855,7 +855,7 @@ void AbilityAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
         if (func != mapTestFunc_.end()) {
             func->second();
         } else {
-            HILOG_INFO(
+            APP_LOGI(
                 "AbilityAbilityEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }

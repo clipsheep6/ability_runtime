@@ -14,7 +14,7 @@
  */
 
 #include "form_st_service_ability_C.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "common_event.h"
 #include "common_event_manager.h"
 #include "form_provider_client.h"
@@ -42,7 +42,7 @@ FormStServiceAbilityC::~FormStServiceAbilityC()
 
 std::vector<std::string> FormStServiceAbilityC::Split(std::string str, const std::string &token)
 {
-    HILOG_INFO("FormStServiceAbilityC::Split");
+    APP_LOGI("FormStServiceAbilityC::Split");
 
     std::vector<std::string> splitString;
     while (str.size()) {
@@ -62,10 +62,10 @@ std::vector<std::string> FormStServiceAbilityC::Split(std::string str, const std
 }
 void FormStServiceAbilityC::StartOtherAbility()
 {
-    HILOG_INFO("FormStServiceAbilityC::StartOtherAbility begin targetBundle=%{public}s, targetAbility=%{public}s",
+    APP_LOGI("FormStServiceAbilityC::StartOtherAbility begin targetBundle=%{public}s, targetAbility=%{public}s",
         targetBundle_.c_str(),
         targetAbility_.c_str());
-    HILOG_INFO("FormStServiceAbilityC::StartOtherAbility begin nextTargetBundleConn=%{public}s, "
+    APP_LOGI("FormStServiceAbilityC::StartOtherAbility begin nextTargetBundleConn=%{public}s, "
              "nextTargetAbilityConn=%{public}s",
         nextTargetBundleConn_.c_str(),
         nextTargetAbilityConn_.c_str());
@@ -88,11 +88,11 @@ void FormStServiceAbilityC::StartOtherAbility()
 }
 void FormStServiceAbilityC::ConnectOtherAbility()
 {
-    HILOG_INFO(
+    APP_LOGI(
         "FormStServiceAbilityC::ConnectOtherAbility begin targetBundleConn=%{public}s, targetAbilityConn=%{public}s",
         targetBundleConn_.c_str(),
         targetAbilityConn_.c_str());
-    HILOG_INFO("FormStServiceAbilityC::ConnectOtherAbility begin nextTargetBundleConn=%{public}s, "
+    APP_LOGI("FormStServiceAbilityC::ConnectOtherAbility begin nextTargetBundleConn=%{public}s, "
              "nextTargetAbilityConn=%{public}s",
         nextTargetBundleConn_.c_str(),
         nextTargetAbilityConn_.c_str());
@@ -111,35 +111,35 @@ void FormStServiceAbilityC::ConnectOtherAbility()
             want.SetParam("targetAbilityConn", nextTargetAbilityConn_);
             stub_ = new (std::nothrow) AbilityConnectCallback();
             connCallback_ = new (std::nothrow) AbilityConnectionProxy(stub_);
-            HILOG_INFO("FormStServiceAbilityC::ConnectOtherAbility->ConnectAbility");
+            APP_LOGI("FormStServiceAbilityC::ConnectOtherAbility->ConnectAbility");
             bool ret = ConnectAbility(want, connCallback_);
             sleep(1);
             if (!ret) {
-                HILOG_ERROR("FormStServiceAbilityC::ConnectAbility failed!");
+                APP_LOGE("FormStServiceAbilityC::ConnectAbility failed!");
             }
         }
     }
 }
 void FormStServiceAbilityC::DisConnectOtherAbility()
 {
-    HILOG_INFO("FormStServiceAbilityC::DisConnectOtherAbility begin");
+    APP_LOGI("FormStServiceAbilityC::DisConnectOtherAbility begin");
     if (connCallback_ != nullptr) {
         DisconnectAbility(connCallback_);
         sleep(1);
     }
-    HILOG_INFO("FormStServiceAbilityC::DisConnectOtherAbility end");
+    APP_LOGI("FormStServiceAbilityC::DisConnectOtherAbility end");
 }
 
 void FormStServiceAbilityC::StopSelfAbility()
 {
-    HILOG_INFO("FormStServiceAbilityC::StopSelfAbility");
+    APP_LOGI("FormStServiceAbilityC::StopSelfAbility");
 
     TerminateAbility();
 }
 
 void FormStServiceAbilityC::OnStart(const Want &want)
 {
-    HILOG_INFO("FormStServiceAbilityC::OnStart");
+    APP_LOGI("FormStServiceAbilityC::OnStart");
 
     GetWantInfo(want);
     Ability::OnStart(want);
@@ -154,7 +154,7 @@ void FormStServiceAbilityC::OnStart(const Want &want)
 }
 void FormStServiceAbilityC::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    HILOG_INFO("FormStServiceAbilityC::OnCommand");
+    APP_LOGI("FormStServiceAbilityC::OnCommand");
 
     GetWantInfo(want);
     Ability::OnCommand(want, restart, startId);
@@ -162,35 +162,35 @@ void FormStServiceAbilityC::OnCommand(const AAFwk::Want &want, bool restart, int
 }
 void FormStServiceAbilityC::OnNewWant(const Want &want)
 {
-    HILOG_INFO("FormStServiceAbilityC::OnNewWant");
+    APP_LOGI("FormStServiceAbilityC::OnNewWant");
 
     GetWantInfo(want);
     Ability::OnNewWant(want);
 }
 void FormStServiceAbilityC::OnStop()
 {
-    HILOG_INFO("FormStServiceAbilityC::OnStop");
+    APP_LOGI("FormStServiceAbilityC::OnStop");
 
     Ability::OnStop();
     PublishEvent(APP_A_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INITIAL, "OnStop");
 }
 void FormStServiceAbilityC::OnActive()
 {
-    HILOG_INFO("FormStServiceAbilityC::OnActive");
+    APP_LOGI("FormStServiceAbilityC::OnActive");
 
     Ability::OnActive();
     PublishEvent(APP_A_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnActive");
 }
 void FormStServiceAbilityC::OnInactive()
 {
-    HILOG_INFO("FormStServiceAbilityC::OnInactive");
+    APP_LOGI("FormStServiceAbilityC::OnInactive");
 
     Ability::OnInactive();
     PublishEvent(APP_A_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnInactive");
 }
 void FormStServiceAbilityC::OnBackground()
 {
-    HILOG_INFO("FormStServiceAbilityC::OnBackground");
+    APP_LOGI("FormStServiceAbilityC::OnBackground");
 
     Ability::OnBackground();
     PublishEvent(APP_A_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, "OnBackground");
@@ -225,7 +225,7 @@ void FormStServiceAbilityC::GetWantInfo(const Want &want)
 }
 bool FormStServiceAbilityC::PublishEvent(const std::string &eventName, const int &code, const std::string &data)
 {
-    HILOG_INFO("FormStServiceAbilityC::PublishEvent eventName = %{public}s, code = %{public}d, data = %{public}s",
+    APP_LOGI("FormStServiceAbilityC::PublishEvent eventName = %{public}s, code = %{public}d, data = %{public}s",
         eventName.c_str(),
         code,
         data.c_str());
@@ -240,7 +240,7 @@ bool FormStServiceAbilityC::PublishEvent(const std::string &eventName, const int
 }
 sptr<IRemoteObject> FormStServiceAbilityC::OnConnect(const Want &want)
 {
-    HILOG_INFO("FormStServiceAbilityC::OnConnect");
+    APP_LOGI("FormStServiceAbilityC::OnConnect");
 
     sptr<FormProviderClient> formProviderClient = new (std::nothrow) FormProviderClient();
     std::shared_ptr<Ability> thisAbility = this->shared_from_this();
@@ -250,7 +250,7 @@ sptr<IRemoteObject> FormStServiceAbilityC::OnConnect(const Want &want)
 }
 void FormStServiceAbilityC::OnDisconnect(const Want &want)
 {
-    HILOG_INFO("FormStServiceAbilityC::OnDisconnect");
+    APP_LOGI("FormStServiceAbilityC::OnDisconnect");
 
     Ability::OnDisconnect(want);
     PublishEvent(APP_A_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, "OnDisconnect");
@@ -269,13 +269,13 @@ void FormStServiceAbilityC::AppEventSubscriber::OnReceiveEvent(const CommonEvent
 {
     auto eventName = data.GetWant().GetAction();
     auto dataContent = data.GetData();
-    HILOG_INFO("FormStServiceAbilityC::OnReceiveEvent eventName = %{public}s, code = %{public}d, data = %{public}s",
+    APP_LOGI("FormStServiceAbilityC::OnReceiveEvent eventName = %{public}s, code = %{public}d, data = %{public}s",
         eventName.c_str(),
         data.GetCode(),
         dataContent.c_str());
     if (APP_A_REQ_EVENT_NAME.compare(eventName) == 0) {
         if (funcMap_.find(dataContent) == funcMap_.end()) {
-            HILOG_INFO(
+            APP_LOGI(
                 "FormStServiceAbilityC::OnReceiveEvent eventName = %{public}s, code = %{public}d, data = %{public}s",
                 eventName.c_str(),
                 data.GetCode(),
@@ -290,10 +290,10 @@ void FormStServiceAbilityC::AppEventSubscriber::OnReceiveEvent(const CommonEvent
 
 FormProviderInfo FormStServiceAbilityC::OnCreate(const Want &want)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
     FormProviderInfo formProviderInfo;
     if (!want.HasParameter(Constants::PARAM_FORM_IDENTITY_KEY)) {
-        HILOG_ERROR("%{public}s, formId not exist", __func__);
+        APP_LOGE("%{public}s, formId not exist", __func__);
         return formProviderInfo;
     }
     std::string formId = want.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY);
@@ -301,51 +301,51 @@ FormProviderInfo FormStServiceAbilityC::OnCreate(const Want &want)
     FormProviderData formProviderData = FormProviderData(jsonData);
     formProviderInfo.SetFormData(formProviderData);
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnCreate");
-    HILOG_INFO("%{public}s end, formId: %{public}s", __func__, formId.c_str());
+    APP_LOGI("%{public}s end, formId: %{public}s", __func__, formId.c_str());
     return formProviderInfo;
 }
 
 void FormStServiceAbilityC::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
 
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnUpdate");
-    HILOG_INFO("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
+    APP_LOGI("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
         std::to_string(formId).c_str(), currentTime);
 }
 
 void FormStServiceAbilityC::OnTriggerEvent(const int64_t formId, const std::string &message)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
 
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
 
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnTriggerEvent");
-    HILOG_INFO("%{public}s end, formId: %{public}s, message: %{public}s, current time: %{public}ld", __func__,
+    APP_LOGI("%{public}s end, formId: %{public}s, message: %{public}s, current time: %{public}ld", __func__,
         std::to_string(formId).c_str(), message.c_str(), currentTime);
 }
 
 void FormStServiceAbilityC::OnDelete(const int64_t formId)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
 
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
 
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnDelete");
-    HILOG_INFO("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
+    APP_LOGI("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
         std::to_string(formId).c_str(), currentTime);
 }
 
 void FormStServiceAbilityC::OnCastTemptoNormal(const int64_t formId)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
 
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -353,13 +353,13 @@ void FormStServiceAbilityC::OnCastTemptoNormal(const int64_t formId)
 
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK,
         "OnCastTemptoNormal");
-    HILOG_INFO("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
+    APP_LOGI("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
         std::to_string(formId).c_str(), currentTime);
 }
 
 void FormStServiceAbilityC::OnVisibilityChanged(const std::map<int64_t, int32_t> &formEventsMap)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
 
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -367,7 +367,7 @@ void FormStServiceAbilityC::OnVisibilityChanged(const std::map<int64_t, int32_t>
 
     PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK,
         "OnVisibilityChanged");
-    HILOG_INFO("%{public}s end, current time: %{public}ld", __func__, currentTime);
+    APP_LOGI("%{public}s end, current time: %{public}ld", __func__, currentTime);
 }
 
 REGISTER_AA(FormStServiceAbilityC);

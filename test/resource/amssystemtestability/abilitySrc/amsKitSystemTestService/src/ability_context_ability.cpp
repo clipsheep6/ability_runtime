@@ -14,7 +14,7 @@
  */
 
 #include "ability_context_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "base_ability.h"
 #include "test_utils.h"
 
@@ -34,7 +34,7 @@ void AbilityContextAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AbilityContextAbility::Init called.");
+    APP_LOGI("AbilityContextAbility::Init called.");
     BaseAbility::Init(abilityInfo, application, handler, token);
 
     SubscribeEvent();
@@ -55,7 +55,7 @@ void AbilityContextAbility::OnStart(const Want &want)
 {
     want_ = want;
     sequenceNumber_ = std::stoi(GetNoFromWantInfo(want));
-    HILOG_INFO("AbilityContextAbility::OnStart");
+    APP_LOGI("AbilityContextAbility::OnStart");
 
     BaseAbility::OnStart(want);
     TestUtils::PublishEvent(
@@ -64,7 +64,7 @@ void AbilityContextAbility::OnStart(const Want &want)
 
 void AbilityContextAbility::OnStop()
 {
-    HILOG_INFO("AbilityContextAbility::OnStop");
+    APP_LOGI("AbilityContextAbility::OnStop");
     BaseAbility::OnStop();
     TestUtils::PublishEvent(
         APP_ABILITY_CONTEXT_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INITIAL, "OnStop");
@@ -72,7 +72,7 @@ void AbilityContextAbility::OnStop()
 
 void AbilityContextAbility::OnActive()
 {
-    HILOG_INFO("AbilityContextAbility::OnActive");
+    APP_LOGI("AbilityContextAbility::OnActive");
     BaseAbility::OnActive();
     TestUtils::PublishEvent(
         APP_ABILITY_CONTEXT_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::ACTIVE, "OnActive");
@@ -80,7 +80,7 @@ void AbilityContextAbility::OnActive()
 
 void AbilityContextAbility::OnInactive()
 {
-    HILOG_INFO("AbilityContextAbility::OnInactive");
+    APP_LOGI("AbilityContextAbility::OnInactive");
     BaseAbility::OnInactive();
     TestUtils::PublishEvent(
         APP_ABILITY_CONTEXT_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnInactive");
@@ -88,7 +88,7 @@ void AbilityContextAbility::OnInactive()
 
 void AbilityContextAbility::OnBackground()
 {
-    HILOG_INFO("AbilityContextAbility::OnBackground");
+    APP_LOGI("AbilityContextAbility::OnBackground");
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
         APP_ABILITY_CONTEXT_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, "OnBackground");
@@ -96,7 +96,7 @@ void AbilityContextAbility::OnBackground()
 
 void AbilityContextAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("AbilityContextAbility::OnForeground");
+    APP_LOGI("AbilityContextAbility::OnForeground");
     BaseAbility::OnBackground();
     TestUtils::PublishEvent(
         APP_ABILITY_CONTEXT_RESP_EVENT_NAME, AbilityLifecycleExecutor::LifecycleState::INACTIVE, "OnForeground");
@@ -104,7 +104,7 @@ void AbilityContextAbility::OnForeground(const Want &want)
 
 void AbilityContextAbility::OnCommand(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("AbilityContextAbility::OnCommand");
+    APP_LOGI("AbilityContextAbility::OnCommand");
 
     BaseAbility::OnCommand(want, restart, startId);
     TestUtils::PublishEvent(
@@ -113,7 +113,7 @@ void AbilityContextAbility::OnCommand(const Want &want, bool restart, int startI
 
 sptr<IRemoteObject> AbilityContextAbility::OnConnect(const Want &want)
 {
-    HILOG_INFO("AbilityContextAbility::OnConnect");
+    APP_LOGI("AbilityContextAbility::OnConnect");
 
     sptr<IRemoteObject> ret = BaseAbility::OnConnect(want);
     TestUtils::PublishEvent(
@@ -123,7 +123,7 @@ sptr<IRemoteObject> AbilityContextAbility::OnConnect(const Want &want)
 
 void AbilityContextAbility::OnDisconnect(const Want &want)
 {
-    HILOG_INFO("AbilityContextAbility::OnDisconnect");
+    APP_LOGI("AbilityContextAbility::OnDisconnect");
 
     BaseAbility::OnDisconnect(want);
     TestUtils::PublishEvent(
@@ -412,10 +412,10 @@ void AbilityContextAbility::TestTerminateAbility()
 
 void AbilityContextAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO(
+    APP_LOGI(
         "AbilityContextAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("AbilityContextAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("AbilityContextAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("AbilityContextAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("AbilityContextAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
 
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), APP_ABILITY_CONTEXT_REQ_EVENT_NAME.c_str()) == 0) {
@@ -424,7 +424,7 @@ void AbilityContextAbilityEventSubscriber::OnReceiveEvent(const CommonEventData 
         if (func != mapTestFunc_.end()) {
             func->second();
         } else {
-            HILOG_INFO("AbilityContextAbilityEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)",
+            APP_LOGI("AbilityContextAbilityEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)",
                 target.c_str());
         }
     }

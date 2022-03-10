@@ -14,7 +14,7 @@
  */
 
 #include "main_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "test_utils.h"
 
 namespace OHOS {
@@ -31,13 +31,13 @@ void MainAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("MainAbility::Init");
+    APP_LOGI("MainAbility::Init");
     Ability::Init(abilityInfo, application, handler, token);
 }
 
 void MainAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("MainAbility::onStart");
+    APP_LOGI("MainAbility::onStart");
     SubscribeEvent();
     Ability::OnStart(want);
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "onStart");
@@ -45,7 +45,7 @@ void MainAbility::OnStart(const Want &want)
 
 void MainAbility::OnStop()
 {
-    HILOG_INFO("MainAbility::OnStop");
+    APP_LOGI("MainAbility::OnStop");
     Ability::OnStop();
     CommonEventManager::UnSubscribeCommonEvent(subscriber_);
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "OnStop");
@@ -53,28 +53,28 @@ void MainAbility::OnStop()
 
 void MainAbility::OnActive()
 {
-    HILOG_INFO("MainAbility::OnActive");
+    APP_LOGI("MainAbility::OnActive");
     Ability::OnActive();
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "OnActive");
 }
 
 void MainAbility::OnInactive()
 {
-    HILOG_INFO("MainAbility::OnInactive");
+    APP_LOGI("MainAbility::OnInactive");
     Ability::OnInactive();
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "OnInactive");
 }
 
 void MainAbility::OnBackground()
 {
-    HILOG_INFO("MainAbility::OnBackground");
+    APP_LOGI("MainAbility::OnBackground");
     Ability::OnBackground();
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "OnBackground");
 }
 
 void MainAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("MainAbility::OnForeground");
+    APP_LOGI("MainAbility::OnForeground");
     Ability::OnForeground(want);
     TestUtils::PublishEvent(g_EVENT_RESP_FIRSTB_LIFECYCLE, MAIN_ABILITY_B_CODE, "OnForeground");
 }
@@ -102,9 +102,9 @@ void MainAbility::SubscribeEvent()
 
 void FirstEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO("FirstEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("FirstEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("FirstEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("FirstEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("FirstEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("FirstEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), g_EVENT_REQU_FIRSTB.c_str()) == 0) {
         auto target = data.GetData();
@@ -115,14 +115,14 @@ void FirstEventSubscriber::OnReceiveEvent(const CommonEventData &data)
         if (mapTestFunc_.find(caseInfo[numZero]) != mapTestFunc_.end()) {
             mapTestFunc_[caseInfo[numZero]](std::stoi(caseInfo[numOne]), std::stoi(caseInfo[numTwo]), data.GetCode());
         } else {
-            HILOG_INFO("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
+            APP_LOGI("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }
 }
 
 void MainAbility::TestAbility(int apiIndex, int caseIndex, int code)
 {
-    HILOG_INFO("MainAbility::TestAbility");
+    APP_LOGI("MainAbility::TestAbility");
     if (mapCase_.find(apiIndex) != mapCase_.end()) {
         if (caseIndex < (int)mapCase_[apiIndex].size()) {
             mapCase_[apiIndex][caseIndex](code);

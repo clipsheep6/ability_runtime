@@ -21,7 +21,7 @@
 #include "semaphore_ex.h"
 #include "app_scheduler_interface.h"
 #include "app_mgr_stub.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -227,31 +227,31 @@ public:
 
     bool IsAttached()
     {
-        HILOG_INFO("MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
+        APP_LOGI("MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
         return Attached_;
     }
 
     bool IsForegrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
+        APP_LOGI("MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
         return Foregrounded_;
     }
 
     bool IsBackgrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
+        APP_LOGI("MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
         return Backgrounded_;
     }
 
     bool IsTerminated()
     {
-        HILOG_INFO("MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
+        APP_LOGI("MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
         return Terminated_;
     }
 
     void init()
     {
-        HILOG_INFO("MockAppMgrService::init called");
+        APP_LOGI("MockAppMgrService::init called");
         Attached_ = false;
     }
 

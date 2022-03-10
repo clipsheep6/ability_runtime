@@ -32,32 +32,32 @@ FwkAbilityStateSecond::~FwkAbilityStateSecond()
 void FwkAbilityStateSecond::OnStart(const Want &want)
 {
     SubscribeEvent();
-    HILOG_INFO("FwkAbilityStateSecond::onStart");
+    APP_LOGI("FwkAbilityStateSecond::onStart");
     Ability::OnStart(want);
     callback_seq += "OnStart";
 }
 
 void FwkAbilityStateSecond::OnForeground(const Want &want)
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnForeground");
+    APP_LOGI("FwkAbilityStateSecond::OnForeground");
     Ability::OnForeground(want);
 }
 
 void FwkAbilityStateSecond::OnNewWant(const Want &want)
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnNewWant");
+    APP_LOGI("FwkAbilityStateSecond::OnNewWant");
     Ability::OnNewWant(want);
 }
 
 void FwkAbilityStateSecond::OnStop()
 {
-    HILOG_INFO("FwkAbilityStateSecond::onStop");
+    APP_LOGI("FwkAbilityStateSecond::onStop");
     Ability::OnStop();
 }
 
 void FwkAbilityStateSecond::OnActive()
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnActive");
+    APP_LOGI("FwkAbilityStateSecond::OnActive");
     Ability::OnActive();
     callback_seq += "OnActive";
     TestUtils::PublishEvent(FwkAbilityState_Event_Resp_B, OnActiveCode, callback_seq);
@@ -66,25 +66,25 @@ void FwkAbilityStateSecond::OnActive()
 
 void FwkAbilityStateSecond::OnInactive()
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnInactive");
+    APP_LOGI("FwkAbilityStateSecond::OnInactive");
     Ability::OnInactive();
 }
 
 void FwkAbilityStateSecond::OnBackground()
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnBackground");
+    APP_LOGI("FwkAbilityStateSecond::OnBackground");
     Ability::OnBackground();
 }
 
 void FwkAbilityStateSecond::OnSaveAbilityState(PacMap &outState)
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnSaveAbilityState");
+    APP_LOGI("FwkAbilityStateSecond::OnSaveAbilityState");
     Ability::OnSaveAbilityState(outState);
 }
 
 void FwkAbilityStateSecond::OnRestoreAbilityState(const PacMap &inState)
 {
-    HILOG_INFO("FwkAbilityStateSecond::OnRestoreAbilityState");
+    APP_LOGI("FwkAbilityStateSecond::OnRestoreAbilityState");
     Ability::OnRestoreAbilityState(inState);
 }
 
@@ -113,7 +113,7 @@ void FwkAbilityStateSecondSubscriber::OnReceiveEvent(const CommonEventData &data
         if (mapAction_.find(target) != mapAction_.end()) {
             mapAction_[target](target, data.GetCode());
         } else {
-            HILOG_INFO("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
+            APP_LOGI("OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }
 }

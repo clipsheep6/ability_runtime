@@ -15,7 +15,7 @@
 
 #include "ability_controller_stub.h"
 #include "appexecfwk_errors.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
@@ -39,11 +39,11 @@ AbilityControllerStub::~AbilityControllerStub()
 int AbilityControllerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("AbilityControllerStub::OnReceived, code = %{public}d, flags= %{public}d.", code, option.GetFlags());
+    APP_LOGI("AbilityControllerStub::OnReceived, code = %{public}d, flags= %{public}d.", code, option.GetFlags());
     std::u16string descriptor = AbilityControllerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        APP_LOGE("local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -69,10 +69,10 @@ bool AbilityControllerStub::AllowAbilityBackground(const std::string &bundleName
 
 int32_t AbilityControllerStub::HandleAllowAbilityStart(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("HandleAllowAbilityStart");
+    APP_LOGI("HandleAllowAbilityStart");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (!want) {
-        HILOG_ERROR("ReadParcelable<Want> failed");
+        APP_LOGE("ReadParcelable<Want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     std::string pkg = data.ReadString();
@@ -83,7 +83,7 @@ int32_t AbilityControllerStub::HandleAllowAbilityStart(MessageParcel &data, Mess
 
 int32_t AbilityControllerStub::HandleAllowAbilityBackground(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("HandleAllowAbilityBackground");
+    APP_LOGI("HandleAllowAbilityBackground");
     std::string pkg = data.ReadString();
     bool ret = AllowAbilityBackground(pkg);
     reply.WriteBool(ret);

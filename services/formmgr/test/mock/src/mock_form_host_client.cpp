@@ -15,8 +15,8 @@
 #include "mock_form_host_client.h"
 #include <gtest/gtest.h>
 #include "appexecfwk_errors.h"
+#include "app_log_wrapper.h"
 #include "errors.h"
-#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -29,7 +29,7 @@ namespace AppExecFwk {
  */
 void MockFormHostClient::OnAcquired(const FormJsInfo &formInfo)
 {
-    HILOG_DEBUG("MockFormHostClient OnAcquired");
+    APP_LOGD("MockFormHostClient OnAcquired");
 
     int64_t formId = formInfo.formId;
     ASSERT_FALSE(formId == 0);
@@ -44,7 +44,7 @@ void MockFormHostClient::OnAcquired(const FormJsInfo &formInfo)
 */
 void MockFormHostClient::OnUpdate(const FormJsInfo &formInfo)
 {
-    HILOG_DEBUG("MockFormHostClient OnUpdate");
+    APP_LOGD("MockFormHostClient OnUpdate");
     PostVoid();
 }
 
@@ -56,7 +56,7 @@ void MockFormHostClient::OnUpdate(const FormJsInfo &formInfo)
  */
 void  MockFormHostClient::OnUninstall(const std::vector<int64_t> &formIds)
 {
-    HILOG_DEBUG("MockFormHostClient OnUnInstall");
+    APP_LOGD("MockFormHostClient OnUnInstall");
     PostVoid();
 }
 }  // namespace AppExecFwk

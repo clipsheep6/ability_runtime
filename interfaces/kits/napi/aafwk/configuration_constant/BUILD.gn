@@ -14,17 +14,14 @@
 import("//build/ohos.gni")
 
 ohos_shared_library("configurationconstant_napi") {
-  include_dirs = []
+  include_dirs =
+      [ "//base/global/resmgr_standard/interfaces/innerkits/include" ]
 
   sources = [ "configuration_constant_module.cpp" ]
 
-  deps = []
+  deps = [ "//utils/native/base:utils" ]
 
-  external_deps = [
-    "napi:ace_napi",
-    "resmgr_standard:global_resmgr",
-    "utils_base:utils",
-  ]
+  external_deps = [ "napi:ace_napi" ]
 
   relative_install_dir = "module/application"
   subsystem_name = "aafwk"

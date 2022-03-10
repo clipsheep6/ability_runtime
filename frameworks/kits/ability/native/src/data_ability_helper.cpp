@@ -18,11 +18,11 @@
 #include "ability_scheduler_interface.h"
 #include "ability_thread.h"
 #include "abs_shared_result_set.h"
+#include "app_log_wrapper.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
-#include "hilog_wrapper.h"
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -34,38 +34,38 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
     const sptr<IAbilityScheduler> &dataAbilityProxy, bool tryBind)
 {
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper start");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper start");
     token_ = context->GetToken();
     context_ = std::weak_ptr<Context>(context);
     uri_ = uri;
     tryBind_ = tryBind;
     dataAbilityProxy_ = dataAbilityProxy;
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper end");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper end");
 }
 
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
     const std::shared_ptr<Uri> &uri, const sptr<IAbilityScheduler> &dataAbilityProxy, bool tryBind)
 {
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper start");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper start");
     token_ = context->GetToken();
     uri_ = uri;
     tryBind_ = tryBind;
     dataAbilityProxy_ = dataAbilityProxy;
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper end");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper end");
 }
 
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper only with context start");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper only with context start");
     token_ = context->GetToken();
     context_ = std::weak_ptr<Context>(context);
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper only with context end");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper only with context end");
 }
 
 DataAbilityHelper::DataAbilityHelper(const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri,
     const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy)
 {
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper start");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper start");
     token_ = token;
     uri_ = uri;
     tryBind_ = false;
@@ -74,22 +74,22 @@ DataAbilityHelper::DataAbilityHelper(const sptr<IRemoteObject> &token, const std
     if (isSystemCaller_ && dataAbilityProxy_) {
         AddDataAbilityDeathRecipient(dataAbilityProxy_->AsObject());
     }
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper end");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper end");
 }
 
 DataAbilityHelper::DataAbilityHelper(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper only with token_start");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper only with token_start");
     token_ = token;
     isSystemCaller_ = true;
-    HILOG_INFO("DataAbilityHelper::DataAbilityHelper only with token end");
+    APP_LOGI("DataAbilityHelper::DataAbilityHelper only with token end");
 }
 
 void DataAbilityHelper::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("DataAbilityHelper::AddDataAbilityDeathRecipient start.");
+    APP_LOGI("DataAbilityHelper::AddDataAbilityDeathRecipient start.");
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        HILOG_INFO("token RemoveDeathRecipient.");
+        APP_LOGI("token RemoveDeathRecipient.");
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
@@ -97,21 +97,21 @@ void DataAbilityHelper::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &
             new DataAbilityDeathRecipient(std::bind(&DataAbilityHelper::OnSchedulerDied, this, std::placeholders::_1));
     }
     if (token != nullptr) {
-        HILOG_INFO("token AddDeathRecipient.");
+        APP_LOGI("token AddDeathRecipient.");
         token->AddDeathRecipient(callerDeathRecipient_);
     }
-    HILOG_INFO("DataAbilityHelper::AddDataAbilityDeathRecipient end.");
+    APP_LOGI("DataAbilityHelper::AddDataAbilityDeathRecipient end.");
 }
 
 void DataAbilityHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("'%{public}s start':", __func__);
+    APP_LOGI("'%{public}s start':", __func__);
     std::lock_guard<std::mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
     dataAbilityProxy_ = nullptr;
     uri_ = nullptr;
-    HILOG_INFO("DataAbilityHelper::OnSchedulerDied end.");
+    APP_LOGI("DataAbilityHelper::OnSchedulerDied end.");
 }
 
 /**
@@ -123,19 +123,19 @@ void DataAbilityHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with context start.");
+    APP_LOGI("DataAbilityHelper::Creator with context start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
         return nullptr;
     }
 
     DataAbilityHelper *ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(context);
     if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context) failed, create DataAbilityHelper failed");
+        APP_LOGE("DataAbilityHelper::Creator (context) failed, create DataAbilityHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator with context end.");
+    APP_LOGI("DataAbilityHelper::Creator with context end.");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
@@ -150,7 +150,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with context uri called.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri called.");
     return DataAbilityHelper::Creator(context, uri, false);
 }
 
@@ -165,7 +165,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with context uri called.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri called.");
     return DataAbilityHelper::Creator(context, uri, false);
 }
 
@@ -184,41 +184,41 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with context uri tryBind called start.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri tryBind called start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
         return nullptr;
     }
 
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, uri == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, uri == nullptr");
         return nullptr;
     }
 
     if (uri->GetScheme() != SchemeOhos) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, the Scheme is not dataability, Scheme: "
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, the Scheme is not dataability, Scheme: "
                  "%{public}s",
             uri->GetScheme().c_str());
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator before AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator before AcquireDataAbility.");
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), tryBind, context->GetToken());
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator failed get dataAbilityProxy");
+        APP_LOGE("DataAbilityHelper::Creator failed get dataAbilityProxy");
         return nullptr;
     }
-    HILOG_INFO("DataAbilityHelper::Creator after AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator after AcquireDataAbility.");
 
     DataAbilityHelper *ptrDataAbilityHelper =
         new (std::nothrow) DataAbilityHelper(context, uri, dataAbilityProxy, tryBind);
     if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, create DataAbilityHelper failed");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, create DataAbilityHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator with context uri tryBind called end.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri tryBind called end.");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
@@ -237,41 +237,41 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with context uri tryBind called start.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri tryBind called start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, context == nullptr");
         return nullptr;
     }
 
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, uri == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, uri == nullptr");
         return nullptr;
     }
 
     if (uri->GetScheme() != SchemeOhos) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, the Scheme is not dataability, Scheme: "
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, the Scheme is not dataability, Scheme: "
                  "%{public}s",
             uri->GetScheme().c_str());
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator before AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator before AcquireDataAbility.");
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), tryBind, context->GetToken());
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator failed get dataAbilityProxy");
+        APP_LOGE("DataAbilityHelper::Creator failed get dataAbilityProxy");
         return nullptr;
     }
-    HILOG_INFO("DataAbilityHelper::Creator after AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator after AcquireDataAbility.");
 
     DataAbilityHelper *ptrDataAbilityHelper =
         new (std::nothrow) DataAbilityHelper(context, uri, dataAbilityProxy, tryBind);
     if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (context, uri, tryBind) failed, create DataAbilityHelper failed");
+        APP_LOGE("DataAbilityHelper::Creator (context, uri, tryBind) failed, create DataAbilityHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator with context uri tryBind called end.");
+    APP_LOGI("DataAbilityHelper::Creator with context uri tryBind called end.");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
@@ -284,19 +284,19 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with token start.");
+    APP_LOGI("DataAbilityHelper::Creator with token start.");
     if (token == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token) failed, token == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (token) failed, token == nullptr");
         return nullptr;
     }
 
     DataAbilityHelper *ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(token);
     if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token) failed, create DataAbilityHelper failed");
+        APP_LOGE("DataAbilityHelper::Creator (token) failed, create DataAbilityHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator with token end.");
+    APP_LOGI("DataAbilityHelper::Creator with token end.");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
@@ -313,40 +313,40 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("DataAbilityHelper::Creator with token uri called start.");
+    APP_LOGI("DataAbilityHelper::Creator with token uri called start.");
     if (token == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token, uri) failed, token == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (token, uri) failed, token == nullptr");
         return nullptr;
     }
 
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token, uri) failed, uri == nullptr");
+        APP_LOGE("DataAbilityHelper::Creator (token, uri) failed, uri == nullptr");
         return nullptr;
     }
 
     if (uri->GetScheme() != SchemeOhos) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token, uri) failed, the Scheme is not dataability, Scheme: "
+        APP_LOGE("DataAbilityHelper::Creator (token, uri) failed, the Scheme is not dataability, Scheme: "
                  "%{public}s",
             uri->GetScheme().c_str());
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator before AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator before AcquireDataAbility.");
     sptr<IAbilityScheduler> dataAbilityProxy =
         AbilityManagerClient::GetInstance()->AcquireDataAbility(*uri.get(), false, token);
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator failed get dataAbilityProxy");
+        APP_LOGE("DataAbilityHelper::Creator failed get dataAbilityProxy");
         return nullptr;
     }
-    HILOG_INFO("DataAbilityHelper::Creator after AcquireDataAbility.");
+    APP_LOGI("DataAbilityHelper::Creator after AcquireDataAbility.");
 
     DataAbilityHelper *ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(token, uri, dataAbilityProxy);
     if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Creator (token, uri) failed, create DataAbilityHelper failed");
+        APP_LOGE("DataAbilityHelper::Creator (token, uri) failed, create DataAbilityHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataAbilityHelper::Creator with token uri called end.");
+    APP_LOGI("DataAbilityHelper::Creator with token uri called end.");
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
@@ -358,24 +358,24 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  */
 bool DataAbilityHelper::Release()
 {
-    HILOG_INFO("DataAbilityHelper::Release start.");
+    APP_LOGI("DataAbilityHelper::Release start.");
     if (uri_ == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::Release failed, uri_ is nullptr");
+        APP_LOGE("DataAbilityHelper::Release failed, uri_ is nullptr");
         return false;
     }
 
-    HILOG_INFO("DataAbilityHelper::Release before ReleaseDataAbility.");
+    APP_LOGI("DataAbilityHelper::Release before ReleaseDataAbility.");
     int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy_, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("DataAbilityHelper::Release failed to ReleaseDataAbility err = %{public}d", err);
+        APP_LOGE("DataAbilityHelper::Release failed to ReleaseDataAbility err = %{public}d", err);
         return false;
     }
 
-    HILOG_INFO("DataAbilityHelper::Release after ReleaseDataAbility.");
+    APP_LOGI("DataAbilityHelper::Release after ReleaseDataAbility.");
     std::lock_guard<std::mutex> guard(lock_);
     dataAbilityProxy_ = nullptr;
     uri_.reset();
-    HILOG_INFO("DataAbilityHelper::Release end.");
+    APP_LOGI("DataAbilityHelper::Release end.");
     return true;
 }
 
@@ -389,20 +389,20 @@ bool DataAbilityHelper::Release()
  */
 std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
 {
-    HILOG_INFO("DataAbilityHelper::GetFileTypes start.");
+    APP_LOGI("DataAbilityHelper::GetFileTypes start.");
     std::vector<std::string> matchedMIMEs;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return matchedMIMEs;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::GetFileTypes before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetFileTypes before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::GetFileTypes after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetFileTypes after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::GetFileTypes failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::GetFileTypes failed dataAbility == nullptr");
             return matchedMIMEs;
         }
         if (isSystemCaller_) {
@@ -410,19 +410,19 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
         }
     }
 
-    HILOG_INFO("DataAbilityHelper::GetFileTypes before dataAbilityProxy->GetFileTypes.");
+    APP_LOGI("DataAbilityHelper::GetFileTypes before dataAbilityProxy->GetFileTypes.");
     matchedMIMEs = dataAbilityProxy->GetFileTypes(uri, mimeTypeFilter);
-    HILOG_INFO("DataAbilityHelper::GetFileTypes after dataAbilityProxy->GetFileTypes.");
+    APP_LOGI("DataAbilityHelper::GetFileTypes after dataAbilityProxy->GetFileTypes.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::GetFileTypes before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetFileTypes before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::GetFileTypes after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetFileTypes after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::GetFileTypes failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::GetFileTypes failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
 
-    HILOG_INFO("DataAbilityHelper::GetFileTypes end.");
+    APP_LOGI("DataAbilityHelper::GetFileTypes end.");
     return matchedMIMEs;
 }
 
@@ -439,20 +439,20 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
  */
 int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("DataAbilityHelper::OpenFile start.");
+    APP_LOGI("DataAbilityHelper::OpenFile start.");
     int fd = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return fd;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::OpenFile before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenFile before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::OpenFile after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenFile after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::OpenFile failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::OpenFile failed dataAbility == nullptr");
             return fd;
         }
         if (isSystemCaller_) {
@@ -460,18 +460,18 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
         }
     }
 
-    HILOG_INFO("DataAbilityHelper::OpenFile before dataAbilityProxy->OpenFile.");
+    APP_LOGI("DataAbilityHelper::OpenFile before dataAbilityProxy->OpenFile.");
     fd = dataAbilityProxy->OpenFile(uri, mode);
-    HILOG_INFO("DataAbilityHelper::OpenFile after dataAbilityProxy->OpenFile.");
+    APP_LOGI("DataAbilityHelper::OpenFile after dataAbilityProxy->OpenFile.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::OpenFile before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenFile before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::OpenFile after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenFile after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::OpenFile failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::OpenFile failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::OpenFile end.");
+    APP_LOGI("DataAbilityHelper::OpenFile end.");
     return fd;
 }
 
@@ -489,38 +489,38 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
  */
 int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("DataAbilityHelper::OpenRawFile start.");
+    APP_LOGI("DataAbilityHelper::OpenRawFile start.");
     int fd = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return fd;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::OpenRawFile before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenRawFile before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::OpenRawFile after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenRawFile after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::OpenRawFile failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::OpenRawFile failed dataAbility == nullptr");
             return fd;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::OpenRawFile before dataAbilityProxy->OpenRawFile.");
+    APP_LOGI("DataAbilityHelper::OpenRawFile before dataAbilityProxy->OpenRawFile.");
     fd = dataAbilityProxy->OpenRawFile(uri, mode);
-    HILOG_INFO("DataAbilityHelper::OpenRawFile after dataAbilityProxy->OpenRawFile.");
+    APP_LOGI("DataAbilityHelper::OpenRawFile after dataAbilityProxy->OpenRawFile.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::OpenRawFile before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenRawFile before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::OpenRawFile after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::OpenRawFile after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::OpenRawFile failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::OpenRawFile failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::OpenRawFile end.");
+    APP_LOGI("DataAbilityHelper::OpenRawFile end.");
     return fd;
 }
 
@@ -534,38 +534,38 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
  */
 int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    HILOG_INFO("DataAbilityHelper::Insert start.");
+    APP_LOGI("DataAbilityHelper::Insert start.");
     int index = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Insert before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Insert before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::Insert after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Insert after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::Insert failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::Insert failed dataAbility == nullptr");
             return index;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::Insert before dataAbilityProxy->Insert.");
+    APP_LOGI("DataAbilityHelper::Insert before dataAbilityProxy->Insert.");
     index = dataAbilityProxy->Insert(uri, value);
-    HILOG_INFO("DataAbilityHelper::Insert after dataAbilityProxy->Insert.");
+    APP_LOGI("DataAbilityHelper::Insert after dataAbilityProxy->Insert.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Insert before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Insert before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::Insert after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Insert after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::Insert failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::Insert failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::Insert end.");
+    APP_LOGI("DataAbilityHelper::Insert end.");
     return index;
 }
 
@@ -581,38 +581,38 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 int DataAbilityHelper::Update(
     Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataAbilityHelper::Update start.");
+    APP_LOGI("DataAbilityHelper::Update start.");
     int index = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Update before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Update before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::Update after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Update after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::Update failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::Update failed dataAbility == nullptr");
             return index;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::Update before dataAbilityProxy->Update.");
+    APP_LOGI("DataAbilityHelper::Update before dataAbilityProxy->Update.");
     index = dataAbilityProxy->Update(uri, value, predicates);
-    HILOG_INFO("DataAbilityHelper::Update after dataAbilityProxy->Update.");
+    APP_LOGI("DataAbilityHelper::Update after dataAbilityProxy->Update.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Update before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Update before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::Update after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Update after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::Update failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::Update failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::Update end.");
+    APP_LOGI("DataAbilityHelper::Update end.");
     return index;
 }
 
@@ -626,38 +626,38 @@ int DataAbilityHelper::Update(
  */
 int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataAbilityHelper::Delete start.");
+    APP_LOGI("DataAbilityHelper::Delete start.");
     int index = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return index;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Delete before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Delete before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::Delete after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Delete after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::Delete failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::Delete failed dataAbility == nullptr");
             return index;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::Delete before dataAbilityProxy->Delete.");
+    APP_LOGI("DataAbilityHelper::Delete before dataAbilityProxy->Delete.");
     index = dataAbilityProxy->Delete(uri, predicates);
-    HILOG_INFO("DataAbilityHelper::Delete after dataAbilityProxy->Delete.");
+    APP_LOGI("DataAbilityHelper::Delete after dataAbilityProxy->Delete.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Delete before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Delete before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::Delete after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Delete after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::Delete failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::Delete failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::Delete end.");
+    APP_LOGI("DataAbilityHelper::Delete end.");
     return index;
 }
 
@@ -673,39 +673,39 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("DataAbilityHelper::Query start.");
+    APP_LOGI("DataAbilityHelper::Query start.");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
 
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return resultset;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Query before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Query before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::Query after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Query after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::Query failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::Query failed dataAbility == nullptr");
             return resultset;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::Query before dataAbilityProxy->Query.");
+    APP_LOGI("DataAbilityHelper::Query before dataAbilityProxy->Query.");
     resultset = dataAbilityProxy->Query(uri, columns, predicates);
-    HILOG_INFO("DataAbilityHelper::Query after dataAbilityProxy->Query.");
+    APP_LOGI("DataAbilityHelper::Query after dataAbilityProxy->Query.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Query before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Query before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::Query after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Query after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::Query failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::Query failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::Query end.");
+    APP_LOGI("DataAbilityHelper::Query end.");
     return resultset;
 }
 
@@ -719,38 +719,38 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
  */
 std::string DataAbilityHelper::GetType(Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::GetType start.");
+    APP_LOGI("DataAbilityHelper::GetType start.");
     std::string type;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return type;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::GetType before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetType before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::GetType after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetType after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::GetType failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::GetType failed dataAbility == nullptr");
             return type;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::GetType before dataAbilityProxy->GetType.");
+    APP_LOGI("DataAbilityHelper::GetType before dataAbilityProxy->GetType.");
     type = dataAbilityProxy->GetType(uri);
-    HILOG_INFO("DataAbilityHelper::GetType after dataAbilityProxy->GetType.");
+    APP_LOGI("DataAbilityHelper::GetType after dataAbilityProxy->GetType.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::GetType before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetType before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::GetType after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::GetType after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::GetType failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::GetType failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::GetType end.");
+    APP_LOGI("DataAbilityHelper::GetType end.");
     return type;
 }
 
@@ -766,38 +766,38 @@ std::string DataAbilityHelper::GetType(Uri &uri)
  */
 bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
 {
-    HILOG_INFO("DataAbilityHelper::Reload start.");
+    APP_LOGI("DataAbilityHelper::Reload start.");
     bool ret = false;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return ret;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Reload before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Reload before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::Reload after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::Reload after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::Reload failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::Reload failed dataAbility == nullptr");
             return ret;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::Reload before dataAbilityProxy->Reload.");
+    APP_LOGI("DataAbilityHelper::Reload before dataAbilityProxy->Reload.");
     ret = dataAbilityProxy->Reload(uri, extras);
-    HILOG_INFO("DataAbilityHelper::Reload after dataAbilityProxy->Reload.");
+    APP_LOGI("DataAbilityHelper::Reload after dataAbilityProxy->Reload.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::Reload before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Reload before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::Reload after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::Reload after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::Reload failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::Reload failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::Reload end.");
+    APP_LOGI("DataAbilityHelper::Reload end.");
     return ret;
 }
 
@@ -811,54 +811,54 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
  */
 int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_INFO("DataAbilityHelper::BatchInsert start.");
+    APP_LOGI("DataAbilityHelper::BatchInsert start.");
     int ret = -1;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return ret;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::BatchInsert before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::BatchInsert before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::BatchInsert after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::BatchInsert after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::BatchInsert failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::BatchInsert failed dataAbility == nullptr");
             return ret;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::BatchInsert before dataAbilityProxy->BatchInsert.");
+    APP_LOGI("DataAbilityHelper::BatchInsert before dataAbilityProxy->BatchInsert.");
     ret = dataAbilityProxy->BatchInsert(uri, values);
-    HILOG_INFO("DataAbilityHelper::BatchInsert after dataAbilityProxy->BatchInsert.");
+    APP_LOGI("DataAbilityHelper::BatchInsert after dataAbilityProxy->BatchInsert.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::BatchInsert before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::BatchInsert before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::BatchInsert after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::BatchInsert after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::BatchInsert failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::BatchInsert failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::BatchInsert end.");
+    APP_LOGI("DataAbilityHelper::BatchInsert end.");
     return ret;
 }
 
 bool DataAbilityHelper::CheckUriParam(const Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::CheckUriParam start.");
+    APP_LOGI("DataAbilityHelper::CheckUriParam start.");
     Uri checkUri(uri.ToString());
     if (!CheckOhosUri(checkUri)) {
-        HILOG_ERROR("DataAbilityHelper::CheckUriParam failed. CheckOhosUri uri failed");
+        APP_LOGE("DataAbilityHelper::CheckUriParam failed. CheckOhosUri uri failed");
         return false;
     }
 
     auto uriSp = uri_; // do not directly use uri_ here, otherwise, it will crash.
     if (uriSp != nullptr) {
         if (!CheckOhosUri(*uriSp)) {
-            HILOG_ERROR("DataAbilityHelper::CheckUriParam failed. CheckOhosUri uriSp failed");
+            APP_LOGE("DataAbilityHelper::CheckUriParam failed. CheckOhosUri uriSp failed");
             return false;
         }
 
@@ -869,36 +869,35 @@ bool DataAbilityHelper::CheckUriParam(const Uri &uri)
         uriSp->GetPathSegments(segments);
 
         if (checkSegments.empty() || segments.empty() || checkSegments[0] != segments[0]) {
-            HILOG_ERROR(
-                "DataAbilityHelper::CheckUriParam failed. the dataability in uri doesn't equal the one in uriSp.");
+            APP_LOGE("DataAbilityHelper::CheckUriParam failed. the dataability in uri doesn't equal the one in uriSp.");
             return false;
         }
     }
-    HILOG_INFO("DataAbilityHelper::CheckUriParam end.");
+    APP_LOGI("DataAbilityHelper::CheckUriParam end.");
     return true;
 }
 
 bool DataAbilityHelper::CheckOhosUri(const Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::CheckOhosUri start.");
+    APP_LOGI("DataAbilityHelper::CheckOhosUri start.");
     Uri checkUri(uri.ToString());
     if (checkUri.GetScheme() != SchemeOhos) {
-        HILOG_ERROR("DataAbilityHelper::CheckOhosUri failed. uri is not a dataability one.");
+        APP_LOGE("DataAbilityHelper::CheckOhosUri failed. uri is not a dataability one.");
         return false;
     }
 
     std::vector<std::string> segments;
     checkUri.GetPathSegments(segments);
     if (segments.empty()) {
-        HILOG_ERROR("DataAbilityHelper::CheckOhosUri failed. There is no segments in the uri.");
+        APP_LOGE("DataAbilityHelper::CheckOhosUri failed. There is no segments in the uri.");
         return false;
     }
 
     if (checkUri.GetPath() == "") {
-        HILOG_ERROR("DataAbilityHelper::CheckOhosUri failed. The path in the uri is empty.");
+        APP_LOGE("DataAbilityHelper::CheckOhosUri failed. The path in the uri is empty.");
         return false;
     }
-    HILOG_INFO("DataAbilityHelper::CheckOhosUri end.");
+    APP_LOGI("DataAbilityHelper::CheckOhosUri end.");
     return true;
 }
 
@@ -910,14 +909,14 @@ bool DataAbilityHelper::CheckOhosUri(const Uri &uri)
  */
 void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("DataAbilityHelper::RegisterObserver start.");
+    APP_LOGI("DataAbilityHelper::RegisterObserver start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("%{public}s called. dataObserver is nullptr", __func__);
+        APP_LOGE("%{public}s called. dataObserver is nullptr", __func__);
         return;
     }
 
@@ -934,7 +933,7 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
         } else {
             auto path = uriMap_.find(dataObserver);
             if (path->second != tmpUri.GetPath()) {
-                HILOG_ERROR("DataAbilityHelper::RegisterObserver failed input uri's path is not equal the one the "
+                APP_LOGE("DataAbilityHelper::RegisterObserver failed input uri's path is not equal the one the "
                          "observer used");
                 return;
             }
@@ -945,13 +944,13 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
     }
 
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::RegisterObserver failed dataAbility == nullptr");
+        APP_LOGE("DataAbilityHelper::RegisterObserver failed dataAbility == nullptr");
         registerMap_.erase(dataObserver);
         uriMap_.erase(dataObserver);
         return;
     }
     dataAbilityProxy->ScheduleRegisterObserver(uri, dataObserver);
-    HILOG_INFO("DataAbilityHelper::RegisterObserver end.");
+    APP_LOGI("DataAbilityHelper::RegisterObserver end.");
 }
 
 /**
@@ -962,14 +961,14 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
  */
 void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("DataAbilityHelper::UnregisterObserver start.");
+    APP_LOGI("DataAbilityHelper::UnregisterObserver start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("%{public}s called. dataObserver is nullptr", __func__);
+        APP_LOGE("%{public}s called. dataObserver is nullptr", __func__);
         return;
     }
 
@@ -983,7 +982,7 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
         }
         auto path = uriMap_.find(dataObserver);
         if (path->second != tmpUri.GetPath()) {
-            HILOG_ERROR("DataAbilityHelper::UnregisterObserver failed input uri's path is not equal the one the "
+            APP_LOGE("DataAbilityHelper::UnregisterObserver failed input uri's path is not equal the one the "
                      "observer used");
             return;
         }
@@ -993,23 +992,23 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
     }
 
     if (dataAbilityProxy == nullptr) {
-        HILOG_ERROR("DataAbilityHelper::UnregisterObserver failed dataAbility == nullptr");
+        APP_LOGE("DataAbilityHelper::UnregisterObserver failed dataAbility == nullptr");
         return;
     }
 
     dataAbilityProxy->ScheduleUnregisterObserver(uri, dataObserver);
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::UnregisterObserver before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::UnregisterObserver before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy_, token_);
-        HILOG_INFO("DataAbilityHelper::UnregisterObserver after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::UnregisterObserver after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::UnregisterObserver failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::UnregisterObserver failed to ReleaseDataAbility err = %{public}d", err);
         }
         dataAbilityProxy_ = nullptr;
     }
     registerMap_.erase(dataObserver);
     uriMap_.erase(dataObserver);
-    HILOG_INFO("DataAbilityHelper::UnregisterObserver end.");
+    APP_LOGI("DataAbilityHelper::UnregisterObserver end.");
 }
 
 /**
@@ -1019,9 +1018,9 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
  */
 void DataAbilityHelper::NotifyChange(const Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::NotifyChange start.");
+    APP_LOGI("DataAbilityHelper::NotifyChange start.");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return;
     }
 
@@ -1029,7 +1028,7 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
     if (dataAbilityProxy == nullptr) {
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::NotifyChange failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::NotifyChange failed dataAbility == nullptr");
             return;
         }
     }
@@ -1039,10 +1038,10 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
     if (uri_ == nullptr) {
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::NotifyChange failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::NotifyChange failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::NotifyChange end.");
+    APP_LOGI("DataAbilityHelper::NotifyChange end.");
 }
 
 /**
@@ -1059,38 +1058,38 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
  */
 Uri DataAbilityHelper::NormalizeUri(Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::NormalizeUri start.");
+    APP_LOGI("DataAbilityHelper::NormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return urivalue;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::NormalizeUri before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::NormalizeUri before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::NormalizeUri after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::NormalizeUri after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::NormalizeUri failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::NormalizeUri failed dataAbility == nullptr");
             return urivalue;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::NormalizeUri before dataAbilityProxy->NormalizeUri.");
+    APP_LOGI("DataAbilityHelper::NormalizeUri before dataAbilityProxy->NormalizeUri.");
     urivalue = dataAbilityProxy->NormalizeUri(uri);
-    HILOG_INFO("DataAbilityHelper::NormalizeUri after dataAbilityProxy->NormalizeUri.");
+    APP_LOGI("DataAbilityHelper::NormalizeUri after dataAbilityProxy->NormalizeUri.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::NormalizeUri before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::NormalizeUri before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::NormalizeUri after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::NormalizeUri after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::NormalizeUri failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::NormalizeUri failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::NormalizeUri end.");
+    APP_LOGI("DataAbilityHelper::NormalizeUri end.");
     return urivalue;
 }
 
@@ -1106,84 +1105,84 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
  */
 Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
 {
-    HILOG_INFO("DataAbilityHelper::DenormalizeUri start.");
+    APP_LOGI("DataAbilityHelper::DenormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
+        APP_LOGE("%{public}s called. CheckUriParam uri failed", __func__);
         return urivalue;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::DenormalizeUri before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::DenormalizeUri before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::DenormalizeUri after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::DenormalizeUri after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::DenormalizeUri failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::DenormalizeUri failed dataAbility == nullptr");
             return urivalue;
         }
         if (isSystemCaller_) {
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-    HILOG_INFO("DataAbilityHelper::DenormalizeUri before dataAbilityProxy->DenormalizeUri.");
+    APP_LOGI("DataAbilityHelper::DenormalizeUri before dataAbilityProxy->DenormalizeUri.");
     urivalue = dataAbilityProxy->DenormalizeUri(uri);
-    HILOG_INFO("DataAbilityHelper::DenormalizeUri after dataAbilityProxy->DenormalizeUri.");
+    APP_LOGI("DataAbilityHelper::DenormalizeUri after dataAbilityProxy->DenormalizeUri.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::DenormalizeUri before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::DenormalizeUri before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::DenormalizeUri after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::DenormalizeUri after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::DenormalizeUri failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::DenormalizeUri failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::DenormalizeUri end.");
+    APP_LOGI("DataAbilityHelper::DenormalizeUri end.");
     return urivalue;
 }
 
 std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
     const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("DataAbilityHelper::ExecuteBatch start");
+    APP_LOGI("DataAbilityHelper::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (!CheckUriParam(uri)) {
-        HILOG_ERROR("DataAbilityHelper::ExecuteBatch. CheckUriParam uri failed");
+        APP_LOGE("DataAbilityHelper::ExecuteBatch. CheckUriParam uri failed");
         return results;
     }
 
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::ExecuteBatch before AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::ExecuteBatch before AcquireDataAbility.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
-        HILOG_INFO("DataAbilityHelper::ExecuteBatch after AcquireDataAbility.");
+        APP_LOGI("DataAbilityHelper::ExecuteBatch after AcquireDataAbility.");
         if (dataAbilityProxy == nullptr) {
-            HILOG_ERROR("DataAbilityHelper::ExecuteBatch failed dataAbility == nullptr");
+            APP_LOGE("DataAbilityHelper::ExecuteBatch failed dataAbility == nullptr");
             return results;
         }
     }
 
-    HILOG_INFO("DataAbilityHelper::ExecuteBatch before dataAbilityProxy->ExecuteBatch.");
+    APP_LOGI("DataAbilityHelper::ExecuteBatch before dataAbilityProxy->ExecuteBatch.");
     results = dataAbilityProxy->ExecuteBatch(operations);
-    HILOG_INFO("DataAbilityHelper::ExecuteBatch after dataAbilityProxy->ExecuteBatch.");
+    APP_LOGI("DataAbilityHelper::ExecuteBatch after dataAbilityProxy->ExecuteBatch.");
     if (uri_ == nullptr) {
-        HILOG_INFO("DataAbilityHelper::ExecuteBatch before ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::ExecuteBatch before ReleaseDataAbility.");
         int err = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
-        HILOG_INFO("DataAbilityHelper::ExecuteBatch after ReleaseDataAbility.");
+        APP_LOGI("DataAbilityHelper::ExecuteBatch after ReleaseDataAbility.");
         if (err != ERR_OK) {
-            HILOG_ERROR("DataAbilityHelper::ExecuteBatch failed to ReleaseDataAbility err = %{public}d", err);
+            APP_LOGE("DataAbilityHelper::ExecuteBatch failed to ReleaseDataAbility err = %{public}d", err);
         }
     }
-    HILOG_INFO("DataAbilityHelper::ExecuteBatch end");
+    APP_LOGI("DataAbilityHelper::ExecuteBatch end");
     return results;
 }
 
 void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("recv DataAbilityDeathRecipient death notice");
+    APP_LOGI("recv DataAbilityDeathRecipient death notice");
     if (handler_) {
         handler_(remote);
     }
-    HILOG_INFO("DataAbilityHelper::OnRemoteDied end.");
+    APP_LOGI("DataAbilityHelper::OnRemoteDied end.");
 }
 
 DataAbilityDeathRecipient::DataAbilityDeathRecipient(RemoteDiedHandler handler) : handler_(handler)

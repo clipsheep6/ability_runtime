@@ -14,7 +14,7 @@
  */
 
 #include "ohos/aafwk/content/patterns_matcher.h"
-#include "parcel_macro_base.h"
+#include "parcel_macro.h"
 using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
@@ -116,7 +116,7 @@ bool PatternsMatcher::MatchPattern(std::string pattern, std::string match, Match
             return GlobPattern(pattern, match);
         }
         default: {
-            ABILITYBASE_LOGE("MatchPattern::The other type");
+            APP_LOGE("MatchPattern::The other type");
             return false;
         }
     }

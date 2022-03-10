@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "app_log_wrapper.h"
 #include "appexecfwk_errors.h"
 #include "form_bms_helper.h"
 #include "form_cache_mgr.h"
@@ -25,7 +26,6 @@
 #include "form_mgr.h"
 #undef private
 #include "form_mgr_service.h"
-#include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"

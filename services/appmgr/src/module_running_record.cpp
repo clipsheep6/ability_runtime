@@ -14,8 +14,8 @@
  */
 
 #include "module_running_record.h"
+#include "app_log_wrapper.h"
 #include "app_mgr_service_inner.h"
-#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -47,7 +47,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
     const sptr<IRemoteObject> &token) const
 {
     if (!token) {
-        HILOG_ERROR("token is null");
+        APP_LOGE("token is null");
         return nullptr;
     }
     const auto &iter = abilities_.find(token);
@@ -60,13 +60,13 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want)
 {
-    HILOG_INFO("Add ability.");
+    APP_LOGI("Add ability.");
     if (!token || !abilityInfo) {
-        HILOG_ERROR("Param abilityInfo or token is null");
+        APP_LOGE("Param abilityInfo or token is null");
         return nullptr;
     }
     if (GetAbilityRunningRecordByToken(token)) {
-        HILOG_ERROR("AbilityRecord already exists and no need to add");
+        APP_LOGE("AbilityRecord already exists and no need to add");
         return nullptr;
     }
     auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
@@ -77,9 +77,9 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
 
 bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Is last ability record.");
+    APP_LOGI("Is last ability record.");
     if (!token) {
-        HILOG_ERROR("token is nullptr");
+        APP_LOGE("token is nullptr");
         return false;
     }
 
@@ -95,9 +95,9 @@ const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>>
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminateLists(
     const sptr<IRemoteObject> &token) const
 {
-    HILOG_INFO("Get ability by terminateLists.");
+    APP_LOGI("Get ability by terminateLists.");
     if (!token) {
-        HILOG_ERROR("token is null");
+        APP_LOGE("token is null");
         return nullptr;
     }
     const auto &iter = terminateAbilitys_.find(token);
@@ -109,13 +109,13 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
 
 void ModuleRunningRecord::ClearAbility(const std::shared_ptr<AbilityRunningRecord> &record)
 {
-    HILOG_INFO("Clear ability.");
+    APP_LOGI("Clear ability.");
     if (!record) {
-        HILOG_ERROR("Param record is null");
+        APP_LOGE("Param record is null");
         return;
     }
     if (!GetAbilityRunningRecordByToken(record->GetToken())) {
-        HILOG_ERROR("Param record is not exist");
+        APP_LOGE("Param record is not exist");
         return;
     }
     abilities_.erase(record->GetToken());
@@ -123,7 +123,7 @@ void ModuleRunningRecord::ClearAbility(const std::shared_ptr<AbilityRunningRecor
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const std::string &abilityName) const
 {
-    HILOG_INFO("Get ability running record by ability name.");
+    APP_LOGI("Get ability running record by ability name.");
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [&abilityName](const auto &pair) {
         return pair.second->GetName() == abilityName;
     });
@@ -132,7 +132,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
-    HILOG_INFO("Get ability running record by eventId.");
+    APP_LOGI("Get ability running record by eventId.");
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
     });
@@ -152,14 +152,14 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
 void ModuleRunningRecord::OnAbilityStateChanged(
     const std::shared_ptr<AbilityRunningRecord> &ability, const AbilityState state)
 {
-    HILOG_INFO("On ability state changed.");
+    APP_LOGI("On ability state changed.");
     if (!ability) {
-        HILOG_ERROR("ability is null");
+        APP_LOGE("ability is null");
         return;
     }
     AbilityState oldState = ability->GetState();
     ability->SetState(state);
-    HILOG_INFO("OnAbilityStateChanged oldState:%{public}d, state:%{public}d", oldState, state);
+    APP_LOGI("OnAbilityStateChanged oldState:%{public}d, state:%{public}d", oldState, state);
     auto serviceInner = appMgrServiceInner_.lock();
     if (serviceInner) {
         serviceInner->OnAbilityStateChanged(ability, state);
@@ -168,14 +168,14 @@ void ModuleRunningRecord::OnAbilityStateChanged(
 
 void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
-    HILOG_INFO("Launch ability.");
+    APP_LOGI("Launch ability.");
     if (!ability || !ability->GetToken()) {
-        HILOG_ERROR("null abilityRecord or abilityToken");
+        APP_LOGE("null abilityRecord or abilityToken");
         return;
     }
     const auto &iter = abilities_.find(ability->GetToken());
     if (iter != abilities_.end() && appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_INFO("ScheduleLaunchAbility ability:%{public}s", ability->GetName().c_str());
+        APP_LOGI("ScheduleLaunchAbility ability:%{public}s", ability->GetName().c_str());
         appLifeCycleDeal_->LaunchAbility(ability);
         ability->SetState(AbilityState::ABILITY_STATE_READY);
     }
@@ -183,15 +183,15 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
 
 void ModuleRunningRecord::LaunchPendingAbilities()
 {
-    HILOG_INFO("Launch pending abilities.");
+    APP_LOGI("Launch pending abilities.");
 
     if (abilities_.empty()) {
-        HILOG_ERROR("abilities_ is empty");
+        APP_LOGE("abilities_ is empty");
         return;
     }
 
     for (auto item : abilities_) {
-        HILOG_INFO("state : %{public}d", item.second->GetState());
+        APP_LOGI("state : %{public}d", item.second->GetState());
         if (item.second->GetState() == AbilityState::ABILITY_STATE_CREATE) {
             LaunchAbility(item.second);
         }
@@ -200,10 +200,10 @@ void ModuleRunningRecord::LaunchPendingAbilities()
 
 void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const bool isForce)
 {
-    HILOG_INFO("Terminate ability.");
+    APP_LOGI("Terminate ability.");
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        APP_LOGE("abilityRecord is nullptr");
         return;
     }
 
@@ -216,7 +216,7 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     if (!isForce) {
         auto curAbilityState = abilityRecord->GetState();
         if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND) {
-            HILOG_ERROR("current state(%{public}d) error", static_cast<int32_t>(curAbilityState));
+            APP_LOGE("current state(%{public}d) error", static_cast<int32_t>(curAbilityState));
             return;
         }
     }
@@ -224,18 +224,18 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleCleanAbility(token);
     } else {
-        HILOG_ERROR("appLifeCycleDeal_ is null");
+        APP_LOGE("appLifeCycleDeal_ is null");
     }
 
-    HILOG_INFO("ModuleRunningRecord::TerminateAbility end");
+    APP_LOGI("ModuleRunningRecord::TerminateAbility end");
 }
 
 void ModuleRunningRecord::SendEvent(
     uint32_t msg, int64_t timeOut, const std::shared_ptr<AbilityRunningRecord> &abilityRecord)
 {
-    HILOG_INFO("Send event");
+    APP_LOGI("Send event");
     if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
+        APP_LOGE("eventHandler_ is nullptr");
         return;
     }
 
@@ -246,20 +246,20 @@ void ModuleRunningRecord::SendEvent(
 
 void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Ability terminated.");
+    APP_LOGI("Ability terminated.");
     if (!token) {
-        HILOG_ERROR("token is null");
+        APP_LOGE("token is null");
         return;
     }
 
     if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
+        APP_LOGE("eventHandler_ is nullptr");
         return;
     }
 
     auto abilityRecord = GetAbilityByTerminateLists(token);
     if (!abilityRecord) {
-        HILOG_ERROR("ModuleRunningRecord::AbilityTerminated can not find ability record");
+        APP_LOGE("ModuleRunningRecord::AbilityTerminated can not find ability record");
         return;
     }
 

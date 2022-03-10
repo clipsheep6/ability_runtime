@@ -14,7 +14,7 @@
  */
 
 #include "new_ability_impl.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,7 +29,7 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 
 void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+    APP_LOGI("NewAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_,
         targetState.state,
@@ -40,7 +40,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
         if (ability_ != nullptr && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
             ability_->RequsetFocus(want);
         }
-        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
+        APP_LOGE("Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
 #endif
@@ -60,11 +60,11 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     bool ret = false;
     ret = AbilityTransaction(want, targetState);
     if (ret) {
-        HILOG_INFO("AbilityThread::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
+        APP_LOGI("AbilityThread::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
-        HILOG_INFO("AbilityThread::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
+        APP_LOGI("AbilityThread::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
     }
-    HILOG_INFO("NewAbilityImpl::HandleAbilityTransaction end");
+    APP_LOGI("NewAbilityImpl::HandleAbilityTransaction end");
 }
 
 /**
@@ -78,7 +78,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
  */
 bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("NewAbilityImpl::AbilityTransaction begin");
+    APP_LOGI("NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -111,11 +111,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
         }
         default: {
             ret = false;
-            HILOG_ERROR("NewAbilityImpl::HandleAbilityTransaction state error");
+            APP_LOGE("NewAbilityImpl::HandleAbilityTransaction state error");
             break;
         }
     }
-    HILOG_INFO("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
+    APP_LOGI("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
     return ret;
 }
 }  // namespace AppExecFwk

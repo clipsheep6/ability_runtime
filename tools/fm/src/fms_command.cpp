@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "appexecfwk_errors.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "fms_command.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -122,13 +122,13 @@ ErrCode FormMgrShellCommand::RunAsQueryCommand()
     while (true) {
         counter++;
         option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        APP_LOGI("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
         }
 
         for (int i = 0; i < argc_; i++) {
-            HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
+            APP_LOGI("argv_[%{public}d]: %{public}s", i, argv_[i]);
         }
 
         if (option == -1) {
@@ -137,7 +137,7 @@ ErrCode FormMgrShellCommand::RunAsQueryCommand()
                 if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
                     // 'fm query' with no option: fm query
                     // 'fm query' with a wrong argument: fm query xxx
-                    HILOG_ERROR("'fm query' with no option.");
+                    APP_LOGE("'fm query' with no option.");
                     resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
                     result = OHOS::ERR_INVALID_VALUE;
                 }
@@ -176,7 +176,7 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
             // 'fm query --bundle-name' with no argument: fm query --bundle-name
             // 'fm query -i' with no argument: fm query -i
             // 'fm query --form-id' with no argument: fm query --form-id
-            HILOG_ERROR("'fm query' %{public}s with no argument.", argv_[optind - 1]);
+            APP_LOGE("'fm query' %{public}s with no argument.", argv_[optind - 1]);
             resultReceiver_.append("error: option '");
             resultReceiver_.append(argv_[optind - 1]);
             resultReceiver_.append("' requires a value.\n");
@@ -188,7 +188,7 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
             // 'fm query' with a unknown option: fm query --xxx
             std::string unknownOption = "";
             std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-            HILOG_ERROR("'fm query' with a unknown option: %{public}s", unknownOption.c_str());
+            APP_LOGE("'fm query' with a unknown option: %{public}s", unknownOption.c_str());
             resultReceiver_.append(unknownOptionMsg);
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -198,7 +198,7 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
             // 'fm query' with a unknown option: fm query -xxx
             std::string unknownOption = "";
             std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-            HILOG_ERROR("'fm query' with a unknown option: %{public}s", unknownOption.c_str());
+            APP_LOGE("'fm query' with a unknown option: %{public}s", unknownOption.c_str());
             resultReceiver_.append(unknownOptionMsg);
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -217,13 +217,13 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
  */
 int32_t FormMgrShellCommand::HandleNormalOption(const int option, std::string &bundleName, int64_t &formId, int32_t &cmdFlag)
 {
-    HILOG_INFO("%{public}s start, option: %{public}d", __func__, option);
+    APP_LOGI("%{public}s start, option: %{public}d", __func__, option);
     int32_t result = OHOS::ERR_OK;
     switch (option) {
         case 'h': {
             // 'fm query -h'
             // 'fm query --help'
-            HILOG_INFO("'fm query' %{public}s", argv_[optind - 1]);
+            APP_LOGI("'fm query' %{public}s", argv_[optind - 1]);
             result = OHOS::ERR_INVALID_VALUE;
             break;
         }
@@ -263,11 +263,11 @@ int32_t FormMgrShellCommand::HandleNormalOption(const int option, std::string &b
         }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
-            HILOG_INFO("'fm query' invalid option.");
+            APP_LOGI("'fm query' invalid option.");
             break;
         }
     }
-    HILOG_INFO("%{public}s end, result: %{public}d", __func__, result);
+    APP_LOGI("%{public}s end, result: %{public}d", __func__, result);
     return result;
 }
 /**
@@ -279,7 +279,7 @@ int32_t FormMgrShellCommand::HandleNormalOption(const int option, std::string &b
  */
 int32_t FormMgrShellCommand::ExecuteQuery(const std::string &bundleName, const int64_t formId, const int32_t cmdFlag)
 {
-    HILOG_INFO("%{public}s start, bundleName: %{public}s, formId:%{public}" PRId64 "", __func__, bundleName.c_str(), formId);
+    APP_LOGI("%{public}s start, bundleName: %{public}s, formId:%{public}" PRId64 "", __func__, bundleName.c_str(), formId);
     int32_t result = OHOS::ERR_OK;
     switch (cmdFlag) {
         case COMMAND_QUERY_STORAGE: {
@@ -295,10 +295,10 @@ int32_t FormMgrShellCommand::ExecuteQuery(const std::string &bundleName, const i
             break;
         }
         default: {
-            HILOG_INFO("'fm query' invalid command.");
+            APP_LOGI("'fm query' invalid command.");
             break;
         }
-        HILOG_INFO("%{public}s end, cmdFlag: %{public}d", __func__, cmdFlag);
+        APP_LOGI("%{public}s end, cmdFlag: %{public}d", __func__, cmdFlag);
     }
 
     if (result == OHOS::ERR_OK) {
@@ -319,7 +319,7 @@ int32_t FormMgrShellCommand::ExecuteQuery(const std::string &bundleName, const i
  */
 int32_t FormMgrShellCommand::QueryStorageFormInfos()
 {
-    HILOG_INFO("%{public}s start", __func__);
+    APP_LOGI("%{public}s start", __func__);
 
     int errCode = ConnectFms();
     if (errCode != OHOS::ERR_OK) {
@@ -329,7 +329,7 @@ int32_t FormMgrShellCommand::QueryStorageFormInfos()
     std::string formInfos;
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -337,9 +337,9 @@ int32_t FormMgrShellCommand::QueryStorageFormInfos()
     if (result == ERR_OK) {
         resultReceiver_= formInfos;
     } else {
-        HILOG_ERROR("'fm query' failed to query form info.");
+        APP_LOGE("'fm query' failed to query form info.");
     }
-    HILOG_INFO("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
+    APP_LOGI("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
 
     return result;
 }
@@ -350,7 +350,7 @@ int32_t FormMgrShellCommand::QueryStorageFormInfos()
  */
 int32_t FormMgrShellCommand::QueryFormInfoByBundleName(const std::string& bundleName)
 {
-    HILOG_INFO("%{public}s start, bundleName: %{public}s", __func__, bundleName.c_str());
+    APP_LOGI("%{public}s start, bundleName: %{public}s", __func__, bundleName.c_str());
 
     int errCode = ConnectFms();
     if (errCode != OHOS::ERR_OK) {
@@ -360,23 +360,23 @@ int32_t FormMgrShellCommand::QueryFormInfoByBundleName(const std::string& bundle
     std::string formInfos;
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("%{public}s, failed to write bundleName", __func__);
+        APP_LOGE("%{public}s, failed to write bundleName", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     int result = GetStringInfo(IFormMgr::Message::FORM_MGR_FORM_INFOS_BY_NAME, data, formInfos);
     if (result == ERR_OK) {
-        HILOG_INFO("%{public}s, DumpFormInfoByBundleName success", __func__);
+        APP_LOGI("%{public}s, DumpFormInfoByBundleName success", __func__);
         resultReceiver_ = formInfos;
     } else {
-        HILOG_ERROR("'fm query' failed to query form info.");
+        APP_LOGE("'fm query' failed to query form info.");
     }
-    HILOG_INFO("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
+    APP_LOGI("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
 
     return result;
 }
@@ -387,7 +387,7 @@ int32_t FormMgrShellCommand::QueryFormInfoByBundleName(const std::string& bundle
  */
 int32_t FormMgrShellCommand::QueryFormInfoByFormId(const std::int64_t formId)
 {
-    HILOG_INFO("%{public}s start, formId: %{public}" PRId64 "", __func__, formId);
+    APP_LOGI("%{public}s start, formId: %{public}" PRId64 "", __func__, formId);
 
     int errCode = ConnectFms();
     if (errCode != OHOS::ERR_OK) {
@@ -397,11 +397,11 @@ int32_t FormMgrShellCommand::QueryFormInfoByFormId(const std::int64_t formId)
     std::string formInfo;
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!data.WriteInt64(formId)) {
-        HILOG_ERROR("%{public}s, failed to write formId", __func__);
+        APP_LOGE("%{public}s, failed to write formId", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -409,18 +409,18 @@ int32_t FormMgrShellCommand::QueryFormInfoByFormId(const std::int64_t formId)
     if (result == ERR_OK) {
         resultReceiver_ = formInfo;
     } else if (result == OHOS::ERR_APPEXECFWK_FORM_NOT_EXIST_ID) {
-        HILOG_WARN("'fm query' no form info.");
+        APP_LOGW("'fm query' no form info.");
     } else {
-        HILOG_ERROR("'fm query' failed to query form info.");
+        APP_LOGE("'fm query' failed to query form info.");
     }
-    HILOG_INFO("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
+    APP_LOGI("%{public}s end, formInfo: %{public}s", __func__, resultReceiver_.c_str());
 
     return result;
 }
 bool FormMgrShellCommand::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(IFormMgr::GetDescriptor())) {
-        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        APP_LOGE("%{public}s, failed to write interface token", __func__);
         return false;
     }
     return true;
@@ -436,22 +436,22 @@ int FormMgrShellCommand::GetStringInfo(IFormMgr::Message code, MessageParcel &da
 
     error = reply.ReadInt32();
     if (error != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to read reply result: %{public}d", __func__, error);
+        APP_LOGE("%{public}s, failed to read reply result: %{public}d", __func__, error);
         return error;
     }
     std::vector<std::string> stringInfoList;
     if (!reply.ReadStringVector(&stringInfoList)) {
-        HILOG_ERROR("%{public}s, failed to read string vector from reply", __func__);
+        APP_LOGE("%{public}s, failed to read string vector from reply", __func__);
         return false;
     }
     if (stringInfoList.empty()) {
-        HILOG_INFO("%{public}s, No string info", __func__);
+        APP_LOGI("%{public}s, No string info", __func__);
         return ERR_APPEXECFWK_FORM_NOT_EXIST_ID;
     }
     for (auto &info : stringInfoList) {
         stringInfo += info;
     }
-    HILOG_DEBUG("%{public}s, get string info success", __func__);
+    APP_LOGD("%{public}s, get string info success", __func__);
     return ERR_OK;
 }
 int FormMgrShellCommand::SendTransactCmd(IFormMgr::Message code, MessageParcel &data, MessageParcel &reply)
@@ -459,12 +459,12 @@ int FormMgrShellCommand::SendTransactCmd(IFormMgr::Message code, MessageParcel &
     MessageOption option(MessageOption::TF_SYNC);
 
     if (!remoteObject_) {
-        HILOG_ERROR("%{public}s, failed to get remote object, cmd: %{public}d", __func__, code);
+        APP_LOGE("%{public}s, failed to get remote object, cmd: %{public}d", __func__, code);
         return ERR_APPEXECFWK_SERVICE_NOT_CONNECTED;
     }
     int32_t result = remoteObject_->SendRequest(static_cast<uint32_t>(code), data, reply, option);
     if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d, cmd: %{public}d", __func__, result, code);
+        APP_LOGE("%{public}s, failed to SendRequest: %{public}d, cmd: %{public}d", __func__, result, code);
         return result;
     }
     return ERR_OK;
@@ -480,16 +480,16 @@ int32_t FormMgrShellCommand::ConnectFms()
     }
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("%{private}s:fail to get system ability manager", __func__);
+        APP_LOGE("%{private}s:fail to get system ability manager", __func__);
         return ERR_APPEXECFWK_FORM_GET_FMS_FAILED;
     }
     remoteObject_ = systemManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
     if (remoteObject_ == nullptr) {
-        HILOG_ERROR("%{private}s:fail to connect FormMgrService", __func__);
+        APP_LOGE("%{private}s:fail to connect FormMgrService", __func__);
         return ERR_APPEXECFWK_FORM_GET_FMS_FAILED;
     }
 
-    HILOG_INFO("%{public}s end, get fms proxy success", __func__);
+    APP_LOGI("%{public}s end, get fms proxy success", __func__);
     return OHOS::ERR_OK;
 }
 }  // namespace AppExecFwk

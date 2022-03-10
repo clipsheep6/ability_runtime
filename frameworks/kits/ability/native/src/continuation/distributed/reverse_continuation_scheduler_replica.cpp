@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "reverse_continuation_scheduler_replica.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -26,97 +26,97 @@ ReverseContinuationSchedulerReplica::ReverseContinuationSchedulerReplica(
 }
 void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject> &primary)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this, primary]() {
         reverseContinuationSchedulerReplica->HandlerPassPrimary(primary);
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary mainHandler_ == nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::PassPrimary mainHandler_ == nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary PostTask error");
+        APP_LOGE("ReverseContinuationSchedulerReplica::PassPrimary PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 bool ReverseContinuationSchedulerReplica::ReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this]() {
         reverseContinuationSchedulerReplica->HandlerReverseContinuation();
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::ReverseContinuation mainHandler_ == nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::ReverseContinuation mainHandler_ == nullptr");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::ReverseContinuation PostTask error");
+        APP_LOGE("ReverseContinuationSchedulerReplica::ReverseContinuation PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return true;
 }
 void ReverseContinuationSchedulerReplica::NotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this, reverseResult]() {
         reverseContinuationSchedulerReplica->HandlerNotifyReverseResult(reverseResult);
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::NotifyReverseResult mainHandler_ == nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::NotifyReverseResult mainHandler_ == nullptr");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::NotifyReverseResult PostTask error");
+        APP_LOGE("ReverseContinuationSchedulerReplica::NotifyReverseResult PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteObject> &primary)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
         return;
     }
     replicaHandlerTmp->PassPrimary(primary);
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplica::HandlerReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
     return replicaHandlerTmp->ReverseContinuation();
 }
 
 void ReverseContinuationSchedulerReplica::HandlerNotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    APP_LOGI("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
+        APP_LOGE("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
         return;
     }
     replicaHandlerTmp->NotifyReverseResult(reverseResult);
-    HILOG_INFO("%{public}s called end", __func__);
+    APP_LOGI("%{public}s called end", __func__);
 }
 
 }  // namespace AppExecFwk
