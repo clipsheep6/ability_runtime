@@ -16,7 +16,7 @@
 #include "ability_impl.h"
 #include <gtest/gtest.h>
 #include "ability_local_record.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -24,35 +24,35 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
     std::shared_ptr<ContextDeal> &contextDeal)
 {
-    HILOG_INFO("AbilityImpl::init begin");
+    APP_LOGI("AbilityImpl::init begin");
 
     if (token == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, token is nullptr");
+        APP_LOGE("AbilityImpl::init failed, token is nullptr");
         return;
     }
 
     if (application == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, application is nullptr");
+        APP_LOGE("AbilityImpl::init failed, application is nullptr");
         return;
     }
 
     if (record == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, record is nullptr");
+        APP_LOGE("AbilityImpl::init failed, record is nullptr");
         return;
     }
 
     if (ability == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, ability is nullptr");
+        APP_LOGE("AbilityImpl::init failed, ability is nullptr");
         return;
     }
 
     if (token == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, token is nullptr");
+        APP_LOGE("AbilityImpl::init failed, token is nullptr");
         return;
     }
 
     if (contextDeal == nullptr) {
-        HILOG_ERROR("AbilityImpl::init failed, contextDeal is nullptr");
+        APP_LOGE("AbilityImpl::init failed, contextDeal is nullptr");
         return;
     }
 
@@ -63,7 +63,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
     contextDeal_ = contextDeal;
-    HILOG_INFO("AbilityImpl::init end");
+    APP_LOGI("AbilityImpl::init end");
 }
 
 void AbilityImpl::Start(const Want &want)

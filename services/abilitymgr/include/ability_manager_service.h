@@ -475,11 +475,10 @@ public:
     /**
      * Uninstall app
      *
-     * @param bundleName bundle name of uninstalling app.
-     * @param uid uid of bundle.
+     * @param bundleName.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
+    virtual int UninstallApp(const std::string &bundleName) override;
 
     /**
      * Moving mission to the specified stack by mission option(Enter floating window mode).
@@ -1118,7 +1117,6 @@ private:
     void PauseOldUser(int32_t userId);
     void PauseOldStackManager(int32_t userId);
     void PauseOldMissionListManager(int32_t userId);
-    void PauseOldConnectManager(int32_t userId);
     bool IsSystemUI(const std::string &bundleName) const;
 
     bool VerificationAllToken(const sptr<IRemoteObject> &token);

@@ -20,7 +20,7 @@
 #include "ipc_thread_skeleton.h"
 #include "log_tags.h"
 #include "ipc_skeleton.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 #ifdef CONFIG_IPC_RPC
 #include "dbinder_databus_invoker.h"
@@ -43,7 +43,7 @@ IPCObjectStub::IPCObjectStub(std::u16string descriptor) : IRemoteObject(descript
 
 IPCObjectStub::~IPCObjectStub()
 {
-    HILOG_INFO("IPCObjectStub destroyed");
+    APP_LOGI("IPCObjectStub destroyed");
 }
 
 bool IPCObjectStub::IsDeviceIdIllegal(const std::string &deviceID)
@@ -77,14 +77,14 @@ int32_t IPCObjectStub::GetObjectRefCount()
 int IPCObjectStub::Dump(int fd, const std::vector<std::u16string> &args)
 {
     const size_t numArgs = args.size();
-    HILOG_INFO("Invalid call on Stub:fd:%{public}d, args:%{public}zu", fd, numArgs);
+    APP_LOGI("Invalid call on Stub:fd:%{public}d, args:%{public}zu", fd, numArgs);
     return ERR_NONE;
 }
 
 int IPCObjectStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        APP_LOGE("local descriptor is not equal to remote");
         return ERR_TRANSACTION_FAILED;
     }
     int result = ERR_NONE;
@@ -92,7 +92,7 @@ int IPCObjectStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessagePa
 #ifdef CONFIG_IPC_RPC
         case DBINDER_OBITUARY_TRANSACTION: {
             if (IPCSkeleton::GetCallingUid() != SYSTEM_SERVER_UID) {
-                HILOG_INFO(LABEL, "%s: DBINDER_OBITUARY_TRANSACTION unauthenticated user ", __func__);
+                APP_LOGI(LABEL, "%s: DBINDER_OBITUARY_TRANSACTION unauthenticated user ", __func__);
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -106,7 +106,7 @@ int IPCObjectStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessagePa
 #endif
         default:
             result = IPC_STUB_UNKNOW_TRANS_ERR;
-            HILOG_INFO("unknown OnRemoteRequest code = %{public}u", code);
+            APP_LOGI("unknown OnRemoteRequest code = %{public}u", code);
             break;
     }
 
@@ -142,7 +142,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         case INTERFACE_TRANSACTION: {
             std::u16string descriptor = GetObjectDescriptor();
             if (!reply.WriteString16(descriptor)) {
-                HILOG_INFO("write to parcel fail");
+                APP_LOGI("write to parcel fail");
                 result = IPC_STUB_WRITE_PARCEL_ERR;
             }
             break;
@@ -158,7 +158,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case DUMP_TRANSACTION: {
             if (!IPCSkeleton::IsLocalCalling()) {
-                HILOG_INFO("do not allow dump");
+                APP_LOGI("do not allow dump");
                 break;
             }
             result = OnRemoteDump(code, data, reply, option);
@@ -167,7 +167,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
 #ifdef CONFIG_IPC_RPC
         case INVOKE_LISTEN_THREAD: {
             if (!IPCSkeleton::IsLocalCalling() || IPCSkeleton::GetCallingUid() >= ALLOWED_UID) {
-                HILOG_INFO("%s: INVOKE_LISTEN_THREAD unauthenticated user ", __func__);
+                APP_LOGI("%s: INVOKE_LISTEN_THREAD unauthenticated user ", __func__);
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -180,7 +180,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case DBINDER_INCREFS_TRANSACTION: {
             if (IPCSkeleton::IsLocalCalling()) {
-                HILOG_INFO("%s: cannot be called in same device", __func__);
+                APP_LOGI("%s: cannot be called in same device", __func__);
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -189,7 +189,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case DBINDER_DECREFS_TRANSACTION: {
             if (IPCSkeleton::IsLocalCalling()) {
-                HILOG_INFO("%s: cannot be called in same device", __func__);
+                APP_LOGI("%s: cannot be called in same device", __func__);
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -198,7 +198,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case DBINDER_ADD_COMMAUTH: {
             if (IPCSkeleton::IsLocalCalling() || IPCSkeleton::GetCallingUid() >= ALLOWED_UID) {
-                HILOG_INFO("%s: DBINDER_ADD_COMMAUTH unauthenticated user ", __func__);
+                APP_LOGI("%s: DBINDER_ADD_COMMAUTH unauthenticated user ", __func__);
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -207,18 +207,18 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case GET_UIDPID_INFO: {
             if (!IPCSkeleton::IsLocalCalling()) {
-                HILOG_INFO("GET_UIDPID_INFO message is not from sa manager");
+                APP_LOGI("GET_UIDPID_INFO message is not from sa manager");
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
             std::string sessionName = GetDataBusName();
             if (sessionName.empty()) {
-                HILOG_INFO("sessionName is empty");
+                APP_LOGI("sessionName is empty");
                 result = IPC_STUB_CREATE_BUS_SERVER_ERR;
                 break;
             }
             if (!reply.WriteString(sessionName)) {
-                HILOG_INFO("write to parcel fail");
+                APP_LOGI("write to parcel fail");
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -226,7 +226,7 @@ int IPCObjectStub::SendRequest(uint32_t code, MessageParcel &data, MessageParcel
         }
         case GRANT_DATABUS_NAME: {
             if (!IPCSkeleton::IsLocalCalling() || getuid() != SYSTEM_SERVER_UID) {
-                HILOG_INFO("GRANT_DATABUS_NAME message is excluded in sa manager");
+                APP_LOGI("GRANT_DATABUS_NAME message is excluded in sa manager");
                 result = IPC_STUB_INVALID_DATA_ERR;
                 break;
             }
@@ -291,9 +291,9 @@ pid_t IPCObjectStub::GetCallingUid()
 int32_t IPCObjectStub::ProcessProto(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     int result = ERR_NONE;
-    HILOG_INFO("IPCObjectStub::ProcessProto called, type = 0, normal stub object");
+    APP_LOGI("IPCObjectStub::ProcessProto called, type = 0, normal stub object");
     if (!reply.WriteUint32(IRemoteObject::IF_PROT_BINDER)) {
-        HILOG_INFO("write to parcel fail");
+        APP_LOGI("write to parcel fail");
         result = IPC_STUB_WRITE_PARCEL_ERR;
     }
     return result;
@@ -305,13 +305,13 @@ int32_t IPCObjectStub::InvokerThread(uint32_t code, MessageParcel &data, Message
     switch (data.ReadUint32()) {
         case IRemoteObject::DATABUS_TYPE: {
             if (InvokerDataBusThread(data, reply) != ERR_NONE) {
-                HILOG_INFO("Invoker databus thread fail");
+                APP_LOGI("Invoker databus thread fail");
                 return IPC_STUB_INVOKE_THREAD_ERR;
             }
             break;
         }
         default: {
-            HILOG_INFO("InvokerThread Invalid Type");
+            APP_LOGI("InvokerThread Invalid Type");
             return IPC_STUB_INVALID_DATA_ERR;
         }
     }
@@ -327,34 +327,34 @@ int32_t IPCObjectStub::InvokerDataBusThread(MessageParcel &data, MessageParcel &
     std::string remoteDeviceId = data.ReadString();
     std::string sessionName = data.ReadString();
     if (IsDeviceIdIllegal(deviceId) || IsDeviceIdIllegal(remoteDeviceId) || sessionName.empty()) {
-        HILOG_INFO("%s: device ID is invalid or session name nil", __func__);
+        APP_LOGI("%s: device ID is invalid or session name nil", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
     IPCProcessSkeleton *current = IPCProcessSkeleton::GetCurrent();
     if (current == nullptr) {
-        HILOG_INFO("IPCProcessSkeleton is nullptr");
+        APP_LOGI("IPCProcessSkeleton is nullptr");
         return IPC_STUB_CURRENT_NULL_ERR;
     }
     if (!current->CreateSoftbusServer(sessionName)) {
-        HILOG_INFO("%s: fail to create databus server", __func__);
+        APP_LOGI("%s: fail to create databus server", __func__);
         return IPC_STUB_CREATE_BUS_SERVER_ERR;
     }
 
     uint64_t stubIndex = current->AddStubByIndex(this);
     if (stubIndex == 0) {
-        HILOG_INFO("%s: add stub fail", __func__);
+        APP_LOGI("%s: add stub fail", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
     if (!reply.WriteUint64(stubIndex) || !reply.WriteString(sessionName) || !reply.WriteString(deviceId)) {
-        HILOG_INFO("%s: write to parcel fail", __func__);
+        APP_LOGI("%s: write to parcel fail", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
     if (!current->AttachAppInfoToStubIndex(remotePid, remoteUid, remoteDeviceId, stubIndex)) {
-        HILOG_INFO("fail to attach appinfo to stubIndex, maybe attach already");
+        APP_LOGI("fail to attach appinfo to stubIndex, maybe attach already");
     }
     if (!current->AttachCommAuthInfo(this, remotePid, remoteUid, remoteDeviceId)) {
-        HILOG_INFO("fail to attach comm auth info");
+        APP_LOGI("fail to attach comm auth info");
     }
 
     return ERR_NONE;
@@ -364,20 +364,20 @@ int32_t IPCObjectStub::NoticeServiceDie(MessageParcel &data, MessageParcel &repl
 {
     IPCProcessSkeleton *current = IPCProcessSkeleton::GetCurrent();
     if (current == nullptr) {
-        HILOG_INFO("%s: current is null", __func__);
+        APP_LOGI("%s: current is null", __func__);
         return IPC_STUB_CURRENT_NULL_ERR;
     }
 
     IPCObjectProxy *ipcProxy = current->QueryCallbackProxy(this);
     if (ipcProxy == nullptr) {
-        HILOG_INFO("%s: ipc proxy is null", __func__);
+        APP_LOGI("%s: ipc proxy is null", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
     ipcProxy->SendObituary();
 
     if (!current->DetachCallbackStub(this)) {
-        HILOG_INFO("%s: fail to detach callback stub", __func__);
+        APP_LOGI("%s: fail to detach callback stub", __func__);
         // do nothing, RemoveDeathRecipient can delete this too
     }
 
@@ -388,17 +388,17 @@ int32_t IPCObjectStub::IncStubRefs(MessageParcel &data, MessageParcel &reply)
 {
     IPCProcessSkeleton *current = IPCProcessSkeleton::GetCurrent();
     if (current == nullptr) {
-        HILOG_INFO("%s: current is null", __func__);
+        APP_LOGI("%s: current is null", __func__);
         return IPC_STUB_CURRENT_NULL_ERR;
     }
 
     std::string deviceId = IPCSkeleton::GetCallingDeviceID();
     if (deviceId.empty()) {
-        HILOG_INFO("%s: calling error", __func__);
+        APP_LOGI("%s: calling error", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
     if (!current->AttachStubRecvRefInfo(this, IPCSkeleton::GetCallingPid(), deviceId)) {
-        HILOG_INFO("%s: attach stub ref info err, already in", __func__);
+        APP_LOGI("%s: attach stub ref info err, already in", __func__);
         return ERR_NONE;
     }
 
@@ -413,7 +413,7 @@ int32_t IPCObjectStub::DecStubRefs(MessageParcel &data, MessageParcel &reply)
 {
     IPCProcessSkeleton *current = IPCProcessSkeleton::GetCurrent();
     if (current == nullptr) {
-        HILOG_INFO("%s: current is null", __func__);
+        APP_LOGI("%s: current is null", __func__);
         return IPC_STUB_CURRENT_NULL_ERR;
     }
 
@@ -428,18 +428,18 @@ int32_t IPCObjectStub::AddAuthInfo(MessageParcel &data, MessageParcel &reply)
     uint32_t remoteUid = data.ReadUint32();
     std::string remoteDeviceId = data.ReadString();
     if (IsDeviceIdIllegal(remoteDeviceId)) {
-        HILOG_INFO("%s: remote deviceId is null", __func__);
+        APP_LOGI("%s: remote deviceId is null", __func__);
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
     IPCProcessSkeleton *current = IPCProcessSkeleton::GetCurrent();
     if (current == nullptr) {
-        HILOG_INFO("%s: current is null", __func__);
+        APP_LOGI("%s: current is null", __func__);
         return IPC_STUB_CURRENT_NULL_ERR;
     }
 
     if (!current->AttachCommAuthInfo(this, remotePid, remoteUid, remoteDeviceId)) {
-        HILOG_INFO("fail to attach comm auth info fail");
+        APP_LOGI("fail to attach comm auth info fail");
         return IPC_STUB_INVALID_DATA_ERR;
     }
     return ERR_NONE;
@@ -449,7 +449,7 @@ std::string IPCObjectStub::GetDataBusName()
 {
     sptr<IRemoteObject> object = IPCProcessSkeleton::GetCurrent()->GetSAMgrObject();
     if (object == nullptr) {
-        HILOG_INFO("get object is null");
+        APP_LOGI("get object is null");
         return std::string("");
     }
 
@@ -463,11 +463,11 @@ int32_t IPCObjectStub::GrantDataBusName(uint32_t code, MessageParcel &data, Mess
     int uid = IPCSkeleton::GetCallingUid();
     std::string sessionName = CreateDatabusName(uid, pid);
     if (sessionName.empty()) {
-        HILOG_INFO("pid/uid is invalid, pid = {public}%d, uid = {public}%d", pid, uid);
+        APP_LOGI("pid/uid is invalid, pid = {public}%d, uid = {public}%d", pid, uid);
         return IPC_STUB_INVALID_DATA_ERR;
     }
     if (!reply.WriteUint32(IRemoteObject::IF_PROT_DATABUS) || !reply.WriteString(sessionName)) {
-        HILOG_INFO("write to parcel fail");
+        APP_LOGI("write to parcel fail");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -478,13 +478,13 @@ std::string IPCObjectStub::CreateDatabusName(int uid, int pid)
 {
     std::shared_ptr<ISessionService> softbusManager = ISessionService::GetInstance();
     if (softbusManager == nullptr) {
-        HILOG_INFO("fail to get softbus service");
+        APP_LOGI("fail to get softbus service");
         return "";
     }
 
     std::string sessionName = "DBinder" + std::to_string(uid) + std::string("_") + std::to_string(pid);
     if (softbusManager->GrantPermission(uid, pid, sessionName) != ERR_NONE) {
-        HILOG_INFO("fail to Grant Permission softbus name");
+        APP_LOGI("fail to Grant Permission softbus name");
         return "";
     }
 

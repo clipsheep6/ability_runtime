@@ -23,7 +23,6 @@
 #include "ability_util.h"
 #include "bytrace.h"
 #include "hilog_wrapper.h"
-#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -1075,8 +1074,8 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER(bms);
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos));
+    bool queryResult = bms->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos);
     if (queryResult) {
         HILOG_INFO("Query Extension Ability Infos Success.");
         auto abilityInfo = abilityRecord->GetAbilityInfo();
@@ -1106,22 +1105,6 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
         extensionInfo.clientPackage.emplace_back(package);
     }
     info.emplace_back(extensionInfo);
-}
-
-void AbilityConnectManager::StopAllExtensions()
-{
-    HILOG_INFO("StopAllExtensions begin.");
-    std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto mgr = shared_from_this();
-    auto task = [mgr](ServiceMapType::reference service) {
-        auto abilityRecord = service.second;
-        CHECK_POINTER(abilityRecord);
-        if (abilityRecord->GetAbilityInfo().type == AbilityType::EXTENSION) {
-            mgr->TerminateAbilityLocked(abilityRecord->GetToken());
-        }
-    };
-    std::for_each(serviceMap_.begin(), serviceMap_.end(), task);
-    HILOG_INFO("StopAllExtensions end.");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

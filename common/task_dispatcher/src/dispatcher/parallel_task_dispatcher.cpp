@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 #include "parallel_task_dispatcher.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -34,53 +34,53 @@ std::shared_ptr<TaskExecuteInterceptor> ParallelTaskDispatcher::GetInterceptor()
 
 ErrCode ParallelTaskDispatcher::SyncDispatchBarrier(const std::shared_ptr<Runnable> &runnable)
 {
-    HILOG_DEBUG("ParallelTaskDispatcher::SyncDispatchBarrier start");
+    APP_LOGD("ParallelTaskDispatcher::SyncDispatchBarrier start");
     if (Check(runnable) != ERR_OK) {
-        HILOG_ERROR("ParallelTaskDispatcher::SyncDispatchBarrier Check failed");
+        APP_LOGE("ParallelTaskDispatcher::SyncDispatchBarrier Check failed");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
 
     std::shared_ptr<SyncTask> innerSyncTask = std::make_shared<SyncTask>(runnable, GetPriority(), shared_from_this());
     if (innerSyncTask == nullptr) {
-        HILOG_ERROR("ParallelTaskDispatcher::SyncDispatchBarrier innerSyncTask is nullptr");
+        APP_LOGE("ParallelTaskDispatcher::SyncDispatchBarrier innerSyncTask is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     std::shared_ptr<Task> innerTask = std::static_pointer_cast<Task>(innerSyncTask);
     if (innerTask == nullptr) {
-        HILOG_ERROR("ParallelTaskDispatcher::SyncDispatchBarrier innerTask is nullptr");
+        APP_LOGE("ParallelTaskDispatcher::SyncDispatchBarrier innerTask is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
-    HILOG_DEBUG("ParallelTaskDispatcher::SyncDispatchBarrier into new sync task");
+    APP_LOGD("ParallelTaskDispatcher::SyncDispatchBarrier into new sync task");
     if (barrierHandler_ == nullptr) {
-        HILOG_ERROR("ParallelTaskDispatcher::SyncDispatchBarrier barrierHandler_ is nullptr");
+        APP_LOGE("ParallelTaskDispatcher::SyncDispatchBarrier barrierHandler_ is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     barrierHandler_->AddBarrier(innerTask);
     innerSyncTask->WaitTask();
-    HILOG_DEBUG("ParallelTaskDispatcher::SyncDispatchBarrier end");
+    APP_LOGD("ParallelTaskDispatcher::SyncDispatchBarrier end");
     return ERR_OK;
 }
 
 ErrCode ParallelTaskDispatcher::AsyncDispatchBarrier(const std::shared_ptr<Runnable> &runnable)
 {
-    HILOG_DEBUG("ParallelTaskDispatcher::AsyncDispatchBarrier start");
+    APP_LOGD("ParallelTaskDispatcher::AsyncDispatchBarrier start");
     if (Check(runnable) != ERR_OK) {
-        HILOG_ERROR("ParallelTaskDispatcher::AsyncDispatchBarrier check failed");
+        APP_LOGE("ParallelTaskDispatcher::AsyncDispatchBarrier check failed");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     if (barrierHandler_ == nullptr) {
-        HILOG_ERROR("ParallelTaskDispatcher::AsyncDispatchBarrier barrierHandler_ is nullptr");
+        APP_LOGE("ParallelTaskDispatcher::AsyncDispatchBarrier barrierHandler_ is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
     std::shared_ptr<Task> innerTask = std::make_shared<Task>(runnable, GetPriority(), shared_from_this());
-    HILOG_INFO("ParallelTaskDispatcher::AsyncDispatchBarrier into new async task");
+    APP_LOGI("ParallelTaskDispatcher::AsyncDispatchBarrier into new async task");
     if (innerTask == nullptr) {
-        HILOG_ERROR("ParallelTaskDispatcher::AsyncDispatchBarrier innerTask is nullptr");
+        APP_LOGE("ParallelTaskDispatcher::AsyncDispatchBarrier innerTask is nullptr");
         return ERR_APPEXECFWK_CHECK_FAILED;
     }
 
     barrierHandler_->AddBarrier(innerTask);
-    HILOG_INFO("ParallelTaskDispatcher::AsyncDispatchBarrier end");
+    APP_LOGI("ParallelTaskDispatcher::AsyncDispatchBarrier end");
     return ERR_OK;
 }
 }  // namespace AppExecFwk

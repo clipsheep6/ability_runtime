@@ -14,7 +14,7 @@
  */
 
 #include "service_ability_impl.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -28,13 +28,13 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
  */
 void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+    APP_LOGI("ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant);
     if (lifecycleState_ == targetState.state) {
-        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
+        APP_LOGE("Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
 
@@ -60,17 +60,17 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
         }
         default: {
             ret = false;
-            HILOG_ERROR("ServiceAbilityImpl::HandleAbilityTransaction state is error");
+            APP_LOGE("ServiceAbilityImpl::HandleAbilityTransaction state is error");
             break;
         }
     }
 
     if (ret) {
-        HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
+        APP_LOGI("ServiceAbilityImpl::HandleAbilityTransaction before AbilityManagerClient->AbilityTransitionDone");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
-        HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
+        APP_LOGI("ServiceAbilityImpl::HandleAbilityTransaction after AbilityManagerClient->AbilityTransitionDone");
     }
-    HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction end");
+    APP_LOGI("ServiceAbilityImpl::HandleAbilityTransaction end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

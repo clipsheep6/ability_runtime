@@ -23,7 +23,10 @@ ohos_shared_library("formbindingdata_napi") {
 
   configs = [ "//foundation/aafwk/standard/services/common:common_config" ]
 
-  deps = []
+  deps = [
+    "//foundation/ace/napi:ace_napi",
+    "//utils/native/base:utils",
+  ]
 
   external_deps = [
     "ability_runtime:runtime",
@@ -32,7 +35,6 @@ ohos_shared_library("formbindingdata_napi") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/application"

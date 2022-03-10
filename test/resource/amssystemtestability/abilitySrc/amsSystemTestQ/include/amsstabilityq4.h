@@ -19,7 +19,7 @@
 #include <string>
 #include <thread>
 #include "ability_loader.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {

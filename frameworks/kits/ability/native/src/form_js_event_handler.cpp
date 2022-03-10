@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
+#include "app_log_wrapper.h"
 #include "form_constants.h"
 #include "form_host_client.h"
 #include "form_js_event_handler.h"
 #include "form_mgr.h"
-#include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 
 namespace OHOS {
@@ -26,7 +26,7 @@ FormJsEventHandler::FormJsEventHandler(
     const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<Ability> &ability, const FormJsInfo &formJsInfo)
     : EventHandler(runner), formJsInfo_(formJsInfo), ability_(ability)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
 }
 
 /**
@@ -36,12 +36,12 @@ FormJsEventHandler::FormJsEventHandler(
  */
 void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
     if (!event) {
-        HILOG_ERROR("%{public}s, param illegal, event is nullptr", __func__);
+        APP_LOGE("%{public}s, param illegal, event is nullptr", __func__);
         return;
     }
-    HILOG_DEBUG("%{public}s, inner event id obtained: %u.", __func__, event->GetInnerEventId());
+    APP_LOGD("%{public}s, inner event id obtained: %u.", __func__, event->GetInnerEventId());
 
     switch (event->GetInnerEventId()) {
         case FORM_ROUTE_EVENT: {
@@ -57,7 +57,7 @@ void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
             break;
         }
         default: {
-            HILOG_WARN("unsupported event.");
+            APP_LOGW("unsupported event.");
             break;
         }
     }
@@ -69,14 +69,14 @@ void FormJsEventHandler::ProcessEvent(const InnerEvent::Pointer &event)
  */
 void FormJsEventHandler::ProcessRouterEvent(Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
 
     if (!IsSystemApp()) {
-        HILOG_WARN("%{public}s, not system application, cannot mixture package router", __func__);
+        APP_LOGW("%{public}s, not system application, cannot mixture package router", __func__);
         return;
     }
     if (!want.HasParameter(Constants::PARAM_FORM_ABILITY_NAME_KEY)) {
-        HILOG_ERROR("%{public}s, param illegal, abilityName is not exist", __func__);
+        APP_LOGE("%{public}s, param illegal, abilityName is not exist", __func__);
         return;
     }
 
@@ -91,35 +91,34 @@ void FormJsEventHandler::ProcessRouterEvent(Want &want)
  */
 void FormJsEventHandler::ProcessMessageEvent(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
 
     if (!want.HasParameter(Constants::PARAM_FORM_IDENTITY_KEY)) {
-        HILOG_ERROR("%{public}s, formid is not exist", __func__);
+        APP_LOGE("%{public}s, formid is not exist", __func__);
         return;
     }
     std::string strFormId = want.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY);
     int64_t formId = std::stoll(strFormId);
     if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, The passed formid is invalid. Its value must be larger than 0.", __func__);
+        APP_LOGE("%{public}s error, The passed formid is invalid. Its value must be larger than 0.", __func__);
         return;
     }
 
     if (!want.HasParameter(Constants::PARAM_MESSAGE_KEY)) {
-        HILOG_ERROR("%{public}s, message info is not exist", __func__);
+        APP_LOGE("%{public}s, message info is not exist", __func__);
         return;
     }
 
     if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
+        APP_LOGE("%{public}s error, form is in recover status, can't do action on form.", __func__);
         return;
     }
 
     // requestForm request to fms
     int resultCode = FormMgr::GetInstance().MessageEvent(formId, want, FormHostClient::GetInstance());
     if (resultCode != ERR_OK) {
-        HILOG_ERROR(
-            "%{public}s error, failed to notify the form service that the form user's lifecycle is updated, error "
-            "code is %{public}d.",
+        APP_LOGE("%{public}s error, failed to notify the form service that the form user's lifecycle is updated, error "
+                 "code is %{public}d.",
             __func__,
             resultCode);
         return;
@@ -128,17 +127,17 @@ void FormJsEventHandler::ProcessMessageEvent(const Want &want)
 
 bool FormJsEventHandler::IsSystemApp() const
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    APP_LOGI("%{public}s called.", __func__);
 
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid > Constants::MAX_SYSTEM_APP_UID) {
-        HILOG_WARN("%{public}s warn, callingUid is %{public}d, which is larger than %{public}d.",
+        APP_LOGW("%{public}s warn, callingUid is %{public}d, which is larger than %{public}d.",
             __func__,
             callingUid,
             Constants::MAX_SYSTEM_APP_UID);
         return false;
     } else {
-        HILOG_DEBUG("%{public}s, callingUid = %{public}d.", __func__, callingUid);
+        APP_LOGD("%{public}s, callingUid = %{public}d.", __func__, callingUid);
         return true;
     }
 }

@@ -14,7 +14,7 @@
  */
 
 #include "third_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "test_utils.h"
 
 namespace OHOS {
@@ -26,7 +26,7 @@ void ThirdAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("ThirdAbility::Init");
+    APP_LOGI("ThirdAbility::Init");
     Ability::Init(abilityInfo, application, handler, token);
 }
 
@@ -37,7 +37,7 @@ ThirdAbility::~ThirdAbility()
 
 void ThirdAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("ThirdAbility::OnStart");
+    APP_LOGI("ThirdAbility::OnStart");
     SubscribeEvent();
     Ability::OnStart(want);
     callbackSeq += "OnStart";
@@ -46,7 +46,7 @@ void ThirdAbility::OnStart(const Want &want)
 
 void ThirdAbility::OnStop()
 {
-    HILOG_INFO("ThirdAbility::OnStop");
+    APP_LOGI("ThirdAbility::OnStop");
     Ability::OnStop();
     callbackSeq += "OnStop";  // OnInactiveOnBackgroundOnStop
     CommonEventManager::UnSubscribeCommonEvent(subscriber_);
@@ -56,7 +56,7 @@ void ThirdAbility::OnStop()
 
 void ThirdAbility::OnActive()
 {
-    HILOG_INFO("ThirdAbility::OnActive====<");
+    APP_LOGI("ThirdAbility::OnActive====<");
     Ability::OnActive();
     callbackSeq += "OnActive";  // OnStartOnActive
     TestUtils::PublishEvent(g_EVENT_RESP_THIRD_LIFECYCLE, THIRD_ABILITY_CODE, callbackSeq);
@@ -65,7 +65,7 @@ void ThirdAbility::OnActive()
 
 void ThirdAbility::OnConfigurationUpdated(const Configuration &configuration)
 {
-    HILOG_INFO("ThirdAbility::OnConfigurationUpdated====<");
+    APP_LOGI("ThirdAbility::OnConfigurationUpdated====<");
     Ability::OnConfigurationUpdated(configuration);
     callbackUpdated += "Updated";  // UpdatedUpdated
     TestUtils::PublishEvent(g_EVENT_RESP_THIRD_LIFECYCLE, THIRD_ABILITY_CODE, callbackUpdated);
@@ -73,7 +73,7 @@ void ThirdAbility::OnConfigurationUpdated(const Configuration &configuration)
 
 void ThirdAbility::OnInactive()
 {
-    HILOG_INFO("ThirdAbility::OnInactive");
+    APP_LOGI("ThirdAbility::OnInactive");
     Ability::OnInactive();
     callbackSeq += "OnInactive";
     TestUtils::PublishEvent(g_EVENT_RESP_THIRD_LIFECYCLE, THIRD_ABILITY_CODE, "OnInactive");
@@ -81,7 +81,7 @@ void ThirdAbility::OnInactive()
 
 void ThirdAbility::OnBackground()
 {
-    HILOG_INFO("ThirdAbility::OnBackground");
+    APP_LOGI("ThirdAbility::OnBackground");
     Ability::OnBackground();
     callbackSeq += "OnBackground";
     TestUtils::PublishEvent(g_EVENT_RESP_THIRD_LIFECYCLE, THIRD_ABILITY_CODE, "OnBackground");
@@ -89,7 +89,7 @@ void ThirdAbility::OnBackground()
 
 void ThirdAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("ThirdAbility::OnForeground");
+    APP_LOGI("ThirdAbility::OnForeground");
     Ability::OnForeground(want);
     callbackSeq += "OnForeground";
     TestUtils::PublishEvent(g_EVENT_RESP_THIRD_LIFECYCLE, THIRD_ABILITY_CODE, "OnForeground");
@@ -113,15 +113,15 @@ void ThirdAbility::SubscribeEvent()
 
 void ThirdAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO("ThirdAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("ThirdAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("ThirdAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("ThirdAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("ThirdAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("ThirdAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
     auto eventName = data.GetWant().GetAction();
 }
 
 void ThirdAbility::TestAbility(int apiIndex, int caseIndex, int code)
 {
-    HILOG_INFO("ThirdAbility::TestAbility");
+    APP_LOGI("ThirdAbility::TestAbility");
     if (mapCase_.find(apiIndex) != mapCase_.end()) {
         if (caseIndex < (int)mapCase_[apiIndex].size()) {
             mapCase_[apiIndex][caseIndex](code);

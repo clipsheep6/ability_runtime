@@ -14,7 +14,7 @@
  */
 
 #include "life_cycle_call_backs_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "base_ability.h"
 #include "test_utils.h"
 
@@ -88,7 +88,7 @@ void LifecycleCallbacksAbility::Init(const std::shared_ptr<AbilityInfo> &ability
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("LifecycleCallbacksAbility::Init called.");
+    APP_LOGI("LifecycleCallbacksAbility::Init called.");
 
     Ability::Init(abilityInfo, application, handler, token);
 
@@ -105,7 +105,7 @@ std::string LifecycleCallbacksAbility::GetNoFromWantInfo(const Want &want)
 
 void LifecycleCallbacksAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnStart");
+    APP_LOGI("LifecycleCallbacksAbility::OnStart");
 
     sequenceNumber_ = GetNoFromWantInfo(want);
 
@@ -121,10 +121,9 @@ void LifecycleCallbacksAbility::StopSelfAbility()
 
 void LifecycleCallbacksEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO(
-        "LifecycleCallbacksEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("LifecycleCallbacksEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("LifecycleCallbacksEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("LifecycleCallbacksEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("LifecycleCallbacksEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("LifecycleCallbacksEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
 
     auto eventName = data.GetWant().GetAction();
     if (std::strcmp(eventName.c_str(), APP_LIFE_CYCLE_CALL_BACKS_REQ_EVENT_NAME.c_str()) == 0) {
@@ -133,7 +132,7 @@ void LifecycleCallbacksEventSubscriber::OnReceiveEvent(const CommonEventData &da
         if (func != mapTestFunc_.end()) {
             func->second();
         } else {
-            HILOG_INFO(
+            APP_LOGI(
                 "LifecycleCallbacksEventSubscriber::OnReceiveEvent: CommonEventData error(%{public}s)", target.c_str());
         }
     }
@@ -151,7 +150,7 @@ bool LifecycleCallbacksAbility::SubscribeEvent()
 }
 void LifecycleCallbacksAbility::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnCommand");
+    APP_LOGI("LifecycleCallbacksAbility::OnCommand");
 
     Ability::OnCommand(want, restart, startId);
     TestUtils::PublishEvent(
@@ -159,13 +158,13 @@ void LifecycleCallbacksAbility::OnCommand(const AAFwk::Want &want, bool restart,
 }
 void LifecycleCallbacksAbility::OnNewWant(const Want &want)
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnNewWant");
+    APP_LOGI("LifecycleCallbacksAbility::OnNewWant");
 
     Ability::OnNewWant(want);
 }
 void LifecycleCallbacksAbility::OnStop()
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnStop");
+    APP_LOGI("LifecycleCallbacksAbility::OnStop");
 
     Ability::OnStop();
     TestUtils::PublishEvent(
@@ -173,7 +172,7 @@ void LifecycleCallbacksAbility::OnStop()
 }
 void LifecycleCallbacksAbility::OnActive()
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnActive");
+    APP_LOGI("LifecycleCallbacksAbility::OnActive");
 
     Ability::OnActive();
     TestUtils::PublishEvent(
@@ -181,7 +180,7 @@ void LifecycleCallbacksAbility::OnActive()
 }
 void LifecycleCallbacksAbility::OnInactive()
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnInactive");
+    APP_LOGI("LifecycleCallbacksAbility::OnInactive");
 
     Ability::OnInactive();
     TestUtils::PublishEvent(
@@ -189,7 +188,7 @@ void LifecycleCallbacksAbility::OnInactive()
 }
 void LifecycleCallbacksAbility::OnBackground()
 {
-    HILOG_INFO("LifecycleCallbacksAbility::OnBackground");
+    APP_LOGI("LifecycleCallbacksAbility::OnBackground");
 
     Ability::OnBackground();
     TestUtils::PublishEvent(APP_LIFE_CYCLE_CALL_BACKS_RESP_EVENT_NAME,

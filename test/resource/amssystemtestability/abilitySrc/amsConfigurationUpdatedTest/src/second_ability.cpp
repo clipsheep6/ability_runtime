@@ -14,7 +14,7 @@
  */
 
 #include "second_ability.h"
-#include "hilog_wrapper.h"
+#include "app_log_wrapper.h"
 #include "test_utils.h"
 
 namespace OHOS {
@@ -26,7 +26,7 @@ void SecondAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("SecondAbility::Init");
+    APP_LOGI("SecondAbility::Init");
     Ability::Init(abilityInfo, application, handler, token);
 }
 
@@ -37,7 +37,7 @@ SecondAbility::~SecondAbility()
 
 void SecondAbility::OnStart(const Want &want)
 {
-    HILOG_INFO("SecondAbility::OnStart");
+    APP_LOGI("SecondAbility::OnStart");
     SubscribeEvent();
     Ability::OnStart(want);
     callbackSeq += "OnStart";
@@ -46,7 +46,7 @@ void SecondAbility::OnStart(const Want &want)
 
 void SecondAbility::OnStop()
 {
-    HILOG_INFO("SecondAbility::OnStop");
+    APP_LOGI("SecondAbility::OnStop");
     Ability::OnStop();
     CommonEventManager::UnSubscribeCommonEvent(subscriber_);
     callbackSeq += "OnStop";  // OnInactiveOnBackgroundOnStop
@@ -56,7 +56,7 @@ void SecondAbility::OnStop()
 
 void SecondAbility::OnActive()
 {
-    HILOG_INFO("SecondAbility::OnActive====<");
+    APP_LOGI("SecondAbility::OnActive====<");
     Ability::OnActive();
     callbackSeq += "OnActive";  // OnStartOnActive
     TestUtils::PublishEvent(g_EVENT_RESP_MAIN_LIFECYCLE, SECOND_ABILITY_CODE, callbackSeq);
@@ -68,7 +68,7 @@ void SecondAbility::OnConfigurationUpdated(const Configuration &configuration)
     std::string languageValue;
     std::string orientationValue;
 
-    HILOG_INFO("SecondAbility::OnConfigurationUpdated====<");
+    APP_LOGI("SecondAbility::OnConfigurationUpdated====<");
     Ability::OnConfigurationUpdated(configuration);
 
     languageValue = configuration.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
@@ -82,7 +82,7 @@ void SecondAbility::OnConfigurationUpdated(const Configuration &configuration)
 
 void SecondAbility::OnInactive()
 {
-    HILOG_INFO("SecondAbility::OnInactive");
+    APP_LOGI("SecondAbility::OnInactive");
     Ability::OnInactive();
     callbackSeq += "OnInactive";
     TestUtils::PublishEvent(g_EVENT_RESP_MAIN_LIFECYCLE, SECOND_ABILITY_CODE, "OnInactive");
@@ -90,7 +90,7 @@ void SecondAbility::OnInactive()
 
 void SecondAbility::OnBackground()
 {
-    HILOG_INFO("SecondAbility::OnBackground");
+    APP_LOGI("SecondAbility::OnBackground");
     Ability::OnBackground();
     callbackSeq += "OnBackground";
     TestUtils::PublishEvent(g_EVENT_RESP_MAIN_LIFECYCLE, SECOND_ABILITY_CODE, "OnBackground");
@@ -98,7 +98,7 @@ void SecondAbility::OnBackground()
 
 void SecondAbility::OnForeground(const Want &want)
 {
-    HILOG_INFO("SecondAbility::OnForeground");
+    APP_LOGI("SecondAbility::OnForeground");
     Ability::OnForeground(want);
     callbackSeq += "OnForeground";
     TestUtils::PublishEvent(g_EVENT_RESP_MAIN_LIFECYCLE, SECOND_ABILITY_CODE, "OnForeground");
@@ -122,15 +122,15 @@ void SecondAbility::SubscribeEvent()
 
 void SecondAbilityEventSubscriber::OnReceiveEvent(const CommonEventData &data)
 {
-    HILOG_INFO("SecondAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
-    HILOG_INFO("SecondAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
-    HILOG_INFO("SecondAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
+    APP_LOGI("SecondAbilityEventSubscriber::OnReceiveEvent:event=%{public}s", data.GetWant().GetAction().c_str());
+    APP_LOGI("SecondAbilityEventSubscriber::OnReceiveEvent:data=%{public}s", data.GetData().c_str());
+    APP_LOGI("SecondAbilityEventSubscriber::OnReceiveEvent:code=%{public}d", data.GetCode());
     auto eventName = data.GetWant().GetAction();
 }
 
 void SecondAbility::TestAbility(int apiIndex, int caseIndex, int code)
 {
-    HILOG_INFO("SecondAbility::TestAbility");
+    APP_LOGI("SecondAbility::TestAbility");
     if (mapCase_.find(apiIndex) != mapCase_.end()) {
         if (caseIndex < (int)mapCase_[apiIndex].size()) {
             mapCase_[apiIndex][caseIndex](code);
