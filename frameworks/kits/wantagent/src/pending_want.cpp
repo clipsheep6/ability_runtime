@@ -389,6 +389,10 @@ std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &targe
 
 bool PendingWant::Marshalling(Parcel &parcel) const
 {
+    if (target_ == nullptr) {
+        HILOG_ERROR("invalid tatget.");
+        return false;
+    }
     if (!parcel.WriteParcelable(target_->AsObject())) {
         WANT_AGENT_LOGE("parcel WriteString failed");
         return false;
