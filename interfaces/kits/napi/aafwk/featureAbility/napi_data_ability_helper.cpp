@@ -35,6 +35,9 @@
 #include "napi_rdb_predicates.h"
 #include "napi_result_set.h"
 #include "securec.h"
+#ifndef SUPPORT_GRAPHICS
+#include "float.h"
+#endif
 
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
