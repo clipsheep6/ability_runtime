@@ -1602,6 +1602,10 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_INFO("%{public}s begin.", __func__);
+    if (!currentAbility_) {
+        HILOG_ERROR("currentAbility is nullptr.");
+        return;
+    }
     if (!params.empty()) {
         if (abilityImpl_->IsStageBasedModel()) {
             auto scene = currentAbility_->GetScene();
@@ -1638,11 +1642,6 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
 
-    if (!currentAbility_) {
-        HILOG_INFO("currentAbility is nullptr.");
-        return;
-    }
-
     const auto ablityContext = currentAbility_->GetAbilityContext();
     if (!ablityContext) {
         HILOG_INFO("current ability context is nullptr.");
@@ -1669,7 +1668,7 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
     HILOG_INFO("AbilityThread::CallRequest begin");
 
     if (!currentAbility_) {
-        HILOG_INFO("ability is nullptr.");
+        HILOG_ERROR("ability is nullptr.");
         return nullptr;
     }
 
