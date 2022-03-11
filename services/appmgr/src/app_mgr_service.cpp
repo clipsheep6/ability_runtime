@@ -467,10 +467,12 @@ int AppMgrService::BlockAppService()
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    auto task = [=]() { while(1) {
-        HILOG_DEBUG("%{public}s begain block app service", __func__);
-        std::this_thread::sleep_for(APP_MS_BLOCK*1s);
-    }};
+    auto task = [=]() {
+        while(1) {
+            HILOG_DEBUG("%{public}s begain block app service", __func__);
+            std::this_thread::sleep_for(APP_MS_BLOCK*1s);
+        }
+    };
     handler_->PostTask(task);
     return ERR_OK;
 }

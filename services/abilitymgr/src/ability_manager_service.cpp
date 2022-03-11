@@ -4712,10 +4712,12 @@ int AbilityManagerService::BlockAmsService()
     HILOG_DEBUG("%{public}s", __func__);
     if (handler_) {
         HILOG_DEBUG("%{public}s begain post block ams service task", __func__);
-        auto BlockAmsServiceTask = [aams = shared_from_this()]() { while(1) {
-            HILOG_DEBUG("%{public}s begain block ams service", __func__);
-            std::this_thread::sleep_for(BLOCK_AMS_SERVICE_TIME*1s);
-        }};
+        auto BlockAmsServiceTask = [aams = shared_from_this()]() {
+            while(1) {
+                HILOG_DEBUG("%{public}s begain block ams service", __func__);
+                std::this_thread::sleep_for(BLOCK_AMS_SERVICE_TIME*1s);
+            }
+        };
         handler_->PostTask(BlockAmsServiceTask, "blockamsservice");
         return ERR_OK;
     }
@@ -4731,7 +4733,7 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
 int AbilityManagerService::BlockAppService()
 {
     HILOG_DEBUG("%{public}s", __func__);
-    return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();;
+    return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

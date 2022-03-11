@@ -1705,9 +1705,11 @@ int AbilityThread::BlockAbility()
 {
     HILOG_INFO("AbilityThread::BlockAblity begin");
     if (abilityHandler_) {
-        auto task = []() { while(1) {
-            std::this_thread::sleep_for(BLOCK_ABILITY_TIME*1s);
-        }};
+        auto task = []() {
+            while(1) {
+                std::this_thread::sleep_for(BLOCK_ABILITY_TIME*1s);
+            }
+        };
         HILOG_INFO("AbilityThread::BlockAblity post task");
         abilityHandler_->PostTask(task);
         HILOG_INFO("AbilityThread::BlockAblity end");
