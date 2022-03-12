@@ -37,11 +37,11 @@ namespace OHOS {
 namespace AppExecFwk {
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
-constexpr static char ABILITY_NAME[] = "Ability";
-constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_SERVICE_ABILITY_NAME[] = "AceServiceAbility";
 constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
 #ifdef SUPPORT_GRAPHICS
+constexpr static char ABILITY_NAME[] = "Ability";
+constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 #endif
@@ -1194,9 +1194,9 @@ int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Valu
     return ret;
 }
 
-#ifdef SUPPORT_GRAPHICS
 void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     HILOG_INFO("NotifyMultiWinModeChanged.key:%{public}d,flag:%{public}d", winModeKey, flag);
     auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
@@ -1221,10 +1221,12 @@ void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
     }
 
     return;
+#endif
 }
 
 void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     HILOG_INFO("NotifyTopActiveAbilityChanged,flag:%{public}d", flag);
     auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
@@ -1235,8 +1237,8 @@ void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
         window->RequestFocus();
     }
     return;
-}
 #endif
+}
 
 void AbilityThread::ContinueAbility(const std::string& deviceId)
 {
@@ -1658,6 +1660,9 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
 
     HILOG_INFO("localCallContainer need to get calls info.");
 }
+#else
+void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
+{}
 #endif
 
 sptr<IRemoteObject> AbilityThread::CallRequest()
