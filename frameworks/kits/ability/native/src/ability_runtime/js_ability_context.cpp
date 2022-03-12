@@ -52,7 +52,8 @@ public:
 static std::set<StartAbilityByCallParameters*> callParameters;
 static std::mutex callParametersMutex;
 
-static bool AddCallParameters(StartAbilityByCallParameters* ptr) {
+static bool AddCallParameters(StartAbilityByCallParameters* ptr)
+{
     if (ptr == nullptr) {
         HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
         return false;
@@ -70,7 +71,8 @@ static bool AddCallParameters(StartAbilityByCallParameters* ptr) {
         __func__, iterRet.second ? "true" : "false");
     return iterRet.second;
 }
-static bool RemoveCallParameters(StartAbilityByCallParameters* ptr) {
+static bool RemoveCallParameters(StartAbilityByCallParameters* ptr)
+{
     if (ptr == nullptr) {
         HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
         return false;
@@ -87,7 +89,8 @@ static bool RemoveCallParameters(StartAbilityByCallParameters* ptr) {
     HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
     return true;
 }
-static bool FindCallParameters(StartAbilityByCallParameters* ptr) {
+static bool FindCallParameters(StartAbilityByCallParameters* ptr)
+{
     if (ptr == nullptr) {
         HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
         return false;
