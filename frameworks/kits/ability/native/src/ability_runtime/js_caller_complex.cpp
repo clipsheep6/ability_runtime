@@ -62,21 +62,22 @@ public:
         RemoveJsCallerComplex(this);
     };
 
-    static bool ReleaseObject(JsCallerComplex* data) {
+    static bool ReleaseObject(JsCallerComplex* data)
+    {
         HILOG_DEBUG("ReleaseObject begin %{public}p", data);
         if (data == nullptr) {
             HILOG_ERROR("ReleaseObject begin, but input parameters is nullptr");
             return false;
         }
 
-        if (data->ChangeCurrentState(OBJSTATE::OBJ_RELEASE) == false) {
+        if (!data->ChangeCurrentState(OBJSTATE::OBJ_RELEASE)) {
             auto handler = data->GetEventHandler();
             if (handler == nullptr) {
                 HILOG_ERROR("ReleaseObject error end, Get eventHandler failed");
                 return false;
             }
             auto releaseObjTask = [pdata = data] () {
-                if (FindJsCallerComplex(pdata) == false){
+                if (!FindJsCallerComplex(pdata)) {
                     HILOG_ERROR("ReleaseObject error end, but input parameters does not found");
                     return;
                 }
@@ -102,7 +103,7 @@ public:
         }
 
         auto ptr = static_cast<JsCallerComplex*>(data);
-        if (FindJsCallerComplex(ptr) == false){
+        if (!FindJsCallerComplex(ptr)) {
             HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters does not found", __func__);
             return;
         }
@@ -147,7 +148,8 @@ public:
         return object->SetOnReleaseCallBackInner(*engine, *info);
     }
 
-    static bool AddJsCallerComplex(JsCallerComplex* ptr) {
+    static bool AddJsCallerComplex(JsCallerComplex* ptr)
+    {
         if (ptr == nullptr) {
             HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
@@ -166,7 +168,8 @@ public:
         return iterRet.second;
     }
 
-    static bool RemoveJsCallerComplex(JsCallerComplex* ptr) {
+    static bool RemoveJsCallerComplex(JsCallerComplex* ptr)
+    {
         if (ptr == nullptr) {
             HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
@@ -184,7 +187,8 @@ public:
         return true;
     }
 
-    static bool FindJsCallerComplex(JsCallerComplex* ptr) {
+    static bool FindJsCallerComplex(JsCallerComplex* ptr)
+    {
         if (ptr == nullptr) {
             HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
@@ -200,7 +204,8 @@ public:
         return ret;
     }
 
-    static bool FindJsCallerComplexAndChangeState(JsCallerComplex* ptr, OBJSTATE state) {
+    static bool FindJsCallerComplexAndChangeState(JsCallerComplex* ptr, OBJSTATE state)
+    {
         if (ptr == nullptr) {
             HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
             return false;
@@ -275,7 +280,7 @@ private:
         }
 
         auto task = [notify = this, &str] () {
-            if (FindJsCallerComplex(notify) == false) {
+            if (!FindJsCallerComplex(notify)) {
                 HILOG_ERROR("ptr[%{public}p] not found, address error", notify);
                 return;
             }
@@ -354,7 +359,7 @@ private:
 
         jsreleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));
         auto task = [notify = this] (const std::string &str) {
-            if (FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION) == false) {
+            if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
                 HILOG_ERROR("ptr[%{public}p] not found, address error", notify);
                 return;
             }
