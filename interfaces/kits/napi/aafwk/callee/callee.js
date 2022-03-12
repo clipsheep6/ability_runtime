@@ -47,8 +47,10 @@ class Callee extends rpc.RemoteObject {
                 return false;
             }
 
+            let dataSize = data.getSize();
             let method = data.readString();
             console.log("Callee onRemoteRequest method [" + method + "]");
+            console.log("Caller callWithResult ["+ method + "]data.size(" + dataSize + ") ");
             let func = this.callList.get(method);
             if (typeof func !== 'function') {
                 console.log("Callee onRemoteRequest error, get func is " + typeof func);
@@ -66,6 +68,7 @@ class Callee extends rpc.RemoteObject {
                 reply.writeString(typeof result);
                 console.log("Callee onRemoteRequest error, retval is " + REQUEST_FAILED + ", type is " + typeof result);
             }
+            console.log("Caller callWithResult ["+ method + "]reply.size(" + reply.getSize() + ") ");
 
         } else {
             console.log("Callee onRemoteRequest error, code is " + code);

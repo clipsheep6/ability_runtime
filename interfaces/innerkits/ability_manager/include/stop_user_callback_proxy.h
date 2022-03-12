@@ -29,7 +29,6 @@ class StopUserCallbackProxy : public IRemoteProxy<IStopUserCallback> {
 public:
     explicit StopUserCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IStopUserCallback>(impl)
     {}
-    ~StopUserCallbackProxy() = default;
 
     /**
      * @brief OnStopUserDone.

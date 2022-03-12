@@ -76,5 +76,6 @@ ohos_unittest("AmsAppLifeCycleTest") {
 
 group("unittest") {
   testonly = true
-  # deps = [ ":AmsAppLifeCycleTest" ]
+
+  deps = [ ":AmsAppLifeCycleTest" ]
 }

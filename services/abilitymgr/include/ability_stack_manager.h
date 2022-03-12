@@ -33,6 +33,7 @@
 #include "ability_mission_info.h"
 #include "lock_mission_container.h"
 #include "lock_screen_event_subscriber.h"
+#include "lock_screen_white_list.h"
 #include "resume_mission_container.h"
 #include "stack_info.h"
 #include "power_storage.h"
@@ -720,6 +721,7 @@ private:
         bool isPowerStateLockScreen = false);
     void HandleActiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     bool IsLockScreenState();
+    bool CheckMissionRecordInWhiteList(const std::shared_ptr<MissionRecord> &mission);
     bool DeleteMissionRecordInStackOnLockScreen(const std::shared_ptr<MissionRecord> &missionRecord);
     void RestoreMissionRecordOnLockScreen(const std::shared_ptr<MissionRecord> &missionRecord);
     void UpdatePowerOffRecord(int32_t missionId, const std::shared_ptr<AbilityRecord> &ability);

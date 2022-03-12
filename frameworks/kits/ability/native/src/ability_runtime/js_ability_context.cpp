@@ -49,6 +49,63 @@ public:
     std::condition_variable condition;
 };
 
+static std::set<StartAbilityByCallParameters*> callParameters;
+static std::mutex callParametersMutex;
+
+static bool AddCallParameters(StartAbilityByCallParameters* ptr)
+{
+    if (ptr == nullptr) {
+        HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+        return false;
+    }
+
+    std::lock_guard<std::mutex> lck (callParametersMutex);
+    auto iter = callParameters.find(ptr);
+    if (iter != callParameters.end()) {
+        HILOG_ERROR("JsAbilityContext::%{public}s, ptr[%{public}p] address exists", __func__, ptr);
+        return false;
+    }
+
+    auto iterRet = callParameters.emplace(ptr);
+    HILOG_DEBUG("JsAbilityContext::%{public}s, execution ends and retval is %{public}s",
+        __func__, iterRet.second ? "true" : "false");
+    return iterRet.second;
+}
+static bool RemoveCallParameters(StartAbilityByCallParameters* ptr)
+{
+    if (ptr == nullptr) {
+        HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+        return false;
+    }
+
+    std::lock_guard<std::mutex> lck (callParametersMutex);
+    auto iter = callParameters.find(ptr);
+    if (iter == callParameters.end()) {
+        HILOG_ERROR("JsAbilityContext::%{public}s, input parameters[%{public}p] not found", __func__, ptr);
+        return false;
+    }
+
+    callParameters.erase(ptr);
+    HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
+    return true;
+}
+static bool FindCallParameters(StartAbilityByCallParameters* ptr)
+{
+    if (ptr == nullptr) {
+        HILOG_ERROR("JsAbilityContext::%{public}s, input parameters is nullptr", __func__);
+        return false;
+    }
+    auto ret = true;
+    std::lock_guard<std::mutex> lck (callParametersMutex);
+    auto iter = callParameters.find(ptr);
+    if (iter == callParameters.end()) {
+        ret = false;
+    }
+    HILOG_DEBUG("JsAbilityContext::%{public}s, execution ends and retval is %{public}s",
+        __func__, ret ? "true" : "false");
+    return ret;
+}
+
 void JsAbilityContext::Finalizer(NativeEngine* engine, void* data, void* hint)
 {
     HILOG_INFO("JsAbilityContext::Finalizer is called");
@@ -247,11 +304,13 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         reinterpret_cast<napi_value>(info.argv[0]), want);
     InheritWindowMode(want);
 
-    std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
+    StartAbilityByCallParameters *calls = new (std::nothrow) StartAbilityByCallParameters();
     if (calls == nullptr) {
         HILOG_ERROR("calls create error");
         return engine.CreateUndefined();
     }
+    AddCallParameters(calls);
+    HILOG_INFO("OnStartAbilityByCall calls is %{public}p", calls);
 
     NativeValue* lastParam = ((info.argc == ARGC_TWO) ? info.argv[ARGC_ONE] : nullptr);
     NativeValue* retsult = nullptr;
@@ -259,10 +318,16 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     calls->callerCallBack = std::make_shared<CallerCallBack>();
 
     auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
+        HILOG_INFO("OnStartAbilityByCall callBackDone calls is %{public}p", calldata);
+        if (FindCallParameters(calldata) == false) {
+            HILOG_ERROR("callBackDone error calls not found");
+            return;
+        }
         HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
         HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
         calldata->remoteCallee = obj;
+        HILOG_DEBUG("OnStartAbilityByCall callBackDone notifyall %{public}p", calldata->remoteCallee.GetRefPtr());
         calldata->condition.notify_all();
         HILOG_INFO("OnStartAbilityByCall callBackDone is called end");
     };
@@ -272,12 +337,18 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
     };
 
     auto callExecute = [calldata = calls] () {
+        HILOG_INFO("OnStartAbilityByCall callExecute begin, calls is %{public}p", calldata);
+        if (FindCallParameters(calldata) == false) {
+            HILOG_ERROR("callExecute error calls not found");
+            return;
+        }
         constexpr int CALLER_TIME_OUT = 10; // 10s
         std::unique_lock<std::mutex> lock(calldata->mutexlock);
         if (calldata->remoteCallee != nullptr) {
             HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
             return;
         }
+        HILOG_DEBUG("OnStartAbilityByCall callExecute remoteCallee %{public}p", calldata->remoteCallee.GetRefPtr());
 
         if (calldata->condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
             HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
@@ -288,9 +359,18 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
 
     auto callComplete = [weak = context_, calldata = calls] (
         NativeEngine& engine, AsyncTask& task, int32_t status) {
+        HILOG_INFO("OnStartAbilityByCall callComplete begin, calls is %{public}p", calldata);
+        if (FindCallParameters(calldata) == false) {
+            HILOG_ERROR("callComplete error calls not found");
+            return;
+        }
+
+        RemoveCallParameters(calldata);
+
         if (calldata->err != 0) {
             HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
             task.Reject(engine, CreateJsError(engine, calldata->err, "callComplete err."));
+            delete calldata;
             return;
         }
 
@@ -305,6 +385,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
             task.Reject(engine, CreateJsError(engine, -1, "Create Call Failed."));
         }
 
+        delete calldata;
         HILOG_DEBUG("OnStartAbilityByCall callComplete end");
     };
 

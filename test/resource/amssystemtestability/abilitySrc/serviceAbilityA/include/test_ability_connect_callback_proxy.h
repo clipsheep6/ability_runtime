@@ -16,6 +16,7 @@
 #ifndef OHOS_AAFWK_TEST_ABILITY_CONNECT_CALLBACK_PROXY_H
 #define OHOS_AAFWK_TEST_ABILITY_CONNECT_CALLBACK_PROXY_H
 
+// #include "test_ability_connect_callback_interface.h"
 #include "iremote_proxy.h"
 #include "service_ability_a.h"
 

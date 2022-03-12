@@ -134,6 +134,12 @@ bool CallRecord::SchedulerDisConnectDone()
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name);
     connCallback_->OnAbilityDisconnectDone(element,  ERR_OK);
 
+    if (callRemoteObject_ && callDeathRecipient_) {
+        callRemoteObject_->RemoveDeathRecipient(callDeathRecipient_);
+        callRemoteObject_ = nullptr;
+        callDeathRecipient_ = nullptr;
+    }
+
     return true;
 }
 

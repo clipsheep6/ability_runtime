@@ -1195,18 +1195,16 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     CHECK_POINTER_AND_RETURN(bms, nullptr);
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int userId = wantSenderInfo.userId;
     AppExecFwk::BundleInfo bundleInfo;
     if (!wantSenderInfo.bundleName.empty()) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
-            if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
-                HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
-                return nullptr;
-            }
+            bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
+                AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo));
+        } else {
+            bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
+                AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, wantSenderInfo.userId));
         }
-        bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
         if (!bundleMgrResult) {
             HILOG_ERROR("GetBundleInfo is fail.");
             return nullptr;
@@ -1239,15 +1237,9 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
 
-    int userId = -1;
-    if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
-        HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
-        return;
-    }
     AppExecFwk::BundleInfo bundleInfo;
     bool bundleMgrResult = IN_PROCESS_CALL(
-        bms->GetBundleInfo(record->GetKey()->GetBundleName(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+        bms->GetBundleInfo(record->GetKey()->GetBundleName(), AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo));
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail.");
         return;
@@ -2798,7 +2790,7 @@ int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName)
 
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    HILOG_DEBUG("Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
+    HILOG_DEBUG("Uninstall app, bundleName: %{public}s", bundleName.c_str());
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getpid();
     if (callingPid != pid) {
@@ -2808,12 +2800,10 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
     auto listManager = GetListManagerByUserId(targetUserId);
-    if (listManager) {
-        listManager->UninstallApp(bundleName, uid);
-    }
-    if (pendingWantManager_) {
-        pendingWantManager_->ClearPendingWantRecord(bundleName, uid);
-    }
+    CHECK_POINTER_AND_RETURN(listManager, ERR_NO_INIT);
+    listManager->UninstallApp(bundleName, uid);
+    CHECK_POINTER_AND_RETURN(pendingWantManager_, ERR_NO_INIT);
+    pendingWantManager_->ClearPendingWantRecord(bundleName, uid);
     int ret = DelayedSingleton<AppScheduler>::GetInstance()->KillApplicationByUid(bundleName, uid);
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
