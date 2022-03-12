@@ -161,6 +161,9 @@ void LocalCallContainer::OnAbilityConnectDone(
         auto callRecipient = new (std::nothrow) CallRecipient(
             std::bind(&LocalCallContainer::OnCallStubDied, this, std::placeholders::_1));
         localCallRecord->SetRemoteObject(remoteObject, callRecipient);
+    }
+
+    if (localCallRecord) {
         localCallRecord->InvokeCallBack();
     }
 
@@ -176,7 +179,7 @@ bool LocalCallContainer::GetCallLocalreocrd(
     const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord)
 {
     auto iter = callProxyRecords_.find(elementName.GetURI());
-    if (iter != callProxyRecords_.end() && iter->second != nullptr) {
+    if (iter != callProxyRecords_.end()) {
         localCallRecord = iter->second;
         return true;
     }

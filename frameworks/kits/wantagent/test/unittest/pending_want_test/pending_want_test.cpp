@@ -129,6 +129,7 @@ HWTEST_F(PendingWantTest, PendingWant_0100, Function | MediumTest | Level1)
     PendingWant pendingWant(nullptr);
     EXPECT_EQ(pendingWant.target_, nullptr);
     EXPECT_EQ(pendingWant.cancelReceiver_, nullptr);
+    EXPECT_EQ(pendingWant.whitelistToken_, nullptr);
 }
 
 /*
@@ -142,6 +143,7 @@ HWTEST_F(PendingWantTest, PendingWant_0200, Function | MediumTest | Level1)
     PendingWant pendingWant(target);
     EXPECT_EQ(pendingWant.target_, target);
     EXPECT_EQ(pendingWant.cancelReceiver_, nullptr);
+    EXPECT_EQ(pendingWant.whitelistToken_, nullptr);
 }
 
 /*

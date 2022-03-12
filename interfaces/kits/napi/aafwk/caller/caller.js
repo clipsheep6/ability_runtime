@@ -55,7 +55,7 @@ class Caller {
         let msgReply = rpc.MessageParcel.create();
         let option = rpc.MessageOption();
         msgData.writeSequenceable(data);
-
+        console.log("Caller call ["+ method + "]msgData.size(" + msgData.getSize() + ") ");
         let status = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
         if (!status) {
             msgData.reclaim();
@@ -64,6 +64,7 @@ class Caller {
             throw new Error("Function execution exception");
             return ;
         }
+        console.log("Caller call ["+ method + "]msgReply.size(" + msgReply.getSize() + ") ");
 
         let retval = msgReply.readInt();
         let str = msgReply.readString();
@@ -110,6 +111,7 @@ class Caller {
         let reply = undefined;
         msgData.writeString(method);
         msgData.writeSequenceable(data);
+        console.log("Caller callWithResult ["+ method + "]msgData.size(" + msgData.getSize() + ") ");
         let status = await this.__call_obj__.callee.sendRequest(EVENT_CALL_NOTIFY, msgData, msgReply, option);
         if (!status) {
             console.log("Caller callWithResult return data " + status);
@@ -117,6 +119,7 @@ class Caller {
             msgReply.reclaim();
             return reply;
         }
+        console.log("Caller callWithResult ["+ method + "]msgReply.size(" + msgReply.getSize() + ") ");
 
         let retval = msgReply.readInt();
         let str = msgReply.readString();
