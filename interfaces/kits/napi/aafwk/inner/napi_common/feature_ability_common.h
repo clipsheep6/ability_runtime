@@ -351,6 +351,11 @@ struct DAHelperUpdateCB {
     int result = 0;
     int execResult;
 };
+
+struct DAHelperErrorCB {
+    CBBase cbBase;
+    int execResult;
+};
 struct DAHelperBatchInsertCB {
     CBBase cbBase;
     DataAbilityHelper *dataAbilityHelper = nullptr;
