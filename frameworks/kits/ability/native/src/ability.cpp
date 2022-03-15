@@ -1278,6 +1278,12 @@ void Ability::SetResult(int resultCode, const Want &resultData)
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
+        if (AbilityContext::resultWant_.HasParameter("ohos.user.grant.permission")) {
+            HILOG_INFO("Ability::SetResult, SetResult execute contained permission key.");
+        }
+        if (resultData.HasParameter("ohos.user.grant.permission")) {
+            HILOG_INFO("Ability::SetResult, SetResult execute contained permission key.");
+        }
     }
     HILOG_INFO("%{public}s end.", __func__);
 }

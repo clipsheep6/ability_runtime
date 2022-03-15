@@ -96,6 +96,9 @@ ErrCode AbilityContext::TerminateAbility()
     switch (info->type) {
         case AppExecFwk::AbilityType::PAGE:
             HILOG_INFO("%{public}s begin ams->TerminateAbility for PAGE.", __func__);
+            if (resultWant_.HasParameter("ohos.user.grant.permission")) {
+                HILOG_INFO("AbilityContext::TerminateAbility, TerminateAbility execute contained permission key.");
+            }
             err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
             HILOG_INFO("%{public}s end ams->TerminateAbility for PAGE, ret=%{public}d", __func__, err);
             break;

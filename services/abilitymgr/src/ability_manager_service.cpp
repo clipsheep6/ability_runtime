@@ -603,6 +603,10 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         return ERR_INVALID_VALUE;
     }
 
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_INFO("AbilityManagerService::TerminateAbility, TerminateAbility execute contained permission key.");
+    }
+
     if ((resultWant != nullptr) &&
         AbilityUtil::IsSystemDialogAbility(
             abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
@@ -610,6 +614,10 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_CALLER_BUNDLENAME) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_REQUEST_PERMISSIONS)) {
         RequestPermission(resultWant);
+    }
+
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_INFO("AbilityManagerService::TerminateAbility, TerminateAbility execute contained permission key....2");
     }
 
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
