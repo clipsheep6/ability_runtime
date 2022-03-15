@@ -29,10 +29,12 @@ bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectTyp
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
+        HILOG_ERROR("%{public}s IsTypeForNapiValue failed.....0", __func__);
         return false;
     }
 
     if (napi_typeof(env, param, &valueType) != napi_ok) {
+        HILOG_ERROR("%{public}s IsTypeForNapiValue failed.....1", __func__);
         return false;
     }
 

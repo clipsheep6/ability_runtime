@@ -912,7 +912,7 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
  */
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_INFO("AbilityThread::SendResult begin");
+    HILOG_ERROR("AbilityThread::SendResult begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::SendResult abilityImpl_ == nullptr");
         return;
@@ -924,8 +924,12 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
             HILOG_ERROR("abilityThread or abilityImpl is nullptr, SendResult failed.");
             return;
         }
+        HILOG_ERROR("AbilityThread::SendResult .......0");
         if (requestCode != -1) {
-            HILOG_INFO("AbilityThread::SendResult before abilityImpl_->SendResult");
+            HILOG_ERROR("AbilityThread::SendResult before abilityImpl_->SendResult");
+            if (want.HasParameter("ohos.user.grant.permission")) {
+                HILOG_ERROR("AbilityThread::SendResult .......1");
+            }
             abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
             HILOG_INFO("AbilityThread::SendResult after abilityImpl_->SendResult");
         }

@@ -703,6 +703,10 @@ void AbilityRecord::SendResult()
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
+    HILOG_ERROR("SendResult called contained PERMISSION_KEY......0");
+    if (result_->resultWant_.HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("SendResult called contained PERMISSION_KEY.");
+    }
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     GrantUriPermission(result_->resultWant_);
     // reset result to avoid send result next time
@@ -711,13 +715,16 @@ void AbilityRecord::SendResult()
 
 void AbilityRecord::SendResultToCallers()
 {
+    HILOG_ERROR("SendResultToCallers called contained PERMISSION_KEY......0");
     for (auto caller : GetCallerRecordList()) {
         if (caller == nullptr) {
             HILOG_WARN("Caller record is nullptr.");
             continue;
         }
+        HILOG_ERROR("SendResultToCallers called contained PERMISSION_KEY......1");
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
+            HILOG_ERROR("SendResultToCallers called contained PERMISSION_KEY......2");
             callerAbilityRecord->SendResult();
         }
     }
@@ -725,13 +732,20 @@ void AbilityRecord::SendResultToCallers()
 
 void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *resultWant)
 {
+    HILOG_ERROR("SaveResultToCallers called contained PERMISSION_KEY......0");
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("SaveResultToCallers called contained PERMISSION_KEY.");
+    }
+
     for (auto caller : GetCallerRecordList()) {
         if (caller == nullptr) {
             HILOG_WARN("Caller record is nullptr.");
             continue;
         }
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
+        HILOG_ERROR("SaveResultToCallers called contained PERMISSION_KEY......1");
         if (callerAbilityRecord != nullptr) {
+            HILOG_ERROR("SaveResultToCallers called contained PERMISSION_KEY......2");
             callerAbilityRecord->SetResult(
                 std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
         }
