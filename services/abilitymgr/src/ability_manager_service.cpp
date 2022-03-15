@@ -568,7 +568,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     const Want *resultWant, bool flag)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Terminate ability for result: %{public}d", (resultWant != nullptr));
+    HILOG_ERROR("Terminate ability for result: %{public}d", (resultWant != nullptr));
     if (!VerificationAllToken(token)) {
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
         return ERR_INVALID_VALUE;
@@ -603,13 +603,22 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         return ERR_INVALID_VALUE;
     }
 
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("AbilityManagerService::TerminateAbility, TerminateAbility execute contained permission key.");
+    }
+
     if ((resultWant != nullptr) &&
         AbilityUtil::IsSystemDialogAbility(
             abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_KEY) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_CALLER_BUNDLENAME) &&
         resultWant->HasParameter(AbilityConfig::SYSTEM_DIALOG_REQUEST_PERMISSIONS)) {
+        HILOG_ERROR("AbilityManagerService::TerminateAbility, TerminateAbility execute contained permission key.....1");
         RequestPermission(resultWant);
+    }
+
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("AbilityManagerService::TerminateAbility, TerminateAbility execute contained permission key....2");
     }
 
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {

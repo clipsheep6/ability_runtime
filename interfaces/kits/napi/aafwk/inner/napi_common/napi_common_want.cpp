@@ -648,7 +648,7 @@ bool InnerSetWantParamsArrayDouble(
 
 bool InnerUnwrapWantParamsArray(napi_env env, const std::string &key, napi_value param, AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_ERROR("%{public}s called.", __func__);
 
     ComplexArrayData natArrayValue;
     if (!UnwrapArrayComplexFromJS(env, param, natArrayValue)) {
@@ -702,9 +702,10 @@ bool BlackListFilter(const std::string &strProName)
 
 bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_ERROR("%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
+        HILOG_ERROR("%{public}s IsTypeForNapiValue failed.", __func__);
         return false;
     }
 
@@ -714,7 +715,7 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
 
     NAPI_CALL_BASE(env, napi_get_property_names(env, param, &jsProNameList), false);
     NAPI_CALL_BASE(env, napi_get_array_length(env, jsProNameList, &jsProCount), false);
-    HILOG_INFO("%{public}s called. Property size=%{public}d.", __func__, jsProCount);
+    HILOG_ERROR("%{public}s called. Property size=%{public}d.", __func__, jsProCount);
 
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
@@ -727,14 +728,14 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
             HILOG_INFO("%{public}s is filtered.", strProName.c_str());
             continue;
         }
-        HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+        HILOG_ERROR("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
         NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsProValue), false);
         NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
 
         switch (jsValueType) {
             case napi_string: {
                 std::string natValue = UnwrapStringFromJS(env, jsProValue);
-                HILOG_INFO("%{public}s called. Property value=%{private}s.", __func__, natValue.c_str());
+                HILOG_ERROR("%{public}s called. Property value=%{private}s.", __func__, natValue.c_str());
                 wantParams.SetParam(strProName, AAFwk::String::Box(natValue));
                 break;
             }
@@ -777,10 +778,10 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
                 bool isArray = false;
                 if (napi_is_array(env, jsProValue, &isArray) == napi_ok) {
                     if (isArray) {
-                        HILOG_INFO("%{public}s called. %{public}s is array.", __func__, strProName.c_str());
+                        HILOG_ERROR("%{public}s called. %{public}s is array.", __func__, strProName.c_str());
                         InnerUnwrapWantParamsArray(env, strProName, jsProValue, wantParams);
                     } else {
-                        HILOG_INFO("%{public}s called. %{public}s is wantparams.", __func__, strProName.c_str());
+                        HILOG_ERROR("%{public}s called. %{public}s is wantparams.", __func__, strProName.c_str());
                         InnerUnwrapWantParams(env, strProName, jsProValue, wantParams);
                     }
                 }
@@ -894,7 +895,7 @@ napi_value WrapWant(napi_env env, const Want &want)
 
 bool UnwrapWant(napi_env env, napi_value param, Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_ERROR("%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         HILOG_INFO("%{public}s called. Params is invalid.", __func__);
@@ -902,11 +903,21 @@ bool UnwrapWant(napi_env env, napi_value param, Want &want)
     }
 
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);
+    HILOG_ERROR("%{public}s get parameters.", __func__);
     if (jsValue != nullptr) {
+        HILOG_ERROR("%{public}s get parameters.....0.", __func__);
         AAFwk::WantParams wantParams;
         if (UnwrapWantParams(env, jsValue, wantParams)) {
+            HILOG_ERROR("%{public}s get parameters.....1.", __func__);
+            if (wantParams.HasParam("ohos.user.grant.permission")) {
+                HILOG_ERROR("%{public}s get parameters.....1.1", __func__);
+            }
             want.SetParams(wantParams);
         }
+    }
+    HILOG_ERROR("%{public}s get parameters.....2.", __func__);
+    if (want.HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("%{public}s get parameters.....3.", __func__);
     }
 
     std::string natValueString("");

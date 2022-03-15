@@ -1274,10 +1274,17 @@ void Ability::SetResult(int resultCode, const Want &resultData)
         HILOG_ERROR("Ability::SetResult abilityInfo_ == nullptr");
         return;
     }
-    HILOG_INFO("Ability::SetResult called type = %{public}d", abilityInfo_->type);
+    HILOG_ERROR("Ability::SetResult called type = %{public}d", abilityInfo_->type);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("Ability::SetResult, SetResult execute contained permission key....0");
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
+        if (AbilityContext::resultWant_.HasParameter("ohos.user.grant.permission")) {
+            HILOG_ERROR("Ability::SetResult, SetResult execute contained permission key......1");
+        }
+        if (resultData.HasParameter("ohos.user.grant.permission")) {
+            HILOG_ERROR("Ability::SetResult, SetResult execute contained permission key.......2");
+        }
     }
     HILOG_INFO("%{public}s end.", __func__);
 }
