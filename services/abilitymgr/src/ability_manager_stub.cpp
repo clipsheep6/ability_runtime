@@ -181,6 +181,9 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     Want *resultWant = data.ReadParcelable<Want>();
     bool flag = data.ReadBool();
     int32_t result;
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_INFO("AbilityManagerStub::TerminateAbility, TerminateAbility execute contained permission key.");
+    }
     if (flag) {
         result = TerminateAbility(token, resultCode, resultWant);
     } else {

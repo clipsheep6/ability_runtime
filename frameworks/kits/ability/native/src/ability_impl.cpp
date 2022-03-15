@@ -502,6 +502,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
     }
 
     if (resultData.HasParameter(PERMISSION_KEY)) {
+        HILOG_INFO("%{public}s Call the callback of RequestPermissionsFromUser.", __func__);
         std::vector<std::string> permissions = resultData.GetStringArrayParam(PERMISSION_KEY);
         std::vector<int> grantedResult(permissions.size(), -1);
         if (resultCode > 0) {
@@ -510,6 +511,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
         }
         ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantedResult);
     } else {
+        HILOG_INFO("%{public}s Call the callback of StartAbilityForResult.", __func__);
         ability_->OnAbilityResult(requestCode, resultCode, resultData);
     }
     HILOG_INFO("%{public}s end.", __func__);

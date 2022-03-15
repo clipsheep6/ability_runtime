@@ -703,6 +703,9 @@ void AbilityRecord::SendResult()
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
+    if (result_->resultWant_.HasParameter("ohos.user.grant.permission")) {
+        HILOG_DEBUG("SendResult called contained PERMISSION_KEY.");
+    }
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     GrantUriPermission(result_->resultWant_);
     // reset result to avoid send result next time
