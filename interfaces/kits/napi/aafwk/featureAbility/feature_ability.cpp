@@ -323,11 +323,24 @@ napi_value SetResultWrap(napi_env env, napi_callback_info info, AsyncCallbackInf
         HILOG_ERROR("%{public}s, call unwrapWant failed.", __func__);
         return nullptr;
     }
+
+    HILOG_ERROR("%{public}s SetResultWrap.....0.", __func__);
+    if (param.want.HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("%{public}s SetResultWrap.....1.", __func__);
+    }
+
     asyncCallbackInfo->param = param;
 
+    HILOG_ERROR("%{public}s SetResultWrap.....2.", __func__);
+    if (asyncCallbackInfo->param.want.HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("%{public}s SetResultWrap.....3.", __func__);
+    }
+
     if (argcAsync > argcPromise) {
+        HILOG_ERROR("%{public}s SetResultWrap.....4.", __func__);
         ret = SetResultAsync(env, args, 1, asyncCallbackInfo);
     } else {
+        HILOG_ERROR("%{public}s SetResultWrap.....5.", __func__);
         ret = SetResultPromise(env, asyncCallbackInfo);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -351,6 +364,8 @@ napi_value SetResultAsync(
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
 
+    HILOG_ERROR("%{public}s SetResultAsync.....1.", __func__);
+
     napi_create_async_work(
         env,
         nullptr,
@@ -358,7 +373,12 @@ napi_value SetResultAsync(
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+             HILOG_ERROR("%{public}s SetResultAsync.....2.", __func__);
+             if (asyncCallbackInfo->param.want.HasParameter("ohos.user.grant.permission")) {
+                HILOG_ERROR("%{public}s SetResultAsync.....3.", __func__);
+            }
             if (asyncCallbackInfo->ability != nullptr) {
+                 HILOG_ERROR("%{public}s SetResultAsync.....4.", __func__);
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
                 asyncCallbackInfo->ability->TerminateAbility();
@@ -410,6 +430,8 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
     napi_create_promise(env, &deferred, &promise);
     asyncCallbackInfo->deferred = deferred;
 
+    HILOG_ERROR("%{public}s SetResultPromise.....1.", __func__);
+
     napi_create_async_work(
         env,
         nullptr,
@@ -417,7 +439,12 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+             HILOG_ERROR("%{public}s SetResultPromise.....2.", __func__);
+            if (asyncCallbackInfo->param.want.HasParameter("ohos.user.grant.permission")) {
+                HILOG_ERROR("NAPI_SetResult, worker pool thread execute contained permission key.");
+            }
             if (asyncCallbackInfo->ability != nullptr) {
+                 HILOG_ERROR("%{public}s SetResultPromise.....3.", __func__);
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);
                 asyncCallbackInfo->ability->TerminateAbility();
@@ -913,7 +940,7 @@ EXTERN_C_END
 
 bool InnerUnwrapWant(napi_env env, napi_value args, Want &want)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_ERROR("%{public}s called", __func__);
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
     if (valueType != napi_object) {
@@ -996,6 +1023,11 @@ napi_value UnwrapAbilityResult(CallAbilityParam &param, napi_env env, napi_value
 
     // unwrap the param : want object
     InnerUnwrapWant(env, args, param.want);
+
+    HILOG_ERROR("%{public}s UnwrapAbilityResult.....0.", __func__);
+    if (param.want.HasParameter("ohos.user.grant.permission")) {
+        HILOG_ERROR("%{public}s UnwrapAbilityResult.....1.", __func__);
+    }
 
     napi_value result;
     NAPI_CALL(env, napi_create_int32(env, 1, &result));

@@ -29,10 +29,12 @@ bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectTyp
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
+        HILOG_ERROR("%{public}s IsTypeForNapiValue failed.....0", __func__);
         return false;
     }
 
     if (napi_typeof(env, param, &valueType) != napi_ok) {
+        HILOG_ERROR("%{public}s IsTypeForNapiValue failed.....1", __func__);
         return false;
     }
 
@@ -45,12 +47,15 @@ bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
     arraySize = 0;
 
     if (napi_is_array(env, param, &isArray) != napi_ok || isArray == false) {
+        HILOG_ERROR("%{public}s called.... fialed......0", __func__);
         return false;
     }
 
     if (napi_get_array_length(env, param, &arraySize) != napi_ok) {
+        HILOG_ERROR("%{public}s called.... fialed......1", __func__);
         return false;
     }
+    HILOG_ERROR("%{public}s called.... array size : %{public}u", __func__, arraySize);
     return true;
 }
 
@@ -246,26 +251,32 @@ std::string UnwrapStringFromJS(napi_env env, napi_value param, const std::string
 
 bool UnwrapStringFromJS2(napi_env env, napi_value param, std::string &value)
 {
+    HILOG_ERROR("%{public}s called.......0", __func__);
     value = "";
     size_t size = 0;
     if (napi_get_value_string_utf8(env, param, nullptr, 0, &size) != napi_ok) {
+        HILOG_ERROR("%{public}s called.......1", __func__);
         return false;
     }
 
     if (size == 0) {
+        HILOG_ERROR("%{public}s called.......2", __func__);
         return true;
     }
 
     char *buf = new (std::nothrow) char[size + 1];
     if (buf == nullptr) {
+        HILOG_ERROR("%{public}s called.......3", __func__);
         return false;
     }
     (void)memset_s(buf, (size + 1), 0, (size + 1));
 
     bool rev = napi_get_value_string_utf8(env, param, buf, size + 1, &size) == napi_ok;
     if (rev) {
+        HILOG_ERROR("%{public}s called.......4", __func__);
         value = buf;
     }
+    HILOG_ERROR("%{public}s called.......5", __func__);
     delete[] buf;
     buf = nullptr;
     return rev;
@@ -543,10 +554,13 @@ bool UnwrapArrayStringFromJS(napi_env env, napi_value param, std::vector<std::st
 
 bool UnwrapArrayComplexFromJSNumber(napi_env env, ComplexArrayData &value, bool isDouble, napi_value jsValue)
 {
+    HILOG_ERROR("%{public}s called.......0", __func__);
     int32_t elementInt32 = 0;
     double elementDouble = 0.0;
     if (isDouble) {
+        HILOG_ERROR("%{public}s called.......1", __func__);
         if (napi_get_value_double(env, jsValue, &elementDouble) == napi_ok) {
+            HILOG_ERROR("%{public}s called.......2", __func__);
             value.doubleList.push_back(elementDouble);
         }
         return isDouble;
@@ -555,9 +569,12 @@ bool UnwrapArrayComplexFromJSNumber(napi_env env, ComplexArrayData &value, bool 
     bool isReadValue32 = napi_get_value_int32(env, jsValue, &elementInt32) == napi_ok;
     bool isReadDouble = napi_get_value_double(env, jsValue, &elementDouble) == napi_ok;
     if (isReadValue32 && isReadDouble) {
+        HILOG_ERROR("%{public}s called.......3", __func__);
         if (abs(elementDouble - elementInt32 * 1.0) > 0.0) {
+            HILOG_ERROR("%{public}s called.......4", __func__);
             isDouble = true;
             if (value.intList.size() > 0) {
+                HILOG_ERROR("%{public}s called.......5", __func__);
                 for (size_t j = 0; j < value.intList.size(); j++) {
                     value.doubleList.push_back(value.intList[j]);
                 }
@@ -565,11 +582,14 @@ bool UnwrapArrayComplexFromJSNumber(napi_env env, ComplexArrayData &value, bool 
             }
             value.doubleList.push_back(elementDouble);
         } else {
+            HILOG_ERROR("%{public}s called.......isReadValue32 : %{public}d", __func__, elementInt32);
             value.intList.push_back(elementInt32);
         }
     } else if (isReadValue32) {
+        HILOG_ERROR("%{public}s called.......isReadValue32 int value: %{public}d", __func__, elementInt32);
         value.intList.push_back(elementInt32);
     } else if (isReadDouble) {
+        HILOG_ERROR("%{public}s called.......6", __func__);
         isDouble = true;
         if (value.intList.size() > 0) {
             for (size_t j = 0; j < value.intList.size(); j++) {
@@ -579,13 +599,16 @@ bool UnwrapArrayComplexFromJSNumber(napi_env env, ComplexArrayData &value, bool 
         }
         value.doubleList.push_back(elementDouble);
     }
+    HILOG_ERROR("%{public}s called.......0", __func__);
     return isDouble;
 }
 
 bool UnwrapArrayComplexFromJS(napi_env env, napi_value param, ComplexArrayData &value)
 {
+    HILOG_ERROR("%{public}s called...", __func__);
     uint32_t arraySize = 0;
     if (!IsArrayForNapiValue(env, param, arraySize)) {
+        HILOG_ERROR("%{public}s called....IsArrayForNapiValue fialed", __func__);
         return false;
     }
 
@@ -600,16 +623,20 @@ bool UnwrapArrayComplexFromJS(napi_env env, napi_value param, ComplexArrayData &
     value.stringList.clear();
 
     for (uint32_t i = 0; i < arraySize; i++) {
+        HILOG_ERROR("%{public}s called.......0.0", __func__);
         jsValue = nullptr;
         valueType = napi_undefined;
         NAPI_CALL_BASE(env, napi_get_element(env, param, i, &jsValue), false);
         NAPI_CALL_BASE(env, napi_typeof(env, jsValue, &valueType), false);
         switch (valueType) {
             case napi_string: {
+                HILOG_ERROR("%{public}s called.......0", __func__);
                 std::string elementValue("");
                 if (UnwrapStringFromJS2(env, jsValue, elementValue)) {
+                    HILOG_ERROR("%{public}s called.......string is: %{public}s", __func__, elementValue.c_str());
                     value.stringList.push_back(elementValue);
                 } else {
+                    HILOG_ERROR("%{public}s called.......1", __func__);
                     return false;
                 }
                 break;
@@ -621,6 +648,7 @@ bool UnwrapArrayComplexFromJS(napi_env env, napi_value param, ComplexArrayData &
                 break;
             }
             case napi_number: {
+                HILOG_ERROR("%{public}s called.......2", __func__);
                 isDouble = UnwrapArrayComplexFromJSNumber(env, value, isDouble, jsValue);
                 break;
             }
