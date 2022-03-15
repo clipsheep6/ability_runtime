@@ -964,6 +964,9 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &a
     abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
+        if (resultWant->HasParameter("ohos.user.grant.permission")) {
+            HILOG_DEBUG("Terminate ability with result called contained PERMISSION_KEY.");
+        }
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
     }
 
