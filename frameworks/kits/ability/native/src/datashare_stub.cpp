@@ -289,7 +289,7 @@ ErrCode DataShareStub::CmdRegisterObserver(MessageParcel &data, MessageParcel &r
         HILOG_ERROR("DataShareStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
-    auto obServer = iface_cast<AAFwk::IDataAbilityObserver>(data.ReadParcelable<IRemoteObject>());
+    auto obServer = iface_cast<AAFwk::IDataAbilityObserver>(data.ReadRemoteObject());
     if (obServer == nullptr) {
         HILOG_ERROR("DataShareStub obServer is nullptr");
         return ERR_INVALID_VALUE;
@@ -310,7 +310,7 @@ ErrCode DataShareStub::CmdUnregisterObserver(MessageParcel &data, MessageParcel 
         HILOG_ERROR("DataShareStub uri is nullptr");
         return ERR_INVALID_VALUE;
     }
-    auto obServer = iface_cast<AAFwk::IDataAbilityObserver>(data.ReadParcelable<IRemoteObject>());
+    auto obServer = iface_cast<AAFwk::IDataAbilityObserver>(data.ReadRemoteObject());
     if (obServer == nullptr) {
         HILOG_ERROR("DataShareStub obServer is nullptr");
         return ERR_INVALID_VALUE;

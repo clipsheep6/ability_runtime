@@ -329,7 +329,7 @@ sptr<IAbilityScheduler> AbilityManagerProxy::AcquireDataAbility(
         return nullptr;
     }
 
-    return iface_cast<IAbilityScheduler>(reply.ReadParcelable<IRemoteObject>());
+    return iface_cast<IAbilityScheduler>(reply.ReadRemoteObject());
 }
 
 int AbilityManagerProxy::ReleaseDataAbility(
@@ -1288,7 +1288,7 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
         HILOG_ERROR("Send request error: %{public}d", error);
         return nullptr;
     }
-    sptr<IWantSender> wantSender = iface_cast<IWantSender>(reply.ReadParcelable<IRemoteObject>());
+    sptr<IWantSender> wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
     if (!wantSender) {
         return nullptr;
     }
@@ -2493,7 +2493,7 @@ int AbilityManagerProxy::GetCurrentTopAbility(sptr<IRemoteObject> &token)
         return error;
     }
 
-    token = sptr<IRemoteObject>(reply.ReadParcelable<IRemoteObject>());
+    token = sptr<IRemoteObject>(reply.ReadRemoteObject());
     if (!token) {
         HILOG_ERROR("read IRemoteObject failed.");
         return ERR_UNKNOWN_OBJECT;
