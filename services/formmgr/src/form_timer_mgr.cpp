@@ -711,6 +711,7 @@ void FormTimerMgr::SetTimeSpeed(int32_t timeSpeed)
     HILOG_INFO("%{public}s set time speed to:%{public}d", __func__, timeSpeed);
     timeSpeed_ = timeSpeed;
     HandleResetLimiter();
+    ClearIntervalTimer();
 }
 /**
  * @brief Delete interval timer task.
@@ -1159,7 +1160,7 @@ void FormTimerMgr::EnsureInitIntervalTimer()
 
     intervalTimer_ = std::make_shared<Utils::Timer>("interval timer");
     auto timeCallback = []() { FormTimerMgr::GetInstance().OnIntervalTimeOut(); };
-    intervalTimer_->Register(timeCallback, Constants::MIN_PERIOD);
+    intervalTimer_->Register(timeCallback, Constants::MIN_PERIOD / timeSpeed_);
     intervalTimer_->Setup();
 
     HILOG_INFO("%{public}s end", __func__);
