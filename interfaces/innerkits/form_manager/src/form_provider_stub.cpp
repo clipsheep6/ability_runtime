@@ -89,9 +89,9 @@ int FormProviderStub::HandleAcquireProviderFormInfo(MessageParcel &data, Message
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -114,9 +114,9 @@ int FormProviderStub::HandleNotifyFormDelete(MessageParcel &data, MessageParcel 
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -141,9 +141,9 @@ int FormProviderStub::HandleNotifyFormsDelete(MessageParcel &data, MessageParcel
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
 
-        sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+        sptr<IRemoteObject> client = data.ReadRemoteObject();
         if (client == nullptr) {
-            HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+            HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
 
@@ -170,9 +170,9 @@ int FormProviderStub::HandleNotifyFormUpdate(MessageParcel &data, MessageParcel 
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -200,9 +200,9 @@ int FormProviderStub::HandleEventNotify(MessageParcel &data, MessageParcel &repl
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
 
-        sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+        sptr<IRemoteObject> client = data.ReadRemoteObject();
         if (client == nullptr) {
-            HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+            HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
 
@@ -230,9 +230,9 @@ int FormProviderStub::HandleNotifyFormCastTempForm(MessageParcel &data, MessageP
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -256,9 +256,9 @@ int FormProviderStub::HandleFireFormEvent(MessageParcel &data, MessageParcel &re
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -284,9 +284,9 @@ int FormProviderStub::HandleAcquireState(MessageParcel &data, MessageParcel &rep
         HILOG_ERROR("%{public}s fail, ReadParcelable<Want> failed", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-    sptr<IRemoteObject> client = data.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> client = data.ReadRemoteObject();
     if (client == nullptr) {
-        HILOG_ERROR("%{public}s, failed to ReadParcelable<IRemoteObject>", __func__);
+        HILOG_ERROR("%{public}s, failed to ReadRemoteObject", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     int32_t result = AcquireState(*wantArg, *want, client);

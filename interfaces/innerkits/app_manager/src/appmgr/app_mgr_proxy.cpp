@@ -187,7 +187,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     if (!SendTransactCmd(IAppMgr::Message::APP_GET_MGR_INSTANCE, data, reply)) {
         return nullptr;
     }
-    sptr<IRemoteObject> object = reply.ReadParcelable<IRemoteObject>();
+    sptr<IRemoteObject> object = reply.ReadRemoteObject();
     sptr<IAmsMgr> amsMgr = iface_cast<IAmsMgr>(object);
     if (!amsMgr) {
         HILOG_ERROR("ams instance is nullptr");
