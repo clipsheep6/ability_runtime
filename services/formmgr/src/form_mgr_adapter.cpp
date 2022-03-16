@@ -945,7 +945,7 @@ ErrCode FormMgrAdapter::AddFormTimer(const FormRecord &formRecord)
         bool timerRet = false;
         if (formRecord.updateDuration > 0) {
             timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId,
-            formRecord.updateDuration, formRecord.userId);
+                formRecord.updateDuration, formRecord.userId);
         } else {
             timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId, formRecord.updateAtHour,
                 formRecord.updateAtMin, formRecord.userId);
@@ -1207,6 +1207,9 @@ ErrCode FormMgrAdapter::CreateFormItemInfo(const BundleInfo &bundleInfo,
     for (const auto &abilityInfo : bundleInfo.abilityInfos) {
         if (abilityInfo.name == formInfo.abilityName) {
             itemInfo.SetAbilityModuleName(abilityInfo.moduleName);
+            if (!abilityInfo.isModuleJson) {
+                itemInfo.SetFormSrc("");
+            }
         }
     }
 
