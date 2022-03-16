@@ -16,35 +16,26 @@ config("libevdev_config") {
 }
 
 config("libevdev_public_config") {
-  include_dirs = [
-    "export_include",
-  ]
+  include_dirs = [ "export_include" ]
 
-  cflags = [
-  ]
+  cflags = []
 }
 
 ohos_shared_library("libevdev") {
   sources = [
+    "libevdev/libevdev-names.c",
     "libevdev/libevdev-uinput.c",
     "libevdev/libevdev.c",
-    "libevdev/libevdev-names.c",
   ]
 
-  configs = [
-    ":libevdev_config",
-  ]
+  configs = [ ":libevdev_config" ]
 
-  public_configs = [
-    ":libevdev_public_config",
-  ]
+  public_configs = [ ":libevdev_public_config" ]
 
-  deps = [
-  ]
+  deps = []
 
-  public_deps = [
-  ]
+  public_deps = []
 
-  part_name = "multimodalinput_base"
+  part_name = "input"
 }
 ## Build libevdev.so }}}
