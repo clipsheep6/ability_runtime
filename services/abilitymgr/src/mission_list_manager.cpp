@@ -960,10 +960,14 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &a
         HILOG_ERROR("Ability has already been removed");
         return ERR_OK;
     }
-
+    HILOG_ERROR("Terminate ability with result called contained PERMISSION_KEY.....0");
     abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
+        HILOG_ERROR("Terminate ability with result called contained PERMISSION_KEY.....1");
+        if (resultWant->HasParameter("ohos.user.grant.permission")) {
+            HILOG_ERROR("Terminate ability with result called contained PERMISSION_KEY.");
+        }
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
     }
 

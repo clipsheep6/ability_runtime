@@ -495,13 +495,14 @@ void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEven
  */
 void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_ERROR("%{public}s begin.", __func__);
     if (ability_ == nullptr) {
         HILOG_ERROR("AbilityImpl::SendResult ability_ is nullptr");
         return;
     }
 
     if (resultData.HasParameter(PERMISSION_KEY)) {
+        HILOG_ERROR("%{public}s Call the callback of RequestPermissionsFromUser.", __func__);
         std::vector<std::string> permissions = resultData.GetStringArrayParam(PERMISSION_KEY);
         std::vector<int> grantedResult(permissions.size(), -1);
         if (resultCode > 0) {
@@ -510,6 +511,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
         }
         ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantedResult);
     } else {
+        HILOG_ERROR("%{public}s Call the callback of StartAbilityForResult.", __func__);
         ability_->OnAbilityResult(requestCode, resultCode, resultData);
     }
     HILOG_INFO("%{public}s end.", __func__);
