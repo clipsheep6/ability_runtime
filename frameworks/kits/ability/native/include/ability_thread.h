@@ -286,7 +286,6 @@ public:
      */
     int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * @brief notify multi window mode changed.
      *
@@ -301,7 +300,6 @@ public:
      * @param flag true: Indicates this ability is top active ability
      */
     void NotifyTopActiveAbilityChanged(bool flag);
-#endif
 
     /**
      * @brief continue ability to target device.
@@ -506,6 +504,12 @@ private:
      * @brief Handle the scheduling update configuration.
      */
     void HandleUpdateConfiguration(const Configuration &config);
+
+    /**
+     * Block ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int BlockAbility();
 
     /**
      * @brief Handle the scheduling update configuration of extension.

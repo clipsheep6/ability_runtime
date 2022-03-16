@@ -36,6 +36,11 @@
 #include "napi_result_set.h"
 #include "securec.h"
 
+#ifndef SUPPORT_GRAPHICS
+#define DBL_MIN ((double)2.22507385850720138309e-308L)
+#define DBL_MAX ((double)2.22507385850720138309e-308L)
+#endif
+
 using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
@@ -819,7 +824,10 @@ void RegisterCompleteCB(napi_env env, napi_status status, void *data)
         return;
     }
     HILOG_INFO("NAPI_Register, input params onCB is invalid params, will be release");
-    onCB->observer->ReleaseJSCallback();
+    if (onCB->observer) {
+        HILOG_INFO("NAPI_Register, call ReleaseJSCallback");
+        onCB->observer->ReleaseJSCallback();
+    }
     delete onCB;
     onCB = nullptr;
     HILOG_INFO("NAPI_Register, main event thread complete over an release invalid onCB.");
@@ -3117,6 +3125,11 @@ napi_value CallWrap(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
+    if (argcAsync != ARGS_FOUR && argcAsync != ARGS_FIVE) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;

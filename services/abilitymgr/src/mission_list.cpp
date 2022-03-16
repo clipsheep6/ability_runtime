@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -341,6 +341,23 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
             }
         }
     }
+}
+
+int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
+{
+    int ret = -1;
+    for (const auto& mission : missions_) {
+        if (mission) {
+            auto abilityRecord = mission->GetAbilityRecord();
+            if (abilityRecord) {
+                if (abilityRecord->GetRecordId() == abilityRecordId) {
+                    HILOG_INFO("record begain to call BlockAbilityByRecordId %{public}s", __func__);
+                    return abilityRecord->BlockAbility();
+                }
+            }
+        }
+    }
+    return ret;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

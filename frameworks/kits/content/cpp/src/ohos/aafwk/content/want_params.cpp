@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1190,11 +1190,13 @@ bool WantParams::ReadFromParcelDouble(Parcel &parcel, const std::string &key)
 
 bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int type)
 {
-    int bufferSize = 0;
+    int32_t bufferSize = 0;
     if (!parcel.ReadInt32(bufferSize)) {
         return false;
     }
-    if (bufferSize < 0) {
+    static constexpr int32_t maxAllowedSize = 100 * 1024 * 1024;
+    if (bufferSize < 0 || bufferSize > maxAllowedSize) {
+        ABILITYBASE_LOGE("%{public}s invalid size: %{public}d", __func__, bufferSize);
         return false;
     }
 
@@ -1341,8 +1343,8 @@ WantParams *WantParams::Unmarshalling(Parcel &parcel)
 void WantParams::DumpInfo(int level) const
 {
     ABILITYBASE_LOGI("=======WantParams::DumpInfo level: %{public}d start=============", level);
-    int params_size = params_.size();
-    ABILITYBASE_LOGI("===WantParams::params_: count %{public}d =============", params_size);
+    size_t params_size = params_.size();
+    ABILITYBASE_LOGI("===WantParams::params_: count %{public}u =============", (uint32_t)params_size);
     int typeId = VALUE_TYPE_NULL;
     for (auto it : params_) {
         typeId = VALUE_TYPE_NULL;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -620,7 +620,7 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
         return ret;
     }
 
-    int count = values.size();
+    int count = (int)values.size();
     if (!data.WriteInt32(count)) {
         HILOG_ERROR("fail to WriteInt32 ret");
         return ret;
@@ -647,7 +647,6 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
     return ret;
 }
 
-#ifdef SUPPORT_GRAPHICS
 /**
  * @brief notify multi window mode changed.
  *
@@ -656,6 +655,7 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
  */
 void AbilitySchedulerProxy::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -674,8 +674,8 @@ void AbilitySchedulerProxy::NotifyMultiWinModeChanged(int32_t winModeKey, bool f
     if (err != NO_ERROR) {
         HILOG_ERROR("NotifyMultiWinModeChanged fail to SendRequest. err: %{public}d", err);
     }
-}
 #endif
+}
 
 /**
  * @brief Registers an observer to DataObsMgr specified by the given Uri.
@@ -789,6 +789,7 @@ bool AbilitySchedulerProxy::ScheduleNotifyChange(const Uri &uri)
  */
 void AbilitySchedulerProxy::NotifyTopActiveAbilityChanged(bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -803,6 +804,7 @@ void AbilitySchedulerProxy::NotifyTopActiveAbilityChanged(bool flag)
     if (err != NO_ERROR) {
         HILOG_ERROR("NotifyTopActiveAbilityChanged fail to SendRequest. err: %{public}d", err);
     }
+#endif
 }
 
 /**
@@ -906,7 +908,7 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilitySchedulerProx
         return results;
     }
 
-    int count = operations.size();
+    int count = (int)operations.size();
     if (!data.WriteInt32(count)) {
         HILOG_ERROR("AbilitySchedulerProxy::ExecuteBatch fail to WriteInt32 ret");
         return results;
@@ -1022,13 +1024,13 @@ sptr<IRemoteObject> AbilitySchedulerProxy::CallRequest()
     if (!WriteInterfaceToken(data)) {
         return nullptr;
     }
-    
+
     int32_t err = Remote()->SendRequest(IAbilityScheduler::REQUEST_CALL_REMOTE, data, reply, option);
     if (err != NO_ERROR) {
         HILOG_ERROR("CallRequest fail to SendRequest. err: %{public}d", err);
         return nullptr;
     }
-    
+
     int32_t result = reply.ReadInt32();
     if (result != ERR_OK) {
         HILOG_ERROR("CallRequest failed, err %{public}d", result);
@@ -1042,6 +1044,29 @@ sptr<IRemoteObject> AbilitySchedulerProxy::CallRequest()
 
     HILOG_INFO("AbilitySchedulerProxy::CallRequest end");
     return call;
+}
+
+int AbilitySchedulerProxy::BlockAbility()
+{
+    HILOG_INFO("AbilitySchedulerProxy::BlockAbility start");
+    int ret = -1;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return ret;
+    }
+    int32_t err = Remote()->SendRequest(IAbilityScheduler::BLOCK_ABILITY_INNER, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("BlockAbility fail to SendRequest. err: %d", err);
+        return ret;
+    }
+    if (!reply.ReadInt32(ret)) {
+        HILOG_ERROR("fail to ReadInt32 ret");
+        return ret;
+    }
+    return ret;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -109,7 +109,7 @@ bool WatchDog::Timer()
         if (!stopWatchDog_) {
             auto timeoutTask = [&]() {
             appMainThreadIsAlive_ = false;
-            std::string eventType = "APP_MAIN_THREAD_TIMEOUT";
+            std::string eventType = "THREAD_BLOCK_3S";
             std::string msgContent = "app main thread is not response!";
             if (applicationInfo_ != nullptr) {
                 OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,

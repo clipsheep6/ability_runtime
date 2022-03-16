@@ -600,7 +600,6 @@ public:
      */
     bool IsConnectListEmpty();
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * add ability's window info to record.
      *
@@ -613,6 +612,7 @@ public:
      */
     void RemoveWindowInfo();
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * get ability's window info from record.
      *
@@ -800,6 +800,7 @@ public:
     void SetWindowMode(int32_t windowMode);
     void RemoveWindowMode();
     LifeCycleStateInfo lifeCycleStateInfo_;                // target life state info
+    int BlockAbility();
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);

@@ -228,7 +228,6 @@ public:
      */
     virtual bool ScheduleUnregisterObserver(const Uri &uri, const sptr<IDataAbilityObserver> &dataObserver) = 0;
 
-#ifdef SUPPORT_GRAPHICS
     virtual void NotifyMultiWinModeChanged(int32_t winModeKey, bool flag) = 0;
 
     /**
@@ -237,7 +236,6 @@ public:
      * @param flag true: Indicates this ability is top active ability
      */
     virtual void NotifyTopActiveAbilityChanged(bool flag) = 0;
-#endif
 
     /**
      * @brief Notifies the registered observers of a change to the data resource specified by Uri.
@@ -277,8 +275,10 @@ public:
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations) = 0;
     virtual void ContinueAbility(const std::string& deviceId) = 0;
     virtual void NotifyContinuationResult(int32_t result) = 0;
-	
+
     virtual void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) = 0;
+
+    virtual int BlockAbility() = 0;
 
     virtual sptr<IRemoteObject> CallRequest() = 0;
 
@@ -362,7 +362,7 @@ public:
 
         // ipc id for notify continuation result
         NOTIFY_CONTINUATION_RESULT,
-		
+
 		// ipc id for scheduling call request
         REQUEST_CALL_REMOTE,
 
@@ -370,7 +370,10 @@ public:
         CONTINUE_ABILITY,
 
         // ipc id for dump ability runner
-        DUMP_ABILITY_RUNNER_INNER
+        DUMP_ABILITY_RUNNER_INNER,
+
+        // block ability runner
+        BLOCK_ABILITY_INNER
     };
 };
 }  // namespace AAFwk

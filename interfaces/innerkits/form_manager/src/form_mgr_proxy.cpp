@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -146,10 +146,7 @@ int FormMgrProxy::ReleaseForm(const int64_t formId, const sptr<IRemoteObject> &c
  * @param FormProviderData Form binding data.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormMgrProxy::UpdateForm(
-    const int64_t formId,
-    const std::string &bundleName,
-    const FormProviderData &FormProviderData)
+int FormMgrProxy::UpdateForm(const int64_t formId, const FormProviderData &FormProviderData)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
@@ -158,11 +155,6 @@ int FormMgrProxy::UpdateForm(
     }
     if (!data.WriteInt64(formId)) {
         HILOG_ERROR("%{public}s, failed to write formId", __func__);
-        return ERR_APPEXECFWK_PARCEL_ERROR;
-    }
-
-    if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("%{public}s, failed to write bundleName", __func__);
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!data.WriteParcelable(&FormProviderData)) {

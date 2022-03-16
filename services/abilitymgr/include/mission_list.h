@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -182,11 +182,13 @@ public:
      * @param info dump result.
      */
     void DumpList(std::vector<std::string> &info, bool isClient);
-    
+
     void DumpStateByRecordId(
         std::vector<std::string> &info, bool isClient, int32_t abilityRecordId, const std::vector<std::string> &params);
 
     std::shared_ptr<Mission> GetMissionBySpecifiedFlag(const AAFwk::Want &want, const std::string &flag) const;
+    int BlockAbilityByRecordId(int32_t abilityRecordId);
+    
 private:
     std::string GetTypeName();
     bool MatchedInitialMission(const std::shared_ptr<Mission>& mission, const std::string &bundleName, int32_t uid);

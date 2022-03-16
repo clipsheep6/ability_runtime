@@ -139,6 +139,9 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[GET_MISSION_SNAPSHOT_INFO] = &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[IS_USER_A_STABILITY_TEST] = &AbilityManagerStub::IsRunningInStabilityTestInner;
     requestFuncMap_[SEND_APP_NOT_RESPONSE_PROCESS_ID] = &AbilityManagerStub::SendANRProcessIDInner;
+    requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
+    requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
+    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
 }
 
 void AbilityManagerStub::ThirdStepInit()
@@ -755,7 +758,7 @@ int AbilityManagerStub::UpdateConfigurationInner(MessageParcel &data, MessagePar
 
 int AbilityManagerStub::GetWantSenderInner(MessageParcel &data, MessageParcel &reply)
 {
-    WantSenderInfo *wantSenderInfo = data.ReadParcelable<WantSenderInfo>();
+    std::unique_ptr<WantSenderInfo> wantSenderInfo(data.ReadParcelable<WantSenderInfo>());
     if (wantSenderInfo == nullptr) {
         HILOG_ERROR("wantSenderInfo is nullptr");
         return ERR_INVALID_VALUE;
@@ -776,7 +779,7 @@ int AbilityManagerStub::SendWantSenderInner(MessageParcel &data, MessageParcel &
         HILOG_ERROR("wantSender is nullptr");
         return ERR_INVALID_VALUE;
     }
-    SenderInfo *senderInfo = data.ReadParcelable<SenderInfo>();
+    std::unique_ptr<SenderInfo> senderInfo(data.ReadParcelable<SenderInfo>());
     if (senderInfo == nullptr) {
         HILOG_ERROR("senderInfo is nullptr");
         return ERR_INVALID_VALUE;
@@ -1170,7 +1173,7 @@ int AbilityManagerStub::GetMissionIdByTokenInner(MessageParcel &data, MessagePar
 int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t missionId = data.ReadInt32();
-    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
     if (startOptions == nullptr) {
         HILOG_ERROR("startOptions is nullptr");
         return ERR_INVALID_VALUE;
@@ -1215,7 +1218,7 @@ int AbilityManagerStub::ReleaseInner(MessageParcel &data, MessageParcel &reply)
         return ERR_INVALID_VALUE;
     }
 
-    auto element = data.ReadParcelable<AppExecFwk::ElementName>();
+    std::unique_ptr<AppExecFwk::ElementName> element(data.ReadParcelable<AppExecFwk::ElementName>());
     if (element == nullptr) {
         HILOG_ERROR("callback stub receive element is nullptr");
         return ERR_INVALID_VALUE;
@@ -1504,7 +1507,7 @@ int AbilityManagerStub::DoAbilityBackground(const sptr<IRemoteObject> &token, ui
 int AbilityManagerStub::DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
-    int32_t flag = data.ReadUint32();
+    uint32_t flag = data.ReadUint32();
     auto result = DoAbilityForeground(token, flag);
     reply.WriteInt32(result);
 
@@ -1514,7 +1517,7 @@ int AbilityManagerStub::DoAbilityForegroundInner(MessageParcel &data, MessagePar
 int AbilityManagerStub::DoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
-    int32_t flag = data.ReadUint32();
+    uint32_t flag = data.ReadUint32();
     auto result = DoAbilityBackground(token, flag);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -1538,6 +1541,37 @@ int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessagePar
     int result = ForceTimeoutForTest(abilityName, state);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("force ability timeout error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t abilityReocrdId = data.ReadInt32();
+    int32_t result = BlockAbility(abilityReocrdId);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::BlockAmsServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result = BlockAmsService();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result = BlockAppService();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

@@ -15,6 +15,10 @@
 
 #include "ability_thread.h"
 
+#include <chrono>
+#include <functional>
+#include <thread>
+
 #include "ability_context_impl.h"
 #include "ability_impl.h"
 #include "ability_impl_factory.h"
@@ -35,13 +39,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace std::chrono_literals;
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 using DataObsMgrClient = OHOS::AAFwk::DataObsMgrClient;
-constexpr static char ABILITY_NAME[] = "Ability";
-constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
+const int32_t BLOCK_ABILITY_TIME = 20;
 constexpr static char ACE_SERVICE_ABILITY_NAME[] = "AceServiceAbility";
 constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
 #ifdef SUPPORT_GRAPHICS
+constexpr static char ABILITY_NAME[] = "Ability";
+constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
 constexpr static char FORM_EXTENSION[] = "FormExtension";
 #endif
@@ -1194,9 +1200,9 @@ int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Valu
     return ret;
 }
 
-#ifdef SUPPORT_GRAPHICS
 void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     HILOG_INFO("NotifyMultiWinModeChanged.key:%{public}d,flag:%{public}d", winModeKey, flag);
     auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
@@ -1221,10 +1227,12 @@ void AbilityThread::NotifyMultiWinModeChanged(int32_t winModeKey, bool flag)
     }
 
     return;
+#endif
 }
 
 void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
 {
+#ifdef SUPPORT_GRAPHICS
     HILOG_INFO("NotifyTopActiveAbilityChanged,flag:%{public}d", flag);
     auto window = currentAbility_->GetWindow();
     if (window == nullptr) {
@@ -1235,8 +1243,8 @@ void AbilityThread::NotifyTopActiveAbilityChanged(bool flag)
         window->RequestFocus();
     }
     return;
-}
 #endif
+}
 
 void AbilityThread::ContinueAbility(const std::string& deviceId)
 {
@@ -1570,7 +1578,6 @@ bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-
     HILOG_INFO("AbilityThread::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityImpl_ == nullptr) {
@@ -1601,12 +1608,12 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_INFO("%{public}s begin.", __func__);
-    if (currentAbility_ == nullptr) {
-        HILOG_INFO("currentAbility is nullptr.");
+    if (currentAbility_ == nullptr && currentExtension_ == nullptr) {
+        HILOG_INFO("currentAbility and currentExtension_ is nullptr.");
         return;
     }
 
-    if (!params.empty()) {
+    if (!params.empty() && currentAbility_ != nullptr) {
         if (abilityImpl_->IsStageBasedModel()) {
             auto scene = currentAbility_->GetScene();
             if (scene == nullptr) {
@@ -1622,9 +1629,9 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
         } else {
             currentAbility_->Dump(params, info);
         }
-
         return;
     }
+
     std::string dumpInfo = "        event:";
     info.push_back(dumpInfo);
 
@@ -1642,22 +1649,25 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
 
-    const auto ablityContext = currentAbility_->GetAbilityContext();
-    if (!ablityContext) {
-        HILOG_INFO("current ability context is nullptr.");
-        return;
+    if (currentAbility_ != nullptr) {
+        const auto ablityContext = currentAbility_->GetAbilityContext();
+        if (!ablityContext) {
+            HILOG_INFO("current ability context is nullptr.");
+            return;
+        }
+        const auto localCallContainer = ablityContext->GetLocalCallContainer();
+        if (!localCallContainer) {
+            HILOG_INFO("current ability context locall call container is nullptr.");
+            return;
+        }
+        localCallContainer->DumpCalls(info);
     }
-
-    const auto localCallContainer = ablityContext->GetLocalCallContainer();
-    if (!localCallContainer) {
-        HILOG_INFO("current ability context locall call container is nullptr.");
-        return;
-    }
-
-    localCallContainer->DumpCalls(info);
 
     HILOG_INFO("localCallContainer need to get calls info.");
 }
+#else
+void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
+{}
 #endif
 
 sptr<IRemoteObject> AbilityThread::CallRequest()
@@ -1694,6 +1704,23 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
 
     HILOG_INFO("AbilityThread::CallRequest end");
     return retval;
+}
+
+int AbilityThread::BlockAbility()
+{
+    HILOG_INFO("AbilityThread::BlockAblity begin");
+    if (abilityHandler_) {
+        auto task = []() {
+            while (1) {
+                std::this_thread::sleep_for(BLOCK_ABILITY_TIME*1s);
+            }
+        };
+        HILOG_INFO("AbilityThread::BlockAblity post task");
+        abilityHandler_->PostTask(task);
+        HILOG_INFO("AbilityThread::BlockAblity end");
+        return ERR_OK;
+    }
+    return ERR_NO_INIT;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

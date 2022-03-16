@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -925,6 +925,7 @@ ErrCode FormMgrAdapter::AddNewFormRecord(const FormItemInfo &info, const int64_t
     // storage info
     if (!newInfo.IsTemporaryForm()) {
         if (ErrCode errorCode = FormDbCache::GetInstance().UpdateDBRecord(formId, formRecord); errorCode != ERR_OK) {
+            HILOG_ERROR("%{public}s fail, UpdateDBRecord failed", __func__);
             return errorCode;
         }
     }
@@ -945,7 +946,7 @@ ErrCode FormMgrAdapter::AddFormTimer(const FormRecord &formRecord)
         bool timerRet = false;
         if (formRecord.updateDuration > 0) {
             timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId,
-            formRecord.updateDuration, formRecord.userId);
+                formRecord.updateDuration, formRecord.userId);
         } else {
             timerRet = FormTimerMgr::GetInstance().AddFormTimer(formRecord.formId, formRecord.updateAtHour,
                 formRecord.updateAtMin, formRecord.userId);
@@ -1207,6 +1208,9 @@ ErrCode FormMgrAdapter::CreateFormItemInfo(const BundleInfo &bundleInfo,
     for (const auto &abilityInfo : bundleInfo.abilityInfos) {
         if (abilityInfo.name == formInfo.abilityName) {
             itemInfo.SetAbilityModuleName(abilityInfo.moduleName);
+            if (!abilityInfo.isModuleJson) {
+                itemInfo.SetFormSrc("");
+            }
         }
     }
 

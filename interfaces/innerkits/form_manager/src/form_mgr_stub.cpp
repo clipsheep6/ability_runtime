@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,13 +27,13 @@ const int32_t LIMIT_PARCEL_SIZE = 1024;
 
 void SplitString(const std::string &source, std::vector<std::string> &strings)
 {
-    int splitSize = (source.size() / LIMIT_PARCEL_SIZE);
+    size_t splitSize = (source.size() / LIMIT_PARCEL_SIZE);
     if ((source.size() % LIMIT_PARCEL_SIZE) != 0) {
         splitSize++;
     }
     HILOG_DEBUG("the dump string split into %{public}d size", splitSize);
-    for (int i = 0; i < splitSize; i++) {
-        int32_t start = LIMIT_PARCEL_SIZE * i;
+    for (size_t i = 0; i < splitSize; i++) {
+        size_t start = LIMIT_PARCEL_SIZE * i;
         strings.emplace_back(source.substr(start, LIMIT_PARCEL_SIZE));
     }
 }
@@ -192,9 +192,8 @@ int32_t FormMgrStub::HandleReleaseForm(MessageParcel &data, MessageParcel &reply
 int32_t FormMgrStub::HandleUpdateForm(MessageParcel &data, MessageParcel &reply)
 {
     int64_t formId = data.ReadInt64();
-    std::string bundleName = data.ReadString();
     std::unique_ptr<FormProviderData> formBindingData(data.ReadParcelable<FormProviderData>());
-    int32_t result = UpdateForm(formId, bundleName, *formBindingData);
+    int32_t result = UpdateForm(formId, *formBindingData);
     reply.WriteInt32(result);
     return result;
 }

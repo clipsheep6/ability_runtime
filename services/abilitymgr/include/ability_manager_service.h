@@ -855,6 +855,25 @@ public:
     virtual int SendANRProcessID(int pid) override;
 
     /**
+     * Block ability manager service.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BlockAmsService() override;
+
+    /**
+     * Block ability.
+     *
+     * @param abilityRecordId The Ability Record Id.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BlockAbility(int32_t abilityRecordId) override;
+
+    /**
+     * Block app manager service.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BlockAppService() override;
+    /**
      * force timeout ability.
      *
      * @param abilityName.
@@ -1045,9 +1064,7 @@ private:
     void DumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DataDumpStateInner(const std::string &args, std::vector<std::string> &info);
     void DumpFocusMapInner(const std::string &args, std::vector<std::string> &info);
-#ifdef SUPPORT_GRAPHICS
     void DumpWindowModeInner(const std::string &args, std::vector<std::string> &info);
-#endif
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
     void DumpFuncInit();
@@ -1177,7 +1194,6 @@ private:
 
     std::multimap<std::string, std::string> timeoutMap_;
 };
-
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H

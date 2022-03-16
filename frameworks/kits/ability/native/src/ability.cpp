@@ -91,7 +91,9 @@ static std::mutex formLock;
 constexpr int64_t SEC_TO_MILLISEC = 1000;
 constexpr int64_t MILLISEC_TO_NANOSEC = 1000000;
 #endif
+#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
 constexpr int32_t DISTRIBUTED_OBJECT_TIMEOUT = 10000;
+#endif
 
 Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
@@ -508,6 +510,7 @@ bool Ability::IsRestoredInContinuation() const
 
 void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
 {
+#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
 
@@ -538,6 +541,9 @@ void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
         handler_->PostTask(timeout, "Waiting_Sync_Timeout", DISTRIBUTED_OBJECT_TIMEOUT);
         HILOG_INFO("continuation set timeout end");
     }
+#else
+    NotityContinuationResult(want, true);
+#endif
 }
 
 void Ability::NotityContinuationResult(const Want& want, bool success)
@@ -1157,7 +1163,6 @@ bool Ability::IsTerminating()
 void Ability::OnAbilityResult(int requestCode, int resultCode, const Want &want)
 {}
 
-#ifdef SUPPORT_GRAPHICS
 /**
  * @brief Called back when the Back key is pressed.
  * The default implementation destroys the ability. You can override this method.
@@ -1177,7 +1182,6 @@ void Ability::OnBackPressed()
     }
     HILOG_INFO("%{public}s end.", __func__);
 }
-#endif
 
 /**
  * @brief Called when the launch mode of an ability is set to singleInstance. This happens when you re-launch an
@@ -2290,7 +2294,7 @@ ErrCode Ability::UpdateForm(const int64_t formId, const FormProviderData &formPr
     }
 
     // update form request to fms
-    ErrCode result = FormMgr::GetInstance().UpdateForm(formId, abilityInfo_->bundleName, formProviderData);
+    ErrCode result = FormMgr::GetInstance().UpdateForm(formId, formProviderData);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s error, update form for fms failed.", __func__);
     }
@@ -3072,7 +3076,11 @@ ErrCode Ability::GetFormsInfoByModule(std::string &bundleName, std::string &modu
  */
 std::string Ability::GetErrorMsg(const ErrCode errorCode)
 {
+#ifdef SUPPORT_GRAPHICS
     return FormMgr::GetInstance().GetErrorMessage(errorCode);
+#else
+    return nullptr;
+#endif
 }
 
 /**
@@ -3624,8 +3632,8 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     }
 
     configuration->CompareDifferent(changeKeyV, newConfig);
-    int size = changeKeyV.size();
-    HILOG_INFO("changeKeyV size :%{public}d", size);
+    uint32_t size = changeKeyV.size();
+    HILOG_INFO("changeKeyV size :%{public}u", size);
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         OnConfigurationUpdated(*configuration);
@@ -3674,8 +3682,8 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     }
 
     configuration->CompareDifferent(changeKeyV, newConfig);
-    int size = changeKeyV.size();
-    HILOG_INFO("changeKeyV size :%{public}d", size);
+    uint32_t size = changeKeyV.size();
+    HILOG_INFO("changeKeyV size :%{public}u", size);
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         OnConfigurationUpdated(*configuration);

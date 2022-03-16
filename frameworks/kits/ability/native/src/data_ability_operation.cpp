@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -98,8 +98,8 @@ bool DataAbilityOperation::operator==(const DataAbilityOperation &other) const
     if (valuesBucketReferences_ != other.valuesBucketReferences_) {
         return false;
     }
-    int backReferencesCount = dataAbilityPredicatesBackReferences_.size();
-    int otherBackReferencesCount = other.dataAbilityPredicatesBackReferences_.size();
+    size_t backReferencesCount = dataAbilityPredicatesBackReferences_.size();
+    size_t otherBackReferencesCount = other.dataAbilityPredicatesBackReferences_.size();
     if (backReferencesCount != otherBackReferencesCount) {
         return false;
     }
@@ -337,7 +337,7 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
 
     int referenceSize = 0;
     if (!dataAbilityPredicatesBackReferences_.empty()) {
-        referenceSize = dataAbilityPredicatesBackReferences_.size();
+        referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
         if (!out.WriteInt32(referenceSize)) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;

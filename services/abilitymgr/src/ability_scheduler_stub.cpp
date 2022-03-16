@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,20 +51,17 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_REGISTEROBSERVER] = &AbilitySchedulerStub::RegisterObserverInner;
     requestFuncMap_[SCHEDULE_UNREGISTEROBSERVER] = &AbilitySchedulerStub::UnregisterObserverInner;
     requestFuncMap_[SCHEDULE_NOTIFYCHANGE] = &AbilitySchedulerStub::NotifyChangeInner;
-#ifdef SUPPORT_GRAPHICS
     requestFuncMap_[MULTI_WIN_CHANGED] = &AbilitySchedulerStub::MutiWinModeChangedInner;
-#endif
     requestFuncMap_[SCHEDULE_NORMALIZEURI] = &AbilitySchedulerStub::NormalizeUriInner;
     requestFuncMap_[SCHEDULE_DENORMALIZEURI] = &AbilitySchedulerStub::DenormalizeUriInner;
     requestFuncMap_[SCHEDULE_UPDATE_CONFIGURATION] = &AbilitySchedulerStub::UpdateConfigurationInner;
     requestFuncMap_[SCHEDULE_EXECUTEBATCH] = &AbilitySchedulerStub::ExecuteBatchInner;
-#ifdef SUPPORT_GRAPHICS
     requestFuncMap_[TOP_ACTIVE_ABILITY_CHANGED] = &AbilitySchedulerStub::TopActiveAbilityChangedInner;
-#endif
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
+    requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
 }
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
@@ -392,7 +389,7 @@ int AbilitySchedulerStub::BatchInsertInner(MessageParcel &data, MessageParcel &r
 
     std::vector<NativeRdb::ValuesBucket> values;
     for (int i = 0; i < count; i++) {
-        NativeRdb::ValuesBucket *value = data.ReadParcelable<NativeRdb::ValuesBucket>();
+        std::unique_ptr<NativeRdb::ValuesBucket> value(data.ReadParcelable<NativeRdb::ValuesBucket>());
         if (value == nullptr) {
             HILOG_ERROR("AbilitySchedulerStub value is nullptr, index = %{public}d", i);
             return ERR_INVALID_VALUE;
@@ -511,7 +508,6 @@ int AbilitySchedulerStub::UpdateConfigurationInner(MessageParcel &data, MessageP
     return NO_ERROR;
 }
 
-#ifdef SUPPORT_GRAPHICS
 int AbilitySchedulerStub::MutiWinModeChangedInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t winModeKey = data.ReadInt32();
@@ -526,7 +522,6 @@ int AbilitySchedulerStub::TopActiveAbilityChangedInner(MessageParcel &data, Mess
     NotifyTopActiveAbilityChanged(flag);
     return NO_ERROR;
 }
-#endif
 
 int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -549,7 +544,7 @@ int AbilitySchedulerStub::ExecuteBatchInner(MessageParcel &data, MessageParcel &
     }
 
     std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> results = ExecuteBatch(operations);
-    int total = results.size();
+    int total = (int)results.size();
     if (!reply.WriteInt32(total)) {
         HILOG_ERROR("AbilitySchedulerStub::ExecuteBatchInner fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
@@ -630,6 +625,18 @@ int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &r
     return NO_ERROR;
 }
 
+int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("AbilitySchedulerStub::BlockAbilityInner start");
+
+    auto result = BlockAbility();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to WriteInt32 result");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 void AbilitySchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_ERROR("recv AbilitySchedulerRecipient death notice");
@@ -644,6 +651,5 @@ AbilitySchedulerRecipient::AbilitySchedulerRecipient(RemoteDiedHandler handler) 
 
 AbilitySchedulerRecipient::~AbilitySchedulerRecipient()
 {}
-
 }  // namespace AAFwk
 }  // namespace OHOS

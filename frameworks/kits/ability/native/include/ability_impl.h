@@ -54,7 +54,7 @@ public:
      * @param useNewMission new mission flag.
      */
     static void SetUseNewMission(bool useNewMission);
- 
+
     /**
      * @brief Get if use new mission.
      *
@@ -454,7 +454,7 @@ public:
     void AfterForeground() override;
     void AfterBackground() override;
     void AfterFocused() override;
-    void AfterUnFocused() override;
+    void AfterUnfocused() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;
@@ -463,6 +463,7 @@ private:
 class InputEventConsumerImpl : public MMI::IInputEventConsumer {
 public:
     explicit InputEventConsumerImpl(const std::shared_ptr<AbilityImpl>& abilityImpl) : abilityImpl_(abilityImpl) {}
+    ~InputEventConsumerImpl() = default;
     void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override;
     void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override {}
