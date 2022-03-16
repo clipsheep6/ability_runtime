@@ -417,6 +417,9 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo->param.want.HasParameter("ohos.user.grant.permission")) {
+                HILOG_INFO("NAPI_SetResult, worker pool thread execute contained permission key.");
+            }
             if (asyncCallbackInfo->ability != nullptr) {
                 asyncCallbackInfo->ability->SetResult(
                     asyncCallbackInfo->param.requestCode, asyncCallbackInfo->param.want);

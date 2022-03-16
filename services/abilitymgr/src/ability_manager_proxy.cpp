@@ -193,6 +193,10 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     MessageParcel reply;
     MessageOption option;
 
+    if (resultWant->HasParameter("ohos.user.grant.permission")) {
+        HILOG_INFO("AbilityManagerProxy::TerminateAbility, TerminateAbility execute contained permission key.");
+    }
+
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
