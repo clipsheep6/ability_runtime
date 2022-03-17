@@ -1009,5 +1009,13 @@ void AbilityManagerClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRe
     HILOG_INFO("AbilityMgrDeathRecipient handle remote died.");
     AbilityManagerClient::GetInstance()->ResetProxy(remote);
 }
+ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+    int32_t userId, int requestCode)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

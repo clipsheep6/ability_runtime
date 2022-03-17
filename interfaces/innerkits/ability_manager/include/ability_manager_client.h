@@ -808,6 +808,17 @@ public:
      */
     ErrCode BlockAppService();
 
+    /**
+     * Free install ability from remote DMS.
+     *
+     * @param want Ability want.
+     * @param callback Callback used to notify free install result.
+     * @param userId User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback, int32_t userId,
+        int requestCode = DEFAULT_INVAL_VALUE);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

@@ -84,6 +84,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[START_SYNC_MISSIONS] = &AbilityManagerStub::StartSyncRemoteMissionsInner;
     requestFuncMap_[STOP_SYNC_MISSIONS] = &AbilityManagerStub::StopSyncRemoteMissionsInner;
     requestFuncMap_[FORCE_TIMEOUT] = &AbilityManagerStub::ForceTimeoutForTestInner;
+    requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -1574,6 +1575,26 @@ int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel 
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto callback = data.ReadParcelable<IRemoteObject>();
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = FreeInstallAbilityFromRemote(*want, callback, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
     return NO_ERROR;
 }
 }  // namespace AAFwk

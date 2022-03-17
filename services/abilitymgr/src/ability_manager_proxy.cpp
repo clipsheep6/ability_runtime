@@ -2708,5 +2708,38 @@ int AbilityManagerProxy::BlockAppService()
     }
     return reply.ReadInt32();
 }
+
+int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+    int32_t userId, int requestCode)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(callback)) {
+        HILOG_ERROR("callBack write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    auto error = Remote()->SendRequest(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
 }  // namespace AAFwk
 }  // namespace OHOS
