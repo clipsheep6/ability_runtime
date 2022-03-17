@@ -994,5 +994,15 @@ ErrCode AbilityManagerClient::SendANRProcessID(int pid)
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
     return abms->SendANRProcessID(pid);
 }
+
+ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+    int32_t userId, int requestCode)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
+//    auto abms = GetAbilityManager();
+//    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
+}
 }  // namespace AAFwk
 }  // namespace AAFwk
