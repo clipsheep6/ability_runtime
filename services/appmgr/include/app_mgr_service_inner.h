@@ -501,7 +501,7 @@ public:
 
     virtual void AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler);
 
-    int VerifyProcessPermission();
+    int VerifyProcessPermission(bool flag);
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId);
 
