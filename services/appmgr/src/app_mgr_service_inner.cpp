@@ -396,27 +396,10 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return ERR_NO_INIT;
     }
 
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callerPid);
-    if (!appRecord) {
-        HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
-        return ERR_INVALID_OPERATION;
-    }
-
-    auto applicationInfo = appRecord->GetApplicationInfo();
-    if (!applicationInfo) {
-        HILOG_ERROR("Get application info failed.");
-        return ERR_INVALID_OPERATION;
-    }
-
-    if (applicationInfo->appPrivilegeLevel != SYSTEM_BASIC && applicationInfo->appPrivilegeLevel != SYSTEM_CORE) {
-        HILOG_ERROR("caller is not system_basic or system_core.");
-        return ERR_INVALID_OPERATION;
-    }
-
-    if (VerifyProcessPermission() == ERR_PERMISSION_DENIED) {
+    auto errCode = VerifyProcessPermission(true);
+    if (errCode != ERR_OK) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return ERR_PERMISSION_DENIED;
+        return errCode;
     }
 
     int result = ERR_OK;
@@ -450,7 +433,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return ERR_NO_INIT;
     }
 
-    if (VerifyProcessPermission() == ERR_PERMISSION_DENIED) {
+    if (VerifyProcessPermission(false) == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return ERR_PERMISSION_DENIED;
     }
@@ -2294,7 +2277,7 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission()
+int AppMgrServiceInner::VerifyProcessPermission(bool flag)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
@@ -2303,6 +2286,31 @@ int AppMgrServiceInner::VerifyProcessPermission()
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
     if (isCallingPerm) {
+        if (flag) {
+            if (!appRunningManager_) {
+                HILOG_ERROR("appRunningManager_ is nullptr");
+                return ERR_NO_INIT;
+            }
+
+            auto callerPid = IPCSkeleton::GetCallingPid();
+            auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callerPid);
+            if (!appRecord) {
+                HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
+                return ERR_INVALID_OPERATION;
+            }
+
+            auto applicationInfo = appRecord->GetApplicationInfo();
+            if (!applicationInfo) {
+                HILOG_ERROR("Get application info failed.");
+                return ERR_INVALID_OPERATION;
+            }
+
+            auto apl = applicationInfo->appPrivilegeLevel;
+            if (apl != SYSTEM_BASIC && apl != SYSTEM_CORE) {
+                HILOG_ERROR("caller is not system_basic or system_core.");
+                return ERR_INVALID_OPERATION;
+            }
+        }
         HILOG_ERROR("%{public}s: Permission verification succeeded", __func__);
         return ERR_OK;
     }
