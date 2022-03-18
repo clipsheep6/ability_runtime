@@ -295,11 +295,11 @@ void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abi
         }
         if (abilityRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::DATA) {
             // If 'abilityRecord' is a data ability server, trying to remove it from 'dataAbilityRecords_'.
-            for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
+            for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end();) {
                 if (it->second->GetAbilityRecord() == abilityRecord) {
                     it->second->KillBoundClientProcesses();
                     HILOG_DEBUG("Removing died data ability record...");
-                    dataAbilityRecordsLoaded_.erase(it);
+                    it = dataAbilityRecordsLoaded_.erase(it);
                     break;
                 }
             }
