@@ -82,7 +82,7 @@ std::string ContextImpl::GetBundleCodeDir()
 
 std::string ContextImpl::GetCacheDir()
 {
-    std::string dir = GetBaseDir() + CONTEXT_PRIVATE + CONTEXT_CACHES;
+    std::string dir = GetBaseDir() + CONTEXT_CACHES;
     CreateDirIfNotExist(dir);
     HILOG_DEBUG("ContextImpl::GetCacheDir:%{public}s", dir.c_str());
     return dir;
