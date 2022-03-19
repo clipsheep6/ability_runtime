@@ -333,7 +333,7 @@ void GetFilesDirExecuteCallback(napi_env env, void *data)
     }
 
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
-    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetFilesDir();
+    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetAbilityContext()->GetFilesDir();
     HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
 }
 
@@ -485,7 +485,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env env, void *data)
     }
 
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
-    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetDistributedDir();
+    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetAbilityContext()->GetDistributedFilesDir();
     HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
 }
 
@@ -589,7 +589,7 @@ void GetCacheDirExecuteCallback(napi_env env, void *data)
     }
 
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
-    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetCacheDir();
+    asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetAbilityContext()->GetCacheDir();
     HILOG_INFO("%{public}s end. CacheDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
 }
 
