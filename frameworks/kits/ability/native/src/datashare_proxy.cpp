@@ -574,7 +574,7 @@ std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> DataShareProxy::Exec
             HILOG_ERROR("result is nullptr, index = %{public}d", i);
             return results;
         }
-        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(result);
+        std::shared_ptr<AppExecFwk::DataAbilityResult> dataAbilityResult(result.GetRefPtr());
         results.push_back(dataAbilityResult);
     }
     HILOG_INFO("%{public}s end successfully.", __func__);

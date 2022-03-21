@@ -387,7 +387,7 @@ ErrCode DataShareStub::CmdExecuteBatch(MessageParcel &data, MessageParcel &reply
             HILOG_ERROR("DataShareStub::CmdExecuteBatchInner operation is nullptr, index = %{public}d", i);
             return ERR_INVALID_VALUE;
         }
-        std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(operation);
+        std::shared_ptr<AppExecFwk::DataAbilityOperation> dataAbilityOperation(operation.GetRefPtr());
         operations.push_back(dataAbilityOperation);
     }
 
