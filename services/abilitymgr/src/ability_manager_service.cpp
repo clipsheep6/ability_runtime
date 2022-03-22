@@ -2464,28 +2464,6 @@ void AbilityManagerService::StartingPhoneServiceAbility()
     (void)StartAbility(phoneServiceWant, userId, DEFAULT_INVAL_VALUE);
 }
 
-void AbilityManagerService::StartingContactsAbility()
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    auto bms = GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
-
-    AppExecFwk::AbilityInfo contactsInfo;
-    Want contactsWant;
-    contactsWant.SetElementName(AbilityConfig::CONTACTS_BUNDLE_NAME, AbilityConfig::CONTACTS_ABILITY_NAME);
-
-    auto userId = GetUserId();
-    HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
-    IN_PROCESS_CALL_WITHOUT_RET(
-        if (!(bms->QueryAbilityInfo(contactsWant,
-            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, contactsInfo))) {
-            HILOG_WARN("%{public}s QueryAbilityInfo failed.", __func__);
-        }
-    );
-
-    (void)StartAbility(contactsWant, userId, DEFAULT_INVAL_VALUE);
-}
-
 void AbilityManagerService::StartingMmsAbility()
 {
     HILOG_DEBUG("%{public}s", __func__);
@@ -3884,11 +3862,6 @@ void AbilityManagerService::StartSystemAbilityByUser(int32_t userId, bool isBoot
     if (amsConfigResolver_->GetPhoneServiceState()) {
         HILOG_INFO("start phone service");
         StartingPhoneServiceAbility();
-    }
-
-    if (amsConfigResolver_->GetStartContactsState()) {
-        HILOG_INFO("start contacts");
-        StartingContactsAbility();
     }
 
     if (amsConfigResolver_->GetStartMmsState()) {
