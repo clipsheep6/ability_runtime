@@ -1142,7 +1142,7 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto want = abilityRecord->GetWant();
     if (runtime && appInfo && want && appInfo->debug) {
         HdcRegister::Get().StartHdcRegister(appInfo->bundleName);
-        runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
+        runtime->StartDebugMode(want->GetBoolParam("debugApp", false), 0);
     }
 
     mainThreadState_ = MainThreadState::RUNNING;
