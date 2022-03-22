@@ -2454,15 +2454,11 @@ void AbilityManagerService::StartingPhoneServiceAbility()
         AbilityConfig::PHONE_SERVICE_ABILITY_NAME);
 
     auto userId = GetUserId();
-    int attemptNums = 1;
     HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
     IN_PROCESS_CALL_WITHOUT_RET(
-        while (!(bms->QueryAbilityInfo(phoneServiceWant,
-            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, phoneServiceInfo)) &&
-            attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
-            HILOG_INFO("Waiting query phone service ability info completed.");
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-            attemptNums++;
+        if (!(bms->QueryAbilityInfo(phoneServiceWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, phoneServiceInfo))) {
+            HILOG_WARN("%{public}s QueryAbilityInfo failed.", __func__);
         }
     );
 
@@ -2480,22 +2476,15 @@ void AbilityManagerService::StartingContactsAbility()
     contactsWant.SetElementName(AbilityConfig::CONTACTS_BUNDLE_NAME, AbilityConfig::CONTACTS_ABILITY_NAME);
 
     auto userId = GetUserId();
-    int attemptNums = 1;
     HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
     IN_PROCESS_CALL_WITHOUT_RET(
-        while (!(bms->QueryAbilityInfo(contactsWant,
-            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, contactsInfo)) &&
-            attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
-            HILOG_INFO("Waiting query contacts service completed.");
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-            attemptNums++;
+        if (!(bms->QueryAbilityInfo(contactsWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, contactsInfo))) {
+            HILOG_WARN("%{public}s QueryAbilityInfo failed.", __func__);
         }
     );
 
-    HILOG_INFO("attemptNums : %{public}d", attemptNums);
-    if (attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
-        (void)StartAbility(contactsWant, userId, DEFAULT_INVAL_VALUE);
-    }
+    (void)StartAbility(contactsWant, userId, DEFAULT_INVAL_VALUE);
 }
 
 void AbilityManagerService::StartingMmsAbility()
@@ -2509,22 +2498,15 @@ void AbilityManagerService::StartingMmsAbility()
     mmsWant.SetElementName(AbilityConfig::MMS_BUNDLE_NAME, AbilityConfig::MMS_ABILITY_NAME);
 
     auto userId = GetUserId();
-    int attemptNums = 1;
     HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
     IN_PROCESS_CALL_WITHOUT_RET(
-        while (!(bms->QueryAbilityInfo(mmsWant,
-            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, mmsInfo)) &&
-            attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
-            HILOG_INFO("Waiting query mms service completed.");
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-            attemptNums++;
+        if (!(bms->QueryAbilityInfo(mmsWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, mmsInfo))) {
+            HILOG_WARN("%{public}s QueryAbilityInfo failed.", __func__);
         }
     );
 
-    HILOG_INFO("attemptNums : %{public}d", attemptNums);
-    if (attemptNums <= MAX_NUMBER_OF_CONNECT_BMS) {
-        (void)StartAbility(mmsWant, userId, DEFAULT_INVAL_VALUE);
-    }
+    (void)StartAbility(mmsWant, userId, DEFAULT_INVAL_VALUE);
 }
 
 int AbilityManagerService::GenerateAbilityRequest(
@@ -4314,7 +4296,7 @@ void AbilityManagerService::StartingScreenLockAbility()
     auto bms = GetBundleManager();
     CHECK_POINTER_IS_NULLPTR(bms);
 
-    constexpr int maxAttemptNums = 5;
+    constexpr int maxAttemptNums = 3;
     auto userId = GetUserId();
     int attemptNums = 1;
     AppExecFwk::AbilityInfo screenLockInfo;
