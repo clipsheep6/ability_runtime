@@ -76,7 +76,6 @@ constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const int32_t SWITCH_ACCOUNT_TRY = 3;
-const int32_t MAX_NUMBER_OF_CONNECT_BMS = 15;
 const int32_t BLOCK_AMS_SERVICE_TIME = 65;
 const std::string EMPTY_DEVICE_ID = "";
 const int32_t APP_MEMORY_SIZE = 512;
