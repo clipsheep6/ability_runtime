@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-SysMrgClient::SysMrgClient() : abilityManager_(nullptr)
+SysMrgClient::SysMrgClient()
 {}
 
 SysMrgClient::~SysMrgClient()
