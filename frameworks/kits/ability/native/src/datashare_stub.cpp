@@ -136,7 +136,7 @@ ErrCode DataShareStub::CmdOpenRawFile(MessageParcel &data, MessageParcel &reply)
 
 ErrCode DataShareStub::CmdInsert(MessageParcel &data, MessageParcel &reply)
 {
-	HILOG_INFO("DataShareStub::CmdInsert start");
+    HILOG_INFO("DataShareStub::CmdInsert start");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("DataShareStub uri is nullptr");
@@ -152,7 +152,7 @@ ErrCode DataShareStub::CmdInsert(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("DataShareStub::CmdInsert end");	
+    HILOG_INFO("DataShareStub::CmdInsert end");
     return NO_ERROR;
 }
 
@@ -205,7 +205,7 @@ ErrCode DataShareStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 
 ErrCode DataShareStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
 {
-	HILOG_INFO("DataShareStub::CmdQuery start");
+    HILOG_INFO("DataShareStub::CmdQuery start");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("DataShareStub uri is nullptr");
