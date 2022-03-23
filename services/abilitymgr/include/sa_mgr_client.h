@@ -38,9 +38,9 @@ public:
     void RegisterSystemAbility(const int32_t systemAbilityId, sptr<IRemoteObject> broker);
 
 private:
-    OHOS::sptr<ISystemAbilityManager> saMgr_;
-    std::mutex saMutex_;
     std::unordered_map<int32_t, sptr<IRemoteObject>> servicesMap_;
+    static OHOS::sptr<IRemoteObject> remoteObject_;
+    static std::mutex saMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

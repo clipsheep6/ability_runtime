@@ -23,7 +23,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-SaMgrClient::SaMgrClient() : saMgr_(nullptr)
+OHOS::sptr<IRemoteObject> SaMgrClient::remoteObject_ = nullptr;
+std::mutex SaMgrClient::saMutex_;
+
+SaMgrClient::SaMgrClient()
 {}
 
 SaMgrClient::~SaMgrClient()
@@ -31,18 +34,22 @@ SaMgrClient::~SaMgrClient()
 
 sptr<IRemoteObject> SaMgrClient::GetSystemAbility(const int32_t systemAbilityId)
 {
-    // use single instance of saMgr_
-    if (saMgr_ == nullptr) {
+    if (remoteObject_ == nullptr) {
         std::lock_guard<std::mutex> lock(saMutex_);
-        if (saMgr_ == nullptr) {
-            saMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            if (saMgr_ == nullptr) {
-                HILOG_ERROR("Fail to get registry.");
+        if (remoteObject_ == nullptr) {
+            auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemAbilityManager == nullptr) {
+                HILOG_ERROR("GetSystemAbilityManager for %{public}d failed.", systemAbilityId);
+                return nullptr;
+            }
+            remoteObject_ = systemAbilityManager->GetSystemAbility(systemAbilityId);
+            if (remoteObject_ == nullptr) {
+                HILOG_ERROR("GetSystemAbility for %{public}d failed.", systemAbilityId);
                 return nullptr;
             }
         }
     }
-    return saMgr_->GetSystemAbility(systemAbilityId);
+    return remoteObject_;
 }
 
 void SaMgrClient::RegisterSystemAbility(

@@ -71,6 +71,9 @@ namespace AppExecFwk {
 using PermissionKit = OHOS::Security::Permission::PermissionKit;
 using PermissionState = OHOS::Security::Permission::PermissionState;
 
+static OHOS::sptr<OHOS::AppExecFwk::IBundleMgr> bundleMgr_ = nullptr;
+static std::mutex bundleMgrMutex_;
+
 // REGISTER_AA(Ability)
 const std::string Ability::SYSTEM_UI("com.ohos.systemui");
 const std::string Ability::STATUS_BAR("com.ohos.systemui.statusbar.MainAbility");
@@ -3089,24 +3092,27 @@ std::string Ability::GetErrorMsg(const ErrCode errorCode)
  */
 sptr<IBundleMgr> Ability::GetBundleMgr()
 {
-    HILOG_INFO("%{public}s called.", __func__);
-    if (iBundleMgr_ == nullptr) {
-        sptr<ISystemAbilityManager> systemAbilityManager =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (remoteObject == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service.", __func__);
-            return nullptr;
-        }
-
-        iBundleMgr_ = iface_cast<IBundleMgr>(remoteObject);
-        if (iBundleMgr_ == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service", __func__);
-            return nullptr;
+    if (bundleMgr_ == nullptr) {
+        std::lock_guard<std::mutex> lock(bundleMgrMutex_);
+        if (bundleMgr_ == nullptr) {
+            auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemAbilityManager == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbilityManager is null");
+                return nullptr;
+            }
+            auto bundleMgrSa = systemAbilityManager->GetSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+            if (bundleMgrSa == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbility is null");
+                return nullptr;
+            }
+            auto bundleMgr = OHOS::iface_cast<IBundleMgr>(bundleMgrSa);
+            if (bundleMgr == nullptr) {
+                HILOG_ERROR("GetBundleMgr iface_cast get null");
+            }
+            bundleMgr_ = bundleMgr;
         }
     }
-
-    return iBundleMgr_;
+    return bundleMgr_;
 }
 
 /**
@@ -3116,8 +3122,7 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
 void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
 {
     HILOG_INFO("%{public}s called.", __func__);
-
-    iBundleMgr_ = bundleManager;
+    bundleMgr_ = bundleManager;
 }
 
 #ifdef SUPPORT_GRAPHICS

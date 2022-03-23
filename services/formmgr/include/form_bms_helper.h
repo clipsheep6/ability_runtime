@@ -71,7 +71,8 @@ private:
     std::string GenerateModuleKey(const std::string &bundleName, const std::string &moduleName) const;
 
 private:
-    sptr<IBundleMgr> iBundleMgr_ = nullptr;
+    static sptr<IBundleMgr> bundleMgr_;
+    static std::mutex bundleMgrMutex_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

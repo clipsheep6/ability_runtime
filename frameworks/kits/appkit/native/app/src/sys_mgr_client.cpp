@@ -23,7 +23,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-SysMrgClient::SysMrgClient() : abilityManager_(nullptr)
+OHOS::sptr<IRemoteObject> SysMrgClient::remoteObject_ = nullptr;
+std::mutex SysMrgClient::remoteObjectMutex_;
+
+SysMrgClient::SysMrgClient()
 {}
 
 SysMrgClient::~SysMrgClient()
@@ -37,18 +40,22 @@ SysMrgClient::~SysMrgClient()
  */
 sptr<IRemoteObject> SysMrgClient::GetSystemAbility(const int32_t systemAbilityId)
 {
-    // use single instance of abilityManager_
-    if (abilityManager_ == nullptr) {
-        std::lock_guard<std::mutex> lock(saMutex_);
-        if (abilityManager_ == nullptr) {
-            abilityManager_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            if (abilityManager_ == nullptr) {
-                HILOG_ERROR("fail to GetSystemAbility abilityManager_ == nullptr.");
+    if (remoteObject_ == nullptr) {
+        std::lock_guard<std::mutex> lock(remoteObjectMutex_);
+        if (remoteObject_ == nullptr) {
+            auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemAbilityManager == nullptr) {
+                HILOG_ERROR("GetSystemAbilityManager for %{public}d failed.", systemAbilityId);
+                return nullptr;
+            }
+            remoteObject_ = systemAbilityManager->GetSystemAbility(systemAbilityId);
+            if (remoteObject_ == nullptr) {
+                HILOG_ERROR("GetSystemAbility for %{public}d failed.", systemAbilityId);
                 return nullptr;
             }
         }
     }
-    return abilityManager_->GetSystemAbility(systemAbilityId);
+    return remoteObject_;
 }
 
 /**
