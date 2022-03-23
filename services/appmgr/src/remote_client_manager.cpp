@@ -22,6 +22,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+sptr<IBundleMgr> RemoteClientManager::bundleManager_ = nullptr;
+std::mutex RemoteClientManager::bundleMgrMutex_;
+
 RemoteClientManager::RemoteClientManager()
     : appSpawnClient_(std::make_shared<AppSpawnClient>()), nwebSpawnClient_(std::make_shared<AppSpawnClient>(true))
 {}
@@ -45,12 +48,23 @@ void RemoteClientManager::SetSpawnClient(const std::shared_ptr<AppSpawnClient> &
 sptr<IBundleMgr> RemoteClientManager::GetBundleManager()
 {
     if (bundleManager_ == nullptr) {
-        sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemManager != nullptr) {
-            bundleManager_ =
-                iface_cast<AppExecFwk::IBundleMgr>(systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
-        } else {
-            HILOG_ERROR("AppMgrServiceInner::GetBundleManager fail to get SAMGR");
+        std::lock_guard<std::mutex> lock(bundleMgrMutex_);
+        if (bundleManager_ == nullptr) {
+            auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemAbilityManager == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbilityManager is null");
+                return nullptr;
+            }
+            auto bundleMgrSa = systemAbilityManager->GetSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+            if (bundleMgrSa == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbility is null");
+                return nullptr;
+            }
+            auto bundleMgr = OHOS::iface_cast<IBundleMgr>(bundleMgrSa);
+            if (bundleMgr == nullptr) {
+                HILOG_ERROR("GetBundleMgr iface_cast get null");
+            }
+            bundleManager_ = bundleMgr;
         }
     }
     return bundleManager_;
