@@ -31,7 +31,8 @@ public:
         bool hasTimeoutPara;
         bool hasCallbackPara;
     };
-    JSAbilityDelegator() = default;
+
+    JSAbilityDelegator();
     ~JSAbilityDelegator() = default;
 
     static void Finalizer(NativeEngine *engine, void *data, void *hint);
