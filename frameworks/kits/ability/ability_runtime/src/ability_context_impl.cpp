@@ -346,7 +346,7 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
             __func__, permState.permissionName.c_str(), permState.state);
         permissionsState.emplace_back(permState.state);
     }
-    HILOG_DEBUG("%{public}s. permissions size: %{public}zu. permissionsState size: %{public}zu",
+    HILOG_DEBUG("%{public}s. permissions size: %{public}zu. permissionsState size: %{public}zu.",
         __func__, permissions.size(), permissionsState.size());
 
     if (ret == TypePermissionOper::DYNAMIC_OPER) {
