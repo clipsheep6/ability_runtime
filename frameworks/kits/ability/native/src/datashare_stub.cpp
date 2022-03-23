@@ -152,9 +152,7 @@ ErrCode DataShareStub::CmdInsert(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("DataShareStub::CmdInsert end");
-	
-	
+    HILOG_INFO("DataShareStub::CmdInsert end");	
     return NO_ERROR;
 }
 
