@@ -994,6 +994,12 @@ int Ability::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
     return 0;
 }
 
+std::shared_ptr<AppExecFwk::PacMap> Ability::Call(
+    const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
+{
+    return nullptr;
+}
+
 /**
  * @brief Called when the system configuration is updated.
  *
@@ -3226,13 +3232,13 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
     if (operation->IsInsertOperation()) {
         HILOG_INFO("Ability::ExecuteOperation IsInsertOperation");
         numRows = Insert(*(operation->GetUri().get()), *valuesBucket);
-    } else if (operation->IsDeleteOperation()) {
+    } else if (operation->IsDeleteOperation() && predicates) {
         HILOG_INFO("Ability::ExecuteOperation IsDeleteOperation");
         numRows = Delete(*(operation->GetUri().get()), *predicates);
-    } else if (operation->IsUpdateOperation()) {
+    } else if (operation->IsUpdateOperation() && predicates) {
         HILOG_INFO("Ability::ExecuteOperation IsUpdateOperation");
         numRows = Update(*(operation->GetUri().get()), *valuesBucket, *predicates);
-    } else if (operation->IsAssertOperation()) {
+    } else if (operation->IsAssertOperation() && predicates) {
         HILOG_INFO("Ability::ExecuteOperation IsAssertOperation");
         std::vector<std::string> columns;
         std::shared_ptr<NativeRdb::AbsSharedResultSet> queryResult =

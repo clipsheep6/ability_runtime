@@ -314,7 +314,9 @@ bool ContextDeal::StopAbility(const AAFwk::Want &want)
  */
 std::string ContextDeal::GetCacheDir()
 {
-    return (applicationInfo_ != nullptr) ? applicationInfo_->cacheDir : "";
+    std::string dir = (applicationInfo_ != nullptr) ? applicationInfo_->cacheDir : "";
+    HILOG_DEBUG("ContextDeal::GetCacheDir dir = %{public}s", dir.c_str());
+    return dir;
 }
 
 bool ContextDeal::IsUpdatingConfigurations()
@@ -423,9 +425,10 @@ std::string ContextDeal::GetExternalFilesDir(std::string &type)
  */
 std::string ContextDeal::GetFilesDir()
 {
-    return (applicationInfo_ != nullptr)
-               ? (applicationInfo_->dataDir + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_Files)
-               : "";
+    std::string dir = (applicationInfo_ != nullptr) ?
+                          (applicationInfo_->dataDir + CONTEXT_DEAL_FILE_SEPARATOR + CONTEXT_DEAL_Files) : "";
+    HILOG_DEBUG("ContextDeal::GetFilesDir dir = %{public}s", dir.c_str());
+    return dir;
 }
 
 /**
@@ -450,8 +453,8 @@ std::string ContextDeal::GetNoBackupFilesDir()
 
 /**
  * @brief Checks whether the current process has the given permission.
- * You need to call requestPermissionsFromUser(java.lang.std::string[],int) to request a permission only
- * if the current process does not have the specific permission.
+ * You need to call requestPermissionsFromUser(std::vector<std::string>,std::vector<int>, int) to request a permission
+ * only if the current process does not have the specific permission.
  *
  * @param permission Indicates the permission to check. This parameter cannot be null.
  *
@@ -686,8 +689,12 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     // fix set HapModuleInfoLocal data failed, request only once
     if (hapModuleInfoLocal_ == nullptr) {
         HapModuleInfoRequestInit();
+        if (hapModuleInfoLocal_ == nullptr) {
+            HILOG_ERROR("hapModuleInfoLocal_ is nullptr");
+            return nullptr;
+        }
     }
-    
+
     sptr<IBundleMgr> ptr = GetBundleManager();
     if (ptr == nullptr) {
         HILOG_ERROR("GetAppType failed to get bundle manager service");
@@ -696,6 +703,7 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
     Want want;
     ElementName name;
     name.SetBundleName(GetBundleName());
+    name.SetAbilityName(abilityInfo_->name);
     want.SetElement(name);
     std::vector<AbilityInfo> abilityInfos;
     bool isSuc = ptr->QueryAbilityInfos(want, abilityInfos);
@@ -735,12 +743,13 @@ std::string ContextDeal::GetCallingBundle()
  * the Ability.onRequestPermissionsFromUserResult(int, String[], int[]) method will be called back.
  *
  * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
+ * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
  * @param requestCode Indicates the request code to be passed to the Ability.onRequestPermissionsFromUserResult(int,
  * String[], int[]) callback method. This code cannot be a negative number.
  *
  */
-void ContextDeal::RequestPermissionsFromUser(std::vector<std::string> &permissions, int requestCode)
-{}
+void ContextDeal::RequestPermissionsFromUser(std::vector<std::string> &permissions, std::vector<int> &permissionsState,
+    int requestCode) {}
 
 /**
  * @brief Starts a new ability with special ability start setting.

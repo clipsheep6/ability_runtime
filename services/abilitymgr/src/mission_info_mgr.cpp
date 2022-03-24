@@ -119,6 +119,10 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
     if (missionInfo.missionInfo.time == listIter->missionInfo.time) {
         // time not changes, no need sort again
         *listIter = missionInfo;
+        if (!taskDataPersistenceMgr_->SaveMissionInfo(missionInfo)) {
+            HILOG_ERROR("save mission info failed.");
+            return false;
+        }
         return true;
     }
 
@@ -321,10 +325,8 @@ int MissionInfoMgr::UpdateMissionLabel(int32_t missionId, const std::string& lab
         return -1;
     }
 
-    InnerMissionInfo updateInfo = *it;
-    updateInfo.missionInfo.label = label;
-
-    if (!taskDataPersistenceMgr_->SaveMissionInfo(updateInfo)) {
+    it->missionInfo.label = label;
+    if (!taskDataPersistenceMgr_->SaveMissionInfo(*it)) {
         HILOG_ERROR("save mission info failed.");
         return -1;
     }
@@ -425,9 +427,9 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 }
 
 bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot) const
+    MissionSnapshot& missionSnapshot, bool force) const
 {
-    HILOG_ERROR("mission_list_info GetMissionSnapshot, missionId:%{public}d", missionId);
+    HILOG_INFO("mission_list_info GetMissionSnapshot, missionId:%{public}d, force:%{public}d", missionId, force);
     auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
         return missionId == info.missionInfo.id;
     });
@@ -439,6 +441,12 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
         return false;
     }
+
+    if (force) {
+        HILOG_INFO("force to get snapshot");
+        return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot);
+    }
+
     if (taskDataPersistenceMgr_->GetMissionSnapshot(missionId, missionSnapshot)) {
         missionSnapshot.topAbility = it->missionInfo.want.GetElement();
         HILOG_ERROR("mission_list_info GetMissionSnapshot, find snapshot OK, missionId:%{public}d", missionId);

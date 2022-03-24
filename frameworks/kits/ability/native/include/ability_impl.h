@@ -216,6 +216,9 @@ public:
      */
     virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
 
+    virtual std::shared_ptr<AppExecFwk::PacMap> Call(
+        const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap);
+
     /**
      * @brief Updates data records in the database.
      *
@@ -362,6 +365,7 @@ public:
     int GetCompatibleVersion();
 #ifdef SUPPORT_GRAPHICS
     void AfterUnFocused();
+    void AfterFocused();
 #endif
 protected:
     /**
