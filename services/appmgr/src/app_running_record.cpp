@@ -610,7 +610,6 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecordB
 {
     auto moduleRecord = GetModuleRunningRecordByToken(token);
     if (!moduleRecord) {
-        HILOG_ERROR("moduleRecord is not exit");
         return nullptr;
     }
     return moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -777,7 +776,6 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
             moduleRecordList.push_back(list);
         }
     }
-    HILOG_INFO("GetAllModuleRecord size:%{public}zu", moduleRecordList.size());
     return moduleRecordList;
 }
 
