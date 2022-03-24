@@ -1313,7 +1313,6 @@ WantParams *WantParams::Unmarshalling(Parcel &parcel)
 
 void WantParams::DumpInfo(int level) const
 {
-    size_t params_size = params_.size();
     int typeId = VALUE_TYPE_NULL;
     for (auto it : params_) {
         typeId = VALUE_TYPE_NULL;
