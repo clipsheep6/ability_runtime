@@ -759,11 +759,16 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
 {
     HILOG_INFO("Minimize ability.");
     if (!VerificationAllToken(token)) {
-        return ERR_INVALID_VALUE;
+        HILOG_ERROR("ability is not exist.");
+        return ABILITY_NOT_EXIST;
     }
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("ability is not exist.");
+        return ABILITY_NOT_EXIST;
+    }
+
     int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
