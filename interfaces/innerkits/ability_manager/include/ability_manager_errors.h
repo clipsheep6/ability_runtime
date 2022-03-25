@@ -380,6 +380,11 @@ enum {
      * Result(2097220) for send usr1 sig to the process of not response fail.
      */
     SEND_USR1_SIG_FAIL,
+
+    /**
+     * ability is not exit.
+     */
+    ABILITY_NOT_EXIST,
 };
 
 enum {
