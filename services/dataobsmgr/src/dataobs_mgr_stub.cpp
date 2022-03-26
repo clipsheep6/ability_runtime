@@ -66,7 +66,7 @@ int DataObsManagerStub::RegisterObserverInner(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
 
-    auto observer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
+    auto observer = iface_cast<IDataAbilityObserver>(data.ReadParcelable<IRemoteObject>());
     int32_t result = RegisterObserver(*uri, observer);
     reply.WriteInt32(result);
     if (uri != nullptr) {
@@ -83,7 +83,7 @@ int DataObsManagerStub::UnregisterObserverInner(MessageParcel &data, MessageParc
         return ERR_INVALID_VALUE;
     }
 
-    auto observer = iface_cast<IDataAbilityObserver>(data.ReadRemoteObject());
+    auto observer = iface_cast<IDataAbilityObserver>(data.ReadParcelable<IRemoteObject>());
     int32_t result = UnregisterObserver(*uri, observer);
     reply.WriteInt32(result);
     if (uri != nullptr) {

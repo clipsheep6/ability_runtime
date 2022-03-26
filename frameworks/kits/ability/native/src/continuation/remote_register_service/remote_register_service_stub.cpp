@@ -58,7 +58,7 @@ int RemoteRegisterServiceStub::RegisterInner(MessageParcel &data, MessageParcel 
 {
     HILOG_INFO("%{public}s called begin", __func__);
     std::string bundleName = data.ReadString();
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
     ExtraParams *pExtras = nullptr;
     int32_t extraId = data.ReadInt32();
     if (extraId != 0) {
