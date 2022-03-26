@@ -934,6 +934,36 @@ int AbilityManagerService::ConnectAbility(
         HILOG_INFO("%{public}s invalid Token.", __func__);
         return ConnectLocalAbility(want, validUserId, connect, nullptr);
     }
+    if (CheckIsFreeInstall(want)) {
+        HILOG_INFO("AbilityManagerService::ConnectAbility. try to FreeInstall");
+        std::string bundleName = want.GetElement().GetBundleName();
+        std::string abilityName = want.GetElement().GetAbilityName();
+        std::string deviceId = want.GetElement().GetDeviceID();
+        std::string localDeviceId;
+        if (!((GetLocalDeviceId(localDeviceId) && localDeviceId == deviceId) || deviceId.empty())) {
+            HILOG_ERROR("AbilityManagerService::ConnectAbility. DeviceId error");
+            return ERR_INVALID_VALUE;
+        }
+        if (bundleName.empty() || abilityName.empty()) {
+            HILOG_ERROR("AbilityManagerService::ConnectAbility. bundleName or abilityName is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        AppExecFwk::AbilityInfo abilityInfo;
+        if (!(iBundleManager_->QueryAbilityInfo(
+                want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfo))) {
+            HILOG_INFO(
+                "AbilityManagerService::ConnectAbility. moduleName is %{public}s", abilityInfo.moduleName.c_str());
+            Want &wantParam = const_cast<Want &>(want);
+            wantParam.SetParam("moduleName", abilityInfo.moduleName);
+            int result = StartFreeInstall(wantParam, userId, DEFAULT_INVAL_VALUE);
+            if (result) {
+                HILOG_ERROR("AbilityManagerService::ConnectAbility. StartFreeInstall error");
+                return result;
+            }
+            HILOG_INFO("AbilityManagerService::ConnectAbility. StartFreeInstall success");
+            return ConnectLocalAbility(wantParam, validUserId, connect, callerToken);
+        }
+    }
     return ConnectLocalAbility(want, validUserId, connect, callerToken);
 }
 
