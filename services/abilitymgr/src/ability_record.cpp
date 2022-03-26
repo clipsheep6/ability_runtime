@@ -159,8 +159,14 @@ int32_t AbilityRecord::GetUid()
     return uid_;
 }
 
+bool AbilityRecord::IsValid() const
+{
+    return isValid_;
+}
+
 int AbilityRecord::LoadAbility()
 {
+    isValid_ = true;
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s", __func__);
     startTime_ = AbilityUtil::SystemTimeMillis();
@@ -1099,6 +1105,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->SetScheduler(nullptr);
     isWindowAttached_ = false;
+    isValid_ = false;
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     CHECK_POINTER(abilityManagerService);
