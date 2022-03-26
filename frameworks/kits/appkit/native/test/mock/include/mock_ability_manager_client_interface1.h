@@ -171,19 +171,6 @@ public:
     {
         return 0;
     };
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
-    {
-        return true;
-    };
-    virtual bool GetAllPermissionGroupDefs(std::vector<PermissionDef> &permissionDefs)
-    {
-        return true;
-    };
-    virtual bool GetAppsGrantedPermissions(
-        const std::vector<std::string> &permissions, std::vector<std::string> &appNames)
-    {
-        return true;
-    };
     virtual bool HasSystemCapability(const std::string &capName)
     {
         return true;
@@ -228,16 +215,6 @@ public:
     virtual std::string GetAbilityIcon(const std::string &bundleName, const std::string &className)
     {
         return std::string("");
-    };
-    virtual bool CanRequestPermission(
-        const std::string &bundleName, const std::string &permissionName, const int userId)
-    {
-        return true;
-    };
-    virtual bool RequestPermissionFromUser(
-        const std::string &bundleName, const std::string &permission, const int userId)
-    {
-        return true;
     };
     virtual bool GetAllFormsInfo(std::vector<FormInfo> &formInfos)
     {
