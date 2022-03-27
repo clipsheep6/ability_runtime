@@ -84,6 +84,12 @@ public:
     ErrCode ScheduleCommandAbilityDone(const sptr<IRemoteObject> &token);
 
     /**
+     * Get top ability.
+     * @return Returns service ability's ElementName.
+     */
+    AppExecFwk::ElementName GetTopAbility();
+
+    /**
      * AddWindowInfo, add windowToken to AbilityRecord.
      *
      * @param token, the token of the ability.
