@@ -799,6 +799,7 @@ public:
     std::string GetSpecifiedFlag() const;
     void SetWindowMode(int32_t windowMode);
     void RemoveWindowMode();
+    bool IsValid() const;
     LifeCycleStateInfo lifeCycleStateInfo_;                // target life state info
     int BlockAbility();
 
@@ -886,6 +887,7 @@ private:
     std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;
     bool isSwitchingPause_ = false;
+    bool isValid_ = false;
 
 	// new version
     std::shared_ptr<CallContainer> callContainer_ = nullptr;

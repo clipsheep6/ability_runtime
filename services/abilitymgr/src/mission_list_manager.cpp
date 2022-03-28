@@ -1596,6 +1596,11 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
 
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
+    if (abilityRecord->IsValid()) {
+        HILOG_INFO("ability record is already reused, not handle this died");
+        return;
+    }
+
     if (abilityRecord->IsLauncherRoot() && currentUserId != userId_) {
         HILOG_INFO("launcher root Ability died, state: INITIAL, %{public}d", __LINE__);
         abilityRecord->SetAbilityState(AbilityState::INITIAL);
