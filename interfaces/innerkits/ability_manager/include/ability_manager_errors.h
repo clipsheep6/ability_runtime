@@ -380,6 +380,16 @@ enum {
      * Result(2097220) for send usr1 sig to the process of not response fail.
      */
     SEND_USR1_SIG_FAIL,
+
+    /**
+     * Result(2097221) target bundle name is not exist in targetBundleList.
+     */
+    TARGET_BUNDLE_NOT_EXIST,
+
+    /**
+     * Result(2097222) free install fail.
+     */
+    FREE_INSTALL_FAIL,
 };
 
 enum {
@@ -392,6 +402,263 @@ enum {
      * recent missions that currently are not available to the user.
      */
     RECENT_IGNORE_UNAVAILABLE = 0x0002,
+};
+
+enum FreeInstallError {
+    /**
+     * FA search failed.
+     */
+    FA_FREE_INSTALL_QUERY_ERROR = -1,
+
+    /**
+     * FA Network unavailable.
+     */
+    FA_FREE_INSTALL_INTERNET_ERROR = -2,
+
+    /**
+     * FA internal system error.
+     */
+    FA_FREE_INSTALL_SERVICE_ERROR = -3,
+
+    /**
+     * HAG query timeout.
+     */
+    HAG_QUERY_TIMEOUT = -4,
+
+    /**
+     * Installation error in free installation.
+     */
+    INSTALLATION_ERROR_IN_FREE_INSTALL = -5,
+
+    /**
+     * There are concurrent tasks, waiting for retry.
+     */
+    CONCURRENT_TASKS_WAITING_FOR_RETRY = -6,
+
+    /**
+     * User gives up.
+     */
+    USER_GIVES_UP = -7,
+
+    /**
+     * The user confirms to jump to the application market upgrade.
+     */
+    JUMP_TO_THE_APPLICATION_MARKET_UPGRADE = -8,
+
+    /**
+     * HAP package download timed out.
+     */
+    HAP_PACKAGE_DOWNLOAD_TIMED_OUT = -9,
+
+    /**
+     * FA package does not support free installation.
+     */
+    FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL = -10,
+
+    /**
+     * It is not supported to pull up PA across applications on the same device.
+     */
+    ACROSS_APPLICATIONS_ON_THE_SAME_DEVICE = -11,
+
+    /**
+     * The app is not allowed to pull this FA.
+     */
+    NOT_ALLOWED_TO_PULL_THIS_FA = -901,
+
+    /**
+     * The calling app is not foreground.
+     */
+    CALLING_APP_IS_NOT_FOREGROUND = 0x820192,
+
+    /**
+     * The free install request cannot be sent to the FA distribution center.
+     */
+    REQUEST_CANNOT_SENT_TO_FA = 0x820101,
+
+    /**
+     * FA distribution center crash.
+     */
+    FA_CRASH = 0x820102,
+
+    /**
+     * FA distribution center processing timeout.
+     */
+    FA_TIMEOUT = 0x820103,
+
+    /**
+     * Unknown exception.
+     */
+    UNKNOWN_EXCEPTION = 0x820104,
+
+    /**
+     * The caller is not a DMS.
+     */
+    CALLER_IS_NOT_A_DMS = 0x820111,
+
+    /**
+     * Error in calling BMS interface parameters.
+     */
+    CALL_BMS_INTERFACE_PARAMETERS_ERROR = 0x830007,
+
+    /**
+     * The remote BMS service is not ready.
+     */
+    REMOTE_BMS_SERVICE_IS_NOT_READY = 0x800001,
+
+    /**
+     * Call BMS interface parcel serialization error.
+     */
+    CALL_BMS_INTERFACE_PARCEL_SERIALIZATION_ERROR = 0x800002,
+
+    /**
+     * BMS service exception.
+     */
+    BMS_SERVICE_EXCEPTION = 0x820001,
+
+    /**
+     * Distributed permission check failed.
+     */
+    DISTRIBUTED_PERMISSION_CHECK_FAILED = 29360176,
+
+    /**
+     * Parameter validation failed.
+     */
+    ERR_INVALID_PARAMETER = 29360128,
+
+    /**
+     * Remote device goes offline.
+     */
+    REMOTE_DEVICE_OFFLINE = 29360142,
+
+    /**
+     * Free install timeout in DMS.
+     */
+    DMS_FREE_INSTALL_TIMEOUT = 29360190,
+
+    /**
+     * Remote DMS is not compatible.
+     */
+    REMOTE_DMS_IS_NOT_COMPATIBLE = 502,
+
+    /**
+     * The visible of the remote FA is false and cannot be activated.
+     */
+    REMOTE_FA_IS_UNVISIBLE = 29360178,
+};
+
+static const std::map<FreeInstallError, std::string> FIErrorStrs = {
+    {
+        FA_FREE_INSTALL_QUERY_ERROR,
+        "FA search failed"
+    },
+    {
+        FA_FREE_INSTALL_INTERNET_ERROR,
+        "Network unavailable."
+    },
+    {
+        FA_FREE_INSTALL_SERVICE_ERROR,
+        "FA internal system error."
+    },
+    {
+        HAG_QUERY_TIMEOUT,
+        "HAG query timeout."
+    },
+    {
+        INSTALLATION_ERROR_IN_FREE_INSTALL,
+        "Installation error in free installation."
+    },
+    {
+        CONCURRENT_TASKS_WAITING_FOR_RETRY,
+        "There are concurrent tasks, waiting for retry."
+    },
+    {
+        USER_GIVES_UP,
+        "User gives up."
+    },
+    {
+        JUMP_TO_THE_APPLICATION_MARKET_UPGRADE,
+        "The user confirms to jump to the application market upgrade."
+    },
+    {
+        HAP_PACKAGE_DOWNLOAD_TIMED_OUT,
+        "HAP package download timed out."
+    },
+    {
+        FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL,
+        "FA package does not support free installation."
+    },
+    {
+        ACROSS_APPLICATIONS_ON_THE_SAME_DEVICE,
+        "It is not supported to pull up PA across applications on the same device."
+    },
+    {
+        NOT_ALLOWED_TO_PULL_THIS_FA,
+        "The app is not allowed to pull this FA."
+    },
+    {
+        CALLING_APP_IS_NOT_FOREGROUND,
+        "The calling app is not foreground."
+    },
+    {
+        REQUEST_CANNOT_SENT_TO_FA,
+        "The free install request cannot be sent to the FA distribution center."
+    },
+    {
+        FA_CRASH,
+        "FA distribution center crash."
+    },
+    {
+        FA_TIMEOUT,
+        "FA distribution center processing timeout."
+    },
+    {
+        UNKNOWN_EXCEPTION,
+        "Unknown exception."
+    },
+    {
+        CALLER_IS_NOT_A_DMS,
+        "The caller is not a DMS."
+    },
+    {
+        CALL_BMS_INTERFACE_PARAMETERS_ERROR,
+        "Error in calling BMS interface parameters."
+    },
+    {
+        REMOTE_BMS_SERVICE_IS_NOT_READY,
+        "The remote BMS service is not ready."
+    },
+    {
+        CALL_BMS_INTERFACE_PARCEL_SERIALIZATION_ERROR,
+        "Call BMS interface parcel serialization error."
+    },
+    {
+        BMS_SERVICE_EXCEPTION,
+        "BMS service exception."
+    },
+    {
+        DISTRIBUTED_PERMISSION_CHECK_FAILED,
+        "Distributed permission check failed."
+    },
+    {
+        ERR_INVALID_PARAMETER,
+        "Parameter validation failed."
+    },
+    {
+        REMOTE_DEVICE_OFFLINE,
+        "Remote device goes offline."
+    },
+    {
+        DMS_FREE_INSTALL_TIMEOUT,
+        "Free install timeout in dms."
+    },
+    {
+        REMOTE_DMS_IS_NOT_COMPATIBLE,
+        "Remote DMS is not compatible."
+    },
+    {
+        REMOTE_FA_IS_UNVISIBLE,
+        "The visible of the remote FA is false and cannot be activated."
+    },
 };
 }  // namespace AAFwk
 }  // namespace OHOS

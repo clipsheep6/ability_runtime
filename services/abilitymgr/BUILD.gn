@@ -21,6 +21,7 @@ group("abilityms_target") {
   deps = [
     ":abilityms",
     ":ams_service_config",
+    "examples:free_install_test",
   ]
 }
 
