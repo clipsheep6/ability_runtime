@@ -1366,6 +1366,10 @@ void AppMgrServiceInner::ClearRecentAppList()
 void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess)
 {
     HILOG_ERROR("On remote died.");
+    if (remote != nullptr) {
+        return;
+    }
+
     if (isRenderProcess) {
         OnRenderRemoteDied(remote);
         return;
