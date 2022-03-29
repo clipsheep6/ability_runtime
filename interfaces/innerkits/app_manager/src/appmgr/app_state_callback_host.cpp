@@ -85,10 +85,7 @@ int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, Messa
 int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply)
 {
     BYTRACE(BYTRACE_TAG_APP);
-    sptr<IRemoteObject> obj = nullptr;
-    if (data.ReadBool()) {
-        obj = data.ReadRemoteObject();
-    }
+    sptr<IRemoteObject> obj = data.ReadParcelable<IRemoteObject>();
     int32_t state = data.ReadInt32();
     OnAbilityRequestDone(obj, static_cast<AbilityState>(state));
     return NO_ERROR;

@@ -123,11 +123,7 @@ int32_t AppSchedulerHost::HandleScheduleLaunchAbility(MessageParcel &data, Messa
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
-    sptr<IRemoteObject> token = nullptr;
-    if (data.ReadBool()) {
-        token = data.ReadRemoteObject();
-    }
-
+    sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
     std::shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     ScheduleLaunchAbility(*abilityInfo, token, want);
     return NO_ERROR;
@@ -136,7 +132,7 @@ int32_t AppSchedulerHost::HandleScheduleLaunchAbility(MessageParcel &data, Messa
 int32_t AppSchedulerHost::HandleScheduleCleanAbility(MessageParcel &data, MessageParcel &reply)
 {
     BYTRACE(BYTRACE_TAG_APP);
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<IRemoteObject> token = data.ReadParcelable<IRemoteObject>();
     ScheduleCleanAbility(token);
     return NO_ERROR;
 }
