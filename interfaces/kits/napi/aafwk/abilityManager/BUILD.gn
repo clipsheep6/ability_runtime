@@ -20,6 +20,9 @@ ohos_shared_library("abilitymanager") {
     "//third_party/node/src",
     "${services_path}/common/include",
     "./",
+    "//foundation/aafwk/standard/services/abilitymgr/include",
+    "//foundation/windowmanager/utils/include",
+    "//foundation/windowmanager/interfaces/innerkits/wm",
   ]
 
   sources = [
@@ -30,6 +33,9 @@ ohos_shared_library("abilitymanager") {
   deps = [
     "${kits_path}/appkit:appkit_native",
     "${services_path}/appmgr:libams",
+    "${services_path}/abilitymgr:abilityms",
+    "//foundation/windowmanager/utils:libwmutil",
+    "//foundation/windowmanager/wm:libwm",
   ]
 
   external_deps = [
