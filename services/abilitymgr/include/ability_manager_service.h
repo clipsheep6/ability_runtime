@@ -28,6 +28,7 @@
 #include "ability_manager_stub.h"
 #include "ability_stack_manager.h"
 #include "app_scheduler.h"
+#include "atomic_service_status_callback.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "data_ability_manager.h"
@@ -40,12 +41,14 @@
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
 #include "user_controller.h"
+#include "window_manager.h"
 
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
 using OHOS::AppExecFwk::IAbilityController;
+using namespace OHOS::Rosen;
 
 class PendingWantManager;
 /**
@@ -893,6 +896,42 @@ public:
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
 
+    virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    class FocusChangedListener : public Rosen::IFocusChangedListener {
+    public:
+        void OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+        void OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    };
+
+    /**
+     * AtomicServiceStatusCallback OnInstallFinished callback.
+     *
+     * @param resultCode FreeInstall result code.
+     * @param want Want has been installed.
+     * @param userId User id.
+     */
+    void OnInstallFinished(int resultCode, const Want &want, int32_t userId);
+
+    /**
+     * AtomicServiceStatusCallback OnRemoteInstallFinished callback.
+     *
+     * @param resultCode FreeInstall result code.
+     */
+    void OnRemoteInstallFinished(int resultCode);
+
+    /**
+     * FreeInstall form remote call.
+     *
+     * @param want Want need to install.
+     * @param callback DMS callback.
+     * @param userId User id.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+        int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1057,6 +1096,8 @@ private:
     int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &connect);
     int ReleaseRemoteAbility(const sptr<IRemoteObject> &connect, const AppExecFwk::ElementName &element);
 
+    int IsConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
+
     void DumpInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackListInner(const std::string &args, std::vector<std::string> &info);
     void DumpStackInner(const std::string &args, std::vector<std::string> &info);
@@ -1169,6 +1210,13 @@ private:
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
+    int StartFreeInstall(const Want &want, bool isFromRemote, int32_t userId, int requestCode);
+    bool CheckIsFreeInstall(const Want &want);
+    bool CheckTargetBundleList(const Want &want, int32_t userId);
+    void HandleFreeInstallErrorCode(int code);
+    int NotifyDmsCallback(const Want &want, int resultCode);
+    bool IsTopAbility();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1201,6 +1249,11 @@ private:
     std::shared_mutex managersMutex_;
 
     std::multimap<std::string, std::string> timeoutMap_;
+
+    std::map<std::string, sptr<IRemoteObject>> dmsCallbacks_;
+    sptr<Rosen::FocusChangeInfo> focusChangeInfo_;
+    static sptr<AbilityManagerService> instance_;
+    sptr<Rosen::IFocusChangedListener> focusChangedListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
