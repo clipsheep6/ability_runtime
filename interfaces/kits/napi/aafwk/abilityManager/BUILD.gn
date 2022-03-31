@@ -17,6 +17,9 @@ import("//foundation/aafwk/standard/feature.gni")
 
 ohos_shared_library("abilitymanager") {
   include_dirs = [
+    "//foundation/aafwk/standard/services/abilitymgr/include",
+    "//foundation/windowmanager/utils/include",
+    "//foundation/windowmanager/interfaces/innerkits/wm",
     "//third_party/node/src",
     "${services_path}/common/include",
     "./",
@@ -28,8 +31,11 @@ ohos_shared_library("abilitymanager") {
   ]
 
   deps = [
+    "//foundation/windowmanager/utils:libwmutil",
+    "//foundation/windowmanager/wm:libwm",
     "${kits_path}/appkit:appkit_native",
     "${services_path}/appmgr:libams",
+    "${services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [

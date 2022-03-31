@@ -46,7 +46,7 @@ namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
 using OHOS::AppExecFwk::IAbilityController;
-
+using namespace OHOS::Rosen;
 class PendingWantManager;
 /**
  * @class AbilityManagerService
@@ -893,6 +893,14 @@ public:
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
 
+    virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    class FocusChangedListener : public Rosen::IFocusChangedListener {
+    public:
+        void OnFocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+        void OnUnfocused(const sptr<Rosen::FocusChangeInfo> &focusChangeInfo) override;
+    };
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1201,6 +1209,9 @@ private:
     std::shared_mutex managersMutex_;
 
     std::multimap<std::string, std::string> timeoutMap_;
+    sptr<Rosen::FocusChangeInfo> focusChangeInfo_;
+    static sptr<AbilityManagerService> instance_;
+    sptr<Rosen::IFocusChangedListener> focusChangedListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

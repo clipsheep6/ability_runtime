@@ -1009,5 +1009,17 @@ void AbilityManagerClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRe
     HILOG_INFO("AbilityMgrDeathRecipient handle remote died.");
     AbilityManagerClient::GetInstance()->ResetProxy(remote);
 }
+
+AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("[%{public}s] abms == nullptr", __FUNCTION__);
+        return {};
+    }
+
+    return abms->GetTopAbility();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

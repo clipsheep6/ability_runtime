@@ -162,6 +162,7 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 
+sptr<AbilityManagerService> AbilityManagerService::instance_;
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
       eventLoop_(nullptr),
@@ -194,12 +195,21 @@ void AbilityManagerService::OnStart()
     eventLoop_->Run();
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
-    bool ret = Publish(DelayedSingleton<AbilityManagerService>::GetInstance().get());
+    instance_ = DelayedSingleton<AbilityManagerService>::GetInstance().get();
+    if (instance_ == nullptr) {
+        HILOG_ERROR("OnStart. instance_ == nullptr !");
+        return;
+    }
+    bool ret = Publish(instance_);
     if (!ret) {
         HILOG_ERROR("Init publish failed!");
         return;
     }
 
+    if (focusChangedListener_ == nullptr) {
+        focusChangedListener_ = new AbilityManagerService::FocusChangedListener();
+    }
+    WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
     HILOG_INFO("Ability manager service start success.");
 }
 
@@ -4541,6 +4551,54 @@ bool AbilityManagerService::GetDataAbilityUri(const std::vector<AppExecFwk::Abil
     }
 
     return GetValidDataAbilityUri(dataAbilityUri, uri);
+}
+
+void AbilityManagerService::FocusChangedListener::OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("AbilityManagerService::FocusChangedListener OnFocused");
+    if (focusChangeInfo == nullptr) {
+        HILOG_INFO("OnFocused. focusChangeInfo == nullptr");
+        return;
+    }
+    if (instance_ == nullptr) {
+        HILOG_INFO("OnFocused. instance_ == nullptr");
+        return;
+    } else {
+        instance_->focusChangeInfo_ = focusChangeInfo;
+    }
+}
+
+void AbilityManagerService::FocusChangedListener::OnUnfocused(
+    const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_INFO("AbilityManagerService::FocusChangedListener OnUnfocused.");
+}
+
+AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
+{
+    HILOG_INFO("%{public}s  start.", __func__);
+    if (instance_ != nullptr) {
+        if (instance_->focusChangeInfo_ == nullptr) {
+            HILOG_INFO("GetTopAbility.  instance_->focusChangeInfo_  == nullptr");
+            return {};
+        } else {
+            auto abilityRecord = Token::GetAbilityRecordByToken(instance_->focusChangeInfo_->abilityToken_);
+            if (abilityRecord != nullptr) {
+                AppExecFwk::ElementName elementName = abilityRecord->GetWant().GetElement();
+                HILOG_INFO("GetTopAbility. BundleName %{public}s .", elementName.GetBundleName().c_str());
+                HILOG_INFO("GetTopAbility. AbilityName %{public}s .", elementName.GetAbilityName().c_str());
+                HILOG_INFO("GetTopAbility. DeviceId %{public}s .", elementName.GetDeviceID().c_str());
+                return elementName;
+            } else {
+                HILOG_INFO("GetTopAbility. abilityRecord == nullptr");
+                return {};
+            }
+        }
+    } else {
+        HILOG_INFO("GetTopAbility. instance_ == nullptr");
+    }
+    HILOG_INFO("%{public}s  end.", __func__);
+    return {};
 }
 
 int AbilityManagerService::VerifyMissionPermission()

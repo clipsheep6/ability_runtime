@@ -132,6 +132,10 @@ public:
         return false;
     }
 
+    virtual AppExecFwk::ElementName GetTopAbility()
+    {
+        return {};
+    }
     /**
      * TerminateAbility, terminate the special ability.
      *
@@ -1017,6 +1021,8 @@ public:
         DUMP_STATE = 2001,
 		DUMPSYS_STATE = 2002,
         FORCE_TIMEOUT,
+
+        GET_TOP_ABILITY = 3000,
     };
 };
 }  // namespace AAFwk
