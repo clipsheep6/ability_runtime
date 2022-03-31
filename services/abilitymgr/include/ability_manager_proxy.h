@@ -264,6 +264,12 @@ public:
     virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Get top ability.
+     * @return Returns service ability's ElementName.
+     */
+    virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    /**
      * Obtains information about ability stack that are running on the device.
      *
      * @param stackInfo Ability stack info.
@@ -691,6 +697,34 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() override;
+
+    /**
+     * Free install ability.
+     *
+     * @param want Ability want.
+     * @param callerToken, caller ability token.
+     * @param statusCallback Callback used to notify free install result.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbility(const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<IRemoteObject> &statusCallback,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Call free install from remote.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, Designation User ID.
+     * @param requestCode, Ability request code.
+     * @param callback, Callback from remote.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+        int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
 private:
     template <typename T>
