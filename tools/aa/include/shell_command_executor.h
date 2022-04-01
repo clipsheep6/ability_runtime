@@ -24,8 +24,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-class ShellCommandExecutor : public std::enable_shared_from_this<ShellCommandExecutor>
-{
+class ShellCommandExecutor : public std::enable_shared_from_this<ShellCommandExecutor> {
 public:
     /**
      * A constructor used to create a ShellCommandExecutor instance with the input parameter passed.

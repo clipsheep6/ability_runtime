@@ -18,7 +18,6 @@
 #include <chrono>
 #include <cinttypes>
 #include <iostream>
-#include <stdio.h>
 
 #include "hilog_wrapper.h"
 
