@@ -136,6 +136,7 @@ ErrCode DataShareStub::CmdOpenRawFile(MessageParcel &data, MessageParcel &reply)
 
 ErrCode DataShareStub::CmdInsert(MessageParcel &data, MessageParcel &reply)
 {
+    HILOG_INFO("DataShareStub::CmdInsert start");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("DataShareStub uri is nullptr");
@@ -151,7 +152,7 @@ ErrCode DataShareStub::CmdInsert(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("fail to WriteInt32 index");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("DataShareStub::CmdInsertInner end");
+    HILOG_INFO("DataShareStub::CmdInsert end");
     return NO_ERROR;
 }
 
@@ -204,6 +205,7 @@ ErrCode DataShareStub::CmdDelete(MessageParcel &data, MessageParcel &reply)
 
 ErrCode DataShareStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
 {
+    HILOG_INFO("DataShareStub::CmdQuery start");
     std::shared_ptr<Uri> uri(data.ReadParcelable<Uri>());
     if (uri == nullptr) {
         HILOG_ERROR("DataShareStub uri is nullptr");
@@ -230,7 +232,7 @@ ErrCode DataShareStub::CmdQuery(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("!resultSet->Marshalling(reply)");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("DataShareStub::CmdQueryInner end");
+    HILOG_INFO("DataShareStub::CmdQuery end");
     return NO_ERROR;
 }
 
@@ -386,7 +388,7 @@ ErrCode DataShareStub::CmdDenormalizeUri(MessageParcel &data, MessageParcel &rep
 
 ErrCode DataShareStub::CmdExecuteBatch(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("DataShareStub::CmdExecuteBatchInner start");
+    HILOG_INFO("DataShareStub::CmdExecuteBatch start");
     int count = 0;
     if (!data.ReadInt32(count)) {
         HILOG_ERROR("DataShareStub::CmdExecuteBatchInner fail to ReadInt32 count");
@@ -422,7 +424,7 @@ ErrCode DataShareStub::CmdExecuteBatch(MessageParcel &data, MessageParcel &reply
             return ERR_INVALID_VALUE;
         }
     }
-    HILOG_INFO("DataShareStub::CmdExecuteBatchInner end");
+    HILOG_INFO("DataShareStub::CmdExecuteBatch end");
     return NO_ERROR;
 }
 } // namespace AAFwk
