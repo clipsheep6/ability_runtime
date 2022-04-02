@@ -214,6 +214,10 @@ ohos_shared_library("abilitykit_native") {
     "src/ability_runtime/js_ability.cpp",
     "src/ability_runtime/js_ability_context.cpp",
     "src/ability_runtime/js_caller_complex.cpp",
+
+    "src/free_install_status_callback_proxy.cpp",
+    "src/free_install_status_callback_stub.cpp",
+    "src/free_install_status_callback.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [

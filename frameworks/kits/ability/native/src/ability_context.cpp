@@ -18,6 +18,7 @@
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
 #include "bundle_constants.h"
+#include "free_install_status_callback.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
@@ -42,6 +43,19 @@ ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::StartAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
+    }
+
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        HILOG_INFO("StartAbility with free install flags");
+        OHOS::sptr<AppExecFwk::FreeInstallStatusCallback> callback = new AppExecFwk::FreeInstallStatusCallback();
+        if (!callback) {
+            HILOG_ERROR("callback nullptr");
+            return ERR_INVALID_VALUE;
+        }
+
+        AAFwk::AbilityManagerClient::GetInstance()->FreeInstallAbility(want, token_, callback, requestCode);
+        return callback->GetResultCode();
     }
 
     HILOG_INFO("%{public}s. Start calling ams->StartAbility.", __func__);

@@ -39,6 +39,7 @@
 #include "display_manager.h"
 #endif
 #include "distributed_client.h"
+#include "free_install_status_callback_interface.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
@@ -93,6 +94,7 @@ const std::set<std::string> TWO_ARGS_SET { ARGS_ABILITY, ARGS_ABILITY_BY_ID, ARG
 }
 using namespace std::chrono;
 using namespace std::chrono_literals;
+using namespace OHOS::Rosen;
 const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
@@ -116,6 +118,8 @@ const std::string APP_MEMORY_MAX_SIZE_PARAMETER = "const.product.arkheaplimit";
 const std::string RAM_CONSTRAINED_DEVICE_SIGN = "const.product.islowram";
 const std::string PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
+const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
+constexpr uint32_t IDmsFreeInstallCallback_ON_FREE_INSTALL_DONE = 0;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -162,6 +166,7 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
 
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
+sptr<AbilityManagerService> AbilityManagerService::instance_;
 
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
@@ -195,12 +200,21 @@ void AbilityManagerService::OnStart()
     eventLoop_->Run();
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
-    bool ret = Publish(DelayedSingleton<AbilityManagerService>::GetInstance().get());
+    instance_ = DelayedSingleton<AbilityManagerService>::GetInstance().get();
+    if (instance_ == nullptr) {
+        HILOG_ERROR("OnStart. instance_ == nullptr !");
+        return;
+    }
+    bool ret = Publish(instance_);
     if (!ret) {
         HILOG_ERROR("Init publish failed!");
         return;
     }
 
+    if (focusChangedListener_ == nullptr) {
+        focusChangedListener_ = new AbilityManagerService::FocusChangedListener();
+    }
+    WindowManager::GetInstance().RegisterFocusChangedListener(focusChangedListener_);
     HILOG_INFO("Ability manager service start success.");
 }
 
@@ -267,6 +281,7 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         return ERR_INVALID_VALUE;
     }
     HILOG_INFO("%{public}s", __func__);
+
     if (CheckIfOperateRemote(want)) {
         HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
         return StartRemoteAbility(want, requestCode);
@@ -909,7 +924,64 @@ int AbilityManagerService::ConnectAbility(
         HILOG_INFO("%{public}s invalid Token.", __func__);
         return ConnectLocalAbility(want, validUserId, connect, nullptr);
     }
+    int result = IsConnectFreeInstall(want, validUserId, callerToken);
+    if (result != ERR_OK) {
+        return result;
+    }
     return ConnectLocalAbility(want, validUserId, connect, callerToken);
+}
+
+int AbilityManagerService::IsConnectFreeInstall(
+    const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken)
+{
+    if (CheckIsFreeInstall(want)) {
+        auto caller = Token::GetAbilityRecordByToken(callerToken);
+        std::string callerBundleName;
+        std::string callerAbilityName;
+        if (caller != nullptr) {
+            AppExecFwk::ElementName callerElementName = caller->GetWant().GetElement();
+            callerBundleName = callerElementName.GetBundleName();
+            callerAbilityName = callerElementName.GetAbilityName();
+        }
+        AppExecFwk::ElementName topAbilityElementName = GetTopAbility();
+        std::string topAbilityBundleName = topAbilityElementName.GetBundleName();
+        std::string topAbilityAbilityName = topAbilityElementName.GetAbilityName();
+        if (topAbilityBundleName != callerBundleName || topAbilityAbilityName != callerAbilityName) {
+            HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. topAbilityBundleName is not local bundleName");
+            return ERR_INVALID_VALUE;
+        }
+        std::string wantBundleName = want.GetElement().GetBundleName();
+        std::string wantAbilityName = want.GetElement().GetAbilityName();
+        std::string wantDeviceId = want.GetElement().GetDeviceID();
+        std::string wantModuleName = want.GetStringParam("moduleName");
+        std::string localDeviceId;
+        if (!((GetLocalDeviceId(localDeviceId) && localDeviceId == wantDeviceId) || wantDeviceId.empty())) {
+            HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. wantDeviceId error");
+            return ERR_INVALID_VALUE;
+        }
+
+        if (wantBundleName.empty() || wantAbilityName.empty()) {
+            HILOG_ERROR(
+                "AbilityManagerService::IsConnectFreeInstall. wantBundleName or wantAbilityName is empty");
+            return ERR_INVALID_VALUE;
+        }
+        if (callerBundleName != wantBundleName) {
+            HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. wantBundleName is not local BundleName");
+            return ERR_INVALID_VALUE;
+        }
+        AppExecFwk::AbilityInfo abilityInfo;
+        if (!(iBundleManager_->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION,
+            userId, abilityInfo))) {
+            HILOG_INFO("AbilityManagerService::IsConnectFreeInstall. try to FreeInstall");
+            int result = StartFreeInstall(want, false, userId, DEFAULT_INVAL_VALUE, callerToken);
+            if (result) {
+                HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. StartFreeInstall error");
+                return result;
+            }
+            HILOG_INFO("AbilityManagerService::IsConnectFreeInstall. StartFreeInstall success");
+        }
+    }
+    return ERR_OK;
 }
 
 int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &connect)
@@ -4536,6 +4608,271 @@ int AbilityManagerService::BlockAppService()
     return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();
 }
 
+bool AbilityManagerService::CheckIsFreeInstall(const Want &want)
+{
+    HILOG_INFO("%{public}s", __func__);
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        HILOG_INFO("StartAbility with free install flags");
+        return true;
+    }
+    return false;
+}
+
+bool AbilityManagerService::CheckTargetBundleList(const Want &want, int32_t userId,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s", __func__);
+    auto caller = Token::GetAbilityRecordByToken(callerToken);
+    if (caller == nullptr) {
+        HILOG_ERROR("Caller is null!");
+        return false;
+    }
+
+    AppExecFwk::ElementName callerElementName = caller->GetWant().GetElement();
+    AppExecFwk::ApplicationInfo appInfo = {};
+    std::string callerBundleName;
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    callerBundleName = callerElementName.GetBundleName();
+    if (callerBundleName.compare(want.GetBundle()) == 0) {
+        HILOG_INFO("Free install in the same application.");
+        return true;
+    }
+
+    HILOG_INFO("Free install with another application.");
+    constexpr auto appInfoflag = AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO;
+    if (!bms->GetApplicationInfo(callerBundleName, appInfoflag, userId, appInfo)) {
+        HILOG_ERROR("Cannot find caller ApplicationInfo!");
+        return false;
+    }
+
+    if (appInfo.targetBundleList.empty()) {
+        HILOG_ERROR("targetBundleList size is empty!");
+        return false;
+    }
+
+    auto it = std::find(appInfo.targetBundleList.begin(), appInfo.targetBundleList.end(), want.GetBundle());
+    if (it != appInfo.targetBundleList.end()) {
+        return true;
+    }
+
+    return false;
+}
+
+int AbilityManagerService::StartFreeInstall(const Want &want, bool isFromRemote, int32_t userId, int requestCode,
+    const sptr<IRemoteObject> &callerToken)
+{
+    if (!isFromRemote && !IsTopAbility(callerToken)) {
+        HILOG_ERROR("Caller is not top ability!");
+        return NOT_TOP_ABILITY;
+    }
+
+    if (!isFromRemote && !CheckTargetBundleList(want, userId, callerToken)) {
+        HILOG_ERROR("CheckTargetBundleList is failed!");
+        return TARGET_BUNDLE_NOT_EXIST;
+    }
+
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
+    if (CheckIfOperateRemote(want)) {
+        HILOG_INFO("StartFreeInstall for remote.");
+        int32_t callerUid = IPCSkeleton::GetCallingUid();
+        uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+        DistributedClient dmsClient;
+        auto result = dmsClient.StartRemoteFreeInstall(want, callerUid, requestCode, accessToken, callback);
+        if (result != ERR_NONE) {
+            HILOG_ERROR("StartRemoteFreeInstall failed, result = %{public}d", result);
+            return FREE_INSTALL_FAIL;
+        }
+        return result;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    AppExecFwk::AbilityInfo info = {};
+    constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
+    bms->QueryAbilityInfo(want, flag, userId, info, callback);
+    return ERR_OK;
+}
+
+int AbilityManagerService::NotifyDmsCallback(const Want &want, int resultCode)
+{
+    if (dmsCallbacks_.empty()) {
+        HILOG_ERROR("Has no dms callback.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_FREE_INSTALL_CALLBACK_TOKEN)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!data.WriteInt32(resultCode)) {
+        HILOG_ERROR("Write resultCode error.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto it = dmsCallbacks_.find(want.GetElement().GetAbilityName());
+    if (it != dmsCallbacks_.end()) {
+        auto error = it->second->SendRequest(IDmsFreeInstallCallback_ON_FREE_INSTALL_DONE, data, reply, option);
+        dmsCallbacks_.erase(it);
+        if (error != NO_ERROR) {
+            HILOG_ERROR("Send request error: %{public}d", error);
+            return error;
+        }
+    }
+
+    return reply.ReadInt32();
+}
+
+int AbilityManagerService::NotifyAppCallback(const Want &want, int resultCode)
+{
+    if (fisCallbacks_.empty()) {
+        HILOG_ERROR("Has no app callback.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto it = fisCallbacks_.find(want.GetElement().GetAbilityName());
+    if (it != fisCallbacks_.end()) {
+        HILOG_INFO("Notify to apps.");
+        sptr<IFreeInstallStatusCallback> callback =
+            iface_cast<IFreeInstallStatusCallback>(it->second);
+        callback->OnInstallFinished(resultCode);
+        fisCallbacks_.erase(it);
+        return ERR_OK;
+    }
+
+    return ERR_INVALID_VALUE;
+}
+
+int AbilityManagerService::FreeInstallAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    const sptr<IRemoteObject> &statusCallback, int32_t userId, int requestCode)
+{
+    HILOG_INFO("%{public}s", __func__);
+    if (statusCallback == nullptr) {
+        HILOG_ERROR("FreeInstallAbility callback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    fisCallbacks_.emplace(want.GetElement().GetAbilityName(), statusCallback);
+    if (userId == DEFAULT_INVAL_VALUE) {
+        userId = GetUserId();
+    }
+
+    int result = StartFreeInstall(want, false, userId, requestCode, callerToken);
+    if (result != ERR_OK) {
+        NotifyAppCallback(want, result);
+        return result;
+    }
+
+    return result;
+}
+
+int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+    int32_t userId, int requestCode)
+{
+    HILOG_INFO("%{public}s", __func__);
+    if (callback == nullptr) {
+        HILOG_ERROR("FreeInstallAbilityFromRemote callback is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    dmsCallbacks_.emplace(want.GetElement().GetAbilityName(), callback);
+    int result = StartFreeInstall(want, true, userId, requestCode, nullptr);
+    if (result != ERR_OK) {
+        NotifyDmsCallback(want, result);
+        return result;
+    }
+
+    return ERR_OK;
+}
+
+void AbilityManagerService::OnInstallFinished(int resultCode, const Want &want, int32_t userId)
+{
+    HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
+    if (resultCode != ERR_NONE) {
+        HILOG_ERROR("FreeInstall error.");
+        HandleFreeInstallErrorCode(resultCode);
+        NotifyDmsCallback(want, resultCode);
+        NotifyAppCallback(want, resultCode);
+        return;
+    }
+
+    resultCode = StartAbilityInner(want, nullptr, DEFAULT_INVAL_VALUE, -1, userId);
+    NotifyDmsCallback(want, resultCode);
+    NotifyAppCallback(want, resultCode);
+}
+
+void AbilityManagerService::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId)
+{
+    HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
+    if (resultCode != ERR_NONE) {
+        HILOG_ERROR("Remote FreeInstall error.");
+        HandleFreeInstallErrorCode(resultCode);
+    }
+
+    NotifyAppCallback(want, resultCode);
+}
+
+void AbilityManagerService::HandleFreeInstallErrorCode(int code)
+{
+    auto it = FIErrorStrs.find(static_cast<enum FreeInstallError>(code));
+    if (it == FIErrorStrs.end()) {
+        HILOG_ERROR("Undefind error.");
+        return;
+    }
+    HILOG_ERROR("Error info: %{public}s", it->second.c_str());
+}
+
+void AbilityManagerService::FocusChangedListener::OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_DEBUG("%{public}s  OnFocused called.", __func__);
+    if (instance_ != nullptr) {
+        instance_->focusChangeInfo_ = focusChangeInfo;
+    } else {
+        HILOG_ERROR("%{public}s  instance_ is null.", __func__);
+    }
+}
+
+void AbilityManagerService::FocusChangedListener::OnUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    HILOG_DEBUG("%{public}s  OnUnfocused called.", __func__);
+}
+
+AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
+{
+    HILOG_DEBUG("%{public}s  start.", __func__);
+    if (instance_ == nullptr) {
+        HILOG_ERROR("%{public}s  instance_ is null.", __func__);
+        return {};
+    }
+    if (instance_->focusChangeInfo_ == nullptr) {
+        HILOG_ERROR("%{public}s  focusChangeInfo_ is null.", __func__);
+        return {};
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(instance_->focusChangeInfo_->abilityToken_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("%{public}s  abilityRecord is null.", __func__);
+        return {};
+    }
+    AppExecFwk::ElementName elementName = abilityRecord->GetWant().GetElement();
+    HILOG_DEBUG("%{public}s  BundleName %{public}s .", __func__, elementName.GetBundleName().c_str());
+    HILOG_DEBUG("%{public}s  AbilityName %{public}s .", __func__, elementName.GetAbilityName().c_str());
+    HILOG_DEBUG("%{public}s  DeviceId %{public}s .", __func__, elementName.GetDeviceID().c_str());
+    bool isDeviceEmpty = elementName.GetDeviceID().empty();
+    std::string localDeviceId;
+    bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
+    if (isDeviceEmpty && hasLocalDeviceId) {
+        elementName.SetDeviceID(localDeviceId);
+        HILOG_DEBUG("%{public}s  DeviceId %{public}s .", __func__, elementName.GetDeviceID().c_str());
+    }
+    HILOG_DEBUG("%{public}s  end.", __func__);
+    return elementName;
+}
+
 int AbilityManagerService::Dump(int fd, const std::vector<std::u16string> &args)
 {
     std::vector<std::string> argsStr;
@@ -4670,6 +5007,35 @@ void AbilityManagerService::ShowHelp(std::string &result)
 void AbilityManagerService::ShowIllealInfomation(std::string &result)
 {
     result.append(ILLEGAL_INFOMATION);
+}
+
+bool AbilityManagerService::IsTopAbility(const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s", __func__);
+    AppExecFwk::ElementName elementName = GetTopAbility();
+    if (elementName.GetBundleName().empty() || elementName.GetAbilityName().empty()) {
+        HILOG_ERROR("GetBundleName or GetAbilityName empty!");
+        return false;
+    }
+
+    auto caller = Token::GetAbilityRecordByToken(callerToken);
+    if (caller == nullptr) {
+        HILOG_ERROR("Caller is null!");
+        return false;
+    }
+
+    AppExecFwk::ElementName callerElementName = caller->GetWant().GetElement();
+    std::string callerBundleName;
+    std::string callerAbilityName;
+    callerBundleName = callerElementName.GetBundleName();
+    callerAbilityName = callerElementName.GetAbilityName();
+    if (elementName.GetBundleName().compare(callerBundleName) == 0 &&
+        elementName.GetAbilityName().compare(callerAbilityName) == 0) {
+        HILOG_INFO("The ability is top ability.");
+        return true;
+    }
+
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
