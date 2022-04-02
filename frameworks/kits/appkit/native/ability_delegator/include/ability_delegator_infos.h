@@ -20,12 +20,15 @@
 #include "ability_lifecycle_executor.h"
 #include "iremote_object.h"
 
+class NativeReference;
+
 namespace OHOS {
 namespace AppExecFwk {
 struct ADelegatorAbilityProperty {
     sptr<IRemoteObject> token_;
     std::string name_;
     AbilityLifecycleExecutor::LifecycleState lifecycleState_ {AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED};
+    std::weak_ptr<NativeReference> object_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

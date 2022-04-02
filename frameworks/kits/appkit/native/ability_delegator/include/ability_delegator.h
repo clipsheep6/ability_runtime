@@ -16,7 +16,9 @@
 #ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_H
 #define FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_H
 
+#include <functional>
 #include <list>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -47,6 +49,8 @@ public:
         STOPPED
     };
 
+    using ClearFunc = std::function<void(const std::shared_ptr<ADelegatorAbilityProperty> &)>;
+
 public:
     AbilityDelegator(const std::shared_ptr<AbilityRuntime::Context> &context, std::unique_ptr<TestRunner> runner,
         const sptr<IRemoteObject> &observer);
@@ -57,13 +61,13 @@ public:
     void ClearAllMonitors();
     size_t GetMonitorsNum();
 
-    sptr<IRemoteObject> WaitAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor);
-    sptr<IRemoteObject> WaitAbilityMonitor(
+    std::shared_ptr<ADelegatorAbilityProperty> WaitAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor);
+    std::shared_ptr<ADelegatorAbilityProperty> WaitAbilityMonitor(
         const std::shared_ptr<IAbilityMonitor> &monitor, const int64_t timeoutMs);
 
     std::shared_ptr<AbilityRuntime::Context> GetAppContext() const;
     AbilityDelegator::AbilityState GetAbilityState(const sptr<IRemoteObject> &token);
-    sptr<IRemoteObject> GetCurrentTopAbility();
+    std::shared_ptr<ADelegatorAbilityProperty> GetCurrentTopAbility();
     std::string GetThreadName() const;
 
     void Prepare();
@@ -88,10 +92,15 @@ public:
 
     void FinishUserTest(const std::string &msg, const int32_t resultCode);
 
+    void RegisterClearFunc(ClearFunc func);
+
 private:
     AbilityDelegator::AbilityState ConvertAbilityState(const AbilityLifecycleExecutor::LifecycleState lifecycleState);
     void ProcessAbilityProperties(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
-    std::shared_ptr<ADelegatorAbilityProperty> DoesPropertyExist(const sptr<IRemoteObject> &token);
+    void RemoveAbilityProperty(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
+    std::shared_ptr<ADelegatorAbilityProperty> FindPropertyByToken(const sptr<IRemoteObject> &token);
+
+    inline void CallClearFunc(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
 private:
     std::shared_ptr<AbilityRuntime::Context> appContext_;
@@ -101,6 +110,8 @@ private:
     std::unique_ptr<DelegatorThread> delegatorThread_;
     std::list<std::shared_ptr<ADelegatorAbilityProperty>> abilityProperties_;
     std::vector<std::shared_ptr<IAbilityMonitor>> abilityMonitors_;
+
+    ClearFunc clearFunc_;
 
     std::mutex mutexMonitor_;
     std::mutex mutexAbilityProperties_;
