@@ -132,6 +132,11 @@ public:
         return false;
     }
 
+    virtual AppExecFwk::ElementName GetTopAbility()
+    {
+        return {};
+    }
+
     /**
      * TerminateAbility, terminate the special ability.
      *
@@ -731,6 +736,18 @@ public:
      */
     virtual int BlockAppService() = 0;
 
+    /**
+     * Call free install from remote.
+     *
+     * @param want, the want of the ability to start.
+     * @param callback, Callback from remote.
+     * @param userId, Designation User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+        int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -1010,6 +1027,9 @@ public:
         DUMP_STATE = 2001,
 		DUMPSYS_STATE = 2002,
         FORCE_TIMEOUT,
+
+        GET_TOP_ABILITY = 3000,
+        FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
     };
 };
 }  // namespace AAFwk
