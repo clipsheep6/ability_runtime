@@ -18,6 +18,7 @@
 #include "ability_scheduler_interface.h"
 #include "ability_thread.h"
 #include "abs_shared_result_set.h"
+#include "bytrace.h"
 #include "data_ability_observer_interface.h"
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
@@ -277,6 +278,7 @@ bool DataShareHelper::Release()
  */
 std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::string &mimeTypeFilter)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::GetFileTypes start.");
     std::vector<std::string> matchedMIMEs;
     if (!CheckUriParam(uri)) {
@@ -438,6 +440,7 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
  */
 int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::Insert start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
@@ -491,6 +494,7 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
 int DataShareHelper::Update(
     Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::Update start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
@@ -542,6 +546,7 @@ int DataShareHelper::Update(
  */
 int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::Delete start.");
     int index = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
@@ -595,6 +600,7 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
 std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::Query start.");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
 
@@ -647,6 +653,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
  */
 std::string DataShareHelper::GetType(Uri &uri)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::GetType start.");
     std::string type;
     if (!CheckUriParam(uri)) {
@@ -698,6 +705,7 @@ std::string DataShareHelper::GetType(Uri &uri)
  */
 int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::BatchInsert start.");
     int ret = INVALID_VALUE;
     if (!CheckUriParam(uri)) {
@@ -909,6 +917,7 @@ void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IData
  */
 void DataShareHelper::NotifyChange(const Uri &uri)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::NotifyChange start.");
     if (!CheckUriParam(uri)) {
         HILOG_ERROR("%{public}s called. CheckUriParam uri failed", __func__);
@@ -954,6 +963,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
  */
 Uri DataShareHelper::NormalizeUri(Uri &uri)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::NormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
@@ -1007,6 +1017,7 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
  */
 Uri DataShareHelper::DenormalizeUri(Uri &uri)
 {
+    BYTRACE_NAME(BYTRACE_TAG_DISTRIBUTEDATA,__PRETTY_FUNCTION__);
     HILOG_INFO("DataShareHelper::DenormalizeUri start.");
     Uri urivalue("");
     if (!CheckUriParam(uri)) {
