@@ -2709,8 +2709,8 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05500, Function | MediumTest 
 
 /**
  * @tc.number    : AMS_Page_Ability_05600
- * @tc.name      : Test the OnNewIntent event in the Ability class
- * @tc.desc      : No processing is done in the OnNewIntent event.
+ * @tc.name      : Test the OnNewWant event in the Ability class
+ * @tc.desc      : No processing is done in the OnNewWant event.
  */
 HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05600, Function | MediumTest | Level1)
 {
@@ -2727,7 +2727,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05600, Function | MediumTest 
 
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnStart", mapState["OnStart"], DELAY_TIME));
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnActive", mapState["OnActive"], DELAY_TIME));
-        int ret = STAbilityUtil::WaitCompleted(event, "OnNewIntent", mapState["OnNewIntent"], DELAY_TIME);
+        int ret = STAbilityUtil::WaitCompleted(event, "OnNewWant", mapState["OnNewWant"], DELAY_TIME);
         EXPECT_EQ(-1, ret);
         if (ret != -1) {
             result = false;
@@ -2751,8 +2751,8 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05600, Function | MediumTest 
 
 /**
  * @tc.number    : AMS_Page_Ability_05700
- * @tc.name      : Test the OnNewIntent event in the Ability class
- * @tc.desc      : Start a task in the OnNewIntent event.
+ * @tc.name      : Test the OnNewWant event in the Ability class
+ * @tc.desc      : Start a task in the OnNewWant event.
  */
 HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05700, Function | MediumTest | Level1)
 {
@@ -2769,7 +2769,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05700, Function | MediumTest 
 
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnStart", mapState["OnStart"], DELAY_TIME));
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnActive", mapState["OnActive"], DELAY_TIME));
-        int ret = STAbilityUtil::WaitCompleted(event, "OnNewIntent", mapState["OnNewIntent"], DELAY_TIME);
+        int ret = STAbilityUtil::WaitCompleted(event, "OnNewWant", mapState["OnNewWant"], DELAY_TIME);
         EXPECT_EQ(-1, ret);
         if (ret != -1) {
             result = false;
@@ -2793,8 +2793,8 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05700, Function | MediumTest 
 
 /**
  * @tc.number    : AMS_Page_Ability_05800
- * @tc.name      : Test the OnNewIntent event in the Ability class
- * @tc.desc      : Start the while loop in the OnNewIntent event.
+ * @tc.name      : Test the OnNewWant event in the Ability class
+ * @tc.desc      : Start the while loop in the OnNewWant event.
  */
 HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05800, Function | MediumTest | Level1)
 {
@@ -2811,7 +2811,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05800, Function | MediumTest 
 
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnStart", mapState["OnStart"], DELAY_TIME));
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnActive", mapState["OnActive"], DELAY_TIME));
-        int ret = STAbilityUtil::WaitCompleted(event, "OnNewIntent", mapState["OnNewIntent"], DELAY_TIME);
+        int ret = STAbilityUtil::WaitCompleted(event, "OnNewWant", mapState["OnNewWant"], DELAY_TIME);
         EXPECT_EQ(-1, ret);
         if (ret != -1) {
             result = false;
@@ -2835,7 +2835,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05800, Function | MediumTest 
 
 /**
  * @tc.number    : AMS_Page_Ability_05900
- * @tc.name      : Test the OnNewIntent event in the Ability class
+ * @tc.name      : Test the OnNewWant event in the Ability class
  * @tc.desc      : Stop ability immediately after starting ability.
  */
 HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05900, Function | MediumTest | Level1)
@@ -2853,7 +2853,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05900, Function | MediumTest 
 
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnStart", mapState["OnStart"], DELAY_TIME));
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnActive", mapState["OnActive"], DELAY_TIME));
-        int ret = STAbilityUtil::WaitCompleted(event, "OnNewIntent", mapState["OnNewIntent"], DELAY_TIME);
+        int ret = STAbilityUtil::WaitCompleted(event, "OnNewWant", mapState["OnNewWant"], DELAY_TIME);
         EXPECT_EQ(-1, ret);
         if (ret != -1) {
             result = false;
@@ -2877,7 +2877,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_05900, Function | MediumTest 
 
 /**
  * @tc.number    : AMS_Page_Ability_06000
- * @tc.name      : Test the OnNewIntent event in the Ability class
+ * @tc.name      : Test the OnNewWant event in the Ability class
  * @tc.desc      : Terminate ability immediately after starting ability.
  */
 HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_06000, Function | MediumTest | Level1)
@@ -2895,7 +2895,7 @@ HWTEST_F(ActsAmsKitLifecycleTest, AMS_Page_Ability_06000, Function | MediumTest 
 
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnStart", mapState["OnStart"], DELAY_TIME));
         EXPECT_EQ(0, STAbilityUtil::WaitCompleted(event, "OnActive", mapState["OnActive"], DELAY_TIME));
-        int ret = STAbilityUtil::WaitCompleted(event, "OnNewIntent", mapState["OnNewIntent"], DELAY_TIME);
+        int ret = STAbilityUtil::WaitCompleted(event, "OnNewWant", mapState["OnNewWant"], DELAY_TIME);
         EXPECT_EQ(-1, ret);
         if (ret != -1) {
             result = false;

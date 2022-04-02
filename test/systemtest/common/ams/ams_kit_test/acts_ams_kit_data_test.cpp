@@ -3311,7 +3311,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01200, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01300, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 001
+    // ability.h    void onStart(Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3352,7 +3352,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01300, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01400, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 002
+    // ability.h    void onStart(Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3394,7 +3394,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01400, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01500, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 003
+    // ability.h    void onStart(Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3441,7 +3441,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01500, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01600, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 004
+    // ability.h    void onStart(Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3488,7 +3488,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01600, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01700, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 005
+    // ability.h    void onStart(Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01700 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3531,7 +3531,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01700, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01800, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 006
+    // ability.h    void onStart(Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01800 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3574,7 +3574,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01800, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01900, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 007
+    // ability.h    void onStart(Want) 007
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_01900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3622,7 +3622,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_01900, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02000, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent)  008
+    // ability.h    void onStart(Want)  008
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_02000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3669,7 +3669,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02000, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02100, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 009
+    // ability.h    void onStart(Want) 009
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_02100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3722,7 +3722,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02100, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02200, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 010
+    // ability.h    void onStart(Want) 010
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_02200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3776,7 +3776,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02200, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02300, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 011
+    // ability.h    void onStart(Want) 011
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_02300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -3824,7 +3824,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02300, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_02400, Function | MediumTest | Level1)
 {
-    // ability.h    void onStart(Intent) 012
+    // ability.h    void onStart(Want) 012
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_02400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4131,13 +4131,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03000, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03100
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by page ability in the same app. Verify that the onNewIntent function in ability
+ * @tc.name      : test OnNewWant in ability
+ * @tc.desc      : start data ability by page ability in the same app. Verify that the OnNewWant function in ability
  * is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03100, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 001
+    // ability.h    void OnNewWant(Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4179,13 +4179,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03100, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03200
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by page ability in different app. Verify that the onNewIntent function in ability
+ * @tc.name      : test onNewWant in ability
+ * @tc.desc      : start data ability by page ability in different app. Verify that the onNewWant function in ability
  * is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03200, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 002
+    // ability.h    void onNewWant(Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4226,13 +4226,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03200, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03300
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by data ability in the same app. Verify that the onNewIntent function in ability
+ * @tc.name      : test onNewWant in ability
+ * @tc.desc      : start data ability by data ability in the same app. Verify that the onNewWant function in ability
  * is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03300, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 003
+    // ability.h    void onNewWant(Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4279,13 +4279,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03300, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03400
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by data ability in different app. Verify that the onNewIntent function in ability
+ * @tc.name      : test onNewWant in ability
+ * @tc.desc      : start data ability by data ability in different app. Verify that the onNewWant function in ability
  * is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03400, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 004
+    // ability.h    void onNewWant(Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4333,13 +4333,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03400, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03500
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by service ability in the same app. Verify that the onNewIntent function in
+ * @tc.name      : test onNewWant in ability
+ * @tc.desc      : start data ability by service ability in the same app. Verify that the onNewWant function in
  * ability is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03500, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 005
+    // ability.h    void onNewWant(Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4381,13 +4381,13 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03500, Function | MediumTest | Lev
 
 /**
  * @tc.number    : AMS_Data_Ability_03600
- * @tc.name      : test onNewIntent in ability
- * @tc.desc      : start data ability by service ability in different app. Verify that the onNewIntent function in
+ * @tc.name      : test onNewWant in ability
+ * @tc.desc      : start data ability by service ability in different app. Verify that the onNewWant function in
  * ability is not executed.
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_03600, Function | MediumTest | Level1)
 {
-    // ability.h    void onNewIntent(Intent) 006
+    // ability.h    void onNewWant(Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_03600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -4961,7 +4961,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_04800, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_04900, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 001
+    // ability.h    void onForeground(Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_04900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5002,7 +5002,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_04900, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05000, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 002
+    // ability.h    void onForeground(Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5044,7 +5044,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05000, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05100, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 003
+    // ability.h    void onForeground(Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5091,7 +5091,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05100, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05200, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 004
+    // ability.h    void onForeground(Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5138,7 +5138,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05200, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05300, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 005
+    // ability.h    void onForeground(Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5181,7 +5181,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05300, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05400, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 006
+    // ability.h    void onForeground(Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5224,7 +5224,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05400, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05500, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 007
+    // ability.h    void onForeground(Want) 007
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5272,7 +5272,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05500, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05600, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 008
+    // ability.h    void onForeground(Want) 008
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5319,7 +5319,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05600, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05700, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 009
+    // ability.h    void onForeground(Want) 009
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05700 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5372,7 +5372,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05700, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05800, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 010
+    // ability.h    void onForeground(Want) 010
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05800 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5426,7 +5426,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05800, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05900, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 011
+    // ability.h    void onForeground(Want) 011
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_05900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -5474,7 +5474,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_05900, Function | MediumTest | Lev
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Ability_06000, Function | MediumTest | Level1)
 {
-    // ability.h    void onForeground(Intent) 012
+    // ability.h    void onForeground(Want) 012
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Ability_06000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -8868,7 +8868,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00400, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00500, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 001
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_00500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -8915,7 +8915,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00500, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00600, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 002
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_00600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -8962,7 +8962,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00600, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00700, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 003
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_00700 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9009,7 +9009,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00700, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00800, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 004
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_00800 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9056,7 +9056,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00800, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00900, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 005
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_00900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9103,7 +9103,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_00900, Function | MediumTest | L
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_Lifecycle_01000, Function | MediumTest | Level1)
 {
-    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Intent) 006
+    // ability_lifecycle.h    void dispatchLifecycle(Lifecycle.Event, Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_Lifecycle_01000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9682,7 +9682,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01200, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01300, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 001
+    // lifecycle_observer.h    void onForeground(Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9725,7 +9725,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01300, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01400, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent)  002
+    // lifecycle_observer.h    void onForeground(Want)  002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9768,7 +9768,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01400, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01500, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 003
+    // lifecycle_observer.h    void onForeground(Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9815,7 +9815,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01500, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01600, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 004
+    // lifecycle_observer.h    void onForeground(Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9862,7 +9862,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01600, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01700, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 005
+    // lifecycle_observer.h    void onForeground(Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01700 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9905,7 +9905,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01700, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01800, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 006
+    // lifecycle_observer.h    void onForeground(Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01800 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9948,7 +9948,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01800, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01900, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 007
+    // lifecycle_observer.h    void onForeground(Want) 007
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_01900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -9996,7 +9996,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_01900, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02000, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent)  008
+    // lifecycle_observer.h    void onForeground(Want)  008
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_02000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10043,7 +10043,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02000, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02100, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 009
+    // lifecycle_observer.h    void onForeground(Want) 009
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_02100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10096,7 +10096,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02100, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02200, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 010
+    // lifecycle_observer.h    void onForeground(Want) 010
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_02200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10150,7 +10150,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02200, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02300, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 011
+    // lifecycle_observer.h    void onForeground(Want) 011
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_02300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10198,7 +10198,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02300, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_02400, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onForeground(Intent) 012
+    // lifecycle_observer.h    void onForeground(Want) 012
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_02400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10510,7 +10510,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03000, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03100, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 001
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10557,7 +10557,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03100, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03200, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 002
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10604,7 +10604,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03200, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03300, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 003
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10657,7 +10657,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03300, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03400, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 004
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10711,7 +10711,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03400, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03500, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 005
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -10759,7 +10759,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03500, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_03600, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Intent) 006
+    // lifecycle_observer.h    void onStateChanged(Lifecycle.Event, Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_03600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11071,7 +11071,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04200, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04300, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 001
+    // lifecycle_observer.h    void onStart(Want) 001
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11114,7 +11114,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04300, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04400, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 002
+    // lifecycle_observer.h    void onStart(Want) 002
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04400 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11157,7 +11157,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04400, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04500, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 003
+    // lifecycle_observer.h    void onStart(Want) 003
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04500 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11204,7 +11204,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04500, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04600, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 004
+    // lifecycle_observer.h    void onStart(Want) 004
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04600 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11251,7 +11251,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04600, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04700, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 005
+    // lifecycle_observer.h    void onStart(Want) 005
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04700 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11294,7 +11294,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04700, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04800, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 006
+    // lifecycle_observer.h    void onStart(Want) 006
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04800 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11337,7 +11337,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04800, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04900, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 007
+    // lifecycle_observer.h    void onStart(Want) 007
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_04900 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11385,7 +11385,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_04900, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05000, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 008
+    // lifecycle_observer.h    void onStart(Want) 008
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_05000 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11432,7 +11432,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05000, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05100, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 009
+    // lifecycle_observer.h    void onStart(Want) 009
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_05100 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11485,7 +11485,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05100, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05200, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 010
+    // lifecycle_observer.h    void onStart(Want) 010
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_05200 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11539,7 +11539,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05200, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05300, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 011
+    // lifecycle_observer.h    void onStart(Want) 011
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_05300 start";
     STAbilityUtil::CleanMsg(event);
 
@@ -11587,7 +11587,7 @@ HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05300, Function | Medium
  */
 HWTEST_F(ActsAmsKitDataTest, AMS_Data_LifeCycleObserver_05400, Function | MediumTest | Level1)
 {
-    // lifecycle_observer.h    void onStart(Intent) 012
+    // lifecycle_observer.h    void onStart(Want) 012
     GTEST_LOG_(INFO) << "ActsAmsKitDataTest AMS_Data_LifeCycleObserver_05400 start";
     STAbilityUtil::CleanMsg(event);
 
