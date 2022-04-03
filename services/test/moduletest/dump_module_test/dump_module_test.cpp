@@ -94,7 +94,6 @@ public:
     void TearDown();
     void OnStartAms();
     void StartAllAbilities();
-    bool SearchAbilityNameFromStackInfo(const std::string &abilityName, const std::vector<AbilityRecordInfo> &vec);
 
     Want want11 {};
     Want want22 {};
@@ -103,15 +102,6 @@ public:
     Want want55 {};
     Want wantLauncher {};
 };
-
-bool DumpModuleTest::SearchAbilityNameFromStackInfo(
-    const std::string &abilityName, const std::vector<AbilityRecordInfo> &vec)
-{
-    auto iter = std::find_if(vec.begin(), vec.end(), [&abilityName](const AbilityRecordInfo &abilityRecordInfo) {
-        return (abilityRecordInfo.mainName == abilityName);
-    });
-    return ((iter == vec.end()) ? false : true);
-}
 
 void DumpModuleTest::OnStartAms()
 {
