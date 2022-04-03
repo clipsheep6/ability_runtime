@@ -86,9 +86,6 @@ public:
 
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
     int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
-    int PowerOff() override;
-    int PowerOn() override;
-
     int LockMission(int missionId) override
     {
         return 0;
