@@ -34,7 +34,6 @@
 #include "lock_mission_container.h"
 #include "lock_screen_event_subscriber.h"
 #include "resume_mission_container.h"
-#include "stack_info.h"
 #include "want.h"
 #include "screenshot_handler.h"
 

@@ -30,7 +30,6 @@
 #include "ability_running_info.h"
 #include "extension_running_info.h"
 #include "mission_option.h"
-#include "stack_info.h"
 #include "stack_setting.h"
 #include "uri.h"
 #include "want.h"

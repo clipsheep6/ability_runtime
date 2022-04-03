@@ -762,7 +762,6 @@ public:
 
     void SetLockScreenRoot();
     bool IsLockScreenRoot() const;
-    bool GetPowerStateLockScreen() const;
 
     bool IsNewVersion();
     void SetLaunchReason(const LaunchReason &reason);
