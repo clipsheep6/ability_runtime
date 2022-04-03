@@ -876,7 +876,6 @@ private:
     bool isInMovingState_ = false;  // whether complete multi window moving state.
     bool isMovingBackground_ = false;
     bool isLockScreenRoot_ = false;
-    bool isPowerStateLockScreen_ = false;
     AppState appState_ = AppState::BEGIN;
 
     int32_t compatibleVersion_ = 0; // > 7 new version, <= 7 old version.
