@@ -131,7 +131,6 @@ ohos_source_set("abilityms_test_source") {
       "${services_path}/abilitymgr/src/mission_record_info.cpp",
       "${services_path}/abilitymgr/src/mission_snapshot.cpp",
       "${services_path}/abilitymgr/src/mission_stack.cpp",
-      "${services_path}/abilitymgr/src/power_storage.cpp",
       "${services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
       "${services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
       "${services_path}/abilitymgr/src/resume_mission_container.cpp",
