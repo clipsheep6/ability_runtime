@@ -264,6 +264,35 @@ public:
     virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * Get top ability.
+     * @return Returns service ability's ElementName.
+     */
+    virtual AppExecFwk::ElementName GetTopAbility() override;
+
+    /**
+     * Obtains information about ability stack that are running on the device.
+     *
+     * @param stackInfo Ability stack info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int GetAllStackInfo(StackInfo &stackInfo) override;
+
+    /**
+     * Get the list of the missions that the user has recently launched,
+     * with the most recent being first and older ones after in order.
+     *
+     * @param recentList recent mission info
+     * @param numMax The maximum number of entries to return in the list. The
+     * actual number returned may be smaller, depending on how many tasks the
+     * user has started and the maximum number the system can remember.
+     * @param falgs Information about what to return.  May be any combination
+     * of {@link #RECENT_WITH_EXCLUDED} and {@link #RECENT_IGNORE_UNAVAILABLE}.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int GetRecentMissions(
+        const int32_t numMax, const int32_t flags, std::vector<AbilityMissionInfo> &recentList) override;
+
+    /**
      * Get mission snapshot by mission id
      *
      * @param missionId the id of the mission to retrieve the sAutoapshots
@@ -653,6 +682,34 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() override;
+
+    /**
+     * Free install ability.
+     *
+     * @param want Ability want.
+     * @param callerToken, caller ability token.
+     * @param statusCallback Callback used to notify free install result.
+     * @param userId User ID.
+     * @param requestCode Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbility(const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        const sptr<IRemoteObject> &statusCallback,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * Call free install from remote.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, Designation User ID.
+     * @param requestCode, Ability request code.
+     * @param callback, Callback from remote.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+        int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
 private:
     template <typename T>
