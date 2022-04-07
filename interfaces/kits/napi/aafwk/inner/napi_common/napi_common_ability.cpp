@@ -23,6 +23,7 @@
 #include "napi_base_context.h"
 #include "napi_remote_object.h"
 #include "securec.h"
+#include "iapplication_state_observer.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -3993,6 +3994,12 @@ void NAPIAbilityConnection::OnAbilityConnectDone(
     if (remoteObject == nullptr) {
         HILOG_ERROR("%{public}s, remoteObject == nullptr.", __func__);
         return;
+    }
+    if (remoteObject->GetObjectDescriptor() == u"ohos.appexecfwk.IApplicationStateObserver") {
+        HILOG_INFO("jws %{public}s, called.", __func__);
+        sptr<AppExecFwk::IApplicationStateObserver> con = iface_cast<AppExecFwk::IApplicationStateObserver>(remoteObject);
+        AppStateData appStateData;
+        con->OnForegroundApplicationChanged(appStateData);
     }
     uv_loop_s *loop = nullptr;
 
