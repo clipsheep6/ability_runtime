@@ -23,10 +23,14 @@ ohos_unittest("app_scheduler_test") {
   include_dirs = [
     "${services_path}/abilitymgr/test/mock/libs/system_ability_mock",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/aafwk/standard/services/abilitymgr/include",
   ]
 
   #sources = abilityms_files
   sources = [
+    "${services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
+    "${services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
+    "${services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
     "//foundation/aafwk/standard/services/abilitymgr/src/app_scheduler.cpp",
     "app_scheduler_test.cpp",
   ]
