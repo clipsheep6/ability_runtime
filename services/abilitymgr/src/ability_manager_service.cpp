@@ -57,7 +57,9 @@
 #include "softbus_bus_center.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
@@ -90,6 +92,13 @@ const std::set<std::string> ONE_ARG_SET { ARGS_ABILITY, ARGS_MISSION_LIST, ARGS_
     ARGS_PENDING_WANT, ARGS_PROCESS, ARGS_DATA };
 
 const std::set<std::string> TWO_ARGS_SET { ARGS_ABILITY, ARGS_ABILITY_BY_ID, ARGS_PENDING_WANT };
+#ifndef HAS_OS_ACCOUNT_PART
+constexpr static int UID_TRANSFORM_DIVISOR = 200000;
+static void GetOsAccountIdFromUid(int uid, int &osAccountId)
+{
+    osAccountId = uid / UID_TRANSFORM_DIVISOR;
+}
+#endif // HAS_OS_ACCOUNT_PART
 }
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -1065,10 +1074,14 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     if (!wantSenderInfo.bundleName.empty()) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
+#ifdef HAS_OS_ACCOUNT_PART
             if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
                 HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
                 return nullptr;
             }
+#else // HAS_OS_ACCOUNT_PART
+            GetOsAccountIdFromUid(callerUid, userId);
+#endif // HAS_OS_ACCOUNT_PART
         }
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
@@ -1105,10 +1118,14 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
 
     int userId = -1;
+#ifdef HAS_OS_ACCOUNT_PART
     if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
+#else // HAS_OS_ACCOUNT_PART
+    GetOsAccountIdFromUid(callerUid, userId);
+#endif // HAS_OS_ACCOUNT_PART
     AppExecFwk::BundleInfo bundleInfo;
     bool bundleMgrResult = IN_PROCESS_CALL(
         bms->GetBundleInfo(record->GetKey()->GetBundleName(),

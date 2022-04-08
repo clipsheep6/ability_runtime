@@ -38,7 +38,9 @@
 #include "iremote_object.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
@@ -94,6 +96,9 @@ int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
 }
+#ifndef HAS_OS_ACCOUNT_PART
+const int32_t DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 }  // namespace
 
 using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -592,8 +597,13 @@ int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInf
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
 
     std::vector<int32_t> ids;
+#ifdef HAS_OS_ACCOUNT_PART
     auto result = AccountSA::OsAccountManager::QueryActiveOsAccountIds(ids);
     HILOG_DEBUG("ids size : %{public}d", static_cast<int>(ids.size()));
+#else // HAS_OS_ACCOUNT_PART
+    ids.push_back(DEFAULT_OS_ACCOUNT_ID);
+    HILOG_DEBUG("there is no os account part, use default.");
+#endif // HAS_OS_ACCOUNT_PART
 
     // check permission
     for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
