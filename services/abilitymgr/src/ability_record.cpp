@@ -27,7 +27,9 @@
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "mission_record.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {
@@ -69,6 +71,9 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND_NEW),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND_NEW),
 };
+#ifndef HAS_OS_ACCOUNT_PART
+const int32_t DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
 {}
@@ -1683,11 +1688,16 @@ void AbilityRecord::GrantUriPermission(const Want &want)
 int AbilityRecord::GetCurrentAccountId()
 {
     std::vector<int32_t> osActiveAccountIds;
+#ifdef HAS_OS_ACCOUNT_PART
     ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("QueryActiveOsAccountIds failed.");
         return DEFAULT_USER_ID;
     }
+#else // HAS_OS_ACCOUNT_PART
+    osActiveAccountIds.push_back(DEFAULT_OS_ACCOUNT_ID);
+    HILOG_DEBUG("AbilityRecord::GetCurrentAccountId, do not have os account part, use default id.");
+#endif // HAS_OS_ACCOUNT_PART
 
     if (osActiveAccountIds.empty()) {
         HILOG_ERROR("QueryActiveOsAccountIds is empty, no accounts.");

@@ -20,13 +20,24 @@
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "resource_manager.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+#ifndef HAS_OS_ACCOUNT_PART
+namespace {
+constexpr int UID_TRANSFORM_DIVISOR = 200000;
+static void GetOsAccountIdFromUid(int uid, int &osAccountId)
+{
+    osAccountId = uid / UID_TRANSFORM_DIVISOR;
+}
+}
+#endif // HAS_OS_ACCOUNT_PART
 
 int AbilityContext::ABILITY_CONTEXT_DEFAULT_REQUEST_CODE(0);
 const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
@@ -377,10 +388,14 @@ int AbilityContext::VerifyPermission(const std::string &permission, int pid, int
     }
 
     int account = -1;
+#ifdef HAS_OS_ACCOUNT_PART
     if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, account) != 0) {
         HILOG_ERROR("VerifyPermission failed to get account by uid");
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
+#else // HAS_OS_ACCOUNT_PART
+    GetOsAccountIdFromUid(uid, account);
+#endif // HAS_OS_ACCOUNT_PART
 
     AppExecFwk::ApplicationInfo appInfo;
     if (!ptr->GetApplicationInfo(bundle_name, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, account, appInfo)) {
