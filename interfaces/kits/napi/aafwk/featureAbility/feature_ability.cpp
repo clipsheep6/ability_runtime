@@ -1760,10 +1760,8 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
     showOnLockScreenCB->cbBase.abilityType = AbilityType::PAGE;
     napi_value ret = SetShowOnLockScreenWrap(env, info, showOnLockScreenCB);
     if (ret == nullptr) {
-        if (showOnLockScreenCB != nullptr) {
-            delete showOnLockScreenCB;
-            showOnLockScreenCB = nullptr;
-        }
+        delete showOnLockScreenCB;
+        showOnLockScreenCB = nullptr;
         HILOG_ERROR("%{public}s, SetShowOnLockScreenWrap run failed, delete resource", __func__);
         ret = WrapVoidToJS(env);
     }
