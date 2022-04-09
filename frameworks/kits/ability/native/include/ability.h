@@ -431,13 +431,6 @@ public:
     virtual void OnTopActiveAbilityChanged(bool topActive);
 
     /**
-     * @brief Inflates UI controls by using windowOption.
-     *
-     * @param windowOption Indicates the window option defined by the user.
-     */
-    virtual void InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option);
-
-    /**
      * @brief Get the window belong to the ability.
      *
      * @return Returns a Window object pointer.

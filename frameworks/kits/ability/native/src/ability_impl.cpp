@@ -22,8 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-static bool g_useNewMission = false;
-static bool g_isMissionFlagSetted = false;
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
 
@@ -930,19 +928,6 @@ void AbilityImpl::NotifyContinuationResult(int32_t result)
         return;
     }
     ability_->OnCompleteContinuation(result);
-}
-
-void AbilityImpl::SetUseNewMission(bool useNewMission)
-{
-    if (!g_isMissionFlagSetted) {
-        g_isMissionFlagSetted = true;
-        g_useNewMission = useNewMission;
-    }
-}
-
-bool AbilityImpl::IsUseNewMission()
-{
-    return g_useNewMission;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
