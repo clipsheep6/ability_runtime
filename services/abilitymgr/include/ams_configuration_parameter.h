@@ -105,12 +105,6 @@ public:
      */
     std::string GetOrientation() const;
     /**
-     * check if use new mission.
-     *
-     * return true if use mission list, false if use mission stack.
-     */
-    bool IsUseNewMission() const;
-    /**
      * Get the max number of restart.
      */
     int GetMaxRestartNum() const;

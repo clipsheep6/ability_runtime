@@ -250,11 +250,11 @@ void Ability::OnStart(const Want &want)
             abilityInfo_->name.c_str(),
             winType,
             displayId);
-        auto option = GetWindowOption(want);
-        InitWindow(winType, displayId, option);
 
         if (abilityWindow_ != nullptr) {
             HILOG_INFO("%{public}s begin abilityWindow_->OnPostAbilityStart.", __func__);
+            auto option = GetWindowOption(want);
+            abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option);
             abilityWindow_->OnPostAbilityStart();
             auto window = abilityWindow_->GetWindow();
             if (window) {
@@ -819,29 +819,6 @@ void Ability::SetUIContent(
  */
 void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag)
 {}
-
-/**
- * @brief Inflates UI controls by using WindowOption.
- *
- * @param windowOption Indicates the window option defined by the user.
- */
-void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option)
-{
-    if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability::InitWindow abilityWindow_ is nullptr");
-        return;
-    }
-    bool useNewMission = AbilityImpl::IsUseNewMission();
-    HILOG_INFO("%{public}s beign abilityWindow_->InitWindow.", __func__);
-    if (useNewMission) {
-        abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option);
-    } else {
-        std::shared_ptr<AbilityRuntime::AbilityContext> context = nullptr;
-        sptr<Rosen::IWindowLifeCycle> listener = nullptr;
-        abilityWindow_->InitWindow(winType, context, listener, displayId, option);
-    }
-    HILOG_INFO("%{public}s end abilityWindow_->InitWindow.", __func__);
-}
 
 /**
  * @brief Get the window belong to the ability.
@@ -3511,6 +3488,9 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
     HILOG_INFO("Ability::GetWindowOption window mode is %{public}d.", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
+    if (showOnLockScreen_) {
+        option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
+    }
 
     if (want.GetElement().GetBundleName() == LAUNCHER_BUNDLE_NAME &&
         want.GetElement().GetAbilityName() == LAUNCHER_ABILITY_NAME) {
