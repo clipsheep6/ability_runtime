@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-static bool g_isMissionFlagSetted = false;
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
 
