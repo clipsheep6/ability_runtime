@@ -78,11 +78,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
             return HandleCallbackTimeOut(connectCaller, want, connectReceiver, abilityConnection, connectCallback);
         }
     } else {
-        abilityConnection = new (std::nothrow) AbilityConnection(connectCallback);
-        if (abilityConnection == nullptr) {
-            HILOG_ERROR("%{public}s end, abilityConnection create failed.", __func__);
-            return ERR_INVALID_VALUE;
-        }
+        abilityConnection = new AbilityConnection(connectCallback);
         ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(
             want, abilityConnection, connectCaller, accountId);
         if (ret == ERR_OK) {
