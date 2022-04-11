@@ -1812,10 +1812,8 @@ napi_value NAPI_SetWakeUpScreen(napi_env env, napi_callback_info info)
     setWakeUpScreenCB->cbBase.abilityType = AbilityType::PAGE;
     napi_value ret = SetWakeUpScreenWrap(env, info, setWakeUpScreenCB);
     if (ret == nullptr) {
-        if (setWakeUpScreenCB != nullptr) {
-            delete setWakeUpScreenCB;
-            setWakeUpScreenCB = nullptr;
-        }
+        delete setWakeUpScreenCB;
+        setWakeUpScreenCB = nullptr;
         HILOG_ERROR("%{public}s, setWakeUpScreenCB run failed, delete resource", __func__);
         ret = WrapVoidToJS(env);
     }
