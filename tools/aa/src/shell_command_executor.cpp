@@ -44,10 +44,11 @@ ShellCommandResult ShellCommandExecutor::WaitWorkDone()
     std::unique_lock<std::mutex> workLock(mtxWork_);
     syncLock.unlock();
 
-    while (timeoutSec_ <= 0) {
-        cvWork_.wait(workLock);
-    }
-    if (cvWork_.wait_for(workLock, timeoutSec_ * 1s) == std::cv_status::timeout) {
+    if (timeoutSec_ <= 0) {
+        while (timeoutSec_ <= 0) {
+            cvWork_.wait(workLock);
+        }
+    } else if (cvWork_.wait_for(workLock, timeoutSec_ * 1s) == std::cv_status::timeout) {
         HILOG_WARN("Command execution timed out! cmd : \"%{public}s\", timeoutSec : %{public}" PRId64,
             cmd_.data(), timeoutSec_);
         std::cout << "Warning! Command execution timed out! cmd : " << cmd_ << ", timeoutSec : " << timeoutSec_
