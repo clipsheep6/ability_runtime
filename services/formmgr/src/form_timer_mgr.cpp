@@ -28,7 +28,9 @@
 #include "form_timer_option.h"
 #include "form_util.h"
 #include "hilog_wrapper.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "want.h"
 
 namespace OHOS {
@@ -38,6 +40,9 @@ const int REQUEST_LIMITER_CODE = 2;
 const int REQUEST_DYNAMIC_CODE = 3;
 const int SHIFT_BIT_LENGTH = 32;
 const std::string FMS_TIME_SPEED = "fms.time_speed";
+#ifndef HAS_OS_ACCOUNT_PART
+const int DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 
 FormTimerMgr::FormTimerMgr()
 {
@@ -1326,7 +1331,12 @@ void FormTimerMgr::TimerReceiver::OnReceiveEvent(const EventFwk::CommonEventData
 bool FormTimerMgr::IsActiveUser(const int32_t userId)
 {
     std::vector<int32_t> activeList;
+#ifdef HAS_OS_ACCOUNT_PART
     auto refCode = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeList);
+#else // HAS_OS_ACCOUNT_PART
+    ErrCode refCode = ERR_OK;
+    activeList.push_back(DEFAULT_OS_ACCOUNT_ID);
+#endif // HAS_OS_ACCOUNT_PART
     auto iter = std::find(activeList.begin(), activeList.end(), userId);
     if (iter != activeList.end() && refCode == ERR_OK) {
         return true;
