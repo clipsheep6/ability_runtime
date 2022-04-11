@@ -86,6 +86,10 @@ FormMgrStub::FormMgrStub()
         &FormMgrStub::HandleGetFormsInfoByApp;
     memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_GET_FORMS_INFO_BY_MODULE)] =
         &FormMgrStub::HandleGetFormsInfoByModule;
+    memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_ROUTER_EVENT)] =
+        &FormMgrStub::HandleRouterEvent;
+    memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_UPDATE_ROUTER_ACTION)] =
+        &FormMgrStub::HandleUpdateRouterAction;
 }
 
 FormMgrStub::~FormMgrStub()
@@ -424,6 +428,22 @@ int32_t FormMgrStub::HandleMessageEvent(MessageParcel &data, MessageParcel &repl
 }
 
 /**
+ * @brief Handle RouterEvent message.
+ * @param data input param.
+ * @param reply output param.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int32_t FormMgrStub::HandleRouterEvent(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    int64_t formId = data.ReadInt64();
+
+    int32_t result = RouterEvent(formId);
+    reply.WriteInt32(result);
+    return result;
+}
+
+/**
  * @brief Handle BatchAddFormRecords message.
  * @param data input param.
  * @param reply output param.
@@ -626,6 +646,25 @@ int32_t FormMgrStub::HandleGetFormsInfoByModule(MessageParcel &data, MessageParc
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
+    return result;
+}
+
+int32_t FormMgrStub::HandleUpdateRouterAction(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    int64_t formId = data.ReadInt64();
+    std::string action = data.ReadString();
+    std::vector<FormInfo> infos;
+    int32_t result = UpdateRouterAction(formId, action);
+    if (result != ERR_OK) {
+        HILOG_ERROR("%{public}s, failed to write result", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    if (!reply.WriteString(action)) {
+        HILOG_ERROR("%{public}s, failed to write action", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
     return result;
 }
 

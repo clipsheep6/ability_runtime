@@ -144,6 +144,14 @@ private:
     int32_t HandleMessageEvent(MessageParcel &data, MessageParcel &reply);
 
     /**
+     * @brief Handle HandleRouterEvent message.
+     * @param data input param.
+     * @param reply output param.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t HandleRouterEvent(MessageParcel &data, MessageParcel &reply);
+
+    /**
      * @brief Handle BatchAddFormRecords message.
      * @param data input param.
      * @param reply output param.
@@ -206,6 +214,14 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t HandleGetFormsInfoByModule(MessageParcel &data, MessageParcel &reply);
+
+    /**
+     * @brief Update action string for router event.
+     * @param formId Indicates the unique id of form.
+     * @param action Indicates the origin action string.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t HandleUpdateRouterAction(MessageParcel &data, MessageParcel &reply);
 private:
     using FormMgrFunc = int32_t (FormMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, FormMgrFunc> memberFuncMap_;

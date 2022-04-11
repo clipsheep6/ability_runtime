@@ -156,6 +156,13 @@ public:
     virtual int MessageEvent(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken) = 0;
 
     /**
+     * @brief Process js router event.
+     * @param formId Indicates the unique id of form.
+     * @return Returns true if execute success, false otherwise.
+     */
+    virtual int RouterEvent(const int64_t formId) = 0;
+
+    /**
      * @brief Batch add forms to form records for st limit value test.
      * @param want The want of the form to add.
      * @return Returns ERR_OK on success, others on failure.
@@ -226,6 +233,14 @@ public:
     virtual int GetFormsInfoByModule(std::string &bundleName, std::string &moduleName,
                                      std::vector<FormInfo> &formInfos) = 0;
 
+    /**
+     * @brief Update action string for router event.
+     * @param formId Indicates the unique id of form.
+     * @param action Indicates the origin action string.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int UpdateRouterAction(const int64_t formId, std::string &action) = 0;
+
     enum class Message {
         // ipc id 1-1000 for kit
         // ipc id 1001-2000 for DMS
@@ -258,6 +273,8 @@ public:
         FORM_MGR_GET_ALL_FORMS_INFO,
         FORM_MGR_GET_FORMS_INFO_BY_APP,
         FORM_MGR_GET_FORMS_INFO_BY_MODULE,
+        FORM_MGR_ROUTER_EVENT,
+        FORM_MGR_UPDATE_ROUTER_ACTION
     };
 };
 }  // namespace AppExecFwk

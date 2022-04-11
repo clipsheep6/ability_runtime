@@ -309,6 +309,22 @@ int FormMgrService::MessageEvent(const int64_t formId, const Want &want, const s
 }
 
 /**
+ * @brief Process js router event.
+ * @param formId Indicates the unique id of form.
+ * @return Returns true if execute success, false otherwise.
+ */
+int FormMgrService::RouterEvent(const int64_t formId)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    ErrCode ret = CheckFormPermission();
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s fail, request form permission denied", __func__);
+        return ret;
+    }
+    return FormMgrAdapter::GetInstance().RouterEvent(formId);
+}
+
+/**
  * @brief Batch add forms to form records for st limit value test.
  * @param want The want of the form to add.
  * @return Returns forms count to add.
@@ -531,6 +547,18 @@ int FormMgrService::GetFormsInfoByModule(std::string &bundleName, std::string &m
 {
     HILOG_INFO("%{public}s called.", __func__);
     return FormMgrAdapter::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);
+}
+
+/**
+ * @brief Update action string for router event.
+ * @param formId Indicates the unique id of form.
+ * @param action Indicates the origin action string.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::UpdateRouterAction(const int64_t formId, std::string &action)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    return FormMgrAdapter::GetInstance().UpdateRouterAction(formId, action);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

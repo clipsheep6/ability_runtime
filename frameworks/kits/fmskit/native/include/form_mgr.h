@@ -154,6 +154,13 @@ public:
     int MessageEvent(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken);
 
     /**
+     * @brief Process js router event.
+     * @param formId Indicates the unique id of form.
+     * @return Returns true if execute success, false otherwise.
+     */
+    int RouterEvent(const int64_t formId);
+
+    /**
      * @brief Get fms recoverStatus.
      *
      * @return The current recover status.
@@ -283,6 +290,13 @@ public:
      */
     int GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos);
 
+    /**
+     * @brief Update action string for router event.
+     * @param formId Indicates the unique id of form.
+     * @param action Indicates the origin action string.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int UpdateRouterAction(const int64_t formId, std::string &action);
 private:
     /**
      * @brief Connect form manager service.
