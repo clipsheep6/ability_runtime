@@ -40,6 +40,7 @@ config("want_public_config") {
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
+  configs = [ "//third_party/json:third_party_json_config" ]
 }
 
 wantImpl = "${kits_path}/content/cpp/src/ohos/aafwk/content"
@@ -63,6 +64,10 @@ ohos_shared_library("want") {
     "${innerkits_path}/uri:zuri",
     "//third_party/jsoncpp:jsoncpp",
   ]
+
+  public_deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

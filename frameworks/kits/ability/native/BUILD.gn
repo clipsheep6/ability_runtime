@@ -77,7 +77,6 @@ config("ability_public_config") {
     "${innerkits_path}/ability_manager/include/continuation",
     "//base/global/resmgr_standard/interfaces/innerkits/include",
     "//third_party/jsoncpp/include",
-    "//third_party/json/include",
   ]
 
   if (ability_runtime_graphics) {
@@ -273,7 +272,10 @@ ohos_shared_library("abilitykit_native") {
     "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//foundation/ace/napi:ace_napi",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   if (ability_runtime_graphics) {
     include_dirs += []
@@ -322,7 +324,9 @@ ohos_shared_library("dummy_classes") {
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
 
-  deps = []
+  deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:want",
@@ -343,7 +347,12 @@ ohos_shared_library("service_extension_module") {
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
 
-  deps = [ ":abilitykit_native" ]
+  deps = [
+    ":abilitykit_native",
+    "//third_party/json:nlohmann_json_static",
+  ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:want",
@@ -365,7 +374,12 @@ ohos_shared_library("datashare_ext_ability_module") {
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
 
-  deps = [ ":abilitykit_native" ]
+  deps = [
+    ":abilitykit_native",
+    "//third_party/json:nlohmann_json_static",
+  ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:want",

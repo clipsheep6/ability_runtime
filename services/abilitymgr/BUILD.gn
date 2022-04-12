@@ -76,6 +76,7 @@ config("abilityms_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
+  configs = [ "//third_party/json:third_party_json_config" ]
 }
 
 ohos_shared_library("abilityms") {
@@ -88,7 +89,10 @@ ohos_shared_library("abilityms") {
     "${kits_path}/ability/native:dummy_classes",
     "${services_path}/common:perm_verification",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:base",

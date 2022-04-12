@@ -25,7 +25,6 @@ ohos_unittest("FmsFormDataMgrTest") {
   ]
 
   include_dirs = [
-    "//third_party/json/include",
     "//foundation/appexecfwk/standard/common/log/include/",
     "//foundation/aafwk/standard/services/formmgr/include",
 
@@ -59,8 +58,11 @@ ohos_unittest("FmsFormDataMgrTest") {
     "//foundation/aafwk/standard/interfaces/innerkits/want:want",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_core",

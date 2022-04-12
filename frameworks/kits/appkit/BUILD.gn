@@ -21,10 +21,7 @@ config("appkit_config") {
     "AMS_LOG_DOMAIN = 0xD001150",
   ]
 
-  include_dirs = [
-    "${aafwk_path}/frameworks/kits/ability/native/include",
-    "//third_party/json/include",
-  ]
+  include_dirs = [ "${aafwk_path}/frameworks/kits/ability/native/include" ]
 }
 
 config("appkit_public_config") {
@@ -62,7 +59,10 @@ ohos_executable("appexec") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:base",
@@ -129,7 +129,10 @@ ohos_shared_library("appkit_native") {
     "${aafwk_path}/common/task_dispatcher:task_dispatcher",
     "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   public_deps =
       [ "//base/global/resmgr_standard/frameworks/resmgr:global_resmgr" ]
@@ -191,7 +194,10 @@ ohos_shared_library("app_context") {
     # "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/common/task_dispatcher:task_dispatcher",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   public_deps = [
     "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits",
@@ -259,7 +265,12 @@ ohos_shared_library("appkit_delegator") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
 
-  deps = [ "${aafwk_path}/frameworks/kits/appkit:app_context" ]
+  deps = [
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
+    "//third_party/json:nlohmann_json_static",
+  ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:want",

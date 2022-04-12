@@ -25,7 +25,6 @@ ohos_unittest("FmsFormSetNextRefreshTest") {
   ]
 
   include_dirs = [
-    "//third_party/json/include",
     "//foundation/appexecfwk/standard/common/log/include/",
     "//foundation/aafwk/standard/services/formmgr/include",
     "//foundation/appexecfwk/standard/services/bundlemgr/include",
@@ -70,8 +69,11 @@ ohos_unittest("FmsFormSetNextRefreshTest") {
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "appspawn:appspawn_socket_client",

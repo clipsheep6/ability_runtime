@@ -24,7 +24,6 @@ config("module_private_config") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   include_dirs = [
-    "//third_party/json/include",
     "//utils/native/base/include",
     "//sdk/appexecfwk_L2/appexecfwk_base/include",
     "//foundation/aafwk/standard/interfaces/innerkits/ability_manager/include",
@@ -95,9 +94,12 @@ ohos_moduletest("ability_moduletest") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_core",
@@ -156,9 +158,12 @@ ohos_moduletest("ability_conetxt_test") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:configuration",
@@ -196,7 +201,10 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [ "ability_runtime:runtime" ]
 }
@@ -253,9 +261,12 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:configuration",
@@ -305,7 +316,10 @@ ohos_moduletest("data_ability_helper_module_test") {
     "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
