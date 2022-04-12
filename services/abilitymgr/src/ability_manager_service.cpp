@@ -2205,6 +2205,7 @@ bool AbilityManagerService::StartingLauncherAbility(bool isBoot)
     /* First stage, hardcoding for the first launcher App */
     auto userId = GetUserId();
     Want want;
+    want.AddEntity(Want::FLAG_HOME_INTENT_FROM_SYSTEM);
     want.SetElementName(AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME);
     HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
     int attemptNums = 0;
