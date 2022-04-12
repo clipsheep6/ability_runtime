@@ -68,7 +68,6 @@ napi_value FeatureAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disconnectAbility", NAPI_FADisConnectAbility),
         DECLARE_NAPI_FUNCTION("continueAbility", NAPI_FAContinueAbility),
         DECLARE_NAPI_FUNCTION("getWantSync", NAPI_GetWantSync),
-        DECLARE_NAPI_FUNCTION("setWakeUpScreen", NAPI_SetWakeUpScreen),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
 

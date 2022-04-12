@@ -78,10 +78,9 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
     if (showOnLockScreenCB->cbBase.ability == nullptr) {
         HILOG_ERROR("%{public}s, input param is nullptr", __func__);
         showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
-        return;
+    } else {
+        showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
     }
-
-    showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
 
     napi_value callback = nullptr, undefined = nullptr, callResult = nullptr;
     napi_value result[ARGS_TWO] = {nullptr};
@@ -101,13 +100,22 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
     HILOG_INFO("%{public}s,called end", __func__);
 }
 
-static napi_value SetShowOnLockScreenAsync(napi_env env, ShowOnLockScreenCB *showOnLockScreenCB)
+static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowOnLockScreenCB *showOnLockScreenCB)
 {
     HILOG_INFO("%{public}s,called", __func__);
     if (showOnLockScreenCB == nullptr) {
         HILOG_ERROR("%{public}s, input param is nullptr", __func__);
         return nullptr;
     }
+
+    napi_valuetype valuetypeParam1 = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetypeParam1));
+    if (valuetypeParam1 != napi_function) {
+        HILOG_ERROR("%{public}s error, params is error type", __func__);
+        return nullptr;
+    }
+
+    NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &showOnLockScreenCB->cbBase.cbInfo.callback));
 
     napi_value resourceName = nullptr;
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
@@ -124,6 +132,55 @@ static napi_value SetShowOnLockScreenAsync(napi_env env, ShowOnLockScreenCB *sho
     HILOG_INFO("%{public}s,called end", __func__);
     return result;
 }
+
+napi_value SetShowOnLockScreenPromise(napi_env env, ShowOnLockScreenCB *cbData)
+{
+    HILOG_INFO("%{public}s, promise.", __func__);
+    if (cbData == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+
+    napi_deferred deferred;
+    napi_value promise = 0;
+    napi_create_promise(env, &deferred, &promise);
+    cbData->cbBase.deferred = deferred;
+
+    napi_create_async_work(
+        env,
+        nullptr,
+        resourceName,
+        [](napi_env env, void *data) { HILOG_INFO("SetShowOnLockScreenPromise, worker pool thread execute."); },
+        [](napi_env env, napi_status status, void *data) {
+            ShowOnLockScreenCB *showOnLockScreenCB = static_cast<ShowOnLockScreenCB *>(data);
+            showOnLockScreenCB->cbBase.errCode = NO_ERROR;
+            if (showOnLockScreenCB->cbBase.ability == nullptr) {
+                HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+                showOnLockScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
+            } else {
+                showOnLockScreenCB->cbBase.ability->SetShowOnLockScreen(showOnLockScreenCB->isShow);
+            }
+
+            napi_value result = GetCallbackErrorValue(env, showOnLockScreenCB->cbBase.errCode);
+            if (showOnLockScreenCB->cbBase.errCode == NO_ERROR) {
+                napi_resolve_deferred(env, showOnLockScreenCB->cbBase.deferred, result);
+            } else {
+                napi_reject_deferred(env, showOnLockScreenCB->cbBase.deferred, result);
+            }
+
+            napi_delete_async_work(env, showOnLockScreenCB->cbBase.asyncWork);
+            delete showOnLockScreenCB;
+            showOnLockScreenCB = nullptr;
+            HILOG_INFO("SetShowOnLockScreenPromise, main event thread complete end.");
+        },
+        (void *)cbData,
+        &cbData->cbBase.asyncWork);
+    napi_queue_async_work(env, cbData->cbBase.asyncWork);
+    HILOG_INFO("%{public}s, promise end.", __func__);
+    return promise;
+}
 #endif
 
 
@@ -132,19 +189,19 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
 #ifdef SUPPORT_GRAPHICS
     HILOG_INFO("%{public}s called", __func__);
 
-    size_t argc = 2, argcNum = 2;
+    size_t argc = 2;
+    const size_t argcAsync = 2, argcPromise = 1;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    if (argc != argcNum) {
+    if (argc != argcAsync && argc != argcPromise) {
         HILOG_ERROR("%{public}s error, wrong argument count.", __func__);
         return nullptr;
     }
 
-    napi_valuetype valuetypeParam0, valuetypeParam1 = napi_undefined;
+    napi_valuetype valuetypeParam0 = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetypeParam0));
-    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetypeParam1));
-    if (valuetypeParam0 != napi_boolean || valuetypeParam1 != napi_function) {
+    if (valuetypeParam0 != napi_boolean) {
         HILOG_ERROR("%{public}s error, params is error type", __func__);
         return nullptr;
     }
@@ -158,10 +215,15 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
         showOnLockScreenCB = nullptr;
         return nullptr;
     }
-    NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &showOnLockScreenCB->cbBase.cbInfo.callback));
 
     showOnLockScreenCB->cbBase.ability = GetJSAbilityObject(env);
-    napi_value ret = SetShowOnLockScreenAsync(env, showOnLockScreenCB);
+    napi_value ret = nullptr;
+    if (argc == argcAsync) {
+        ret = SetShowOnLockScreenAsync(env, args, showOnLockScreenCB);
+    } else {
+        ret = SetShowOnLockScreenPromise(env, showOnLockScreenCB);
+    }
+
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, SetShowOnLockScreenWrap failed.", __func__);
         delete showOnLockScreenCB;
@@ -2444,6 +2506,7 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getAbilityInfo", NAPI_GetCtxAbilityInfo),
         DECLARE_NAPI_FUNCTION("setShowOnLockScreen", NAPI_SetShowOnLockScreen),
         DECLARE_NAPI_FUNCTION("getOrCreateDistributedDir", NAPI_GetOrCreateDistributedDir),
+        DECLARE_NAPI_FUNCTION("setWakeUpScreen", NAPI_SetWakeUpScreen),
     };
 
     NAPI_CALL(env,
@@ -2457,6 +2520,205 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
             GetGlobalClassContext()));
 
     return exports;
+}
+
+#ifdef SUPPORT_GRAPHICS
+static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, void *data)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    SetWakeUpScreenCB *setWakeUpScreenCB = static_cast<SetWakeUpScreenCB *>(data);
+    if (setWakeUpScreenCB == nullptr) {
+        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        return;
+    }
+
+    do {
+        setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
+        if (setWakeUpScreenCB->cbBase.ability == nullptr) {
+            HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+            setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
+            break;
+        }
+
+        setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
+    } while (false);
+
+    napi_value callback = nullptr;
+    napi_value undefined = nullptr;
+    napi_value callResult = nullptr;
+    napi_value result[ARGS_TWO] = {nullptr};
+    napi_get_undefined(env, &undefined);
+    result[PARAM0] = GetCallbackErrorValue(env, setWakeUpScreenCB->cbBase.errCode);
+    napi_get_null(env, &result[PARAM1]);
+    napi_get_reference_value(env, setWakeUpScreenCB->cbBase.cbInfo.callback, &callback);
+    napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+
+    if (setWakeUpScreenCB->cbBase.cbInfo.callback != nullptr) {
+        napi_delete_reference(env, setWakeUpScreenCB->cbBase.cbInfo.callback);
+    }
+    napi_delete_async_work(env, setWakeUpScreenCB->cbBase.asyncWork);
+    delete setWakeUpScreenCB;
+    setWakeUpScreenCB = nullptr;
+
+    HILOG_INFO("%{public}s,called end", __func__);
+}
+
+static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUpScreenCB *cbData)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    if (cbData == nullptr || args == nullptr) {
+        HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+        return nullptr;
+    }
+
+    napi_valuetype valuetypeParam0 = napi_undefined;
+    napi_valuetype valuetypeParam1 = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, args[PARAM0], &valuetypeParam0));
+    NAPI_CALL(env, napi_typeof(env, args[PARAM1], &valuetypeParam1));
+    if (valuetypeParam0 != napi_boolean || valuetypeParam1 != napi_function) {
+        HILOG_ERROR("%{public}s, Params is error type", __func__);
+        return nullptr;
+    }
+    NAPI_CALL(env, napi_create_reference(env, args[PARAM1], 1, &cbData->cbBase.cbInfo.callback));
+
+    napi_value resourceName = nullptr;
+    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
+
+    NAPI_CALL(env,
+        napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            [](napi_env env, void *data) { HILOG_INFO("NAPI_SetWakeUpScreenScreen, worker pool thread execute."); },
+            SetWakeUpScreenAsyncCompleteCB,
+            (void *)cbData,
+            &cbData->cbBase.asyncWork));
+    NAPI_CALL(env, napi_queue_async_work(env, cbData->cbBase.asyncWork));
+    napi_value result = nullptr;
+    NAPI_CALL(env, napi_get_null(env, &result));
+
+    HILOG_INFO("%{public}s,called end", __func__);
+    return result;
+}
+
+napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
+{
+    HILOG_INFO("%{public}s, promise.", __func__);
+    if (cbData == nullptr) {
+        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        return nullptr;
+    }
+    napi_value resourceName = 0;
+    napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+    napi_deferred deferred;
+    napi_value promise = 0;
+    napi_create_promise(env, &deferred, &promise);
+    cbData->cbBase.deferred = deferred;
+
+    napi_create_async_work(
+        env,
+        nullptr,
+        resourceName,
+        [](napi_env env, void *data) { HILOG_INFO("NAPI_SetWakeUpScreenScreen, worker pool thread execute."); },
+        [](napi_env env, napi_status status, void *data) {
+            HILOG_INFO("SetWakeUpScreenPromise, main event thread complete.");
+            SetWakeUpScreenCB *setWakeUpScreenCB = static_cast<SetWakeUpScreenCB *>(data);
+            setWakeUpScreenCB->cbBase.errCode = NO_ERROR;
+            if (setWakeUpScreenCB->cbBase.ability == nullptr) {
+                HILOG_ERROR("%{public}s, input param is nullptr", __func__);
+                setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
+            }
+
+            setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
+            napi_value result = GetCallbackErrorValue(env, setWakeUpScreenCB->cbBase.errCode);
+            if (setWakeUpScreenCB->cbBase.errCode == NO_ERROR) {
+                napi_resolve_deferred(env, setWakeUpScreenCB->cbBase.deferred, result);
+            } else {
+                napi_reject_deferred(env, setWakeUpScreenCB->cbBase.deferred, result);
+            }
+
+            napi_delete_async_work(env, setWakeUpScreenCB->cbBase.asyncWork);
+            delete setWakeUpScreenCB;
+            setWakeUpScreenCB = nullptr;
+            HILOG_INFO("SetWakeUpScreenPromise, main event thread complete end.");
+        },
+        (void *)cbData,
+        &cbData->cbBase.asyncWork);
+    napi_queue_async_work(env, cbData->cbBase.asyncWork);
+    HILOG_INFO("%{public}s, promise end.", __func__);
+    return promise;
+}
+
+static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, SetWakeUpScreenCB *cbData)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    if (cbData == nullptr) {
+        HILOG_ERROR("%{public}s, input param cbData is nullptr", __func__);
+        return nullptr;
+    }
+
+    size_t argcAsync = 2;
+    const size_t argStdValue = 2;
+    const size_t argPromise = 1;
+    napi_value args[ARGS_MAX_COUNT] = {nullptr};
+
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
+    if (argcAsync != argStdValue && argcAsync != argPromise) {
+        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        return nullptr;
+    }
+
+    if (!UnwrapBoolFromJS2(env, args[PARAM0], cbData->wakeUp)) {
+        HILOG_ERROR("%{public}s, UnwrapBoolFromJS2(wakeUp) run error", __func__);
+        return nullptr;
+    }
+
+    napi_value global = nullptr;
+    NAPI_CALL(env, napi_get_global(env, &global));
+
+    napi_value abilityObj = nullptr;
+    NAPI_CALL(env, napi_get_named_property(env, global, "ability", &abilityObj));
+
+    Ability *ability = nullptr;
+    NAPI_CALL(env, napi_get_value_external(env, abilityObj, (void **)&ability));
+
+    cbData->cbBase.ability = ability;
+    napi_value ret = nullptr;
+    if (argcAsync == argStdValue) {
+        ret = SetWakeUpScreenAsync(env, args, cbData);
+    } else {
+        ret = SetWakeUpScreenPromise(env, cbData);
+    }
+    HILOG_INFO("%{public}s,called end", __func__);
+    return ret;
+}
+#endif
+
+napi_value NAPI_SetWakeUpScreen(napi_env env, napi_callback_info info)
+{
+#ifdef SUPPORT_GRAPHICS
+    HILOG_INFO("%{public}s,called", __func__);
+    SetWakeUpScreenCB *setWakeUpScreenCB = new (std::nothrow) SetWakeUpScreenCB;
+    if (setWakeUpScreenCB == nullptr) {
+        HILOG_ERROR("%{public}s, SetWakeUpScreenCB new failed", __func__);
+        return WrapVoidToJS(env);
+    }
+    setWakeUpScreenCB->cbBase.cbInfo.env = env;
+    setWakeUpScreenCB->cbBase.abilityType = AbilityType::PAGE;
+    napi_value ret = SetWakeUpScreenWrap(env, info, setWakeUpScreenCB);
+    if (ret == nullptr) {
+        if (setWakeUpScreenCB != nullptr) {
+            delete setWakeUpScreenCB;
+            setWakeUpScreenCB = nullptr;
+        }
+        HILOG_ERROR("%{public}s, setWakeUpScreenCB run failed, delete resource", __func__);
+        ret = WrapVoidToJS(env);
+    }
+    HILOG_INFO("%{public}s,called end", __func__);
+    return ret;
+#else
+   return nullptr;
+#endif
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
