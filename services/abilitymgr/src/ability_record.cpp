@@ -206,6 +206,8 @@ bool AbilityRecord::CanRestartRootLauncher()
 
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
+    uint64_t label = BYTRACE_TAG_OHOS;
+    StartTrace(label, "foreground ability");
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ForegroundAbility.");
     CHECK_POINTER(lifecycleDeal_);
@@ -228,6 +230,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
+    FinishTrace(label);
 }
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
