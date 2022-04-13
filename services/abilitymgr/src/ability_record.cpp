@@ -28,6 +28,7 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager.h"
 #include "uri_permission_manager_client.h"
+#include "hisysevent.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -233,7 +234,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
-    std::string msgContent = "foreground ability"
+    std::string msgContent = "foreground ability";
     std::string eventType = "FOREGROUND";
     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
