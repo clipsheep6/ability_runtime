@@ -100,9 +100,13 @@ static void SetShowOnLockScreenAsyncCompleteCB(napi_env env, napi_status status,
     HILOG_INFO("%{public}s,called end", __func__);
 }
 
-static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, ShowOnLockScreenCB *showOnLockScreenCB)
+static napi_value SetShowOnLockScreenAsync(napi_env env, napi_value *args, int argsSize, ShowOnLockScreenCB *showOnLockScreenCB)
 {
     HILOG_INFO("%{public}s,called", __func__);
+    if (PARAM1 >= argsSize) {
+        HILOG_ERROR("%{public}s, args index exceeds argsSize", __func__);
+        return nullptr;
+    }
     if (showOnLockScreenCB == nullptr) {
         HILOG_ERROR("%{public}s, input param is nullptr", __func__);
         return nullptr;
@@ -219,7 +223,7 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
     showOnLockScreenCB->cbBase.ability = GetJSAbilityObject(env);
     napi_value ret = nullptr;
     if (argc == argcAsync) {
-        ret = SetShowOnLockScreenAsync(env, args, showOnLockScreenCB);
+        ret = SetShowOnLockScreenAsync(env, args, ARGS_MAX_COUNT, showOnLockScreenCB);
     } else {
         ret = SetShowOnLockScreenPromise(env, showOnLockScreenCB);
     }
@@ -2664,9 +2668,13 @@ static void SetWakeUpScreenAsyncCompleteCB(napi_env env, napi_status status, voi
     HILOG_INFO("%{public}s,called end", __func__);
 }
 
-static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, SetWakeUpScreenCB *cbData)
+static napi_value SetWakeUpScreenAsync(napi_env env, napi_value *args, int argsSize, SetWakeUpScreenCB *cbData)
 {
     HILOG_INFO("%{public}s,called", __func__);
+    if (PARAM0 >= argsSize || PARAM1 >= argsSize) {
+        HILOG_ERROR("%{public}s, args index exceeds argsSize", __func__);
+        return nullptr;
+    }
     if (cbData == nullptr || args == nullptr) {
         HILOG_ERROR("%{public}s, input param is nullptr", __func__);
         return nullptr;
@@ -2786,7 +2794,7 @@ static napi_value SetWakeUpScreenWrap(napi_env env, napi_callback_info info, Set
     cbData->cbBase.ability = ability;
     napi_value ret = nullptr;
     if (argcAsync == argStdValue) {
-        ret = SetWakeUpScreenAsync(env, args, cbData);
+        ret = SetWakeUpScreenAsync(env, args, ARGS_MAX_COUNT, cbData);
     } else {
         ret = SetWakeUpScreenPromise(env, cbData);
     }
