@@ -235,12 +235,12 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
     std::string msgContent = "foreground ability";
-    std::string eventType = "FOREGROUND";
+    std::string eventType = "FOREGROUND_ABILITY";
     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
         EVENT_KEY_MESSAGE, msgContent);
     
-    HILOG_WARN("LIFECYCLE_TIMEOUT: msg: %{public}s",
+    HILOG_WARN("FOREGROUND_ABILITY: msg: %{public}s",
         msgContent.c_str());
     FinishTrace(label);
 }
