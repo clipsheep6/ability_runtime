@@ -81,10 +81,6 @@ public:
     MOCK_METHOD2(GetLaunchWantForBundle, bool(const std::string &bundleName, Want &want));
     MOCK_METHOD2(CheckPublicKeys, int(const std::string &firstBundleName, const std::string &secondBundleName));
     MOCK_METHOD2(CheckPermission, int(const std::string &bundleName, const std::string &permission));
-    MOCK_METHOD2(GetPermissionDef, bool(const std::string &permissionName, PermissionDef &permissionDef));
-    MOCK_METHOD1(GetAllPermissionGroupDefs, bool(std::vector<PermissionDef> &permissionDefs));
-    MOCK_METHOD2(GetAppsGrantedPermissions,
-        bool(const std::vector<std::string> &permissions, std::vector<std::string> &appNames));
     MOCK_METHOD1(HasSystemCapability, bool(const std::string &capName));
     MOCK_METHOD1(GetSystemAvailableCapabilities, bool(std::vector<std::string> &systemCaps));
     MOCK_METHOD0(IsSafeMode, bool());
@@ -100,17 +96,6 @@ public:
     MOCK_METHOD0(GetBundleInstaller, sptr<IBundleInstaller>());
     MOCK_METHOD1(GetBundleInstaller, bool(const std::string &));
     MOCK_METHOD1(IsApplicationEnabled, bool(const std::string &));
-
-    virtual bool CanRequestPermission(
-        const std::string &bundleName, const std::string &permissionName, const int userId) override
-    {
-        return true;
-    }
-    virtual bool RequestPermissionFromUser(
-        const std::string &bundleName, const std::string &permission, const int userId) override
-    {
-        return true;
-    }
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));

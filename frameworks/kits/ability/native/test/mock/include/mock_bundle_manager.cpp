@@ -134,19 +134,6 @@ int BundleMgrProxy::CheckPermission(const std::string &bundleName, const std::st
 {
     return 0;
 }
-bool BundleMgrProxy::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
-{
-    return true;
-}
-bool BundleMgrProxy::GetAllPermissionGroupDefs(std::vector<PermissionDef> &permissionDefs)
-{
-    return true;
-}
-bool BundleMgrProxy::GetAppsGrantedPermissions(
-    const std::vector<std::string> &permissions, std::vector<std::string> &appNames)
-{
-    return true;
-}
 bool BundleMgrProxy::HasSystemCapability(const std::string &capName)
 {
     return true;
@@ -191,29 +178,6 @@ bool BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo)
 std::string BundleMgrProxy::GetAbilityIcon(const std::string &bundleName, const std::string &className)
 {
     return "";
-}
-bool BundleMgrProxy::CanRequestPermission(
-    const std::string &bundleName, const std::string &permissionName, const int userId)
-{
-    return true;
-}
-bool BundleMgrProxy::RequestPermissionFromUser(
-    const std::string &bundleName, const std::string &permission, const int userId)
-{
-    return true;
-}
-bool BundleMgrProxy::RegisterAllPermissionsChanged(const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
-}
-bool BundleMgrProxy::RegisterPermissionsChanged(
-    const std::vector<int> &uids, const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
-}
-bool BundleMgrProxy::UnregisterPermissionsChanged(const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
 }
 bool BundleMgrProxy::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
@@ -373,19 +337,6 @@ int BundleMgrService::CheckPermission(const std::string &bundleName, const std::
 {
     return 0;
 }
-bool BundleMgrService::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
-{
-    return true;
-}
-bool BundleMgrService::GetAllPermissionGroupDefs(std::vector<PermissionDef> &permissionDefs)
-{
-    return true;
-}
-bool BundleMgrService::GetAppsGrantedPermissions(
-    const std::vector<std::string> &permissions, std::vector<std::string> &appNames)
-{
-    return true;
-}
 bool BundleMgrService::HasSystemCapability(const std::string &capName)
 {
     return true;
@@ -430,29 +381,6 @@ bool BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo)
 std::string BundleMgrService::GetAbilityIcon(const std::string &bundleName, const std::string &className)
 {
     return "";
-}
-bool BundleMgrService::CanRequestPermission(
-    const std::string &bundleName, const std::string &permissionName, const int userId)
-{
-    return true;
-}
-bool BundleMgrService::RequestPermissionFromUser(
-    const std::string &bundleName, const std::string &permission, const int userId)
-{
-    return true;
-}
-bool BundleMgrService::RegisterAllPermissionsChanged(const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
-}
-bool BundleMgrService::RegisterPermissionsChanged(
-    const std::vector<int> &uids, const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
-}
-bool BundleMgrService::UnregisterPermissionsChanged(const sptr<OnPermissionChangedCallback> &callback)
-{
-    return true;
 }
 bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
