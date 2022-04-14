@@ -25,7 +25,9 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
@@ -52,6 +54,9 @@ const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+#ifndef HAS_OS_ACCOUNT_PART
+const int32_t DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -188,18 +193,28 @@ std::string ContextImpl::GetBaseDir() const
 int ContextImpl::GetCurrentAccountId() const
 {
     int userId = 0;
+#ifdef HAS_OS_ACCOUNT_PART
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
+#else // HAS_OS_ACCOUNT_PART
+    userId = DEFAULT_OS_ACCOUNT_ID;
+    HILOG_DEBUG("ContextImpl::GetCurrentAccountId do not have os account part, use default id.");
+#endif // HAS_OS_ACCOUNT_PART
     return userId;
 }
 
 int ContextImpl::GetCurrentActiveAccountId() const
 {
     std::vector<int> accountIds;
+#ifdef HAS_OS_ACCOUNT_PART
     ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(accountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error.");
         return 0;
     }
+#else // HAS_OS_ACCOUNT_PART
+    accountIds.push_back(DEFAULT_OS_ACCOUNT_ID);
+    HILOG_DEBUG("ContextImpl::GetCurrentActiveAccountId do not have os account part, use default id.");
+#endif // HAS_OS_ACCOUNT_PART
 
     if (accountIds.size() == 0) {
         HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no accounts.");

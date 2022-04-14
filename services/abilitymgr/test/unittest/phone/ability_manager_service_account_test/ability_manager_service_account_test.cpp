@@ -33,12 +33,16 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #include "os_account_info.h"
+#endif // HAS_OS_ACCOUNT_PART
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+#ifdef HAS_OS_ACCOUNT_PART
 using namespace OHOS::AccountSA;
+#endif // HAS_OS_ACCOUNT_PART
 namespace OHOS {
 namespace AAFwk {
 static void WaitUntilTaskFinished()
@@ -73,15 +77,21 @@ public:
     inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
     AbilityRequest abilityRequest_ {};
 };
+#ifdef HAS_OS_ACCOUNT_PART
 static OsAccountInfo osAccountInfo_ = OsAccountInfo();
-static int new_user_id_;
+static int32_t new_user_id_;
+#else // HAS_OS_ACCOUNT_PART
+static int32_t new_user_id_ = USER_ID_U100;
+#endif // HAS_OS_ACCOUNT_PART
 void AbilityManagerServiceAccountTest::SetUpTestCase()
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest SetUpTestCase called";
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+#ifdef HAS_OS_ACCOUNT_PART
     AccountSA::OsAccountManager::CreateOsAccount("testAccount", OsAccountType::NORMAL, osAccountInfo_);
     new_user_id_ = osAccountInfo_.GetLocalId();
+#endif // HAS_OS_ACCOUNT_PART
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     abilityMs_->OnStart();
     WaitUntilTaskFinished();
@@ -94,7 +104,9 @@ void AbilityManagerServiceAccountTest::TearDownTestCase()
     abilityMs_->OnStop();
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
     OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
+#ifdef HAS_OS_ACCOUNT_PART
     AccountSA::OsAccountManager::RemoveOsAccount(new_user_id_);
+#endif // HAS_OS_ACCOUNT_PART
 }
 
 void AbilityManagerServiceAccountTest::SetUp()

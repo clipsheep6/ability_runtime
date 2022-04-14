@@ -18,7 +18,9 @@
 #include "ability_manager_service.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
+#endif // HAS_OS_ACCOUNT_PART
 #include "task_data_persistence_mgr.h"
 
 namespace OHOS {
@@ -26,6 +28,9 @@ namespace AAFwk {
 using namespace OHOS::AppExecFwk;
 namespace {
 const int64_t USER_SWITCH_TIMEOUT = 3 * 1000; // 3s
+#ifndef HAS_OS_ACCOUNT_PART
+const int32_t DEFAULT_OS_ACCOUNT_ID = 100; // 100 is the default id when there is no os_account part
+#endif // HAS_OS_ACCOUNT_PART
 }
 
 UserItem::UserItem(int32_t id) : userId_(id)
@@ -215,7 +220,12 @@ bool UserController::IsCurrentUser(int32_t userId)
 bool UserController::IsExistOsAccount(int32_t userId)
 {
     bool isExist = false;
+#ifdef HAS_OS_ACCOUNT_PART
     auto errCode = AccountSA::OsAccountManager::IsOsAccountExists(userId, isExist);
+#else // HAS_OS_ACCOUNT_PART
+    int32_t errCode = 0;
+    isExist = (userId == DEFAULT_OS_ACCOUNT_ID);
+#endif // HAS_OS_ACCOUNT_PART
     return (errCode == 0) && isExist;
 }
 

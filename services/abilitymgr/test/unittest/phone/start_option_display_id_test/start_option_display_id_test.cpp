@@ -32,12 +32,16 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #include "os_account_info.h"
+#endif // HAS_OS_ACCOUNT_PART
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+#ifdef HAS_OS_ACCOUNT_PART
 using namespace OHOS::AccountSA;
+#endif // HAS_OS_ACCOUNT_PART
 namespace OHOS {
 namespace AAFwk {
 namespace {
