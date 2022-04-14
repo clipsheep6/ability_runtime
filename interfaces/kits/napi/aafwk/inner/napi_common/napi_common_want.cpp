@@ -676,7 +676,6 @@ bool InnerUnwrapWantParams(napi_env env, const std::string &key, napi_value para
             return true;
         }
     }
-       
     return false;
 }
 
