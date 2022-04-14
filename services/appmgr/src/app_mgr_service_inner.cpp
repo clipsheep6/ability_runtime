@@ -124,6 +124,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         HILOG_ERROR("CheckLoadabilityConditions failed");
         return;
     }
+    HILOG_INFO("AppMgrService start loading ability, name is %{public}s", abilityInfo->name.c_str());
 
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
@@ -139,7 +140,6 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     std::string processName;
     MakeProcessName(processName, abilityInfo, appInfo, hapModuleInfo);
-    HILOG_INFO("processName = [%{public}s]", processName.c_str());
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -216,7 +216,6 @@ void AppMgrServiceInner::MakeProcessName(
 bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo)
 {
-    HILOG_INFO("AppMgrServiceInner GetBundleAndHapInfo start!");
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
@@ -1164,11 +1163,11 @@ void AppMgrServiceInner::OnAbilityStateChanged(
 void AppMgrServiceInner::StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility)
 {
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-    HILOG_DEBUG("bundle:%{public}s, ability:%{public}s, state:%{public}d, pid:%{public}d,"
-        "uid:%{public}d, abilityType:%{public}d",
-        abilityStateData.bundleName.c_str(), abilityStateData.abilityName.c_str(),
-        abilityStateData.abilityState, abilityStateData.pid, abilityStateData.uid,
-        abilityStateData.abilityType);
+    HILOG_DEBUG("module:%{public}s, bundle:%{public}s, ability:%{public}s, state:%{public}d,"
+        "pid:%{public}d ,uid:%{public}d, abilityType:%{public}d",
+        abilityStateData.moduleName.c_str(), abilityStateData.bundleName.c_str(),
+        abilityStateData.abilityName.c_str(), abilityStateData.abilityState,
+        abilityStateData.pid, abilityStateData.uid, abilityStateData.abilityType);
     for (const auto &observer : appStateObservers_) {
         if (observer != nullptr) {
             if (isAbility) {
@@ -1276,7 +1275,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
-    HILOG_INFO("newPid:%{public}d uid:%{public}d", pid, startMsg.uid);
+    HILOG_INFO("Start process success, pid: %{public}d, processName: %{public}s", pid, processName.c_str());
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
     appRecord->SetStartMsg(startMsg);

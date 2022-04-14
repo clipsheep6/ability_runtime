@@ -298,10 +298,11 @@ ohos_shared_library("abilitykit_native") {
       "form_runtime:fmskit_native",
       "form_runtime:form_manager",
       "input:libmmi-client",
+      "multimedia_image_standard:image",
     ]
 
     public_deps += [
-      "//base/global/i18n_standard/frameworks/intl:intl_util",
+      "//base/global/i18n/frameworks/intl:intl_util",
       "//foundation/graphic/standard:libwmclient",
       "//foundation/multimedia/image_standard/interfaces/innerkits:image_native",
       "//foundation/windowmanager/dm:libdm",

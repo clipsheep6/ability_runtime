@@ -29,6 +29,7 @@ public:
     AbilityContextImpl() = default;
     virtual ~AbilityContextImpl() = default;
 
+    std::string GetBaseDir() const override;
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
@@ -89,6 +90,16 @@ public:
      * @return Returns ERR_OK if success.
      */
     ErrCode SetMissionLabel(const std::string &label) override;
+
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief Set mission icon of this ability.
+     *
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
+#endif
 
     void SetStageContext(const std::shared_ptr<AbilityRuntime::Context> &stageContext);
 

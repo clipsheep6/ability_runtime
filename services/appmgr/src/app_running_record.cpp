@@ -551,6 +551,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     }
     AbilityStateData abilityStateData;
     abilityStateData.bundleName = ability->GetAbilityInfo()->applicationInfo.bundleName;
+    abilityStateData.moduleName = ability->GetAbilityInfo()->moduleName;
     abilityStateData.abilityName = ability->GetName();
     abilityStateData.pid = GetPriorityObject()->GetPid();
     abilityStateData.abilityState = state;
@@ -775,7 +776,6 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
             moduleRecordList.push_back(list);
         }
     }
-    HILOG_INFO("GetAllModuleRecord size:%{public}zu", moduleRecordList.size());
     return moduleRecordList;
 }
 

@@ -131,11 +131,11 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DoAbilityForegroundInner;
     requestFuncMap_[DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DoAbilityBackgroundInner;
     requestFuncMap_[GET_MISSION_ID_BY_ABILITY_TOKEN] = &AbilityManagerStub::GetMissionIdByTokenInner;
+    requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("cmd = %{public}d, flags= %{public}d", code, option.GetFlags());
     std::u16string descriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -1017,6 +1017,33 @@ int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel 
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
+}
+
+int AbilityManagerStub::SetMissionIconInner(MessageParcel &data, MessageParcel &reply)
+{
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("SetMissionIconInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    std::shared_ptr<Media::PixelMap> icon(data.ReadParcelable<Media::PixelMap>());
+    if (!icon) {
+        HILOG_ERROR("SetMissionIconInner read icon failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int result = SetMissionIcon(token, icon);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("SetMissionIcon failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+#else
+    HILOG_ERROR("do not support SetMissionIcon.");
+    return ERR_INVALID_VALUE;
+#endif
 }
 
 int AbilityManagerStub::GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply)
