@@ -163,7 +163,7 @@ int32_t AbilityRecord::GetUid()
 int AbilityRecord::LoadAbility()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("start load ability, name is %{public}s", abilityInfo_.name.c_str());
+    HILOG_INFO("Start load ability, name is %{public}s.", abilityInfo_.name.c_str());
     startTime_ = AbilityUtil::SystemTimeMillis();
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
     std::string appName = applicationInfo_.name;
@@ -203,7 +203,7 @@ bool AbilityRecord::CanRestartRootLauncher()
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("ForegroundAbility.");
+    HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
@@ -249,7 +249,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
-    HILOG_INFO("Move to backgroundNew.");
+    HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
@@ -276,7 +276,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
 int AbilityRecord::TerminateAbility()
 {
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
 }
 
@@ -491,7 +491,7 @@ void AbilityRecord::MoveToBackground(const Closure &task)
 
 void AbilityRecord::Terminate(const Closure &task)
 {
-    HILOG_INFO("Terminate ability.");
+    HILOG_INFO("Begin to terminate ability, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
@@ -580,7 +580,7 @@ std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
 
 void AbilityRecord::SendResult()
 {
-    HILOG_INFO("Send result.");
+    HILOG_INFO("Send result to the caller, ability:%{public}s.", abilityInfo_.name.c_str());
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
@@ -1374,7 +1374,9 @@ bool AbilityRecord::Release(const sptr<IAbilityConnection> & connect)
 bool AbilityRecord::IsNeedToCallRequest() const
 {
     HILOG_DEBUG("ability release call record by callback.");
-    CHECK_POINTER_RETURN_BOOL(callContainer_);
+    if (callContainer_ == nullptr) {
+        return false;
+    }
 
     return callContainer_->IsNeedToCallRequest();
 }

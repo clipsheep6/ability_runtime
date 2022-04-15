@@ -330,7 +330,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetRecordId(appRecordId_);
     launchData.SetUId(mainUid_);
     launchData.SetUserTestInfo(userTestRecord_);
-    HILOG_INFO("ScheduleLaunchApplication app:%{public}s", GetName().c_str());
+    HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
 
@@ -721,7 +721,6 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
 void AppRunningRecord::PopForegroundingAbilityTokens()
 {
-    HILOG_INFO("size:%{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
     while (!foregroundingAbilityTokens_.empty()) {
         const auto &token = foregroundingAbilityTokens_.front();
         auto ability = GetAbilityRunningRecordByToken(token);
@@ -745,7 +744,6 @@ void AppRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const 
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true);
     moduleRecord->TerminateAbility(token, isForce);
-    HILOG_INFO("AppRunningRecord::TerminateAbility end");
 }
 
 void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)

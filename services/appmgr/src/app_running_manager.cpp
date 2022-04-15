@@ -124,7 +124,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByAbilit
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetAbilityRunningRecordByToken(abilityToken)) {
-            HILOG_INFO("appRecord is exit");
             return appRecord;
         }
     }
@@ -333,7 +332,6 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
 
 void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Prepare terminate.");
     if (token == nullptr) {
         HILOG_ERROR("token is nullptr.");
         return;
@@ -346,13 +344,13 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
 
     if (appRecord->IsLastAbilityRecord(token)) {
+        HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
 }
 
 void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Terminate ability.");
     if (!token) {
         HILOG_ERROR("token is nullptr.");
         return;
@@ -365,6 +363,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
     }
 
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+        HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
 

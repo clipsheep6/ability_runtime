@@ -200,20 +200,15 @@ bool Ability::PrintDrawnCompleted()
 }
 #endif
 
-/**
- * Will be called when ability start. You should override this function
- *
- * @param want ability start information
- */
 void Ability::OnStart(const Want &want)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
     if (abilityInfo_ == nullptr) {
         HILOG_ERROR("Ability::OnStart failed abilityInfo_ is nullptr.");
         return;
     }
 
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         Rosen::WindowType winType = Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW;
@@ -244,12 +239,8 @@ void Ability::OnStart(const Want &want)
 
         int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        HILOG_INFO("Ability::OnStart bundleName:%{public}s, abilityName:%{public}s, windowType:%{public}d, "
-            "displayId:%{public}d",
-            abilityInfo_->bundleName.c_str(),
-            abilityInfo_->name.c_str(),
-            winType,
-            displayId);
+        HILOG_INFO("abilityName:%{public}s, windowType:%{public}d, displayId:%{public}d",
+            abilityInfo_->name.c_str(), winType, displayId);
         auto option = GetWindowOption(want);
         InitWindow(winType, displayId, option);
 
@@ -318,7 +309,7 @@ void Ability::OnStart(const Want &want)
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 
 /**
@@ -330,7 +321,7 @@ void Ability::OnStart(const Want &want)
 void Ability::OnStop()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
@@ -342,7 +333,7 @@ void Ability::OnStop()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 
 /**
@@ -350,7 +341,7 @@ void Ability::OnStop()
  */
 void Ability::Destroy()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     // Release the scene.
     if (scene_ != nullptr) {
@@ -364,7 +355,7 @@ void Ability::Destroy()
         abilityWindow_->OnPostAbilityStop(); // Ability will been released when window destroy.
     }
 #endif
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 
 /**
@@ -378,12 +369,10 @@ void Ability::Destroy()
 void Ability::OnActive()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityWindow_ != nullptr) {
-        HILOG_INFO("%{public}s begin abilityWindow_->OnPostAbilityActive.", __func__);
         abilityWindow_->OnPostAbilityActive();
-        HILOG_INFO("%{public}s end abilityWindow_->OnPostAbilityActive.", __func__);
     }
     bWindowFocus_ = true;
 #endif
@@ -398,7 +387,7 @@ void Ability::OnActive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 
 /**
@@ -410,12 +399,10 @@ void Ability::OnActive()
 void Ability::OnInactive()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        HILOG_INFO("%{public}s begin abilityWindow_->OnPostAbilityInactive.", __func__);
         abilityWindow_->OnPostAbilityInactive();
-        HILOG_INFO("%{public}s end abilityWindow_->OnPostAbilityInactive.", __func__);
     }
     bWindowFocus_ = false;
 #endif
@@ -430,7 +417,7 @@ void Ability::OnInactive()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -567,9 +554,8 @@ void Ability::NotityContinuationResult(const Want& want, bool success)
 void Ability::OnBackground()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        HILOG_INFO("%{public}s begin OnPostAbilityBackground.", __func__);
         if (abilityInfo_->isStageBasedModel) {
             if (scene_ == nullptr) {
                 HILOG_ERROR("Ability::OnBackground error. scene_ == nullptr.");
@@ -585,7 +571,6 @@ void Ability::OnBackground()
             HILOG_INFO("OnPostAbilityBackground sceneFlag:%{public}d.", sceneFlag_);
             abilityWindow_->OnPostAbilityBackground(sceneFlag_);
         }
-        HILOG_INFO("%{public}s end OnPostAbilityBackground.", __func__);
     }
 
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -604,7 +589,7 @@ void Ability::OnBackground()
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 }
 #endif
 
@@ -832,7 +817,6 @@ void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rose
         return;
     }
     bool useNewMission = AbilityImpl::IsUseNewMission();
-    HILOG_INFO("%{public}s beign abilityWindow_->InitWindow.", __func__);
     if (useNewMission) {
         abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option);
     } else {
@@ -840,7 +824,6 @@ void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rose
         sptr<Rosen::IWindowLifeCycle> listener = nullptr;
         abilityWindow_->InitWindow(winType, context, listener, displayId, option);
     }
-    HILOG_INFO("%{public}s end abilityWindow_->InitWindow.", __func__);
 }
 
 /**
@@ -1667,7 +1650,7 @@ ErrCode Ability::StartAbility(const Want &want)
  */
 ErrCode Ability::TerminateAbility()
 {
-    HILOG_INFO("%{public}s begin Ability::TerminateAbility", __func__);
+    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
     return AbilityContext::TerminateAbility();
 }
 
@@ -3566,7 +3549,6 @@ bool Ability::CheckAssertQueryResult(std::shared_ptr<NativeRdb::AbsSharedResultS
 #ifdef SUPPORT_GRAPHICS
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 {
-    HILOG_INFO("%{public}s start", __func__);
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     if (option == nullptr) {
         HILOG_ERROR("Ability::GetWindowOption option is null.");
@@ -3586,8 +3568,6 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         HILOG_INFO("Set window type for launcher");
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_DESKTOP);
     }
-
-    HILOG_INFO("%{public}s end", __func__);
     return option;
 }
 
@@ -3776,6 +3756,46 @@ void Ability::SetWakeUpScreen(bool wakeUp)
         return;
     }
     window->SetTurnScreenOn(wakeUp);
+}
+
+void Ability::SetDisplayOrientation(int orientation)
+{
+    HILOG_DEBUG("%{public}s called, orientation: %{public}d", __func__, orientation);
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("Ability::SetDisplayOrientation error. abilityWindow_ == nullptr.");
+        return;
+    }
+    HILOG_DEBUG("FA mode");
+    auto window = abilityWindow_->GetWindow();
+    if (window == nullptr) {
+        HILOG_ERROR("window is nullptr.");
+        return;
+    }
+    if (orientation == static_cast<int>(DisplayOrientation::FOLLOWRECENT)) {
+        int defualtOrientation = 0;
+        if (setWant_) {
+            orientation = setWant_->GetIntParam("ohos.aafwk.Orientation", defualtOrientation);
+        } else {
+            orientation = defualtOrientation;
+        }
+    }
+    window->SetRequestedOrientation(static_cast<Rosen::Orientation>(orientation));
+}
+
+int Ability::GetDisplayOrientation()
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
+        return 0;
+    }
+    HILOG_DEBUG("FA mode");
+    auto window = abilityWindow_->GetWindow();
+    if (window == nullptr) {
+        HILOG_ERROR("window is nullptr.");
+        return 0;
+    }
+    return static_cast<int>(window->GetRequestedOrientation());
 }
 #endif
 }  // namespace AppExecFwk
