@@ -44,7 +44,6 @@ const std::string COM_IX_HISINGLEMUSIC = "com.ix.hiSingleMusicInfo";
 const std::string COM_IX_ACCOUNTSERVICE = "com.ix.accountService";
 const std::string COM_OHOS_TEST = "com.ohos.test";
 constexpr int32_t MAX_SYS_UID = 2899;
-constexpr int32_t ROOT_UID = 0;
 const int32_t BASE_USER_RANGE = 200000;
 const int32_t APPLICATIONINFO_UID = 20000000;
 
@@ -274,7 +273,6 @@ public:
     MOCK_METHOD1(GetAppType, std::string(const std::string &bundleName));
     MOCK_METHOD2(GetBundleInfosByMetaData, bool(const std::string &metaData, std::vector<BundleInfo> &bundleInfos));
     MOCK_METHOD1(QueryKeepAliveBundleInfos, bool(std::vector<BundleInfo> &bundleInfos));
-    MOCK_METHOD2(GetAbilityLabel, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         GetBundleArchiveInfo, bool(const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo));
     MOCK_METHOD2(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo));
@@ -306,7 +304,6 @@ public:
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
-    MOCK_METHOD2(GetAbilityIcon, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         CanRequestPermission, bool(const std::string &bundleName, const std::string &permissionName, const int userId));
     MOCK_METHOD1(RegisterAllPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
@@ -339,7 +336,10 @@ public:
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
     int GetUidByBundleName(const std::string &bundleName, const int userId) override;
-    virtual bool CheckIsSystemAppByUid(const int uid) override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        return true;
+    };
 
     bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
 
@@ -354,7 +354,6 @@ public:
     MOCK_METHOD1(GetAppType, std::string(const std::string &bundleName));
     MOCK_METHOD2(GetBundleInfosByMetaData, bool(const std::string &metaData, std::vector<BundleInfo> &bundleInfos));
     MOCK_METHOD1(QueryKeepAliveBundleInfos, bool(std::vector<BundleInfo> &bundleInfos));
-    MOCK_METHOD2(GetAbilityLabel, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         GetBundleArchiveInfo, bool(const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo));
     MOCK_METHOD2(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo));
@@ -382,7 +381,6 @@ public:
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
-    MOCK_METHOD2(GetAbilityIcon, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         CanRequestPermission, bool(const std::string &bundleName, const std::string &permissionName, const int userId));
     MOCK_METHOD1(RegisterAllPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
@@ -429,8 +427,7 @@ public:
     {
         return true;
     }
-    virtual bool GetDistributedBundleInfo(
-        const std::string &networkId, int32_t userId, const std::string &bundleName,
+    virtual bool GetDistributedBundleInfo(const std::string &networkId, const std::string &bundleName,
         DistributedBundleInfo &distributedBundleInfo) override
     {
         return true;

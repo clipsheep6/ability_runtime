@@ -44,7 +44,6 @@ const std::string COM_OHOS_Test = "com.ohos.test";
 const std::string COM_IX_HIACCOUNT = "com.ix.hiAccount";
 const std::string COM_IX_HIACCOUNTSERVICE = "com.ix.hiAccountService";
 constexpr int32_t MAX_SYS_UID = 2899;
-constexpr int32_t ROOT_UID = 0;
 const int32_t BASE_USER_RANGE = 200000;
 const int32_t MOCK_MAIN_UID = 20000000;
 
@@ -319,7 +318,6 @@ public:
     MOCK_METHOD1(GetAppType, std::string(const std::string &bundleName));
     MOCK_METHOD2(GetBundleInfosByMetaData, bool(const std::string &metaData, std::vector<BundleInfo> &bundleInfos));
     MOCK_METHOD1(QueryKeepAliveBundleInfos, bool(std::vector<BundleInfo> &bundleInfos));
-    MOCK_METHOD2(GetAbilityLabel, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         GetBundleArchiveInfo, bool(const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo));
     MOCK_METHOD2(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo));
@@ -346,7 +344,6 @@ public:
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));
-    MOCK_METHOD2(GetAbilityIcon, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD1(RegisterAllPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
     MOCK_METHOD2(RegisterPermissionsChanged,
         bool(const std::vector<int> &uids, const sptr<OnPermissionChangedCallback> &callback));
@@ -359,7 +356,7 @@ public:
     MOCK_METHOD2(GetShortcutInfos, bool(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD4(GetDistributedBundleInfo, bool(const std::string &networkId, int32_t userId,
+    MOCK_METHOD3(GetDistributedBundleInfo, bool(const std::string &networkId,
         const std::string &bundleName, DistributedBundleInfo &distributedBundleInfo));
 };
 
@@ -380,7 +377,6 @@ public:
     MOCK_METHOD1(GetAppType, std::string(const std::string &bundleName));
     MOCK_METHOD2(GetBundleInfosByMetaData, bool(const std::string &metaData, std::vector<BundleInfo> &bundleInfos));
     MOCK_METHOD1(QueryKeepAliveBundleInfos, bool(std::vector<BundleInfo> &bundleInfos));
-    MOCK_METHOD2(GetAbilityLabel, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD3(
         GetBundleArchiveInfo, bool(const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo));
     MOCK_METHOD2(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo));
@@ -411,7 +407,6 @@ public:
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));
-    MOCK_METHOD2(GetAbilityIcon, std::string(const std::string &bundleName, const std::string &className));
     MOCK_METHOD1(RegisterAllPermissionsChanged, bool(const sptr<OnPermissionChangedCallback> &callback));
     MOCK_METHOD2(RegisterPermissionsChanged,
         bool(const std::vector<int> &uids, const sptr<OnPermissionChangedCallback> &callback));
@@ -440,7 +435,10 @@ public:
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
     bool NotifyAbilityLifeStatus(const std::string &bundleName, const std::string &abilityName,
         const int64_t launchTime, const int uid) override;
-    virtual bool CheckIsSystemAppByUid(const int uid) override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        return true;
+    };
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
@@ -471,8 +469,7 @@ public:
     {
         return true;
     }
-    virtual bool GetDistributedBundleInfo(
-        const std::string &networkId, int32_t userId, const std::string &bundleName,
+    virtual bool GetDistributedBundleInfo(const std::string &networkId, const std::string &bundleName,
         DistributedBundleInfo &distributedBundleInfo) override
     {
         return true;
