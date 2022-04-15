@@ -36,3 +36,6 @@ THREAD_BLOCK_6S:
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
+FOREGROUND_ABILITY:
+  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  MSG: {type: STRING, desc: application event message}

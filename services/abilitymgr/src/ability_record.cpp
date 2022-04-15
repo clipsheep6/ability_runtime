@@ -30,9 +30,13 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
+#include "hisysevent.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+}
 const std::string DEBUG_APP = "debugApp";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
@@ -207,6 +211,8 @@ bool AbilityRecord::CanRestartRootLauncher()
 
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
+    uint64_t label = BYTRACE_TAG_OHOS;
+    StartTrace(label, "foreground ability");
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
@@ -229,6 +235,15 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
+    std::string msgContent = "foreground ability";
+    std::string eventType = "FOREGROUND_ABILITY";
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_MESSAGE, msgContent);
+    
+    HILOG_WARN("FOREGROUND_ABILITY: msg: %{public}s",
+        msgContent.c_str());
+    FinishTrace(label);
 }
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
