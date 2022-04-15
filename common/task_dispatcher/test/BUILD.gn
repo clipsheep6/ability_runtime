@@ -62,8 +62,6 @@ ohos_source_set("dispatcher_test_source") {
 
   sources = []
 
-  include_dirs = [ "//third_party/json/include" ]
-
   public_configs = [
     "//utils/native/base:utils_config",
     ":dispatcher_test_config",
@@ -72,8 +70,11 @@ ohos_source_set("dispatcher_test_source") {
   public_deps = [
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   deps = [ "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler" ]
 

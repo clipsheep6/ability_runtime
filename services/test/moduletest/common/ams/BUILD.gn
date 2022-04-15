@@ -49,7 +49,6 @@ ohos_source_set("appmgr_mst_source") {
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
-    "//third_party/json/include",
     "${services_path}/appmgr/test/mock/include",
     "${services_path}/appmgr/include/lmks",
     "//base/account/os_account/frameworks/common/database/include",
@@ -93,8 +92,11 @@ ohos_source_set("appmgr_mst_source") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:configuration",

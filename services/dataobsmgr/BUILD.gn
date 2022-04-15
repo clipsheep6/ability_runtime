@@ -29,7 +29,6 @@ config("dataobsms_config") {
   include_dirs = [
     "include/",
     "${services_path}/common/include",
-    "//third_party/json/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -42,7 +41,12 @@ ohos_shared_library("dataobsms") {
 
   configs = [ ":dataobsms_config" ]
 
-  deps = [ "${innerkits_path}/dataobs_manager:dataobs_manager" ]
+  deps = [
+    "${innerkits_path}/dataobs_manager:dataobs_manager",
+    "//third_party/json:nlohmann_json_static",
+  ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:base",

@@ -29,7 +29,6 @@ config("appexecfwk_core_config") {
 
 ohos_shared_library("app_manager") {
   include_dirs = [
-    "//third_party/json/include",
     "${aafwk_path}/services/appmgr/include",
     "${aafwk_path}/services/common/include",
   ]
@@ -80,7 +79,9 @@ ohos_shared_library("app_manager") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = []
+  public_deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:base",
@@ -104,7 +105,6 @@ config("configuration_sdk_config") {
   include_dirs = [
     "include/appmgr",
     "${innerkits_path}/log/include",
-    "//third_party/json/include",
   ]
 }
 
@@ -130,6 +130,10 @@ ohos_shared_library("configuration") {
     "resmgr_standard:global_resmgr",
     "utils_base:utils",
   ]
+
+  deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   subsystem_name = "aafwk"
   part_name = "ability_base"

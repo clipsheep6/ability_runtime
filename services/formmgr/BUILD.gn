@@ -17,8 +17,6 @@ import("//foundation/aafwk/standard/aafwk.gni")
 config("formmgr_config") {
   include_dirs = [
     "include",
-    "//third_party/json/include",
-
     #    "//base/miscservices/time/interfaces/innerkits/include",
   ]
 }
@@ -87,9 +85,12 @@ ohos_shared_library("libfms") {
   deps = [
     "${kits_path}/appkit:app_context",
     "${services_path}/common:perm_verification",
+    "//third_party/json:nlohmann_json_static",
 
     #  "//third_party/libuuid:libuuid_static",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:base",

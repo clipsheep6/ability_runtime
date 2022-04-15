@@ -18,7 +18,6 @@ config("formmgr_sdk_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//third_party/json/include",
     "${kits_path}/ability/native/include",
     "${innerkits_path}/ability_manager/include",
     "${innerkits_path}/app_manager/include/appmgr",
@@ -58,6 +57,10 @@ ohos_shared_library("form_manager") {
   ]
 
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
+
+  public_deps = [ "//third_party/json:nlohmann_json_static" ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "ability_base:want",

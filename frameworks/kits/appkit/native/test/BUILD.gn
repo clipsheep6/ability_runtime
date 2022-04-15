@@ -354,10 +354,7 @@ ohos_unittest("ability_start_setting_test") {
 ohos_unittest("watchdog_test") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "//third_party/json/include",
-  ]
+  include_dirs = [ "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content" ]
 
   configs = [
     ":module_context_config",
@@ -369,9 +366,12 @@ ohos_unittest("watchdog_test") {
   deps = [
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "//third_party/googletest:gtest_main",
+    "//third_party/json:nlohmann_json_static",
     "//utils/native/base:utils",
     "//utils/native/base:utilsbase",
   ]
+
+  ldflags = [ "-Wl,--exclude-libs,libnlohmann_json_static.a" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
