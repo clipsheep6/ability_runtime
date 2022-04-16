@@ -2069,46 +2069,4 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_0300, Function | MediumTest | Level1)
 
     GTEST_LOG_(INFO) << "AmsServiceAbilityTest AppSpawn_0300 end";
 }
-
-/**
- * @tc.number    : AppSpawn_0400
- * @tc.name      : Recycle zombie processes.
- * @tc.desc      : 1.The application process is suspended.
- *                 2.The appSpawn listener process is suspended and the process is
- * recycled.
- */
-HWTEST_F(AmsServiceAbilityTest, AppSpawn_0400, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AmsServiceAbilityTest AppSpawn_0400 start";
-
-    std::string bundleName = BUNDLE_NAME_BASE + "A";
-    std::string abilityName = ABILITY_NAME_BASE + "A1";
-
-    // start ability A1. make zombie process
-    MAP_STR_STR params;
-    params["zombie"] = "zombie";
-    Want want = STAbilityUtil::STAbilityUtil::MakeWant(DEVICE_ID, abilityName, bundleName, params);
-    ErrCode eCode = STAbilityUtil::StartAbility(want, abilityMs);
-    EXPECT_EQ(ERR_OK, eCode);
-    EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
-        0);
-    EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
-        -1);
-
-    usleep(WAIT_TIME * 5);
-    // check app process information
-    std::string cmd = "ps -ef |grep com.ohos.amsst.service.appA |grep -v grep";
-    std::string result;
-    ExecuteSystemForResult(cmd, result);
-    EXPECT_TRUE(Trim(result).empty());
-
-    // stop ability
-    eCode = STAbilityUtil::StopServiceAbility(want);
-    EXPECT_NE(ERR_OK, eCode);
-    usleep(WAIT_TIME);
-
-    GTEST_LOG_(INFO) << "AmsServiceAbilityTest AppSpawn_0400 end";
-}
 }  // namespace

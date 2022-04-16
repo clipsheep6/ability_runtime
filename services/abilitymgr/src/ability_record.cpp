@@ -250,7 +250,10 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
-    CHECK_POINTER(lifecycleDeal_);
+    if (lifecycleDeal_ == nullptr) {
+        HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
+        return;
+    }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
         if (!want_.GetBoolParam(DEBUG_APP, false)) {
@@ -460,33 +463,6 @@ void AbilityRecord::Inactivate()
     // earlier than above actions.
     currentState_ = AbilityState::INACTIVATING;
     lifecycleDeal_->Inactivate(want_, lifeCycleStateInfo_);
-}
-
-void AbilityRecord::MoveToBackground(const Closure &task)
-{
-    HILOG_INFO("Move to background.");
-    CHECK_POINTER(lifecycleDeal_);
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false)) {
-            g_abilityRecordEventId_++;
-            eventId_ = g_abilityRecordEventId_;
-            // eventId_ is a unique id of the task.
-            handler->PostTask(task, std::to_string(eventId_), AbilityManagerService::BACKGROUND_TIMEOUT);
-        } else {
-            HILOG_INFO("Is debug mode, no need to handle time out.");
-        }
-    }
-
-    if (!IsTerminating() || IsRestarting()) {
-        // schedule save ability state before moving to background.
-        SaveAbilityState();
-    }
-
-    // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
-    // earlier than above actions.
-    currentState_ = AbilityState::MOVING_BACKGROUND;
-    lifecycleDeal_->MoveToBackground(want_, lifeCycleStateInfo_);
 }
 
 void AbilityRecord::Terminate(const Closure &task)
@@ -1247,11 +1223,6 @@ void AbilityRecordNew::ForegroundNew()
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
-}
-
-void AbilityRecordNew::MoveToBackground(const Closure &task)
-{
-    BackgroundNew(task);
 }
 
 void AbilityRecordNew::BackgroundNew(const Closure &task)

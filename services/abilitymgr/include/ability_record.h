@@ -399,12 +399,6 @@ public:
     virtual void Inactivate();
 
     /**
-     * move the ability to back ground.
-     *
-     */
-    virtual void MoveToBackground(const Closure &task);
-
-    /**
      * terminate the ability.
      *
      */
@@ -779,7 +773,6 @@ public:
 
     void Activate() override;
     void Inactivate() override;
-    void MoveToBackground(const Closure &task) override;
 
     void ForegroundNew();
     void BackgroundNew(const Closure &task);

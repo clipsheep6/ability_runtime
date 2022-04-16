@@ -112,38 +112,6 @@ HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_002, TestSize.Level1)
 
 /*
  * Feature: LifecycleDeal
- * Function: MoveToBackground
- * SubFunction: NA
- * FunctionPoints: LifecycleDeal MoveToBackground
- * EnvConditions:NA
- * CaseDescription: Verify MoveToBackground operation and call mock once
- */
-HWTEST_F(LifecycleDealTest, LifecycleDeal_oprator_003, TestSize.Level1)
-{
-    LifeCycleStateInfo val;
-    EXPECT_CALL(*abilityScheduler_, ScheduleAbilityTransaction(::testing::_, ::testing::_))
-        .Times(1)
-        .WillOnce(testing::SaveArg<1>(&val));
-
-    const Want want;
-    CallerInfo caller;
-    caller.deviceId = "device";
-    caller.bundleName = "bundle";
-    caller.abilityName = "LifecycleDealTest";
-
-    LifeCycleStateInfo info;
-    info.caller = caller;
-    lifecycleDeal_->MoveToBackground(want, info);
-    lifecycleDeal_->SetScheduler(abilityScheduler_);
-    lifecycleDeal_->MoveToBackground(want, info);
-
-    EXPECT_EQ(val.caller.deviceId, caller.deviceId);
-    EXPECT_EQ(val.caller.bundleName, caller.bundleName);
-    EXPECT_EQ(val.caller.abilityName, caller.abilityName);
-}
-
-/*
- * Feature: LifecycleDeal
  * Function: ConnectAbility
  * SubFunction: NA
  * FunctionPoints: LifecycleDeal ConnectAbility

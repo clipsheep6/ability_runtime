@@ -146,37 +146,37 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
 
 [[maybe_unused]] static int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1)
 {
-    HILOG_DEBUG("%{public}s begin", __func__);
+    HILOG_DEBUG("Judge ability visible begin.");
     if (!abilityInfo.visible) {
-        HILOG_ERROR("ability visible is false");
+        HILOG_INFO("The visible of the ability is false.");
         if (callerUid == -1) {
             callerUid = IPCSkeleton::GetCallingUid();
         }
         if (ROOT_UID == callerUid) {
-            HILOG_ERROR("uid is root");
+            HILOG_ERROR("Judge ability visible fail, uid is root");
             return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
         }
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
         auto isSystemApp = bms->CheckIsSystemAppByUid(callerUid);
         if (callerUid != SYSTEM_UID && !isSystemApp) {
-            HILOG_ERROR("caller is not systemAp or system");
+            HILOG_INFO("Caller is not systemAp or system.");
             std::string bundleName;
             bool result = bms->GetBundleNameForUid(callerUid, bundleName);
             if (!result) {
-                HILOG_ERROR("GetBundleNameForUid fail");
+                HILOG_ERROR("Judge ability visible fail, Get bundle name fail.");
                 return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
             }
             if (bundleName != abilityInfo.bundleName) {
-                HILOG_ERROR("caller ability bundlename not equal abilityInfo.bundleName bundleName: %{public}s "
-                            "abilityInfo.bundleName: %{public}s",
+                HILOG_ERROR("Judge ability visible fail, caller bundlename:%{public}s not equal "
+                            "callee bundleName:%{public}s.",
                     bundleName.c_str(),
                     abilityInfo.bundleName.c_str());
                 return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
             }
         }
     }
-    HILOG_DEBUG("%{public}s end", __func__);
+    HILOG_DEBUG("Judge ability visible success.");
     return ERR_OK;
 }
 }  // namespace AbilityUtil

@@ -102,26 +102,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetRecordId, TestSize.Level1)
  * Feature: AbilityRecord
  * Function: create AbilityRecord
  * SubFunction: NA
- * FunctionPoints: LoadAbility Activate Inactivate MoveToBackground
- * EnvConditions: NA
- * CaseDescription: LoadAbility Activate Inactivate MoveToBackground UT.
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_UpdateLifeState, TestSize.Level1)
-{
-    abilityRecord_->LoadAbility();
-    EXPECT_EQ(abilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INITIAL);
-    abilityRecord_->Activate();
-    EXPECT_EQ(abilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::ACTIVATING);
-    abilityRecord_->Inactivate();
-    EXPECT_EQ(abilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVATING);
-    abilityRecord_->MoveToBackground(nullptr);
-    EXPECT_EQ(abilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::MOVING_BACKGROUND);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: create AbilityRecord
- * SubFunction: NA
  * FunctionPoints: SetAbilityInfo GetAbilityInfo
  * EnvConditions: NA
  * CaseDescription: SetAbilityInfo GetAbilityInfo UT.
@@ -168,11 +148,6 @@ HWTEST_P(AbilityRecordTest, AaFwk_AbilityMS_SetGetAbilityState, TestSize.Level1)
     abilityRecord_->SetAbilityState(state);
     EXPECT_EQ(static_cast<int>(state), static_cast<int>(abilityRecord_->GetAbilityState()));
 }
-
-INSTANTIATE_TEST_CASE_P(AbilityRecordTestCaseP, AbilityRecordTest,
-    testing::Values(OHOS::AAFwk::AbilityState::INITIAL, OHOS::AAFwk::AbilityState::INACTIVE,
-        OHOS::AAFwk::AbilityState::ACTIVE, OHOS::AAFwk::AbilityState::BACKGROUND,
-        OHOS::AAFwk::AbilityState::SUSPENDED));
 
 /*
  * Feature: AbilityRecord
@@ -399,29 +374,6 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Inactivate, TestSize.Level1)
     abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
     abilityRecord_->Inactivate();
     EXPECT_EQ(abilityRecord_->currentState_, OHOS::AAFwk::AbilityState::INACTIVATING);
-}
-
-/*
- * Feature: AbilityRecord
- * Function: MoveToBackground
- * SubFunction: MoveToBackground
- * FunctionPoints: NA
- * EnvConditions: NA
- * CaseDescription: Verify lifecycleDeal_ is nullptr cause MoveToBackground is not call
- */
-HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_MoveToBackground, TestSize.Level1)
-{
-    abilityRecord_->lifecycleDeal_ = nullptr;
-    abilityRecord_->currentState_ = OHOS::AAFwk::AbilityState::INITIAL;
-    abilityRecord_->MoveToBackground([]() {
-
-    });
-    EXPECT_EQ(abilityRecord_->currentState_, OHOS::AAFwk::AbilityState::INITIAL);
-    abilityRecord_->lifecycleDeal_ = std::make_unique<LifecycleDeal>();
-    abilityRecord_->MoveToBackground([]() {
-
-    });
-    EXPECT_EQ(abilityRecord_->currentState_, OHOS::AAFwk::AbilityState::MOVING_BACKGROUND);
 }
 
 /*
