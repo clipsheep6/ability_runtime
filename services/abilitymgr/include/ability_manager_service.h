@@ -600,7 +600,8 @@ public:
 
     virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
 
-    virtual int FinishUserTest(const std::string &msg, const int &resultCode, const std::string &bundleName) override;
+    virtual int FinishUserTest(
+        const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
 
     /**
      * GetCurrentTopAbility, get the token of current top ability.
@@ -888,7 +889,6 @@ private:
     ErrCode ProcessTwoParam(const std::string& firstParam, const std::string& secondParam, std::string &result);
     ErrCode ProcessThreeParam(const std::string& firstParam, const std::string& secondParam,
         const std::string& thirdParam, std::string &result);
-    ErrCode ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result);
     void ShowHelp(std::string &result);
     void ShowIllealInfomation(std::string &result);
 

@@ -31,50 +31,38 @@ FormCacheMgr::~FormCacheMgr()
  * @brief Get form data.
  * @param formId, Form id.
  * @param data, Cache data.
- * @param imageMap Image map cache.
  * @return Returns true if this function is successfully called; returns false otherwise.
  */
-bool FormCacheMgr::GetData(const int64_t formId, std::string &data,
-    std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> &imageMap) const
+bool FormCacheMgr::GetData(const int64_t formId, std::string &data) const
 {
     HILOG_INFO("get cache data");
     std::lock_guard<std::mutex> lock(cacheMutex_);
-    if (cacheData_.empty() && cacheImageMap_.empty()) {
+    if (cacheData_.empty()) {
         HILOG_ERROR("form cache is empty");
         return false;
     }
     auto formData = cacheData_.find(formId);
-    if (formData != cacheData_.end()) {
-        data = formData->second;
-    }
-
-    auto imageMapIt = cacheImageMap_.find(formId);
-    if (imageMapIt != cacheImageMap_.end()) {
-        imageMap = imageMapIt->second;
-    }
-
-    if (data.empty() && imageMap.empty()) {
-        HILOG_ERROR("form cache not find");
+    if (formData == cacheData_.end()) {
+        HILOG_ERROR("cache data not find");
         return false;
-    } else {
-        return true;
     }
+
+    data = formData->second;
+
+    return true;
 }
 
 /**
  * @brief Add form data.
  * @param formId, Form id.
  * @param data, Cache data.
- * @param imageMap Image map cache.
  * @return Returns true if this function is successfully called; returns false otherwise.
  */
-bool FormCacheMgr::AddData(const int64_t formId, const std::string &data,
-    const std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> &imageMap)
+bool FormCacheMgr::AddData(const int64_t formId, const std::string &data)
 {
     HILOG_INFO("add new cache data");
     std::lock_guard<std::mutex> lock(cacheMutex_);
     cacheData_[formId] = data;
-    cacheImageMap_[formId] = imageMap;
     return true;
 }
 
@@ -88,19 +76,12 @@ bool FormCacheMgr::DeleteData(const int64_t formId)
     HILOG_INFO("delete cache data");
     std::lock_guard<std::mutex> lock(cacheMutex_);
     auto formData = cacheData_.find(formId);
-    if (formData != cacheData_.end()) {
-        cacheData_.erase(formId);
-    } else {
+    if (formData == cacheData_.end()) {
         HILOG_WARN("cache data is not exist");
+        return true;
     }
 
-    auto imageMap = cacheImageMap_.find(formId);
-    if (imageMap != cacheImageMap_.end()) {
-        cacheImageMap_.erase(formId);
-    } else {
-        HILOG_WARN("image data is not exist");
-    }
-    return true;
+    return cacheData_.erase(formId);
 }
 
 /**
