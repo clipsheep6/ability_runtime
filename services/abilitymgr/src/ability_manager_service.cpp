@@ -211,6 +211,9 @@ void AbilityManagerService::OnStart()
 
 bool AbilityManagerService::Init()
 {
+    std::this_thread::sleep_for(5s);
+    HILOG_INFO("AbilityManagerService Init begin.");
+
     eventLoop_ = AppExecFwk::EventRunner::Create(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
     CHECK_POINTER_RETURN_BOOL(eventLoop_);
 
