@@ -600,10 +600,13 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
     std::vector<std::string> params;
     if (!data.ReadStringVector(&params)) {
         HILOG_INFO("DumpAbilityInfoInner read params error");
-        return ERR_INVALID_VALUE;
+        return NO_ERROR;
     }
-
     DumpAbilityInfo(params, infos);
+
+    for (const auto & infostep:infos) {
+        HILOG_INFO("DumpAbilityInfoInner infos = %{public}s", infostep.c_str());
+    }
 
     reply.WriteInt32(infos.size());
     for (auto stack : infos) {

@@ -26,9 +26,7 @@
 #include "bytrace.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
 #include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {
@@ -70,9 +68,6 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND_NEW),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND_NEW),
 };
-#ifndef OS_ACCOUNT_PART_ENABLED
-const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
-#endif // OS_ACCOUNT_PART_ENABLED
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
 {}
@@ -890,12 +885,6 @@ int64_t AbilityRecord::GetStartTime() const
 
 void AbilityRecord::DumpService(std::vector<std::string> &info, bool isClient) const
 {
-    std::vector<std::string> params;
-    DumpService(info, params, isClient);
-}
-
-void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std::string> &params, bool isClient) const
-{
     info.emplace_back("      AbilityRecord ID #" + std::to_string(GetRecordId()) + "   state #" +
                       AbilityRecord::ConvertAbilityState(GetAbilityState()) + "   start time [" +
                       std::to_string(GetStartTime()) + "]");
@@ -916,6 +905,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     }
     // add dump client info
     if (isClient && scheduler_ && isReady_) {
+        std::vector<std::string> params;
         scheduler_->DumpAbilityInfo(params, info);
         AppExecFwk::Configuration config;
         if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
@@ -1488,16 +1478,11 @@ void AbilityRecord::GrantUriPermission(const Want &want)
 int AbilityRecord::GetCurrentAccountId()
 {
     std::vector<int32_t> osActiveAccountIds;
-#ifdef OS_ACCOUNT_PART_ENABLED
     ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("QueryActiveOsAccountIds failed.");
         return DEFAULT_USER_ID;
     }
-#else // OS_ACCOUNT_PART_ENABLED
-    osActiveAccountIds.push_back(DEFAULT_OS_ACCOUNT_ID);
-    HILOG_DEBUG("AbilityRecord::GetCurrentAccountId, do not have os account part, use default id.");
-#endif // OS_ACCOUNT_PART_ENABLED
 
     if (osActiveAccountIds.empty()) {
         HILOG_ERROR("QueryActiveOsAccountIds is empty, no accounts.");

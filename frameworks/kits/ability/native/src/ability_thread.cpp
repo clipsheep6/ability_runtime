@@ -1506,7 +1506,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
         return;
     }
 
-    if (currentAbility_ != nullptr) {
+    if (!params.empty() && currentAbility_ != nullptr) {
         if (abilityImpl_->IsStageBasedModel()) {
             auto scene = currentAbility_->GetScene();
             if (scene == nullptr) {
@@ -1519,16 +1519,9 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
                 return;
             }
             window->DumpInfo(params, info);
+        } else {
+            currentAbility_->Dump(params, info);
         }
-        currentAbility_->Dump(params, info);
-    }
-
-    if (currentExtension_ != nullptr) {
-        currentExtension_->Dump(params, info);
-    }
-
-    if (!params.empty()) {
-        HILOG_INFO("params not empty");
         return;
     }
 
@@ -1563,7 +1556,7 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
         localCallContainer->DumpCalls(info);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("localCallContainer need to get calls info.");
 }
 #else
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
