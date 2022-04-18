@@ -28,6 +28,7 @@
 #include "system_ability_definition.h"
 #include "js_app_manager_utils.h"
 #include "event_runner.h"
+#include "napi_remote_object.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -101,9 +102,31 @@ public:
         return (me != nullptr) ? me->OnClearUpApplicationData(*engine, *info) : nullptr;
     }
 
+    static NativeValue* GetRemote(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnGetRemote(*engine, *info) : nullptr;
+    }
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
+
+    NativeValue* OnGetRemote(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        HILOG_INFO("jws OnGetRemote is called");
+        // only support one or two params
+        if (info.argc != ARGC_ONE) {
+            HILOG_ERROR("Not enough params");
+            return engine.CreateUndefined();
+        }
+
+        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver(engine);
+        napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(
+            reinterpret_cast<napi_env>(&engine), observer);
+        NativeValue* nativeRemoteObject = reinterpret_cast<NativeValue*>(napiRemoteObject);
+        HILOG_INFO("jws return");
+        return nativeRemoteObject;
+    }
 
     NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
@@ -449,6 +472,8 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::KillProcessesByBundleName);
     BindNativeFunction(*engine, *object, "clearUpApplicationData",
         JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(*engine, *object, "getRemote",
+        JsAppManager::GetRemote);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }
@@ -459,7 +484,7 @@ JSApplicationStateObserver::~JSApplicationStateObserver() = default;
 
 void JSApplicationStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
+    HILOG_DEBUG("jws onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     wptr<JSApplicationStateObserver> jsObserver = this;
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
