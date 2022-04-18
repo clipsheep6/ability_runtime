@@ -32,6 +32,9 @@ ohos_unittest("app_scheduler_test") {
     "app_scheduler_test.cpp",
   ]
   sources += free_install
+  if (ability_runtime_graphics) {
+    sources += [ "${services_path}/abilitymgr/src/window_focus_controller.cpp" ]
+  }
   configs = [
     "${services_path}/abilitymgr:abilityms_config",
     "${services_path}/abilitymgr/test/mock:aafwk_mock_config",
