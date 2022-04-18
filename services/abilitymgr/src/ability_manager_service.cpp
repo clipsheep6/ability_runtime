@@ -2377,6 +2377,9 @@ int AbilityManagerService::GenerateAbilityRequest(
     HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
 
+    HILOG_INFO("GenerateAbilityRequest end, resourcePath: %{public}s.",
+        request.abilityInfo.resourcePath.c_str());
+
     return ERR_OK;
 }
 
@@ -4442,7 +4445,7 @@ ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string> &argsS
     }
     HILOG_INFO("%{public}s, isClient:%{public}d, userID is : %{public}d, cmd is : %{public}s",
         __func__, isClient, userID, cmd.c_str());
-    
+
     std::vector<std::string> dumpResults;
     DumpSysState(cmd, dumpResults, isClient, isUser, userID);
     for (auto it : dumpResults) {
