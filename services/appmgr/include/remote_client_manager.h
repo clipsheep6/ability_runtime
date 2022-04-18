@@ -61,8 +61,9 @@ public:
 
 private:
     std::shared_ptr<AppSpawnClient> appSpawnClient_;
-    sptr<IBundleMgr> bundleManager_;
     std::shared_ptr<AppSpawnClient> nwebSpawnClient_;
+    static sptr<IBundleMgr> bundleManager_;
+    static std::mutex bundleMgrMutex_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

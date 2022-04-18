@@ -24,6 +24,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+sptr<IBundleMgr> FormBmsHelper::bundleMgr_ = nullptr;
+std::mutex FormBmsHelper::bundleMgrMutex_;
+
 FormBmsHelper::FormBmsHelper()
 {}
 
@@ -36,24 +39,27 @@ FormBmsHelper::~FormBmsHelper()
  */
 sptr<IBundleMgr> FormBmsHelper::GetBundleMgr()
 {
-    HILOG_INFO("%{public}s called.", __func__);
-
-    if (iBundleMgr_ == nullptr) {
-        sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (remoteObject == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service.", __func__);
-            return nullptr;
-        }
-
-        iBundleMgr_ = iface_cast<IBundleMgr>(remoteObject);
-        if (iBundleMgr_ == nullptr) {
-            HILOG_ERROR("%{public}s error, failed to get bundle manager service", __func__);
-            return nullptr;
+    if (bundleMgr_ == nullptr) {
+        std::lock_guard<std::mutex> lock(bundleMgrMutex_);
+        if (bundleMgr_ == nullptr) {
+            auto systemAbilityManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (systemAbilityManager == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbilityManager is null");
+                return nullptr;
+            }
+            auto bundleMgrSa = systemAbilityManager->GetSystemAbility(OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+            if (bundleMgrSa == nullptr) {
+                HILOG_ERROR("GetBundleMgr GetSystemAbility is null");
+                return nullptr;
+            }
+            auto bundleMgr = OHOS::iface_cast<IBundleMgr>(bundleMgrSa);
+            if (bundleMgr == nullptr) {
+                HILOG_ERROR("GetBundleMgr iface_cast get null");
+            }
+            bundleMgr_ = bundleMgr;
         }
     }
-    return iBundleMgr_;
+    return bundleMgr_;
 }
 
 /**
@@ -63,8 +69,7 @@ sptr<IBundleMgr> FormBmsHelper::GetBundleMgr()
 void FormBmsHelper::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
 {
     HILOG_INFO("%{public}s called.", __func__);
-
-    iBundleMgr_ = bundleManager;
+    bundleMgr_ = bundleManager;
 }
 /**
  * @brief Notify module removable.

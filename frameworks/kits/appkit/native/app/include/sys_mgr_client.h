@@ -56,9 +56,9 @@ public:
     void UnregisterSystemAbility(const int32_t systemAbilityId);
 
 private:
-    OHOS::sptr<ISystemAbilityManager> abilityManager_;
-    std::mutex saMutex_;
     std::unordered_map<int32_t, sptr<IRemoteObject>> servicesMap_;
+    static sptr<IRemoteObject> remoteObject_;
+    static std::mutex remoteObjectMutex_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
