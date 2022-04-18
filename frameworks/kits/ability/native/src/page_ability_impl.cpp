@@ -181,7 +181,6 @@ bool PageAbilityImpl::AbilityTransactionNew(const Want &want, const AAFwk::LifeC
             }
             SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
                          targetState.caller.abilityName);
-            Active();
             if (ability_) {
                 ability_->RequsetFocus(want);
             }
