@@ -32,7 +32,6 @@ Operation::Operation(const Operation &other) : flags_(0), uri_(other.uri_.ToStri
     entities_ = other.entities_;
     bundleName_ = other.bundleName_;
     abilityName_ = other.abilityName_;
-    moduleName_ = other.moduleName_;
     entities_.clear();
 }
 
@@ -94,12 +93,6 @@ const std::vector<std::string> &Operation::GetEntities() const
 {
     return entities_;
 }
-
-std::string Operation::GetModuleName() const
-{
-    return moduleName_;
-}
-
 /**
  * @description: Adds the description of an entity to a Want
  * @param entity Indicates the entity description to add
@@ -206,10 +199,6 @@ bool Operation::operator==(const Operation &other) const
     if (deviceId_ != other.deviceId_) {
         return false;
     }
-    if (moduleName_ != other.moduleName_) {
-        return false;
-    }
-
     size_t entitiesCount = entities_.size();
     size_t otherEntitiesCount = other.entities_.size();
     if (entitiesCount != otherEntitiesCount) {
@@ -227,6 +216,7 @@ bool Operation::operator==(const Operation &other) const
     if (uri_.ToString() != other.uri_.ToString()) {
         return false;
     }
+
     return true;
 }
 
@@ -240,7 +230,6 @@ Operation &Operation::operator=(const Operation &other)
         entities_ = other.entities_;
         bundleName_ = other.bundleName_;
         abilityName_ = other.abilityName_;
-        moduleName_ = other.moduleName_;
     }
     return *this;
 }
@@ -251,7 +240,6 @@ bool Operation::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(action_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(bundleName_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(deviceId_));
-    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(moduleName_));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(StringVector, parcel, entities_);
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, flags_);
 
@@ -266,6 +254,7 @@ bool Operation::Marshalling(Parcel &parcel) const
             return false;
         }
     }
+
     return true;
 }
 
@@ -298,9 +287,6 @@ bool Operation::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, readString16);
     deviceId_ = Str16ToStr8(readString16);
     readString16.clear();
-    READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, readString16);
-    moduleName_ = Str16ToStr8(readString16);
-    readString16.clear();
 
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(StringVector, parcel, &entities_);
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Uint32, parcel, flags_);
@@ -321,6 +307,7 @@ bool Operation::ReadFromParcel(Parcel &parcel)
             return false;
         }
     }
+
     return true;
 }
 
@@ -384,17 +371,11 @@ void Operation::SetEntities(const std::vector<std::string> &entities)
     entities_ = entities;
 }
 
-void Operation::SetModuleName(const std::string &moduleName)
-{
-    moduleName_ = moduleName;
-}
-
 void Operation::DumpInfo(int level) const
 {
     ABILITYBASE_LOGI("===Operation::abilityName_ %{public}s =============", abilityName_.c_str());
     ABILITYBASE_LOGI("===Operation::action_ %{public}s =============", action_.c_str());
     ABILITYBASE_LOGI("===Operation::bundleName_ %{public}s =============", bundleName_.c_str());
-    ABILITYBASE_LOGI("===Operation::moduleName_ %{public}s =============", moduleName_.c_str());
     size_t entities_count = entities_.size();
     ABILITYBASE_LOGI("===Operation::entities_: count %{public}u =============", (uint32_t)entities_count);
     for (size_t i = 0; i < entities_count; i++) {

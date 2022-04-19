@@ -23,11 +23,7 @@
 namespace OHOS {
 class IdlTestServiceStub : public IRemoteStub<IIdlTestService> {
 public:
-    int OnRemoteRequest(
-        /* [in] */ uint32_t code,
-        /* [in] */ MessageParcel& data,
-        /* [out] */ MessageParcel& reply,
-        /* [in] */ MessageOption& option) override;
+    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
 private:
     static constexpr int COMMAND_TEST_INT_TRANSACTION = MIN_TRANSACTION_ID + 0;

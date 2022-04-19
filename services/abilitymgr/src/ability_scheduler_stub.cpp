@@ -60,9 +60,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
     requestFuncMap_[CONTINUE_ABILITY] = &AbilitySchedulerStub::ContinueAbilityInner;
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
-#ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
-#endif
 }
 
 AbilitySchedulerStub::~AbilitySchedulerStub()
@@ -602,10 +600,13 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
     std::vector<std::string> params;
     if (!data.ReadStringVector(&params)) {
         HILOG_INFO("DumpAbilityInfoInner read params error");
-        return ERR_INVALID_VALUE;
+        return NO_ERROR;
     }
-
     DumpAbilityInfo(params, infos);
+
+    for (const auto & infostep:infos) {
+        HILOG_INFO("DumpAbilityInfoInner infos = %{public}s", infostep.c_str());
+    }
 
     reply.WriteInt32(infos.size());
     for (auto stack : infos) {
@@ -639,7 +640,6 @@ int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &r
     return NO_ERROR;
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_INFO("AbilitySchedulerStub::BlockAbilityInner start");
@@ -651,7 +651,6 @@ int AbilitySchedulerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &
     }
     return NO_ERROR;
 }
-#endif
 
 void AbilitySchedulerRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {

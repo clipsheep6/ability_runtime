@@ -66,8 +66,6 @@ public:
 
     static bool IsStringArray(IArray *array); /* [in] */
 
-    static bool IsWantParamsArray(IArray *array); /* [in] */
-
     static void ForEach(IArray *array,           /* [in] */
         std::function<void(IInterface *)> func); /* [in] */
 
@@ -93,7 +91,6 @@ private:
     static sptr<IArray> ParseDouble(const std::string &values, long size);
     static sptr<IArray> ParseChar(const std::string &values, long size);
     static sptr<IArray> ParseArray(const std::string &values, long size);
-    static sptr<IArray> ParseWantParams(const std::string &values, long size);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

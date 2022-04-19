@@ -371,7 +371,6 @@ void AppScheduler::PostANRTaskByProcessID(const pid_t pid)
     appMgrClient_->PostANRTaskByProcessID(pid);
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AppScheduler::BlockAppService()
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -383,6 +382,5 @@ int AppScheduler::BlockAppService()
     }
     return ERR_OK;
 }
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

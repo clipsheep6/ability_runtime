@@ -21,6 +21,7 @@
 #include <regex>
 #include <securec.h>
 
+#include "ohos/aafwk/base/array_wrapper.h"
 #include "ohos/aafwk/base/base_object.h"
 #include "ohos/aafwk/base/bool_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
@@ -32,7 +33,6 @@
 #include "ohos/aafwk/base/double_wrapper.h"
 #include "ohos/aafwk/base/string_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
-#include "ohos/aafwk/content/array_wrapper.h"
 #include "parcel_macro_base.h"
 #include "string_ex.h"
 #include "want_params_wrapper.h"
@@ -155,8 +155,7 @@ void Want::RemoveFlags(unsigned int flags)
  */
 OHOS::AppExecFwk::ElementName Want::GetElement() const
 {
-    return ElementName(operation_.GetDeviceId(), operation_.GetBundleName(),
-        operation_.GetAbilityName(), operation_.GetModuleName());
+    return ElementName(operation_.GetDeviceId(), operation_.GetBundleName(), operation_.GetAbilityName());
 }
 
 /**
@@ -179,13 +178,11 @@ Want &Want::SetElementName(const std::string &bundleName, const std::string &abi
  * @param abilityName Indicates the abilityName to set for the operation attribute in the Want.
  * @return Returns this Want object that contains the specified bundleName and abilityName attributes.
  */
-Want &Want::SetElementName(const std::string &deviceId, const std::string &bundleName,
-    const std::string &abilityName, const std::string &moduleName)
+Want &Want::SetElementName(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName)
 {
     operation_.SetDeviceId(deviceId);
     operation_.SetBundleName(bundleName);
     operation_.SetAbilityName(abilityName);
-    operation_.SetModuleName(moduleName);
     return *this;
 }
 
@@ -199,7 +196,6 @@ Want &Want::SetElement(const OHOS::AppExecFwk::ElementName &element)
     operation_.SetDeviceId(element.GetDeviceID());
     operation_.SetBundleName(element.GetBundleName());
     operation_.SetAbilityName(element.GetAbilityName());
-    operation_.SetModuleName(element.GetModuleName());
     return *this;
 }
 
@@ -1382,9 +1378,6 @@ void Want::ToUriStringInner(std::string &uriString) const
     if (operation_.GetAbilityName().length() > 0) {
         uriString += "ability=" + Encode(operation_.GetAbilityName()) + ";";
     }
-    if (operation_.GetModuleName().length() > 0) {
-        uriString += "moduleName=" + Encode(operation_.GetModuleName()) + ";";
-    }
     if (operation_.GetFlags() != 0) {
         uriString += "flag=";
         char buf[HEX_STRING_BUF_LEN] {0};
@@ -1400,7 +1393,6 @@ void Want::ToUriStringInner(std::string &uriString) const
         uriString.append(Encode(operation_.GetBundleName()));
         uriString.append(";");
     }
-
     auto params = parameters_.GetParams();
     auto iter = params.cbegin();
     while (iter != params.cend()) {
@@ -1760,8 +1752,6 @@ bool Want::ParseUriInternal(const std::string &content, ElementName &element, Wa
         element.SetBundleName(value);
     } else if (prop == "ability") {
         element.SetAbilityName(value);
-    } else if (prop == "moduleName") {
-        element.SetModuleName(value);
     } else if (prop == "package") {
         want.SetBundle(Decode(value));
     } else if (prop.length() > TYPE_TAG_SIZE) {
@@ -1956,7 +1946,6 @@ nlohmann::json Want::ToJson() const
         {"deviceId", operation_.GetDeviceId()},
         {"bundleName", operation_.GetBundleName()},
         {"abilityName", operation_.GetAbilityName()},
-        {"moduleName", operation_.GetModuleName()},
         {"uri", GetUriString()},
         {"type", GetType()},
         {"flags", GetFlags()},
@@ -1974,7 +1963,6 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
     if ((wantJson.find("deviceId") == jsonObjectEnd)
         || (wantJson.find("bundleName") == jsonObjectEnd)
         || (wantJson.find("abilityName") == jsonObjectEnd)
-        || (wantJson.find("moduleName") == jsonObjectEnd)
         || (wantJson.find("uri") == jsonObjectEnd)
         || (wantJson.find("type") == jsonObjectEnd)
         || (wantJson.find("flags") == jsonObjectEnd)
@@ -1988,8 +1976,7 @@ bool Want::ReadFromJson(nlohmann::json &wantJson)
     std::string deviceId = wantJson.at("deviceId").get<std::string>();
     std::string bundleName = wantJson.at("bundleName").get<std::string>();
     std::string abilityName = wantJson.at("abilityName").get<std::string>();
-    std::string moduleName = wantJson.at("moduleName").get<std::string>();
-    SetElementName(deviceId, bundleName, abilityName, moduleName);
+    SetElementName(deviceId, bundleName, abilityName);
 
     std::string uri = wantJson.at("uri").get<std::string>();
     SetUri(uri);
@@ -2038,28 +2025,6 @@ Want *Want::FromString(std::string &string)
         want = nullptr;
     }
     return want;
-}
-
-/**
- * @description: Sets a device id in a Want.
- * @param deviceId Indicates the device id to set.
- * @return Returns this Want object containing the flag.
- */
-Want &Want::SetDeviceId(const std::string &deviceId)
-{
-    operation_.SetDeviceId(deviceId);
-    return *this;
-}
-
-Want& Want::SetModuleName(const std::string &moduleName)
-{
-    operation_.SetModuleName(moduleName);
-    return *this;
-}
-
-std::string Want::GetModuleName() const
-{
-    return operation_.GetModuleName();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

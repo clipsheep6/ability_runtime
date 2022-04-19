@@ -704,9 +704,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         auto abilitysMap = GetAbilities();
         for (const auto &item : abilitysMap) {
             const auto &abilityRecord = item.second;
-            if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND &&
-                abilityRecord->GetAbilityInfo() &&
-                abilityRecord->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) {
+            if (abilityRecord && abilityRecord->GetState() == AbilityState::ABILITY_STATE_FOREGROUND) {
                 foregroundSize++;
                 break;
             }
