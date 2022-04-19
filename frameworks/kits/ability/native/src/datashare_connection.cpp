@@ -89,9 +89,11 @@ void DataShareConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 /**
  * @brief connect remote ability of DataShareExtAbility.
  */
-void DataShareConnection::ConnectDataShareExtAbility(const AAFwk::Want &want, const sptr<IRemoteObject> &token)
+void DataShareConnection::ConnectDataShareExtAbility(const Uri &uri, const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("%{public}s called begin", __func__);
+    AAFwk::Want want; 
+    want.SetUri(uri);
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, this, token);
     HILOG_INFO("%{public}s called end, ret=%{public}d", __func__, ret);
 }
