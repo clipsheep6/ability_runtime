@@ -128,6 +128,41 @@ public:
     std::shared_ptr<MetaComponent> metadata_ = nullptr;
     std::shared_ptr<TsCodeEmitter> tsCodeGen_ = nullptr;
 };
+
+class ParameterArgv {
+public:
+    ParameterArgv(const char** args, const int argc) : argc_(argc)
+    {
+        argv_ = new char*[argc_] {nullptr};
+        for (int i = 0; i < argc_; ++i) {
+            const int itemSize = strlen(args[i]);
+            argv_[i] = new char[itemSize + 1] {0};
+            strncpy(argv_[i], args[i], itemSize);
+        }
+    };
+    ~ParameterArgv()
+    {
+        if (argv_ == nullptr) {
+            return;
+        }
+
+        for (int i = 0; i < argc_; ++i) {
+            if (argv_[i] == nullptr) {
+                continue;
+            }
+            delete[] argv_[i];
+            argv_[i] = nullptr;
+        }
+    };
+
+    char** GetArgv()
+    {
+        return argv_;
+    };
+
+    char** argv_;
+    const int argc_;
+};
 }
 }
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "ohos/aafwk/content/array_wrapper.h"
+#include "ohos/aafwk/base/array_wrapper.h"
 #include <cstdint>
 #include "ohos/aafwk/base/bool_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
@@ -24,7 +24,6 @@
 #include "ohos/aafwk/base/long_wrapper.h"
 #include "ohos/aafwk/base/short_wrapper.h"
 #include "ohos/aafwk/base/string_wrapper.h"
-#include "ohos/aafwk/content/want_params_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -120,8 +119,6 @@ std::string Array::ToString()
         result += Array::SIGNATURE;
     } else if (typeId_ == g_IID_IChar) {
         result += Char::SIGNATURE;
-    } else if (typeId_ == g_IID_IWantParams) {
-        result += WantParamWrapper::SIGNATURE;
     } else {
         result += "";
     }
@@ -235,23 +232,13 @@ sptr<IArray> Array::ParseArray(const std::string &values, long size)
     return array;
 }
 
-sptr<IArray> Array::ParseWantParams(const std::string &values, long size)
-{
-    sptr<IArray> array = new (std::nothrow) Array(size, g_IID_IWantParams);
-    if (array != nullptr) {
-        auto func = [](const std::string &str) -> sptr<IInterface> { return WantParamWrapper::Parse(str); };
-        ParseElement(array, func, values, size);
-    }
-    return array;
-}
-
 sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
 {
     char signature = arrayStr[0];
     if (signature != String::SIGNATURE && signature != Boolean::SIGNATURE && signature != Byte::SIGNATURE &&
         signature != Short::SIGNATURE && signature != Integer::SIGNATURE && signature != Long::SIGNATURE &&
         signature != Float::SIGNATURE && signature != Double::SIGNATURE && signature != Array::SIGNATURE &&
-        signature != Char::SIGNATURE && signature != WantParamWrapper::SIGNATURE) {
+        signature != Char::SIGNATURE) {
         return nullptr;
     }
 
@@ -288,8 +275,6 @@ sptr<IArray> Array::Parse(const std::string &arrayStr) /* [in] */
             return ParseDouble(values, size);
         case Array::SIGNATURE:
             return ParseArray(values, size);
-        case WantParamWrapper::SIGNATURE:
-            return ParseWantParams(values, size);
         default:
             break;
     }
@@ -385,13 +370,6 @@ bool Array::IsStringArray(IArray *array) /* [in] */
     InterfaceID typeId;
     array->GetType(typeId);
     return typeId == g_IID_IString;
-}
-
-bool Array::IsWantParamsArray(IArray *array) /* [in] */
-{
-    InterfaceID typeId;
-    array->GetType(typeId);
-    return typeId == g_IID_IWantParams;
 }
 
 void Array::ForEach(IArray *array,          /* [in] */

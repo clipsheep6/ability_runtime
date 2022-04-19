@@ -29,19 +29,14 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     AbilityImpl::SetUseNewMission(targetState.useNewMission);
-    HILOG_INFO("Handle ability transaction start, sourceState:%{public}d, targetState:%{public}d, "
+    HILOG_INFO("Handle page ability transaction, sourceState:%{public}d, targetState:%{public}d, "
              "isNewWant:%{public}d, sceneFlag:%{public}d.",
         lifecycleState_,
         targetState.state,
         targetState.isNewWant,
         targetState.sceneFlag);
-    if (ability_ == nullptr) {
-        HILOG_ERROR("Handle ability transaction error, ability_ is null.");
-        return;
-    }
-    ability_->sceneFlag_ = targetState.sceneFlag;
     if ((lifecycleState_ == targetState.state) && !targetState.isNewWant) {
-        if (targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        if (ability_ != nullptr && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
             ability_->RequsetFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
@@ -58,14 +53,13 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
 
     SetLifeCycleStateInfo(targetState);
 
-    if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
+    if (ability_ && lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
         ability_->SetStartAbilitySetting(targetState.setting);
         Start(want);
         CheckAndRestore();
     }
 
-    if (lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE &&
-        targetState.state != AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_ACTIVE) {
         Inactive();
     }
 
@@ -75,14 +69,16 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
     }
 
     bool ret = false;
+    if (ability_ != nullptr) {
+        ability_->sceneFlag_ = targetState.sceneFlag;
+    }
     if (AbilityImpl::IsUseNewMission()) {
         ret = AbilityTransactionNew(want, targetState);
     } else {
         ret = AbilityTransaction(want, targetState);
     }
     if (ret) {
-        HILOG_INFO("Handle ability transaction done, notify ability manager service, ability:%{public}s.",
-            ability_->GetAbilityName().c_str());
+        HILOG_INFO("Handle ability transaction done, notify ability manager service.");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
     }
     HILOG_INFO("PageAbilityImpl::HandleAbilityTransaction end");
@@ -181,6 +177,7 @@ bool PageAbilityImpl::AbilityTransactionNew(const Want &want, const AAFwk::LifeC
             }
             SerUriString(targetState.caller.deviceId + "/" + targetState.caller.bundleName + "/" +
                          targetState.caller.abilityName);
+            Active();
             if (ability_) {
                 ability_->RequsetFocus(want);
             }

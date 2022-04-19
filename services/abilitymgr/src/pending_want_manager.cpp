@@ -51,10 +51,8 @@ sptr<IWantSender> PendingWantManager::GetWantSender(const int32_t callingUid, Pa
     auto apl = params.apl;
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE && !isSystemApp) {
-        if (callingUid != params.uid) {
-            HILOG_ERROR("is not allowed to send");
-            return nullptr;
-        }
+        HILOG_ERROR("is not allowed to send");
+        return nullptr;
     }
 
     WantSenderInfo info = wantSenderInfo;
@@ -66,7 +64,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
 {
     HILOG_INFO("%{public}s:begin.", __func__);
 
-    bool needCreate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::NO_BUILD_FLAG) == 0;
+    bool needCreate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::NO_BUILD_FLAG) != 0;
     bool needCancel = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::CANCEL_PRESENT_FLAG) != 0;
     bool needUpdate = ((uint32_t)wantSenderInfo.flags & (uint32_t)Flags::UPDATE_PRESENT_FLAG) != 0;
 
@@ -105,7 +103,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         return nullptr;
     }
 
-    if (!needCreate) {
+    if (needCreate) {
         return (ref != nullptr) ? ref : nullptr;
     }
 

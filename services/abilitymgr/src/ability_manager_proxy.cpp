@@ -68,29 +68,6 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
     return reply.ReadInt32();
 }
 
-AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return {};
-    }
-
-    int error = Remote()->SendRequest(IAbilityManager::GET_TOP_ABILITY, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return {};
-    }
-    std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
-    if (!name) {
-        HILOG_ERROR("Read info failed.");
-        return {};
-    }
-    AppExecFwk::ElementName result = *name;
-    return result;
-}
-
 int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
@@ -780,7 +757,6 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
 {
     MessageParcel data;
@@ -805,7 +781,6 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
     }
     return reply.ReadInt32();
 }
-#endif
 
 int AbilityManagerProxy::ClearUpApplicationData(const std::string &bundleName)
 {
@@ -2289,7 +2264,6 @@ int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerProxy::BlockAmsService()
 {
     MessageParcel data;
@@ -2339,46 +2313,6 @@ int AbilityManagerProxy::BlockAppService()
         HILOG_ERROR("BlockAmsService error: %d", error);
         return error;
     }
-    return reply.ReadInt32();
-}
-#endif
-int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-    int32_t userId, int requestCode)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteParcelable(callback)) {
-        HILOG_ERROR("callback write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
-        return INNER_ERR;
-    }
-
-    auto error = Remote()->SendRequest(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-
     return reply.ReadInt32();
 }
 }  // namespace AAFwk

@@ -27,8 +27,8 @@ namespace {
 constexpr int32_t UNSPECIFIED_USER = -2;
 }
 
-std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRuntime::Runtime> &runtime,
-    const std::shared_ptr<AbilityDelegatorArgs> &args, bool isFaJsModel)
+std::unique_ptr<TestRunner> TestRunner::Create(
+    const std::unique_ptr<AbilityRuntime::Runtime> &runtime, const std::shared_ptr<AbilityDelegatorArgs> &args)
 {
     if (!runtime) {
         return std::make_unique<TestRunner>();
@@ -60,7 +60,7 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
 
     switch (runtime->GetLanguage()) {
         case AbilityRuntime::Runtime::Language::JS:
-            return RunnerRuntime::JsTestRunner::Create(runtime, args, bundleInfo, isFaJsModel);
+            return RunnerRuntime::JsTestRunner::Create(runtime, args, bundleInfo);
         default:
             return std::make_unique<TestRunner>();
     }
@@ -71,10 +71,5 @@ void TestRunner::Prepare()
 
 void TestRunner::Run()
 {}
-
-bool TestRunner::Initialize()
-{
-    return true;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

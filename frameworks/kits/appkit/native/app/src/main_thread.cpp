@@ -948,7 +948,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     auto usertestInfo = appLaunchData.GetUserTestInfo();
     if (usertestInfo) {
-        if (!PrepareAbilityDelegator(usertestInfo, isStageBased, bundleInfo)) {
+        if (!PrepareAbilityDelegator(usertestInfo)) {
             HILOG_ERROR("Failed to prepare ability delegator");
             return;
         }
@@ -1026,8 +1026,7 @@ void MainThread::LoadAndRegisterExtension(const std::string &libName,
     });
 }
 
-bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
-    BundleInfo& bundleInfo)
+bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record)
 {
     HILOG_INFO("enter");
     if (!record) {
@@ -1039,30 +1038,21 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         HILOG_ERROR("args is null");
         return false;
     }
-    if (isStageBased) { // Stage model
-        HILOG_INFO("PrepareAbilityDelegator for Stage model.");
-        auto testRunner = TestRunner::Create(application_->GetRuntime(), args, false);
-        auto delegator = std::make_shared<AbilityDelegator>(
-            application_->GetAppContext(), std::move(testRunner), record->observer);
-        AbilityDelegatorRegistry::RegisterInstance(delegator, args);
-        delegator->Prepare();
-    } else { // FA model
+    if (application_->GetRuntime() == nullptr) { // FA model
         HILOG_INFO("PrepareAbilityDelegator for FA model.");
         AbilityRuntime::Runtime::Options options;
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = false;
-        if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
-            HILOG_ERROR("Failed to abilityInfos");
-            return false;
-        }
-        bool isFaJsModel = bundleInfo.hapModuleInfos.front().abilityInfos.front().srcLanguage == "js" ? true : false;
         static auto runtime = AbilityRuntime::Runtime::Create(options);
-        auto testRunner = TestRunner::Create(runtime, args, isFaJsModel);
-        if (!testRunner->Initialize()) {
-            HILOG_ERROR("Failed to Initialize testRunner");
-            return false;
-        }
+        auto testRunner = TestRunner::Create(runtime, args);
+        auto delegator = std::make_shared<AbilityDelegator>(
+            application_->GetAppContext(), std::move(testRunner), record->observer);
+        AbilityDelegatorRegistry::RegisterInstance(delegator, args);
+        delegator->Prepare();
+    } else { // Stage model
+        HILOG_INFO("PrepareAbilityDelegator for Stage model.");
+        auto testRunner = TestRunner::Create(application_->GetRuntime(), args);
         auto delegator = std::make_shared<AbilityDelegator>(
             application_->GetAppContext(), std::move(testRunner), record->observer);
         AbilityDelegatorRegistry::RegisterInstance(delegator, args);

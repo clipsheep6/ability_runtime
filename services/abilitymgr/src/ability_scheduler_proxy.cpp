@@ -1043,7 +1043,6 @@ sptr<IRemoteObject> AbilitySchedulerProxy::CallRequest()
     return call;
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerProxy::BlockAbility()
 {
     HILOG_INFO("AbilitySchedulerProxy::BlockAbility start");
@@ -1066,6 +1065,5 @@ int AbilitySchedulerProxy::BlockAbility()
     }
     return ret;
 }
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

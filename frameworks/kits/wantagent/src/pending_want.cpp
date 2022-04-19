@@ -272,7 +272,7 @@ bool PendingWant::Equals(
         return false;
     }
     return targetPendingWant->GetHashCode(targetPendingWant->GetTarget()) ==
-           otherPendingWant->GetHashCode(otherPendingWant->GetTarget());
+           targetPendingWant->GetHashCode(otherPendingWant->GetTarget());
 }
 
 sptr<IWantSender> PendingWant::GetTarget()

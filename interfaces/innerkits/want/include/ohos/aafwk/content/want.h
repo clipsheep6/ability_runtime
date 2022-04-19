@@ -157,8 +157,7 @@ public:
      * @param abilityName Indicates the abilityName to set for the operation attribute in the Want.
      * @return Returns this Want object that contains the specified bundleName and abilityName attributes.
      */
-    Want &SetElementName(const std::string &deviceId, const std::string &bundleName,
-        const std::string &abilityName, const std::string &moduleName = "");
+    Want &SetElementName(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName);
 
     /**
      * @description: Sets an ElementName object in a Want.
@@ -762,27 +761,6 @@ public:
     std::string ToString() const;
 
     static Want *FromString(std::string &string);
-
-    /**
-    * @description: Sets a device id in a Want.
-    * @param deviceId Indicates the device id to set.
-    * @return Returns this Want object containing the flag.
-    */
-    Want &SetDeviceId(const std::string &deviceId);
-
-    /**
-     * @description: Sets an ModuleName object in a Want.
-     * @param moduleName Indicates the ModuleName description.
-     * @return Returns this Want object containing the ModuleName.
-     */
-    Want &SetModuleName(const std::string &moduleName);
-
-    /**
-     * @description: Obtains the description of the ModuleName object in a Want.
-     * @return Returns the ModuleName description in the Want.
-     */
-    std::string GetModuleName() const;
-
 public:
     // action definition
     static const std::string ACTION_PLAY;

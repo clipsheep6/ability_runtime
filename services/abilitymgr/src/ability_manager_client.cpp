@@ -162,7 +162,7 @@ ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, 
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
+    HILOG_INFO("%{public}s called, fromUser=%{public}d", __func__, fromUser);
     return abms->MinimizeAbility(token, fromUser);
 }
 
@@ -229,7 +229,7 @@ ErrCode AbilityManagerClient::Connect()
         HILOG_ERROR("Fail to get registry.");
         return GET_ABILITY_SERVICE_FAILED;
     }
-    sptr<IRemoteObject> remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
+    sptr<IRemoteObject>  remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
         HILOG_ERROR("Fail to connect ability manager service.");
         return GET_ABILITY_SERVICE_FAILED;
@@ -265,7 +265,6 @@ ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
     return abms->KillProcess(bundleName);
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -273,7 +272,6 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ForceTimeoutForTest(abilityName, state);
 }
-#endif
 
 ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName)
 {
@@ -746,7 +744,6 @@ ErrCode AbilityManagerClient::SendANRProcessID(int pid)
     return abms->SendANRProcessID(pid);
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::BlockAmsService()
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -770,7 +767,6 @@ ErrCode AbilityManagerClient::BlockAppService()
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAppService();
 }
-#endif
 
 sptr<IAbilityManager> AbilityManagerClient::GetAbilityManager()
 {
@@ -800,27 +796,6 @@ void AbilityManagerClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRe
 {
     HILOG_INFO("AbilityMgrDeathRecipient handle remote died.");
     AbilityManagerClient::GetInstance()->ResetProxy(remote);
-}
-
-ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-    int32_t userId, int requestCode)
-{
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
-}
-
-AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
-{
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
-    auto abms = GetAbilityManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("[%{public}s] abms == nullptr", __FUNCTION__);
-        return {};
-    }
-
-    return abms->GetTopAbility();
 }
 }  // namespace AAFwk
 }  // namespace OHOS

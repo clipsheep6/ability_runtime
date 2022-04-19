@@ -527,7 +527,6 @@ void AppMgrClient::PostANRTaskByProcessID(const pid_t pid)
     service->PostANRTaskByProcessID(pid);
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrClient::BlockAppService()
 {
     HILOG_INFO("%{public}s", __func__);
@@ -538,6 +537,5 @@ int AppMgrClient::BlockAppService()
     }
     return service->BlockAppService();
 }
-#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

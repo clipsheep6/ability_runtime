@@ -27,14 +27,11 @@ class ElementName : public Parcelable {
      * How to locate unique Ability: deviceId/bundleName/abilityName
      */
 public:
-    ElementName(const std::string &deviceId, const std::string &bundleName,
-        const std::string &abilityName, const std::string &moduleName = "");
+    ElementName(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName);
     ElementName();
     ~ElementName();
 
     std::string GetURI() const;
-    std::string GetElementNameURI() const;
-
     bool operator==(const ElementName &element) const;
 
     inline void SetDeviceID(const std::string &id)
@@ -67,16 +64,6 @@ public:
         return abilityName_;
     }
 
-    inline void SetModuleName(const std::string &moduleName)
-    {
-        moduleName_ = moduleName;
-    }
-
-    inline std::string GetModuleName() const
-    {
-        return moduleName_;
-    }
-
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static ElementName *Unmarshalling(Parcel &parcel);
@@ -84,14 +71,12 @@ public:
     void SetElementDeviceID(ElementName *element, const char *deviceId);
     void SetElementBundleName(ElementName *element, const char *bundleName);
     void SetElementAbilityName(ElementName *element, const char *abilityName);
-    void SetElementModuleName(ElementName *element, const char *moduleName);
     void ClearElement(ElementName *element);
 
 private:
     std::string deviceId_;
     std::string bundleName_;
     std::string abilityName_;
-    std::string moduleName_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -600,12 +600,6 @@ public:
     void DumpService(std::vector<std::string> &info, bool isClient = false) const;
 
     /**
-     * dump service info.
-     *
-     */
-    void DumpService(std::vector<std::string> &info, std::vector<std::string> &params, bool isClient = false) const;
-
-    /**
      * get ability record info.
      *
      */
@@ -687,10 +681,8 @@ public:
     void SetWindowMode(int32_t windowMode);
     void RemoveWindowMode();
     LifeCycleStateInfo lifeCycleStateInfo_;                // target life state info
-    #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbility();
-    #endif
-
+    
     bool CanRestartRootLauncher();
 
 protected:

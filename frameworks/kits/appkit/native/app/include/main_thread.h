@@ -404,8 +404,7 @@ private:
      * @param record User Test info.
      *
      */
-    bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
-        BundleInfo& bundleInfo);
+    bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record);
 
     /**
      *

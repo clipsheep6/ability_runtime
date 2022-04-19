@@ -343,7 +343,6 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
     }
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
 {
     int ret = -1;
@@ -360,6 +359,5 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
     }
     return ret;
 }
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -124,7 +124,7 @@ void AbilityImpl::Stop()
     }
 #endif
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
-    ability_->DestroyInstance(); // Release window and ability.
+    ability_->Destroy(); // Release window and ability.
     ability_ = nullptr;
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -211,7 +211,6 @@ void AbilityImpl::AfterUnFocused()
     auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
-        info.isNewWant = false;
         Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
@@ -236,7 +235,6 @@ void AbilityImpl::AfterFocused()
     auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
-        info.isNewWant = false;
         Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
@@ -534,9 +532,6 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
     } else {
         ability_->OnAbilityResult(requestCode, resultCode, resultData);
     }
-
-    // for api5 FeatureAbility::startAbilityForResult
-    ability_->OnFeatureAbilityResult(requestCode, resultCode, resultData);
     HILOG_INFO("%{public}s end.", __func__);
 }
 

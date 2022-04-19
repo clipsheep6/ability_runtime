@@ -33,7 +33,6 @@ class Ability {
     onContinue(wantParams) {}
     onConfigurationUpdated(config) {}
     onNewWant(want) {}
-    dump(params) {}
 }
 
 export default Ability

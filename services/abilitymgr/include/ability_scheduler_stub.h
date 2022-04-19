@@ -65,9 +65,7 @@ private:
     int NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoInner(MessageParcel& data, MessageParcel& reply);
     int CallRequestInner(MessageParcel &data, MessageParcel &reply);
-    #ifdef ABILITY_COMMAND_FOR_TEST
     int BlockAbilityInner(MessageParcel &data, MessageParcel &reply);
-    #endif
 
     int ContinueAbilityInner(MessageParcel &data, MessageParcel &reply);
     using RequestFuncType = int (AbilitySchedulerStub::*)(MessageParcel &data, MessageParcel &reply);

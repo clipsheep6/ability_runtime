@@ -73,13 +73,12 @@ const std::string Ability::NAVIGATION_BAR("com.ohos.systemui.navigationbar.MainA
 const std::string Ability::KEYGUARD("com.ohos.screenlock");
 const std::string DEVICE_MANAGER_BUNDLE_NAME = "com.ohos.devicemanagerui";
 const std::string DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
-const std::string Ability::DMS_SESSION_ID("missionId");
+const std::string Ability::DMS_SESSION_ID("sessionId");
 const std::string Ability::DMS_ORIGIN_DEVICE_ID("deviceId");
 const int Ability::DEFAULT_DMS_SESSION_ID(0);
 const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 
 #ifdef SUPPORT_GRAPHICS
 static std::mutex formLock;
@@ -323,19 +322,12 @@ void Ability::OnStop()
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
-#ifdef SUPPORT_GRAPHICS
-    // Call JS Func(onWindowStageDestroy) and Release the scene.
-    if (scene_ != nullptr) {
-        scene_->GoDestroy();
-        scene_ = nullptr;
-        onSceneDestroyed();
-    }
-#endif
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
+
     if (lifecycle_ == nullptr) {
         HILOG_ERROR("Ability::OnStop error. lifecycle_ == nullptr.");
         return;
@@ -347,13 +339,20 @@ void Ability::OnStop()
 /**
  * @brief Release the window and ability.
  */
-void Ability::DestroyInstance()
+void Ability::Destroy()
 {
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
+    // Release the scene.
+    if (scene_ != nullptr) {
+        scene_->GoDestroy();
+        scene_ = nullptr;
+        onSceneDestroyed();
+    }
+
     // Release the window.
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        abilityWindow_->OnPostAbilityStop(); // Ability instance will been released when window destroy.
+        abilityWindow_->OnPostAbilityStop(); // Ability will been released when window destroy.
     }
 #endif
     HILOG_INFO("%{public}s end, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
@@ -3559,16 +3558,7 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
     HILOG_INFO("Ability::GetWindowOption window mode is %{public}d.", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-    bool showOnLockScreen = false;
-    if (abilityInfo_) {
-        std::vector<CustomizeData> datas = abilityInfo_->metaData.customizeData;
-        for (CustomizeData data : datas) {
-            if (data.name == SHOW_ON_LOCK_SCREEN) {
-                showOnLockScreen = true;
-            }
-        }
-    }
-    if (showOnLockScreen_ || showOnLockScreen) {
+    if (showOnLockScreen_) {
         HILOG_DEBUG("Ability::GetWindowOption come, add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED.");
         option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }
@@ -3789,16 +3779,7 @@ void Ability::SetDisplayOrientation(int orientation)
             orientation = defualtOrientation;
         }
     }
-    if (orientation == static_cast<int>(DisplayOrientation::LANDSCAPE)) {
-        HILOG_DEBUG("%{public}s, to set LANDSCAPE", __func__);
-        window->SetRequestedOrientation(Rosen::Orientation::HORIZONTAL);
-    } else if (orientation == static_cast<int>(DisplayOrientation::PORTRAIT)) {
-        HILOG_DEBUG("%{public}s, to set PORTRAIT", __func__);
-        window->SetRequestedOrientation(Rosen::Orientation::VERTICAL);
-    } else {
-        HILOG_DEBUG("%{public}s, to set UNSPECIFIED", __func__);
-        window->SetRequestedOrientation(Rosen::Orientation::UNSPECIFIED);
-    }
+    window->SetRequestedOrientation(static_cast<Rosen::Orientation>(orientation));
 }
 
 int Ability::GetDisplayOrientation()
@@ -3814,40 +3795,8 @@ int Ability::GetDisplayOrientation()
         HILOG_ERROR("window is nullptr.");
         return 0;
     }
-    auto orientation = window->GetRequestedOrientation();
-    if (orientation == Rosen::Orientation::HORIZONTAL) {
-        HILOG_DEBUG("%{public}s, get window orientation: LANDSCAPE", __func__);
-        return static_cast<int>(DisplayOrientation::LANDSCAPE);
-    }
-    if (orientation == Rosen::Orientation::VERTICAL) {
-        HILOG_DEBUG("%{public}s, get window orientation: PORTRAIT", __func__);
-        return static_cast<int>(DisplayOrientation::PORTRAIT);
-    }
-    HILOG_DEBUG("%{public}s, get window orientation: UNSPECIFIED", __func__);
-    return 0;
+    return static_cast<int>(window->GetRequestedOrientation());
 }
 #endif
-
-ErrCode Ability::StartFeatureAbilityForResult(const Want &want, int requestCode, FeatureAbilityTask &&task)
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
-    ErrCode err = StartAbilityForResult(want, requestCode);
-    HILOG_INFO("%{public}s end. ret=%{public}d", __func__, err);
-    return err;
-}
-
-void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want &want)
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    auto callback = resultCallbacks_.find(requestCode);
-    if (callback != resultCallbacks_.end()) {
-        if (callback->second) {
-            callback->second(resultCode, want);
-        }
-        resultCallbacks_.erase(requestCode);
-    }
-    HILOG_INFO("%{public}s end.", __func__);
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS
