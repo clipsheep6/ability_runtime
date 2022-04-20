@@ -104,7 +104,6 @@ napi_value AcquireDataShareHelperWrap(napi_env env, napi_callback_info info, Dat
     }
 
     delete dataShareHelperCB;
-    dataShareHelperCB = nullptr;
     HILOG_INFO("%{public}s,end", __func__);
     return result;
 }
@@ -1278,13 +1277,11 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
             obs->ChangeWorkPreDone();
         }
     }
-    if (onCB != nullptr) {
-        delete onCB;
-        onCB = nullptr;
+    delete onCB;
+    onCB = nullptr;
     }
     if (work != nullptr) {
         delete work;
-        work = nullptr;
     }
     HILOG_INFO("OnChange, uv_queue_work. end");
 }
@@ -1329,10 +1326,8 @@ void NAPIDataShareObserver::OnChange()
         [](uv_work_t *work) {},
         OnChangeJSThreadWorker);
     if (rev != 0) {
-        if (onCB != nullptr) {
-            delete onCB;
-            onCB = nullptr;
-        }
+        delete onCB;
+        onCB = nullptr;
         if (work != nullptr) {
             delete work;
             work = nullptr;
