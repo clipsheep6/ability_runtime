@@ -32,7 +32,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
 const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
-const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.ServiceExtAbility";
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string STATE_KEY = "ohos.user.grant.permission.state";
 
