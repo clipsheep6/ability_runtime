@@ -20,9 +20,11 @@
 
 #include "context_container.h"
 #include "data_ability_helper.h"
-#include "datashare_helper.h"
 
 namespace OHOS {
+namespace DataShare {
+class DataShareHelper;
+}
 namespace AppExecFwk {
 class AbilityContext : public ContextContainer {
 public:
@@ -619,7 +621,7 @@ public:
     std::shared_ptr<TaskDispatcher> GetGlobalTaskDispatcher(const TaskPriority &priority) override;
 
     friend DataAbilityHelper;
-    friend DataShareHelper;
+    friend OHOS::DataShare::DataShareHelper;
     static int ABILITY_CONTEXT_DEFAULT_REQUEST_CODE;
 
 protected:
