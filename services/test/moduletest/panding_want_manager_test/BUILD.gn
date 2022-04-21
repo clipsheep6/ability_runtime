@@ -96,7 +96,6 @@ ohos_moduletest("PandingWantMgrTest") {
     deps += [
       "//base/global/i18n/frameworks/intl:intl_util",
       "//foundation/ace/ace_engine/interfaces/innerkits/ui_service_manager:ui_service_mgr",
-      "//foundation/graphic/standard:libwmservice",
       "//third_party/libpng:libpng",
     ]
 
