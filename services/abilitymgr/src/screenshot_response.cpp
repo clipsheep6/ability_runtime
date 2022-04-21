@@ -18,35 +18,5 @@
 
 namespace OHOS {
 namespace AAFwk {
-
-void ScreenShotResponse::OnWindowShot(const OHOS::WMImageInfo &info)
-{
-    HILOG_INFO("On screen shot call back.");
-    std::unique_lock<std::mutex> lock(mutex_);
-    info_ = std::make_shared<OHOS::WMImageInfo>();
-    if (!info_) {
-        return;
-    }
-    info_->width = info.width;
-    info_->size = info.size;
-    info_->height = info.height;
-    info_->format = info.format;
-    info_->data = info.data;
-    condition_.notify_all();
-}
-
-OHOS::WMImageInfo ScreenShotResponse::GetImageInfo()
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-    if (info_ == nullptr) {
-        if (condition_.wait_for(lock, std::chrono::milliseconds(TIME_OUT)) == std::cv_status::timeout) {
-            return OHOS::WMImageInfo();
-        }
-    }
-
-    OHOS::WMImageInfo info = *info_;
-    info_.reset();
-    return info;
-}
 }  // namespace AAFwk
 }  // namespace OHOS
