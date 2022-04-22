@@ -527,6 +527,12 @@ void AppMgrClient::PostANRTaskByProcessID(const pid_t pid)
     service->PostANRTaskByProcessID(pid);
 }
 
+sptr<IRemoteObject> AppMgrClient::GetRemoteObject()
+{
+    return mgrHolder_->GetRemoteObject();
+}
+
+#ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrClient::BlockAppService()
 {
     HILOG_INFO("%{public}s", __func__);
