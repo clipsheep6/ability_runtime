@@ -13,6 +13,7 @@
 
 import("//build/test.gni")
 import("//foundation/appexecfwk/standard/appexecfwk.gni")
+import("//foundation/aafwk/standard/aafwk.gni")
 
 module_output_path = "appexecfwk_standard/formmanagerst"
 
@@ -45,8 +46,8 @@ ohos_systemtest("FormReleaseFormTest") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${appexecfwk_path}/common:libappexecfwk_common",
-    "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
+    "${appexecfwk_path}/interfaces/innerkits/libeventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
   ]
 

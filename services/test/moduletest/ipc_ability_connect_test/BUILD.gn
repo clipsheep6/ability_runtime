@@ -33,7 +33,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
   deps = [
     "${innerkits_path}/want:want",
     "${services_path}/common:perm_verification",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utilsbase",

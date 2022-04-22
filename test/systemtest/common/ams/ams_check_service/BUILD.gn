@@ -14,11 +14,12 @@
 import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/appexecfwk/standard/appexecfwk.gni")
+import("//foundation/aafwk/standard/aafwk.gni")
 module_output_path = "appexecfwk_standard/ams/"
 
 config("ams_check_service_config") {
   include_dirs = [
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
+    "${aafwk_path}/frameworks/kits/appkit/native/app/include",
     "${appexecfwk_path}/interfaces/innerkits/appexecfwk_core/include/bundlemgr",
     "${aafwk_path}/interfaces/innerkits/want/include",
     "${aafwk_path}/interfaces/innerkits/app_manager/include/appmgr",
@@ -38,15 +39,15 @@ ohos_systemtest("ams_check_service") {
 
   include_dirs = [
     "//foundation/distributedschedule/safwk/services/safwk/include",
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/include",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/include",
     "//base/notification/ces_standard/test/systemtest/common/resource",
   ]
 
   sources = [
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/src/event.cpp",
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/src/module_test_dump_util.cpp",
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/src/st_ability_util.cpp",
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/src/stoperator.cpp",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/src/event.cpp",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/src/module_test_dump_util.cpp",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/src/st_ability_util.cpp",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/src/stoperator.cpp",
     "access_control_check.cpp",
   ]
 
@@ -54,10 +55,10 @@ ohos_systemtest("ams_check_service") {
     "${aafwk_path}/services/abilitymgr:abilityms_config",
     "${aafwk_path}/services/appmgr:appmgr_config",
 
-    # "//foundation/aafwk/standard/frameworks/kits/appkit:appkit_config",
+    # "${aafwk_path}/frameworks/kits/appkit:appkit_config",
     ":ams_check_service_config",
-    "//foundation/appexecfwk/standard/test/systemtest/common/ams/tool/:system_test_ability_util_config",
-    "//foundation/appexecfwk/standard/libs/libeventhandler:libeventhandler_config",
+    "${appexecfwk_path}/test/systemtest/common/ams/tool/:system_test_ability_util_config",
+    "${appexecfwk_path}/libs/libeventhandler:libeventhandler_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -69,8 +70,8 @@ ohos_systemtest("ams_check_service") {
     "${aafwk_path}/interfaces/innerkits/want:want",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-    "//foundation/aafwk/standard/frameworks/kits/appkit:appkit_native",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${appexecfwk_path}/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

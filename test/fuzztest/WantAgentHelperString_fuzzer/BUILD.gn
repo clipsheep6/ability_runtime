@@ -23,7 +23,7 @@ ohos_fuzztest("WantAgentHelperStringFuzzTest") {
   module_out_path = module_output_path
 
   include_dirs =
-      [ "//foundation/aafwk/standard/interfaces/innerkits/wantagent/include" ]
+      [ "${aafwk_path}/interfaces/innerkits/wantagent/include" ]
 
   cflags = [
     "-g",
@@ -35,7 +35,7 @@ ohos_fuzztest("WantAgentHelperStringFuzzTest") {
   sources = [ "WantAgentHelperString_fuzzer.cpp" ]
 
   deps = [
-    "//foundation/aafwk/standard/frameworks/kits/wantagent:wantagent_innerkits",
+    "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
   ]
 
   external_deps = [
