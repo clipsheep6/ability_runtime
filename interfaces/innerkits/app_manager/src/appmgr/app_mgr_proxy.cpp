@@ -659,7 +659,6 @@ void AppMgrProxy::PostANRTaskByProcessID(const pid_t pid)
     }
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrProxy::BlockAppService()
 {
     MessageParcel data;
@@ -678,6 +677,5 @@ int AppMgrProxy::BlockAppService()
     }
     return reply.ReadInt32();
 }
-#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

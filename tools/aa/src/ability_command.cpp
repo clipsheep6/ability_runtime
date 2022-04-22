@@ -90,8 +90,8 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"ApplicationNotRespondin", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID, this)},
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
-        {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
 #endif
+        {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
     };
 
     return OHOS::ERR_OK;
@@ -1176,7 +1176,7 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAmsServiceCommand()
     }
     return result;
 }
-
+#endif
 ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -1192,6 +1192,5 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
     }
     return result;
 }
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

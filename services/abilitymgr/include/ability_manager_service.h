@@ -579,15 +579,6 @@ public:
 
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
-    /**
-     * Called when client complete dump.
-     *
-     * @param infos The dump info.
-     * @param callerToken The caller ability token.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
-
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
@@ -695,12 +686,6 @@ public:
     virtual int BlockAbility(int32_t abilityRecordId) override;
 
     /**
-     * Block app manager service.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int BlockAppService() override;
-
-    /**
      * force timeout ability.
      *
      * @param abilityName.
@@ -709,6 +694,12 @@ public:
      */
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
     #endif
+
+    /**
+     * Block app manager service.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BlockAppService() override;
 
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);
@@ -774,7 +765,6 @@ public:
     static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 500;  // ms
     static constexpr uint32_t FOREGROUNDNEW_TIMEOUT = 5000;   // ms
     static constexpr uint32_t BACKGROUNDNEW_TIMEOUT = 3000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 5000;            // ms
 
     static constexpr uint32_t MIN_DUMP_ARGUMENT_NUM = 2;
     static constexpr uint32_t MAX_WAIT_SYSTEM_UI_NUM = 600;
@@ -939,6 +929,10 @@ private:
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DataDumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    ErrCode ProcessOneParam(std::string& args, std::string &result);
+    ErrCode ProcessTwoParam(const std::string& firstParam, const std::string& secondParam, std::string &result);
+    ErrCode ProcessThreeParam(const std::string& firstParam, const std::string& secondParam,
+        const std::string& thirdParam, std::string &result);
     ErrCode ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result);
     void ShowHelp(std::string &result);
     void ShowIllealInfomation(std::string &result);

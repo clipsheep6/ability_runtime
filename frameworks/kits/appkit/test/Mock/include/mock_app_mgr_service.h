@@ -53,6 +53,7 @@ public:
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
     MOCK_METHOD1(PostANRTaskByProcessID, void(const pid_t pid));
+    MOCK_METHOD0(BlockAppService, int());
     
     void AttachApplication(const sptr<IRemoteObject> &app)
     {

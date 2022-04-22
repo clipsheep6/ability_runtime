@@ -122,8 +122,8 @@ void AbilityManagerStub::SecondStepInit()
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
     requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
-    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
 #endif
+    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
 }
 
 void AbilityManagerStub::ThirdStepInit()
@@ -139,7 +139,6 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[GET_TOP_ABILITY] = &AbilityManagerStub::GetTopAbilityInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[REGISTER_WINDOW_HANDLER] = &AbilityManagerStub::RegisterWindowHandlerInner;
-    requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1367,7 +1366,7 @@ int AbilityManagerStub::BlockAmsServiceInner(MessageParcel &data, MessageParcel 
     }
     return NO_ERROR;
 }
-
+#endif
 int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t result = BlockAppService();
@@ -1377,7 +1376,6 @@ int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel 
     }
     return NO_ERROR;
 }
-#endif
 
 int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -1397,19 +1395,6 @@ int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, M
     int32_t userId = data.ReadInt32();
     int32_t requestCode = data.ReadInt32();
     int32_t result = FreeInstallAbilityFromRemote(*want, callback, userId, requestCode);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::vector<std::string> infos;
-    data.ReadStringVector(&infos);
-    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
-    int32_t result = DumpAbilityInfoDone(infos, callerToken);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

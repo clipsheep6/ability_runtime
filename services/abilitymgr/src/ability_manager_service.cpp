@@ -258,7 +258,7 @@ bool AbilityManagerService::Init()
     }
 
     auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
-    handler_->PostTask(startSystemTask, "StartSystemApplication");
+    handler_->PostTask(startSystemTask, "startLauncherAbility");
     HILOG_INFO("Init success.");
     return true;
 }
@@ -2920,8 +2920,20 @@ void AbilityManagerService::StartingSystemUiAbility()
 {
 #ifdef SUPPORT_GRAPHICS
     HILOG_DEBUG("%{public}s", __func__);
+    AppExecFwk::AbilityInfo systemUiInfo;
+    auto bms = GetBundleManager();
+    CHECK_POINTER_IS_NULLPTR(bms);
     Want systemUiWant;
     systemUiWant.SetElementName(AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME);
+    uint32_t waitCnt = 0;
+    // Wait 10 minutes for the installation to complete.
+    IN_PROCESS_CALL_WITHOUT_RET(
+        while (!bms->QueryAbilityInfo(systemUiWant, systemUiInfo) && waitCnt < MAX_WAIT_SYSTEM_UI_NUM) {
+            HILOG_INFO("Waiting query system ui info completed.");
+            usleep(REPOLL_TIME_MICRO_SECONDS);
+            waitCnt++;
+        }
+    );
     (void)StartAbility(systemUiWant, U0_USER_ID, DEFAULT_INVAL_VALUE);
 #endif
 }
@@ -3969,10 +3981,30 @@ void AbilityManagerService::StartingScreenLockAbility()
 {
 #ifdef SUPPORT_GRAPHICS
     HILOG_DEBUG("%{public}s", __func__);
+    auto bms = GetBundleManager();
+    CHECK_POINTER_IS_NULLPTR(bms);
+
+    constexpr int maxAttemptNums = 5;
     auto userId = GetUserId();
+    int attemptNums = 1;
+    AppExecFwk::AbilityInfo screenLockInfo;
     Want screenLockWant;
     screenLockWant.SetElementName(AbilityConfig::SCREEN_LOCK_BUNDLE_NAME, AbilityConfig::SCREEN_LOCK_ABILITY_NAME);
-    (void)StartAbility(screenLockWant, userId, DEFAULT_INVAL_VALUE);
+    HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
+    IN_PROCESS_CALL_WITHOUT_RET(
+        while (!(bms->QueryAbilityInfo(screenLockWant,
+            OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, screenLockInfo)) &&
+            attemptNums <= maxAttemptNums) {
+            HILOG_INFO("Waiting query mms service completed.");
+            usleep(REPOLL_TIME_MICRO_SECONDS);
+            attemptNums++;
+        }
+    );
+
+    HILOG_INFO("attemptNums : %{public}d", attemptNums);
+    if (attemptNums <= maxAttemptNums) {
+        (void)StartAbility(screenLockWant, userId, DEFAULT_INVAL_VALUE);
+    }
 #endif
 }
 
@@ -4309,13 +4341,12 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
     HILOG_DEBUG("%{public}s", __func__);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
-
+#endif
 int AbilityManagerService::BlockAppService()
 {
     HILOG_DEBUG("%{public}s", __func__);
     return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();
 }
-#endif
 
 bool AbilityManagerService::CheckIsFreeInstall(const Want &want)
 {
@@ -4663,6 +4694,83 @@ int AbilityManagerService::Dump(int fd, const std::vector<std::u16string> &args)
     return errCode;
 }
 
+ErrCode AbilityManagerService::ProcessOneParam(std::string& args, std::string &result)
+{
+    if (args == "-h") {
+        ShowHelp(result);
+        return ERR_OK;
+    }
+
+    std::string cmd;
+    auto iter = ONE_ARG_SET.find(args);
+    if (iter != ONE_ARG_SET.end()) {
+        cmd = *iter;
+    } else {
+        return ERR_AAFWK_HIDUMP_INVALID_ARGS;
+    }
+
+    cmd += " ";
+    std::vector<std::string> dumpResults;
+    DumpSysState(cmd, dumpResults, false, false, -1);
+    for (auto it : dumpResults) {
+        result += it + "\n";
+    }
+    return ERR_OK;
+}
+
+ErrCode AbilityManagerService::ProcessTwoParam(const std::string& firstParam, const std::string& secondParam,
+    std::string &result)
+{
+    std::string cmd;
+    auto iter = TWO_ARGS_SET.find(firstParam);
+    if (iter != TWO_ARGS_SET.end()) {
+        cmd = *iter;
+    } else {
+        return ERR_AAFWK_HIDUMP_INVALID_ARGS;
+    }
+
+    bool isClient = false;
+    if (cmd == "-a" && secondParam == "-c") {
+        isClient = true;
+    }
+
+    if (isClient) {
+        cmd = cmd + " ";
+    } else {
+        cmd = cmd + " " + secondParam + " ";
+    }
+
+    std::vector<std::string> dumpResults;
+    DumpSysState(cmd, dumpResults, isClient, false, -1);
+    for (auto it : dumpResults) {
+        result += it + "\n";
+    }
+    return ERR_OK;
+}
+
+ErrCode AbilityManagerService::ProcessThreeParam(const std::string& firstParam, const std::string& secondParam,
+    const std::string& thirdParam, std::string &result)
+{
+    if (firstParam != "-a" || secondParam != "-u") {
+        return ERR_AAFWK_HIDUMP_INVALID_ARGS;
+    }
+
+    int userID = DEFAULT_INVAL_VALUE;
+    (void)StrToInt(thirdParam, userID);
+    HILOG_DEBUG("%{public}s, userID is : %{public}d", __func__, userID);
+    if (userID < 0) {
+        return ERR_AAFWK_HIDUMP_INVALID_ARGS;
+    }
+
+    std::string cmd = "-a ";
+    std::vector<std::string> dumpResults;
+    DumpSysState(cmd, dumpResults, false, true, userID);
+    for (auto it : dumpResults) {
+        result += it + "\n";
+    }
+    return ERR_OK;
+}
+
 ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
@@ -4770,18 +4878,6 @@ bool AbilityManagerService::IsTopAbility(const sptr<IRemoteObject> &callerToken)
     }
 
     return false;
-}
-
-int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
-{
-    HILOG_DEBUG("DumpAbilityInfoDone begin");
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    abilityRecord->DumpAbilityInfoDone(infos);
-    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

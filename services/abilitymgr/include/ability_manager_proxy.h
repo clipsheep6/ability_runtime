@@ -521,14 +521,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAbility(int32_t abilityRecordId) override;
-
+    #endif
     /**
      * Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() override;
-    #endif
 
     /**
      * Call free install from remote.
@@ -541,14 +540,6 @@ public:
      */
     virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
-
-    /**
-     * Called when client complete dump.
-     *
-     * @param infos The dump info.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
 private:
     template <typename T>

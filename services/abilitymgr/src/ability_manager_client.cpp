@@ -769,6 +769,7 @@ ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAbility(abilityRecordId);
 }
+#endif
 
 ErrCode AbilityManagerClient::BlockAppService()
 {
@@ -777,7 +778,6 @@ ErrCode AbilityManagerClient::BlockAppService()
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAppService();
 }
-#endif
 
 sptr<IAbilityManager> AbilityManagerClient::GetAbilityManager()
 {
@@ -828,15 +828,6 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility()
     }
 
     return abms->GetTopAbility();
-}
-
-ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos,
-    const sptr<IRemoteObject> &callerToken)
-{
-    HILOG_INFO("DumpAbilityInfoDone begin.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->DumpAbilityInfoDone(infos, callerToken);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

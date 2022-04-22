@@ -2345,7 +2345,7 @@ int AbilityManagerProxy::BlockAbility(int32_t abilityRecordId)
     }
     return reply.ReadInt32();
 }
-
+#endif
 int AbilityManagerProxy::BlockAppService()
 {
     MessageParcel data;
@@ -2361,7 +2361,7 @@ int AbilityManagerProxy::BlockAppService()
     }
     return reply.ReadInt32();
 }
-#endif
+
 int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
     int32_t userId, int requestCode)
 {
@@ -2394,40 +2394,6 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     }
 
     auto error = Remote()->SendRequest(IAbilityManager::FREE_INSTALL_ABILITY_FROM_REMOTE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-
-    return reply.ReadInt32();
-}
-
-int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteStringVector(infos)) {
-        HILOG_ERROR("infos write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("infos write failed.");
-        return INNER_ERR;
-    }
-
-    if (!Remote()) {
-        HILOG_ERROR("Remote nullptr.");
-        return INNER_ERR;
-    }
-
-    auto error = Remote()->SendRequest(IAbilityManager::DUMP_ABILITY_INFO_DONE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
