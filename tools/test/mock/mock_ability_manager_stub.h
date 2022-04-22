@@ -242,16 +242,16 @@ public:
         return 0;
     }
 
-    virtual int BlockAppService()
-    {
-        return 0;
-    }
-
     virtual int BlockAbility(int32_t abilityRecordId)
     {
         return 0;
     }
     #endif
+
+    virtual int BlockAppService()
+    {
+        return 0;
+    }
 
 public:
     std::string powerState_;

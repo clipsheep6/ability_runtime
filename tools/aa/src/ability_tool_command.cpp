@@ -230,9 +230,8 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
     std::string deviceId = "";
     std::string bundleName = "";
     std::string abilityName = "";
-    std::string paramName = "";
-    std::string paramValue = "";
-    std::smatch sm;
+    std::string key = "";
+    std::string value = "";
     int32_t windowMode = AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED;
     int flags = 0;
     bool isColdStart = false;
@@ -268,23 +267,18 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
                 break;
             case 'o':
                 if (optind + 1 >= argc_) {
-                    HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                        ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
+                    HILOG_DEBUG("'aa %{public}s' %{public}s", cmd_.c_str(), ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                paramName = optarg;
-                paramValue = argv_[optind + 1];
-                if (paramName == "windowMode" &&
-                    std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
-                    windowMode = std::stoi(paramValue);
+                key = optarg;
+                value = argv_[optind + 1];
+                if (key == "windowMode") {
+                    windowMode = std::stoi(value);
                 }
                 break;
             case 'f':
-                paramValue = optarg;
-                if (std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
-                    flags = std::stoi(paramValue);
-                }
+                flags = std::stoi(optarg);
                 break;
             case 'C':
                 isColdStart = true;
@@ -299,7 +293,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
 
     // Parameter check
     if (abilityName.size() == 0 || bundleName.size() == 0) {
-        HILOG_DEBUG("'ability_tool %{public}s' without enough options.", cmd_.c_str());
+        HILOG_DEBUG("'aa %{public}s' without enough options.", cmd_.c_str());
         if (abilityName.size() == 0) {
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
         }
@@ -334,8 +328,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY &&
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY &&
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
-            HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID.c_str());
+            HILOG_DEBUG("'aa %{public}s' %{public}s", cmd_.c_str(), ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID.c_str());
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n");
             return OHOS::ERR_INVALID_VALUE;
         }
@@ -381,7 +374,7 @@ ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
     }
 
     if (abilityName.size() == 0 || bundleName.size() == 0) {
-        HILOG_INFO("'ability_tool %{public}s' without enough options.", cmd_.c_str());
+        HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
         if (abilityName.size() == 0) {
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
         }
@@ -400,8 +393,8 @@ ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
 
 ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::string>& params, bool isDebug)
 {
-    std::string paramKey;
-    std::string paramValue;
+    std::string key;
+    std::string value;
     std::smatch sm;
     int option = -1;
     int index = 0;
@@ -428,14 +421,13 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
                 break;
             case 'o':
                 if (optind + 1 >= argc_) {
-                    HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
-                        ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
+                    HILOG_DEBUG("'aa %{public}s' %{public}s", cmd_.c_str(), ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                paramKey = "-s ";
-                paramKey.append(optarg);
-                params[paramKey] = argv_[optind + 1];
+                key = "-s ";
+                key.append(optarg);
+                params[key] = argv_[optind + 1];
                 break;
             case 'p':
                 params["-p"] = optarg;
@@ -444,13 +436,13 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
                 params["-m"] = optarg;
                 break;
             case 'w':
-                paramValue = optarg;
-                if (!(std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS)))) {
-                    HILOG_DEBUG("'ability_tool test --watchdog %{public}s", ABILITY_TOOL_HELP_MSG_ONLY_NUM.c_str());
+                value = optarg;
+                if (!(std::regex_match(value, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS)))) {
+                    HILOG_DEBUG("'aa test --watchdog %{public}s", ABILITY_TOOL_HELP_MSG_ONLY_NUM.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_ONLY_NUM + "\n");
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                params["-w"] = paramValue;
+                params["-w"] = value;
                 break;
             case 'D':
                 isDebug = true;
