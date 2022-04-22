@@ -104,7 +104,6 @@ napi_value AcquireDataShareHelperWrap(napi_env env, napi_callback_info info, Dat
     }
 
     delete dataShareHelperCB;
-    dataShareHelperCB = nullptr;
     HILOG_INFO("%{public}s,end", __func__);
     return result;
 }
@@ -132,10 +131,8 @@ napi_value NAPI_AcquireDataShareHelperCommon(napi_env env, napi_callback_info in
     napi_value ret = AcquireDataShareHelperWrap(env, info, dataShareHelperCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr", __func__);
-        if (dataShareHelperCB != nullptr) {
-            delete dataShareHelperCB;
-            dataShareHelperCB = nullptr;
-        }
+        delete dataShareHelperCB;
+        dataShareHelperCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -209,14 +206,12 @@ napi_value DataShareHelperInit(napi_env env, napi_value exports)
 napi_value DataShareHelperConstructor(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called", __func__);
-    size_t argc = ARGS_THREE;
-    napi_value argv[ARGS_THREE] = {nullptr};
+    size_t argc = ARGS_TWO;
+    napi_value argv[ARGS_TWO] = {nullptr};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
     NAPI_ASSERT(env, argc > 0, "Wrong number of arguments");
-    AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, argv[PARAM1], want);
-    std::string strUri = NapiValueToStringUtf8(env, argv[PARAM2]);
+    std::string strUri = NapiValueToStringUtf8(env, argv[PARAM1]);
     std::shared_ptr<DataShareHelper> dataShareHelper = nullptr;
     bool isStageMode = false;
     napi_status status = AbilityRuntime::IsStageContext(env, argv[PARAM0], isStageMode);
@@ -224,12 +219,12 @@ napi_value DataShareHelperConstructor(napi_env env, napi_callback_info info)
         auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
         NAPI_ASSERT(env, ability != nullptr, "DataShareHelperConstructor: failed to get native ability");
         HILOG_INFO("FA Model: strUri = %{public}s", strUri.c_str());
-        dataShareHelper = DataShareHelper::Creator(ability->GetContext(), want, std::make_shared<Uri>(strUri));
+        dataShareHelper = DataShareHelper::Creator(ability->GetContext(), strUri);
     } else {
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[PARAM0]);
         NAPI_ASSERT(env, context != nullptr, "DataShareHelperConstructor: failed to get native context");
         HILOG_INFO("Stage Model: strUri = %{public}s", strUri.c_str());
-        dataShareHelper = DataShareHelper::Creator(context, want, std::make_shared<Uri>(strUri));
+        dataShareHelper = DataShareHelper::Creator(context, strUri);
     }
     NAPI_ASSERT(env, dataShareHelper != nullptr, "DataShareHelperConstructor: dataShareHelper is nullptr");
     g_dataShareHelperList.emplace_back(dataShareHelper);
@@ -275,10 +270,8 @@ napi_value NAPI_Insert(napi_env env, napi_callback_info info)
     napi_value ret = InsertWrap(env, info, insertCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
-        if (insertCB != nullptr) {
-            delete insertCB;
-            insertCB = nullptr;
-        }
+        delete insertCB;
+        insertCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,called end", __func__);
@@ -506,7 +499,6 @@ void InsertPromiseCompleteCB(napi_env env, napi_status status, void *data)
 /**
  * @brief Parse the ValuesBucket parameters.
  *
- * @param param Indicates the want parameters saved the parse result.
  * @param env The environment that the Node-API call is invoked under.
  * @param args Indicates the arguments passed into the callback.
  *
@@ -561,10 +553,8 @@ napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info)
     napi_value ret = NotifyChangeWrap(env, info, notifyChangeCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
-        if (notifyChangeCB != nullptr) {
-            delete notifyChangeCB;
-            notifyChangeCB = nullptr;
-        }
+        delete notifyChangeCB;
+        notifyChangeCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -756,10 +746,8 @@ napi_value NAPI_Register(napi_env env, napi_callback_info info)
     napi_value ret = RegisterWrap(env, info, onCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
-        if (onCB != nullptr) {
-            delete onCB;
-            onCB = nullptr;
-        }
+        delete onCB;
+        onCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,called end", __func__);
@@ -928,10 +916,8 @@ napi_value NAPI_UnRegister(napi_env env, napi_callback_info info)
     napi_value ret = UnRegisterWrap(env, info, offCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
-        if (offCB != nullptr) {
-            delete offCB;
-            offCB = nullptr;
-        }
+        delete offCB;
+        offCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,called end", __func__);
@@ -1291,13 +1277,11 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
             obs->ChangeWorkPreDone();
         }
     }
-    if (onCB != nullptr) {
-        delete onCB;
-        onCB = nullptr;
+    delete onCB;
+    onCB = nullptr;
     }
     if (work != nullptr) {
         delete work;
-        work = nullptr;
     }
     HILOG_INFO("OnChange, uv_queue_work. end");
 }
@@ -1342,10 +1326,8 @@ void NAPIDataShareObserver::OnChange()
         [](uv_work_t *work) {},
         OnChangeJSThreadWorker);
     if (rev != 0) {
-        if (onCB != nullptr) {
-            delete onCB;
-            onCB = nullptr;
-        }
+        delete onCB;
+        onCB = nullptr;
         if (work != nullptr) {
             delete work;
             work = nullptr;
@@ -1370,10 +1352,8 @@ napi_value NAPI_GetType(napi_env env, napi_callback_info info)
     napi_value ret = GetTypeWrap(env, info, gettypeCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (gettypeCB != nullptr) {
-            delete gettypeCB;
-            gettypeCB = nullptr;
-        }
+        delete gettypeCB;
+        gettypeCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -1550,10 +1530,8 @@ napi_value NAPI_GetFileTypes(napi_env env, napi_callback_info info)
     napi_value ret = GetFileTypesWrap(env, info, getfiletypesCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (getfiletypesCB != nullptr) {
-            delete getfiletypesCB;
-            getfiletypesCB = nullptr;
-        }
+        delete getfiletypesCB;
+        getfiletypesCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -1760,10 +1738,8 @@ napi_value NAPI_NormalizeUri(napi_env env, napi_callback_info info)
     napi_value ret = NormalizeUriWrap(env, info, normalizeuriCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (normalizeuriCB != nullptr) {
-            delete normalizeuriCB;
-            normalizeuriCB = nullptr;
-        }
+        delete normalizeuriCB;
+        normalizeuriCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -1939,10 +1915,8 @@ napi_value NAPI_DenormalizeUri(napi_env env, napi_callback_info info)
     napi_value ret = DenormalizeUriWrap(env, info, denormalizeuriCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (denormalizeuriCB != nullptr) {
-            delete denormalizeuriCB;
-            denormalizeuriCB = nullptr;
-        }
+        delete denormalizeuriCB;
+        denormalizeuriCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -2139,10 +2113,8 @@ napi_value NAPI_Delete(napi_env env, napi_callback_info info)
     napi_value ret = DeleteWrap(env, info, deleteCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (deleteCB != nullptr) {
-            delete deleteCB;
-            deleteCB = nullptr;
-        }
+        delete deleteCB;
+        deleteCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -2333,10 +2305,8 @@ napi_value NAPI_Update(napi_env env, napi_callback_info info)
     napi_value ret = UpdateWrap(env, info, updateCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (updateCB != nullptr) {
-            delete updateCB;
-            updateCB = nullptr;
-        }
+        delete updateCB;
+        updateCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -2529,10 +2499,8 @@ napi_value NAPI_OpenFile(napi_env env, napi_callback_info info)
     napi_value ret = OpenFileWrap(env, info, openFileCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (openFileCB != nullptr) {
-            delete openFileCB;
-            openFileCB = nullptr;
-        }
+        delete openFileCB;
+        openFileCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -2728,10 +2696,8 @@ napi_value NAPI_BatchInsert(napi_env env, napi_callback_info info)
     napi_value ret = BatchInsertWrap(env, info, BatchInsertCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (BatchInsertCB != nullptr) {
-            delete BatchInsertCB;
-            BatchInsertCB = nullptr;
-        }
+        delete BatchInsertCB;
+        BatchInsertCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -2962,10 +2928,8 @@ napi_value NAPI_Query(napi_env env, napi_callback_info info)
     napi_value ret = QueryWrap(env, info, QueryCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (QueryCB != nullptr) {
-            delete QueryCB;
-            QueryCB = nullptr;
-        }
+        delete QueryCB;
+        QueryCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);
@@ -3175,10 +3139,8 @@ napi_value NAPI_Release(napi_env env, napi_callback_info info)
     napi_value ret = ReleaseWrap(env, info, releaseCB);
     if (ret == nullptr) {
         HILOG_ERROR("%{public}s,ret == nullptr", __func__);
-        if (releaseCB != nullptr) {
-            delete releaseCB;
-            releaseCB = nullptr;
-        }
+        delete releaseCB;
+        releaseCB = nullptr;
         ret = WrapVoidToJS(env);
     }
     HILOG_INFO("%{public}s,end", __func__);

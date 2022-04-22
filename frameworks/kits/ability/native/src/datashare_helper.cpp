@@ -34,25 +34,12 @@ constexpr int INVALID_VALUE = -1;
 }  // namespace
 
 std::mutex DataShareHelper::oplock_;
-DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-    const AAFwk::Want &want)
-{
-    HILOG_INFO("DataShareHelper::DataShareHelper with context and want start");
-    token_ = context->GetToken();
-    want_ = want;
-    uri_ = nullptr;
-    dataShareProxy_ = nullptr;
-    dataShareConnection_ = DataShareConnection::GetInstance();
-    HILOG_INFO("DataShareHelper::DataShareHelper with context and want end");
-}
-
-DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const AAFwk::Want &want,
-    const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
+DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context,
+    const Uri &uri, const sptr<IDataShare> &dataShareProxy)
 {
     HILOG_INFO("DataShareHelper::DataShareHelper start");
     token_ = context->GetToken();
     context_ = std::shared_ptr<Context>(context);
-    want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
     dataShareConnection_ = DataShareConnection::GetInstance();
@@ -60,11 +47,10 @@ DataShareHelper::DataShareHelper(const std::shared_ptr<Context> &context, const 
 }
 
 DataShareHelper::DataShareHelper(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
-    const AAFwk::Want &want, const std::shared_ptr<Uri> &uri, const sptr<IDataShare> &dataShareProxy)
+    const Uri &uri, const sptr<IDataShare> &dataShareProxy)
 {
     HILOG_INFO("DataShareHelper::DataShareHelper start");
     token_ = context->GetToken();
-    want_ = want;
     uri_ = uri;
     dataShareProxy_ = dataShareProxy;
     dataShareConnection_ = DataShareConnection::GetInstance();
@@ -95,41 +81,55 @@ void DataShareHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     auto object = remote.promote();
     object = nullptr;
     dataShareProxy_ = nullptr;
-    uri_ = nullptr;
     HILOG_INFO("DataShareHelper::OnSchedulerDied end.");
 }
 
+
 /**
- * @brief Creates a DataShareHelper instance without specifying the Uri based on the given Context.
+ * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
+ * between the ability using the Data template (data share for short) and the associated client process in
+ * a DataShareHelper instance.
  *
  * @param context Indicates the Context object on OHOS.
- * @param want Indicates the Want containing information about the target extension ability to connect.
+ * @param strUri Indicates the database table or disk file to operate.
  *
- * @return Returns the created DataShareHelper instance where Uri is not specified.
+ * @return Returns the created DataShareHelper instance.
  */
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want)
+    const std::shared_ptr<Context> &context, const std::string &strUri)
 {
-    HILOG_INFO("DataShareHelper::Creator with context start.");
+    HILOG_INFO("DataShareHelper::Creator with context and uri called start.");
     if (context == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator (context) failed, context == nullptr");
+        HILOG_ERROR("DataShareHelper::Creator failed, context == nullptr");
+        return nullptr;
+    }
+
+    Uri uri(strUri);
+    if (uri.GetScheme() != SCHEME_DATASHARE) {
+        HILOG_ERROR("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
+            uri.GetScheme().c_str());
         return nullptr;
     }
 
     HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
+    sptr<IDataShare> dataShareProxy = nullptr;
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
     if (!dataShareConnection->IsExtAbilityConnected()) {
-        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
+        dataShareConnection->ConnectDataShareExtAbility(uri, context->GetToken());
+    }
+    dataShareProxy = dataShareConnection->GetDataShareProxy();
+    if (dataShareProxy == nullptr) {
+        HILOG_WARN("DataShareHelper::Creator get invalid dataShareProxy");
     }
     HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
-    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want);
+    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, uri, dataShareProxy);
     if (ptrDataShareHelper == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator (context) failed, create DataShareHelper failed");
+        HILOG_ERROR("DataShareHelper::Creator failed, create DataShareHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator with context end.");
+    HILOG_INFO("DataShareHelper::Creator with context and uri called end.");
     return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
 }
 
@@ -139,37 +139,31 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
  * a DataShareHelper instance.
  *
  * @param context Indicates the Context object on OHOS.
- * @param want Indicates the Want containing information about the target extension ability to connect.
- * @param uri Indicates the database table or disk file to operate.
+ * @param strUri Indicates the database table or disk file to operate.
  *
  * @return Returns the created DataShareHelper instance.
  */
 std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
-    const std::shared_ptr<Context> &context, const AAFwk::Want &want, const std::shared_ptr<Uri> &uri)
+    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::string &strUri)
 {
-    HILOG_INFO("DataShareHelper::Creator with context, want and uri called start.");
+    HILOG_INFO("DataShareHelper::Creator with runtime context and uri called start.");
     if (context == nullptr) {
         HILOG_ERROR("DataShareHelper::Creator failed, context == nullptr");
         return nullptr;
     }
 
-    if (uri == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, uri == nullptr");
-        return nullptr;
-    }
-
-    if (uri->GetScheme() != SCHEME_DATASHARE) {
+    Uri uri(strUri);
+    if (uri.GetScheme() != SCHEME_DATASHARE) {
         HILOG_ERROR("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
-            uri->GetScheme().c_str());
+            uri.GetScheme().c_str());
         return nullptr;
     }
-
+    
     HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
     sptr<IDataShare> dataShareProxy = nullptr;
-
     sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
     if (!dataShareConnection->IsExtAbilityConnected()) {
-        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
+        dataShareConnection->ConnectDataShareExtAbility(uri, context->GetToken());
     }
     dataShareProxy = dataShareConnection->GetDataShareProxy();
     if (dataShareProxy == nullptr) {
@@ -177,68 +171,13 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
     }
     HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
 
-    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
+    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, uri, dataShareProxy);
     if (ptrDataShareHelper == nullptr) {
         HILOG_ERROR("DataShareHelper::Creator failed, create DataShareHelper failed");
         return nullptr;
     }
 
-    HILOG_INFO("DataShareHelper::Creator with context, want and uri called end.");
-    return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
-}
-
-/**
- * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
- * between the ability using the Data template (data share for short) and the associated client process in
- * a DataShareHelper instance.
- *
- * @param context Indicates the Context object on OHOS.
- * @param want Indicates the Want containing information about the target extension ability to connect.
- * @param uri Indicates the database table or disk file to operate.
- *
- * @return Returns the created DataShareHelper instance.
- */
-std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
-    const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const AAFwk::Want &want,
-    const std::shared_ptr<Uri> &uri)
-{
-    HILOG_INFO("DataShareHelper::Creator with runtime context, want and uri called start.");
-    if (context == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, context == nullptr");
-        return nullptr;
-    }
-
-    if (uri == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, uri == nullptr");
-        return nullptr;
-    }
-
-    if (uri->GetScheme() != SCHEME_DATASHARE) {
-        HILOG_ERROR("DataShareHelper::Creator failed, the Scheme is not datashare, Scheme: %{public}s",
-            uri->GetScheme().c_str());
-        return nullptr;
-    }
-
-    HILOG_INFO("DataShareHelper::Creator before ConnectDataShareExtAbility.");
-    sptr<IDataShare> dataShareProxy = nullptr;
-
-    sptr<DataShareConnection> dataShareConnection = DataShareConnection::GetInstance();
-    if (!dataShareConnection->IsExtAbilityConnected()) {
-        dataShareConnection->ConnectDataShareExtAbility(want, context->GetToken());
-    }
-    dataShareProxy = dataShareConnection->GetDataShareProxy();
-    if (dataShareProxy == nullptr) {
-        HILOG_WARN("DataShareHelper::Creator get invalid dataShareProxy");
-    }
-    HILOG_INFO("DataShareHelper::Creator after ConnectDataShareExtAbility.");
-
-    DataShareHelper *ptrDataShareHelper = new (std::nothrow) DataShareHelper(context, want, uri, dataShareProxy);
-    if (ptrDataShareHelper == nullptr) {
-        HILOG_ERROR("DataShareHelper::Creator failed, create DataShareHelper failed");
-        return nullptr;
-    }
-
-    HILOG_INFO("DataShareHelper::Creator with runtime context, want and uri called end.");
+    HILOG_INFO("DataShareHelper::Creator with runtime context and uri called end.");
     return std::shared_ptr<DataShareHelper>(ptrDataShareHelper);
 }
 
@@ -251,18 +190,12 @@ std::shared_ptr<DataShareHelper> DataShareHelper::Creator(
 bool DataShareHelper::Release()
 {
     HILOG_INFO("DataShareHelper::Release start.");
-    if (uri_ == nullptr) {
-        HILOG_ERROR("DataShareHelper::Release failed, uri_ is nullptr");
-        return false;
-    }
-
     HILOG_INFO("DataShareHelper::Release before DisconnectDataShareExtAbility.");
     if (dataShareConnection_->IsExtAbilityConnected()) {
         dataShareConnection_->DisconnectDataShareExtAbility();
     }
     HILOG_INFO("DataShareHelper::Release after DisconnectDataShareExtAbility.");
     dataShareProxy_ = nullptr;
-    uri_.reset();
     HILOG_INFO("DataShareHelper::Release end.");
     return true;
 }
@@ -284,10 +217,10 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
         return matchedMIMEs;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::GetFileTypes before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::GetFileTypes after ConnectDataShareExtAbility.");
@@ -306,7 +239,7 @@ std::vector<std::string> DataShareHelper::GetFileTypes(Uri &uri, const std::stri
     HILOG_INFO("DataShareHelper::GetFileTypes before dataShareProxy_->GetFileTypes.");
     matchedMIMEs = dataShareProxy_->GetFileTypes(uri, mimeTypeFilter);
     HILOG_INFO("DataShareHelper::GetFileTypes after dataShareProxy_->GetFileTypes.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::GetFileTypes before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -339,10 +272,10 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
         return fd;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::OpenFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::OpenFile after ConnectDataShareExtAbility.");
@@ -361,7 +294,7 @@ int DataShareHelper::OpenFile(Uri &uri, const std::string &mode)
     HILOG_INFO("DataShareHelper::OpenFile before dataShareProxy_->OpenFile.");
     fd = dataShareProxy_->OpenFile(uri, mode);
     HILOG_INFO("DataShareHelper::OpenFile after dataShareProxy_->OpenFile.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::OpenFile before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -394,10 +327,10 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
         return fd;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::OpenRawFile before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::OpenRawFile after ConnectDataShareExtAbility.");
@@ -416,7 +349,7 @@ int DataShareHelper::OpenRawFile(Uri &uri, const std::string &mode)
     HILOG_INFO("DataShareHelper::OpenRawFile before dataShareProxy_->OpenRawFile.");
     fd = dataShareProxy_->OpenRawFile(uri, mode);
     HILOG_INFO("DataShareHelper::OpenRawFile after dataShareProxy_->OpenRawFile.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::OpenRawFile before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -445,10 +378,10 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
         return index;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Insert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::Insert after ConnectDataShareExtAbility.");
@@ -467,7 +400,7 @@ int DataShareHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     HILOG_INFO("DataShareHelper::Insert before dataShareProxy_->Insert.");
     index = dataShareProxy_->Insert(uri, value);
     HILOG_INFO("DataShareHelper::Insert after dataShareProxy_->Insert.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Insert before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -498,10 +431,10 @@ int DataShareHelper::Update(
         return index;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Update before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri , token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::Update after ConnectDataShareExtAbility.");
@@ -520,7 +453,7 @@ int DataShareHelper::Update(
     HILOG_INFO("DataShareHelper::Update before dataShareProxy_->Update.");
     index = dataShareProxy_->Update(uri, value, predicates);
     HILOG_INFO("DataShareHelper::Update after dataShareProxy_->Update.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Update before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -549,10 +482,10 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
         return index;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Delete before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::Delete after ConnectDataShareExtAbility.");
@@ -571,7 +504,7 @@ int DataShareHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &pr
     HILOG_INFO("DataShareHelper::Delete before dataShareProxy_->Delete.");
     index = dataShareProxy_->Delete(uri, predicates);
     HILOG_INFO("DataShareHelper::Delete after dataShareProxy_->Delete.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Delete before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -603,10 +536,10 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
         return resultset;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Query before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::Query after ConnectDataShareExtAbility.");
@@ -625,7 +558,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataShareHelper::Query(
     HILOG_INFO("DataShareHelper::Query before dataShareProxy_->Query.");
     resultset = dataShareProxy_->Query(uri, columns, predicates);
     HILOG_INFO("DataShareHelper::Query after dataShareProxy_->Query.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::Query before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -654,10 +587,10 @@ std::string DataShareHelper::GetType(Uri &uri)
         return type;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::GetType before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::GetType after ConnectDataShareExtAbility.");
@@ -676,7 +609,7 @@ std::string DataShareHelper::GetType(Uri &uri)
     HILOG_INFO("DataShareHelper::GetType before dataShareProxy_->GetType.");
     type = dataShareProxy_->GetType(uri);
     HILOG_INFO("DataShareHelper::GetType after dataShareProxy_->GetType.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::GetType before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -705,10 +638,10 @@ int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBu
         return ret;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::BatchInsert before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::BatchInsert after ConnectDataShareExtAbility.");
@@ -727,7 +660,7 @@ int DataShareHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::ValuesBu
     HILOG_INFO("DataShareHelper::BatchInsert before dataShareProxy_->BatchInsert.");
     ret = dataShareProxy_->BatchInsert(uri, values);
     HILOG_INFO("DataShareHelper::BatchInsert after dataShareProxy_->BatchInsert.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::BatchInsert before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -748,8 +681,8 @@ bool DataShareHelper::CheckUriParam(const Uri &uri)
         return false;
     }
 
-    if (uri_ != nullptr) {
-        if (!CheckOhosUri(*uri_)) {
+    if (uri_.ToString() == "") {
+        if (!CheckOhosUri(uri_)) {
             HILOG_ERROR("DataShareHelper::CheckUriParam failed. CheckOhosUri uri_ failed");
             return false;
         }
@@ -758,7 +691,7 @@ bool DataShareHelper::CheckUriParam(const Uri &uri)
         checkUri.GetPathSegments(checkSegments);
 
         std::vector<std::string> segments;
-        uri_->GetPathSegments(segments);
+        uri_.GetPathSegments(segments);
 
         if (checkSegments[0] != segments[0]) {
             HILOG_ERROR("DataShareHelper::CheckUriParam failed. the datashare in uri doesn't equal the one in uri_.");
@@ -814,11 +747,11 @@ void DataShareHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAb
 
     Uri tmpUri(uri.ToString());
     std::lock_guard<std::mutex> lock_l(oplock_);
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         auto datashare = registerMap_.find(dataObserver);
         if (datashare == registerMap_.end()) {
             if (!dataShareConnection_->IsExtAbilityConnected()) {
-                dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+                dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
             }
             dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
             registerMap_.emplace(dataObserver, dataShareProxy_);
@@ -867,7 +800,7 @@ void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IData
 
     Uri tmpUri(uri.ToString());
     std::lock_guard<std::mutex> lock_l(oplock_);
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         auto datashare = registerMap_.find(dataObserver);
         if (datashare == registerMap_.end()) {
             return;
@@ -889,7 +822,7 @@ void DataShareHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IData
     }
 
     dataShareProxy_->UnregisterObserver(uri, dataObserver);
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::UnregisterObserver before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -917,7 +850,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
 
     if (dataShareProxy_ == nullptr) {
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
     } else {
@@ -931,7 +864,7 @@ void DataShareHelper::NotifyChange(const Uri &uri)
 
     dataShareProxy_->NotifyChange(uri);
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
         }
@@ -961,10 +894,10 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
         return urivalue;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::NormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::NormalizeUri after ConnectDataShareExtAbility.");
@@ -983,7 +916,7 @@ Uri DataShareHelper::NormalizeUri(Uri &uri)
     HILOG_INFO("DataShareHelper::NormalizeUri before dataShareProxy_->NormalizeUri.");
     urivalue = dataShareProxy_->NormalizeUri(uri);
     HILOG_INFO("DataShareHelper::NormalizeUri after dataShareProxy_->NormalizeUri.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::NormalizeUri before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -1014,10 +947,10 @@ Uri DataShareHelper::DenormalizeUri(Uri &uri)
         return urivalue;
     }
 
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::DenormalizeUri before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::DenormalizeUri after ConnectDataShareExtAbility.");
@@ -1036,7 +969,7 @@ Uri DataShareHelper::DenormalizeUri(Uri &uri)
     HILOG_INFO("DataShareHelper::DenormalizeUri before dataShareProxy_->DenormalizeUri.");
     urivalue = dataShareProxy_->DenormalizeUri(uri);
     HILOG_INFO("DataShareHelper::DenormalizeUri after dataShareProxy_->DenormalizeUri.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::DenormalizeUri before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
@@ -1072,10 +1005,10 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataShareHelper::ExecuteBatch(
         HILOG_ERROR("DataShareHelper::ExecuteBatch. CheckUriParam uri failed");
         return results;
     }
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::ExecuteBatch before ConnectDataShareExtAbility.");
         if (!dataShareConnection_->IsExtAbilityConnected()) {
-            dataShareConnection_->ConnectDataShareExtAbility(want_, token_);
+            dataShareConnection_->ConnectDataShareExtAbility(uri, token_);
         }
         dataShareProxy_ = dataShareConnection_->GetDataShareProxy();
         HILOG_INFO("DataShareHelper::ExecuteBatch after ConnectDataShareExtAbility.");
@@ -1095,7 +1028,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataShareHelper::ExecuteBatch(
     HILOG_INFO("DataShareHelper::ExecuteBatch before dataShareProxy_->ExecuteBatch.");
     results = dataShareProxy_->ExecuteBatch(operations);
     HILOG_INFO("DataShareHelper::ExecuteBatch after dataShareProxy_->ExecuteBatch.");
-    if (uri_ == nullptr) {
+    if (uri_.ToString() == "") {
         HILOG_INFO("DataShareHelper::ExecuteBatch before DisconnectDataShareExtAbility.");
         if (dataShareConnection_->IsExtAbilityConnected()) {
             dataShareConnection_->DisconnectDataShareExtAbility();
