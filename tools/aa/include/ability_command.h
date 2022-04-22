@@ -167,8 +167,9 @@ private:
     ErrCode RunAsSendAppNotRespondinProcessID();
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
-    ErrCode RunAsBlockAppServiceCommand();
     #endif
+    ErrCode RunAsBlockAppServiceCommand();
+
     sptr<IAbilityManager> GetAbilityManagerService();
 
     ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);

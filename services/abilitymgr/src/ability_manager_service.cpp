@@ -4309,13 +4309,12 @@ int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
     HILOG_DEBUG("%{public}s", __func__);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
-
+#endif
 int AbilityManagerService::BlockAppService()
 {
     HILOG_DEBUG("%{public}s", __func__);
     return DelayedSingleton<AppScheduler>::GetInstance()->BlockAppService();
 }
-#endif
 
 bool AbilityManagerService::CheckIsFreeInstall(const Want &want)
 {

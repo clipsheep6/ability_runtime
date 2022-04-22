@@ -521,14 +521,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAbility(int32_t abilityRecordId) override;
-
+    #endif
     /**
      * Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() override;
-    #endif
 
     /**
      * Call free install from remote.
