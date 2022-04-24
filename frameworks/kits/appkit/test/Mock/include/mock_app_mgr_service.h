@@ -46,14 +46,11 @@ public:
     MOCK_METHOD3(ScheduleAcceptWantDone, void(const int32_t recordId, const AAFwk::Want &want,
         const std::string &flag));
     MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>> &tokens));
-    #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
-    #endif
     MOCK_METHOD4(StartRenderProcess, int(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
     MOCK_METHOD1(PostANRTaskByProcessID, void(const pid_t pid));
-    MOCK_METHOD0(BlockAppService, int());
     
     void AttachApplication(const sptr<IRemoteObject> &app)
     {
