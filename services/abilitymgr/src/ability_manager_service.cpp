@@ -4637,7 +4637,7 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
     if (isDeviceEmpty && hasLocalDeviceId) {
         elementName.SetDeviceID(localDeviceId);
-        HILOG_DEBUG("%{public}s  DeviceId %{public}s .", __func__, elementName.GetDeviceID().c_str());
+        HILOG_DEBUG("%{public}s  DeviceId %{private}s .", __func__, elementName.GetDeviceID().c_str());
     }
     HILOG_DEBUG("%{public}s  end.", __func__);
     return elementName;
