@@ -22,10 +22,10 @@ ohos_moduletest("PandingWantMgrTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime",
-    "//foundation/aafwk/standard/services/test/mock/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/appmg",
-    "//foundation/aafwk/standard/frameworks/kits/appkit/native/app/include",
+    "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime",
+    "${aafwk_path}/services/test/mock/include",
+    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_core/include/appmg",
+    "${aafwk_path}/frameworks/kits/appkit/native/app/include",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include/",
     "//third_party/jsoncpp/include",
@@ -34,11 +34,11 @@ ohos_moduletest("PandingWantMgrTest") {
 
   sources = abilityms_files
   sources += [
-    "//foundation/aafwk/standard/services/abilitymgr/src/ability_manager_client.cpp",
-    "//foundation/aafwk/standard/services/abilitymgr/test/mock/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
-    "//foundation/aafwk/standard/services/test/mock/src/mock_app_mgr_client.cpp",
-    "//foundation/aafwk/standard/services/test/mock/src/mock_bundle_mgr.cpp",
-    "//foundation/appexecfwk/standard/common/log/src/app_log_wrapper.cpp",
+    "${aafwk_path}/services/abilitymgr/src/ability_manager_client.cpp",
+    "${aafwk_path}/services/abilitymgr/test/mock/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
+    "${aafwk_path}/services/test/mock/src/mock_app_mgr_client.cpp",
+    "${aafwk_path}/services/test/mock/src/mock_bundle_mgr.cpp",
+    "${appexecfwk_path}/common/log/src/app_log_wrapper.cpp",
     "panding_want_manager_test.cpp",
   ]
 
@@ -55,13 +55,13 @@ ohos_moduletest("PandingWantMgrTest") {
     "${innerkits_path}/want:want",
     "${services_path}/common:perm_verification",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
-    "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
-    "//foundation/aafwk/standard/frameworks/kits/wantagent:wantagent_innerkits",
-    "//foundation/aafwk/standard/interfaces/innerkits/app_manager:app_manager",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/ability/native:dummy_classes",
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
+    "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
+    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "${appexecfwk_path}/interfaces/innerkits/libeventhandler:libeventhandler",
     "//foundation/distributedschedule/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
@@ -94,9 +94,9 @@ ohos_moduletest("PandingWantMgrTest") {
 
   if (ability_runtime_graphics) {
     deps += [
-      "//base/global/i18n/frameworks/intl:intl_util",
+      "${global_path}/i18n/frameworks/intl:intl_util",
       "//foundation/ace/ace_engine/interfaces/innerkits/ui_service_manager:ui_service_mgr",
-      "//foundation/graphic/standard:libwmservice",
+      "${graphic_path}/standard:libwmservice",
       "//third_party/libpng:libpng",
     ]
 

@@ -25,8 +25,8 @@ ohos_unittest("mission_list_manager_test") {
   ]
 
   sources = [
-    "//foundation/aafwk/standard/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
-    "//foundation/aafwk/standard/services/common/src/permission_verification.cpp",
+    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
+    "${aafwk_path}/services/common/src/permission_verification.cpp",
     "mission_list_manager_test.cpp",  # add mock file
   ]
 
@@ -45,11 +45,11 @@ ohos_unittest("mission_list_manager_test") {
     "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:dummy_classes",
-    "//foundation/aafwk/standard/services/abilitymgr:abilityms",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
+    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/ability/native:dummy_classes",
+    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
+    "${appexecfwk_path}/interfaces/innerkits/libeventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
     "//utils/native/base:utils",
