@@ -22,11 +22,11 @@ ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
   include_dirs = [
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/frameworks/common/account_error/include",
-    "//foundation/aafwk/standard/interfaces/innerkits/want/include/ohos/aafwk/content",
+    "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
   ]
 
   configs = [
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want_public_config",
+    "${aafwk_path}/interfaces/innerkits/want:want_public_config",
   ]
 
   sources = [ "ams_ipc_appscheduler_interface_test.cpp" ]
@@ -52,8 +52,8 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
   }
   deps = [
     "${services_path}/appmgr/test:appmgr_test_source",
-    "//foundation/aafwk/standard/interfaces/innerkits/app_manager:app_manager",
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
+    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/innerkits/want:want",
   ]
 
   if (os_account_part_enabled) {

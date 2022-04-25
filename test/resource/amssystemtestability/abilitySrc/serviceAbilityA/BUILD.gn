@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/aafwk/standard/aafwk.gni")
 import("//foundation/appexecfwk/standard/appexecfwk.gni")
 SUBDEMOSYSTEM_DIR = "${appexecfwk_path}/test/resource/amssystemtestability/abilitySrc/serviceAbilityA"
 
@@ -36,10 +37,10 @@ ohos_shared_library("serviceAbilityA") {
   }
   configs = [ ":service_ability_a_config" ]
   deps = [
-    "//base/notification/ces_standard/frameworks/native:cesfwk_innerkits",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/aafwk/standard/frameworks/kits/appkit:appkit_native",
-    "//foundation/appexecfwk/standard/common:libappexecfwk_common",
+    "${notification_path}/ces_standard/frameworks/native:cesfwk_innerkits",
+    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${appexecfwk_path}/common:libappexecfwk_common",
   ]
   external_deps = [
     "ability_base:want",
