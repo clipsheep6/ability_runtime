@@ -38,7 +38,7 @@ ohos_unittest("FmsFormMgrNotifyVisibleFormsTest") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${appexecfwk_path}/interfaces/innerkits/libeventhandler/include",
-    "${notification_path}/ces_standard/cesfwk/kits/native/include",
+    "${notification_path}/common_event_service/cesfwk/kits/native/include",
     "${aafwk_path}/services/formmgr/test/mock/include",
     "${aafwk_path}/frameworks/kits/fmskit/native/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
@@ -68,7 +68,7 @@ ohos_unittest("FmsFormMgrNotifyVisibleFormsTest") {
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_innerkits",
     "form_runtime:form_manager",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

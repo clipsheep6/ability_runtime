@@ -22,7 +22,7 @@ ohos_systemtest("FormDeleteFormTest") {
   include_dirs = [
     "${aafwk_path}/interfaces/innerkits/ability_manager/include",
     "${appexecfwk_path}/test/systemtest/common/fms/common/include",
-    "${notification_path}/ces_standard/test/systemtest/common/resource",
+    "${notification_path}/common_event_service/test/systemtest/common/resource",
     "${distributedschedule_path}/safwk/services/safwk/include",
   ]
 
@@ -59,8 +59,8 @@ ohos_systemtest("FormDeleteFormTest") {
     "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "ces_standard:cesfwk_core",
-    "ces_standard:cesfwk_innerkits",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "form_runtime:form_manager",
     "hiviewdfx_hilog_native:libhilog",
     "input:libmmi-client",

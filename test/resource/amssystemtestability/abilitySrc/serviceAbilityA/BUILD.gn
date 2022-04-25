@@ -37,7 +37,7 @@ ohos_shared_library("serviceAbilityA") {
   }
   configs = [ ":service_ability_a_config" ]
   deps = [
-    "${notification_path}/ces_standard/frameworks/native:cesfwk_innerkits",
+    "${notification_path}/common_event_service/frameworks/native:cesfwk_innerkits",
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${appexecfwk_path}/common:libappexecfwk_common",
