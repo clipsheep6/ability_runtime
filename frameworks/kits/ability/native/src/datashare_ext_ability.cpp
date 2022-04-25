@@ -25,10 +25,19 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
+
+static CreatorFunc DataShareExtAbility::creator_ = nullptr;
+void DataShareExtAbility::SetCreator(const CreatorFunc & creator)
+{
+    creator_=creator;
+}
 DataShareExtAbility* DataShareExtAbility::Create(const std::unique_ptr<Runtime>& runtime)
 {
     if (!runtime) {
         return new DataShareExtAbility();
+    }
+    if (creator_) {
+        return creator_(runtime);
     }
     HILOG_INFO("DataShareExtAbility::Create runtime");
     switch (runtime->GetLanguage()) {
