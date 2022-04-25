@@ -167,8 +167,8 @@ private:
     ErrCode RunAsSendAppNotRespondinProcessID();
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
-    #endif
     ErrCode RunAsBlockAppServiceCommand();
+    #endif
 
     sptr<IAbilityManager> GetAbilityManagerService();
 

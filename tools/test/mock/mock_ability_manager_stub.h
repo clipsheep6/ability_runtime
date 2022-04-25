@@ -246,12 +246,12 @@ public:
     {
         return 0;
     }
-    #endif
 
     virtual int BlockAppService()
     {
         return 0;
     }
+    #endif
 
 public:
     std::string powerState_;

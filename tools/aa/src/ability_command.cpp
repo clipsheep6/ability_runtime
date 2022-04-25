@@ -90,8 +90,8 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"ApplicationNotRespondin", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID, this)},
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
-#endif
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
+#endif
     };
 
     return OHOS::ERR_OK;
