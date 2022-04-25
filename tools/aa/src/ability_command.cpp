@@ -1176,7 +1176,7 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAmsServiceCommand()
     }
     return result;
 }
-#endif
+
 ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -1192,5 +1192,6 @@ ErrCode AbilityManagerShellCommand::RunAsBlockAppServiceCommand()
     }
     return result;
 }
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS
