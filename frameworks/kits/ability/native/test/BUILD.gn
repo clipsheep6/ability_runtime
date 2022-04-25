@@ -128,7 +128,6 @@ ohos_unittest("ability_test") {
   ]
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -632,7 +631,6 @@ ohos_unittest("ability_thread_test") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -691,7 +689,6 @@ ohos_unittest("form_provider_client_test") {
       "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
       "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
       "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "//foundation/graphic/standard:libwmclient",
       "//third_party/googletest:gtest_main",
       "//utils/native/base:utils",
     ]
@@ -757,7 +754,6 @@ ohos_unittest("data_ability_impl_test") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -812,7 +808,6 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -867,7 +862,6 @@ ohos_unittest("data_ability_impl_file_test") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -924,7 +918,6 @@ ohos_unittest("ability_thread_dataability_test") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [ "//foundation/graphic/standard:libwmclient" ]
     external_deps += [ "input:libmmi-client" ]
   }
 }
@@ -1138,7 +1131,6 @@ ohos_unittest("form_host_client_test") {
       "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
       "//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
       "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "//foundation/graphic/standard:libwmclient",
       "//third_party/googletest:gmock_main",
       "//third_party/googletest:gtest_main",
       "//utils/native/base:utils",

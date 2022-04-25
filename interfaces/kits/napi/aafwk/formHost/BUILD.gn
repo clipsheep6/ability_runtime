@@ -41,6 +41,7 @@ ohos_shared_library("formhost_napi") {
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
+    "utils_base:utils",
   ]
 
   relative_install_dir = "module/application"

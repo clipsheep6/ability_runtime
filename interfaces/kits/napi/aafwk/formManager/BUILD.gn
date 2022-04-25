@@ -37,6 +37,7 @@ ohos_shared_library("formmanager") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "utils_base:utils",
   ]
 
   relative_install_dir = "module/ability"
