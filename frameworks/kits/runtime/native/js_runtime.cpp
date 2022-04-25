@@ -92,7 +92,9 @@ private:
         pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
         pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::ERROR);
         pandaOption.SetLogBufPrint(PrintVmLog);
-        vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+	    bool isSingleFwk = std::getenv("PANDA_RUNTIME") == nullptr && std::getenv("ARK_RUNTIME") == nullptr;
+
+        vm_ = panda::JSNApi::CreateJSVM(pandaOption, isSingleFwk);
         if (vm_ == nullptr) {
             return false;
         }
