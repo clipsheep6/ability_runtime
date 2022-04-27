@@ -564,14 +564,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAbility(int32_t abilityRecordId) = 0;
-
+    #endif
     /**
      * Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int BlockAppService() = 0;
-    #endif
 
     /**
      * Called when client complete dump.

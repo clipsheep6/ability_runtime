@@ -772,6 +772,7 @@ ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAbility(abilityRecordId);
 }
+#endif
 
 ErrCode AbilityManagerClient::BlockAppService()
 {
@@ -780,7 +781,6 @@ ErrCode AbilityManagerClient::BlockAppService()
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAppService();
 }
-#endif
 
 sptr<IAbilityManager> AbilityManagerClient::GetAbilityManager()
 {

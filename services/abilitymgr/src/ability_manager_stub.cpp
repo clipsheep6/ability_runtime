@@ -122,8 +122,8 @@ void AbilityManagerStub::SecondStepInit()
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY] = &AbilityManagerStub::BlockAbilityInner;
     requestFuncMap_[BLOCK_AMS_SERVICE] = &AbilityManagerStub::BlockAmsServiceInner;
-    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
 #endif
+    requestFuncMap_[BLOCK_APP_SERVICE] = &AbilityManagerStub::BlockAppServiceInner;
 }
 
 void AbilityManagerStub::ThirdStepInit()
@@ -1367,7 +1367,7 @@ int AbilityManagerStub::BlockAmsServiceInner(MessageParcel &data, MessageParcel 
     }
     return NO_ERROR;
 }
-
+#endif
 int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t result = BlockAppService();
@@ -1377,7 +1377,6 @@ int AbilityManagerStub::BlockAppServiceInner(MessageParcel &data, MessageParcel 
     }
     return NO_ERROR;
 }
-#endif
 
 int AbilityManagerStub::FreeInstallAbilityFromRemoteInner(MessageParcel &data, MessageParcel &reply)
 {

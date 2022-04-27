@@ -696,12 +696,6 @@ public:
     virtual int BlockAbility(int32_t abilityRecordId) override;
 
     /**
-     * Block app manager service.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int BlockAppService() override;
-
-    /**
      * force timeout ability.
      *
      * @param abilityName.
@@ -710,6 +704,12 @@ public:
      */
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
     #endif
+
+    /**
+     * Block app manager service.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int BlockAppService() override;
 
     bool GetDataAbilityUri(const std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
         const std::string &mainAbility, std::string &uri);

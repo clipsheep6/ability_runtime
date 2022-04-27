@@ -169,6 +169,7 @@ private:
     ErrCode RunAsBlockAmsServiceCommand();
     ErrCode RunAsBlockAppServiceCommand();
     #endif
+
     sptr<IAbilityManager> GetAbilityManagerService();
 
     ErrCode MakeWantFromCmd(Want &want, std::string &windowMode);

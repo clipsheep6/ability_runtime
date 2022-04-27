@@ -282,8 +282,9 @@ public:
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo> &info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
-    #ifdef ABILITY_COMMAND_FOR_TEST
+
     MOCK_METHOD0(BlockAppService, int());
+    #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAmsService, int());
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif

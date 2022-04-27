@@ -659,14 +659,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode BlockAbility(int32_t abilityRecordId);
-
+    #endif
     /**
      * Block app service.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode BlockAppService();
-    #endif
 
     /**
      * Free install ability from remote DMS.

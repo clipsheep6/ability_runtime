@@ -136,8 +136,9 @@ public:
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     MOCK_METHOD3(StartAbilityByCall, int(const Want &, const sptr<IAbilityConnection> &, const sptr<IRemoteObject> &));
-    #ifdef ABILITY_COMMAND_FOR_TEST
+
     MOCK_METHOD0(BlockAppService, int());
+    #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAmsService, int());
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif

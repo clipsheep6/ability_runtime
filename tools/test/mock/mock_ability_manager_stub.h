@@ -242,12 +242,12 @@ public:
         return 0;
     }
 
-    virtual int BlockAppService()
+    virtual int BlockAbility(int32_t abilityRecordId)
     {
         return 0;
     }
 
-    virtual int BlockAbility(int32_t abilityRecordId)
+    virtual int BlockAppService()
     {
         return 0;
     }

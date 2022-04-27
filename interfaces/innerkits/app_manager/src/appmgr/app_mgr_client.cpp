@@ -541,7 +541,6 @@ sptr<IRemoteObject> AppMgrClient::GetRemoteObject()
     return mgrHolder_->GetRemoteObject();
 }
 
-#ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrClient::BlockAppService()
 {
     HILOG_INFO("%{public}s", __func__);
@@ -552,6 +551,5 @@ int AppMgrClient::BlockAppService()
     }
     return service->BlockAppService();
 }
-#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

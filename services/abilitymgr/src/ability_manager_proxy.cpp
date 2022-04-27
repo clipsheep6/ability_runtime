@@ -2349,7 +2349,7 @@ int AbilityManagerProxy::BlockAbility(int32_t abilityRecordId)
     }
     return reply.ReadInt32();
 }
-
+#endif
 int AbilityManagerProxy::BlockAppService()
 {
     MessageParcel data;
@@ -2365,7 +2365,7 @@ int AbilityManagerProxy::BlockAppService()
     }
     return reply.ReadInt32();
 }
-#endif
+
 int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
     int32_t userId, int requestCode)
 {

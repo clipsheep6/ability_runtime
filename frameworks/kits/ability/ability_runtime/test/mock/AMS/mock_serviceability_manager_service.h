@@ -128,8 +128,9 @@ public:
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions &startOptions));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject> &token));
-    #ifdef ABILITY_COMMAND_FOR_TEST
+
     MOCK_METHOD0(BlockAppService, int());
+    #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAmsService, int());
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif
