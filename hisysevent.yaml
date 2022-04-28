@@ -46,7 +46,7 @@ THREAD_BLOCK_6S:
   MSG: {type: STRING, desc: application event message}
   
 ABILITY_START:
-  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  __BASE: {type: FAULT, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -57,7 +57,7 @@ ABILITY_START:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_FOREGROUND:
-  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  __BASE: {type: FAULT, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -68,7 +68,7 @@ ABILITY_FOREGROUND:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_BACKGROUND:
-  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  __BASE: {type: FAULT, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -79,7 +79,7 @@ ABILITY_BACKGROUND:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_STOP:
-  __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
+  __BASE: {type: FAULT, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
