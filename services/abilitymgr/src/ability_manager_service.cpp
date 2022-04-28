@@ -1685,28 +1685,10 @@ int AbilityManagerService::ReleaseDataAbility(
     return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSystem);
 }
 
-int AbilityManagerService::AttachAbilityThread(
-    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
+void AbilityManagerService::GetTypeString(
+    std::string &abilityType, std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo)
 {
-    std::string msgContent = "ability start";
-    std::string eventType = "ABILITY_START";
-    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Attach ability thread.");
-    CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
-    if (!VerificationAllToken(token)) {
-        return ERR_INVALID_VALUE;
-    }
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-
-    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
-    auto applicationInfo = abilityRecord->GetApplicationInfo();
-    auto abilityInfo = abilityRecord->GetAbilityInfo();
-    auto type = abilityInfo.type;
-    std::string abilityType;
-    std::string modelType;
-    AppExecFwk::RunningProcessInfo processInfo = {};
-    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
+    AppExecFwk::AbilityType type = abilityInfo.type;
     switch (type) {
         case AppExecFwk::AbilityType::PAGE: {
             abilityType = "PAGE";
@@ -1738,6 +1720,27 @@ int AbilityManagerService::AttachAbilityThread(
     } else {
         modelType = "FA";
     }
+}
+
+int AbilityManagerService::AttachAbilityThread(
+    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
+{
+    std::string msgContent = "ability start";
+    std::string eventType = "ABILITY_START";
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("Attach ability thread.");
+    CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
+    if (!VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    auto applicationInfo = abilityRecord->GetApplicationInfo();
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    auto type = abilityInfo.type;
+    GetTypeString(abilityType,modelType,abilityInfo);
     // force timeout ability for test
     if (IsNeedTimeoutForTest(abilityInfo.name, AbilityRecord::ConvertAbilityState(AbilityState::INITIAL))) {
         HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s",
@@ -1771,7 +1774,7 @@ int AbilityManagerService::AttachAbilityThread(
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
         EVENT_KEY_RID, std::to_string(abilityRecord->GetRecordId()),
         EVENT_KEY_UID, std::to_string(applicationInfo.uid / BASE_USER_RANGE),
-        EVENT_KEY_PID, std::to_string(processInfo.pid_),
+        EVENT_KEY_PID, std::to_string(getpid()),
         EVENT_KEY_ABILITY_NAME, abilityInfo.name,
         EVENT_KEY_ABILITY_TYPE, abilityType,
         EVENT_KEY_MODEL_TYPE, modelType,
@@ -1782,7 +1785,7 @@ int AbilityManagerService::AttachAbilityThread(
         "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s, msg: %{public}s",
         abilityRecord->GetRecordId(),
         applicationInfo.uid / BASE_USER_RANGE,
-        processInfo.pid_,
+        getpid(),
         abilityInfo.name.c_str(),
         abilityType.c_str(),
         modelType.c_str(),
