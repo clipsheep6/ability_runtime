@@ -52,7 +52,7 @@ constexpr struct option LONG_OPTIONS_ApplicationNotRespondin[] = {
     {nullptr, 0, nullptr, 0},
 };
 #endif
-const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::d::u:c";
+const std::string SHORT_OPTIONS_DUMPSYS = "hal::i:e::p::r::d::u:cf";
 constexpr struct option LONG_OPTIONS_DUMPSYS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"all", no_argument, nullptr, 'a'},
@@ -64,6 +64,7 @@ constexpr struct option LONG_OPTIONS_DUMPSYS[] = {
     {"data", no_argument, nullptr, 'd'},
     {"userId", required_argument, nullptr, 'u'},
     {"client", no_argument, nullptr, 'c'},
+    {"fault", no_argument, nullptr, 'f'},
     {nullptr, 0, nullptr, 0},
 };
 }  // namespace
@@ -583,6 +584,14 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
             case 'c': {
                 // 'aa dumpsys -c'
                 // 'aa dumpsys --client'
+                break;
+            }
+            case 'f': {
+                if (isfirstCommand == false && optarg == nullptr) {
+                    isfirstCommand = true;
+                }
+                // 'aa dumpsys -f'
+                // 'aa dumpsys --fault'
                 break;
             }
             case '?': {

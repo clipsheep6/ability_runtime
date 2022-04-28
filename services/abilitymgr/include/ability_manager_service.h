@@ -804,6 +804,7 @@ public:
         KEY_DUMPSYS_PENDING,
         KEY_DUMPSYS_PROCESS,
         KEY_DUMPSYS_DATA,
+        KEY_DUMPSYS_FAULT_INFOS,
     };
 
     friend class UserController;
@@ -939,6 +940,8 @@ private:
     void DumpSysProcess(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DataDumpSysStateInner(
+        const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpSysFaultInfosInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     ErrCode ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result);
     void ShowHelp(std::string &result);

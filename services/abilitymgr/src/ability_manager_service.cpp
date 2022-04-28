@@ -71,7 +71,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t MIN_ARGS_SIZE = 1;
-
+const std::string INJECTION_CHARS = ";|&`$";
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -160,6 +160,8 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--fault", KEY_DUMPSYS_FAULT_INFOS),
+    std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-f", KEY_DUMPSYS_FAULT_INFOS),
 };
 
 const bool REGISTER_RESULT =
@@ -1742,6 +1744,7 @@ void AbilityManagerService::DumpSysFuncInit()
     dumpsysFuncMap_[KEY_DUMPSYS_PENDING] = &AbilityManagerService::DumpSysPendingInner;
     dumpsysFuncMap_[KEY_DUMPSYS_PROCESS] = &AbilityManagerService::DumpSysProcess;
     dumpsysFuncMap_[KEY_DUMPSYS_DATA] = &AbilityManagerService::DataDumpSysStateInner;
+    dumpsysFuncMap_[KEY_DUMPSYS_FAULT_INFOS] = &AbilityManagerService::DumpSysFaultInfosInner;
 }
 
 void AbilityManagerService::DumpSysInner(
@@ -1967,6 +1970,45 @@ void AbilityManagerService::DataDumpSysStateInner(
     } else {
         info.emplace_back("error: invalid argument, please see 'aa dump -h'.");
     }
+}
+
+void AbilityManagerService::DumpSysFaultInfosInner(const std::string& args,
+    std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    std::vector<std::string> argList;
+    SplitStr(args, " ", argList);
+    if (argList.empty()) {
+        HILOG_ERROR("%{public}s failed, Invalid args:%{public}s", __func__, args.c_str());
+        info.push_back(args + " invalid.");
+        return;
+    }
+    std::string runCmd;
+    if (argList.size() > MIN_ARGS_SIZE) {
+        runCmd = "/system/bin/head -n 100 /data/log/faultlog/faultlogger/";
+        std::string fileName;
+        std::string arg = argList[MIN_ARGS_SIZE];
+        for (size_t i = 0; i < arg.size(); ++i) {
+            if (INJECTION_CHARS.find(arg[i]) == std::string::npos) {
+                fileName.push_back(arg[i]); // avoid command injection.
+            }
+        }
+        runCmd += fileName;
+    } else {
+        runCmd = "/system/bin/ls -t /data/log/faultlog/faultlogger";
+    }
+    FILE *fp = nullptr;
+    if ((fp = popen(runCmd.c_str(), "r")) == nullptr) {
+        HILOG_ERROR("Get fault logger info failed.");
+        return;
+    }
+    constexpr int32_t buffSize = 512;
+    char readStr[buffSize] = { 0 };
+    while (fgets(readStr, sizeof(readStr), fp)) {
+        std::string expStr = readStr;
+        info.push_back(expStr);
+    }
+    pclose(fp);
 }
 
 void AbilityManagerService::DumpInner(const std::string &args, std::vector<std::string> &info)
