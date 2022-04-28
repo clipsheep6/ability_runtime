@@ -16,7 +16,7 @@
 #include "datashare_connection.h"
 
 #include "ability_manager_client.h"
-#include "bytrace.h"
+#include "hitrace_meter.h"
 #include "datashare_proxy.h"
 #include "hilog_wrapper.h"
 
