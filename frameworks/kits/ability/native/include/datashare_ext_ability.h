@@ -32,6 +32,7 @@ class DataAbilityOperation;
 class DataAbilityResult;
 }
 namespace AbilityRuntime {
+using CreatorFunc = std::function<DataShareExtAbility * (const std::unique_ptr<Runtime>& runtime)>; 
 class DataShareExtAbilityContext;
 class Runtime;
 /**
@@ -54,7 +55,12 @@ public:
         const std::shared_ptr<OHOSApplication> &application,
         std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token) override;
-
+    /**
+     * @brief Set a creator function.
+     *
+     * @param creator The function for create a datashare extension ability.
+     */
+    static void SetCreator(const CreatorFunc &creator);
     /**
      * @brief Create Extension.
      *
@@ -224,6 +230,8 @@ public:
      */
     virtual std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations);
+private:
+    static CreatorFunc creator_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
