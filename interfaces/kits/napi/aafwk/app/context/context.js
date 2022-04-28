@@ -76,6 +76,10 @@ class Context {
         return this.__context_impl__.switchArea(mode)
     }
 
+    getArea() {
+        return this.__context_impl__.getArea()
+    }
+
     get resourceManager() {
         return this.__context_impl__.resourceManager
     }

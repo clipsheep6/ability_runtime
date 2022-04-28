@@ -95,6 +95,14 @@ void AbilityContextImpl::SwitchArea(int mode)
     }
 }
 
+std::string AbilityContextImpl::GetArea()
+{
+    HILOG_DEBUG("AbilityContextImpl::GetArea.");
+    if (stageContext_ != nullptr) {
+        stageContext_->GetArea();
+    }
+}
+
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, int requestCode)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

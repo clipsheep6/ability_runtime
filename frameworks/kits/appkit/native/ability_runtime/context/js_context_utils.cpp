@@ -35,6 +35,7 @@ public:
     static NativeValue* CreateBundleContext(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetApplicationContext(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* SwitchArea(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
 
     NativeValue* OnGetCacheDir(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetTempDir(NativeEngine& engine, NativeCallbackInfo& info);
@@ -61,6 +62,7 @@ private:
     NativeValue* OnCreateBundleContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnSwitchArea(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
 
     std::shared_ptr<Context> keepContext_;
 
@@ -91,6 +93,13 @@ NativeValue* JsBaseContext::SwitchArea(NativeEngine* engine, NativeCallbackInfo*
     HILOG_INFO("JsBaseContext::SwitchArea is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnSwitchArea(*engine, *info) : nullptr;
+}
+
+NativeValue* JsBaseContext::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsBaseContext::GetArea is called");
+    JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
 }
 
 NativeValue* JsBaseContext::OnSwitchArea(NativeEngine& engine, NativeCallbackInfo& info)
@@ -124,6 +133,17 @@ NativeValue* JsBaseContext::OnSwitchArea(NativeEngine& engine, NativeCallbackInf
     BindNativeProperty(*object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(*object, "bundleCodeDir", GetBundleCodeDir);
     return engine.CreateUndefined();
+}
+
+NativeValue* JsBaseContext::OnGetArea(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+    std::string area = context->GetArea();
+    return engine.CreateString(area.c_str(), area.length());
 }
 
 NativeValue* JsBaseContext::GetCacheDir(NativeEngine* engine, NativeCallbackInfo* info)
@@ -336,6 +356,7 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     BindNativeFunction(engine, *object, "createBundleContext", JsBaseContext::CreateBundleContext);
     BindNativeFunction(engine, *object, "getApplicationContext", JsBaseContext::GetApplicationContext);
     BindNativeFunction(engine, *object, "switchArea", JsBaseContext::SwitchArea);
+    BindNativeFunction(engine, *object, "getArea", JsBaseContext::GetArea);
 
     return objValue;
 }

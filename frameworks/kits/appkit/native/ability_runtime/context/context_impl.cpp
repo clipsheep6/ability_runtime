@@ -169,6 +169,13 @@ void ContextImpl::SwitchArea(int mode)
     HILOG_DEBUG("ContextImpl::SwitchArea end, currArea:%{public}s.", currArea_.c_str());
 }
 
+std::string ContextImpl::GetArea()
+{
+    HILOG_DEBUG("ContextImpl::GetArea begin");
+    return currArea_;
+    HILOG_DEBUG("ContextImpl::GetArea end");
+}
+
 std::string ContextImpl::GetBaseDir() const
 {
     std::string baseDir;
