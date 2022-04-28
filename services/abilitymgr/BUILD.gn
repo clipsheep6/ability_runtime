@@ -59,6 +59,7 @@ config("abilityms_config") {
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
   ]
 
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]
