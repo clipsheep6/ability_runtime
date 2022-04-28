@@ -704,12 +704,14 @@ private:
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     void GrantUriPermission(const Want &want);
+    void GetModelType(std::string &modelType);
     int GetCurrentAccountId();
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
     AppExecFwk::ApplicationInfo applicationInfo_ = {};     // the ability info get from BMS
+    AppExecFwk::RunningProcessInfo processInfo = {};       // the process info get from BMS
     std::weak_ptr<AbilityRecord> preAbilityRecord_ = {};   // who starts this ability record
     std::weak_ptr<AbilityRecord> nextAbilityRecord_ = {};  // ability that started by this ability
     int64_t startTime_ = 0;                           // records first time of ability start
@@ -771,6 +773,11 @@ private:
     mutable std::condition_variable dumpCondition_;
     mutable bool isDumpWaiting_ = false;
     std::vector<std::string> dumpInfos_;
+
+    std::string msgContent;         // msg content
+    std::string eventType;          // event type
+    std::string typeStr;        // ability type
+    std::string modelType;          // model type
 };
 }  // namespace AAFwk
 }  // namespace OHOS

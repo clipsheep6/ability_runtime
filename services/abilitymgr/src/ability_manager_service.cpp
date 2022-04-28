@@ -63,6 +63,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
+#include "hisysevent.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -70,6 +71,14 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_RID[] = "RID";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr char EVENT_KEY_ABILITY_NAME[] = "ABILITY_NAME";
+constexpr char EVENT_KEY_ABILITY_TYPE[] = "ABILITY_TYPE";
+constexpr char EVENT_KEY_MODEL_TYPE[] = "MODEL_TYPE";
+constexpr char EVENT_KEY_BUNDLE_NAME[] = "BUNDLE_NAME";
 const int32_t MIN_ARGS_SIZE = 1;
 
 const std::string ARGS_USER_ID = "-u";
@@ -1676,9 +1685,48 @@ int AbilityManagerService::ReleaseDataAbility(
     return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSystem);
 }
 
+void AbilityManagerService::GetTypeString(
+    std::string &abilityType, std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo)
+{
+    AppExecFwk::AbilityType type = abilityInfo.type;
+    switch (type) {
+        case AppExecFwk::AbilityType::PAGE: {
+            abilityType = "PAGE";
+            break;
+        }
+        case AppExecFwk::AbilityType::SERVICE: {
+            abilityType = "SERVICE";
+            break;
+        }
+        // for config.json type
+        case AppExecFwk::AbilityType::DATA: {
+            abilityType = "DATA";
+            break;
+        }
+        case AppExecFwk::AbilityType::FORM: {
+            abilityType = "FROM";
+            break;
+        }
+        case AppExecFwk::AbilityType::EXTENSION: {
+            abilityType = "EXTENSION";
+        }
+        default: {
+            abilityType = "UNKNOWN";
+            break;
+        }
+    }
+    if (abilityInfo.isStageBasedModel) {
+        modelType = "stage";
+    } else {
+        modelType = "FA";
+    }
+}
+
 int AbilityManagerService::AttachAbilityThread(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
+    std::string msgContent = "ability start";
+    std::string eventType = "ABILITY_START";
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Attach ability thread.");
     CHECK_POINTER_AND_RETURN(scheduler, ERR_INVALID_VALUE);
@@ -1689,8 +1737,10 @@ int AbilityManagerService::AttachAbilityThread(
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
+    auto applicationInfo = abilityRecord->GetApplicationInfo();
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     auto type = abilityInfo.type;
+    GetTypeString(abilityType,modelType,abilityInfo);
     // force timeout ability for test
     if (IsNeedTimeoutForTest(abilityInfo.name, AbilityRecord::ConvertAbilityState(AbilityState::INITIAL))) {
         HILOG_WARN("force timeout ability for test, state:INITIAL, ability: %{public}s",
@@ -1720,6 +1770,27 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_RID, std::to_string(abilityRecord->GetRecordId()),
+        EVENT_KEY_UID, std::to_string(applicationInfo.uid / BASE_USER_RANGE),
+        EVENT_KEY_PID, std::to_string(getpid()),
+        EVENT_KEY_ABILITY_NAME, abilityInfo.name,
+        EVENT_KEY_ABILITY_TYPE, abilityType,
+        EVENT_KEY_MODEL_TYPE, modelType,
+        EVENT_KEY_BUNDLE_NAME, abilityInfo.bundleName,
+        EVENT_KEY_MESSAGE, msgContent);
+
+    HILOG_WARN("ABILITY_START: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s, msg: %{public}s",
+        abilityRecord->GetRecordId(),
+        applicationInfo.uid / BASE_USER_RANGE,
+        getpid(),
+        abilityInfo.name.c_str(),
+        abilityType.c_str(),
+        modelType.c_str(),
+        abilityInfo.bundleName.c_str(),
+        msgContent.c_str());
     return returnCode;
 }
 

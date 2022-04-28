@@ -30,9 +30,20 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
+#include "hisysevent.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+constexpr char EVENT_KEY_PID[] = "PID";
+constexpr char EVENT_KEY_UID[] = "UID";
+constexpr char EVENT_KEY_RID[] = "RID";
+constexpr char EVENT_KEY_MESSAGE[] = "MSG";
+constexpr char EVENT_KEY_ABILITY_NAME[] = "ABILITY_NAME";
+constexpr char EVENT_KEY_ABILITY_TYPE[] = "ABILITY_TYPE";
+constexpr char EVENT_KEY_MODEL_TYPE[] = "MODEL_TYPE";
+constexpr char EVENT_KEY_BUNDLE_NAME[] = "BUNDLE_NAME";
+}
 const std::string DEBUG_APP = "debugApp";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
@@ -195,6 +206,11 @@ bool AbilityRecord::CanRestartRootLauncher()
 
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
+    auto uid = applicationInfo_.uid / BASE_USER_RANGE;
+    msgContent = "ability foreground";
+    eventType = "ABILITY_FOREGROUND";
+    GetAbilityTypeString(typeStr);
+    GetModelType(modelType);
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
@@ -217,6 +233,27 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_RID, std::to_string(GetRecordId()),
+        EVENT_KEY_UID, std::to_string(uid),
+        EVENT_KEY_PID, std::to_string(GetUid()),
+        EVENT_KEY_ABILITY_NAME, abilityInfo_.name,
+        EVENT_KEY_ABILITY_TYPE, typeStr,
+        EVENT_KEY_MODEL_TYPE, modelType,
+        EVENT_KEY_BUNDLE_NAME, abilityInfo_.bundleName,
+        EVENT_KEY_MESSAGE, msgContent);
+    
+    HILOG_WARN("ABILITY_FOREGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s, msg: %{public}s",
+        GetRecordId(),
+        uid,
+        GetUid(),
+        abilityInfo_.name.c_str(),
+        typeStr.c_str(),
+        modelType.c_str(),
+        abilityInfo_.bundleName.c_str(),
+        msgContent.c_str());
 }
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
@@ -242,6 +279,11 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
+    auto uid = applicationInfo_.uid / BASE_USER_RANGE;
+    msgContent = "ability background";
+    eventType = "ABILITY_BACKGROUND";
+    GetAbilityTypeString(typeStr);
+    GetModelType(modelType);
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
     if (lifecycleDeal_ == nullptr) {
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
@@ -268,11 +310,58 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // earlier than above actions.
     currentState_ = AbilityState::BACKGROUNDING;
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_RID, std::to_string(GetRecordId()),
+        EVENT_KEY_UID, std::to_string(uid),
+        EVENT_KEY_PID, std::to_string(GetUid()),
+        EVENT_KEY_ABILITY_NAME, abilityInfo_.name,
+        EVENT_KEY_ABILITY_TYPE, typeStr,
+        EVENT_KEY_MODEL_TYPE, modelType,
+        EVENT_KEY_BUNDLE_NAME, abilityInfo_.bundleName,
+        EVENT_KEY_MESSAGE, msgContent);
+    
+    HILOG_WARN("ABILITY_BACKGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s, msg: %{public}s",
+        GetRecordId(),
+        uid,
+        GetUid(),
+        abilityInfo_.name.c_str(),
+        typeStr.c_str(),
+        modelType.c_str(),
+        abilityInfo_.bundleName.c_str(),
+        msgContent.c_str());
 }
 
 int AbilityRecord::TerminateAbility()
 {
+    auto uid = applicationInfo_.uid / BASE_USER_RANGE;
+    msgContent = "ability stop";
+    eventType = "ABILITY_STOP";
+    GetAbilityTypeString(typeStr);
+    GetModelType(modelType);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
+    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_RID, std::to_string(GetRecordId()),
+        EVENT_KEY_UID, std::to_string(uid),
+        EVENT_KEY_PID, std::to_string(GetUid()),
+        EVENT_KEY_ABILITY_NAME, abilityInfo_.name,
+        EVENT_KEY_ABILITY_TYPE, typeStr,
+        EVENT_KEY_MODEL_TYPE, modelType,
+        EVENT_KEY_BUNDLE_NAME, abilityInfo_.bundleName,
+        EVENT_KEY_MESSAGE, msgContent);
+    
+    HILOG_WARN("ABILITY_STOP: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s, msg: %{public}s",
+        GetRecordId(),
+        uid,
+        GetUid(),
+        abilityInfo_.name.c_str(),
+        typeStr.c_str(),
+        modelType.c_str(),
+        abilityInfo_.bundleName.c_str(),
+        msgContent.c_str());
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
 }
 
@@ -707,10 +796,27 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
             typeStr = "DATA";
             break;
         }
+        case AppExecFwk::AbilityType::FORM: {
+            typeStr = "FORM";
+            break;
+        }
+        case AppExecFwk::AbilityType::EXTENSION: {
+            typeStr = "EXTENSION";
+            break;
+        }
         default: {
             typeStr = "UNKNOWN";
             break;
         }
+    }
+}
+
+void AbilityRecord::GetModelType(std::string &modelType)
+{
+    if (abilityInfo_.isStageBasedModel) {
+        modelType = "stage";
+    } else {
+        modelType = "FA";
     }
 }
 
