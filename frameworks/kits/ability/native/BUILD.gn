@@ -230,7 +230,7 @@ ohos_shared_library("abilitykit_native") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "bytrace_standard:bytrace_core",
+    "hitrace_native:hitrace_meter",
     "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
     "ipc_js:rpc",
