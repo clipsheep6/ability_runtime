@@ -99,8 +99,11 @@ std::string AbilityContextImpl::GetArea()
 {
     HILOG_DEBUG("AbilityContextImpl::GetArea.");
     if (stageContext_ != nullptr) {
-        stageContext_->GetArea();
+        return stageContext_->GetArea();
     }
+
+    HILOG_ERROR("AbilityContextImpl::stageContext is nullptr.");
+    return "";
 }
 
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, int requestCode)
