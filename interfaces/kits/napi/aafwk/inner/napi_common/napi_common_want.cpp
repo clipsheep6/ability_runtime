@@ -537,15 +537,12 @@ bool InnerWrapWantParamsArray(napi_env env, napi_value jsObject, const std::stri
 
 napi_value WrapWantParams(napi_env env, const AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called.", __func__);
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
     napi_value jsValue = nullptr;
     const std::map<std::string, sptr<AAFwk::IInterface>> paramList = wantParams.GetParams();
-    HILOG_INFO("%{public}s called, paramList size:%{public}d.", __func__, paramList.size());
     for (auto iter = paramList.begin(); iter != paramList.end(); iter++) {
-        HILOG_INFO("%{public}s called, enter iterate.", __func__);
         jsValue = nullptr;
         if (AAFwk::IString::Query(iter->second) != nullptr) {
             InnerWrapWantParamsString(env, jsObject, iter->first, wantParams);
@@ -688,7 +685,7 @@ bool InnerUnwrapWantParamsArray(napi_env env, const std::string &key, napi_value
 
 bool InnerUnwrapWantParams(napi_env env, const std::string &key, napi_value param, AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called. key:%{public}s", __func__, key.c_str());
+    HILOG_INFO("%{public}s called.", __func__);
     AAFwk::WantParams wp;
 
     if (UnwrapWantParams(env, param, wp)) {

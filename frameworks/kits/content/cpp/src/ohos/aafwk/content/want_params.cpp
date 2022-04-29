@@ -456,15 +456,9 @@ bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) co
 {
     ABILITYBASE_LOGI("WriteToParcelWantParams enter.");
     WantParams value = WantParamWrapper::Unbox(IWantParams::Query(o));
-    const std::map<std::string, sptr<AAFwk::IInterface>> paramList = value.GetParams();
-    for (auto iter = paramList.begin(); iter != paramList.end(); iter++) {
-        ABILITYBASE_LOGI("%{public}s called, enter iterate, key:%{public}s.", __func__, iter->first.c_str());
-    }
-
     auto type = value.GetParam("type");
     AAFwk::IString *typeP = AAFwk::IString::Query(type);
     if (typeP != nullptr) {
-        ABILITYBASE_LOGI("WriteToParcelWantParams enter, type is not null.");
         std::string typeValue = AAFwk::String::Unbox(typeP);
         if (typeValue == "FD") {
             return WriteToParcelFD(parcel, value);
@@ -591,7 +585,6 @@ bool WantParams::WriteToParcelDouble(Parcel &parcel, sptr<IInterface> &o) const
 bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
 {
     if (IString::Query(o) != nullptr) {
-        ABILITYBASE_LOGI("WriteMarshalling enter string");
         return WriteToParcelString(parcel, o);
     } else if (IBoolean::Query(o) != nullptr) {
         return WriteToParcelBool(parcel, o);
@@ -625,7 +618,6 @@ bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
 bool WantParams::DoMarshalling(Parcel &parcel) const
 {
     size_t size = params_.size();
-    ABILITYBASE_LOGI("DoMarshalling begin, size:%{public}d.", size);
     if (!cachedUnsupportedData_.empty()) {
         size += cachedUnsupportedData_.size();
     }
@@ -637,7 +629,6 @@ bool WantParams::DoMarshalling(Parcel &parcel) const
     auto iter = params_.cbegin();
     while (iter != params_.cend()) {
         std::string key = iter->first;
-        ABILITYBASE_LOGI("DoMarshalling begin, key:%{public}s.", key.c_str());
         sptr<IInterface> o = iter->second;
         if (!parcel.WriteString16(Str8ToStr16(key))) {
             return false;
@@ -1070,9 +1061,7 @@ bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao)
 
 bool WantParams::ReadFromParcelString(Parcel &parcel, const std::string &key)
 {
-    ABILITYBASE_LOGI("ReadFromParcelString enter, key:%{public}s", key.c_str());
     std::u16string value = parcel.ReadString16();
-    ABILITYBASE_LOGI("ReadFromParcelString enter, get value");
     std::string strValue(Str16ToStr8(value));
     sptr<IInterface> intf = String::Box(Str16ToStr8(value));
     if (intf) {
