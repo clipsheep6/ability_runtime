@@ -32,6 +32,7 @@
 #include "securec.h"
 #include "string_ex.h"
 #include "want_params_wrapper.h"
+#include "ohos/aafwk/base/remote_object_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -439,6 +440,7 @@ bool WantParams::WriteToParcelString(Parcel &parcel, sptr<IInterface> &o) const
     if (!parcel.WriteInt32(VALUE_TYPE_STRING)) {
         return false;
     }
+    ABILITYBASE_LOGI("WriteToParcelString enter value:%{public}s.", value.c_str());
     return parcel.WriteString16(Str8ToStr16(value));
 }
 
@@ -452,12 +454,77 @@ bool WantParams::WriteToParcelBool(Parcel &parcel, sptr<IInterface> &o) const
 }
 bool WantParams::WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) const
 {
+    ABILITYBASE_LOGI("WriteToParcelWantParams enter.");
     WantParams value = WantParamWrapper::Unbox(IWantParams::Query(o));
+    const std::map<std::string, sptr<AAFwk::IInterface>> paramList = value.GetParams();
+    for (auto iter = paramList.begin(); iter != paramList.end(); iter++) {
+        ABILITYBASE_LOGI("%{public}s called, enter iterate, key:%{public}s.", __func__, iter->first.c_str());
+    }
+
+    auto type = value.GetParam("type");
+    AAFwk::IString *typeP = AAFwk::IString::Query(type);
+    if (typeP != nullptr) {
+        ABILITYBASE_LOGI("WriteToParcelWantParams enter, type is not null.");
+        std::string typeValue = AAFwk::String::Unbox(typeP);
+        if (typeValue == "FD") {
+            return WriteToParcelFD(parcel, value);
+        }
+        if (typeValue == "RemoteObject") {
+            return WriteToParcelRemoteObject(parcel, value);
+        }
+    }
+
     if (!parcel.WriteInt32(VALUE_TYPE_WANTPARAMS)) {
         return false;
     }
+
     return parcel.WriteString16(Str8ToStr16(static_cast<WantParamWrapper *>(IWantParams::Query(o))->ToString()));
 }
+
+bool WantParams::WriteToParcelFD(Parcel &parcel, const WantParams &value) const
+{
+    ABILITYBASE_LOGI("WriteToParcelFD enter.");
+    if (!parcel.WriteInt32(VALUE_TYPE_FD)) {
+        return false;
+    }
+
+    auto v = value.GetParam("value");
+    AAFwk::IInteger *vP = AAFwk::IInteger::Query(v);
+    if (vP != nullptr) {
+        int fdValue = AAFwk::Integer::Unbox(vP);
+        auto messageParcel = static_cast<MessageParcel*>(&parcel);
+        bool ret = messageParcel->WriteFileDescriptor(fdValue);
+        //bool ret = parcel.WriteInt32(fdValue);
+        ABILITYBASE_LOGI("WriteToParcelFD enter, ret:%{public}d, fdValue:%{public}d", ret, fdValue);
+        return ret;
+    }
+
+    ABILITYBASE_LOGI("WriteToParcelFD end.");
+    return false;
+}
+
+bool WantParams::WriteToParcelRemoteObject(Parcel &parcel, const WantParams &value) const
+{
+    ABILITYBASE_LOGI("WriteToParcelRemoteObject enter.");
+    if (!parcel.WriteInt32(VALUE_TYPE_REMOTE_OBJECT)) {
+        return false;
+    }
+
+    auto v = value.GetParam("value");
+    ABILITYBASE_LOGI("WriteToParcelRemoteObject v:%{public}p.", v.GetRefPtr());
+    AAFwk::IRemoteObjectWrap *vP = AAFwk::IRemoteObjectWrap::Query(v);
+    if (vP != nullptr) {
+        auto remoteObjectValue = AAFwk::RemoteObjectWrap::UnBox(vp);
+        auto messageParcel = static_cast<MessageParcel*>(&parcel);
+        bool ret = messageParcel->WriteRemoteObject(remoteObjectValue);
+        ABILITYBASE_LOGI("WriteToParcelRemoteObject enter, ret:%{public}d.", ret);
+        return ret;
+    }
+
+    ABILITYBASE_LOGI("WriteToParcelRemoteObject end.");
+    return false;
+}
+
 bool WantParams::WriteToParcelByte(Parcel &parcel, sptr<IInterface> &o) const
 {
     byte value = Byte::Unbox(IByte::Query(o));
@@ -524,6 +591,7 @@ bool WantParams::WriteToParcelDouble(Parcel &parcel, sptr<IInterface> &o) const
 bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
 {
     if (IString::Query(o) != nullptr) {
+        ABILITYBASE_LOGI("WriteMarshalling enter string");
         return WriteToParcelString(parcel, o);
     } else if (IBoolean::Query(o) != nullptr) {
         return WriteToParcelBool(parcel, o);
@@ -557,6 +625,7 @@ bool WantParams::WriteMarshalling(Parcel &parcel, sptr<IInterface> &o) const
 bool WantParams::DoMarshalling(Parcel &parcel) const
 {
     size_t size = params_.size();
+    ABILITYBASE_LOGI("DoMarshalling begin, size:%{public}d.", size);
     if (!cachedUnsupportedData_.empty()) {
         size += cachedUnsupportedData_.size();
     }
@@ -568,6 +637,7 @@ bool WantParams::DoMarshalling(Parcel &parcel) const
     auto iter = params_.cbegin();
     while (iter != params_.cend()) {
         std::string key = iter->first;
+        ABILITYBASE_LOGI("DoMarshalling begin, key:%{public}s.", key.c_str());
         sptr<IInterface> o = iter->second;
         if (!parcel.WriteString16(Str8ToStr16(key))) {
             return false;
@@ -1000,7 +1070,9 @@ bool WantParams::ReadArrayToParcel(Parcel &parcel, int type, sptr<IArray> &ao)
 
 bool WantParams::ReadFromParcelString(Parcel &parcel, const std::string &key)
 {
+    ABILITYBASE_LOGI("ReadFromParcelString enter, key:%{public}s", key.c_str());
     std::u16string value = parcel.ReadString16();
+    ABILITYBASE_LOGI("ReadFromParcelString enter, get value");
     std::string strValue(Str16ToStr8(value));
     sptr<IInterface> intf = String::Box(Str16ToStr8(value));
     if (intf) {
@@ -1096,13 +1168,53 @@ bool WantParams::ReadFromParcelInt(Parcel &parcel, const std::string &key)
     }
 }
 
-bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key)
+bool WantParams::ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type)
 {
+    if (type == VALUE_TYPE_FD) {
+        return ReadFromParcelFD(parcel, key);
+    }
+
+    if (type == VALUE_TYPE_REMOTE_OBJECT) {
+        return ReadFromParcelRemoteObject(parcel, key);
+    }
+
     std::u16string value = parcel.ReadString16();
     sptr<IInterface> intf = WantParamWrapper::Parse(Str16ToStr8(value));
     if (intf) {
         SetParam(key, intf);
     }
+    return true;
+}
+
+bool WantParams::ReadFromParcelFD(Parcel &parcel, const std::string &key)
+{
+    ABILITYBASE_LOGI("ReadFromParcelFD enter, key:%{public}s.", key.c_str());
+    auto messageParcel = static_cast<MessageParcel*>(&parcel);
+    auto fd = messageParcel->ReadFileDescriptor();
+    /* int fd;
+    if (!parcel.ReadInt32(fd)) {
+        ABILITYBASE_LOGI("ReadFromParcelFD fail");
+        return false;
+    } */
+    ABILITYBASE_LOGI("ReadFromParcelFD enter, fd:%{public}d.", fd);
+    WantParams wp;
+    wp.SetParam("type", String::Box("FD"));
+    wp.SetParam("value", Integer::Box(fd));
+    sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
+    SetParam(key, pWantParams);
+    return true;
+}
+
+bool WantParams::ReadFromParcelRemoteObject(Parcel &parcel, const std::string &key)
+{
+    ABILITYBASE_LOGI("ReadFromParcelRemoteObject enter, key:%{public}s.", key.c_str());
+    auto messageParcel = static_cast<MessageParcel*>(&parcel);
+    auto remoteObject = messageParcel->ReadRemoteObject();
+    WantParams wp;
+    wp.SetParam("type", String::Box("RemoteObject"));
+    wp.SetParam("value", RemoteObjectWrap::Box(remoteObject));
+    sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
+    SetParam(key, pWantParams);
     return true;
 }
 
@@ -1202,6 +1314,7 @@ bool WantParams::ReadUnsupportedData(Parcel &parcel, const std::string &key, int
 
 bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int type)
 {
+    ABILITYBASE_LOGI("%{public}s enter: key=%{public}s, type=%{public}d", __func__, key.c_str(), type);
     switch (type) {
         case VALUE_TYPE_CHARSEQUENCE:
         case VALUE_TYPE_STRING:
@@ -1223,7 +1336,9 @@ bool WantParams::ReadFromParcelParam(Parcel &parcel, const std::string &key, int
         case VALUE_TYPE_DOUBLE:
             return ReadFromParcelDouble(parcel, key);
         case VALUE_TYPE_WANTPARAMS:
-            return ReadFromParcelWantParamWrapper(parcel, key);
+        case VALUE_TYPE_FD:
+        case VALUE_TYPE_REMOTE_OBJECT:
+            return ReadFromParcelWantParamWrapper(parcel, key, type);
         case VALUE_TYPE_NULL:
             break;
         case VALUE_TYPE_PARCELABLE:
