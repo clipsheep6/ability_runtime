@@ -440,7 +440,6 @@ bool WantParams::WriteToParcelString(Parcel &parcel, sptr<IInterface> &o) const
     if (!parcel.WriteInt32(VALUE_TYPE_STRING)) {
         return false;
     }
-    ABILITYBASE_LOGI("WriteToParcelString enter value:%{public}s.", value.c_str());
     return parcel.WriteString16(Str8ToStr16(value));
 }
 
