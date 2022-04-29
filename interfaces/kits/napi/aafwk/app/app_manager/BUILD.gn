@@ -19,13 +19,18 @@ ohos_shared_library("appmanager_napi") {
   include_dirs = []
 
   if (ability_runtime_graphics) {
-    include_dirs += [ "./" ]
+    include_dirs += [ 
+      "./",
+      "./zidl/"
+     ]
   }
 
   sources = [
     "app_manager_module.cpp",
     "js_app_manager.cpp",
     "js_app_manager_utils.cpp",
+    "./zidl/zidl_interoperate_test_stub.cpp",
+    "./zidl/js_zidl_test_service.cpp"
   ]
 
   configs = [ "${aafwk_path}/services/common:common_config" ]
@@ -43,6 +48,7 @@ ohos_shared_library("appmanager_napi") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ipc_js:rpc",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
