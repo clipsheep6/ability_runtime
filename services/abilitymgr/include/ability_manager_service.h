@@ -817,6 +817,16 @@ protected:
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);
+    void GetTypeString(
+        std::string &abilityType, std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo);
+    /**
+     * get abilityType and modelType
+<<<<<<< HEAD
+     *
+=======
+     * 
+>>>>>>> 89e7b4b33642f5db5cc6b64d7b92465f1fd7f585
+     */
     /**
      * initialization of ability manager service.
      *
@@ -1063,6 +1073,8 @@ private:
     };
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
+    std::string abilityType;
+    std::string modelType;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

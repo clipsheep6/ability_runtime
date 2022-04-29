@@ -704,6 +704,7 @@ private:
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     void GrantUriPermission(const Want &want);
+    void GetModelType(std::string &modelType);
     int GetCurrentAccountId();
 
     static int64_t abilityRecordId;
@@ -771,6 +772,11 @@ private:
     mutable std::condition_variable dumpCondition_;
     mutable bool isDumpWaiting_ = false;
     std::vector<std::string> dumpInfos_;
+
+    std::string msgContent;         // msg content
+    std::string eventType;          // event type
+    std::string typeStr;        // ability type
+    std::string modelType;          // model type
 };
 }  // namespace AAFwk
 }  // namespace OHOS
