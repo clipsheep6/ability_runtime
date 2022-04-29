@@ -34,15 +34,16 @@ HdcRegister::HdcRegister() : registerHandler_(nullptr)
     }
 }
 
-HdcRegister::~HdcRegister()
-{
-    StopHdcRegister();
-}
-
 HdcRegister& HdcRegister::Get()
 {
     static HdcRegister hdcRegister;
     return hdcRegister;
+}
+
+void HdcRegister::ResetService()
+{
+    dlclose(registerHandler_);
+    registerHandler_ = nullptr;
 }
 
 void HdcRegister::StartHdcRegister(const std::string& bundleName)
@@ -63,7 +64,7 @@ void HdcRegister::StartHdcRegister(const std::string& bundleName)
 
 void HdcRegister::StopHdcRegister()
 {
-    HILOG_ERROR("HdcRegister::StopHdcRegister begin");
+    HILOG_INFO("HdcRegister::StopHdcRegister begin");
     if (registerHandler_ == nullptr) {
         HILOG_ERROR("HdcRegister::StopHdcRegister registerHandler_ is nullptr");
         return;
@@ -71,10 +72,11 @@ void HdcRegister::StopHdcRegister()
     StopRegister stopRegister = (StopRegister)dlsym(registerHandler_, "StopConnect");
     if (stopRegister == nullptr) {
         HILOG_ERROR("HdcRegister::StopHdcRegister failed to find symbol 'StopConnect'");
+        ResetService();
         return;
     }
-    dlclose(registerHandler_);
-    registerHandler_ = nullptr;
+    stopRegister();
+    ResetService();
     HILOG_INFO("HdcRegister::StopHdcRegister end");
 }
 } // namespace OHOS::AppExecFwk

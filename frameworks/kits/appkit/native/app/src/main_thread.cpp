@@ -1358,6 +1358,11 @@ void MainThread::HandleTerminateApplication()
         return;
     }
 
+    auto appInfo = application_->GetApplicationInfo();
+    if (appInfo->debug) {
+        HdcRegister::Get().StopHdcRegister();
+    }
+
     if (!applicationImpl_->PerformTerminate()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
         return;

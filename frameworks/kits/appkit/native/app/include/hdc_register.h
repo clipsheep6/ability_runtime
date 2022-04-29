@@ -21,14 +21,14 @@
 namespace OHOS::AppExecFwk {
 class HdcRegister {
 public:
-    HdcRegister();
-    ~HdcRegister();
+    ~HdcRegister() = default;
     static HdcRegister& Get();
     void StartHdcRegister(const std::string& bundleName);
-
-private:
     void StopHdcRegister();
 
+private:
+    HdcRegister();
+    void ResetService();
     void* registerHandler_ = nullptr;
 
     HdcRegister(const HdcRegister&) = delete;
