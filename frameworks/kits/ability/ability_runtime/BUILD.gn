@@ -54,7 +54,7 @@ ohos_shared_library("ability_context_native") {
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
-    "bytrace_standard:bytrace_core",
+    "hitrace_native:hitrace_meter",
     "faultloggerd:lib_dfx_dump_catcher",
     "hichecker_native:libhichecker",
     "hiviewdfx_hilog_native:libhilog",
