@@ -32,6 +32,7 @@
 #include "event_handler.h"
 
 #ifdef SUPPORT_GRAPHICS
+#include "core/common/container_scope.h"
 #include "pixel_map_napi.h"
 #endif
 
@@ -1003,7 +1004,12 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     return objValue;
 }
 
-JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine) {}
+JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine)
+{
+#ifdef SUPPORT_GRAPHICS
+    scopeId_ = OHOS::Ace::ContainerScope::CurrentId();
+#endif
+}
 
 JSAbilityConnection::~JSAbilityConnection() = default;
 
@@ -1023,6 +1029,9 @@ void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &el
             HILOG_INFO("connectionSptr nullptr");
             return;
         }
+#ifdef SUPPORT_GRAPHICS
+        OHOS::Ace::ContainerScope containerScope(connectionSptr->GetScopeId());
+#endif
         connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
     };
     handler_->PostTask(task, "OnAbilityConnectDone");
@@ -1074,6 +1083,9 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
             HILOG_INFO("connectionSptr nullptr");
             return;
         }
+#ifdef SUPPORT_GRAPHICS
+        OHOS::Ace::ContainerScope containerScope(connectionSptr->GetScopeId());
+#endif
         connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
     };
     handler_->PostTask(task, "OnAbilityDisconnectDone");

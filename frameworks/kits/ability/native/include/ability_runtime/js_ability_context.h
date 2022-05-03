@@ -109,10 +109,19 @@ public:
     void HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode);
     void SetJsConnectionObject(NativeValue* jsConnectionObject);
     void CallJsFailed(int32_t errorCode);
+#ifdef SUPPORT_GRAPHICS
+    inline int32_t GetScopeId()
+    {
+        return scopeId_;
+    }
+#endif
 private:
     NativeValue* ConvertElement(const AppExecFwk::ElementName &element);
     NativeEngine& engine_;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
+#ifdef SUPPORT_GRAPHICS
+    int32_t scopeId_ = -1;
+#endif
 };
 
 struct ConnectionKey {
