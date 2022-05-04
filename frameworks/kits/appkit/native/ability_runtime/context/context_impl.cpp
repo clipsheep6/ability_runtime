@@ -173,7 +173,7 @@ int ContextImpl::GetArea()
 {
     HILOG_DEBUG("ContextImpl::GetArea begin");
     int mode = -1;
-    for (int i= 0; i < (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
+    for (int i = 0; i < (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
         if (currArea_ == CONTEXT_ELS[i]) {
             mode = i;
             break;
