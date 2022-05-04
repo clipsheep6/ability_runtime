@@ -142,8 +142,8 @@ NativeValue* JsBaseContext::OnGetArea(NativeEngine& engine, NativeCallbackInfo& 
         HILOG_WARN("context is already released");
         return engine.CreateUndefined();
     }
-    std::string area = context->GetArea();
-    return engine.CreateString(area.c_str(), area.length());
+    int area = context->GetArea();
+    return engine.CreateNumber(area);
 }
 
 NativeValue* JsBaseContext::GetCacheDir(NativeEngine* engine, NativeCallbackInfo* info)

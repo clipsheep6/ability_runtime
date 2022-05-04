@@ -114,7 +114,7 @@ public:
      *
      * @return file area.
      */
-    std::string GetArea() override;
+    int GetArea() override;
 
     /**
      * @brief set the ResourceManager.

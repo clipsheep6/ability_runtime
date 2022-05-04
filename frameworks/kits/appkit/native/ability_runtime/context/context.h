@@ -181,7 +181,7 @@ public:
      *
      * @return file area.
      */
-    virtual std::string GetArea() = 0;
+    virtual int GetArea() = 0;
 
     /**
      * @brief Obtains the configuration of application.

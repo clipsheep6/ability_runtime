@@ -95,7 +95,7 @@ void AbilityContextImpl::SwitchArea(int mode)
     }
 }
 
-std::string AbilityContextImpl::GetArea()
+int AbilityContextImpl::GetArea()
 {
     HILOG_DEBUG("AbilityContextImpl::GetArea.");
     if (stageContext_ != nullptr) {
@@ -103,7 +103,7 @@ std::string AbilityContextImpl::GetArea()
     }
 
     HILOG_ERROR("AbilityContextImpl::stageContext is nullptr.");
-    return "";
+    return -1;
 }
 
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, int requestCode)
