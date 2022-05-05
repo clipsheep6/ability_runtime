@@ -52,7 +52,6 @@ ohos_shared_library("runtime") {
   public_configs = [ ":runtime_public_config" ]
 
   deps = [
-    "//ark/js_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
 
