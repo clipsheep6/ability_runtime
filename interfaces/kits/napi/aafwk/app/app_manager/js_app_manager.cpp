@@ -29,6 +29,7 @@
 #include "js_app_manager_utils.h"
 #include "event_runner.h"
 #include "napi_remote_object.h"
+#include "js_zidl_test_service.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
