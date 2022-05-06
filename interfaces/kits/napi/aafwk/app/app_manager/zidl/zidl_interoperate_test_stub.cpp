@@ -174,31 +174,6 @@ int ZidlInteroperateTestStub::OnRemoteRequest(
             }
             return ERR_NONE;
         }
-        case COMMAND_VOID_IN_OUT_MAP_STRING_INT: {
-            std::unordered_map<std::string, int> _param;
-            ErrCode ec = voidInOutMapStringInt(_param);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_param.size());
-                for (auto it = _param.begin(); it != _param.end(); ++it) {
-                    reply.WriteString16(Str8ToStr16((it->first)));
-                    reply.WriteInt32((it->second));
-                }
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_IN_OUT_STRING_ARRAY: {
-            std::vector<std::string> _param;
-            ErrCode ec = voidInOutStringArray(_param);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_param.size());
-                for (auto it = _param.begin(); it != _param.end(); ++it) {
-                    reply.WriteString16(Str8ToStr16((*it)));
-                }
-            }
-            return ERR_NONE;
-        }
         case COMMAND_VOID_IN_INT: {
             int _param = data.ReadInt32();
             ErrCode ec = voidInInt(_param);
@@ -223,24 +198,6 @@ int ZidlInteroperateTestStub::OnRemoteRequest(
         case COMMAND_VOID_OUT_STRING: {
             std::string _param;
             ErrCode ec = voidOutString(_param);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteString16(Str8ToStr16(_param));
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_IN_OUT_INT: {
-            int _param = data.ReadInt32();
-            ErrCode ec = voidInOutInt(_param);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_param);
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_IN_OUT_STRING: {
-            std::string _param = Str16ToStr8(data.ReadString16());
-            ErrCode ec = voidInOutString(_param);
             reply.WriteInt32(ec);
             if (SUCCEEDED(ec)) {
                 reply.WriteString16(Str8ToStr16(_param));
@@ -324,39 +281,6 @@ int ZidlInteroperateTestStub::OnRemoteRequest(
             ErrCode ec = voidOrderOutIn(_paramS, _paramI);
             reply.WriteInt32(ec);
             if (SUCCEEDED(ec)) {
-                reply.WriteString16(Str8ToStr16(_paramS));
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_ORDER_IN_OUT_IN: {
-            int _paramI = data.ReadInt32();
-            std::string _paramS = Str16ToStr8(data.ReadString16());
-            ErrCode ec = voidOrderInOutIn(_paramI, _paramS);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_paramI);
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_ORDER_OUT_IN_OUT: {
-            int _paramI;
-            std::string _paramS = Str16ToStr8(data.ReadString16());
-            ErrCode ec = voidOrderOutInOut(_paramI, _paramS);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_paramI);
-                reply.WriteString16(Str8ToStr16(_paramS));
-            }
-            return ERR_NONE;
-        }
-        case COMMAND_VOID_ORDER_IN_IN_OUT_OUT: {
-            std::string _paramS = Str16ToStr8(data.ReadString16());
-            int _paramI = data.ReadInt32();
-            std::string _paramS2;
-            ErrCode ec = voidOrderInInOutOut(_paramS, _paramI, _paramS2);
-            reply.WriteInt32(ec);
-            if (SUCCEEDED(ec)) {
-                reply.WriteInt32(_paramI);
                 reply.WriteString16(Str8ToStr16(_paramS));
             }
             return ERR_NONE;

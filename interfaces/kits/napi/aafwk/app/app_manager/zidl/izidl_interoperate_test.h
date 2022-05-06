@@ -72,12 +72,6 @@ public:
     virtual ErrCode voidOutStringArray(
         /* [out] */ std::vector<std::string>& _param) = 0;
 
-    virtual ErrCode voidInOutMapStringInt(
-        /* [out] */ std::unordered_map<std::string, int>& _param) = 0;
-
-    virtual ErrCode voidInOutStringArray(
-        /* [out] */ std::vector<std::string>& _param) = 0;
-
     virtual ErrCode voidInInt(
         /* [in] */ int _param) = 0;
 
@@ -89,12 +83,6 @@ public:
 
     virtual ErrCode voidOutString(
         /* [out] */ std::string& _param) = 0;
-
-    virtual ErrCode voidInOutInt(
-        /* [in, out] */ int _param) = 0;
-
-    virtual ErrCode voidInOutString(
-        /* [in, out] */ const std::string& _param) = 0;
 
     virtual ErrCode voidParameterTypeBoolean(
         /* [in] */ bool _param) = 0;
@@ -129,19 +117,6 @@ public:
     virtual ErrCode voidOrderOutIn(
         /* [out] */ std::string& _paramS,
         /* [in] */ int _paramI) = 0;
-
-    virtual ErrCode voidOrderInOutIn(
-        /* [in, out] */ int _paramI,
-        /* [in] */ const std::string& _paramS) = 0;
-
-    virtual ErrCode voidOrderOutInOut(
-        /* [out] */ int& _paramI,
-        /* [in, out] */ const std::string& _paramS) = 0;
-
-    virtual ErrCode voidOrderInInOutOut(
-        /* [in] */ const std::string& _paramS,
-        /* [in, out] */ int _paramI,
-        /* [out] */ std::string& _paramS2) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

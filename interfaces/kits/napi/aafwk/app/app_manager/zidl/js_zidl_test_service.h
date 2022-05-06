@@ -26,8 +26,6 @@ public:
     JSZidlTestService();
     ~JSZidlTestService();
 
-    // ErrCode InIntTest(int _data, int& result) override;
-    // ErrCode InStringTest(const std::string& _data) override;
     ErrCode voidVoid()  override;
     ErrCode booleanVoid(bool& result)  override;
     ErrCode byteVoid(int8_t& result)  override;
@@ -43,14 +41,10 @@ public:
     ErrCode voidInStringArray(const std::vector<std::string>& _param)  override;
     ErrCode voidOutMapStringInt(std::unordered_map<std::string, int>& _param)  override;
     ErrCode voidOutStringArray(std::vector<std::string>& _param)  override;
-    ErrCode voidInOutMapStringInt(std::unordered_map<std::string, int>& _param)  override;
-    ErrCode voidInOutStringArray(std::vector<std::string>& _param)  override;
     ErrCode voidInInt(int _param)  override;
     ErrCode voidInString(const std::string& _param)  override;
     ErrCode voidOutInt(int& _param)  override;
     ErrCode voidOutString(std::string& _param)  override;
-    ErrCode voidInOutInt(int _param)  override;
-    ErrCode voidInOutString(const std::string& _param)  override;
     ErrCode voidParameterTypeBoolean(bool _param)  override;
     ErrCode voidParameterTypeByte(int8_t _param)  override;
     ErrCode voidParameterTypeShort(short _param)  override;
@@ -61,10 +55,7 @@ public:
     ErrCode voidParameterTypeString(const std::string& _param)  override;
     ErrCode voidParameterTypeMapStringString(const std::unordered_map<std::string, std::string>& _param)  override;
     ErrCode voidParameterTypeDoubleArray(const std::vector<double>& _param)  override;
-    ErrCode voidOrderOutIn(std::string& _paramS, int _paramI)  override;
-    ErrCode voidOrderInOutIn(int _paramI, const std::string& _paramS)  override;
-    ErrCode voidOrderOutInOut(int& _paramI, const std::string& _paramS)  override;
-    ErrCode voidOrderInInOutOut(const std::string& _paramS, int _paramI, std::string& _paramS2)  override;  
+    ErrCode voidOrderOutIn(std::string& _paramS, int _paramI)  override; 
 };
 
 }  // namespace AbilityRuntime

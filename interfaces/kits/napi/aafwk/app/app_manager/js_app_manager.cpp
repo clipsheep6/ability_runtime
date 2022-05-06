@@ -29,7 +29,6 @@
 #include "js_app_manager_utils.h"
 #include "event_runner.h"
 #include "napi_remote_object.h"
-#include "js_zidl_test_service.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -109,16 +108,9 @@ public:
         return (me != nullptr) ? me->OnGetNativeObject(*engine, *info) : nullptr;
     }
 
-    // static NativeValue* CallCppProxy(NativeEngine* engine, NativeCallbackInfo* info)
-    // {
-    //     JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
-    //     return (me != nullptr) ? me->OnCallCppProxy(*engine, *info) : nullptr;
-    // }
-
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
-    // sptr<ZidlTestServiceProxy> zidlTestServiceProxy_ = nullptr;
 
     NativeValue* OnGetNativeObject(NativeEngine& engine, NativeCallbackInfo& info)
     {
@@ -136,33 +128,6 @@ private:
         HILOG_INFO("mxh return native object");
         return nativeRemoteObject;
     }
-
-    // NativeValue* OnCallCppProxy(NativeEngine& engine, NativeCallbackInfo& info)
-    // {
-    //     HILOG_INFO("mxh OnCallCppProxy is called");
-    //     // only support one or two params
-    //     if (info.argc != ARGC_ONE) {
-    //         HILOG_ERROR("Not enough params");
-    //         return engine.CreateUndefined();
-    //     }
-
-    //     // NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    //     auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
-    //         reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[0])
-    //     );
-
-    //     if (remoteObj == nullptr) {
-    //         HILOG_ERROR("mxh remoteObj is nullptr");
-    //     }
-
-    //     zidlTestServiceProxy_ = new ZidlTestServiceProxy(remoteObj);
-    //     zidlTestServiceProxy_->InStringTest("media");
-
-    //     HILOG_INFO("mxh OnCallCppProxy end");
-
-    //     NativeValue* result = nullptr;
-    //     return result;
-    // }
 
     NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
