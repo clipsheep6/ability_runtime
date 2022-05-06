@@ -675,6 +675,8 @@ public:
 
     void GrantUriPermission(const Want &want, int32_t validUserId, uint32_t targetTokenId);
 
+    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+
     /**
      * Send not response process ID to ability manager service.
      * @param pid The not response process ID.
@@ -879,7 +881,7 @@ private:
      */
     void GetGlobalConfiguration();
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    // sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     int StartRemoteAbility(const Want &want, int requestCode);
     int ConnectLocalAbility(
         const Want &want,

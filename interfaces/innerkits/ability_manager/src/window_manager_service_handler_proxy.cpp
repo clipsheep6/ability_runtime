@@ -48,6 +48,64 @@ void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransi
         HILOG_ERROR("SendRequest fial, error: %{public}d", error);
     }
 }
+
+void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap,
+    uint32_t bgColor)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    if (!data.WriteParcelable(info.GetRefPtr())) {
+        HILOG_ERROR("Write abilityToken failed.");
+        return;
+    }
+    if (!data.WriteParcelable(pixelMap.GetRefPtr())) {
+        HILOG_ERROR("Write pixelMap failed.");
+        return;
+    }
+    if (!data.WriteUint32(bgColor)) {
+        HILOG_ERROR("Write bgColor failed.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int error = Remote()->SendRequest(WMSCmd::ON_COLD_STARTING_WINDOW, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+    }
+}
+
+void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    if (!data.WriteParcelable(info.GetRefPtr())) {
+        HILOG_ERROR("Write abilityToken failed.");
+        return;
+    }
+    if (!data.WriteParcelable(pixelMap.GetRefPtr())) {
+        HILOG_ERROR("Write pixelMap failed.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int error = Remote()->SendRequest(WMSCmd::ON_HOT_STARTING_WINDOW, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+    }
+}
+
+void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> abilityToken)
+{
+
+}
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif

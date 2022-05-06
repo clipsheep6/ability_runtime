@@ -16,39 +16,100 @@
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler_stub.h"
 
+#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
+WindowManagerServiceHandlerStub::WindowManagerServiceHandlerStub()
+{
+    Init();
+}
+
+WindowManagerServiceHandlerStub::~WindowManagerServiceHandlerStub()
+{
+    requestFuncMap_.clear();
+} 
+
+void WindowManagerServiceHandlerStub::Init()
+{
+    requestFuncMap_[ON_NOTIFY_WINDOW_TRANSITION] = &WindowManagerServiceHandlerStub::NotifyWindowTransitionInner;
+    requestFuncMap_[ON_COLD_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowCold;
+    requestFuncMap_[ON_HOT_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowHot;
+    requestFuncMap_[ON_CANCLE_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
+}
+
 int WindowManagerServiceHandlerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IWindowManagerServiceHandler::GetDescriptor()) {
         HILOG_ERROR("InterfaceToken not equal IWindowManagerServiceHandler's descriptor.");
-        return ERR_INVALID_VALUE;
+        return ERR_AAFWK_PARCEL_FAIL;
     }
-    ErrCode errCode = ERR_OK;
-    switch (code) {
-        case WMSCmd::ON_NOTIFY_WINDOW_TRANSITION : {
-            sptr<AbilityTransitionInfo> fromInfo(data.ReadParcelable<AbilityTransitionInfo>());
-            if (!fromInfo) {
-                errCode = ERR_DEAD_OBJECT;
-                HILOG_ERROR("To read fromInfo failed.");
-                break;
-            }
-            sptr<AbilityTransitionInfo> toInfo(data.ReadParcelable<AbilityTransitionInfo>());
-            if (!toInfo) {
-                errCode = ERR_DEAD_OBJECT;
-                HILOG_ERROR("To read toInfo failed.");
-                break;
-            }
-            NotifyWindowTransition(fromInfo, toInfo);
-            break;
+
+    auto itFunc = requestFuncMap_.find(code);
+    if (itFunc != requestFuncMap_.end()) {
+        auto requestFunc = itFunc->second;
+        if (requestFunc != nullptr) {
+            return (this->*requestFunc)(data, reply);
         }
-        default:
-            return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    return errCode;
+    HILOG_WARN("default case, need check.");
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+}
+
+int WindowManagerServiceHandlerStub::NotifyWindowTransitionInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityTransitionInfo> fromInfo(data.ReadParcelable<AbilityTransitionInfo>());
+    if (!fromInfo) {
+        HILOG_ERROR("To read fromInfo failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    sptr<AbilityTransitionInfo> toInfo(data.ReadParcelable<AbilityTransitionInfo>());
+    if (!toInfo) {
+        HILOG_ERROR("To read toInfo failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    NotifyWindowTransition(fromInfo, toInfo);
+    return ERR_OK;
+}
+
+int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
+    if (!info) {
+        HILOG_ERROR("To read info failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    sptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
+    if (!pixelMap) {
+        HILOG_ERROR("To read pixelMap failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    auto bgColor = data.ReadUint32();
+    StartingWindow(info, pixelMap, bgColor);
+    return ERR_OK;
+}
+
+int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityTransitionInfo> info(data.ReadParcelable<AbilityTransitionInfo>());
+    if (!info) {
+        HILOG_ERROR("To read info failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    sptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
+    if (!pixelMap) {
+        HILOG_ERROR("To read pixelMap failed.");
+        return ERR_AAFWK_PARCEL_FAIL;
+    }
+    StartingWindow(info, pixelMap);
+    return ERR_OK;
+}
+
+int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &data, MessageParcel &reply)
+{
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
