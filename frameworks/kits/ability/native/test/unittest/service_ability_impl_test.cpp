@@ -68,24 +68,28 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     GTEST_LOG_(INFO) << "AaFwk_ServiceAbilityImpl_HandleAbilityTransaction_0100 start";
 
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);";
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);";
     abilityInfo->name = "MockServiceAbility";
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);";
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);";
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
-
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);";
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-
+    GTEST_LOG_(INFO) << "std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);";
     std::shared_ptr<Ability> ability = std::make_shared<MockServiceAbility>();
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     deal->SetAbilityInfo(abilityInfo);
     ability->AttachBaseContext(deal);
-
+    GTEST_LOG_(INFO) << "ability->AttachBaseContext(deal);";
     serviceAbilityImpl_->Init(application, record, ability, handler, token, deal);
     Want want;
     serviceAbilityImpl_->ConnectAbility(want);
-
+    GTEST_LOG_(INFO) << "serviceAbilityImpl_->ConnectAbility(want);";
     AAFwk::LifeCycleStateInfo state;
     state.state = ABILITY_STATE_INITIAL;
     GTEST_LOG_(INFO) << "AaFwk_ServiceAbilityImpl_HandleAbilityTransaction_001 midle";

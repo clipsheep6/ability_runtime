@@ -30,6 +30,8 @@ appexecfwk_innerkits_path = "${appexecfwk_path}/interfaces/innerkits"
 
 dispatcher_path = "//foundation/aafwk/standard/common/task_dispatcher"
 
+aaservices_path = "//foundation/aafwk/standard/services"
+aainnerkits_path = "//foundation/aafwk/standard/interfaces/innerkits"
 system_test_app_path =
     "//foundation/aafwk/standard/test/resource/amssystemtestability/abilitySrc"
 

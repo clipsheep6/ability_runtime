@@ -138,6 +138,7 @@ HWTEST_F(FmsFormMgrDeathCallbackTest, OnRemoteDied_001, TestSize.Level0)
 {
     GTEST_LOG_(INFO) << "fms_form_mgr_death_callback_test_001 start";
     CreateProviderData();
+    GTEST_LOG_(INFO) << "CreateProviderData();";
     // No cache
     FormJsInfo formJsInfo;
     Want want;
@@ -148,27 +149,36 @@ HWTEST_F(FmsFormMgrDeathCallbackTest, OnRemoteDied_001, TestSize.Level0)
         .SetElementName(DEVICE_ID, FORM_PROVIDER_BUNDLE_NAME, FORM_PROVIDER_ABILITY_NAME)
         .SetParam(Constants::PARAM_FORM_TEMPORARY_KEY, false)
         .SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_CREATE_FORM);
-
+    GTEST_LOG_(INFO) << "CreateProviderData();";
     EXPECT_EQ(ERR_OK, FormMgr::GetInstance().AddForm(0L, want, token_, formJsInfo));
+    GTEST_LOG_(INFO) << "CreateProviderData();";  
     token_->Wait();
-
+    GTEST_LOG_(INFO) << "CreateProviderData();";  
     std::shared_ptr<FormCallbackInterface> deathCallback = std::make_shared<MockFormDeathCallback>();
+    GTEST_LOG_(INFO) << "CreateProviderData();";  
     FormMgr::GetInstance().RegisterDeathCallback(deathCallback);
+    GTEST_LOG_(INFO) << "CreateProviderData();";  
     EXPECT_EQ(true, FormMgr::GetInstance().CheckIsDeathCallbackRegistered(deathCallback));
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormMgr::GetInstance().GetDeathRecipient()->OnRemoteDied(formyMgrServ_->AsObject());
-
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     int64_t formId = formJsInfo.formId;
-
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormHostRecord hostRecord;
     EXPECT_EQ(true, FormDataMgr::GetInstance().GetFormHostRecord(formId, hostRecord));
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     EXPECT_EQ(true, token_->AsObject() == hostRecord.clientStub_);
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     EXPECT_EQ(true, FormMgr::GetRecoverStatus() == Constants::NOT_IN_RECOVERY);
-
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormMgr::GetInstance().UnRegisterDeathCallback(deathCallback);
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     EXPECT_EQ(false, FormMgr::GetInstance().CheckIsDeathCallbackRegistered(deathCallback));
-
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormDataMgr::GetInstance().DeleteFormRecord(formId);
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormDbCache::GetInstance().DeleteFormInfo(formId);
+    GTEST_LOG_(INFO) << "CreateProviderData();"; 
     FormDataMgr::GetInstance().DeleteHostRecord(token_, formId);
 
     GTEST_LOG_(INFO) << "fms_form_mgr_death_callback_test_001 end";

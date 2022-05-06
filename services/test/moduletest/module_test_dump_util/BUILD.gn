@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/abilitymgr/abilitymgr.gni")
+import("${services_path}/abilitymgr/abilitymgr.gni")
 
 group("module_test_dump_util") {
   deps = [ ":module_test_dump_util_lib" ]

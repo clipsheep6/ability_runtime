@@ -13,7 +13,7 @@
 
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/abilitymgr/abilitymgr.gni")
+import("${services_path}/abilitymgr/abilitymgr.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 

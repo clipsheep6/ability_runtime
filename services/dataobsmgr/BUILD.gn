@@ -13,7 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/dataobsmgr/dataobsms.gni")
+import("${services_path}/dataobsmgr/dataobsms.gni")
 
 group("dataobsms_target") {
   deps = [ ":dataobsms" ]

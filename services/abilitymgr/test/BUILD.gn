@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
 import("//foundation/aafwk/standard/feature.gni")
-import("//foundation/aafwk/standard/services/abilitymgr/abilitymgr.gni")
+import("${services_path}/abilitymgr/abilitymgr.gni")
 
 EVENT_DIR = "${notification_path}/common_event_service/"
 
