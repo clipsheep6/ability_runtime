@@ -28,7 +28,7 @@ const std::string EVENT_KEY_MODEL_TYPE = "MODEL_TYPE";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 const std::string TYPE = "TYPE";
 }
-void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid, 
+void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo)
 {
     std::string abilityName = abilityInfo.name.c_str();
