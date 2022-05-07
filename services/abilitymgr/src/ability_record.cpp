@@ -30,7 +30,6 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
-#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -221,7 +220,9 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
-    int32_t pid = GetUid();
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token_, processInfo);
+    int32_t pid = processInfo.pid_;
     int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
     int32_t rid = GetRecordId();
     AAFWK::EventReport::SystemEvent(
