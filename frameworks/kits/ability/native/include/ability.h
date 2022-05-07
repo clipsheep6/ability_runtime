@@ -454,6 +454,20 @@ public:
      * @return Returns true if this ability currently has window focus; returns false otherwise.
      */
     bool HasWindowFocus();
+
+    /**
+     * @brief Set the display orientation of the main window.
+     *
+     * @param orientation Indicates the display orientation of the window.
+     */
+    void SetDisplayOrientation(int orientation);
+
+    /**
+     * @brief Get the display orientation of the main window.
+     *
+     * @return Returns the display orientation of the window.
+     */
+    int GetDisplayOrientation() override;
 #endif
 
     /**
