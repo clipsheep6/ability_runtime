@@ -31,7 +31,7 @@ enum HiSysEventType {
 };
 class EventReport {
 public:
-    void SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
+    static void SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
