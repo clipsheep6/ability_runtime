@@ -30,9 +30,13 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+std::string ABILITY_START = "ABILITY_START";
+}
 const std::string DEBUG_APP = "debugApp";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
@@ -217,6 +221,16 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
+    int32_t pid = GetUid();
+    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
+    int32_t rid = GetRecordId();
+    AAFWK::EventReport::SystemEvent(
+        pid,
+        uid,
+        rid,
+        ABILITY_START,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo_);
 }
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)

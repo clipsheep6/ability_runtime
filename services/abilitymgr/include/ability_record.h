@@ -38,6 +38,7 @@
 #include "lifecycle_state_info.h"
 #include "want.h"
 #include "uri.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
