@@ -262,6 +262,10 @@ public:
         return 0;
     }
 
+    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override
+    {
+    }
+
     virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
     {
         return 0;
@@ -575,6 +579,10 @@ public:
     virtual int CleanAllMissions() override
     {
         return 0;
+    }
+
+    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override
+    {
     }
 
     virtual int SetMissionLabel(const sptr<IRemoteObject> &token,

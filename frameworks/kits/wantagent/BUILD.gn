@@ -69,6 +69,8 @@ ohos_shared_library("wantagent_innerkits") {
     "utils_base:utils",
   ]
 
+  public_deps = [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
+
   if (is_double_framework) {
     cflags = [ "-DCONFIG_DUAL_FRAMEWORK" ]
   }

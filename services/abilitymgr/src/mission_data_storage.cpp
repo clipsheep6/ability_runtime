@@ -97,7 +97,7 @@ void MissionDataStorage::DeleteMissionInfo(int missionId)
     DeleteMissionSnapshot(missionId);
 }
 
-std::string MissionDataStorage::GetMissionDataDirPath()
+std::string MissionDataStorage::GetMissionDataDirPath() const
 {
     return TASK_DATA_FILE_BASE_PATH + "/" + std::to_string(userId_) + "/" + MISSION_DATA_FILE_PATH;
 }
@@ -217,6 +217,29 @@ void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId)
     }
 }
 
+sptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId) const
+{
+    std::string filePath = GetMissionSnapshotPath(missionId);
+    if (!OHOS::HiviewDFX::FileUtil::FileExists(filePath)) {
+        HILOG_INFO("snapshot: storage snapshot not exists, missionId = %{public}d", missionId);
+        return nullptr;
+    }
+    uint32_t errCode = 0;
+    Media::SourceOptions sourceOptions;
+    auto imageSource = Media::ImageSource::CreateImageSource(filePath, sourceOptions, errCode);
+    if (errCode != OHOS::Media::SUCCESS) {
+        HILOG_ERROR("snapshot: CreateImageSource failed, errCode = %{public}d", errCode);
+        return nullptr;
+    }
+    Media::DecodeOptions decodeOptions;
+    auto pixelMapPtr = imageSource->CreatePixelMap(decodeOptions, errCode);
+    if (errCode != OHOS::Media::SUCCESS) {
+        HILOG_ERROR("snapshot: CreatePixelMap failed, errCode = %{public}d", errCode);
+        return nullptr;
+    }
+    return sptr<Media::PixelMap>(pixelMapPtr.release());
+}
+
 bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot)
 {
 #ifdef SUPPORT_GRAPHICS
@@ -247,7 +270,7 @@ bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& 
     return true;
 }
 
-std::string MissionDataStorage::GetMissionSnapshotPath(int32_t missionId)
+std::string MissionDataStorage::GetMissionSnapshotPath(int32_t missionId) const
 {
     return GetMissionDataDirPath() + "/"
         + MISSION_JSON_FILE_PREFIX + "_" + std::to_string(missionId) + PNG_FILE_SUFFIX;

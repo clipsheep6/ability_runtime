@@ -141,6 +141,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
+    requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
 #endif
 }
 
@@ -1193,6 +1194,18 @@ int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &
         return ERR_NULL_OBJECT;
     }
     return RegisterWindowManagerServiceHandler(handler);
+}
+
+int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    sptr<IRemoteObject> abilityToken = nullptr;
+    if (data.ReadBool()) {
+        HILOG_DEBUG("abilityToken is valid.");
+        abilityToken = data.ReadObject<IRemoteObject>();
+    }
+    CompleteFirstFrameDrawing(abilityToken);
+    return 0;
 }
 #endif
 

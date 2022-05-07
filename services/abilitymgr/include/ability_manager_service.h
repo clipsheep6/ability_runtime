@@ -595,7 +595,13 @@ public:
 
     virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override;
 
+    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
+
     sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
+
+    void CancelStartingWindow(sptr<IRemoteObject> abilityToken) const;
+
+    void ProcessTimeOut(int64_t eventId);
 #endif
 
     void ClearUserData(int32_t userId);
@@ -674,6 +680,8 @@ public:
     bool IsAbilityControllerStartById(int32_t missionId);
 
     void GrantUriPermission(const Want &want, int32_t validUserId, uint32_t targetTokenId);
+
+    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 
     /**
      * Send not response process ID to ability manager service.
@@ -879,7 +887,6 @@ private:
      */
     void GetGlobalConfiguration();
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     int StartRemoteAbility(const Want &want, int requestCode);
     int ConnectLocalAbility(
         const Want &want,

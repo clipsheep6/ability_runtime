@@ -409,6 +409,8 @@ public:
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 
     virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override;
+
+    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) override;

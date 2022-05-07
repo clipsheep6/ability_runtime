@@ -135,6 +135,7 @@ public:
     #endif
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
+    MOCK_METHOD1(CompleteFirstFrameDrawing, void(const sptr<IRemoteObject> &abilityToken));
 
     int UpdateConfiguration(const AppExecFwk::Configuration &config)
     {

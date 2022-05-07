@@ -88,6 +88,7 @@ public:
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo> &info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
+    MOCK_METHOD1(CompleteFirstFrameDrawing, void(const sptr<IRemoteObject> &abilityToken));
 
     virtual int StartUser(int userId) override
     {
