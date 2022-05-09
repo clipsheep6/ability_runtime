@@ -80,6 +80,15 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         EVENT_KEY_ABILITY_TYPE, abilityType,
         EVENT_KEY_MODEL_TYPE, modelType,
         EVENT_KEY_BUNDLE_NAME, bundleName);
+    HILOG_WARN("ABILITY_FOREGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s",
+        rid,
+        uid,
+        pid,
+        abilityName.c_str(),
+        abilityType.c_str(),
+        modelType.c_str(),
+        bundleName.c_str());
 }
 template<typename... Types>
 void EventReport::EventWrite(
