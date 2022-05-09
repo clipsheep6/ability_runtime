@@ -226,7 +226,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     int32_t pid = processInfo.pid_;
     int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
     int32_t rid = GetRecordId();
-    EventReport::SystemEvent(
+    AAFWK::EventReport::SystemEvent(
         pid,
         uid,
         rid,
