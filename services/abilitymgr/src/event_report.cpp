@@ -15,6 +15,7 @@
 
 #include "event_report.h"
 #include "hisysevent.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFWK {
