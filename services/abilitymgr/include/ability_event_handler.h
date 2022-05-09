@@ -42,6 +42,9 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
 
 private:
+#ifdef SUPPORT_GRAPHICS
+    void ProcessTimeOut(int64_t eventId);
+#endif
     void ProcessLoadTimeOut(int64_t eventId);
     void ProcessActiveTimeOut(int64_t eventId);
     void ProcessInactiveTimeOut(int64_t eventId);

@@ -428,6 +428,24 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     return true;
 }
 
+sptr<Media::PixelMap> MissionInfoMgr::GetPixelMap(int32_t missionId) const
+{
+    HILOG_INFO("mission_list_info GetPixelMap, missionId:%{public}d", missionId);
+    auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {
+        return missionId == info.missionInfo.id;
+    });
+    if (it == missionInfoList_.end()) {
+        HILOG_ERROR("snapshot: get mission failed, missionId %{public}d not exists", missionId);
+        return nullptr;
+    }
+    if (!taskDataPersistenceMgr_) {
+        HILOG_ERROR("snapshot: taskDataPersistenceMgr_ is nullptr");
+        return nullptr;
+    }
+
+    return taskDataPersistenceMgr_->GetPixelMap(missionId);
+}
+
 bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
     MissionSnapshot& missionSnapshot, bool force) const
 {
