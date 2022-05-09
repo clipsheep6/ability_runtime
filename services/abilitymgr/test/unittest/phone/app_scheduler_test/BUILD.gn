@@ -47,6 +47,7 @@ ohos_unittest("app_scheduler_test") {
     "${appexecfwk_innerkits_path}/libeventhandler:libeventhandler",
     "${innerkits_path}/ability_manager:ability_manager",
     "${innerkits_path}/want:want",
+    "${services_path}/abilitymgr:abilityms",
     "${services_path}/abilitymgr/test:abilityms_test_source",
     "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
