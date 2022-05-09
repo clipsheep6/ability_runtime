@@ -36,6 +36,42 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     std::string bundleName = abilityInfo.bundleName.c_str();
     std::string abilityType;
     std::string modelType;
+    EventReport::GetAbilityType(abilityType, modelType, abilityInfo);
+    EventReport::EventWrite(
+        eventName,
+        type,
+        EVENT_KEY_RID, std::to_string(rid),
+        EVENT_KEY_UID, std::to_string(uid),
+        EVENT_KEY_PID, std::to_string(pid),
+        EVENT_KEY_ABILITY_NAME, abilityName,
+        EVENT_KEY_ABILITY_TYPE, abilityType,
+        EVENT_KEY_MODEL_TYPE, modelType,
+        EVENT_KEY_BUNDLE_NAME, bundleName);
+    HILOG_WARN("ABILITY_FOREGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s",
+        rid,
+        uid,
+        pid,
+        abilityName.c_str(),
+        abilityType.c_str(),
+        modelType.c_str(),
+        bundleName.c_str());
+}
+template<typename... Types>
+void EventReport::EventWrite(
+    const std::string &eventName,
+    HiSysEventType type,
+    Types... keyValues)
+{
+    OHOS::HiviewDFX::HiSysEvent::Write(
+        OHOS::HiviewDFX::HiSysEvent::Domain::BUNDLE_MANAGER,
+        eventName,
+        static_cast<OHOS::HiviewDFX::HiSysEvent::EventType>(type),
+        keyValues...);
+}
+void EventReport::GetAbilityType(const std::string &abilityType,
+    const std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo)
+{
     AppExecFwk::AbilityType abilitytype = abilityInfo.type;
     switch (abilitytype) {
 #ifdef SUPPORT_GRAPHICS
@@ -71,37 +107,6 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     } else {
         modelType = "FA";
     }
-    EventReport::EventWrite(
-        eventName,
-        type,
-        EVENT_KEY_RID, std::to_string(rid),
-        EVENT_KEY_UID, std::to_string(uid),
-        EVENT_KEY_PID, std::to_string(pid),
-        EVENT_KEY_ABILITY_NAME, abilityName,
-        EVENT_KEY_ABILITY_TYPE, abilityType,
-        EVENT_KEY_MODEL_TYPE, modelType,
-        EVENT_KEY_BUNDLE_NAME, bundleName);
-    HILOG_WARN("ABILITY_FOREGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
-        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s",
-        rid,
-        uid,
-        pid,
-        abilityName.c_str(),
-        abilityType.c_str(),
-        modelType.c_str(),
-        bundleName.c_str());
-}
-template<typename... Types>
-void EventReport::EventWrite(
-    const std::string &eventName,
-    HiSysEventType type,
-    Types... keyValues)
-{
-    OHOS::HiviewDFX::HiSysEvent::Write(
-        OHOS::HiviewDFX::HiSysEvent::Domain::BUNDLE_MANAGER,
-        eventName,
-        static_cast<OHOS::HiviewDFX::HiSysEvent::EventType>(type),
-        keyValues...);
 }
 }  // namespace AAFWK
 }  // namespace OHOS
