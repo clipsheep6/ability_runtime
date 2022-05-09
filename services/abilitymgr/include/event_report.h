@@ -36,6 +36,8 @@ public:
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);
+    static void GetAbilityType(const std::string &abilityType,
+        const std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo);
 };
 }  // namespace AAFWK
 }  // namespace OHOS
