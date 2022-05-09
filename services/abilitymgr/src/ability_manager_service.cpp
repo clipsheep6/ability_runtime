@@ -3414,6 +3414,38 @@ sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
 {
     return wmsHandler_;
 }
+
+void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto& item : missionListManagers_) {
+        if (item.second) {
+            item.second->CompleteFirstFrameDrawing(abilityToken);
+        }
+    }
+}
+
+void AbilityManagerService::CancelStartingWindow(sptr<IRemoteObject> abilityToken) const
+{
+    if (!wmsHandler_) {
+        HILOG_WARN("%{public}s, wmsHandler_ is nullptr.", __func__);
+        return;
+    }
+
+    wmsHandler_->CancelStartingWindow(abilityToken);
+}
+
+void AbilityManagerService::ProcessTimeOut(int64_t eventId)
+{
+    HILOG_DEBUG("Cancel starting window.");
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto& item : missionListManagers_) {
+        if (item.second) {
+            item.second->ProcessTimeOut(eventId);
+        }
+    }
+}
 #endif
 
 int AbilityManagerService::StartUser(int userId)

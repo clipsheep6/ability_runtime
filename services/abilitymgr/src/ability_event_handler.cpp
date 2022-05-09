@@ -32,6 +32,9 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
 {
     CHECK_POINTER(event);
     HILOG_DEBUG("Event id obtained: %{public}u.", event->GetInnerEventId());
+#ifdef SUPPORT_GRAPHICS
+    ProcessTimeOut(event->GetParam());
+#endif
     switch (event->GetInnerEventId()) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG: {
             ProcessLoadTimeOut(event->GetParam());
@@ -61,6 +64,16 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
         }
     }
 }
+
+#ifdef SUPPORT_GRAPHICS
+void AbilityEventHandler::ProcessTimeOut(int64_t eventId)
+{
+    HILOG_INFO("Cancel starting window.");
+    auto server = server_.lock();
+    CHECK_POINTER(server);
+    server->ProcessTimeOut(eventId);
+}
+#endif
 
 void AbilityEventHandler::ProcessLoadTimeOut(int64_t eventId)
 {

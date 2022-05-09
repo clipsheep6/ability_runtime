@@ -143,6 +143,13 @@ public:
         MissionSnapshot& missionSnapshot) const;
 
     /**
+     * @brief Get the Snapshot object
+     * @param missionId Indicates this mission id.
+     * @return Returns PixelMap of snapshot.
+     */
+    sptr<Media::PixelMap> GetPixelMap(int32_t missionId) const;
+
+    /**
      * @brief get the mission snapshot object
      * @param missionId mission id
      * @param abilityToken abilityToken to get current mission snapshot

@@ -117,6 +117,15 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
     return handler_->PostTask(SaveMissionSnapshotFunc, SAVE_MISSION_SNAPSHOT);
 }
 
+sptr<Media::PixelMap> TaskDataPersistenceMgr::GetPixelMap(int missionId) const
+{
+    if (!currentMissionDataStorage_) {
+        HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");
+        return nullptr;
+    }
+    return currentMissionDataStorage_->GetPixelMap(missionId);
+}
+
 bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot)
 {
     if (!currentMissionDataStorage_) {

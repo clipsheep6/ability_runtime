@@ -159,14 +159,18 @@ int AbilityRecord::LoadAbility()
     HILOG_INFO("Start load ability, name is %{public}s.", abilityInfo_.name.c_str());
     startTime_ = AbilityUtil::SystemTimeMillis();
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
+    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER_AND_RETURN(abilityManagerService, ERR_INVALID_VALUE);
     std::string appName = applicationInfo_.name;
     if (appName.empty()) {
         HILOG_ERROR("app name is empty");
+        abilityManagerService->CancelStartingWindow(token_);
         return ERR_INVALID_VALUE;
     }
 
     if (!CanRestartRootLauncher()) {
         HILOG_ERROR("Root launcher restart is out of max count.");
+        abilityManagerService->CancelStartingWindow(token_);
         return ERR_INVALID_VALUE;
     }
 

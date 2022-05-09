@@ -22,7 +22,6 @@
 
 #include "iremote_stub.h"
 #include "message_parcel.h"
-#include "nocopyable.h"
 #include "window_manager_service_handler.h"
 
 namespace OHOS {
