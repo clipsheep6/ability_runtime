@@ -270,9 +270,6 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
     EXPECT_TRUE(abilityRecord->IsReady());
 
     for (int i = 0; i < COUNT; ++i) {
-
-        EXPECT_CALL(*mockAbilityScheduerStub, ScheduleSaveAbilityState()).Times(1);
-
         // Activate
         auto mockActivateHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_ACTIVE);
@@ -299,13 +296,18 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
         EXPECT_TRUE(testResult);
         EXPECT_EQ(abilityRecord->GetAbilityState(), INACTIVATING);
 
+        // Background
         testResult = false;
-        auto mockBackgroundHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
+        auto mockMoveBackgroundHandler = [&](const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo) {
             testResult = (lifeCycleStateInfo.state == AbilityLifeCycleState::ABILITY_STATE_BACKGROUND);
         };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _))
             .Times(1)
-            .WillOnce(Invoke(mockBackgroundHandler));
+            .WillOnce(Invoke(mockMoveBackgroundHandler));
+        
+        abilityRecord->BackgroundAbility([] {});
+        EXPECT_TRUE(testResult);
+        EXPECT_EQ(abilityRecord->GetAbilityState(), BACKGROUNDING);
 
         // Terminate
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleAbilityTransaction(_, _)).Times(1);
