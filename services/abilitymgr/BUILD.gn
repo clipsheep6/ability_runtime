@@ -48,7 +48,7 @@ config("abilityms_config") {
     "//base/account/os_account/frameworks/common/log/include",
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
+    "//base/startup/init_lite/interfaces/innerkits/include/syspara",
   ]
 
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]
@@ -106,7 +106,7 @@ ohos_shared_library("abilityms") {
     "resource_management:global_resmgr",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
     "utils_base:utils",
   ]
 

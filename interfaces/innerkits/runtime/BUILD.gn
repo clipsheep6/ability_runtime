@@ -75,10 +75,10 @@ ohos_shared_library("runtime") {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
       "hitrace_native:libhitrace",
-      "startup_l2:syspara",
+      "init:libbegetutil",
     ]
   } else {
-    external_deps += [ "startup:syspara" ]
+    external_deps += [ "init_lite:libbegetutil" ]
   }
 
   if (ability_runtime_graphics) {

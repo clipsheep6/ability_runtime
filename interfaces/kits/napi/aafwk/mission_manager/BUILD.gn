@@ -93,7 +93,7 @@ ohos_shared_library("distributedmissionmanager") {
     "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
-    "startup_l2:syspara",
+    "init:libbegetutil",
     "utils_base:utils",
   ]
 
