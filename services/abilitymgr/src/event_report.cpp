@@ -36,7 +36,7 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     std::string bundleName = abilityInfo.bundleName.c_str();
     std::string abilityType;
     std::string modelType;
-    EventReport::GetAbilityType(abilityInfo);
+    EventReport::GetAbilityType(abilityType, modelType, abilityInfo);
     EventReport::EventWrite(
         eventName,
         type,
@@ -69,7 +69,8 @@ void EventReport::EventWrite(
         static_cast<OHOS::HiviewDFX::HiSysEvent::EventType>(type),
         keyValues...);
 }
-void EventReport::GetAbilityType(AppExecFwk::AbilityInfo &abilityInfo)
+void EventReport::GetAbilityType(std::string &abilityType,
+    std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo)
 {
     AppExecFwk::AbilityType type = abilityInfo.type;
     switch (type) {

@@ -32,12 +32,12 @@ enum HiSysEventType {
 class EventReport {
 public:
     static void SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
-    const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
+        const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);
-    static void GetAbilityType(const std::string &abilityType,
-        const std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo);
+    static void GetAbilityType(std::string &abilityType,
+        std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo);
 };
 }  // namespace AAFWK
 }  // namespace OHOS
