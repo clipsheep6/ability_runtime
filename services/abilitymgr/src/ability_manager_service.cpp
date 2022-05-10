@@ -96,6 +96,7 @@ const int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
+constexpr int32_t WAIT_BOOT_SECONDS = 5;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
@@ -2908,7 +2909,7 @@ void AbilityManagerService::StartSystemApplication()
 
     StartingSettingsDataAbility();
     StartingSystemUiAbility();
-    WaitParameter("bootevent.bootanimation.started", "true", 5);
+    WaitParameter("bootevent.bootanimation.started", "true", WAIT_BOOT_SECONDS);
     StartupResidentProcess(U0_USER_ID);
 }
 
