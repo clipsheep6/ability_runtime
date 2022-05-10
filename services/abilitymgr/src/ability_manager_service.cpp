@@ -1719,10 +1719,11 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    int32_t pid = getpid();
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, processInfo);
     AAFWK::EventReport::SystemEvent(
-        getpid(),
+        pid,
         userId,
         abilityRecord->GetRecordId(),
         ABILITY_START,
