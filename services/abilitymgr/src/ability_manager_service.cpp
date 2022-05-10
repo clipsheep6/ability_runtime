@@ -63,6 +63,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
+#include "event_report.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -72,6 +73,7 @@ namespace AAFwk {
 namespace {
 const int32_t MIN_ARGS_SIZE = 1;
 
+const std::string ABILITY_START = "ABILITY_START";
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -1717,6 +1719,15 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, processInfo);
+    AAFWK::EventReport::SystemEvent(
+        getpid(),
+        userId,
+        abilityRecord->GetRecordId(),
+        ABILITY_START,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo);
     return returnCode;
 }
 
