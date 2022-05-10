@@ -1717,6 +1717,18 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, processInfo);
+    int32_t pid = processInfo.pid_;
+    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
+    int32_t rid = GetRecordId();
+    AAFWK::EventReport::SystemEvent(
+        pid,
+        uid,
+        rid,
+        ABILITY_FOREGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo_);
     return returnCode;
 }
 
