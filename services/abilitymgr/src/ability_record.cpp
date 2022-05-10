@@ -30,9 +30,15 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "uri_permission_manager_client.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+std::string ABILITY_FOREGROUND = "ABILITY_FOREGROUND";
+std::string ABILITY_BACKGROUND = "ABILITY_BACKGROUND";
+std::string ABILITY_STOP = "ABILITY_STOP";
+}
 const std::string DEBUG_APP = "debugApp";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
@@ -217,6 +223,18 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
         }
         DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token_, preToken, 1, 1, 1);
     }
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token_, processInfo);
+    int32_t pid = processInfo.pid_;
+    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
+    int32_t rid = GetRecordId();
+    AAFWK::EventReport::SystemEvent(
+        pid,
+        uid,
+        rid,
+        ABILITY_FOREGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo_);
 }
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
@@ -268,12 +286,36 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // earlier than above actions.
     currentState_ = AbilityState::BACKGROUNDING;
     lifecycleDeal_->BackgroundNew(want_, lifeCycleStateInfo_);
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token_, processInfo);
+    int32_t pid = processInfo.pid_;
+    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
+    int32_t rid = GetRecordId();
+    AAFWK::EventReport::SystemEvent(
+        pid,
+        uid,
+        rid,
+        ABILITY_BACKGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo_);
 }
 
 int AbilityRecord::TerminateAbility()
 {
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
+    AppExecFwk::RunningProcessInfo processInfo = {};
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token_, processInfo);
+    int32_t pid = processInfo.pid_;
+    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
+    int32_t rid = GetRecordId();
+    AAFWK::EventReport::SystemEvent(
+        pid,
+        uid,
+        rid,
+        ABILITY_STOP,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo_);
 }
 
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
