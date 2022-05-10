@@ -31,13 +31,20 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
                              "  stop-service                stop service with options\n"
                              "  dump                        dump the ability info\n"
                              "  force-stop <bundle-name>    force stop the process with bundle name\n"
-                             "  test                        start the test framework with options\n";
+                             "  test                        start the test framework with options\n"
+                             "  ApplicationNotRespondin     Pass in pid with options\n";
 
 const std::string HELP_MSG_SCREEN =
     "usage: aa screen <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
     "  -p, --power <state>                                          power on or off with a state name\n";
+
+const std::string HELP_ApplicationNotRespondin =
+    "usage: aa ApplicationNotRespondin <options>\n"
+    "options list:\n"
+    "  -h, --help                   list available commands\n"
+    "  -p, --pid                    Pass in pid with option\n";
 
 const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
@@ -97,6 +104,10 @@ const std::string HELP_MSG_TEST =
     "                  [-D]\n";
 
 const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
+const std::string HELP_MSG_FORCE_TIMEOUT =
+    "usage: aa force-timeout <ability-name> <INITIAL|FOREGROUND_NEW|BACKGROUND_NEW|TERMINATING>\n"
+    "usage: aa force-timeout clean.";
+const std::string HELP_MSG_FORCE_TIMEOUT_CLEAN = "clean";
 
 const std::string HELP_MSG_NO_ABILITY_NAME_OPTION = "error: -a <ability-name> is expected";
 const std::string HELP_MSG_NO_BUNDLE_NAME_OPTION = "error: -b <bundle-name> is expected";
@@ -116,6 +127,9 @@ const std::string STRING_SCREEN_POWER_OFF_NG = "error: failed to power off scree
 
 const std::string STRING_FORCE_STOP_OK = "force stop process successfully.";
 const std::string STRING_FORCE_STOP_NG = "error: failed to force stop process.";
+
+const std::string STRING_FORCE_TIMEOUT_OK = "force ability timeout successfully.";
+const std::string STRING_FORCE_TIMEOUT_NG = "error: failed to force ability timeout.";
 
 const std::string STRING_START_USER_TEST_OK = "start user test successfully.";
 const std::string STRING_START_USER_TEST_NG = "error: failed to start user test.";
@@ -148,6 +162,8 @@ private:
     ErrCode RunAsDumpCommand();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    ErrCode RunForceTimeoutForTest();
+    ErrCode RunAsSendAppNotRespondinProcessID();
     sptr<IAbilityManager> GetAbilityManagerService();
 
     ErrCode RunAsDumpCommandOptopt();
