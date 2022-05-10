@@ -58,7 +58,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         return;
     }
 
-    std::string srcPath(abilityInfo->package);
+    std::string srcPath(abilityInfo->moduleName);
     if (!abilityInfo->isModuleJson) {
         /* temporary compatibility api8 + config.json */
         srcPath.append("/assets/js/");
