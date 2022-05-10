@@ -1720,7 +1720,7 @@ int AbilityManagerService::AttachAbilityThread(
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
     int32_t pid = getpid();
-    int 32_t rid = abilityRecord->GetRecordId();
+    int32_t rid = abilityRecord->GetRecordId();
     AAFWK::EventReport::SystemEvent(
         pid,
         userId,
