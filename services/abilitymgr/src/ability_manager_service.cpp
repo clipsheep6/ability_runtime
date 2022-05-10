@@ -63,6 +63,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
+#include "event_report.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
