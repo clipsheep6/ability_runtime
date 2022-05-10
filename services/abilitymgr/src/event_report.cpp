@@ -47,7 +47,7 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         EVENT_KEY_ABILITY_TYPE, abilityType,
         EVENT_KEY_MODEL_TYPE, modelType,
         EVENT_KEY_BUNDLE_NAME, bundleName);
-    HILOG_WARN("ABILITY_FOREGROUND: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
+    HILOG_WARN("{eventName}: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
         "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s",
         rid,
         uid,
@@ -64,7 +64,7 @@ void EventReport::EventWrite(
     Types... keyValues)
 {
     OHOS::HiviewDFX::HiSysEvent::Write(
-        OHOS::HiviewDFX::HiSysEvent::Domain::BUNDLE_MANAGER,
+        OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
         eventName,
         static_cast<OHOS::HiviewDFX::HiSysEvent::EventType>(type),
         keyValues...);
