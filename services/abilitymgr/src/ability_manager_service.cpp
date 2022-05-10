@@ -1721,8 +1721,6 @@ int AbilityManagerService::AttachAbilityThread(
     }
     int32_t pid = getpid();
     int 32_t rid = abilityRecord->GetRecordId();
-    AppExecFwk::RunningProcessInfo processInfo = {};
-    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, processInfo);
     AAFWK::EventReport::SystemEvent(
         pid,
         userId,
