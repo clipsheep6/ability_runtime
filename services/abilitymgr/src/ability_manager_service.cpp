@@ -2908,7 +2908,7 @@ void AbilityManagerService::StartSystemApplication()
 
     StartingSettingsDataAbility();
     StartingSystemUiAbility();
-    WaitParameter("bootevent.bootanimation.started", "true", 0xffff);
+    WaitParameter("bootevent.bootanimation.started", "true", 5);
     StartupResidentProcess(U0_USER_ID);
 }
 
