@@ -72,6 +72,7 @@ namespace AAFwk {
 namespace {
 const int32_t MIN_ARGS_SIZE = 1;
 
+const std::string ABILITY_START = "ABILITY_START";
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -1719,16 +1720,13 @@ int AbilityManagerService::AttachAbilityThread(
     }
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token, processInfo);
-    int32_t pid = processInfo.pid_;
-    int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
-    int32_t rid = GetRecordId();
     AAFWK::EventReport::SystemEvent(
-        pid,
-        uid,
-        rid,
-        ABILITY_FOREGROUND,
+        getpid(),
+        userId,
+        abilityRecord->GetRecordId(),
+        ABILITY_START,
         AAFWK::HiSysEventType::BEHAVIOR,
-        abilityInfo_);
+        abilityInfo);
     return returnCode;
 }
 
