@@ -20,47 +20,14 @@
 namespace OHOS {
 namespace AAFWK {
 namespace {
-const std::string EVENT_KEY_PID = "PID";
-const std::string EVENT_KEY_UID = "UID";
-const std::string EVENT_KEY_RID = "RID";
 const std::string EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
-const std::string EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
-const std::string EVENT_KEY_MODEL_TYPE = "MODEL_TYPE";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 const std::string EVENT_KEY_DEVICEID = "DEVICEID";
 const std::string EVENT_KEY_URI = "URI";
 const std::string EVENT_KEY_ACTION = "ACTION";
 const std::string TYPE = "TYPE";
 }
-void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
-    const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo)
-{
-    std::string abilityName = abilityInfo.name.c_str();
-    std::string bundleName = abilityInfo.bundleName.c_str();
-    std::string abilityType;
-    std::string modelType;
-    EventReport::GetAbilityType(abilityType, modelType, abilityInfo);
-    EventReport::EventWrite(
-        eventName,
-        type,
-        EVENT_KEY_RID, std::to_string(rid),
-        EVENT_KEY_UID, std::to_string(uid),
-        EVENT_KEY_PID, std::to_string(pid),
-        EVENT_KEY_ABILITY_NAME, abilityName,
-        EVENT_KEY_ABILITY_TYPE, abilityType,
-        EVENT_KEY_MODEL_TYPE, modelType,
-        EVENT_KEY_BUNDLE_NAME, bundleName);
-    HILOG_WARN("{eventName}: rid: %{public}d, uid: %{public}d, pid: %{pid}d, abilityName: %{public}s,"
-        "abilityType: %{public}s, modelType: %{public}s, bundleName: %{public}s",
-        rid,
-        uid,
-        pid,
-        abilityName.c_str(),
-        abilityType.c_str(),
-        modelType.c_str(),
-        bundleName.c_str());
-}
-void EventReport::AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
+void EventReport::AbilitySomeCallbackEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
 {
     AppExecFwk::ElementName element = want.GetElement();
     std::string bundleName = element.GetBundleName();
@@ -83,6 +50,15 @@ void EventReport::AbilityCallbackEvent(const AAFwk::Want &want, const std::strin
         bundleName.c_str(),
         uri.c_str(),
         action.c_str());
+}
+void EventReport::AbilityOtherCallbackEvent(const std::string abilityName,
+    const std::string bundleName, const std::string &eventName, HiSysEventType type)
+{
+    EventReport::EventWrite(
+        eventName,
+        type,
+        EVENT_KEY_ABILITY_NAME, abilityName.c_str(),
+        EVENT_KEY_BUNDLE_NAME, bundleName.c_str());
 }
 template<typename... Types>
 void EventReport::EventWrite(
