@@ -1801,7 +1801,7 @@ int AbilityManagerService::AttachAbilityThread(
     }
     int32_t pid = getpid();
     int32_t rid = abilityRecord->GetRecordId();
-    AAFWK::EventReport::SystemEvent(
+    AAFWK::EventReport::AbilityEntranceEvent(
         pid,
         userId,
         rid,

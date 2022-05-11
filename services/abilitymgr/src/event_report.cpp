@@ -27,9 +27,12 @@ const std::string EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
 const std::string EVENT_KEY_ABILITY_TYPE = "ABILITY_TYPE";
 const std::string EVENT_KEY_MODEL_TYPE = "MODEL_TYPE";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
+const std::string EVENT_KEY_DEVICEID = "DEVICEID";
+const std::string EVENT_KEY_URI = "URI";
+const std::string EVENT_KEY_ACTION = "ACTION";
 const std::string TYPE = "TYPE";
 }
-void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
+void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
     const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo)
 {
     std::string abilityName = abilityInfo.name.c_str();
@@ -56,6 +59,31 @@ void EventReport::SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         abilityType.c_str(),
         modelType.c_str(),
         bundleName.c_str());
+}
+void AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName,
+        HiSysEventType type)
+{
+    AppExecFwk::ElementName element = want.GetElement();
+    std::string bundleName = element.GetBundleName();
+    std::string abilityName = element.GetAbilityName();
+    std::string deviceId = element.GetDeviceID();
+    std::string uri = want.GetUriString().c_str();
+    std::string action = want.GetAction().c_str();
+    EventReport::EventWrite(
+        eventName,
+        type,
+        EVENT_KEY_ABILITY_NAME, abilityName,
+        EVENT_KEY_BUNDLE_NAME, bundleName,
+        EVENT_KEY_DEVICEID, deviceId,
+        EVENT_KEY_URI, uri,
+        EVENT_KEY_ACTION, action);
+    HILOG_WARN("{eventName}: deviceId: %{public}s, abilityName: %{public}s,"
+        "bundleName: %{public}s, uri: %{public}s, action: %{public}s",
+        deviceId.c_str(),
+        abilityName.c_str(),
+        bundleName.c_str(),
+        uri.c_str(),
+        action.c_str());
 }
 template<typename... Types>
 void EventReport::EventWrite(

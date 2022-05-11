@@ -228,7 +228,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     int32_t pid = processInfo.pid_;
     int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
     int32_t rid = GetRecordId();
-    AAFWK::EventReport::SystemEvent(
+    AAFWK::EventReport::AbilityEntranceEvent(
         pid,
         uid,
         rid,
@@ -291,7 +291,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     int32_t pid = processInfo.pid_;
     int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
     int32_t rid = GetRecordId();
-    AAFWK::EventReport::SystemEvent(
+    AAFWK::EventReport::AbilityEntranceEvent(
         pid,
         uid,
         rid,
@@ -308,7 +308,7 @@ int AbilityRecord::TerminateAbility()
     int32_t pid = processInfo.pid_;
     int32_t uid = applicationInfo_.uid / BASE_USER_RANGE;
     int32_t rid = GetRecordId();
-    AAFWK::EventReport::SystemEvent(
+    AAFWK::EventReport::AbilityEntranceEvent(
         pid,
         uid,
         rid,

@@ -64,9 +64,13 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    const std::string ABILITY_ONSTART = "ABILITY_ONSTART";
+}
 // REGISTER_AA(Ability)
 const std::string Ability::SYSTEM_UI("com.ohos.systemui");
 const std::string Ability::STATUS_BAR("com.ohos.systemui.statusbar.MainAbility");
@@ -316,6 +320,10 @@ void Ability::OnStart(const Want &want)
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventReport::AbilityCallbackEvent(
+        want,
+        ABILITY_ONSTART,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**

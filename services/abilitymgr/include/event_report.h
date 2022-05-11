@@ -20,6 +20,8 @@
 #include <unordered_map>
 
 #include "ability_info.h"
+#include "want.h"
+#include "want_agent.h"
 
 namespace OHOS {
 namespace AAFWK {
@@ -31,8 +33,10 @@ enum HiSysEventType {
 };
 class EventReport {
 public:
-    static void SystemEvent(int32_t &pid, int32_t &uid, int32_t &rid,
+    static void AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
+    static void AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName,
+        HiSysEventType type);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);
