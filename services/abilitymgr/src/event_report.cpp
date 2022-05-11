@@ -60,8 +60,7 @@ void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         modelType.c_str(),
         bundleName.c_str());
 }
-void AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName,
-        HiSysEventType type)
+void AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
 {
     AppExecFwk::ElementName element = want.GetElement();
     std::string bundleName = element.GetBundleName();

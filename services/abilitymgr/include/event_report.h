@@ -21,7 +21,6 @@
 
 #include "ability_info.h"
 #include "want.h"
-#include "want_agent.h"
 
 namespace OHOS {
 namespace AAFWK {
