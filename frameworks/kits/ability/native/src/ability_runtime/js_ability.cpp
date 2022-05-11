@@ -32,6 +32,7 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "string_wrapper.h"
+#include "context/application_context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -127,6 +128,11 @@ void JsAbility::OnStart(const Want &want)
         HILOG_WARN("Not found Ability.js");
         return;
     }
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityCreate start");
+        applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
+    }
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
@@ -175,6 +181,12 @@ void JsAbility::OnStop()
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
         HILOG_INFO("The service connection is not disconnected.");
     }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityDestroy start");
+        applicationContext->DispatchOnAbilityDestroy(jsAbilityObj_);
+    }
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -195,6 +207,13 @@ void JsAbility::OnSceneCreated()
         HILOG_INFO("Call AbilityDelegator::PostPerformScenceCreated");
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityWindowStageCreate start");
+        applicationContext->DispatchOnAbilityWindowStageCreate(jsAbilityObj_);
+    }
+
     HILOG_INFO("OnSceneCreated end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
@@ -229,6 +248,12 @@ void JsAbility::onSceneDestroyed()
         HILOG_INFO("Call AbilityDelegator::PostPerformScenceDestroyed");
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityWindowStageDestroy start");
+        applicationContext->DispatchOnAbilityWindowStageDestroy(jsAbilityObj_);
+    }
     HILOG_INFO("onSceneDestroyed end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
@@ -259,6 +284,12 @@ void JsAbility::OnForeground(const Want &want)
         HILOG_INFO("Call AbilityDelegator::PostPerformForeground");
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityForeground start");
+        applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
+    }
     HILOG_INFO("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
 }
 
@@ -272,6 +303,12 @@ void JsAbility::OnBackground()
     if (delegator) {
         HILOG_INFO("Call AbilityDelegator::PostPerformBackground");
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
+    }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityBackground start");
+        applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
 }
 #endif
@@ -305,6 +342,12 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
     NativeNumber *numberResult = ConvertNativeValueTo<NativeNumber>(result);
     if (numberResult == nullptr) {
         return false;
+    }
+
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        HILOG_INFO("ApplicationContext DispatchOnAbilityContinue start");
+        applicationContext->DispatchOnAbilityContinue(jsAbilityObj_);
     }
 
     return *numberResult;
