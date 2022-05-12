@@ -64,9 +64,21 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    const std::string ABILITY_ONSTART = "ABILITY_ONSTART";
+    const std::string ABILITY_ONSTOP = "ABILITY_ONSTOP";
+    const std::string ABILITY_ONACTIVE = "ABILITY_ONACTIVE";
+    const std::string ABILITY_ONINACTIVE = "ABILITY_ONINACTIVE";
+    const std::string ABILITY_ONFOREGROUND = "ABILITY_ONFOREGROUND";
+    const std::string ABILITY_ONBACKGROUND = "ABILITY_ONBACKGROUND";
+    const std::string ABILITY_ONCONNECT = "ABILITY_ONCONNECT";
+    const std::string ABILITY_ONDISCONNECT = "ABILITY_ONDISCONNECT";
+    const std::string ABILITY_ONCOMMAND = "ABILITY_ONCOMMAND";
+}
 // REGISTER_AA(Ability)
 const std::string Ability::SYSTEM_UI("com.ohos.systemui");
 const std::string Ability::STATUS_BAR("com.ohos.systemui.statusbar.MainAbility");
@@ -316,6 +328,10 @@ void Ability::OnStart(const Want &want)
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventReport::AbilitySomeCallbackEvent(
+        want,
+        ABILITY_ONSTART,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**
@@ -347,6 +363,11 @@ void Ability::OnStop()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventReport::AbilityOtherCallbackEvent(
+        abilityInfo_->name.c_str(),
+        abilityInfo_->bundleName.c_str(),
+        ABILITY_ONSTOP,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**
@@ -394,6 +415,11 @@ void Ability::OnActive()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     HILOG_INFO("%{public}s end.", __func__);
+    AAFWK::EventReport::AbilityOtherCallbackEvent(
+        abilityInfo_->name.c_str(),
+        abilityInfo_->bundleName.c_str(),
+        ABILITY_ONACTIVE,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**
@@ -424,6 +450,11 @@ void Ability::OnInactive()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventReport::AbilityOtherCallbackEvent(
+        abilityInfo_->name.c_str(),
+        abilityInfo_->bundleName.c_str(),
+        ABILITY_ONINACTIVE,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -474,6 +505,10 @@ void Ability::OnForeground(const Want &want)
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
     HILOG_INFO("%{public}s end.", __func__);
+    AAFWK::EventReport::AbilitySomeCallbackEvent(
+        want,
+        ABILITY_ONFOREGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 #endif
 
@@ -596,6 +631,13 @@ void Ability::OnBackground()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
     HILOG_INFO("%{public}s end", __func__);
+    std::string abilityName = abilityInfo_->name.c_str();
+    std::string bundleName = abilityInfo_->bundleName.c_str();
+    AAFWK::EventReport::AbilityOtherCallbackEvent(
+        abilityInfo_->name.c_str(),
+        abilityInfo_->bundleName.c_str(),
+        ABILITY_ONBACKGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 #endif
 
@@ -623,6 +665,10 @@ sptr<IRemoteObject> Ability::OnConnect(const Want &want)
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventReport::AbilitySomeCallbackEvent(
+        want,
+        ABILITY_ONCONNECT,
+        AAFWK::HiSysEventType::BEHAVIOR);
     return nullptr;
 }
 
@@ -636,6 +682,10 @@ void Ability::OnDisconnect(const Want &want)
 {
     BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s come", __func__);
+    AAFWK::EventReport::AbilitySomeCallbackEvent(
+        want,
+        ABILITY_ONDISCONNECT,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**
@@ -1297,6 +1347,10 @@ void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     HILOG_INFO("%{public}s end.", __func__);
+    AAFWK::EventReport::AbilitySomeCallbackEvent(
+        want,
+        ABILITY_ONCOMMAND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 /**
