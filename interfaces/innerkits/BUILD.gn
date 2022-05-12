@@ -22,12 +22,6 @@ group("innerkits_target") {
   ]
 }
 
-group("fms_innerkits_target") {
-  if (ability_runtime_graphics) {
-    deps = [ "form_manager:form_manager" ]
-  }
-}
-
 group("base_innerkits_target") {
   deps = [
     "app_manager:configuration",

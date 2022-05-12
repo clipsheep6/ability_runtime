@@ -26,6 +26,7 @@ group("napi_packages") {
     "${aafwk_path}/interfaces/kits/napi/aafwk/app/ability_stage_context:abilitystagecontext_napi",
     "${aafwk_path}/interfaces/kits/napi/aafwk/app/appMgr:napi_app_mgr",
     "${aafwk_path}/interfaces/kits/napi/aafwk/app/app_manager:appmanager_napi",
+    "${aafwk_path}/interfaces/kits/napi/aafwk/app/application_context:applicationcontext_napi",
     "${aafwk_path}/interfaces/kits/napi/aafwk/app/context:context_napi",
     "${aafwk_path}/interfaces/kits/napi/aafwk/app/test_runner:testrunner_napi",
     "${aafwk_path}/interfaces/kits/napi/aafwk/callee:callee_napi",
@@ -47,20 +48,4 @@ group("napi_packages") {
     "${aafwk_path}/interfaces/kits/napi/aafwk/wantConstant:wantconstant",
     "${aafwk_path}/interfaces/kits/napi/aafwk/wantagent:wantagent",
   ]
-}
-
-group("form_napi_packages") {
-  if (ability_runtime_graphics) {
-    deps = [
-      "${aafwk_path}/interfaces/kits/napi/aafwk/formHost:formhost_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/formManager:formmanager",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/formProvider:formprovider_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/formUtil:formutil_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/form_binding_data:formbindingdata_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/form_error:formerror_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/form_extension:formextension_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/form_extension_context:formextensioncontext_napi",
-      "${aafwk_path}/interfaces/kits/napi/aafwk/form_info:forminfo_napi",
-    ]
-  }
 }
