@@ -261,6 +261,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, ABILITY_BACKGROUND);
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
     if (lifecycleDeal_ == nullptr) {
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
@@ -303,6 +304,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
 int AbilityRecord::TerminateAbility()
 {
+    BYTRACE_NAME(BYTRACE_TAG_ABILITY_MANAGER, ABILITY_STOP);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(token_, processInfo);

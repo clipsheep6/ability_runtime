@@ -19,9 +19,17 @@
 #include "configuration.h"
 #include "extension_context.h"
 #include "hilog_wrapper.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+    const std::string EXTENSION_ONSTART = "EXTENSION_ONSTART";
+    const std::string EXTENSION_ONSTOP = "EXTENSION_ONSTOP";
+    const std::string EXTENSION_ONCONNECT = "EXTENSION_ONCONNECT";
+    const std::string EXTENSION_ONDISCONNECT = "EXTENSION_ONDISCONNECT";
+    const std::string EXTENSION_ONCOMMAND = "EXTENSION_ONCOMMAND";
+}
 void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
@@ -44,18 +52,31 @@ void Extension::OnStart(const AAFwk::Want &want)
     SetLaunchWant(want);
     SetLastRequestWant(want);
     HILOG_INFO("OnStart end, extension:%{public}s.", abilityInfo_->name.c_str());
+    AAFWK::EventReport::SomeEvent(
+        want,
+        EXTENSION_ONSTART,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 void Extension::OnStop()
 {
     HILOG_INFO("OnStop begin, extension:%{public}s.", abilityInfo_->name.c_str());
     HILOG_INFO("OnStop end, extension:%{public}s.", abilityInfo_->name.c_str());
+    AAFWK::EventReport::OtherEvent(
+        abilityInfo_->name.c_str(),
+        abilityInfo_->bundleName.c_str(),
+        EXTENSION_ONSTOP,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
 {
     HILOG_INFO("OnConnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
     HILOG_INFO("OnConnect end, extension:%{public}s.", abilityInfo_->name.c_str());
+    AAFWK::EventReport::SomeEvent(
+        want,
+        EXTENSION_ONCONNECT,
+        AAFWK::HiSysEventType::BEHAVIOR);
     return nullptr;
 }
 
@@ -63,6 +84,10 @@ void Extension::OnDisconnect(const AAFwk::Want &want)
 {
     HILOG_INFO("OnDisconnect begin, extension:%{public}s.", abilityInfo_->name.c_str());
     HILOG_INFO("OnDisconnect end, extension:%{public}s.", abilityInfo_->name.c_str());
+    AAFWK::EventReport::SomeEvent(
+        want,
+        EXTENSION_ONDISCONNECT,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
@@ -73,6 +98,10 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
         startId);
     SetLastRequestWant(want);
     HILOG_INFO("%{public}s end.", __func__);
+    AAFWK::EventReport::SomeEvent(
+        want,
+        EXTENSION_ONCOMMAND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 void Extension::SetLaunchWant(const AAFwk::Want &want)

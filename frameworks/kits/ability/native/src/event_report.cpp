@@ -27,7 +27,7 @@ const std::string EVENT_KEY_URI = "URI";
 const std::string EVENT_KEY_ACTION = "ACTION";
 const std::string TYPE = "TYPE";
 }
-void EventReport::AbilitySomeCallbackEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
+void EventReport::SomeEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
 {
     AppExecFwk::ElementName element = want.GetElement();
     std::string bundleName = element.GetBundleName();
@@ -51,7 +51,7 @@ void EventReport::AbilitySomeCallbackEvent(const AAFwk::Want &want, const std::s
         uri.c_str(),
         action.c_str());
 }
-void EventReport::AbilityOtherCallbackEvent(const std::string abilityName,
+void EventReport::OtherEvent(const std::string abilityName,
     const std::string bundleName, const std::string &eventName, HiSysEventType type)
 {
     EventReport::EventWrite(
@@ -59,6 +59,9 @@ void EventReport::AbilityOtherCallbackEvent(const std::string abilityName,
         type,
         EVENT_KEY_ABILITY_NAME, abilityName.c_str(),
         EVENT_KEY_BUNDLE_NAME, bundleName.c_str());
+    HILOG_WARN("{eventName}: abilityName: %{public}s, bundleName: %{public}s",
+        abilityName.c_str(),
+        bundleName.c_str());
 }
 template<typename... Types>
 void EventReport::EventWrite(
