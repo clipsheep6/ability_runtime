@@ -192,6 +192,7 @@ ohos_shared_library("abilitykit_native") {
     "src/service_extension.cpp",
     "src/static_subscriber_extension.cpp",
     "src/static_subscriber_stub_imp.cpp",
+    "src/event_report.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -231,6 +232,7 @@ ohos_shared_library("abilitykit_native") {
     "resource_management:global_resmgr",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
+    "hisysevent_native:libhisysevent",
   ]
 
   defines = []

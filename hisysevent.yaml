@@ -45,3 +45,103 @@ THREAD_BLOCK_6S:
   PACKAGE_NAME: {type: STRING, desc: package name}
   PROCESS_NAME: {type: STRING, desc: process name}
   MSG: {type: STRING, desc: application event message}
+  
+ABILITY_START:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  PID: {type: INT32, desc: pid}
+  UID: {type: INT32, desc: uid}
+  RID: {type: INT32, desc: rid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  MODEL_TYPE: {type: STRING, desc: model type}
+  ABILITY_TYPE: {type: STRING, desc: ability type}
+
+ABILITY_FOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  PID: {type: INT32, desc: pid}
+  UID: {type: INT32, desc: uid}
+  RID: {type: INT32, desc: rid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  MODEL_TYPE: {type: STRING, desc: model type}
+  ABILITY_TYPE: {type: STRING, desc: ability type}
+
+ABILITY_BACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  PID: {type: INT32, desc: pid}
+  UID: {type: INT32, desc: uid}
+  RID: {type: INT32, desc: rid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  MODEL_TYPE: {type: STRING, desc: model type}
+  ABILITY_TYPE: {type: STRING, desc: ability type}
+
+ABILITY_STOP:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  PID: {type: INT32, desc: pid}
+  UID: {type: INT32, desc: uid}
+  RID: {type: INT32, desc: rid}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  MODEL_TYPE: {type: STRING, desc: model type}
+  ABILITY_TYPE: {type: STRING, desc: ability type}
+
+ABILITY_ONSTART:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+ABILITY_ONSTOP:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONINACTIVE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONFOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+ABILITY_ONBACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONCONNECT:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+ABILITY_ONDISCONNECT:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+ABILITY_ONCOMMAND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}

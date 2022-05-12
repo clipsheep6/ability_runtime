@@ -63,6 +63,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
+#include "event_report.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_focus_controller.h"
 #endif
@@ -75,6 +76,7 @@ namespace AAFwk {
 namespace {
 const int32_t MIN_ARGS_SIZE = 1;
 
+const std::string ABILITY_START = "ABILITY_START";
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -90,6 +92,9 @@ static void GetOsAccountIdFromUid(int uid, int &osAccountId)
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+#ifdef SUPPORT_GRAPHICS
+using namespace OHOS::Rosen;
+#endif
 const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
@@ -1795,6 +1800,15 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    int32_t pid = getpid();
+    int32_t rid = abilityRecord->GetRecordId();
+    AAFWK::EventReport::AbilityEntranceEvent(
+        pid,
+        userId,
+        rid,
+        ABILITY_START,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo);
     return returnCode;
 }
 
