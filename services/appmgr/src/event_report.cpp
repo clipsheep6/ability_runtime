@@ -73,7 +73,7 @@ void EventReport::AppEvent(const std::string &eventName, HiSysEventType type,
     std::string versionName = applicationInfo->versionName.c_str();
     uint32_t versionCode = applicationInfo->versionCode;
     std::string process = applicationInfo->process.c_str();
-    int64_t timeStamp = 
+    int32_t timeStamp =
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch())
         .count();
     EventReport::EventWrite(
@@ -84,13 +84,13 @@ void EventReport::AppEvent(const std::string &eventName, HiSysEventType type,
         EVENT_KEY_VERSION_CODE, std::to_string(versionCode),
         EVENT_KEY_PROCESS, process,
         EVENT_KEY_TIME_STAMP, std::to_string(timeStamp));
-    // HILOG_WARN("{eventName}: name: %{public}s, versionName: %{public}s,"
-    //     "versionCode: %{public}d, process: %{public}s, timeStamp: %{public}d",
-    //     name.c_str(),
-    //     versionName.c_str(),
-    //     versionCode,
-    //     process.c_str(),
-    //     timeStamp);
+    HILOG_WARN("{eventName}: name: %{public}s, versionName: %{public}s,"
+        "versionCode: %{public}d, process: %{public}s, timeStamp: %{public}d",
+        name.c_str(),
+        versionName.c_str(),
+        versionCode,
+        process.c_str(),
+        timeStamp);
 }
 template<typename... Types>
 void EventReport::EventWrite(

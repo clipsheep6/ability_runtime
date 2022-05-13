@@ -26,6 +26,7 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
   deps = [
     "${services_path}/common:perm_verification",
     "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
+    "${services_path}/appmgr:libappms",
   ]
 
   external_deps = [
