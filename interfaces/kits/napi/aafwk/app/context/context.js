@@ -72,11 +72,11 @@ class Context {
         return this.__context_impl__.getApplicationContext()
     }
 
-    switchArea(mode) {
+    set area(mode) {
         return this.__context_impl__.switchArea(mode)
     }
 
-    getArea() {
+    get area() {
         return this.__context_impl__.getArea()
     }
 
@@ -122,6 +122,13 @@ class Context {
 
     get stageMode() {
         return true;
+    }
+}
+
+const container = {
+    get area() {
+        console.log('container.get');
+
     }
 }
 
