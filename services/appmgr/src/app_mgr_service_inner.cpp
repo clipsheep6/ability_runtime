@@ -93,6 +93,8 @@ const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 
+const std::string APP_ATTACH = "APP_ATTACH";
+const std::string APP_LAUNCH = "APP_LAUNCH";
 const std::string APP_FOREGROUND = "APP_FOREGROUND";
 const std::string APP_BACKGROUND = "APP_BACKGROUND";
 const std::string APP_TERMINATE = "APP_TERMINATE";
@@ -270,6 +272,11 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         LaunchApplication(appRecord);
     }
     appRecord->RegisterAppDeathRecipient();
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFWK::EventReport::AppEvent(
+        APP_ATTACH,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        applicationInfo);
 }
 
 void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -305,6 +312,11 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         return;
     }
     appRecord->LaunchPendingAbilities();
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFWK::EventReport::AppEvent(
+        APP_LAUNCH,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        applicationInfo);
 }
 
 void AppMgrServiceInner::AddAbilityStageDone(const int32_t recordId)
@@ -341,9 +353,9 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     HILOG_INFO("application is foregrounded");
     auto applicationInfo = appRecord->GetApplicationInfo();
     AAFWK::EventReport::AppEvent(
-        applicationInfo,
         APP_FOREGROUND,
-        AAFWK::HiSysEventType::BEHAVIOR);
+        AAFWK::HiSysEventType::BEHAVIOR,
+        applicationInfo);
 }
 
 void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
@@ -366,9 +378,9 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     HILOG_INFO("application is backgrounded");
     auto applicationInfo = appRecord->GetApplicationInfo();
     AAFWK::EventReport::AppEvent(
-        applicationInfo,
         APP_BACKGROUND,
-        AAFWK::HiSysEventType::BEHAVIOR);
+        AAFWK::HiSysEventType::BEHAVIOR,
+        applicationInfo);
 }
 
 void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
@@ -403,9 +415,9 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     HILOG_INFO("application is terminated");
     auto applicationInfo = appRecord->GetApplicationInfo();
     AAFWK::EventReport::AppEvent(
-        applicationInfo,
         APP_TERMINATE,
-        AAFWK::HiSysEventType::BEHAVIOR);
+        AAFWK::HiSysEventType::BEHAVIOR,
+        applicationInfo);
 }
 
 int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
