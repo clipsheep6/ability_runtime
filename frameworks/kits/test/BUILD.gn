@@ -69,7 +69,7 @@ ohos_moduletest("ability_moduletest") {
     "${aafwk_path}/services/abilitymgr/src/sender_info.cpp",
     "${aafwk_path}/services/abilitymgr/src/want_sender_info.cpp",
     "${aafwk_path}/services/abilitymgr/src/wants_info.cpp",
-    "//foundation/aafwk/standard/interfaces/innerkits/app_manager/src/appmgr/configuration.cpp",
+    "${innerkits_path}/app_manager/src/appmgr/configuration.cpp",
     "moduletest/cpp/abilitytest/ability_test.cpp",
   ]
 
