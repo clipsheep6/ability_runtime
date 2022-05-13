@@ -25,7 +25,10 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
   ]
   sources = [ "app_running_processes_info_module_test.cpp" ]
 
-  deps = [ "${services_path}/test/moduletest/common/ams:appmgr_mst_source" ]
+  deps = [
+    "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
+    "${services_path}/appmgr:libappms",
+  ]
 
   external_deps = [ "ipc:ipc_core" ]
 }

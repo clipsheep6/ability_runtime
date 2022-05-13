@@ -73,7 +73,7 @@ void EventReport::AppEvent(AppExecFwk::ApplicationInfo &applicationInfo,
     std::string versionName = applicationInfo.versionName.c_str();
     uint32_t versionCode = applicationInfo.versionCode;
     std::string process = applicationInfo.process.c_str();
-    int32_t timeStamp = 
+    int32_t timeStamp =
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch())
         .count();
     EventReport::EventWrite(
