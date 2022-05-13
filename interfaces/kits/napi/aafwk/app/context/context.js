@@ -125,11 +125,4 @@ class Context {
     }
 }
 
-const container = {
-    get area() {
-        console.log('container.get');
-
-    }
-}
-
 export default Context
