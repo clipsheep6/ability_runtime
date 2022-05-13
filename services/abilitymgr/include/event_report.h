@@ -34,8 +34,8 @@ class EventReport {
 public:
     static void AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
-    static void AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName,
-        HiSysEventType type);
+    static void AppEvent(AppExecFwk::ApplicationInfo &applicationInfo,
+    const std::string &eventName, HiSysEventType type);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);

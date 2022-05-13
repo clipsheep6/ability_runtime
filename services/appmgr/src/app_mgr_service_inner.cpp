@@ -48,6 +48,7 @@
 #include "locale_config.h"
 #endif
 #include "uri_permission_manager_client.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -91,6 +92,10 @@ const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
 
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
+
+const std::string APP_FOREGROUND = "APP_FOREGROUND";
+const std::string APP_BACKGROUND = "APP_BACKGROUND";
+const std::string APP_TERMINATE = "APP_TERMINATE";
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -334,6 +339,11 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     // push the foregrounded app front of RecentAppList.
     PushAppFront(recordId);
     HILOG_INFO("application is foregrounded");
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFWK::EventReport::AppEvent(
+        applicationInfo,
+        APP_FOREGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
@@ -354,6 +364,11 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
 
     HILOG_INFO("application is backgrounded");
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFWK::EventReport::AppEvent(
+        applicationInfo,
+        APP_BACKGROUND,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
@@ -386,6 +401,11 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     OnProcessDied(appRecord);
 
     HILOG_INFO("application is terminated");
+    auto applicationInfo = appRecord->GetApplicationInfo();
+    AAFWK::EventReport::AppEvent(
+        applicationInfo,
+        APP_TERMINATE,
+        AAFWK::HiSysEventType::BEHAVIOR);
 }
 
 int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)

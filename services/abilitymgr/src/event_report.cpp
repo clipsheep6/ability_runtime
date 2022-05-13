@@ -17,6 +17,8 @@
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
 
+#include <chrono>
+
 namespace OHOS {
 namespace AAFWK {
 namespace {
@@ -29,7 +31,11 @@ const std::string EVENT_KEY_MODEL_TYPE = "MODEL_TYPE";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 const std::string EVENT_KEY_DEVICEID = "DEVICEID";
 const std::string EVENT_KEY_URI = "URI";
-const std::string EVENT_KEY_ACTION = "ACTION";
+const std::string EVENT_KEY_APP_NAME = "NAME";
+const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
+const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
+const std::string EVENT_KEY_PROCESS = "PROCESS";
+const std::string EVENT_KEY_TIME_STAMP = "TIME_STAMP";
 const std::string TYPE = "TYPE";
 }
 void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
@@ -60,29 +66,31 @@ void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
         modelType.c_str(),
         bundleName.c_str());
 }
-void EventReport::AbilityCallbackEvent(const AAFwk::Want &want, const std::string &eventName, HiSysEventType type)
+void EventReport::AppEvent(AppExecFwk::ApplicationInfo &applicationInfo,
+    const std::string &eventName, HiSysEventType type)
 {
-    AppExecFwk::ElementName element = want.GetElement();
-    std::string bundleName = element.GetBundleName();
-    std::string abilityName = element.GetAbilityName();
-    std::string deviceId = element.GetDeviceID();
-    std::string uri = want.GetUriString().c_str();
-    std::string action = want.GetAction().c_str();
+    std::string name = applicationInfo.name.c_str();
+    std::string versionName = applicationInfo.versionName.c_str();
+    uint32_t versionCode = applicationInfo.versionCode;
+    std::string process = applicationInfo.process.c_str();
+    int64_t timeStamp = 
+        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch())
+        .count();
     EventReport::EventWrite(
         eventName,
         type,
-        EVENT_KEY_ABILITY_NAME, abilityName,
-        EVENT_KEY_BUNDLE_NAME, bundleName,
-        EVENT_KEY_DEVICEID, deviceId,
-        EVENT_KEY_URI, uri,
-        EVENT_KEY_ACTION, action);
-    HILOG_WARN("{eventName}: deviceId: %{public}s, abilityName: %{public}s,"
-        "bundleName: %{public}s, uri: %{public}s, action: %{public}s",
-        deviceId.c_str(),
-        abilityName.c_str(),
-        bundleName.c_str(),
-        uri.c_str(),
-        action.c_str());
+        EVENT_KEY_APP_NAME, name,
+        EVENT_KEY_VERSION_NAME, versionName,
+        EVENT_KEY_VERSION_CODE, std::to_string(versionCode),
+        EVENT_KEY_PROCESS, process,
+        EVENT_KEY_TIME_STAMP, std::to_string(timeStamp));
+    // HILOG_WARN("{eventName}: name: %{public}s, versionName: %{public}s,"
+    //     "versionCode: %{public}d, process: %{public}s, timeStamp: %{public}d",
+    //     name.c_str(),
+    //     versionName.c_str(),
+    //     versionCode,
+    //     process.c_str(),
+    //     timeStamp);
 }
 template<typename... Types>
 void EventReport::EventWrite(

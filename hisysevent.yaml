@@ -47,7 +47,7 @@ THREAD_BLOCK_6S:
   MSG: {type: STRING, desc: application event message}
   
 ABILITY_START:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entrance for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -57,7 +57,7 @@ ABILITY_START:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_FOREGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entrance for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -67,7 +67,7 @@ ABILITY_FOREGROUND:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_BACKGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entrance for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -77,7 +77,7 @@ ABILITY_BACKGROUND:
   ABILITY_TYPE: {type: STRING, desc: ability type}
 
 ABILITY_STOP:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entry for ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: entrance for ability}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}
   RID: {type: INT32, desc: rid}
@@ -145,3 +145,64 @@ ABILITY_ONCOMMAND:
   DEVICE_ID: {type: INT32, desc: deviceId}
   URI: {type: STRING, desc: uri}
   ACTION: {type: STRING, desc: action}
+
+EXTENSION_ONSTART:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for extensionAbility}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+EXTENSION_ONSTOP:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for extensionAbility}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+EXTENSION_ONCONNECT:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for extensionAbility}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+EXTENSION_ONDISCONNECT:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for extensionAbility}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+EXTENSION_ONCOMMAND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: callback for extensionAbility}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+  DEVICE_ID: {type: INT32, desc: deviceId}
+  URI: {type: STRING, desc: uri}
+  ACTION: {type: STRING, desc: action}
+
+APP_FOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
+  NAME: {type: STRING, desc: application name}
+  VERSION_NAME: {type: STRING, desc: version name}
+  VERSION_CODE: {type: INT32, desc: version code}
+  PROCESS: {type: STRING, desc: process}
+  TIME_STAMP: {type: INT32, desc: time stamp}
+
+APP_BACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
+  NAME: {type: STRING, desc: application name}
+  VERSION_NAME: {type: STRING, desc: version name}
+  VERSION_CODE: {type: INT32, desc: version code}
+  PROCESS: {type: STRING, desc: process}
+  TIME_STAMP: {type: INT32, desc: time stamp}
+
+APP_TERMINATE:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
+  NAME: {type: STRING, desc: application name}
+  VERSION_NAME: {type: STRING, desc: version name}
+  VERSION_CODE: {type: INT32, desc: version code}
+  PROCESS: {type: STRING, desc: process}
+  TIME_STAMP: {type: INT32, desc: time stamp}
