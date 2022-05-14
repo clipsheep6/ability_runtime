@@ -30,6 +30,10 @@ ohos_moduletest("AmsAppRecentListModuleTest") {
     "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
   ]
 
+  if (ability_runtime_graphics) {
+    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+  }
+
   external_deps = [
     "hicollie_native:libhicollie",
     "ipc:ipc_core",
