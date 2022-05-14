@@ -33,15 +33,11 @@ enum HiSysEventType {
 };
 class EventReport {
 public:
-    static void AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
-        const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo);
-    static void AppEvent(const std::string &eventName, HiSysEventType type,
-        const std::shared_ptr<AppExecFwk::ApplicationInfo> &applicationInfo);
+    static void AppEvent(const std::shared_ptr<AppExecFwk::ApplicationInfo> &applicationInfo,
+    const std::string &pid, const std::string &eventName, HiSysEventType type);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);
-    static void GetAbilityType(std::string &abilityType,
-        std::string &modelType, AppExecFwk::AbilityInfo &abilityInfo);
 };
 }  // namespace AAFWK
 }  // namespace OHOS
