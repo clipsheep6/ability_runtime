@@ -46,6 +46,7 @@ ohos_unittest("AmsWorkFlowTest") {
   sources += [ "ams_workflow_test.cpp" ]
 
   configs = [ "${services_path}/appmgr/test:appmgr_test_config" ]
+
   deps = [
     "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
     "${aafwk_path}/interfaces/innerkits/base:base",
