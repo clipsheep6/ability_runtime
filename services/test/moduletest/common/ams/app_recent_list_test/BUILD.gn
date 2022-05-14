@@ -25,9 +25,9 @@ ohos_moduletest("AmsAppRecentListModuleTest") {
   sources = [ "ams_app_recent_list_module_test.cpp" ]
 
   deps = [
+    "${services_path}/appmgr:libappms",
     "${services_path}/common:perm_verification",
     "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
-    "${services_path}/appmgr:libappms",
   ]
 
   external_deps = [
