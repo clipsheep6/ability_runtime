@@ -183,6 +183,22 @@ EXTENSION_ONCOMMAND:
   URI: {type: STRING, desc: uri}
   ACTION: {type: STRING, desc: action}
 
+APP_ATTACH:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
+  NAME: {type: STRING, desc: application name}
+  VERSION_NAME: {type: STRING, desc: version name}
+  VERSION_CODE: {type: INT32, desc: version code}
+  PROCESS: {type: STRING, desc: process}
+  TIME_STAMP: {type: INT32, desc: time stamp}
+
+APP_LAUNCH:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
+  NAME: {type: STRING, desc: application name}
+  VERSION_NAME: {type: STRING, desc: version name}
+  VERSION_CODE: {type: INT32, desc: version code}
+  PROCESS: {type: STRING, desc: process}
+  TIME_STAMP: {type: INT32, desc: time stamp}
+
 APP_FOREGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: IDENTIFICATION, desc: application event}
   NAME: {type: STRING, desc: application name}
