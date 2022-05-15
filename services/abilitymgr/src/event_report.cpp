@@ -35,7 +35,6 @@ const std::string EVENT_KEY_ACTION = "ACTION";
 const std::string EVENT_KEY_APP_NAME = "NAME";
 const std::string EVENT_KEY_VERSION_NAME = "VERSION_NAME";
 const std::string EVENT_KEY_VERSION_CODE = "VERSION_CODE";
-const std::string EVENT_KEY_PID = "PID";
 const std::string EVENT_KEY_TIME_STAMP = "TIME_STAMP";
 const std::string TYPE = "TYPE";
 }
@@ -70,10 +69,9 @@ void EventReport::AbilityEntranceEvent(int32_t &pid, int32_t &uid, int32_t &rid,
 void EventReport::AppEvent(const std::shared_ptr<AppExecFwk::ApplicationInfo> &applicationInfo,
     const std::string &pid, const std::string &eventName, HiSysEventType type)
 {
-    std::string name = applicationInfo.name.c_str();
-    std::string versionName = applicationInfo.versionName.c_str();
-    uint32_t versionCode = applicationInfo.versionCode;
-    std::string pid = pid.c_str();
+    std::string name = applicationInfo->name.c_str();
+    std::string versionName = applicationInfo->versionName.c_str();
+    uint32_t versionCode = applicationInfo->versionCode;
     int32_t timeStamp =
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch())
         .count();
@@ -83,7 +81,7 @@ void EventReport::AppEvent(const std::shared_ptr<AppExecFwk::ApplicationInfo> &a
         EVENT_KEY_APP_NAME, name,
         EVENT_KEY_VERSION_NAME, versionName,
         EVENT_KEY_VERSION_CODE, std::to_string(versionCode),
-        EVENT_KEY_pid, pid,
+        EVENT_KEY_PID, pid.c_str(),
         EVENT_KEY_TIME_STAMP, std::to_string(timeStamp));
     HILOG_WARN("{eventName}: name: %{public}s, versionName: %{public}s,"
         "versionCode: %{public}d, pid: %{public}s, timeStamp: %{public}d",
