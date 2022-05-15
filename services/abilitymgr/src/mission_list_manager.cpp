@@ -2110,6 +2110,9 @@ sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(cons
         SetWindowModeAndDisplayId(info, abilityRequest.want);
     }
     info->abilityToken_ = abilityRecord->GetToken();
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    info->bundleName_ = abilityInfo.name;
+    info->abilityName_ = abilityInfo.bundleName;
     return info;
 }
 
@@ -2206,6 +2209,8 @@ void MissionListManager::StartingWindowCold(const std::shared_ptr<AbilityRecord>
     const std::shared_ptr<StartOptions> &startOptions, const Want &want, const AbilityRequest &abilityRequest) const
 {
     auto abilityInfo = abilityRecord->GetAbilityInfo();
+    HILOG_INFO("chy bundleName %{public}s.", abilityInfo.bundleName.c_str());
+    HILOG_INFO("chy name %{public}s.", abilityInfo.name.c_str());
     if (abilityInfo.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
         abilityInfo.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
         HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
@@ -2282,11 +2287,22 @@ void MissionListManager::CancelStartingWindow(sptr<IRemoteObject> abilityToken) 
 {
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
-        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
         return;
     }
 
-    windowHandler->CancelStartingWindow(abilityToken);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler == nullptr) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto task = [windowHandler, abilityToken] {
+        if (windowHandler) {
+            windowHandler->CancelStartingWindow(abilityToken);
+        }
+    };
+    handler->PostTask(task, 0);
 }
 
 void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const
