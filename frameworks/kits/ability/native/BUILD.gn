@@ -179,7 +179,6 @@ ohos_shared_library("abilitykit_native") {
     "src/data_ability_result.cpp",
     "src/data_uri_utils.cpp",
     "src/distributed_ability_runtime/distributed_client.cpp",
-    "src/event_report.cpp",
     "src/extension.cpp",
     "src/extension_impl.cpp",
     "src/extension_module_loader.cpp",
@@ -193,6 +192,7 @@ ohos_shared_library("abilitykit_native") {
     "src/service_extension.cpp",
     "src/static_subscriber_extension.cpp",
     "src/static_subscriber_stub_imp.cpp",
+    "src/event_report.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [

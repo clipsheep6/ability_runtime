@@ -36,8 +36,6 @@ public:
         HiSysEventType type);
     static void OtherEvent(const std::string abilityName,
         const std::string bundleName, const std::string &eventName, HiSysEventType type);
-    static void ExtensionEvent(const AAFwk::Want &want, const std::string &eventName,
-        HiSysEventType type);
     template<typename... Types>
     static void EventWrite(const std::string &eventName,
         HiSysEventType type, Types... keyValues);
