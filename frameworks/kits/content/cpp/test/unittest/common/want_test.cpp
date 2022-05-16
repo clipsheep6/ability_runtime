@@ -22,8 +22,9 @@
 #include "ohos/aafwk/base/float_wrapper.h"
 #include "ohos/aafwk/base/long_wrapper.h"
 #include "ohos/aafwk/content/array_wrapper.h"
+#define private public
 #include "ohos/aafwk/content/want.h"
-
+#undef private
 using namespace testing::ext;
 using namespace OHOS::AAFwk;
 using namespace OHOS;
@@ -3974,6 +3975,62 @@ HWTEST_F(WantBaseTest, array_test_005, TestSize.Level1)
     sptr<IArray> arrayObj3 = Array::Parse("I5{2,3,5,7,11}");
     EXPECT_FALSE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj2.GetRefPtr())));
     EXPECT_TRUE(Object::Equals(*(arrayObj1.GetRefPtr()), *(arrayObj3.GetRefPtr())));
+}
+
+/**
+ * @tc.number: json_test_001
+ * @tc.name: ReadFromJson
+ * @tc.desc: Verify ReadFromJson() parses erroneous json input without corruption.
+ */
+HWTEST_F(WantBaseTest, json_test_001, TestSize.Level1) {
+    using json = nlohmann::json;
+    json jsonObject = {
+        {"deviceId", 1},
+        {"bundleName", "xx"},
+    };
+    EXPECT_FALSE(want_->ReadFromJson(jsonObject));
+}
+
+/**
+ * @tc.number: json_test_002
+ * @tc.name: ReadFromJson
+ * @tc.desc: Verify ReadFromJson() parses erroneous json input without corruption.
+ */
+HWTEST_F(WantBaseTest, json_test_002, TestSize.Level1) {
+    using json = nlohmann::json;
+    json jsonObject = {
+        {"deviceId", 1},
+        {"bundleName", 1},
+        {"abilityName", 1},
+        {"moduleName", 1},
+        {"uri", 1},
+        {"type", 1},
+        {"flags", "xx"},
+        {"action", "xx"},
+        {"parameters", "xx"},
+        {"entities", nullptr},
+    };
+    EXPECT_FALSE(want_->ReadFromJson(jsonObject));
+}
+
+/**
+ * @tc.number: json_test_003
+ * @tc.name: FromString
+ * @tc.desc: Verify FromString() parses erroneous string input without corruption.
+ */
+HWTEST_F(WantBaseTest, json_test_003, TestSize.Level1) {
+    string str = "{this_is_nothing}";
+    EXPECT_EQ(nullptr, want_->FromString(str));
+}
+
+/**
+ * @tc.number: json_test_004
+ * @tc.name: FromString
+ * @tc.desc: Verify FromString() parses erroneous string input without corruption.
+ */
+HWTEST_F(WantBaseTest, json_test_004, TestSize.Level1) {
+    string str = "";
+    EXPECT_EQ(nullptr, want_->FromString(str));
 }
 }  // namespace AAFwk
 }  // namespace OHOS
