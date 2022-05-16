@@ -44,6 +44,10 @@ template<typename T, typename dataType>
 void CheckArrayType(
     const nlohmann::json &jsonObject, const std::string &key, dataType &data, ArrayType arrayType, int32_t &parseResult)
 {
+    if (!jsonObject.contains(key)) {
+        HILOG_ERROR("jsonObject doesn't contain key:%{public}s", key.c_str());
+        return;
+    }
     auto arrays = jsonObject.at(key);
     if (arrays.empty()) {
         HILOG_DEBUG("array is empty");

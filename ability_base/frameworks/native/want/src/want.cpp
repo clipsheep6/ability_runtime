@@ -1970,16 +1970,21 @@ nlohmann::json Want::ToJson() const
 
 bool Want::ReadFromJson(nlohmann::json &wantJson)
 {
+    if (wantJson.is_null() or !wantJson.is_object()) {
+        ABILITYBASE_LOGE("Invalid JSON object");
+        return false;
+    }
+
     const auto &jsonObjectEnd = wantJson.end();
-    if ((wantJson.find("deviceId") == jsonObjectEnd)
-        || (wantJson.find("bundleName") == jsonObjectEnd)
-        || (wantJson.find("abilityName") == jsonObjectEnd)
-        || (wantJson.find("moduleName") == jsonObjectEnd)
-        || (wantJson.find("uri") == jsonObjectEnd)
-        || (wantJson.find("type") == jsonObjectEnd)
-        || (wantJson.find("flags") == jsonObjectEnd)
-        || (wantJson.find("action") == jsonObjectEnd)
-        || (wantJson.find("parameters") == jsonObjectEnd)
+    if ((wantJson.find("deviceId") == jsonObjectEnd) || (!wantJson.at("deviceId").is_string())
+        || (wantJson.find("bundleName") == jsonObjectEnd) || (!wantJson.at("bundleName").is_string())
+        || (wantJson.find("abilityName") == jsonObjectEnd) || (!wantJson.at("abilityName").is_string())
+        || (wantJson.find("moduleName") == jsonObjectEnd) || (!wantJson.at("moduleName").is_string())
+        || (wantJson.find("uri") == jsonObjectEnd) || (!wantJson.at("uri").is_string())
+        || (wantJson.find("type") == jsonObjectEnd) || (!wantJson.at("type").is_string())
+        || (wantJson.find("flags") == jsonObjectEnd) || (!wantJson.at("flags").is_string())
+        || (wantJson.find("action") == jsonObjectEnd) || (!wantJson.at("action").is_string())
+        || (wantJson.find("parameters") == jsonObjectEnd) || (!wantJson.at("parameters").is_string())
         || (wantJson.find("entities") == jsonObjectEnd)) {
         ABILITYBASE_LOGE("Incomplete wantJson");
         return false;
@@ -2030,7 +2035,11 @@ Want *Want::FromString(std::string &string)
         return nullptr;
     }
 
-    nlohmann::json wantJson = nlohmann::json::parse(string);
+    nlohmann::json wantJson = nlohmann::json::parse(string, nullptr, false);
+    if (wantJson.is_discarded()) {
+        ABILITYBASE_LOGE("Failed to parse string.");
+        return nullptr;
+    }
 
     Want *want = new (std::nothrow) Want();
     if (want != nullptr && !want->ReadFromJson(wantJson)) {
