@@ -177,6 +177,7 @@ group("unittest") {
     "unittest/phone/ability_timeout_test",
     "unittest/phone/ability_token_proxy_test:unittest",
     "unittest/phone/ability_token_stub_test:unittest",
+    "unittest/phone/ams_configuration_parameter_test:unittest",
     "unittest/phone/app_scheduler_test:unittest",
     "unittest/phone/configuration_test:unittest",
     "unittest/phone/connection_record_test:unittest",

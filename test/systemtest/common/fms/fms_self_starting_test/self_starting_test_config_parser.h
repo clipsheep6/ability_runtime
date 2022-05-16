@@ -43,20 +43,31 @@ public:
             std::cout << "json file can not open!" << std::endl;
             return;
         }
-        nlohmann::json jsonObj;
-        jf >> jsonObj;
+
+        std::string inString;
+        jf >> inString;
+        nlohmann::json jsonObj = json::parse(inString, nullptr, false);
+        if (jsonObj.is_discarded()) {
+            jf.close();
+            return;
+        }
+
         const auto &jsonObjEnd = jsonObj.end();
-        if (jsonObj.find(STRESS_TEST_EXECUTION_TIMES_KEY) != jsonObjEnd) {
+        if (jsonObj.find(STRESS_TEST_EXECUTION_TIMES_KEY) != jsonObjEnd &&
+         jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).get_to(selfStarting.addFormStatus);
         }
 
-        if (jsonObj.find(STRESS_TEST_SLEEP_TIME_KEY) != jsonObjEnd) {
+        if (jsonObj.find(STRESS_TEST_SLEEP_TIME_KEY) != jsonObjEnd &&
+         jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).get_to(selfStarting.deleteFormStatus);
         }
 
-        if (jsonObj.find(STRESS_TEST_COMPARE_TIME_KEY) != jsonObjEnd) {
+        if (jsonObj.find(STRESS_TEST_COMPARE_TIME_KEY) != jsonObjEnd &&
+         jsonObj.at(STRESS_TEST_COMPARE_TIME_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_COMPARE_TIME_KEY).get_to(selfStarting.compareStatus);
         }
+        jf.close();
     }
 
     void ClearStorage()
