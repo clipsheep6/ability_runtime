@@ -66,6 +66,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "window_focus_controller.h"
 #endif
+#include "event_report.h"
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -75,6 +76,7 @@ namespace AAFwk {
 namespace {
 const int32_t MIN_ARGS_SIZE = 1;
 
+const std::string ABILITY_START = "ABILITY_START";
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -1799,6 +1801,15 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
     }
+    int32_t pid = getpid();
+    int32_t rid = abilityRecord->GetRecordId();
+    AAFWK::EventReport::AbilityEntranceEvent(
+        pid,
+        userId,
+        rid,
+        ABILITY_START,
+        AAFWK::HiSysEventType::BEHAVIOR,
+        abilityInfo);
     return returnCode;
 }
 
