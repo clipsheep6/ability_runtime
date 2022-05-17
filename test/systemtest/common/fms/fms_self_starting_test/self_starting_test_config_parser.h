@@ -1,4 +1,4 @@
-/*
+d/*
  * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
+#include <sstream>
 #include "nlohmann/json.hpp"
 
 namespace OHOS {
@@ -44,9 +44,9 @@ public:
             return;
         }
 
-        std::string inString;
-        jf >> inString;
-        nlohmann::json jsonObj = json::parse(inString, nullptr, false);
+        std::stringstream strStream;
+        strStream << jf.rdbuf();
+        nlohmann::json jsonObj = json::parse(strStream.str(), nullptr, false);
         if (jsonObj.is_discarded()) {
             jf.close();
             return;

@@ -15,6 +15,7 @@
 
 #include "ams_configuration_parameter.h"
 #include "hilog_wrapper.h"
+#include <sstream>
 
 namespace OHOS {
 namespace AAFwk {
@@ -74,9 +75,9 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
         return READ_FAIL;
     }
 
-    std::string inString;
-    inFile >> inString;
-    json amsJson = json::parse(inString, nullptr, false);
+    std::stringstream strStream;
+    strStream << inFile.rdbuf();
+    json amsJson = json::parse(strStream.str(), nullptr, false);
     if (amsJson.is_discarded()) {
         HILOG_INFO("json discarded error ...");
         nonConfigFile_ = true;
