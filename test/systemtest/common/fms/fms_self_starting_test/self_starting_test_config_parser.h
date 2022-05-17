@@ -54,17 +54,17 @@ public:
 
         const auto &jsonObjEnd = jsonObj.end();
         if (jsonObj.find(STRESS_TEST_EXECUTION_TIMES_KEY) != jsonObjEnd &&
-         jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).is_boolean()) {
+            jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).get_to(selfStarting.addFormStatus);
         }
 
         if (jsonObj.find(STRESS_TEST_SLEEP_TIME_KEY) != jsonObjEnd &&
-         jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).is_boolean()) {
+            jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).get_to(selfStarting.deleteFormStatus);
         }
 
         if (jsonObj.find(STRESS_TEST_COMPARE_TIME_KEY) != jsonObjEnd &&
-         jsonObj.at(STRESS_TEST_COMPARE_TIME_KEY).is_boolean()) {
+            jsonObj.at(STRESS_TEST_COMPARE_TIME_KEY).is_boolean()) {
             jsonObj.at(STRESS_TEST_COMPARE_TIME_KEY).get_to(selfStarting.compareStatus);
         }
         jf.close();

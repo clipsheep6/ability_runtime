@@ -53,7 +53,7 @@ public:
 
         const auto &jsonObjEnd = jsonObj.end();
         if (jsonObj.find(STRESS_TEST_EXECUTION_TIMES_KEY) != jsonObjEnd &&
-         jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).is_number_integer()) {
+            jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).is_number_integer()) {
             jsonObj.at(STRESS_TEST_EXECUTION_TIMES_KEY).get_to(stlevel.executionTimesLevel);
             if (stlevel.executionTimesLevel == 0) {
                 stlevel.executionTimesLevel = 1;
@@ -61,7 +61,7 @@ public:
         }
 
         if (jsonObj.find(STRESS_TEST_SLEEP_TIME_KEY) != jsonObjEnd &&
-         jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).is_number_integer()) {
+            jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).is_number_integer()) {
             jsonObj.at(STRESS_TEST_SLEEP_TIME_KEY).get_to(stlevel.sleepTime);
         }
     }

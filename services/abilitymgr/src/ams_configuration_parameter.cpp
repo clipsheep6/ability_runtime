@@ -12,10 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <sstream>
 #include "ams_configuration_parameter.h"
 #include "hilog_wrapper.h"
-#include <sstream>
 
 namespace OHOS {
 namespace AAFwk {
@@ -164,7 +163,7 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
     }
 
     if (Object.at("memorythreshold").contains("home_application") &&
-     Object.at("memorythreshold").at("home_application").is_string()) {
+        Object.at("memorythreshold").at("home_application").is_string()) {
         memThreshold_["home_application"] = Object.at("memorythreshold").at("home_application").get<std::string>();
     } else {
         HILOG_ERROR("LoadAppConfigurationForMemoryThreshold memorythreshold::home_application is nullptr");
@@ -176,8 +175,8 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
 int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
 {
     if (Object.contains(AmsConfig::SYSTEM_CONFIGURATION) &&
-     Object.at(AmsConfig::SYSTEM_CONFIGURATION).contains(AmsConfig::SYSTEM_ORIENTATION) &&
-     Object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).is_string()) {
+        Object.at(AmsConfig::SYSTEM_CONFIGURATION).contains(AmsConfig::SYSTEM_ORIENTATION) &&
+        Object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).is_string()) {
         orientation_ = Object.at(AmsConfig::SYSTEM_CONFIGURATION)
         .at(AmsConfig::SYSTEM_ORIENTATION).get<std::string>();
         return READ_OK;

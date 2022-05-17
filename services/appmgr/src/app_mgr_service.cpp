@@ -319,11 +319,11 @@ void AppMgrService::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::strin
         memThreshold = EXPERIENCE_MEM_THRESHOLD;
         HILOG_ERROR("%{public}s, discarded memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
     } else {
-        if (!memJson.contains("memoryThreshold") || !memJson.at("memorythreshold").is_number_integer()) {
+        if (!memJson.contains("memoryThreshold") || !memJson.at("memoryThreshold").is_number_integer()) {
             memThreshold = EXPERIENCE_MEM_THRESHOLD;
             HILOG_ERROR("%{public}s, memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
         } else {
-            memThreshold = memJson.at("memorythreshold").get<int>();
+            memThreshold = memJson.at("memoryThreshold").get<int>();
             HILOG_INFO("memThreshold = %{public}d", memThreshold);
         }
     }
