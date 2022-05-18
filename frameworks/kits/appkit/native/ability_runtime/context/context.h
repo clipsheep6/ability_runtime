@@ -21,8 +21,8 @@
 
 #include "application_info.h"
 #include "bindable.h"
+#include "configuration.h"
 #include "hap_module_info.h"
-#include "foundation/aafwk/standard/interfaces/innerkits/app_manager/include/appmgr/configuration.h"
 #include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
 #include "resource_manager.h"
 
@@ -184,6 +184,13 @@ public:
      * @param mode file area.
      */
     virtual void SwitchArea(int mode) = 0;
+
+    /**
+     * @brief Get file area
+     *
+     * @return file area.
+     */
+    virtual int GetArea() = 0;
 
     /**
      * @brief Obtains the configuration of application.

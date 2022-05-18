@@ -989,13 +989,13 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
     std::string colormode;
     if (setting_) {
         auto displayId = std::atoi(setting_->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str());
-        language = changeConfiguration.GetItem(displayId, GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(displayId, GlobalConfigurationKey::SYSTEM_COLORMODE);
+        language = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
+        colormode = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
         HILOG_INFO("displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s]",
             displayId, language.c_str(), colormode.c_str());
     } else {
-        language = changeConfiguration.GetItem(GlobalConfigurationKey::SYSTEM_LANGUAGE);
-        colormode = changeConfiguration.GetItem(GlobalConfigurationKey::SYSTEM_COLORMODE);
+        language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
+        colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
         HILOG_INFO("language: [%{public}s], colormode: [%{public}s]", language.c_str(), colormode.c_str());
     }
 
@@ -1025,10 +1025,10 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
 
 #ifdef SUPPORT_GRAPHICS
     // Notify WindowScene
-    if (scene_ != nullptr && !language.empty()) {
+    if (scene_ != nullptr) {
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(changeConfiguration);
         scene_->UpdateConfiguration(diffConfiguration);
-        HILOG_ERROR("%{public}s scene_ -> UpdateConfiguration success.", __func__);
+        HILOG_INFO("%{public}s scene_ -> UpdateConfiguration success.", __func__);
     }
 #endif
     if (abilityContext_ != nullptr && application_ != nullptr) {
