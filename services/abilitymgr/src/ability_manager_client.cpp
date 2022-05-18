@@ -887,12 +887,12 @@ ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &info
     return abms->DumpAbilityInfoDone(infos, callerToken);
 }
 
-const AppExecFwk::ApplicationInfo &AbilityRecord::GetApplicationInfo() const
+const AppExecFwk::ApplicationInfo &AbilityManagerClient::GetApplicationInfo() const
 {
     return applicationInfo_;
 }
 
-const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
+const AppExecFwk::AbilityInfo &AbilityManagerClient::GetAbilityInfo() const
 {
     return abilityInfo_;
 }
