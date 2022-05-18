@@ -46,10 +46,17 @@ config("perm_verification_config") {
 ohos_shared_library("perm_verification") {
   public_configs = [ ":perm_verification_config" ]
 
-  sources = [ "src/permission_verification.cpp" ]
+  sources = [
+    "src/event_report.cpp",
+    "src/permission_verification.cpp",
+  ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "utils_base:utils",

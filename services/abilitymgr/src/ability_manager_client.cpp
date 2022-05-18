@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include "ability_manager_client.h"
 
 #include "string_ex.h"
@@ -23,9 +24,15 @@
 #include "iservice_registry.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "ability_record.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string START_ABILTIY_ERROR = "START_ABILTIY_ERROR";
+const std::string START_ABILTIY = "START_ABILTIY";
+}
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
 std::recursive_mutex AbilityManagerClient::mutex_;
 
@@ -99,6 +106,10 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, in
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    int32_t ret = ERR_OK;
+    ret = abms->StartAbility(want, userId, requestCode);
+    std::string eventName = ret != ERR_OK ? START_ABILTIY_ERROR : START_ABILTIY;
+    SendHisysevent(userId, ret, eventName, want);
     return abms->StartAbility(want, userId, requestCode);
 }
 
@@ -874,6 +885,28 @@ ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &info
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DumpAbilityInfoDone(infos, callerToken);
+}
+
+const AppExecFwk::ApplicationInfo &AbilityManagerClient::GetApplicationInfo() const
+{
+    return applicationInfo_;
+}
+
+const AppExecFwk::AbilityInfo &AbilityManagerClient::GetAbilityInfo() const
+{
+    return abilityInfo_;
+}
+void AbilityManagerClient::SendHisysevent(int32_t userId, int32_t ret, const std::string &eventName, const Want &want)
+{
+    int32_t uid = applicationInfo_.uid / AppExecFwk::Constants::BASE_USER_RANGE;
+    int32_t pid = getpid();
+    if (ret != ERR_OK) {
+        AAFWK::EventReport::AbilityEntranceErrorEvent(userId, ret, pid, uid, want, eventName,
+            AAFWK::HiSysEventType::FAULT);
+    } else {
+        AAFWK::EventReport::AbilityEntranceEvent(userId, ret, pid, uid, eventName,
+            AAFWK::HiSysEventType::BEHAVIOR, abilityInfo_);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
