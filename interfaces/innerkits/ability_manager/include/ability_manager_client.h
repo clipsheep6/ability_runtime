@@ -745,6 +745,7 @@ public:
      */
     const AppExecFwk::AbilityInfo &GetAbilityInfo() const;
 
+    void SendHisysevent(int32_t userId, int32_t ret, const std::string &eventName, const Want &want);
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

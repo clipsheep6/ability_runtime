@@ -57,7 +57,7 @@ void EventReport::AbilityEntranceErrorEvent(int32_t &userId, int32_t &errorCode,
         EVENT_KEY_ERROR_CODE, std::to_string(errorCode));
 }
 void EventReport::AbilityEntranceEvent(int32_t &userId, int32_t errorCode, int32_t &pid, int32_t &uid,
-        const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo)
+    const std::string &eventName, HiSysEventType type, AppExecFwk::AbilityInfo &abilityInfo)
 {
     std::string abilityName = abilityInfo.name.c_str();
     std::string bundleName = abilityInfo.bundleName.c_str();

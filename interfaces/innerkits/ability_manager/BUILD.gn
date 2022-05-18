@@ -94,8 +94,8 @@ ohos_shared_library("ability_manager") {
   ]
 
   deps = [
-    "//third_party/jsoncpp:jsoncpp",
     "${services_path}/common:perm_verification",
+    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [

@@ -106,17 +106,10 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, in
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    int ret = ERR_OK;
-    int32_t uid = applicationInfo_.uid / AppExecFwk::Constants::BASE_USER_RANGE;
-    int32_t pid = getpid();
+    int32_t ret = ERR_OK;
     ret = abms->StartAbility(want, userId, requestCode);
-    if (ret != ERR_OK) {
-        AAFWK::EventReport::AbilityEntranceErrorEvent(userId, ret, pid, uid, want, START_ABILTIY_ERROR,
-            AAFWK::HiSysEventType::FAULT);
-    } else {
-        AAFWK::EventReport::AbilityEntranceEvent(userId, ret, pid, uid, START_ABILTIY,
-            AAFWK::HiSysEventType::BEHAVIOR, abilityInfo_);
-    }
+    std::string eventName = ret != ERR_OK ? START_ABILTIY_ERROR : START_ABILTIY;
+    SendHisysevent(userId, ret, eventName, want);
     return abms->StartAbility(want, userId, requestCode);
 }
 
@@ -902,6 +895,18 @@ const AppExecFwk::ApplicationInfo &AbilityRecord::GetApplicationInfo() const
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
 {
     return abilityInfo_;
+}
+void AbilityManagerClient::SendHisysevent(int32_t userId, int32_t ret, const std::string &eventName, const Want &want)
+{
+    int32_t uid = applicationInfo_.uid / AppExecFwk::Constants::BASE_USER_RANGE;
+    int32_t pid = getpid();
+    if (ret != ERR_OK) {
+        AAFWK::EventReport::AbilityEntranceErrorEvent(userId, ret, pid, uid, want, eventName,
+            AAFWK::HiSysEventType::FAULT);
+    } else {
+        AAFWK::EventReport::AbilityEntranceEvent(userId, ret, pid, uid, eventName,
+            AAFWK::HiSysEventType::BEHAVIOR, abilityInfo_);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
