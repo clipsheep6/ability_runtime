@@ -33,18 +33,18 @@ using namespace OHOS::AAFwk;
  * CaseDescription: Verify parsing erroneous input file without corruption.
  */
 HWTEST(ACPTest, json_test_001, TestSize.Level1) {
-        AmsConfigurationParameter acp;
-        std::ofstream inputFile("/tmp/test.txt");
-        if (!inputFile.is_open()) {
-            FAIL() << "file not open";
-        }
-        inputFile << "hello\n";
-        EXPECT_EQ(AmsConfigurationParameter::READ_JSON_FAIL,  acp.LoadAmsConfiguration("/tmp/test.txt"));
-        inputFile.close();
+    AmsConfigurationParameter acp;
+    std::ofstream inputFile("/tmp/test.txt");
+    if (!inputFile.is_open()) {
+        FAIL() << "file not open";
+    }
+    inputFile << "hello\n";
+    EXPECT_EQ(AmsConfigurationParameter::READ_JSON_FAIL,  acp.LoadAmsConfiguration("/tmp/test.txt"));
+    inputFile.close();
 
-        if (remove("/tmp/test.txt") != 0) {
-            FAIL() << "fail to delete the file";
-        };
+    if (remove("/tmp/test.txt") != 0) {
+        FAIL() << "fail to delete the file";
+    };
 }
 /*
  * Feature: ams_configuration_parameter
