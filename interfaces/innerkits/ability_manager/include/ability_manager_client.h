@@ -22,6 +22,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_interface.h"
 #include "ability_manager_interface.h"
+#include "application_impl.h"
 #include "snapshot.h"
 #include "want.h"
 
@@ -730,6 +731,20 @@ public:
      */
     ErrCode DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken);
 
+    /**
+     * get application's info.
+     *
+     * @return application info.
+     */
+    const AppExecFwk::ApplicationInfo &GetApplicationInfo() const;
+
+    /**
+     * get ability's info.
+     *
+     * @return ability info.
+     */
+    const AppExecFwk::AbilityInfo &GetAbilityInfo() const;
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
@@ -747,6 +762,8 @@ private:
     static std::shared_ptr<AbilityManagerClient> instance_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+    AppExecFwk::ApplicationInfo applicationInfo_ = {};
+    AppExecFwk::AbilityInfo abilityInfo_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS
