@@ -23,7 +23,7 @@
 #include "long_wrapper.h"
 #include "array_wrapper.h"
 #define private public
-#include "ohos/aafwk/content/want.h"
+#include "want.h"
 #undef private
 
 using namespace testing::ext;
