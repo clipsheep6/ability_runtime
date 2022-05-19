@@ -32,6 +32,8 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace {
+    constexpr size_t ARGS_SIZE_ZERO = 0;
+    constexpr size_t ARGS_SIZE_ONE = 1;
     constexpr size_t ARGS_SIZE_TWO = 2;
     constexpr size_t ARGS_SIZE_THREE = 3;
     constexpr int REF_COUNT = 1;
@@ -549,4 +551,53 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
         napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
         return promise;
     }
+}
+
+napi_value GetFormsInfoPromise(napi_env env, napi_call_back_info info) {
+
+}
+
+
+
+/**
+ * @brief  The implementation of Node-API interface: GetFormsInfo
+ *
+ * @param[in] env The environment that the Node-API call is invoked under
+ * @param[out] info An opaque datatype that is passed to a callback function
+ *
+ * @return This is an opaque pointer that is used to represent a JavaScript value
+ */
+napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info) {
+    HILOG_INFO("%{public}s called.", __func__);
+    // Check the number of the arguments.
+    size_t argc = ARGS_SIZE_ONE;
+    napi_value argv[ARGS_SIZE_ONE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc > ARGS_SIZE_ONE) {
+        HILOG_ERROR("%{public}s, wrong number of arguments.", __func__);
+        return nullptr;
+    }
+    HILOG_INFO("%{public}s, argc = [%{public}zu]", __func__, argc);
+
+    OHOS::AppExecFwk::Ability* ability_ = GetGlobalAbility(env);
+    std::string bundleName_ = ability_.GetBundleName();
+
+    AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = new
+    AsyncGetFormsInfoCallbackInfo {
+        .env = env,
+        .ability = ability_,
+        .asyncWork = nullptr,
+        .deferred = nullptr,
+        .callback = nullptr,
+        .formInfos = std::vector<OHOS::AppExecFwk::FormInfo>(), // return value.
+        .bundleName = bundleName_,
+        .moduleName = "",
+        .result = 0,
+    };
+
+    if (argc == ARGS_SIZE_ZERO) {
+        return
+    }
+
+    return
 }
