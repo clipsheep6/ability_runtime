@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-
-#include <gtest/gtest.h>
-#include <fstream>
 #include <cstdio>
+#include <fstream>
+#include <gtest/gtest.h>
 #define private public
 #include "ams_configuration_parameter.h"
 #undef private

@@ -3984,8 +3984,7 @@ HWTEST_F(WantBaseTest, array_test_005, TestSize.Level1)
  * @tc.desc: Verify ReadFromJson() parses erroneous json input without corruption.
  */
 HWTEST_F(WantBaseTest, json_test_001, TestSize.Level1) {
-    using json = nlohmann::json;
-    json jsonObject = {
+    nlohmann::json jsonObject = {
         {"deviceId", 1},
         {"bundleName", "xx"},
     };
