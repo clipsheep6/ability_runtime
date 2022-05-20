@@ -46,6 +46,17 @@ struct AsyncUpdateFormCallbackInfo {
     int result;
 };
 
+struct AsyncGetFormsInfoCallbackInfo {
+    napi_env env;
+    OHOS::AppExecFwk::Ability *ability;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_ref callback;
+    std::vector<OHOS::AppExecFwk::FormInfo> formInfos;
+    std::string bundleName;
+    std::string moduleName;
+    int result;
+};
 
 napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info);
 napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info);
