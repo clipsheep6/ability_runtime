@@ -133,21 +133,22 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
     const std::string &abilityName, int32_t ownerUserId) const
 {
     HILOG_INFO("Get ability running record by ability name.");
-    const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [&abilityName, ownerUserId](const auto &pair) {
+    const auto &it = std::find_if(abilities_.begin(), abilities_.end(), [&abilityName, ownerUserId](const auto &pair) {
         auto ability = pair.second;
         if (!ability) {
             return false;
         }
 
         bool flag = ability->GetName() == abilityName;
-        if (ability->GetAbilityInfo() && ability->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE &&
+        if (ability->IsSingleUser() && ability->GetAbilityInfo() &&
+            ability->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE &&
             ability->GetAbilityInfo()->launchMode == AppExecFwk::LaunchMode::SINGLETON) {
             flag = flag && (ability->GetOwnerUserId() == ownerUserId);
         }
         return flag;
     });
 
-    return ((iter == abilities_.end()) ? nullptr : iter->second);
+    return ((it == abilities_.end()) ? nullptr : it->second);
 }
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
