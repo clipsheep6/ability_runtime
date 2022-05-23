@@ -761,7 +761,7 @@ private:
     std::weak_ptr<MissionList> missionList_;
     std::weak_ptr<Mission> mission_;
     int32_t missionId_ = -1;
-    int32_t ownerMissionUserId_ = 0;
+    int32_t ownerMissionUserId_ = -1;
     bool isSwitchingPause_ = false;
 
 	// new version
