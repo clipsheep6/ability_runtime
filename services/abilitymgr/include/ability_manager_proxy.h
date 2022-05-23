@@ -38,19 +38,6 @@ public:
      * StartAbility with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
-     * @param requestCode, Ability request code.
-     * @param userId, Designation User ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int StartAbility(
-        const Want &want,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
-
-    /**
-     * StartAbility with want, send want to ability manager service.
-     *
-     * @param want, the want of the ability to start.
      * @param callerToken, caller ability token.
      * @param requestCode the resultCode of the ability to start.
      * @param userId, Designation User ID.

@@ -61,20 +61,6 @@ const std::string FROM_REMOTE_KEY = "freeInstallFromRemote";
 class IAbilityManager : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.AbilityManager")
-
-    /**
-     * StartAbility with want, send want to ability manager service.
-     *
-     * @param want, the want of the ability to start.
-     * @param userId, Designation User ID.
-     * @param requestCode, Ability request code.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int StartAbility(
-        const Want &want,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) = 0;
-
     /**
      * StartAbility with want, send want to ability manager service.
      *
@@ -86,7 +72,7 @@ public:
      */
     virtual int StartAbility(
         const Want &want,
-        const sptr<IRemoteObject> &callerToken,
+        const sptr<IRemoteObject> &callerToken = nullptr,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
@@ -830,11 +816,8 @@ public:
         STOP_EXTENSION_ABILITY,
 
         // ipc id 1001-2000 for DMS
-        // ipc id for starting ability (1001)
-        START_ABILITY = 1001,
-
         // ipc id for connecting ability (1002)
-        CONNECT_ABILITY,
+        CONNECT_ABILITY = 1002,
 
         // ipc id for disconnecting ability (1003)
         DISCONNECT_ABILITY,

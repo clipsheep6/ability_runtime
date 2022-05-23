@@ -254,16 +254,14 @@ ServiceRunningState AbilityManagerService::QueryServiceState() const
     return state_;
 }
 
-int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int requestCode)
-{
-    HILOG_INFO("%{public}s coldStart:%{public}d", __func__, want.GetBoolParam("coldStart", false));
-    return StartAbilityInner(want, nullptr, requestCode, -1, userId);
-}
-
 int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, int requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (callerToken == nullptr) {
+        return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+    }
+
     auto flags = want.GetFlags();
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
         HILOG_ERROR("StartAbility with continuation flags is not allowed!");
@@ -2424,7 +2422,7 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
     }
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
-    (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+    (void)StartAbility(abilityWant, nullptr, userId, DEFAULT_INVAL_VALUE);
 }
 
 int AbilityManagerService::GenerateAbilityRequest(
@@ -4261,7 +4259,7 @@ void AbilityManagerService::StartMainElement(int userId, std::vector<AppExecFwk:
             // startAbility
             Want want;
             want.SetElementName(hapModuleInfo.bundleName, mainElement);
-            (void)StartAbility(want, userId, DEFAULT_INVAL_VALUE);
+            (void)StartAbility(want, nullptr, userId, DEFAULT_INVAL_VALUE);
         }
     }
 
