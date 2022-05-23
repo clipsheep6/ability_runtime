@@ -48,13 +48,10 @@ struct AsyncUpdateFormCallbackInfo {
 
 struct AsyncGetFormsInfoCallbackInfo {
     napi_env env;
-    OHOS::AppExecFwk::Ability *ability;
     napi_async_work asyncWork;
     napi_deferred deferred;
     napi_ref callback;
     std::vector<OHOS::AppExecFwk::FormInfo> formInfos;
-    std::string bundleName;
-    std::string moduleName;
     int result;
 };
 
