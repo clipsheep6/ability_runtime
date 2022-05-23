@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -211,8 +211,13 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
             client->RemoveDeathRecipient(callerDeathRecipient_);
         }
         if (callerDeathRecipient_ == nullptr) {
-            callerDeathRecipient_ = new DataAbilityCallerRecipient(
-                std::bind(&DataAbilityRecord::OnSchedulerDied, this, std::placeholders::_1));
+            std::weak_ptr<DataAbilityRecord> thisWeakPtr(shared_from_this());
+            callerDeathRecipient_ = new DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                auto dataAbilityRecord = thisWeakPtr.lock();
+                if (dataAbilityRecord) {
+                    dataAbilityRecord->OnSchedulerDied(remote);
+                }
+            });
         }
         if (client != nullptr) {
             client->AddDeathRecipient(callerDeathRecipient_);
