@@ -35,39 +35,6 @@ bool AbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requestCode)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
-        return INNER_ERR;
-    }
-
-    error = Remote()->SendRequest(IAbilityManager::START_ABILITY, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility()
 {
     MessageParcel data;

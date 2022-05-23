@@ -99,7 +99,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, in
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->StartAbility(want, userId, requestCode);
+    return abms->StartAbility(want, nullptr, userId, requestCode);
 }
 
 ErrCode AbilityManagerClient::StartAbility(

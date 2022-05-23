@@ -54,7 +54,6 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[RELEASE_DATA_ABILITY] = &AbilityManagerStub::ReleaseDataAbilityInner;
     requestFuncMap_[KILL_PROCESS] = &AbilityManagerStub::KillProcessInner;
     requestFuncMap_[UNINSTALL_APP] = &AbilityManagerStub::UninstallAppInner;
-    requestFuncMap_[START_ABILITY] = &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[START_ABILITY_ADD_CALLER] = &AbilityManagerStub::StartAbilityAddCallerInner;
     requestFuncMap_[CONNECT_ABILITY] = &AbilityManagerStub::ConnectAbilityInner;
     requestFuncMap_[DISCONNECT_ABILITY] = &AbilityManagerStub::DisconnectAbilityInner;
@@ -339,21 +338,6 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
         HILOG_ERROR("remove stack error");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &reply)
-{
-    Want *want = data.ReadParcelable<Want>();
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t userId = data.ReadInt32();
-    int requestCode = data.ReadInt32();
-    int32_t result = StartAbility(*want, userId, requestCode);
-    reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
