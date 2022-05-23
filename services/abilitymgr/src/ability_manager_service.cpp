@@ -159,6 +159,28 @@ const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
 
+class MyTestAbilityConnection : public IAbilityConnection {
+    void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+        const sptr<IRemoteObject> &remoteObject, int resultCode) override
+    {
+        HILOG_INFO("zhoujun MyTestAbilityConnection OnAbilityConnectDone.");
+        return;
+    }
+
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    {
+        HILOG_INFO("zhoujun OnAbilityDisconnectDone OnAbilityConnectDone.");
+        return;
+    }
+
+    sptr<IRemoteObject> AsObject()
+    {
+        IRemoteObject *remoteObject = new IRemoteObject;
+        return remoteObject;
+    }
+};
+
+
 AbilityManagerService::AbilityManagerService()
     : SystemAbility(ABILITY_MGR_SERVICE_ID, true),
       eventLoop_(nullptr),
@@ -203,6 +225,21 @@ void AbilityManagerService::OnStart()
     }
 
     HILOG_INFO("AMS start success.");
+
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    HILOG_INFO("zhoujun connect ability test begin");
+    Want want;
+    want.SetElementName("ohos.com.application.server", "ServiceAbility");
+    sptr<IAbilityConnection> connect = new MyTestAbilityConnection;
+    int retValue = ConnectAbility(want, connect, nullptr, DEFAULT_INVAL_VALUE);
+    HILOG_INFO("zhoujun connect ability test end, result: %{private}d", retValue);
+
+    std::this_thread::sleep_for(std::chrono::seconds(20));
+
+    HILOG_INFO("zhoujun start ability by call test begin");
+    retValue = StartAbilityByCall(want, connect, nullptr);
+    HILOG_INFO("zhoujun start ability by call end, result: %{private}d", retValue);
 }
 
 bool AbilityManagerService::Init()
