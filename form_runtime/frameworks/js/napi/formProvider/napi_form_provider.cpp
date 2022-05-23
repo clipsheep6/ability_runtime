@@ -20,6 +20,7 @@
 #include <uv.h>
 #include <vector>
 
+#include "form_mgr.h"
 #include "form_mgr_errors.h"
 #include "hilog_wrapper.h"
 #include "napi_form_util.h"
@@ -711,28 +712,31 @@ static void ParseFormInfoIntoNapi(napi_env env, const FormInfo &formInfo, napi_v
 }
 
 
-//TODO:
-void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const info) {
-
+// Internal of GetFormsInfo.
+void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
+    HILOG_INFO("%{public}s starts.", __func__);
+    asyncCallbackInfo->result = FormMgr::GetInstance().GetFormsInfo(asyncCallbackInfo->formInfos);
+    HILOG_INFO("%{public}s ends.", __func__);
 }
 
 // Internal of GetFormsInfo when Promise is used.
-napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const info) {
-    HILOG_INFO("%{public}s called.", __func__);
+//TODO:
+napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
+    HILOG_INFO("%{public}s calls.", __func__);
 
     return nullptr;
 }
 
 // Internal of GetFormsInfo when CallBack is used.
-napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfoCallbackInfo * info) {
-    HILOG_INFO("%{public}s called.", __func__);
+napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfoCallbackInfo * asyncCallbackInfo) {
+    HILOG_INFO("%{public}s starts.", __func__);
     // Check the type of the argv, expect to be a callback function.
     napi_valuetype valueType;
     NAPI_CALL(env, napi_typeof(env, argv, &valueType));
     NAPI_ASSERT(env, valueType == napi_function, "The arguments[0] type of getFormsInfo is incorrect, "
         "expected type is function.");
     // store callback function that user passed in.
-    napi_create_reference(env, argv[ARGS_SIZE_ONE], REF_COUNT, &asyncCallbackInfo->callback);
+    napi_create_reference(env, argv, REF_COUNT, &asyncCallbackInfo->callback);
     // create resource name as Identifier to provide diagnostic information.
     napi_value resourceName;
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -796,7 +800,7 @@ napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfo
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info) {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("%{public}s starts.", __func__);
     // Check the number of the arguments.
     size_t argc = ARGS_SIZE_ONE;
     napi_value argv[ARGS_SIZE_ONE] = {nullptr};
@@ -807,18 +811,13 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info) {
     }
     HILOG_INFO("%{public}s, argc = [%{public}zu]", __func__, argc);
 
-    OHOS::AppExecFwk::Ability* ability_ = GetGlobalAbility(env);
-    std::string bundleName_ = ability_.GetBundleName();
-
     AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = new
     AsyncGetFormsInfoCallbackInfo {
         .env = env,
-        .ability = ability_,
         .asyncWork = nullptr,
         .deferred = nullptr,
         .callback = nullptr,
         .formInfos = std::vector<OHOS::AppExecFwk::FormInfo>(), // return value.
-        .bundleName = bundleName_,
         .result = 0,
     };
 
