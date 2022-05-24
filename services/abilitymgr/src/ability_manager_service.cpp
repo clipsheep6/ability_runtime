@@ -2413,6 +2413,10 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
         abilityInfo, extensionAbilityInfo))) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
+        if (IsTestMode()) {
+            HILOG_INFO("%{public}s, testMode.", __func__);
+            return;
+        }
         if (!isBoot && ++attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
             return;
@@ -4883,6 +4887,16 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     }
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
+}
+
+void AbilityManagerService::SetTestMode(bool testMode)
+{
+    this->testMode_ = testMode;
+}
+
+bool AbilityManagerService::IsTestMode()
+{
+    return testMode_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

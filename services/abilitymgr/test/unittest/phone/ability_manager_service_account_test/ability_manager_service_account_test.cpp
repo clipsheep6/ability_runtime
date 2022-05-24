@@ -93,6 +93,7 @@ void AbilityManagerServiceAccountTest::SetUpTestCase()
     new_user_id_ = osAccountInfo_.GetLocalId();
 #endif // OS_ACCOUNT_PART_ENABLED
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+    abilityMs_->SetTestMode(true);
     abilityMs_->OnStart();
     WaitUntilTaskFinished();
     GTEST_LOG_(INFO) << "Create new user. UserId: "<<new_user_id_;
