@@ -171,7 +171,7 @@ bool WantParams::NewParams(const WantParams &source, WantParams &dest)
         } else if (IDouble::Query(o) != nullptr) {
             dest.params_[it->first] = Double::Box(Double::Unbox(IDouble::Query(o)));
         } else if (IRemoteObjectWrap::Query(o) != nullptr) {
-            dest.params_[it->first] = RemoteObjectWrap::Box(RemoteObjectWrap::UnBox(IRemoteObjectWrap::Query(o)));
+            // dest.params_[it->first] = RemoteObjectWrap::Box(RemoteObjectWrap::UnBox(IRemoteObjectWrap::Query(o)));
         } else if (IWantParams::Query(o) != nullptr) {
             WantParams newDest(WantParamWrapper::Unbox(IWantParams::Query(o)));
             dest.params_[it->first] = WantParamWrapper::Box(newDest);
@@ -356,7 +356,8 @@ bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInter
  */
 void WantParams::SetParam(const std::string &key, IInterface *value)
 {
-    params_[key] = value;
+    sptr<IInterface> sValue(value);
+    params_[key] = sValue;
 }
 
 /**
