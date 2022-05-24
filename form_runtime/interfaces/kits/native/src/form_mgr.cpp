@@ -700,11 +700,12 @@ int FormMgr::GetFormsInfoByModule(std::string &bundleName, std::string &moduleNa
 
 /**
 * @brief This function is called by formProvider and gets forms info by the bundle name of the calling ability.
-*        The bundle time will be retrieved by form service manager.
+*        The bundle name will be retrieved by form service manager.
 * @param formInfos Return the forms' information of the calling bundle name
 * @return Returns ERR_OK on success, others on failure.
 */
-int FormMgr::GetFormsInfo(std::vector<FormInfo> &formsInfos) {
+int FormMgr::GetFormsInfo(std::vector<FormInfo> &formInfos)
+{
     HILOG_INFO("%{public}s starts.", __func__);
     int errCode = Connect();
     if (errCode != ERR_OK) {
