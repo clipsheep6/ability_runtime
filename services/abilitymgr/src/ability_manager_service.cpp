@@ -2412,8 +2412,9 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
     auto bmsResult = bms->ImplicitQueryInfoByPriority(want,
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
         abilityInfo, extensionAbilityInfo);
+    HILOG_ERROR("%{public}s, bmsResult:%{public}d", __func__, bmsResult);
     auto callResult = IN_PROCESS_CALL(bmsResult);
-    HILOG_ERROR("%{public}s, bmsResult:%{public}d, callResult:%{public}d", __func__, bmsResult, callResult);
+    HILOG_ERROR("%{public}s, callResult:%{public}d", __func__, callResult);
     while (!callResult) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
         if (!isBoot && ++attemptNums > SWITCH_ACCOUNT_TRY) {
