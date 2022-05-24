@@ -2381,7 +2381,7 @@ int AbilityManagerService::GetUserId()
 
 void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
 {
-    HILOG_DEBUG("%{public}s", __func__);
+    HILOG_ERROR("%{public}s, isBoot:%{public}d", __func__, isBoot);
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
 
@@ -2394,9 +2394,13 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ExtensionAbilityInfo extensionAbilityInfo;
     int attemptNums = 0;
-    while (!IN_PROCESS_CALL(bms->ImplicitQueryInfoByPriority(want,
+    auto bmsResult = bms->ImplicitQueryInfoByPriority(want,
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
-        abilityInfo, extensionAbilityInfo))) {
+        abilityInfo, extensionAbilityInfo);
+    HILOG_ERROR("%{public}s, bmsResult:%{public}d", __func__, bmsResult);
+    auto callResult = IN_PROCESS_CALL(bmsResult);
+    HILOG_ERROR("%{public}s, callResult:%{public}d", __func__, callResult);
+    while (!callResult) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
         if (!isBoot && ++attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
