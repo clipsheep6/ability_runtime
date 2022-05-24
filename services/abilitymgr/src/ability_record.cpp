@@ -196,13 +196,22 @@ bool AbilityRecord::CanRestartRootLauncher()
     return true;
 }
 
-void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
+void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler && task) {
+        if (!want_.GetBoolParam(DEBUG_APP, false)) {
+            handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+        } else {
+            HILOG_INFO("Is debug mode, no need to handle time out.");
+        }
+    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -222,7 +231,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 }
 
-void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
+void AbilityRecord::ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag)
 {
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
@@ -235,7 +244,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(sceneFlag);
+            ForegroundAbility(task, sceneFlag);
         }
     } else {
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;

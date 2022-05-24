@@ -194,7 +194,19 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
 #endif
 
     // schedule target ability to foreground.
-    targetAbilityRecord->ProcessForegroundAbility();
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+    auto task = [windowHandler, targetAbilityRecord] {
+        if (windowHandler && targetAbilityRecord && targetAbilityRecord->IsStartingWindow()) {
+            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            windowHandler->CancelStartingWindow(targetAbilityRecord->GetToken());
+            targetAbilityRecord->SetStartingWindow(false);
+        }
+    };
+    targetAbilityRecord->ProcessForegroundAbility(task);
     HILOG_DEBUG("SetMovingState, missionId: %{public}d", missionId);
     mission->SetMovingState(true);
     return ERR_OK;
@@ -284,7 +296,19 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         return targetAbilityRecord->LoadAbility();
     } else {
         // schedule target ability to foreground.
-        targetAbilityRecord->ProcessForegroundAbility();
+        auto windowHandler = GetWMSHandler();
+        if (!windowHandler) {
+            HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
+            return;
+        }
+        auto task = [windowHandler, targetAbilityRecord] {
+            if (windowHandler && targetAbilityRecord && targetAbilityRecord->IsStartingWindow()) {
+                HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+                windowHandler->CancelStartingWindow(targetAbilityRecord->GetToken());
+                targetAbilityRecord->SetStartingWindow(false);
+            }
+        };
+        targetAbilityRecord->ProcessForegroundAbility(task);
         return 0;
     }
 }
@@ -629,9 +653,6 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetEventId());
-#ifdef SUPPORT_GRAPHICS
-    abilityRecord->SetStartingWindow(false);
-#endif
 
     abilityRecord->SetScheduler(scheduler);
 
@@ -661,7 +682,7 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
-        abilityRecord->ForegroundAbility(abilityRecord->lifeCycleStateInfo_.sceneFlagBak);
+        abilityRecord->ForegroundAbility(nullptr, abilityRecord->lifeCycleStateInfo_.sceneFlagBak);
     }
 }
 
@@ -827,6 +848,9 @@ int MissionListManager::DispatchForegroundNew(const std::shared_ptr<AbilityRecor
     }
 
     handler->RemoveEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, abilityRecord->GetEventId());
+#ifdef SUPPORT_GRAPHICS
+    abilityRecord->SetStartingWindow(false);
+#endif
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteForegroundNew(abilityRecord); };
     handler->PostTask(task);
@@ -840,9 +864,6 @@ void MissionListManager::CompleteForegroundNew(const std::shared_ptr<AbilityReco
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
     CHECK_POINTER(abilityRecord);
-#ifdef SUPPORT_GRAPHICS
-    abilityRecord->SetStartingWindow(false);
-#endif
     // ability do not save window mode
     abilityRecord->RemoveWindowMode();
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
@@ -1018,7 +1039,20 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
         if (abilityRecord->GetNextAbilityRecord()) {
-            abilityRecord->GetNextAbilityRecord()->ProcessForegroundAbility();
+            auto windowHandler = GetWMSHandler();
+            if (!windowHandler) {
+                HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
+                return;
+            }
+            auto targetAbilityRecord = abilityRecord->GetNextAbilityRecord();
+            auto task = [windowHandler, targetAbilityRecord] {
+                if (windowHandler && targetAbilityRecord && targetAbilityRecord->IsStartingWindow()) {
+                    HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+                    windowHandler->CancelStartingWindow(targetAbilityRecord->GetToken());
+                    targetAbilityRecord->SetStartingWindow(false);
+                }
+            };
+            targetAbilityRecord->ProcessForegroundAbility(task);
         } else {
             MoveToBackgroundTask(abilityRecord);
         }
@@ -1907,7 +1941,7 @@ void MissionListManager::BackToLauncher()
 
     launcherList_->AddMissionToTop(launcherRootMission);
     MoveMissionListToTop(launcherList_);
-    launcherRootAbility->ProcessForegroundAbility();
+    launcherRootAbility->ProcessForegroundAbility(nullptr);
 }
 
 int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
@@ -2301,7 +2335,7 @@ void MissionListManager::StartingWindowHot(const std::shared_ptr<AbilityRecord> 
 
 void MissionListManager::CancelStartingWindow(const sptr<IRemoteObject> abilityToken, bool isDelay) const
 {
-    HILOG_DEBUG("%{public}s, call CancelStartingWindow.", __func__);
+    HILOG_INFO("%{public}s, call CancelStartingWindow.", __func__);
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
@@ -2317,6 +2351,7 @@ void MissionListManager::CancelStartingWindow(const sptr<IRemoteObject> abilityT
     auto task = [windowHandler, abilityToken] {
         auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow()) {
+            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
             windowHandler->CancelStartingWindow(abilityToken);
             abilityRecord->SetStartingWindow(false);
         }
