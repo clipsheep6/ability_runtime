@@ -723,7 +723,28 @@ void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncC
 //TODO: unimplemented yet.
 napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
     HILOG_INFO("%{public}s calls.", __func__);
-
+    napi_deferred deferred;
+    napi_value promise;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    asyncCallbackInfo->deferred = deferred;
+    // create resource name as Identifier to provide diagnostic information.
+    napi_value resourceName;
+    napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env,
+        nullptr,
+        resourceName,
+        [](napi_env env, void *data) {
+            HILOG_INFO("GetFormsInfoPromise running");
+            AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = (AsyncGetFormsInfoCallbackInfo *)data;
+            InnerGetFormsInfo(env, asyncCallbackInfo);
+        },
+        [](napi_env env, napi_status status, void *data) {
+            HILOG_INFO("%{public}s, promise complete", __func__);
+        },
+        (void *)asyncCallbackInfo,
+        &asyncCallbackInfo->asyncWork);
+    napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     return nullptr;
 }
 
