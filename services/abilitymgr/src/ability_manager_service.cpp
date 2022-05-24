@@ -170,6 +170,7 @@ AbilityManagerService::AbilityManagerService()
       state_(ServiceRunningState::STATE_NOT_START),
       iBundleManager_(nullptr)
 {
+    HILOG_INFO("yangliang call constructor: AbilityManagerService");
     std::shared_ptr<AppScheduler> appScheduler(
         DelayedSingleton<AppScheduler>::GetInstance().get(), [](AppScheduler *x) { x->DecStrongRef(x); });
     appScheduler_ = appScheduler;
@@ -178,7 +179,9 @@ AbilityManagerService::AbilityManagerService()
 }
 
 AbilityManagerService::~AbilityManagerService()
-{}
+{
+    HILOG_INFO("yangliang call destructor: AbilityManagerService");
+}
 
 void AbilityManagerService::OnStart()
 {

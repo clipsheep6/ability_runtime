@@ -33,6 +33,7 @@
 #include "parcel.h"
 #include "securec.h"
 #include "string_ex.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -134,6 +135,18 @@ std::string WantParams::GetStringByType(const sptr<IInterface> iIt, int typeId)
     }
     return "";
 }
+
+WantParams::WantParams()
+{
+    HILOG_INFO("yangliang call constructor: WantParams: %{public}p", this);
+}
+
+WantParams::~WantParams()
+{
+    HILOG_INFO("yangliang call destructor: WantParams: %{public}p", this);
+}
+
+
 template<typename T1, typename T2, typename T3>
 static void SetNewArray(const AAFwk::InterfaceID &id, AAFwk::IArray *orgIArray, sptr<AAFwk::IArray> &ao);
 /**
@@ -143,14 +156,17 @@ static void SetNewArray(const AAFwk::InterfaceID &id, AAFwk::IArray *orgIArray, 
  */
 WantParams::WantParams(const WantParams &wantParams)
 {
+    HILOG_INFO("yangliang call copy constructor: WantParams: %{public}p", this);
     params_.clear();
     NewParams(wantParams, *this);
 }
 // inner use function
 bool WantParams::NewParams(const WantParams &source, WantParams &dest)
 {
+    HILOG_INFO("yangliang before call NewParams: size: %{public}lu, source: %{public}p, dest: %{public}p", source.params_.size(), &source, &dest);
     // Deep copy
     for (auto it = source.params_.begin(); it != source.params_.end(); it++) {
+        HILOG_INFO("yangliang call NewParams: source.params_: %{public}p, second: %{public}p", &source.params_, &it->second);
         sptr<IInterface> o = it->second;
         if (IString::Query(o) != nullptr) {
             dest.params_[it->first] = String::Box(String::Unbox(IString::Query(o)));
@@ -182,6 +198,7 @@ bool WantParams::NewParams(const WantParams &source, WantParams &dest)
             }
             dest.params_[it->first] = destAO;
         }
+        HILOG_INFO("yangliang after call NewParams: source: %{public}p, dest: %{public}p, %{public}lu", &source, &dest, dest.params_.size());
     }
     return true;
 }  // namespace AAFwk
