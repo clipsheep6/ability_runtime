@@ -69,6 +69,13 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
 const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
 #endif // OS_ACCOUNT_PART_ENABLED
 
+    AbilityRequest::AbilityRequest(){
+        HILOG_INFO("yangliang call constructor: AbilityRequest: %{public}p", this);
+    }
+    AbilityRequest::~AbilityRequest() {
+        HILOG_INFO("yangliang call destructor: AbilityRequest: %{public}p", this);
+    }
+
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
 {}
 

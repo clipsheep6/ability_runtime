@@ -48,9 +48,13 @@ std::string GetCurrentTime()
 }
 } // namespace
 
-MissionListManager::MissionListManager(int userId) : userId_(userId) {}
+MissionListManager::MissionListManager(int userId) : userId_(userId) {
+    HILOG_INFO("yangliang call constructor: MissionListManager");
+}
 
-MissionListManager::~MissionListManager() {}
+MissionListManager::~MissionListManager() {
+    HILOG_INFO("yangliang call destructor: MissionListManager");
+}
 
 void MissionListManager::Init()
 {
@@ -202,12 +206,14 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
 
 void MissionListManager::EnqueueWaittingAbility(const AbilityRequest &abilityRequest)
 {
+    HILOG_INFO("yangliang push : EnqueueWaittingAbility");
     waittingAbilityQueue_.push(abilityRequest);
     return;
 }
 
 void MissionListManager::EnqueueWaittingAbilityToFront(const AbilityRequest &abilityRequest)
 {
+    HILOG_INFO("yangliang start resort: EnqueueWaittingAbilityToFront");
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     std::queue<AbilityRequest> abilityQueue;
     abilityQueue.push(abilityRequest);
@@ -216,6 +222,7 @@ void MissionListManager::EnqueueWaittingAbilityToFront(const AbilityRequest &abi
         AbilityRequest tempAbilityRequest = abilityQueue.front();
         abilityQueue.pop();
         waittingAbilityQueue_.push(tempAbilityRequest);
+        HILOG_INFO("yangliang in resort: EnqueueWaittingAbilityToFront");
     }
 }
 
@@ -231,6 +238,7 @@ void MissionListManager::StartWaittingAbility()
     }
 
     if (!waittingAbilityQueue_.empty()) {
+        HILOG_INFO("yangliang pop: StartWaittingAbility");
         AbilityRequest abilityRequest = waittingAbilityQueue_.front();
         waittingAbilityQueue_.pop();
         auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
@@ -1903,6 +1911,7 @@ void MissionListManager::BackToLauncher()
     }
 
     std::queue<AbilityRequest> emptyQueue;
+    HILOG_INFO("yangliang swap: BackToLauncher");
     std::swap(waittingAbilityQueue_, emptyQueue);
 
     launcherList_->AddMissionToTop(launcherRootMission);
@@ -2617,7 +2626,7 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
     if (waittingAbilityQueue_.empty()) {
         return;
     }
-
+    HILOG_INFO("yangliang pop: OnAcceptWantResponse");
     AbilityRequest abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
 
@@ -2651,11 +2660,13 @@ void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Wan
     if (waittingAbilityQueue_.empty()) {
         return;
     }
+    HILOG_INFO("yangliang pop: OnStartSpecifiedAbilityTimeoutResponse");
     waittingAbilityQueue_.pop();
 
     if (waittingAbilityQueue_.empty()) {
         return;
     }
+    HILOG_INFO("yangliang pop pop: OnStartSpecifiedAbilityTimeoutResponse");
     AbilityRequest abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
 
