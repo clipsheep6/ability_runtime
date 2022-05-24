@@ -356,7 +356,8 @@ bool WantParams::CompareInterface(const sptr<IInterface> iIt1, const sptr<IInter
  */
 void WantParams::SetParam(const std::string &key, IInterface *value)
 {
-    params_[key] = value;
+    sptr<IInterface> sValue(value);
+    params_[key] = sValue;
 }
 
 /**
