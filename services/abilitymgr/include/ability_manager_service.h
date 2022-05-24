@@ -766,6 +766,10 @@ public:
     virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
+    void SetTestMode(bool testMode);
+
+    bool IsTestMode();
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
