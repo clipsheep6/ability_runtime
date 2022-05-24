@@ -256,11 +256,11 @@ public:
 
     /**
     * @brief This function is called by formProvider and gets forms info by the bundle name of the calling ability.
-    *        The bundle time will be retrieved by form service manager.
+    *        The bundle name will be retrieved by form service manager.
     * @param formInfos Return the forms' information of the calling bundle name
     * @return Returns ERR_OK on success, others on failure.
     */
-    virtual int GetFormsInfo(std::vector<FormInfo> &formsInfos) = 0;
+    virtual int GetFormsInfo(std::vector<FormInfo> &formInfos) = 0;
 
     /**
      * @brief Update action string for router event.
@@ -304,6 +304,7 @@ public:
         FORM_MGR_GET_ALL_FORMS_INFO,
         FORM_MGR_GET_FORMS_INFO_BY_APP,
         FORM_MGR_GET_FORMS_INFO_BY_MODULE,
+        FORM_MGR_GET_FORMS_INFO,
         FORM_MGR_ROUTER_EVENT,
         FORM_MGR_UPDATE_ROUTER_ACTION
     };

@@ -720,7 +720,7 @@ void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncC
 }
 
 // Internal of GetFormsInfo when Promise is used.
-//TODO:
+//TODO: unimplemented yet.
 napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
     HILOG_INFO("%{public}s calls.", __func__);
 
