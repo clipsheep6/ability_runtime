@@ -94,7 +94,7 @@ public:
      * @param info Indicates the parameters from js.
      * @return exec result.
      */
-    static NativeValue *SyncPrint(NativeEngine *engine, NativeCallbackInfo *info);
+    static NativeValue *PrintSync(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
      * Execute the specified shell command.
@@ -173,7 +173,7 @@ private:
     NativeValue *OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnPrint(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue *OnSyncPrint(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnGetAppContext(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnGetAbilityState(NativeEngine &engine, NativeCallbackInfo &info);

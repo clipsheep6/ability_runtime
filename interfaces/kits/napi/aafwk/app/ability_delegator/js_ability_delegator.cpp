@@ -139,10 +139,10 @@ NativeValue *JSAbilityDelegator::Print(NativeEngine *engine, NativeCallbackInfo 
     return (me != nullptr) ? me->OnPrint(*engine, *info) : nullptr;
 }
 
-NativeValue *JSAbilityDelegator::SyncPrint(NativeEngine *engine, NativeCallbackInfo *info)
+NativeValue *JSAbilityDelegator::PrintSync(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnSyncPrint(*engine, *info) : nullptr;
+    return (me != nullptr) ? me->OnPrintSync(*engine, *info) : nullptr;
 }
 
 NativeValue *JSAbilityDelegator::ExecuteShellCommand(NativeEngine *engine, NativeCallbackInfo *info)
@@ -316,7 +316,7 @@ NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInf
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnSyncPrint(NativeEngine &engine, NativeCallbackInfo &info)
+NativeValue *JSAbilityDelegator::OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
