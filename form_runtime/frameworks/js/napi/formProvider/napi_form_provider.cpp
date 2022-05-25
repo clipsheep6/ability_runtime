@@ -184,9 +184,9 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_INVALID_FORM_ID,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -206,9 +206,9 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_FORM_ID_NUM_ERR,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -228,9 +228,9 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_REFRESH_TIME_NUM_ERR,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -394,9 +394,9 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_INVALID_FORM_ID,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -417,9 +417,9 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_FORM_ID_NUM_ERR,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -439,9 +439,9 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
                 .asyncWork = nullptr,
                 .deferred = nullptr,
                 .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
                 .code = ERR_APPEXECFWK_FORM_INVALID_PROVIDER_DATA,
                 .type = 0,
-                .callbackValue = argv[ARGS_SIZE_TWO]
             };
 
         if (argc == ARGS_SIZE_THREE) {
@@ -554,164 +554,6 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
     }
 }
 
-/**
- * @brief Parse form info into Node-API, reference to napi_form_host.cpp
- *
- * @param[in] env The environment that the Node-API call is invoked under
- * @param[in] formInfo it is used for return forminfo to JavaScript
- * @param[out] result This is an opaque pointer that is used to represent a JavaScript value
- *
- * @return void
- */
-static void ParseFormInfoIntoNapi(napi_env env, const FormInfo &formInfo, napi_value &result)
-{
-    // bundleName
-    napi_value bundleName;
-    napi_create_string_utf8(env, formInfo.bundleName.c_str(), NAPI_AUTO_LENGTH, &bundleName);
-    HILOG_DEBUG("%{public}s, bundleName=%{public}s.", __func__, formInfo.bundleName.c_str());
-    napi_set_named_property(env, result, "bundleName", bundleName);
-
-    // moduleName
-    napi_value moduleName;
-    napi_create_string_utf8(env, formInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &moduleName);
-    HILOG_DEBUG("%{public}s, moduleName=%{public}s.", __func__, formInfo.moduleName.c_str());
-    napi_set_named_property(env, result, "moduleName", moduleName);
-
-    // abilityName
-    napi_value abilityName;
-    napi_create_string_utf8(env, formInfo.abilityName.c_str(), NAPI_AUTO_LENGTH, &abilityName);
-    HILOG_DEBUG("%{public}s, abilityName=%{public}s.", __func__, formInfo.abilityName.c_str());
-    napi_set_named_property(env, result, "abilityName", abilityName);
-
-    // name
-    napi_value name;
-    napi_create_string_utf8(env, formInfo.name.c_str(), NAPI_AUTO_LENGTH, &name);
-    HILOG_DEBUG("%{public}s, name=%{public}s.", __func__, formInfo.name.c_str());
-    napi_set_named_property(env, result, "name", name);
-
-    // description
-    napi_value description;
-    napi_create_string_utf8(env, formInfo.description.c_str(), NAPI_AUTO_LENGTH, &description);
-    HILOG_DEBUG("%{public}s, description=%{public}s.", __func__, formInfo.description.c_str());
-    napi_set_named_property(env, result, "description", description);
-
-    // descriptionId
-    napi_value descriptionId;
-    napi_create_int32(env, formInfo.descriptionId, &descriptionId);
-    HILOG_DEBUG("%{public}s, descriptionId=%{public}d.", __func__, formInfo.descriptionId);
-    napi_set_named_property(env, result, "descriptionId", descriptionId);
-
-    // type
-    napi_value type;
-    FormType formType = formInfo.type;
-    napi_create_int32(env, (int32_t)formType, &type);
-    HILOG_DEBUG("%{public}s, formInfo_type=%{public}d.", __func__, (int32_t)formType);
-    napi_set_named_property(env, result, "type", type);
-
-    // jsComponentName
-    napi_value jsComponentName;
-    napi_create_string_utf8(env, formInfo.jsComponentName.c_str(), NAPI_AUTO_LENGTH, &jsComponentName);
-    HILOG_DEBUG("%{public}s, jsComponentName=%{public}s.", __func__, formInfo.jsComponentName.c_str());
-    napi_set_named_property(env, result, "jsComponentName", jsComponentName);
-
-    // colorMode
-    napi_value colorMode;
-    FormsColorMode  formsColorMode = formInfo.colorMode;
-    napi_create_int32(env, (int32_t)formsColorMode, &colorMode);
-    HILOG_DEBUG("%{public}s, formInfo_type=%{public}d.", __func__, (int32_t)formsColorMode);
-    napi_set_named_property(env, result, "colorMode", colorMode);
-
-    // defaultFlag
-    napi_value defaultFlag;
-    napi_create_int32(env, (int32_t)formInfo.defaultFlag, &defaultFlag);
-    HILOG_DEBUG("%{public}s, defaultFlag=%{public}d.", __func__, formInfo.defaultFlag);
-    napi_set_named_property(env, result, "isDefault", defaultFlag);
-
-    // updateEnabled
-    napi_value updateEnabled;
-    napi_create_int32(env, (int32_t)formInfo.updateEnabled, &updateEnabled);
-    HILOG_DEBUG("%{public}s, updateEnabled=%{public}d.", __func__, formInfo.updateEnabled);
-    napi_set_named_property(env, result, "updateEnabled", updateEnabled);
-
-    // formVisibleNotify
-    napi_value formVisibleNotify;
-    napi_create_int32(env, (int32_t)formInfo.formVisibleNotify, &formVisibleNotify);
-    HILOG_DEBUG("%{public}s, formVisibleNotify=%{public}d.", __func__, formInfo.formVisibleNotify);
-    napi_set_named_property(env, result, "formVisibleNotify", formVisibleNotify);
-
-    // formConfigAbility
-    napi_value formConfigAbility;
-    napi_create_string_utf8(env, formInfo.formConfigAbility.c_str(), NAPI_AUTO_LENGTH, &formConfigAbility);
-    HILOG_DEBUG("%{public}s, formConfigAbility=%{public}s.", __func__, formInfo.formConfigAbility.c_str());
-    napi_set_named_property(env, result, "formConfigAbility", formConfigAbility);
-
-    // updateDuration
-    napi_value updateDuration;
-    napi_create_int32(env, formInfo.updateDuration, &updateDuration);
-    HILOG_DEBUG("%{public}s, updateDuration=%{public}d.", __func__, formInfo.updateDuration);
-    napi_set_named_property(env, result, "updateDuration", updateDuration);
-
-    // scheduledUpdateTime
-    napi_value scheduledUpdateTime;
-    napi_create_string_utf8(env, formInfo.scheduledUpdateTime.c_str(), NAPI_AUTO_LENGTH, &scheduledUpdateTime);
-    HILOG_DEBUG("%{public}s, scheduledUpdateTime=%{public}s.", __func__, formInfo.scheduledUpdateTime.c_str());
-    napi_set_named_property(env, result, "scheduledUpdateTime", scheduledUpdateTime);
-
-    // defaultDimension
-    napi_value defaultDimension;
-    napi_create_int32(env, formInfo.defaultDimension, &defaultDimension);
-    HILOG_DEBUG("%{public}s, defaultDimension=%{public}d.", __func__, formInfo.defaultDimension);
-    napi_set_named_property(env, result, "defaultDimension", defaultDimension);
-
-    // supportDimensions
-    napi_value supportDimensions;
-    napi_create_array(env, &supportDimensions);
-    int iDimensionsCount = 0;
-    for (auto  dimension : formInfo.supportDimensions) {
-        HILOG_DEBUG("%{public}s, dimension=%{public}d.", __func__, dimension);
-        napi_value dimensionInfo;
-        napi_create_int32(env, (int32_t)dimension, &dimensionInfo);
-        napi_set_element(env, supportDimensions, iDimensionsCount, dimensionInfo);
-        ++iDimensionsCount;
-    }
-    HILOG_DEBUG("%{public}s, supportDimensions size=%{public}zu.", __func__, formInfo.supportDimensions.size());
-    napi_set_named_property(env, result, "supportDimensions", supportDimensions);
-
-    // metaData
-    napi_value metaData;
-    napi_create_object(env, &metaData);
-
-    // metaData: customizeDatas
-    napi_value customizeDatas;
-    napi_create_array(env, &customizeDatas);
-    int iCustomizeDatasCount = 0;
-    for (auto  customizeData : formInfo.customizeDatas) {
-        napi_value customizeDataOnject = nullptr;
-        napi_create_object(env, &customizeDataOnject);
-
-        // customizeData : name
-        napi_value customizeDataName;
-        napi_create_string_utf8(env, customizeData.name.c_str(), NAPI_AUTO_LENGTH, &customizeDataName);
-        HILOG_DEBUG("%{public}s, customizeData.name=%{public}s.", __func__, customizeData.name.c_str());
-        napi_set_named_property(env, customizeDataOnject, "name", customizeDataName);
-
-        // customizeData : value
-        napi_value customizeDataValue;
-        napi_create_string_utf8(env, customizeData.value.c_str(), NAPI_AUTO_LENGTH, &customizeDataValue);
-        HILOG_DEBUG("%{public}s, customizeData.value=%{public}s.", __func__, customizeData.value.c_str());
-        napi_set_named_property(env, customizeDataOnject, "value", customizeDataValue);
-
-        napi_set_element(env, customizeDatas, iCustomizeDatasCount, customizeDataOnject);
-        ++iDimensionsCount;
-    }
-    HILOG_DEBUG("%{public}s, customizeDatas size=%{public}zu.", __func__, formInfo.customizeDatas.size());
-    napi_set_named_property(env, metaData, "customizeData", customizeDatas);
-    napi_set_named_property(env, result, "metaData", metaData);
-
-    return;
-}
-
-
 // Internal of GetFormsInfo.
 void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
     HILOG_INFO("%{public}s starts.", __func__);
@@ -741,11 +583,41 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *cons
         },
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("%{public}s, promise complete", __func__);
+            AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = (AsyncGetFormsInfoCallbackInfo *)data;
+            if (asyncCallbackInfo->result == ERR_OK) {
+                napi_value arrayFormInfos;
+                napi_create_array(env, &arrayFormInfos);
+                int iFormInfoCount = 0;
+                // Retrieve formInfos and parse into js format.
+                for (auto formInfo : asyncCallbackInfo->formInfos) {
+                    napi_value formInfoObject = nullptr;
+                    napi_create_object(env, &formInfoObject);
+                    ParseFormInfoIntoNapi(env, formInfo, formInfoObject);
+                    napi_set_element(env, arrayFormInfos, iFormInfoCount, formInfoObject);
+                    ++iFormInfoCount;
+                }
+                // resolve promise.
+                napi_resolve_deferred(
+                    asyncCallbackInfo->env,
+                    asyncCallbackInfo->deferred,
+                    arrayFormInfos);
+            } else {
+                // reject promise.
+                napi_value getFormsInfoResult;
+                InnerCreatePromiseRetMsg(env, asyncCallbackInfo->result, &getFormsInfoResult);
+                napi_reject_deferred(
+                    asyncCallbackInfo->env,
+                    asyncCallbackInfo->deferred,
+                    getFormsInfoResult);
+            }
+            napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+            delete asyncCallbackInfo;
         },
         (void *)asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-    return nullptr;
+
+    return promise;
 }
 
 // Internal of GetFormsInfo when CallBack is used.
@@ -809,6 +681,7 @@ napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfo
         (void *)asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
+    return NapiGetResut(env, 1);
 }
 
 
