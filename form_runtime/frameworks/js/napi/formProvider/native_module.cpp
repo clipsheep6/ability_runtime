@@ -39,6 +39,7 @@ static napi_value Init(napi_env env, napi_value exports)
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("setFormNextRefreshTime", NAPI_SetFormNextRefreshTime),
         DECLARE_NAPI_FUNCTION("updateForm", NAPI_UpdateForm),
+        DECLARE_NAPI_FUNCTION("getFormsInfo", NAPI_GetFormsInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
     HILOG_INFO("napi_moudule Init end...");
