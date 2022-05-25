@@ -35,6 +35,9 @@
 #include "ability_util.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
+#ifdef SUPPORT_GRAPHICS
+#include "display_manager.h"
+#endif
 #include "distributed_client.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -43,6 +46,11 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
+#ifdef SUPPORT_GRAPHICS
+#include "png.h"
+#include "ui_service_mgr_client.h"
+#include "locale_config.h"
+#endif
 #include "mission_info_mgr.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -56,12 +64,8 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
-
 #ifdef SUPPORT_GRAPHICS
-#include "display_manager.h"
-#include "png.h"
-#include "ui_service_mgr_client.h"
-#include "locale_config.h"
+#include "window_focus_controller.h"
 #endif
 
 using OHOS::AppExecFwk::ElementName;
@@ -200,7 +204,14 @@ void AbilityManagerService::OnStart()
         HILOG_ERROR("Publish AMS failed!");
         return;
     }
-
+#ifdef SUPPORT_GRAPHICS
+    auto windowsInstance = WindowFocusController::GetInstance();
+    if (windowsInstance) {
+        windowsInstance->SubscribeWindowFocus();
+    } else {
+        HILOG_ERROR("OnStart. windowsInstance == nullptr !");
+    }
+#endif
     HILOG_INFO("AMS start success.");
 }
 
@@ -304,8 +315,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
         return ERR_INVALID_VALUE;
     }
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
+    int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_INVALID_VALUE;
@@ -363,7 +373,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
     }
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
+    auto missionListManager = GetListManagerByUserId(validUserId);
     if (missionListManager == nullptr) {
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
@@ -386,8 +396,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         return ERR_INVALID_VALUE;
     }
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
+    int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_INVALID_VALUE;
@@ -439,9 +448,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         return ERR_WOULD_BLOCK;
     }
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
+    auto missionListManager = GetListManagerByUserId(validUserId);
     if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
     return missionListManager->StartAbility(abilityRequest);
@@ -461,8 +470,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         return ERR_INVALID_VALUE;
     }
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
+    int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         return ERR_INVALID_VALUE;
@@ -511,15 +519,15 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     GrantUriPermission(want, validUserId);
     abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
+    auto missionListManager = GetListManagerByUserId(validUserId);
     if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
     return missionListManager->StartAbility(abilityRequest);
 }
 
-int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
+int AbilityManagerService::CheckStartExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
     int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType)
 {
     auto abilityInfo = abilityRequest.abilityInfo;
@@ -584,9 +592,9 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType);
+    result = CheckStartExtensionAbility(want, abilityRequest, validUserId, extensionType);
     if (result != ERR_OK) {
-        HILOG_ERROR("CheckOptExtensionAbility error.");
+        HILOG_ERROR("CheckStartExtensionAbility error.");
         return result;
     }
 
@@ -598,54 +606,6 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     HILOG_INFO("Start extension begin, name is %{public}s.", abilityInfo.name.c_str());
     return connectManager->StartAbility(abilityRequest);
 }
-
-int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
-{
-    HILOG_INFO("Stop extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
-        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-        return ERR_INVALID_VALUE;
-    }
-    int32_t validUserId = GetValidUserId(userId);
-    if (!JudgeMultiUserConcurrency(validUserId)) {
-        HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
-        return ERR_INVALID_VALUE;
-    }
-
-    AbilityRequest abilityRequest;
-    auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
-    if (result != ERR_OK) {
-        HILOG_ERROR("Generate ability request local error.");
-        return result;
-    }
-
-    auto abilityInfo = abilityRequest.abilityInfo;
-    validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
-    HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
-        validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
-
-    result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType);
-    if (result != ERR_OK) {
-        HILOG_ERROR("CheckOptExtensionAbility error.");
-        return result;
-    }
-
-    auto connectManager = GetConnectManagerByUserId(validUserId);
-    if (!connectManager) {
-        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
-        return ERR_INVALID_VALUE;
-    }
-    HILOG_INFO("Stop extension begin, name is %{public}s.", abilityInfo.name.c_str());
-    return connectManager->StopServiceAbility(abilityRequest);
-}
-
 
 void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUserId)
 {
@@ -753,10 +713,9 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
         return ERR_WOULD_BLOCK;
     }
 
-    auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetListManagerByUserId(ownerUserId);
+    auto missionListManager = GetListManagerByUserId(userId);
     if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
         return ERR_INVALID_VALUE;
     }
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
@@ -917,6 +876,7 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
         return result;
     }
 
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto type = abilityRecord->GetAbilityInfo().type;
     if (type != AppExecFwk::AbilityType::PAGE) {
         HILOG_ERROR("Cannot minimize except page ability.");
@@ -926,8 +886,7 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
     if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
         return ERR_WOULD_BLOCK;
     }
-
-    auto missionListManager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
+    auto missionListManager = GetListManagerByUserId(userId);
     if (!missionListManager) {
         HILOG_ERROR("missionListManager is Null.");
         return ERR_INVALID_VALUE;
@@ -1256,7 +1215,9 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     HILOG_INFO("AbilityManagerService::GetWantSender: bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
     auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
-    return pendingWantManager_->GetWantSender(callerUid, bundleInfo.uid, apl, wantSenderInfo, callerToken);
+    auto isSystemApp = IN_PROCESS_CALL(bms->CheckIsSystemAppByUid(callerUid));
+    PendingWantManager::Params params = { bundleInfo.uid, apl, isSystemApp };
+    return pendingWantManager_->GetWantSender(callerUid, params, wantSenderInfo, callerToken);
 }
 
 int AbilityManagerService::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
@@ -1298,7 +1259,8 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     }
 
     auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
-    pendingWantManager_->CancelWantSender(apl, sender);
+    auto isSystemApp = IN_PROCESS_CALL(bms->CheckIsSystemAppByUid(callerUid));
+    pendingWantManager_->CancelWantSender(apl, isSystemApp, sender);
 }
 
 int AbilityManagerService::GetPendingWantUid(const sptr<IWantSender> &target)
@@ -1772,10 +1734,9 @@ int AbilityManagerService::AttachAbilityThread(
         }
         returnCode = dataAbilityManager->AttachAbilityThread(scheduler, token);
     } else {
-        int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-        auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+        auto missionListManager = GetListManagerByUserId(userId);
         if (!missionListManager) {
-            HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+            HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
             return ERR_INVALID_VALUE;
         }
         returnCode = missionListManager->AttachAbilityThread(scheduler, token);
@@ -2198,10 +2159,9 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
         }
         return dataAbilityManager->AbilityTransitionDone(token, state);
     }
-    int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+    auto missionListManager = GetListManagerByUserId(userId);
     if (!missionListManager) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
         return ERR_INVALID_VALUE;
     }
     return missionListManager->AbilityTransactionDone(token, state, saveData);
@@ -2318,10 +2278,9 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
             break;
         }
         default: {
-            int32_t ownerMissionUserId = abilityRecord->GetOwnerMissionUserId();
-            auto missionListManager = GetListManagerByUserId(ownerMissionUserId);
+            auto missionListManager = GetListManagerByUserId(userId);
             if (!missionListManager) {
-                HILOG_ERROR("missionListManager is Null. userId=%{public}d", ownerMissionUserId);
+                HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
                 return;
             }
             missionListManager->OnAbilityRequestDone(token, state);
@@ -2601,7 +2560,7 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
 {
     CHECK_POINTER(abilityRecord);
 
-    auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
+    auto manager = GetListManagerByToken(abilityRecord->GetToken());
     if (manager) {
         manager->OnAbilityDied(abilityRecord, GetUserId());
         return;
@@ -2680,20 +2639,10 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     }
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
-    if (targetUserId == U0_USER_ID) {
-        std::shared_lock<std::shared_mutex> lock(managersMutex_);
-        for (auto item: missionListManagers_) {
-            if (item.second) {
-                item.second->UninstallApp(bundleName, uid);
-            }
-        }
-    } else {
-        auto listManager = GetListManagerByUserId(targetUserId);
-        if (listManager) {
-            listManager->UninstallApp(bundleName, uid);
-        }
+    auto listManager = GetListManagerByUserId(targetUserId);
+    if (listManager) {
+        listManager->UninstallApp(bundleName, uid);
     }
-
     if (pendingWantManager_) {
         pendingWantManager_->ClearPendingWantRecord(bundleName, uid);
     }
@@ -2957,6 +2906,22 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     return nullptr;
 }
 
+std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByToken(const sptr<IRemoteObject> &token)
+{
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto item: missionListManagers_) {
+        if (item.second && item.second->GetAbilityRecordByToken(token)) {
+            return item.second;
+        }
+
+        if (item.second && item.second->GetAbilityFromTerminateList(token)) {
+            return item.second;
+        }
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByToken(
     const sptr<IRemoteObject> &token)
 {
@@ -3039,6 +3004,16 @@ void AbilityManagerService::ConnectBmsService()
     }
 
     HILOG_INFO("Connect bms success!");
+}
+
+bool AbilityManagerService::CheckCallerIsSystemAppByIpc()
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto bms = GetBundleManager();
+    CHECK_POINTER_RETURN_BOOL(bms);
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    HILOG_ERROR("callerUid %{public}d", callerUid);
+    return IN_PROCESS_CALL(bms->CheckIsSystemAppByUid(callerUid));
 }
 
 int AbilityManagerService::GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info)
@@ -3135,10 +3110,10 @@ int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObje
         HILOG_ERROR("abilityRecord is Null.");
         return -1;
     }
-    auto userId = abilityRecord->GetOwnerMissionUserId();
+    auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     auto missionListManager = GetListManagerByUserId(userId);
     if (!missionListManager) {
-        HILOG_ERROR("missionListManager is Null. owner mission userId=%{public}d", userId);
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", userId);
         return -1;
     }
     return missionListManager->GetMissionIdByAbilityToken(token);
@@ -3239,10 +3214,14 @@ int AbilityManagerService::StartAbilityByCall(
 
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
+    if (abilityRequest.abilityInfo.applicationInfo.singleton) {
+        auto missionListManager = GetListManagerByUserId(U0_USER_ID);
+        if (missionListManager == nullptr) {
+            HILOG_ERROR("missionListManager is Null. userId=%{public}d", U0_USER_ID);
+            return ERR_INVALID_VALUE;
+        }
 
-    if (!currentMissionListManager_) {
-        HILOG_ERROR("currentMissionListManager_ is Null. curentUserId=%{public}d", GetUserId());
-        return ERR_INVALID_VALUE;
+        return missionListManager->ResolveLocked(abilityRequest);
     }
 
     return currentMissionListManager_->ResolveLocked(abilityRequest);
@@ -3276,10 +3255,14 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    auto isCallerSystemApp = IN_PROCESS_CALL(bms->CheckIsSystemAppByUid(callerUid));
+    auto isTargetSystemApp = IN_PROCESS_CALL(bms->CheckIsSystemAppByUid(targetUid));
+    HILOG_ERROR("isCallerSystemApp:%{public}d, isTargetSystemApp:%{public}d",
+        isCallerSystemApp, isTargetSystemApp);
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto apl = abilityRequest.appInfo.appPrivilegeLevel;
-    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
+    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE && !isCallerSystemApp) {
         HILOG_DEBUG("caller is common app.");
         std::string bundleName;
         bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
@@ -3287,7 +3270,7 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
             HILOG_ERROR("GetBundleNameForUid from bms fail.");
             return RESOLVE_CALL_NO_PERMISSIONS;
         }
-        if (bundleName != abilityInfo.bundleName && callerUid != targetUid) {
+        if (bundleName != abilityInfo.bundleName && callerUid != targetUid && !isTargetSystemApp) {
             HILOG_ERROR("the bundlename of caller is different from target one, caller: %{public}s "
                         "target: %{public}s",
                 bundleName.c_str(),
@@ -3308,6 +3291,73 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
     }
     return ERR_OK;
 }
+
+int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto missionListManager = currentMissionListManager_;
+    if (missionListManager) {
+        missionListManager->SetMissionLabel(token, label);
+    }
+    return 0;
+}
+
+#ifdef SUPPORT_GRAPHICS
+int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
+    const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("no such ability record");
+        return -1;
+    }
+
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    auto recordUid = abilityRecord->GetUid();
+    if (callingUid != recordUid) {
+        HILOG_ERROR("not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
+        return -1;
+    }
+
+    auto userId = callingUid / BASE_USER_RANGE;
+    auto missionListManager = GetListManagerByUserId(userId);
+    if (!missionListManager) {
+        HILOG_ERROR("failed to find mission list manager.");
+        return -1;
+    }
+
+    return missionListManager->SetMissionIcon(token, icon);
+}
+
+int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    wmsHandler_ = handler;
+    HILOG_DEBUG("%{public}s: WMS handler registered successfully.", __func__);
+    return ERR_OK;
+}
+
+sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
+{
+    return wmsHandler_;
+}
+
+void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto& item : missionListManagers_) {
+        if (item.second) {
+            item.second->CompleteFirstFrameDrawing(abilityToken);
+        }
+    }
+}
+#endif
 
 int AbilityManagerService::StartUser(int userId)
 {
@@ -3512,9 +3562,7 @@ void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
 {
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----begin", __func__, userId);
     InitConnectManager(userId, switchUser);
-    if (userId != U0_USER_ID) {
-        InitMissionListManager(userId, switchUser);
-    }
+    InitMissionListManager(userId, switchUser);
     InitDataAbilityManager(userId, switchUser);
     InitPendWantManager(userId, switchUser);
     HILOG_INFO("%{public}s, SwitchManagers:%{public}d-----end", __func__, userId);
@@ -3833,20 +3881,35 @@ int AbilityManagerService::FinishUserTest(
     return DelayedSingleton<AppScheduler>::GetInstance()->FinishUserTest(msg, resultCode, bundleName);
 }
 
-int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
+int AbilityManagerService::GetCurrentTopAbility(sptr<IRemoteObject> &token)
 {
-#ifdef SUPPORT_GRAPHICS
-    if (!wmsHandler_) {
-        HILOG_ERROR("wmsHandler_ is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    wmsHandler_->GetFocusWindow(token);
+    HILOG_DEBUG("enter");
 
-    if (!token) {
-        HILOG_ERROR("token is nullptr");
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    std::string bundleName;
+    auto result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
+    if (!result) {
+        HILOG_ERROR("GetBundleNameForUid fail");
+        return GET_BUNDLENAME_BY_UID_FAIL;
+    }
+
+    auto abilityRecord = currentMissionListManager_->GetCurrentTopAbility(bundleName);
+    if (!abilityRecord) {
+        HILOG_ERROR("Failed to get top ability");
         return ERR_INVALID_VALUE;
     }
-#endif
+
+    token = abilityRecord->GetToken();
+    if (!token) {
+        HILOG_ERROR("Failed to get token");
+        return ERR_INVALID_VALUE;
+    }
+
+    HILOG_INFO("bundleName : %{public}s, abilityName : %{public}s",
+        bundleName.data(), abilityRecord->GetAbilityInfo().name.data());
     return ERR_OK;
 }
 
@@ -3929,6 +3992,21 @@ int AbilityManagerService::DelegatorMoveMissionToFront(int32_t missionId)
 
     return currentMissionListManager_->MoveMissionToFront(missionId);
 }
+
+#ifdef SUPPORT_GRAPHICS
+int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    HILOG_INFO("share content: ShowPickerDialog, userId is %{public}d", userId);
+    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
+    IN_PROCESS_CALL_WITHOUT_RET(
+        bms->QueryAbilityInfos(
+            want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos)
+    );
+    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+}
+#endif
 
 void AbilityManagerService::UpdateCallerInfo(Want& want)
 {
@@ -4311,27 +4389,22 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     HILOG_DEBUG("%{public}s start.", __func__);
     AppExecFwk::ElementName elementName = {};
 #ifdef SUPPORT_GRAPHICS
-    sptr<IRemoteObject> token;
-    int ret = GetTopAbility(token);
-    if (ret) {
-        return elementName;
+    auto windowsInstance = WindowFocusController::GetInstance();
+    if (windowsInstance) {
+        windowsInstance->GetTopAbility(elementName);
+    } else {
+        HILOG_ERROR("OnStart. windowsInstance == nullptr !");
     }
-    if (!token) {
-        HILOG_ERROR("token is nullptr");
-        return elementName;
-    }
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("%{public}s abilityRecord is null.", __func__);
-        return elementName;
-    }
-    elementName = abilityRecord->GetWant().GetElement();
+    auto bundleName = elementName.GetBundleName();
+    auto abilityName = elementName.GetAbilityName();
+    HILOG_DEBUG("BundleName is %{public}s, AbilityName is %{public}s", bundleName.c_str(), abilityName.c_str());
     bool isDeviceEmpty = elementName.GetDeviceID().empty();
     std::string localDeviceId;
     bool hasLocalDeviceId = GetLocalDeviceId(localDeviceId);
     if (isDeviceEmpty && hasLocalDeviceId) {
         elementName.SetDeviceID(localDeviceId);
     }
+    HILOG_DEBUG("%{public}s end.", __func__);
 #endif
     return elementName;
 }
@@ -4453,101 +4526,5 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
 }
-
-#ifdef SUPPORT_GRAPHICS
-int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        HILOG_ERROR("no such ability record");
-        return -1;
-    }
-
-    auto callingUid = IPCSkeleton::GetCallingUid();
-    auto recordUid = abilityRecord->GetUid();
-    if (callingUid != recordUid) {
-        HILOG_ERROR("SetMissionLabel not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
-        return -1;
-    }
-
-    auto userId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetListManagerByUserId(userId);
-    if (!missionListManager) {
-        HILOG_ERROR("failed to find mission list manager when set mission label.");
-        return -1;
-    }
-
-    return missionListManager->SetMissionLabel(token, label);
-}
-
-int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<OHOS::Media::PixelMap> &icon)
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    if (!abilityRecord) {
-        HILOG_ERROR("no such ability record");
-        return -1;
-    }
-
-    auto callingUid = IPCSkeleton::GetCallingUid();
-    auto recordUid = abilityRecord->GetUid();
-    if (callingUid != recordUid) {
-        HILOG_ERROR("not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
-        return -1;
-    }
-
-    auto userId = abilityRecord->GetOwnerMissionUserId();
-    auto missionListManager = GetListManagerByUserId(userId);
-    if (!missionListManager) {
-        HILOG_ERROR("failed to find mission list manager.");
-        return -1;
-    }
-
-    return missionListManager->SetMissionIcon(token, icon);
-}
-
-int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-    wmsHandler_ = handler;
-    HILOG_DEBUG("%{public}s: WMS handler registered successfully.", __func__);
-    return ERR_OK;
-}
-
-sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
-{
-    return wmsHandler_;
-}
-
-void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
-{
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    std::shared_lock<std::shared_mutex> lock(managersMutex_);
-    for (auto& item : missionListManagers_) {
-        if (item.second) {
-            item.second->CompleteFirstFrameDrawing(abilityToken);
-        }
-    }
-}
-
-int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId)
-{
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    HILOG_INFO("share content: ShowPickerDialog, userId is %{public}d", userId);
-    std::vector<AppExecFwk::AbilityInfo> abilityInfos;
-    IN_PROCESS_CALL_WITHOUT_RET(
-        bms->QueryAbilityInfos(
-            want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos)
-    );
-    return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
-}
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

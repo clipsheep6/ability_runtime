@@ -19,7 +19,7 @@ config("appmgr_test_service_config") {
     "${aafwk_path}/services/abilitymgr/test/mock/appmgr_test_service/include/",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/interfaces/innerkits/ability_manager/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
+    "${appexecfwk_inner_api_path}/appexecfwk_core/include",
     "${aafwk_path}/interfaces/innerkits/app_manager/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${aafwk_path}/services/common/include",
@@ -44,15 +44,16 @@ ohos_source_set("appmgr_test_service") {
   }
   deps = [
     "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
-    "${ability_base_path}:want",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
+    "${appexecfwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
+    "${appexecfwk_innerkits_path}/libeventhandler:libeventhandler",
+    "${base_path}:want",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
 
   if (ability_runtime_graphics) {
     public_deps = [ "${graphic_path}:libwmservice" ]
+    defines = [ "SUPPORT_GRAPHICS" ]
   }
 
   external_deps = [

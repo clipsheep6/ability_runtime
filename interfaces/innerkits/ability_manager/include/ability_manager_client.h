@@ -160,21 +160,6 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
 
     /**
-     * Stop extension ability with want, send want to ability manager service.
-     *
-     * @param want, the want of the ability to stop.
-     * @param callerToken, caller ability token.
-     * @param userId, Designation User ID.
-     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be stopped.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode StopExtensionAbility(
-        const Want& want,
-        const sptr<IRemoteObject>& callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
-
-    /**
      * TerminateAbility with want, return want from ability manager service.
      *
      * @param token Ability token.
@@ -368,10 +353,7 @@ public:
      * @param SystemMemoryAttr, memory information.
      */
     void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
-    
-    ErrCode GetAppMemorySize();
 
-    bool IsRamConstrainedDevice();
     /**
      * ContinueMission, continue ability from mission center.
      *
@@ -606,7 +588,6 @@ public:
      */
     ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.
      *
@@ -616,6 +597,7 @@ public:
      */
     ErrCode SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Set mission icon of this ability.
      *
@@ -661,13 +643,13 @@ public:
      */
     ErrCode FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName);
 
-     /**
-     * GetTopAbility, get the token of top ability.
+    /**
+     * GetCurrentTopAbility, get the token of current top ability.
      *
-     * @param token, the token of top ability.
+     * @param token, the token of current top ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode GetTopAbility(sptr<IRemoteObject> &token);
+    ErrCode GetCurrentTopAbility(sptr<IRemoteObject> &token);
 
     /**
      * DelegatorDoAbilityForeground, the delegator calls this interface to move the ability to the foreground.

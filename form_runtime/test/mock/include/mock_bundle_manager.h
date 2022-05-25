@@ -198,6 +198,13 @@ public:
         return true;
     }
 
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        if (uid == 600) {
+            return false;
+        }
+        return true;
+    }
     virtual bool IsApplicationEnabled(const std::string &bundleName)override
     {
         return true;
@@ -327,6 +334,14 @@ public:
     }
     virtual bool IsApplicationEnabled(const std::string &bundleName) override
     {
+        return true;
+    };
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        if (uid == 600) {
+            return false;
+        }
+
         return true;
     };
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override

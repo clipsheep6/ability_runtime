@@ -42,7 +42,6 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr size_t ARGC_FOUR = 4;
-constexpr int32_t ERR_NOT_OK = -1;
 
 class JsServiceExtensionContext final {
 public:
@@ -101,18 +100,6 @@ public:
     {
         JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
         return (me != nullptr) ? me->OnStartExtensionAbilityWithAccount(*engine, *info) : nullptr;
-    }
-
-    static NativeValue* StopServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
-        return (me != nullptr) ? me->OnStopExtensionAbility(*engine, *info) : nullptr;
-    }
-
-    static NativeValue* StopServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsServiceExtensionContext* me = CheckParamsAndGetThis<JsServiceExtensionContext>(engine, info);
-        return (me != nullptr) ? me->OnStopExtensionAbilityWithAccount(*engine, *info) : nullptr;
     }
 private:
     std::weak_ptr<ServiceExtensionContext> context_;
@@ -442,22 +429,16 @@ private:
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartExtensionAbility is called.");
-        int32_t argErrorCode = 0;
-        AAFwk::Want want;
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
-        } else {
-            OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[0]), want);
+            return engine.CreateUndefined();
         }
+        AAFwk::Want want;
+        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[0]), want);
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -468,11 +449,11 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, errcode, "Start Ability failed."));
                 }
             };
 
-        NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -482,29 +463,23 @@ private:
     NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartExtensionAbilityWithAccount is called.");
-        int32_t argErrorCode = 0;
-        AAFwk::Want want;
-        int32_t accountId = -1;
         if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
             HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
-        } else {
-            OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[0]), want);
+            return engine.CreateUndefined();
+        }
+        AAFwk::Want want;
+        OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[0]), want);
 
-            if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-                HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
-                argErrorCode = ERR_NOT_OK;
-            }
+        int32_t accountId = -1;
+        if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
+            reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
+            HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
+            return engine.CreateUndefined();
         }
 
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
+            [weak = context_, want, accountId](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
                     HILOG_WARN("context is released");
@@ -515,99 +490,11 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Start extensionAbility failed."));
+                    task.Reject(engine, CreateJsError(engine, errcode, "Start Ability failed."));
                 }
             };
 
-        NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
-        NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-        return result;
-    }
-
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info)
-    {
-        HILOG_INFO("OnStopExtensionAbility is called.");
-        int32_t argErrorCode = 0;
-        AAFwk::Want want;
-
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-            HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
-        } else {
-            OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[0]), want);
-        }
-
-        AsyncTask::CompleteCallback complete =
-            [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                    return;
-                }
-                auto errcode = context->StopServiceExtensionAbility(want);
-                if (errcode == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "stop extensionAbility failed."));
-                }
-            };
-
-        NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
-        NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-        return result;
-    }
-
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info)
-    {
-        HILOG_INFO("OnStopExtensionAbilityWithAccount is called.");
-        int32_t argErrorCode = 0;
-        AAFwk::Want want;
-        int32_t accountId = -1;
-        if (info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
-            HILOG_ERROR("Invalid params");
-            argErrorCode = ERR_NOT_OK;
-        } else {
-            OHOS::AppExecFwk::UnwrapWant(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[0]), want);
-
-            if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[1]), accountId)) {
-                HILOG_INFO("%{public}s called, the second parameter is invalid.", __func__);
-                argErrorCode = ERR_NOT_OK;
-            }
-        }
-
-        AsyncTask::CompleteCallback complete =
-            [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                if (argErrorCode != 0) {
-                    task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-                    return;
-                }
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                    return;
-                }
-                auto errcode = context->StopServiceExtensionAbility(want, accountId);
-                if (errcode == 0) {
-                    task.Resolve(engine, engine.CreateUndefined());
-                } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Stop extensionAbility failed."));
-                }
-            };
-
-        NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
+        NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -693,10 +580,6 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
         JsServiceExtensionContext::StartServiceExtensionAbility);
     BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount",
         JsServiceExtensionContext::StartServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbility",
-        JsServiceExtensionContext::StopServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount",
-        JsServiceExtensionContext::StopServiceExtensionAbilityWithAccount);
 
     if (context) {
         HILOG_INFO("Set ExtensionAbilityInfo Property");

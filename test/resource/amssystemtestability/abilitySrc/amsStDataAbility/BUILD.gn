@@ -13,21 +13,21 @@
 
 import("//build/ohos.gni")
 import("//foundation/aafwk/standard/aafwk.gni")
-SUBDEMOSYSTEM_DIR =
-    "test/resource/amssystemtestability/abilitySrc/amsStDataAbility"
+SUBDEMOSYSTEM_DIR = "${appexecfwk_path}/test/resource/amssystemtestability/abilitySrc/amsStDataAbility"
 
 config("verify_act_ability_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
     "${aafwk_path}/frameworks/kits/appkit/native/app",
-    "${ability_base_innerapi_path}/want/include",
+    "${base_inner_api_path}/want/include",
     "${aafwk_path}/interfaces/innerkits/ability_manager/include",
-    "${ability_base_innerapi_path}/uri/include",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
-    "${bundlefwk_path}/services/bundlemgr/include",
+    "${base_inner_api_path}/uri/include",
+    "${appexecfwk_innerkits_path}/libeventhandler/include",
+    "${appexecfwk_path}/services/bundlemgr/include",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/services/common/include",
+    "${appexecfwk_path}/common/log/include",
   ]
   defines = [
     "AMS_LOG_TAG = \"amsStDataAbility\"",
@@ -51,8 +51,9 @@ ohos_shared_library("amsStDataAbility") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_path}/services/bundlemgr:libbms",
+    "${appexecfwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
+    "${appexecfwk_path}/common:libappexecfwk_common",
+    "${appexecfwk_path}/services/bundlemgr:libbms",
     "//utils/native/base:utilsbase",
   ]
   external_deps = [
@@ -60,11 +61,11 @@ ohos_shared_library("amsStDataAbility") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "relational_store:native_appdatafwk",
-    "relational_store:native_rdb",
+    "native_appdatamgr:native_appdatafwk",
+    "native_appdatamgr:native_dataability",
+    "native_appdatamgr:native_rdb",
   ]
   subsystem_name = "amssystemtestability"
 

@@ -269,51 +269,6 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
-{
-    int error;
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return INNER_ERR;
-    }
-    if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return INNER_ERR;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return INNER_ERR;
-        }
-    }
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("extensionType write failed.");
-        return INNER_ERR;
-    }
-    if (!Remote()) {
-        HILOG_ERROR("Remote error.");
-        return INNER_ERR;
-    }
-    error = Remote()->SendRequest(IAbilityManager::STOP_EXTENSION_ABILITY, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     return TerminateAbility(token, resultCode, resultWant, true);
@@ -1791,7 +1746,6 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &cal
     return reply.ReadInt32();
 }
 
-#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     MessageParcel data;
@@ -1816,6 +1770,7 @@ int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
@@ -1880,9 +1835,20 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &a
         HILOG_ERROR("%{public}s: write interface token failed.", __func__);
         return;
     }
-    if (!data.WriteRemoteObject(abilityToken)) {
-        HILOG_ERROR("%{public}s: abilityToken write failed.", __func__);
-        return;
+    if (!abilityToken) {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("Write false failed.");
+            return;
+        }
+    } else {
+        if (!data.WriteBool(true)) {
+            HILOG_ERROR("Write true failed.");
+            return;
+        }
+        if (!data.WriteObject(abilityToken)) {
+            HILOG_ERROR("Write abilityToken failed.");
+            return;
+        }
     }
     MessageOption option;
     MessageParcel reply;
@@ -2247,7 +2213,7 @@ int AbilityManagerProxy::FinishUserTest(
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
+int AbilityManagerProxy::GetCurrentTopAbility(sptr<IRemoteObject> &token)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -2257,7 +2223,7 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
         return INNER_ERR;
     }
 
-    auto error = Remote()->SendRequest(IAbilityManager::GET_TOP_ABILITY_TOKEN, data, reply, option);
+    auto error = Remote()->SendRequest(IAbilityManager::GET_CURRENT_TOP_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;

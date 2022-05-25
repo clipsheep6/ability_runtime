@@ -45,8 +45,6 @@ public:
     static NativeValue* StartAbilityForResultWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* StartServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbility(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* StopServiceExtensionAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* ConnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* ConnectAbilityWithAccount(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info);
@@ -54,7 +52,11 @@ public:
     static NativeValue* TerminateSelfWithResult(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RequestPermissionsFromUser(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* RestoreWindowStage(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* IsTerminating(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info);
+
+#ifdef SUPPORT_GRAPHICS
+    static NativeValue* SetMissionIcon(NativeEngine* engine, NativeCallbackInfo* info);
+#endif
 
     static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
@@ -64,16 +66,6 @@ public:
         return context_.lock();
     }
 
-#ifdef SUPPORT_GRAPHICS
-public:
-    static NativeValue* SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info);
-    static NativeValue* SetMissionIcon(NativeEngine* engine, NativeCallbackInfo* info);
-
-private:
-    NativeValue* OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnSetMissionIcon(NativeEngine& engine, NativeCallbackInfo& info);
-#endif
-
 private:
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
@@ -82,8 +74,6 @@ private:
     NativeValue* OnStartAbilityForResultWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnStartExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbility(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnStopExtensionAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnTerminateSelfWithResult(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnConnectAbilityWithAccount(NativeEngine& engine, NativeCallbackInfo& info);
@@ -91,7 +81,11 @@ private:
     NativeValue* OnTerminateSelf(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRequestPermissionsFromUser(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnRestoreWindowStage(NativeEngine& engine, NativeCallbackInfo& info);
-    NativeValue* OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info);
+
+#ifdef SUPPORT_GRAPHICS
+    NativeValue* OnSetMissionIcon(NativeEngine& engine, NativeCallbackInfo& info);
+#endif
 
     static bool UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want);
     static NativeValue* WrapWant(NativeEngine& engine, const AAFwk::Want& want);

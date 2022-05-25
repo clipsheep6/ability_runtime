@@ -118,9 +118,7 @@ public:
         const AAFwk::Want &Want, int accountId, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) = 0;
 
-    virtual ErrCode StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) = 0;
-
-    virtual ErrCode StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId = -1) = 0;
+    virtual ErrCode StartServiceExtensionAbility(const AAFwk::Want &want, int32_t userId = -1) = 0;
 
     virtual ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) = 0;
 
@@ -231,6 +229,24 @@ public:
     virtual ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
+     * @brief Set mission label of this ability.
+     *
+     * @param label the label of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionLabel(const std::string &label) = 0;
+
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief Set mission icon of this ability.
+     *
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
+#endif
+
+    /**
      * @brief Get LocalCallContainer.
      *
      * @return Returns the LocalCallContainer.
@@ -240,28 +256,9 @@ public:
     virtual void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) = 0;
 
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
-
 #ifdef SUPPORT_GRAPHICS
-    /**
-     * @brief Set mission label of this ability.
-     *
-     * @param label the label of this ability.
-     * @return Returns ERR_OK if success.
-     */
-    virtual ErrCode SetMissionLabel(const std::string &label) = 0;
-
-    /**
-     * @brief Set mission icon of this ability.
-     *
-     * @param icon the icon of this ability.
-     * @return Returns ERR_OK if success.
-     */
-    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
-    
     virtual int GetCurrentWindowMode() = 0;
 #endif
-    virtual bool IsTerminating() = 0;
-    virtual void SetTerminating(bool state) = 0;
     using SelfType = AbilityContext;
     static const size_t CONTEXT_TYPE_ID;
 

@@ -93,7 +93,6 @@ const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
 
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
-const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -494,6 +493,12 @@ int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleNam
     if (bundleMgr == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
         return ERR_NO_INIT;
+    }
+
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    if (!IN_PROCESS_CALL(bundleMgr->CheckIsSystemAppByUid(callerUid))) {
+        HILOG_ERROR("caller is not systemApp, callerUid %{public}d", callerUid);
+        return ERR_INVALID_VALUE;
     }
 
     return KillApplicationByUserIdLocked(bundleName, userId);
@@ -1011,11 +1016,7 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
     }
 
     if (abilityInfo->launchMode == LaunchMode::SINGLETON) {
-        int32_t ownerUserId = -1;
-        if (want) {
-            ownerUserId = want->GetIntParam(ABILITY_OWNER_USERID, -1);
-        }
-        auto abilityRecord = appRecord->GetAbilityRunningRecord(abilityInfo->name, ownerUserId);
+        auto abilityRecord = appRecord->GetAbilityRunningRecord(abilityInfo->name);
         if (abilityRecord) {
             HILOG_WARN("same ability info in singleton launch mode, will not add ability");
             return;

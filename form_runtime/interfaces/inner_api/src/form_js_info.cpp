@@ -152,7 +152,8 @@ bool FormJsInfo::WriteImageData(Parcel &parcel) const
                 break;
             }
             for (auto entry : sharedImageMap) {
-                if (!parcel.WriteParcelable(entry.second.first)) {
+                auto messageParcel = static_cast<MessageParcel*>(&parcel);
+                if (!messageParcel->WriteAshmem(entry.second.first)) {
                     return false;
                 }
                 if (!parcel.WriteString16(Str8ToStr16(entry.first))) {
@@ -188,10 +189,13 @@ void FormJsInfo::ReadImageData(Parcel &parcel)
                 break;
             }
             for (auto i = 0; i < size; i++) {
-                sptr<FormAshmem> formAshmem = parcel.ReadParcelable<FormAshmem>();
+                auto messageParcel = static_cast<MessageParcel*>(&parcel);
+                auto fd = messageParcel->ReadFileDescriptor();
+                auto len = parcel.ReadInt32();
                 auto picName = Str16ToStr8(parcel.ReadString16());
-                HILOG_INFO("picName: %{public}s", picName.c_str());
-                imageDataMap[picName] = formAshmem;
+                HILOG_INFO("picName: %{public}s, fd: %{public}d, size: %{public}d", picName.c_str(), fd, len);
+                std::pair<int, int32_t> imageDataPair = std::make_pair(fd, len);
+                imageDataMap[picName] = imageDataPair;
             }
             break;
         }

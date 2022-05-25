@@ -58,6 +58,7 @@ public:
     virtual bool GetNameForUid(const int uid, std::string &name) override;
     virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
     virtual std::string GetAppType(const std::string &bundleName) override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override;
     virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;
     virtual bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
     virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
@@ -136,6 +137,7 @@ public:
     virtual bool GetNameForUid(const int uid, std::string &name) override;
     virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
     virtual std::string GetAppType(const std::string &bundleName) override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override;
     virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;
     virtual bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
     virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;

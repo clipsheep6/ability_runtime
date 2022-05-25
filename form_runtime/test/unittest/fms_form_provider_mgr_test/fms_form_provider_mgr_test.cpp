@@ -28,15 +28,14 @@
 #include "form_mgr_service.h"
 #include "form_provider_mgr.h"
 #include "if_system_ability_manager.h"
+#include "inner_bundle_info.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 
 #include "mock_ability_manager.h"
 #include "mock_bundle_manager.h"
 #include "mock_form_host_client.h"
-#ifdef SUPPORT_POWER
 #include "power_mgr_client.h"
-#endif
 #include "running_process_info.h"
 #include "system_ability_definition.h"
 
@@ -215,7 +214,6 @@ HWTEST_F(FmsFormProviderMgrTest, RefreshForm_002, TestSize.Level0)
     FormRecord realFormRecord = FormDataMgr::GetInstance().AllotFormRecord(record, callingUid);
     FormItemInfo info;
     FormDataMgr::GetInstance().AllotFormHostRecord(info, token_, formId, callingUid);
-#ifdef SUPPORT_POWER
     bool screenOnFlag = PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
     if (!screenOnFlag) {
         EXPECT_EQ(ERR_OK, FormProviderMgr::GetInstance().RefreshForm(formId, want, true));
@@ -223,7 +221,6 @@ HWTEST_F(FmsFormProviderMgrTest, RefreshForm_002, TestSize.Level0)
         EXPECT_EQ(ERR_APPEXECFWK_FORM_PROVIDER_DEL_FAIL, FormProviderMgr::GetInstance().RefreshForm(formId, want,
             true));
     }
-#endif
 
     GTEST_LOG_(INFO) << "fms_form_mgr_provider_test_005 end";
 }

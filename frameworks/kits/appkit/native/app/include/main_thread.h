@@ -410,7 +410,6 @@ private:
      *
      */
     static void HandleScheduleANRProcess();
-    static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
 
     class MainHandler : public EventHandler {
@@ -447,7 +446,6 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
-    static std::shared_ptr<EventHandler> dfxHandler_;
     static std::shared_ptr<std::thread> handleANRThread_;
     static std::shared_ptr<OHOSApplication> applicationForAnr_;
 

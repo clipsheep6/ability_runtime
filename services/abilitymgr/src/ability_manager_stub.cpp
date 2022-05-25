@@ -109,6 +109,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[MOVE_MISSION_TO_FRONT_BY_OPTIONS] = &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
     requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
     requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseInner;
+    requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
     requestFuncMap_[GET_ABILITY_RUNNING_INFO] = &AbilityManagerStub::GetAbilityRunningInfosInner;
@@ -129,19 +130,17 @@ void AbilityManagerStub::ThirdStepInit()
 {
     requestFuncMap_[START_USER_TEST] = &AbilityManagerStub::StartUserTestInner;
     requestFuncMap_[FINISH_USER_TEST] = &AbilityManagerStub::FinishUserTestInner;
-    requestFuncMap_[GET_TOP_ABILITY_TOKEN] = &AbilityManagerStub::GetTopAbilityTokenInner;
+    requestFuncMap_[GET_CURRENT_TOP_ABILITY] = &AbilityManagerStub::GetCurrentTopAbilityInner;
     requestFuncMap_[DELEGATOR_DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DelegatorDoAbilityForegroundInner;
     requestFuncMap_[DELEGATOR_DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DelegatorDoAbilityBackgroundInner;
     requestFuncMap_[DO_ABILITY_FOREGROUND] = &AbilityManagerStub::DoAbilityForegroundInner;
     requestFuncMap_[DO_ABILITY_BACKGROUND] = &AbilityManagerStub::DoAbilityBackgroundInner;
     requestFuncMap_[GET_MISSION_ID_BY_ABILITY_TOKEN] = &AbilityManagerStub::GetMissionIdByTokenInner;
     requestFuncMap_[GET_TOP_ABILITY] = &AbilityManagerStub::GetTopAbilityInner;
+    requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
-    requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
 #ifdef SUPPORT_GRAPHICS
-    requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
-    requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
 #endif
@@ -372,26 +371,6 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t extensionType = data.ReadInt32();
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
-    reply.WriteInt32(result);
-    delete want;
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply)
-{
-    Want* want = data.ReadParcelable<Want>();
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    sptr<IRemoteObject> callerToken = nullptr;
-    if (data.ReadBool()) {
-        callerToken = data.ReadRemoteObject();
-    }
-    int32_t userId = data.ReadInt32();
-    int32_t extensionType = data.ReadInt32();
-    int32_t result =
-        StopExtensionAbility(*want, callerToken, userId, static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -1065,6 +1044,50 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
     return NO_ERROR;
 }
 
+int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("SetMissionLabelInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    std::string label = Str16ToStr8(data.ReadString16());
+    int result = SetMissionLabel(token, label);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("SetMissionLabel failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SetMissionIconInner(MessageParcel &data, MessageParcel &reply)
+{
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("SetMissionIconInner read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    std::shared_ptr<Media::PixelMap> icon(data.ReadParcelable<Media::PixelMap>());
+    if (!icon) {
+        HILOG_ERROR("SetMissionIconInner read icon failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int result = SetMissionIcon(token, icon);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("SetMissionIcon failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+#else
+    HILOG_ERROR("do not support SetMissionIcon.");
+    return ERR_INVALID_VALUE;
+#endif
+}
+
 int AbilityManagerStub::GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply)
 {
     std::vector<AbilityRunningInfo> abilityRunningInfos;
@@ -1183,6 +1206,30 @@ int AbilityManagerStub::RegisterSnapshotHandlerInner(MessageParcel &data, Messag
     return result;
 }
 
+#ifdef SUPPORT_GRAPHICS
+int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IWindowManagerServiceHandler> handler = iface_cast<IWindowManagerServiceHandler>(data.ReadRemoteObject());
+    if (handler == nullptr) {
+        HILOG_ERROR("%{public}s read WMS handler failed!", __func__);
+        return ERR_NULL_OBJECT;
+    }
+    return RegisterWindowManagerServiceHandler(handler);
+}
+
+int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    sptr<IRemoteObject> abilityToken = nullptr;
+    if (data.ReadBool()) {
+        HILOG_DEBUG("abilityToken is valid.");
+        abilityToken = data.ReadObject<IRemoteObject>();
+    }
+    CompleteFirstFrameDrawing(abilityToken);
+    return 0;
+}
+#endif
+
 int AbilityManagerStub::GetMissionSnapshotInfoInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string deviceId = data.ReadString();
@@ -1253,10 +1300,10 @@ int AbilityManagerStub::FinishUserTestInner(MessageParcel &data, MessageParcel &
     return result;
 }
 
-int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply)
+int AbilityManagerStub::GetCurrentTopAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token;
-    auto result = GetTopAbility(token);
+    auto result = GetCurrentTopAbility(token);
     if (!reply.WriteRemoteObject(token)) {
         HILOG_ERROR("data write failed.");
         return ERR_INVALID_VALUE;
@@ -1405,68 +1452,5 @@ int AbilityManagerStub::DumpAbilityInfoDoneInner(MessageParcel &data, MessagePar
     }
     return NO_ERROR;
 }
-
-#ifdef SUPPORT_GRAPHICS
-int AbilityManagerStub::SetMissionLabelInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        HILOG_ERROR("SetMissionLabelInner read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    std::string label = Str16ToStr8(data.ReadString16());
-    int result = SetMissionLabel(token, label);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("SetMissionLabel failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SetMissionIconInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> token = data.ReadRemoteObject();
-    if (!token) {
-        HILOG_ERROR("SetMissionIconInner read ability token failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    std::shared_ptr<Media::PixelMap> icon(data.ReadParcelable<Media::PixelMap>());
-    if (!icon) {
-        HILOG_ERROR("SetMissionIconInner read icon failed.");
-        return ERR_NULL_OBJECT;
-    }
-
-    int result = SetMissionIcon(token, icon);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("SetMissionIcon failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IWindowManagerServiceHandler> handler = iface_cast<IWindowManagerServiceHandler>(data.ReadRemoteObject());
-    if (handler == nullptr) {
-        HILOG_ERROR("%{public}s read WMS handler failed!", __func__);
-        return ERR_NULL_OBJECT;
-    }
-    return RegisterWindowManagerServiceHandler(handler);
-}
-
-int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply)
-{
-    HILOG_DEBUG("%{public}s is called.", __func__);
-    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
-    if (abilityToken == nullptr) {
-        HILOG_ERROR("%{public}s read abilityToken failed!", __func__);
-        return ERR_NULL_OBJECT;
-    }
-    CompleteFirstFrameDrawing(abilityToken);
-    return 0;
-}
-#endif
 }  // namespace AAFwk
 }  // namespace OHOS

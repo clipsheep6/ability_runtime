@@ -263,6 +263,7 @@ public:
     virtual bool NotifyAbilityLifeStatus(
         const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
         override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override;
     MOCK_METHOD3(GetApplicationInfos,
         bool(const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos));
     MOCK_METHOD3(GetBundleInfos, bool(const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId));
@@ -331,6 +332,10 @@ public:
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
     int GetUidByBundleName(const std::string &bundleName, const int userId) override;
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        return true;
+    };
 
     bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
 
@@ -410,13 +415,6 @@ public:
         std::vector<BundleInfo> &bundleInfos, int32_t userId = Constants::UNSPECIFIED_USERID)
     {
         return false;
-    }
-    virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
-        AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionAbilityInfo) override
-    {
-        abilityInfo.name = "MainAbility";
-        abilityInfo.bundleName = "com.ohos.launcher";
-        return true;
     }
 public:
     using QueryAbilityInfoFunType =

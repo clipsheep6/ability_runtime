@@ -73,7 +73,6 @@ private:
     int UninstallAppInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityInner(MessageParcel &data, MessageParcel &reply);
     int StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply);
-    int StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply);
     int StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply);
     int ConnectAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply);
@@ -129,6 +128,8 @@ private:
     int ReleaseInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
+    int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
+    int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetExtensionRunningInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetProcessRunningInfosInner(MessageParcel &data, MessageParcel &reply);
@@ -143,7 +144,7 @@ private:
 
     int StartUserTestInner(MessageParcel &data, MessageParcel &reply);
     int FinishUserTestInner(MessageParcel &data, MessageParcel &reply);
-    int GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply);
+    int GetCurrentTopAbilityInner(MessageParcel &data, MessageParcel &reply);
     int DelegatorDoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
     int DelegatorDoAbilityBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int DoAbilityForegroundInner(MessageParcel &data, MessageParcel &reply);
@@ -153,8 +154,6 @@ private:
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
 
 #ifdef SUPPORT_GRAPHICS
-    int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
-    int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
     int RegisterWindowManagerServiceHandlerInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingInner(MessageParcel &data, MessageParcel &reply);
 #endif
