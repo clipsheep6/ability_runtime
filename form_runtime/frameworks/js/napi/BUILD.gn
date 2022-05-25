@@ -225,6 +225,7 @@ ohos_shared_library("formprovider_napi") {
   deps = [
     ":formutil_napi",
     "${ability_runtime_kits_path}/appkit:appkit_native",
+    "${form_runtime_path}:fmskit_native",
   ]
 
   external_deps = [
