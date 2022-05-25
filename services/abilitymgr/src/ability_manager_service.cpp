@@ -3307,6 +3307,73 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
     return ERR_OK;
 }
 
+int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto missionListManager = currentMissionListManager_;
+    if (missionListManager) {
+        missionListManager->SetMissionLabel(token, label);
+    }
+    return 0;
+}
+
+#ifdef SUPPORT_GRAPHICS
+int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
+    const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("no such ability record");
+        return -1;
+    }
+
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    auto recordUid = abilityRecord->GetUid();
+    if (callingUid != recordUid) {
+        HILOG_ERROR("not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
+        return -1;
+    }
+
+    auto userId = abilityRecord->GetOwnerMissionUserId();
+    auto missionListManager = GetListManagerByUserId(userId);
+    if (!missionListManager) {
+        HILOG_ERROR("failed to find mission list manager.");
+        return -1;
+    }
+
+    return missionListManager->SetMissionIcon(token, icon);
+}
+
+int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+    wmsHandler_ = handler;
+    HILOG_DEBUG("%{public}s: WMS handler registered successfully.", __func__);
+    return ERR_OK;
+}
+
+sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
+{
+    return wmsHandler_;
+}
+
+void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
+{
+    HILOG_DEBUG("%{public}s is called.", __func__);
+    std::shared_lock<std::shared_mutex> lock(managersMutex_);
+    for (auto& item : missionListManagers_) {
+        if (item.second) {
+            item.second->CompleteFirstFrameDrawing(abilityToken);
+        }
+    }
+}
+#endif
+
 int AbilityManagerService::StartUser(int userId)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
