@@ -139,21 +139,6 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
     /**
-     * Stop extension ability with want, send want to ability manager service.
-     *
-     * @param want, the want of the ability to stop.
-     * @param callerToken, caller ability token.
-     * @param userId, Designation User ID.
-     * @param extensionType If an ExtensionAbilityType is set, only extension of that type can be stopped.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int StopExtensionAbility(
-        const Want& want,
-        const sptr<IRemoteObject>& callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE,
-        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
-
-    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param token, the token of the ability to terminate.
@@ -595,6 +580,8 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
+
     /**
      * Called when client complete dump.
      *
@@ -605,8 +592,6 @@ public:
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
 
 #ifdef SUPPORT_GRAPHICS
-    virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
-
     virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 
@@ -645,12 +630,13 @@ public:
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
 
     /**
-     * GetTopAbility, get the token of top ability.
+     * GetCurrentTopAbility, get the token of current top ability.
      *
-     * @param token, the token of top ability.
+     * @param token, the token of current top ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
+    virtual int GetCurrentTopAbility(sptr<IRemoteObject> &token) override;
+
     /**
      * The delegator calls this interface to move the ability to the foreground.
      *
@@ -915,6 +901,7 @@ private:
     void DumpMissionListInner(const std::string &args, std::vector<std::string> &info);
     void DumpMissionInfosInner(const std::string &args, std::vector<std::string> &info);
     void DumpFuncInit();
+    bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
@@ -949,6 +936,9 @@ private:
 
     int32_t InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
         AppExecFwk::AbilityInfo &abilityInfo);
+#ifdef SUPPORT_GRAPHICS
+    int32_t ShowPickerDialog(const Want& want, int32_t userId);
+#endif
 
     // multi user
     void StartFreezingScreen();
@@ -1014,7 +1004,7 @@ private:
     void NotifyFreeInstallResult(const Want &want, int resultCode);
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
-    int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
+    int CheckStartExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
@@ -1038,7 +1028,9 @@ private:
 
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
-
+#ifdef SUPPORT_GRAPHICS
+    sptr<IWindowManagerServiceHandler> wmsHandler_;
+#endif
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
@@ -1048,12 +1040,6 @@ private:
     std::multimap<std::string, std::string> timeoutMap_;
 
     static sptr<AbilityManagerService> instance_;
-
-#ifdef SUPPORT_GRAPHICS
-    int32_t ShowPickerDialog(const Want& want, int32_t userId);
-
-    sptr<IWindowManagerServiceHandler> wmsHandler_;
-#endif
 };
 }  // namespace AAFwk
 }  // namespace OHOS

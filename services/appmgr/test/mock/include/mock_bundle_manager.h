@@ -318,6 +318,10 @@ public:
     {
         return true;
     };
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        return true;
+    };
     virtual bool GetAllFormsInfo(std::vector<FormInfo> &formInfos) override
     {
         return true;

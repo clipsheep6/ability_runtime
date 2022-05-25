@@ -28,7 +28,7 @@ ohos_benchmarktest("BenchmarkTestForMissionManager") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${ability_base_path}:want",
+    "${base_path}:want",
     "//third_party/benchmark:benchmark",
     "//third_party/googletest:gtest_main",
   ]
@@ -44,10 +44,8 @@ group("benchmarktest") {
   testonly = true
   deps = []
 
-  if (ability_runtime_graphics) {
-    deps += [
-      # deps file
-      ":BenchmarkTestForMissionManager",
-    ]
-  }
+  deps += [
+    # deps file
+    ":BenchmarkTestForMissionManager",
+  ]
 }

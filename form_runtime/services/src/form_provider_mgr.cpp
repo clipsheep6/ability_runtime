@@ -29,9 +29,8 @@
 #include "form_refresh_connection.h"
 #include "form_timer_mgr.h"
 #include "hilog_wrapper.h"
-#ifdef SUPPORT_POWER
 #include "power_mgr_client.h"
-#endif
+
 namespace OHOS {
 namespace AppExecFwk {
 FormProviderMgr::FormProviderMgr(){}
@@ -90,7 +89,7 @@ ErrCode FormProviderMgr::AcquireForm(const int64_t formId, const FormProviderInf
     std::string jsonData = formProviderInfo.GetFormDataString(); // get json data
     HILOG_DEBUG("%{public}s , jsonData is %{public}s.",  __func__, jsonData.c_str());
 
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageDataMap = formProviderInfo.GetImageDataMap();
+    std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> imageDataMap = formProviderInfo.GetImageDataMap();
     if (jsonData.size() <= Constants::MAX_FORM_DATA_SIZE) {
         HILOG_WARN("%{public}s, acquire js card, cache the card", __func__);
         FormCacheMgr::GetInstance().AddData(formId, formProviderInfo.GetFormDataString(),
@@ -134,14 +133,12 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want, boo
         FormDataMgr::GetInstance().SetCountTimerRefresh(formId, true);
     }
 
-#ifdef SUPPORT_POWER
     bool screenOnFlag = PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
     if (!screenOnFlag) {
         FormDataMgr::GetInstance().SetNeedRefresh(formId, true);
         HILOG_ERROR("%{public}s fail, screen off, set refresh flag, do not refresh now", __func__);
         return ERR_OK;
     }
-#endif
 
     bool needRefresh = IsNeedToFresh(record, formId, isVisibleToFresh);
     if (!needRefresh) {
@@ -316,7 +313,6 @@ ErrCode FormProviderMgr::UpdateForm(const int64_t formId,
     // update form for host clients
     FormDataMgr::GetInstance().UpdateHostNeedRefresh(formId, true);
 
-#ifdef SUPPORT_POWER
     bool screenOnFlag = PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
     if (screenOnFlag) {
         if (FormDataMgr::GetInstance().UpdateHostForm(formId, formRecord)) {
@@ -324,15 +320,11 @@ ErrCode FormProviderMgr::UpdateForm(const int64_t formId,
             formRecord.formProviderInfo.SetUpgradeFlg(false);
         }
     }
-
-    HILOG_DEBUG("%{public}s screenOn:%{public}d.", __func__, screenOnFlag);
-#endif
-
     // check if cache data size is less than 1k or not
     std::string jsonData = formRecord.formProviderInfo.GetFormDataString(); // get json data
-    HILOG_DEBUG("%{public}s jsonData:%{public}s.", __func__, jsonData.c_str());
+    HILOG_DEBUG("%{public}s screenOn:%{public}d jsonData:%{public}s.", __func__, screenOnFlag, jsonData.c_str());
 
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageDataMap = formProviderData.GetImageDataMap();
+    std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> imageDataMap = formProviderData.GetImageDataMap();
     // check if cache data size is less than 1k or not
     if (jsonData.size() <= Constants::MAX_FORM_DATA_SIZE) {
         HILOG_INFO("%{public}s, updateJsForm, data is less than 1k, cache data.", __func__);
@@ -355,13 +347,11 @@ int FormProviderMgr::MessageEvent(const int64_t formId, const FormRecord &record
 {
     HILOG_INFO("%{public}s called, formId:%{public}" PRId64 ".", __func__, formId);
 
-#ifdef SUPPORT_POWER
     bool screenOnFlag = PowerMgr::PowerMgrClient::GetInstance().IsScreenOn();
     if (!screenOnFlag) {
         HILOG_WARN("%{public}s fail, screen off now", __func__);
         return ERR_APPEXECFWK_FORM_COMMON_CODE;
     }
-#endif
 
     sptr<IAbilityConnection> formMsgEventConnection = new FormMsgEventConnection(formId, want,
         record.bundleName, record.abilityName);

@@ -220,7 +220,7 @@ void FormProviderData::MergeData(nlohmann::json &addJsonData)
  * @brief Obtains the imageDataMap stored in this {@code FormProviderData} object.
  * @return Returns the map that contains shared image data.
  */
-std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> FormProviderData::GetImageDataMap() const
+std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> FormProviderData::GetImageDataMap() const
 {
     return imageDataMap_;
 }
@@ -247,7 +247,7 @@ void FormProviderData::SetImageDataState(int32_t imageDataState)
  * @brief Updates imageDataMap in this {@code FormProviderData} object.
  * @param imageDataMap Indicates the imageDataMap to update.
  */
-void FormProviderData::SetImageDataMap(std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageDataMap)
+void FormProviderData::SetImageDataMap(std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> imageDataMap)
 {
     imageDataMap_ = imageDataMap;
     if (!imageDataMap.empty()) {
@@ -278,13 +278,15 @@ bool FormProviderData::ReadFromParcel(Parcel &parcel)
         case IMAGE_DATA_STATE_ADDED: {
             int32_t imageDataNum = parcel.ReadInt32();
             for (int32_t i = 0; i < imageDataNum; i++) {
-                sptr<FormAshmem> formAshmem = parcel.ReadParcelable<FormAshmem>();
-                if (formAshmem == nullptr) {
+                MessageParcel* messageParcel = (MessageParcel*)&parcel;
+                sptr<Ashmem> ashmem = messageParcel->ReadAshmem();
+                if (ashmem == nullptr) {
                     HILOG_ERROR("%{public}s failed, ashmem is nullptr", __func__);
                     return false;
                 }
+
                 int32_t len = parcel.ReadInt32();
-                std::pair<sptr<FormAshmem>, int32_t> imageDataRecord = std::make_pair(formAshmem, len);
+                std::pair<sptr<Ashmem>, int32_t> imageDataRecord = std::make_pair(ashmem, len);
                 auto picName = Str16ToStr8(parcel.ReadString16());
                 imageDataMap_[picName] = imageDataRecord;
             }
@@ -361,14 +363,32 @@ void FormProviderData::ClearData()
 
 bool FormProviderData::WriteImageDataToParcel(Parcel &parcel, std::string picName, char *data, int32_t size) const
 {
-    FormAshmem formAshmem;
-    if (!formAshmem.WriteToAshmem(picName, data, size)) {
+    sptr<Ashmem> ashmem = Ashmem::CreateAshmem(picName.c_str(), size);
+    if (ashmem == nullptr) {
+        HILOG_ERROR("create shared memory fail");
         return false;
     }
 
-    // write formAshmem
-    if (!parcel.WriteParcelable(&formAshmem)) {
-        HILOG_ERROR("write FormAshmem fail, the picture name is %{public}s", picName.c_str());
+    bool ret = ashmem->MapReadAndWriteAshmem();
+    if (!ret) {
+        HILOG_ERROR("map shared memory fail");
+        return false;
+    }
+
+    ret = ashmem->WriteToAshmem(data, size, 0);
+    if (!ret) {
+        HILOG_ERROR("write image data to shared memory fail");
+        return false;
+    }
+
+    ashmem->UnmapAshmem();
+
+    MessageParcel* messageParcel = (MessageParcel*)&parcel;
+    ret = messageParcel->WriteAshmem(ashmem);
+
+    ashmem->CloseAshmem(); // close ashmem after writeAshmem because writeAshmem will dup fd
+    if (!ret) {
+        HILOG_ERROR("writeAshmem fail, the picture name is %{public}s", picName.c_str());
         return false;
     }
 

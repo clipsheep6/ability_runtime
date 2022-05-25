@@ -22,5 +22,8 @@ config("system_test_config") {
 group("systemtest") {
   testonly = true
 
-  deps = [ "common/ams:systemtest" ]
+  deps = [
+    "common/ams:systemtest",
+    "common/fms:systemtest",
+  ]
 }

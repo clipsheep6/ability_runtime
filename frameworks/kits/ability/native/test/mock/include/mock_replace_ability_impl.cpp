@@ -86,6 +86,18 @@ void AbilityImpl::Inactive()
     GTEST_LOG_(INFO) << "Mock AbilityImpl::Inactive called";
 }
 
+#ifdef SUPPORT_GRAPHICS
+void AbilityImpl::Foreground(const Want &want)
+{
+    GTEST_LOG_(INFO) << "Mock AbilityImpl::Foreground called";
+}
+
+void AbilityImpl::Background()
+{
+    GTEST_LOG_(INFO) << "Mock AbilityImpl::Background called";
+}
+#endif
+
 void AbilityImpl::DispatchSaveAbilityState()
 {
     GTEST_LOG_(INFO) << "Mock AbilityImpl::DispatchSaveAbilityState called";
@@ -121,6 +133,14 @@ int AbilityImpl::GetCurrentState()
 {
     return lifecycleState_;
 }
+
+#ifdef SUPPORT_GRAPHICS
+void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent) {}
+
+void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent) {}
+
+void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent) {}
+#endif
 
 void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
@@ -175,23 +195,5 @@ std::string AbilityImpl::GetType(const Uri &uri)
     GTEST_LOG_(INFO) << "Mock AbilityImpl::GetType called";
     return "";
 }
-
-#ifdef SUPPORT_GRAPHICS
-void AbilityImpl::Foreground(const Want &want)
-{
-    GTEST_LOG_(INFO) << "Mock AbilityImpl::Foreground called";
-}
-
-void AbilityImpl::Background()
-{
-    GTEST_LOG_(INFO) << "Mock AbilityImpl::Background called";
-}
-
-void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent) {}
-
-void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent) {}
-
-void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent) {}
-#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

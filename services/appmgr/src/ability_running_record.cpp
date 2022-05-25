@@ -130,25 +130,5 @@ bool AbilityRunningRecord::IsTerminating() const
 {
     return isTerminating_;
 }
-
-void AbilityRunningRecord::SetOwnerUserId(int32_t ownerUserId)
-{
-    ownerUserId_ = ownerUserId;
-}
-
-int32_t AbilityRunningRecord::GetOwnerUserId() const
-{
-    return ownerUserId_;
-}
-
-void AbilityRunningRecord::SetIsSingleUser(bool flag)
-{
-    isSingleUser_ = flag;
-}
-
-bool AbilityRunningRecord::IsSingleUser() const
-{
-    return isSingleUser_;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

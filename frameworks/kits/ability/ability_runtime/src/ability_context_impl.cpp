@@ -186,38 +186,18 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     return err;
 }
 
-ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId)
+ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want, int32_t userId)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    HILOG_INFO(
-        "%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
-        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
-        want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContextImpl::StartServiceExtensionAbility is failed %{public}d", err);
-    }
-    return err;
-}
-
-ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    HILOG_INFO(
-        "%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
-        __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopExtensionAbility(
-        want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContextImpl::StopServiceExtensionAbility is failed %{public}d", err);
-    }
+        want, token_, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
+    HILOG_INFO("%{public}s end. ret=%{public}d", __func__, err);
     return err;
 }
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode)
 {
     HILOG_DEBUG("%{public}s. Start calling TerminateAbilityWithResult.", __func__);
-    isTerminating_ = true;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode, &want);
     HILOG_INFO("%{public}s. End calling TerminateAbilityWithResult. ret=%{public}d", __func__, err);
     return err;
@@ -336,7 +316,6 @@ void AbilityContextImpl::MinimizeAbility(bool fromUser)
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    isTerminating_ = true;
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
@@ -348,7 +327,6 @@ ErrCode AbilityContextImpl::TerminateSelf()
 ErrCode AbilityContextImpl::CloseAbility()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    isTerminating_ = true;
     AAFwk::Want resultWant;
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->CloseAbility(token_, -1, &resultWant);
     if (err != ERR_OK) {
@@ -455,13 +433,6 @@ ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack>
     return localCallContainer_->Release(callback);
 }
 
-void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    abilityCallback_ = abilityCallback;
-}
-
-#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 {
     HILOG_INFO("%{public}s begin. label = %{public}s", __func__, label.c_str());
@@ -472,6 +443,7 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
     return err;
 }
 
+#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -481,7 +453,15 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
     }
     return err;
 }
+#endif
 
+void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    abilityCallback_ = abilityCallback;
+}
+
+#ifdef SUPPORT_GRAPHICS
 int AbilityContextImpl::GetCurrentWindowMode()
 {
     HILOG_INFO("%{public}s called.", __func__);

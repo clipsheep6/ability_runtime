@@ -41,22 +41,24 @@ PendingWantManager::~PendingWantManager()
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
-sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const std::string &apl,
+sptr<IWantSender> PendingWantManager::GetWantSender(const int32_t callingUid, Params &params,
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("PendingWantManager::GetWantSender begin.");
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
+    auto isSystemApp = params.isSystemApp;
+    auto apl = params.apl;
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-        if (callingUid != uid) {
+    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE && !isSystemApp) {
+        if (callingUid != params.uid) {
             HILOG_ERROR("is not allowed to send");
             return nullptr;
         }
     }
 
     WantSenderInfo info = wantSenderInfo;
-    return GetWantSenderLocked(callingUid, uid, wantSenderInfo.userId, info, callerToken);
+    return GetWantSenderLocked(callingUid, params.uid, wantSenderInfo.userId, info, callerToken);
 }
 
 sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingUid, const int32_t uid,
@@ -190,7 +192,7 @@ int32_t PendingWantManager::SendWantSender(const sptr<IWantSender> &target, cons
     return record->SenderInner(info);
 }
 
-void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSender> &sender)
+void PendingWantManager::CancelWantSender(std::string apl, const bool isSystemApp, const sptr<IWantSender> &sender)
 {
     HILOG_INFO("%{public}s:begin.", __func__);
 
@@ -201,7 +203,7 @@ void PendingWantManager::CancelWantSender(std::string &apl, const sptr<IWantSend
 
     std::lock_guard<std::recursive_mutex> locker(mutex_);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
+    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE && !isSystemApp) {
         HILOG_ERROR("is not allowed to send");
         return;
     }

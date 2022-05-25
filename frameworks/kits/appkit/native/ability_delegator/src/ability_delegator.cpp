@@ -137,7 +137,7 @@ AbilityDelegator::AbilityState AbilityDelegator::GetAbilityState(const sptr<IRem
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::GetCurrentTopAbility()
 {
     sptr<IRemoteObject> topAbilityToken;
-    if (AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility(topAbilityToken)) {
+    if (AAFwk::AbilityManagerClient::GetInstance()->GetCurrentTopAbility(topAbilityToken)) {
         HILOG_ERROR("Failed to get top ability");
         return {};
     }

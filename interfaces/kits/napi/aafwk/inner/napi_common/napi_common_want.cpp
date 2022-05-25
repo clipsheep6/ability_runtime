@@ -74,10 +74,6 @@ napi_value WrapElementName(napi_env env, const ElementName &elementName)
     NAPI_CALL(env, napi_create_string_utf8(env, elementName.GetAbilityName().c_str(), NAPI_AUTO_LENGTH, &jsValue));
     NAPI_CALL(env, napi_set_named_property(env, jsObject, "abilityName", jsValue));
 
-    jsValue = nullptr;
-    NAPI_CALL(env, napi_create_string_utf8(env, elementName.GetModuleName().c_str(), NAPI_AUTO_LENGTH, &jsValue));
-    NAPI_CALL(env, napi_set_named_property(env, jsObject, "moduleName", jsValue));
-
     return jsObject;
 }
 
@@ -777,33 +773,6 @@ bool InnerUnwrapWantParams(napi_env env, const std::string &key, napi_value para
     return false;
 }
 
-void InnerUnwrapWantParamsNumber(napi_env env, const std::string &key, napi_value param, AAFwk::WantParams &wantParams)
-{
-    int32_t natValue32 = 0;
-    double natValueDouble = 0.0;
-    bool isReadValue32 = false;
-    bool isReadDouble = false;
-    if (napi_get_value_int32(env, param, &natValue32) == napi_ok) {
-        isReadValue32 = true;
-    }
-
-    if (napi_get_value_double(env, param, &natValueDouble) == napi_ok) {
-        isReadDouble = true;
-    }
-
-    if (isReadValue32 && isReadDouble) {
-        if (abs(natValueDouble - natValue32 * 1.0) > 0.0) {
-            wantParams.SetParam(key, AAFwk::Double::Box(natValueDouble));
-        } else {
-            wantParams.SetParam(key, AAFwk::Integer::Box(natValue32));
-        }
-    } else if (isReadValue32) {
-        wantParams.SetParam(key, AAFwk::Integer::Box(natValue32));
-    } else if (isReadDouble) {
-        wantParams.SetParam(key, AAFwk::Double::Box(natValueDouble));
-    }
-}
-
 bool BlackListFilter(const std::string &strProName)
 {
     if (strProName == Want::PARAM_RESV_WINDOW_MODE) {
@@ -859,7 +828,29 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
                 break;
             }
             case napi_number: {
-                InnerUnwrapWantParamsNumber(env, strProName, jsProValue, wantParams);
+                int32_t natValue32 = 0;
+                double natValueDouble = 0.0;
+                bool isReadValue32 = false;
+                bool isReadDouble = false;
+                if (napi_get_value_int32(env, jsProValue, &natValue32) == napi_ok) {
+                    isReadValue32 = true;
+                }
+
+                if (napi_get_value_double(env, jsProValue, &natValueDouble) == napi_ok) {
+                    isReadDouble = true;
+                }
+
+                if (isReadValue32 && isReadDouble) {
+                    if (abs(natValueDouble - natValue32 * 1.0) > 0.0) {
+                        wantParams.SetParam(strProName, AAFwk::Double::Box(natValueDouble));
+                    } else {
+                        wantParams.SetParam(strProName, AAFwk::Integer::Box(natValue32));
+                    }
+                } else if (isReadValue32) {
+                    wantParams.SetParam(strProName, AAFwk::Integer::Box(natValue32));
+                } else if (isReadDouble) {
+                    wantParams.SetParam(strProName, AAFwk::Double::Box(natValueDouble));
+                }
                 break;
             }
             case napi_object: {
@@ -1050,10 +1041,6 @@ napi_value WrapWant(napi_env env, const Want &want)
     SetPropertyValueByPropertyName(env, jsObject, "abilityName", jsValue);
 
     jsValue = nullptr;
-    jsValue = GetPropertyValueByPropertyName(env, jsElementName, "moduleName", napi_string);
-    SetPropertyValueByPropertyName(env, jsObject, "moduleName", jsValue);
-
-    jsValue = nullptr;
     jsValue = WrapStringToJS(env, want.GetUriString());
     SetPropertyValueByPropertyName(env, jsObject, "uri", jsValue);
 
@@ -1119,8 +1106,8 @@ bool UnwrapWant(napi_env env, napi_value param, Want &want)
 
     ElementName natElementName;
     UnwrapElementName(env, param, natElementName);
-    want.SetElementName(natElementName.GetDeviceID(), natElementName.GetBundleName(),
-        natElementName.GetAbilityName(), natElementName.GetModuleName());
+    want.SetElementName(natElementName.GetDeviceID(), natElementName.GetBundleName(), natElementName.GetAbilityName(),
+        natElementName.GetModuleName());
 
     natValueString = "";
     if (UnwrapStringByPropertyName(env, param, "type", natValueString)) {

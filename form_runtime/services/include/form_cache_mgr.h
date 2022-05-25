@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,7 @@
 #include <singleton.h>
 #include <string>
 
-#include "form_ashmem.h"
+#include "ashmem.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -42,7 +42,7 @@ public:
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
     bool GetData(const int64_t formId, std::string &data,
-        std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap) const;
+        std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> &imageMap) const;
 
     /**
      * @brief Add form data.
@@ -52,7 +52,7 @@ public:
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
     bool AddData(const int64_t formId, const std::string &data,
-        const std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap);
+        const std::map<std::string, std::pair<sptr<Ashmem>, int32_t>> &imageMap);
 
     /**
      * @brief Delete form data.
@@ -77,7 +77,7 @@ public:
 private:
     mutable std::mutex cacheMutex_;
     std::map<int64_t, std::string> cacheData_;
-    std::map<int64_t, std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>>> cacheImageMap_;
+    std::map<int64_t, std::map<std::string, std::pair<sptr<Ashmem>, int32_t>>> cacheImageMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

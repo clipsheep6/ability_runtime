@@ -59,8 +59,7 @@ public:
         const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task) override;
     ErrCode StartAbilityForResult(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) override;
-    ErrCode StartServiceExtensionAbility(const Want &want, int32_t accountId = -1) override;
-    ErrCode StopServiceExtensionAbility(const Want& want, int32_t accountId = -1) override;
+    ErrCode StartServiceExtensionAbility(const Want &want, int32_t userId = -1) override;
     ErrCode TerminateAbilityWithResult(const AAFwk::Want &want, int resultCode) override;
     void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) override;
     bool ConnectAbility(const AAFwk::Want &want,
@@ -85,6 +84,24 @@ public:
         int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) override;
 
     ErrCode RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage) override;
+
+    /**
+     * @brief Set mission label of this ability.
+     *
+     * @param label the label of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionLabel(const std::string &label) override;
+
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief Set mission icon of this ability.
+     *
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
+#endif
 
     void SetStageContext(const std::shared_ptr<AbilityRuntime::Context> &stageContext);
 
@@ -154,33 +171,7 @@ public:
      */
     void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) override;
 
-    bool IsTerminating() override
-    {
-        return isTerminating_;
-    }
-
-    void SetTerminating(bool state) override
-    {
-        isTerminating_ = state;
-    }
-
 #ifdef SUPPORT_GRAPHICS
-    /**
-     * @brief Set mission label of this ability.
-     *
-     * @param label the label of this ability.
-     * @return Returns ERR_OK if success.
-     */
-    ErrCode SetMissionLabel(const std::string &label) override;
-
-    /**
-     * @brief Set mission icon of this ability.
-     *
-     * @param icon the icon of this ability.
-     * @return Returns ERR_OK if success.
-     */
-    ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-    
     /**
      * get current window mode
      */
@@ -197,7 +188,6 @@ private:
     std::shared_ptr<AppExecFwk::Configuration> config_;
     sptr<LocalCallContainer> localCallContainer_;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
-    bool isTerminating_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
