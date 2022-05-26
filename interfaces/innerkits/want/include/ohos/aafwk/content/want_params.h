@@ -49,10 +49,9 @@ public:
 
 class WantParams final : public Parcelable {
 public:
-    WantParams() = default;
+    WantParams();
     WantParams(const WantParams &wantParams);
-    inline ~WantParams()
-    {}
+    ~WantParams();
     WantParams &operator=(const WantParams &other);
 
     bool operator==(const WantParams &other);
