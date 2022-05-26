@@ -2854,6 +2854,14 @@ bool MissionListManager::IsLastMissionOfApp(std::map<std::string, std::list<std:
             }
         }
         return false;
+    } else if (sameAppMissions.size() == 1) {
+        for (auto iter = sameAppMissions.begin(); iter != sameAppMissions.end();) {
+            if ((*iter)->GetMissionId() == abilityRecord->GetMissionId() && (*iter)->IsLockedState()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
     } else {
         return true;
     }
