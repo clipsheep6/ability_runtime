@@ -478,6 +478,12 @@ private:
     std::queue<AbilityRequest> waittingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
 
+    std::mutex dumpLock_;
+    std::list<std::shared_ptr<MissionList>> currentMissionListsBackup_;
+    std::shared_ptr<MissionList> defaultStandardListBackup_;
+    std::shared_ptr<MissionList> defaultSingleListBackup_;
+    std::shared_ptr<MissionList> launcherListBackup_;
+
     class MissionDmInitCallback : public DistributedHardware::DmInitCallback {
     public:
         void OnRemoteDied() override;

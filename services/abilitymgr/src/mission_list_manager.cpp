@@ -2352,12 +2352,20 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
 
 void MissionListManager::Dump(std::vector<std::string> &info)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::lock_guard<std::mutex> lock(dumpLock_);
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup_ = currentMissionLists_;
+        defaultStandardListBackup_ = defaultStandardList_;
+        defaultSingleListBackup_ = defaultSingleList_;
+        launcherListBackup_ = launcherList_;
+    }
+
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
     info.push_back(dumpInfo);
     dumpInfo = " current mission lists:{";
     info.push_back(dumpInfo);
-    for (const auto& missionList : currentMissionLists_) {
+    for (const auto& missionList : currentMissionListsBackup_) {
         if (missionList) {
             missionList->Dump(info);
         }
@@ -2367,24 +2375,24 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 
     dumpInfo = " default stand mission list:{";
     info.push_back(dumpInfo);
-    if (defaultStandardList_) {
-        defaultStandardList_->Dump(info);
+    if (defaultStandardListBackup_) {
+        defaultStandardListBackup_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " default single mission list:{";
     info.push_back(dumpInfo);
-    if (defaultSingleList_) {
-        defaultSingleList_->Dump(info);
+    if (defaultSingleListBackup_) {
+        defaultSingleListBackup_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
 
     dumpInfo = " launcher mission list:{";
     info.push_back(dumpInfo);
-    if (launcherList_) {
-        launcherList_->Dump(info);
+    if (launcherListBackup_) {
+        launcherListBackup_->Dump(info);
     }
     dumpInfo = " }";
     info.push_back(dumpInfo);
@@ -2393,34 +2401,49 @@ void MissionListManager::Dump(std::vector<std::string> &info)
 void MissionListManager::DumpMissionListByRecordId(
     std::vector<std::string> &info, bool isClient, int32_t abilityRecordId, const std::vector<std::string> &params)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::lock_guard<std::mutex> lock(dumpLock_);
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup_ = currentMissionLists_;
+        defaultStandardListBackup_ = defaultStandardList_;
+        defaultSingleListBackup_ = defaultSingleList_;
+        launcherListBackup_ = launcherList_;
+    }
+
     std::string dumpInfo = "User ID #" + std::to_string(userId_);
     info.push_back(dumpInfo);
-    for (const auto& missionList : currentMissionLists_) {
-        if (missionList && missionList != launcherList_) {
+    for (const auto& missionList : currentMissionListsBackup_) {
+        if (missionList && missionList != launcherListBackup_) {
             HILOG_INFO("missionList begain to call DumpMissionListByRecordId %{public}s", __func__);
             missionList->DumpStateByRecordId(info, isClient, abilityRecordId, params);
         }
     }
 
-    if (defaultStandardList_) {
+    if (defaultStandardListBackup_) {
         HILOG_INFO("defaultStandardList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultStandardList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultStandardListBackup_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 
-    if (defaultSingleList_) {
+    if (defaultSingleListBackup_) {
         HILOG_INFO("defaultSingleList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        defaultSingleList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        defaultSingleListBackup_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 
-    if (launcherList_) {
+    if (launcherListBackup_) {
         HILOG_INFO("launcherList begain to call DumpMissionListByRecordId %{public}s", __func__);
-        launcherList_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
+        launcherListBackup_->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     }
 }
 void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool isClient, const std::string &args)
 {
-    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    std::lock_guard<std::mutex> lock(dumpLock_);
+    {
+        std::lock_guard<std::recursive_mutex> guard(managerLock_);
+        currentMissionListsBackup_ = currentMissionLists_;
+        defaultStandardListBackup_ = defaultStandardList_;
+        defaultSingleListBackup_ = defaultSingleList_;
+        launcherListBackup_ = launcherList_;
+    }
 
     if (args.size() != 0 &&
         args != "NORMAL" &&
@@ -2436,7 +2459,7 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
     if (args.size() == 0 || args == "NORMAL") {
         dumpInfo = "  Current mission lists:";
         info.push_back(dumpInfo);
-        for (const auto& missionList : currentMissionLists_) {
+        for (const auto& missionList : currentMissionListsBackup_) {
             if (missionList) {
                 missionList->DumpList(info, isClient);
             }
@@ -2446,23 +2469,23 @@ void MissionListManager::DumpMissionList(std::vector<std::string> &info, bool is
     if (args.size() == 0 || args == "DEFAULT_STANDARD") {
         dumpInfo = "  default stand mission list:";
         info.push_back(dumpInfo);
-        if (defaultStandardList_) {
-            defaultStandardList_->DumpList(info, isClient);
+        if (defaultStandardListBackup_) {
+            defaultStandardListBackup_->DumpList(info, isClient);
         }
     }
 
     if (args.size() == 0 || args == "DEFAULT_SINGLE") {
         dumpInfo = "  default single mission list:";
         info.push_back(dumpInfo);
-        if (defaultSingleList_) {
-            defaultSingleList_->DumpList(info, isClient);
+        if (defaultSingleListBackup_) {
+            defaultSingleListBackup_->DumpList(info, isClient);
         }
     }
     if (args.size() == 0 || args == "LAUNCHER") {
         dumpInfo = "  launcher mission list:";
         info.push_back(dumpInfo);
-        if (launcherList_) {
-            launcherList_->DumpList(info, isClient);
+        if (launcherListBackup_) {
+            launcherListBackup_->DumpList(info, isClient);
         }
     }
 }

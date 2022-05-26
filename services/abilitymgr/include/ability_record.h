@@ -777,7 +777,7 @@ private:
     std::mutex lock_;
     mutable std::mutex dumpLock_;
     mutable std::condition_variable dumpCondition_;
-    mutable bool isDumpWaiting_ = false;
+    mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
 
 #ifdef SUPPORT_GRAPHICS
