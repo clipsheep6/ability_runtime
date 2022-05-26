@@ -306,7 +306,7 @@ int FreeInstallManager::HandleFreeInstallErrorCode(int resultCode)
     auto itToApp = FIErrorToAppMaps.find(static_cast<enum NativeFreeInstallError>(resultCode));
     if (itToApp == FIErrorToAppMaps.end()) {
         HILOG_ERROR("Undefind error code.");
-        return resultCode;
+        return NativeFreeInstallError::UNDEFINE_ERROR_CODE;
     }
     return itToApp->second;
 }
