@@ -733,7 +733,8 @@ int32_t FormMgrStub::HandleGetFormsInfoByModule(MessageParcel &data, MessageParc
 * @param reply output param.
 * @return Returns ERR_OK on success, others on failure.
 */
-int32_t FormMgrStub::HandleGetFormsInfo(MessageParcel &data, MessageParcel &reply) {
+int32_t FormMgrStub::HandleGetFormsInfo(MessageParcel &data, MessageParcel &reply)
+{
     HILOG_INFO("%{public}s called.", __func__);
     // write result of calling FMS into reply.
     std::vector<FormInfo> infos;

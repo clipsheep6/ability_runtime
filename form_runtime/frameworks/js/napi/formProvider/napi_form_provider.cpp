@@ -555,15 +555,16 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
 }
 
 // Internal of GetFormsInfo.
-void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
+void InnerGetFormsInfo(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo)
+{
     HILOG_INFO("%{public}s starts.", __func__);
     asyncCallbackInfo->result = FormMgr::GetInstance().GetFormsInfo(asyncCallbackInfo->formInfos);
     HILOG_INFO("%{public}s ends.", __func__);
 }
 
 // Internal of GetFormsInfo when Promise is used.
-//TODO: unimplemented yet.
-napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo) {
+napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *const asyncCallbackInfo)
+{
     HILOG_INFO("%{public}s calls.", __func__);
     napi_deferred deferred;
     napi_value promise;
@@ -623,7 +624,8 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *cons
 }
 
 // Internal of GetFormsInfo when CallBack is used.
-napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfoCallbackInfo * asyncCallbackInfo) {
+napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfoCallbackInfo * asyncCallbackInfo)
+{
     HILOG_INFO("%{public}s starts.", __func__);
     // Check the type of the argv, expect to be a callback function.
     napi_valuetype valueType;
@@ -696,7 +698,8 @@ napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfo
  *
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
-napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info) {
+napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
+{
     HILOG_INFO("%{public}s starts.", __func__);
     // Check the number of the arguments.
     size_t argc = ARGS_SIZE_ONE;

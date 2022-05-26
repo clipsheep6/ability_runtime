@@ -1021,7 +1021,8 @@ int FormMgrProxy::GetFormsInfoByModule(std::string &bundleName, std::string &mod
 * @param formInfos Return the forms' information of the calling bundle name
 * @return Returns ERR_OK on success, others on failure.
 */
-int FormMgrProxy::GetFormsInfo(std::vector<FormInfo> &formInfos) {
+int FormMgrProxy::GetFormsInfo(std::vector<FormInfo> &formInfos)
+{
     HILOG_INFO("%{public}s start.", __func__);
     MessageParcel data;
     // write in token to help identify which stub to be called.
