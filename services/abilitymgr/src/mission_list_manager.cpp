@@ -805,7 +805,10 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
             return DispatchBackground(abilityRecord);
         }
         case AbilityState::FOREGROUND: {
-            return DispatchForegroundNew(abilityRecord);
+            return DispatchForegroundNew(abilityRecord, true);
+        }
+        case AbilityState::FOREGROUND_FAILED: {
+            return DispatchForegroundNew(abilityRecord, false);
         }
         default: {
             HILOG_WARN("Don't support transiting state: %{public}d", state);
@@ -814,7 +817,7 @@ int MissionListManager::DispatchState(const std::shared_ptr<AbilityRecord> &abil
     }
 }
 
-int MissionListManager::DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord)
+int MissionListManager::DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success)
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
@@ -829,8 +832,13 @@ int MissionListManager::DispatchForegroundNew(const std::shared_ptr<AbilityRecor
 
     handler->RemoveEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, abilityRecord->GetEventId());
     auto self(shared_from_this());
-    auto task = [self, abilityRecord]() { self->CompleteForegroundNew(abilityRecord); };
-    handler->PostTask(task);
+    if (success) {
+        auto task = [self, abilityRecord]() { self->CompleteForegroundNew(abilityRecord); };
+        handler->PostTask(task);
+    } else {
+        auto task = [self, abilityRecord]() { self->HandleForgroundNewTimeout(abilityRecord); };
+        handler->PostTask(task);
+    }
 
     return ERR_OK;
 }
