@@ -472,9 +472,11 @@ private:
     bool IsLastMissionOfApp(std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
         const std::shared_ptr<AbilityRecord> &abilityRecord);
     std::map<std::string, std::list<std::shared_ptr<Mission>>> GetBundleNamesOfMissionList(
-        std::list<std::shared_ptr<MissionList>> &currentMissionLists_, std::shared_ptr<MissionList> &defaultStandardList_,
+        std::list<std::shared_ptr<MissionList>> &currentMissionLists_,
+        std::shared_ptr<MissionList> &defaultStandardList_,
         std::shared_ptr<MissionList> &defaultSingleList_);
-    void GetBundleNameOfMission(std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+    void GetBundleNameOfMission(
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
         std::shared_ptr<Mission> &mission);
     std::string GetBundleNameByMission(std::shared_ptr<Mission> &mission);
 

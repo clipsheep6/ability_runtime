@@ -1242,8 +1242,8 @@ int MissionListManager::ClearMission(int missionId)
         HILOG_ERROR("Mission id is launcher, can not clear.");
         return ERR_INVALID_VALUE;
     }
-    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(currentMissionLists_,
-        defaultStandardList_, defaultSingleList_);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(
+        currentMissionLists_, defaultStandardList_, defaultSingleList_);
     return ClearMissionLocked(missionId, mission, bundleNamesMap);
 }
 
@@ -1283,8 +1283,8 @@ int MissionListManager::ClearAllMissions()
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
-    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(currentMissionLists_,
-        defaultStandardList_, defaultSingleList_);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(
+        currentMissionLists_, defaultStandardList_, defaultSingleList_);
     ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false, bundleNamesMap);
     ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false, bundleNamesMap);
 
@@ -2859,16 +2859,18 @@ bool MissionListManager::IsLastMissionOfApp(std::map<std::string, std::list<std:
             if ((*iter)->GetMissionId() == abilityRecord->GetMissionId() && (*iter)->IsLockedState()) {
                 return false;
             } else {
-                return true;
+                iter++;
             }
         }
+        return true;
     } else {
         return true;
     }
 }
 
 std::map<std::string, std::list<std::shared_ptr<Mission>>> MissionListManager::GetBundleNamesOfMissionList(
-        std::list<std::shared_ptr<MissionList>> &currentMissionLists_, std::shared_ptr<MissionList> &defaultStandardList_,
+        std::list<std::shared_ptr<MissionList>> &currentMissionLists_,
+        std::shared_ptr<MissionList> &defaultStandardList_,
         std::shared_ptr<MissionList> &defaultSingleList_)
 {
     std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
@@ -2889,7 +2891,8 @@ std::map<std::string, std::list<std::shared_ptr<Mission>>> MissionListManager::G
     return bundleNamesMap;
 }
 
-void MissionListManager::GetBundleNameOfMission(std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+void MissionListManager::GetBundleNameOfMission(
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
     std::shared_ptr<Mission> &mission)
 {
     std::string bundleName = GetBundleNameByMission(mission);
