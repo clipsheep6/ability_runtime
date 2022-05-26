@@ -1134,6 +1134,31 @@ int FormMgrProxy::GetFormsInfoByModule(std::string &bundleName, std::string &mod
 }
 
 /**
+* @brief This function is called by formProvider and gets forms info by the bundle name of the calling ability.
+*        The bundle time will be retrieved by form service manager.
+* @param formInfos Return the forms' information of the calling bundle name
+* @return Returns ERR_OK on success, others on failure.
+*/
+int FormMgrProxy::GetFormsInfo(std::vector<FormInfo> &formInfos)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    MessageParcel data;
+    // write in token to help identify which stub to be called.
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    // call private GetFormsInfo with Message which will send request to tell stub which handle function to be used.
+    int error = GetFormsInfo(IFormMgr::Message::FORM_MGR_GET_FORMS_INFO, data, formInfos);
+    // formInfos should have been fulfilled at this point.
+    if (error != ERR_OK) {
+        HILOG_ERROR("%{public}s, failed to GetAllFormsInfo: %{public}d", __func__, error);
+    }
+
+    return error;
+}
+
+/**
  * @brief Update action string for router event.
  * @param formId Indicates the unique id of form.
  * @param action Indicates the origin action string.
