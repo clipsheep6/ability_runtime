@@ -36,6 +36,7 @@
 #include "parcel_macro_base.h"
 #include "string_ex.h"
 #include "want_params_wrapper.h"
+#include "hilog_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 using OHOS::AppExecFwk::ElementName;
@@ -78,7 +79,9 @@ const std::string Want::PARAM_RESV_CALLER_PID("ohos.aafwk.param.callerPid");
  * @return None
  */
 Want::Want() : picker_(nullptr)
-{}
+{
+    HILOG_INFO("yangliang call constructor: Want: %{public}p", this);
+}
 
 /**
  * @description: Default deconstructor of Want class
@@ -86,7 +89,9 @@ Want::Want() : picker_(nullptr)
  * @return None
  */
 Want::~Want()
-{}
+{
+    HILOG_INFO("yangliang call destructor: Want: %{public}p", this);
+}
 
 /**
  * @description: Copy construcotr of Want class, which is used to initialzie flags, URI, etc.
@@ -95,6 +100,7 @@ Want::~Want()
  */
 Want::Want(const Want &other)
 {
+    HILOG_INFO("yangliang call copy constructor: Want: %{public}p", this);
     picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;
@@ -102,6 +108,7 @@ Want::Want(const Want &other)
 
 Want &Want::operator=(const Want &other)
 {
+    HILOG_INFO("yangliang call assign constructor: Want: %{public}p", this);
     picker_ = other.picker_;
     operation_ = other.operation_;
     parameters_ = other.parameters_;

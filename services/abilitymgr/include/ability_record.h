@@ -121,6 +121,8 @@ enum AbilityCallType {
     CALL_REQUEST_TYPE,
 };
 struct AbilityRequest {
+    AbilityRequest();
+    ~AbilityRequest();
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;
     AppExecFwk::ApplicationInfo appInfo;
