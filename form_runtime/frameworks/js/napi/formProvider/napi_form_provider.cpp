@@ -582,9 +582,10 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *cons
             InnerGetFormsInfo(env, asyncCallbackInfo);
         },
         [](napi_env env, napi_status status, void *data) {
-            HILOG_INFO("%{public}s, promise complete", __func__);
+            HILOG_INFO("GetFormsInfoPromise complete");
             AsyncGetFormsInfoCallbackInfo *asyncCallbackInfo = (AsyncGetFormsInfoCallbackInfo *)data;
             if (asyncCallbackInfo->result == ERR_OK) {
+                HILOG_INFO("GetFormsInfoPromise complete with error free");
                 napi_value arrayFormInfos;
                 napi_create_array(env, &arrayFormInfos);
                 int iFormInfoCount = 0;
@@ -602,6 +603,7 @@ napi_value GetFormsInfoPromise(napi_env env, AsyncGetFormsInfoCallbackInfo *cons
                     asyncCallbackInfo->deferred,
                     arrayFormInfos);
             } else {
+                HILOG_INFO("GetFormsInfoPromise complete with error");
                 // reject promise.
                 napi_value getFormsInfoResult;
                 InnerCreatePromiseRetMsg(env, asyncCallbackInfo->result, &getFormsInfoResult);
@@ -650,6 +652,7 @@ napi_value GetFormsInfoCallBack(napi_env env, napi_value argv, AsyncGetFormsInfo
             napi_create_array(env, &arrayFormInfos);
             // retrieve all formsInfo
             if (asyncCallbackInfo->result == ERR_OK) {
+                HILOG_INFO("GetFormsInfoCallBack complete with error free");
                 int iFormInfoCount = 0;
                 for (auto formInfo : asyncCallbackInfo->formInfos) {
                     napi_value formInfoObject = nullptr;
@@ -722,5 +725,5 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info) {
         return GetFormsInfoCallBack(env, argv[ARGS_SIZE_ZERO], asyncCallbackInfo);
     }
     // here should not be reached.
-    return nullptr;
+    return NapiGetResut(env, 1);
 }
