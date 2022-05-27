@@ -721,7 +721,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {    
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
