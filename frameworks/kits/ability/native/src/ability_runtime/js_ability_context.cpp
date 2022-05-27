@@ -30,6 +30,7 @@
 #include "start_options.h"
 #include "want.h"
 #include "event_handler.h"
+#include "hitrace_meter.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
@@ -130,6 +131,7 @@ NativeValue* JsAbilityContext::ConnectAbilityWithAccount(NativeEngine* engine, N
 
 NativeValue* JsAbilityContext::DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnDisconnectAbility(*engine, *info) : nullptr;
 }
@@ -158,28 +160,15 @@ NativeValue* JsAbilityContext::RestoreWindowStage(NativeEngine* engine, NativeCa
     return (me != nullptr) ? me->OnRestoreWindowStage(*engine, *info) : nullptr;
 }
 
-NativeValue* JsAbilityContext::SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnSetMissionLabel(*engine, *info) : nullptr;
-}
-
 NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbackInfo* info)
 {
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnIsTerminating(*engine, *info) : nullptr;
 }
 
-#ifdef SUPPORT_GRAPHICS
-NativeValue* JsAbilityContext::SetMissionIcon(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
-    return (me != nullptr) ? me->OnSetMissionIcon(*engine, *info) : nullptr;
-}
-#endif
-
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnStartAbility is called.");
 
     if (info.argc == ARGC_ZERO) {
@@ -714,6 +703,7 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
 
 NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability called.");
     // only support two params
     if (info.argc != ARGC_TWO) {
@@ -987,50 +977,6 @@ NativeValue* JsAbilityContext::OnRestoreWindowStage(NativeEngine& engine, Native
     return engine.CreateUndefined();
 }
 
-NativeValue* JsAbilityContext::OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    HILOG_INFO("OnSetMissionLabel is called, argc = %{public}d", static_cast<int>(info.argc));
-    if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("OnSetMissionLabel, Not enough params");
-        return engine.CreateUndefined();
-    }
-
-    int32_t errorCode = 0;
-    std::string label;
-    if (!ConvertFromJsValue(engine, info.argv[0], label)) {
-        HILOG_ERROR("OnSetMissionLabel, parse label failed.");
-        errorCode = ERR_NOT_OK;
-    }
-
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, label, errorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            if (errorCode != 0) {
-                task.Reject(engine, CreateJsError(engine, errorCode, "Invalidate params."));
-                return;
-            }
-
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
-                return;
-            }
-
-            auto errcode = context->SetMissionLabel(label);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsError(engine, errcode, "SetMissionLabel failed."));
-            }
-        };
-
-    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
-    NativeValue* result = nullptr;
-    AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return result;
-}
-
 NativeValue* JsAbilityContext::OnIsTerminating(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HILOG_INFO("OnIsTerminating is called");
@@ -1041,53 +987,6 @@ NativeValue* JsAbilityContext::OnIsTerminating(NativeEngine& engine, NativeCallb
     }
     return engine.CreateBoolean(context->IsTerminating());
 }
-
-#ifdef SUPPORT_GRAPHICS
-NativeValue* JsAbilityContext::OnSetMissionIcon(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    HILOG_INFO("OnSetMissionIcon is called, argc = %{public}d", static_cast<int>(info.argc));
-    if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("OnSetMissionIcon, Not enough params");
-        return engine.CreateUndefined();
-    }
-
-    int32_t errorCode = 0;
-    auto icon = OHOS::Media::PixelMapNapi::GetPixelMap(reinterpret_cast<napi_env>(&engine),
-        reinterpret_cast<napi_value>(info.argv[0]));
-    if (!icon) {
-        HILOG_ERROR("OnSetMissionIcon, parse icon failed.");
-        errorCode = ERR_NOT_OK;
-    }
-
-    AsyncTask::CompleteCallback complete =
-        [weak = context_, icon, errorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
-            if (errorCode != 0) {
-                task.Reject(engine, CreateJsError(engine, errorCode, "Invalidate params."));
-                return;
-            }
-
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released when set mission icon");
-                task.Reject(engine, CreateJsError(engine, -1, "Context is released"));
-                return;
-            }
-
-            auto errcode = context->SetMissionIcon(icon);
-            if (errcode == 0) {
-                task.Resolve(engine, engine.CreateUndefined());
-            } else {
-                task.Reject(engine, CreateJsError(engine, errcode, "SetMissionIcon failed."));
-            }
-        };
-
-    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
-    NativeValue* result = nullptr;
-    AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
-    return result;
-}
-#endif
 
 bool JsAbilityContext::UnWrapWant(NativeEngine& engine, NativeValue* argv, AAFwk::Want& want)
 {
@@ -1241,10 +1140,10 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
     BindNativeFunction(engine, *object, "terminateSelfWithResult", JsAbilityContext::TerminateSelfWithResult);
     BindNativeFunction(engine, *object, "requestPermissionsFromUser", JsAbilityContext::RequestPermissionsFromUser);
     BindNativeFunction(engine, *object, "restoreWindowStage", JsAbilityContext::RestoreWindowStage);
-    BindNativeFunction(engine, *object, "setMissionLabel", JsAbilityContext::SetMissionLabel);
     BindNativeFunction(engine, *object, "isTerminating", JsAbilityContext::IsTerminating);
 
 #ifdef SUPPORT_GRAPHICS
+    BindNativeFunction(engine, *object, "setMissionLabel", JsAbilityContext::SetMissionLabel);
     BindNativeFunction(engine, *object, "setMissionIcon", JsAbilityContext::SetMissionIcon);
 #endif
     return objValue;
@@ -1351,11 +1250,13 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     HILOG_INFO("OnAbilityDisconnectDone abilityConnects_.size:%{public}zu", abilityConnects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
+    std::string moduleName = element.GetModuleName();
     auto item = std::find_if(abilityConnects_.begin(), abilityConnects_.end(),
-        [bundleName, abilityName] (
+        [bundleName, abilityName, moduleName] (
             const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
                 return (bundleName == obj.first.want.GetBundle()) &&
-                    (abilityName == obj.first.want.GetElement().GetAbilityName());
+                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                    (moduleName == obj.first.want.GetElement().GetModuleName());
         });
     if (item != abilityConnects_.end()) {
         // match bundlename && abilityname
@@ -1404,5 +1305,108 @@ void JSAbilityConnection::SetJsConnectionObject(NativeValue* jsConnectionObject)
 {
     jsConnectionObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsConnectionObject, 1));
 }
+
+#ifdef SUPPORT_GRAPHICS
+NativeValue* JsAbilityContext::SetMissionLabel(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnSetMissionLabel(*engine, *info) : nullptr;
+}
+
+NativeValue* JsAbilityContext::SetMissionIcon(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
+    return (me != nullptr) ? me->OnSetMissionIcon(*engine, *info) : nullptr;
+}
+
+NativeValue* JsAbilityContext::OnSetMissionLabel(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("OnSetMissionLabel is called, argc = %{public}d", static_cast<int>(info.argc));
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("OnSetMissionLabel, Not enough params");
+        return engine.CreateUndefined();
+    }
+
+    int32_t errorCode = 0;
+    std::string label;
+    if (!ConvertFromJsValue(engine, info.argv[0], label)) {
+        HILOG_ERROR("OnSetMissionLabel, parse label failed.");
+        errorCode = ERR_NOT_OK;
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [weak = context_, label, errorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (errorCode != 0) {
+                task.Reject(engine, CreateJsError(engine, errorCode, "Invalidate params."));
+                return;
+            }
+
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
+                return;
+            }
+
+            auto errcode = context->SetMissionLabel(label);
+            if (errcode == 0) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsError(engine, errcode, "SetMissionLabel failed."));
+            }
+        };
+
+    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule(
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+NativeValue* JsAbilityContext::OnSetMissionIcon(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    HILOG_INFO("OnSetMissionIcon is called, argc = %{public}d", static_cast<int>(info.argc));
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("OnSetMissionIcon, Not enough params");
+        return engine.CreateUndefined();
+    }
+
+    int32_t errorCode = 0;
+    auto icon = OHOS::Media::PixelMapNapi::GetPixelMap(reinterpret_cast<napi_env>(&engine),
+        reinterpret_cast<napi_value>(info.argv[0]));
+    if (!icon) {
+        HILOG_ERROR("OnSetMissionIcon, parse icon failed.");
+        errorCode = ERR_NOT_OK;
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [weak = context_, icon, errorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            if (errorCode != 0) {
+                task.Reject(engine, CreateJsError(engine, errorCode, "Invalidate params."));
+                return;
+            }
+
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released when set mission icon");
+                task.Reject(engine, CreateJsError(engine, -1, "Context is released"));
+                return;
+            }
+
+            auto errcode = context->SetMissionIcon(icon);
+            if (errcode == 0) {
+                task.Resolve(engine, engine.CreateUndefined());
+            } else {
+                task.Reject(engine, CreateJsError(engine, errcode, "SetMissionIcon failed."));
+            }
+        };
+
+    NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
+    NativeValue* result = nullptr;
+    AsyncTask::Schedule(
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+#endif
 }  // namespace AbilityRuntime
 }  // namespace OHOS

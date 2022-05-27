@@ -54,7 +54,7 @@ config("appkit_config") {
 config("appkit_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${base_inner_api_path}/configuration/include",
+    "${ability_base_innerapi_path}/configuration/include",
     "native/ability_delegator/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
   ]
@@ -94,8 +94,8 @@ ohos_shared_library("appkit_native") {
     "native/ability_runtime/app/js_ability_stage_context.cpp",
     "native/app/src/ability_manager.cpp",
     "native/app/src/ability_record_mgr.cpp",
+    "native/app/src/app_context.cpp",
     "native/app/src/app_loader.cpp",
-    "native/app/src/application_context.cpp",
     "native/app/src/application_env.cpp",
     "native/app/src/application_env_impl.cpp",
     "native/app/src/application_impl.cpp",

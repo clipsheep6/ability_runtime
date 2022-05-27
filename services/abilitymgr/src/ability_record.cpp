@@ -34,6 +34,7 @@
 namespace OHOS {
 namespace AAFwk {
 const std::string DEBUG_APP = "debugApp";
+const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -183,8 +184,11 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
-    return DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
+    want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
+    auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token_, callerToken_, abilityInfo_, applicationInfo_, want_);
+    want_.RemoveParam(ABILITY_OWNER_USERID);
+    return result;
 }
 
 bool AbilityRecord::CanRestartRootLauncher()
@@ -245,6 +249,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
     if (lifecycleDeal_ == nullptr) {
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
@@ -275,6 +280,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
 int AbilityRecord::TerminateAbility()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
 }
@@ -450,6 +456,7 @@ void AbilityRecord::Activate()
 
 void AbilityRecord::Inactivate()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Inactivate ability start, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
@@ -463,6 +470,7 @@ void AbilityRecord::Inactivate()
 
 void AbilityRecord::Terminate(const Closure &task)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Begin to terminate ability, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -491,6 +499,7 @@ void AbilityRecord::ConnectAbility()
 
 void AbilityRecord::DisconnectAbility()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Disconnect ability, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->DisconnectAbility(want_);
@@ -1232,6 +1241,16 @@ void AbilityRecord::SetSwitchingPause(bool state)
 bool AbilityRecord::IsSwitchingPause()
 {
     return isSwitchingPause_;
+}
+
+void AbilityRecord::SetOwnerMissionUserId(int32_t userId)
+{
+    ownerMissionUserId_ = userId;
+}
+
+int32_t AbilityRecord::GetOwnerMissionUserId()
+{
+    return ownerMissionUserId_;
 }
 
 void AbilityRecord::DumpSys(std::vector<std::string> &info, bool isClient)

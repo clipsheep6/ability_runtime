@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,6 +81,34 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int SetNextRefreshTime(const int64_t formId, const int64_t nextTime) = 0;
+
+    /**
+     * @brief Add the form info.
+     *
+     * @param formInfo Indicates the form info to be added.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode AddFormInfo(FormInfo &formInfo) = 0;
+
+    /**
+     * @brief Remove the specified form info.
+     *
+     * @param moduleName Indicates the module name of the dynamic form info to be removed.
+     * @param formName Indicates the form name of the dynamic form info to be removed.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode RemoveFormInfo(const std::string &moduleName, const std::string &formName) = 0;
+
+    /**
+     * @brief Request to publish a form to the form host.
+     *
+     * @param want The want of the form to publish.
+     * @param withFormBindingData Indicates whether the formBindingData is carried with.
+     * @param formBindingData Indicates the form data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual ErrCode RequestPublishForm(Want &want, bool withFormBindingData,
+                                       std::unique_ptr<FormProviderData> &formBindingData) = 0;
 
     /**
      * @brief Lifecycle update.
@@ -297,7 +325,10 @@ public:
         FORM_MGR_GET_FORMS_INFO_BY_APP,
         FORM_MGR_GET_FORMS_INFO_BY_MODULE,
         FORM_MGR_ROUTER_EVENT,
-        FORM_MGR_UPDATE_ROUTER_ACTION
+        FORM_MGR_UPDATE_ROUTER_ACTION,
+        FORM_MGR_ADD_FORM_INFO,
+        FORM_MGR_REMOVE_FORM_INFO,
+        FORM_MGR_REQUEST_PUBLISH_FORM
     };
 };
 }  // namespace AppExecFwk

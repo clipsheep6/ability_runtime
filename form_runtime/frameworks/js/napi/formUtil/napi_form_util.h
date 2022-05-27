@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -62,5 +62,6 @@ bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value);
 void InnerCreateCallbackRetMsg(napi_env env, int32_t code, napi_value* result);
 void InnerCreatePromiseRetMsg(napi_env env, int32_t code, napi_value* result);
 napi_value RetErrMsg(AsyncErrMsgCallbackInfo* asyncCallbackInfo);
+AsyncErrMsgCallbackInfo *InitErrMsg(napi_env env, int32_t code, int32_t type, napi_value callbackValue);
 
 #endif /* NAPI_FORM_UTIL_H_ */

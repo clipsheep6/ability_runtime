@@ -108,10 +108,12 @@ static constexpr unsigned int CHANGE_CONFIG_DENSITY = 0x00000010;
     return false;
 }
 
-[[maybe_unused]] static std::string ConvertBundleNameSingleton(const std::string &bundleName, const std::string &name)
+[[maybe_unused]] static std::string ConvertBundleNameSingleton(const std::string &bundleName, const std::string &name,
+    const std::string &moduleName)
 {
-    std::string strName =
-        AbilityConfig::MISSION_NAME_MARK_HEAD + bundleName + AbilityConfig::MISSION_NAME_SEPARATOR + name;
+    std::string strName = AbilityConfig::MISSION_NAME_MARK_HEAD + bundleName +
+        AbilityConfig::MISSION_NAME_SEPARATOR + moduleName +
+        AbilityConfig::MISSION_NAME_SEPARATOR + name;
     return strName;
 }
 
@@ -156,11 +158,10 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
         }
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-        auto isSystemApp = bms->CheckIsSystemAppByUid(callerUid);
 
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         auto apl = abilityInfo.applicationInfo.appPrivilegeLevel;
-        if (!isSaCall && apl != SYSTEM_BASIC && apl != SYSTEM_CORE && !isSystemApp) {
+        if (!isSaCall && apl != SYSTEM_BASIC && apl != SYSTEM_CORE) {
             HILOG_INFO("Caller is not systemAp or system.");
             std::string bundleName;
             bool result = bms->GetBundleNameForUid(callerUid, bundleName);

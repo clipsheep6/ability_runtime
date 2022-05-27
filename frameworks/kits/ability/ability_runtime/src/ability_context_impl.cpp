@@ -125,6 +125,7 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want &want, int
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
@@ -239,6 +240,7 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
 bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want,
                                         const sptr<AbilityConnectCallback> &connectCallback)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Connect ability begin, ability:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
@@ -260,6 +262,7 @@ bool AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want &want, int 
 void AbilityContextImpl::DisconnectAbility(const AAFwk::Want &want,
                                            const sptr<AbilityConnectCallback> &connectCallback)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Disconnect ability begin, caller:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
@@ -347,6 +350,7 @@ ErrCode AbilityContextImpl::TerminateSelf()
 
 ErrCode AbilityContextImpl::CloseAbility()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
     AAFwk::Want resultWant;
@@ -455,6 +459,13 @@ ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack>
     return localCallContainer_->Release(callback);
 }
 
+void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    abilityCallback_ = abilityCallback;
+}
+
+#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
 {
     HILOG_INFO("%{public}s begin. label = %{public}s", __func__, label.c_str());
@@ -465,7 +476,6 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
     return err;
 }
 
-#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -475,15 +485,7 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
     }
     return err;
 }
-#endif
 
-void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
-{
-    HILOG_INFO("%{public}s called.", __func__);
-    abilityCallback_ = abilityCallback;
-}
-
-#ifdef SUPPORT_GRAPHICS
 int AbilityContextImpl::GetCurrentWindowMode()
 {
     HILOG_INFO("%{public}s called.", __func__);

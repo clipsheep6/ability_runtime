@@ -1791,6 +1791,7 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &cal
     return reply.ReadInt32();
 }
 
+#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {
     MessageParcel data;
@@ -1815,7 +1816,6 @@ int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const
     return reply.ReadInt32();
 }
 
-#ifdef SUPPORT_GRAPHICS
 int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
@@ -1880,20 +1880,9 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &a
         HILOG_ERROR("%{public}s: write interface token failed.", __func__);
         return;
     }
-    if (!abilityToken) {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("Write false failed.");
-            return;
-        }
-    } else {
-        if (!data.WriteBool(true)) {
-            HILOG_ERROR("Write true failed.");
-            return;
-        }
-        if (!data.WriteObject(abilityToken)) {
-            HILOG_ERROR("Write abilityToken failed.");
-            return;
-        }
+    if (!data.WriteRemoteObject(abilityToken)) {
+        HILOG_ERROR("%{public}s: abilityToken write failed.", __func__);
+        return;
     }
     MessageOption option;
     MessageParcel reply;

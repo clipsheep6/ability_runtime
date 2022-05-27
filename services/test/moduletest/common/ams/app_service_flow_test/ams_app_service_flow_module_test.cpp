@@ -47,13 +47,13 @@ struct TestApplicationPreRunningRecord {
     {}
     sptr<IRemoteObject> GetToken(const std::string &abilityName) const
     {
-        auto abilityRecord = appRecord_->GetAbilityRunningRecord(abilityName);
+        auto abilityRecord = appRecord_->GetAbilityRunningRecord(abilityName, "");
         return abilityRecord ? abilityRecord->GetToken() : nullptr;
     }
 
     std::shared_ptr<AbilityRunningRecord> GetAbility(const std::string &abilityName) const
     {
-        return appRecord_->GetAbilityRunningRecord(abilityName);
+        return appRecord_->GetAbilityRunningRecord(abilityName, "");
     }
 
     virtual ~TestApplicationPreRunningRecord()
@@ -92,6 +92,7 @@ void AmsAppServiceFlowModuleTest::TearDownTestCase()
 void AmsAppServiceFlowModuleTest::SetUp()
 {
     serviceInner_.reset(new (std::nothrow) AppMgrServiceInner());
+    serviceInner_->Init();
 
     auto runner = EventRunner::Create("AmsAppServiceFlowModuleTest");
     handler_ = std::make_shared<AMSEventHandler>(runner, serviceInner_);

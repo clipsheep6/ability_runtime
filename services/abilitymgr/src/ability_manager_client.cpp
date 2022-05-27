@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -97,6 +98,7 @@ ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObjec
 
 ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartAbility(want, userId, requestCode);
@@ -105,6 +107,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, int requestCode, in
 ErrCode AbilityManagerClient::StartAbility(
     const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Start ability come, ability:%{public}s, userId:%{public}d.",
@@ -115,6 +118,7 @@ ErrCode AbilityManagerClient::StartAbility(
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
     const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartAbility(want, abilityStartSetting, callerToken, userId, requestCode);
@@ -123,6 +127,7 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const AbilityStartS
 ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("%{public}s come, abilityName=%{public}s, userId=%{public}d.",
@@ -160,6 +165,7 @@ ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &token,
 
 ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject> &callerToken, int requestCode)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->TerminateAbilityByCaller(callerToken, requestCode);
@@ -182,6 +188,7 @@ ErrCode AbilityManagerClient::CloseAbility(const sptr<IRemoteObject> &token, int
 
 ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
@@ -190,6 +197,7 @@ ErrCode AbilityManagerClient::MinimizeAbility(const sptr<IRemoteObject> &token, 
 
 ErrCode AbilityManagerClient::ConnectAbility(const Want &want, const sptr<IAbilityConnection> &connect, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Connect ability called, bundleName:%{public}s, abilityName:%{public}s, userId:%{public}d.",
@@ -200,6 +208,7 @@ ErrCode AbilityManagerClient::ConnectAbility(const Want &want, const sptr<IAbili
 ErrCode AbilityManagerClient::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Connect ability called, bundleName:%{public}s, abilityName:%{public}s, userId:%{public}d.",
@@ -209,6 +218,7 @@ ErrCode AbilityManagerClient::ConnectAbility(
 
 ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection> &connect)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("Disconnect ability begin.");
@@ -474,6 +484,25 @@ void AbilityManagerClient::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &mem
     abms->GetSystemMemoryAttr(memoryInfo);
 }
 
+ErrCode AbilityManagerClient::GetAppMemorySize()
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    auto ret = abms->GetAppMemorySize();
+    return ret;
+}
+
+bool AbilityManagerClient::IsRamConstrainedDevice()
+{
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        HILOG_ERROR("abms is nullptr.");
+        return false;
+    }
+    auto ret = abms->IsRamConstrainedDevice();
+    return ret;
+}
+
 ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callback, AAFwk::WantParams &wantParams)
 {
@@ -503,6 +532,20 @@ void AbilityManagerClient::NotifyCompleteContinuation(const std::string &deviceI
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     abms->NotifyCompleteContinuation(deviceId, sessionId, isSuccess);
+}
+
+ErrCode AbilityManagerClient::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ContinueAbility(deviceId, missionId, versionCode);
+}
+
+ErrCode AbilityManagerClient::NotifyContinuationResult(int32_t missionId, int32_t result)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifyContinuationResult(missionId, result);
 }
 
 ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
@@ -740,6 +783,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(const sptr<IRemoteObj
     return abms->DelegatorDoAbilityBackground(token);
 }
 
+#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string& label)
 {
     auto abms = GetAbilityManager();
@@ -747,7 +791,6 @@ ErrCode AbilityManagerClient::SetMissionLabel(const sptr<IRemoteObject> &token, 
     return abms->SetMissionLabel(token, label);
 }
 
-#ifdef SUPPORT_GRAPHICS
 ErrCode AbilityManagerClient::SetMissionIcon(
     const sptr<IRemoteObject> &abilityToken, const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {

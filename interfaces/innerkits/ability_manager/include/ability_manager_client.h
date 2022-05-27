@@ -368,7 +368,10 @@ public:
      * @param SystemMemoryAttr, memory information.
      */
     void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
+    
+    ErrCode GetAppMemorySize();
 
+    bool IsRamConstrainedDevice();
     /**
      * ContinueMission, continue ability from mission center.
      *
@@ -399,6 +402,23 @@ public:
      * @return
      */
     void NotifyCompleteContinuation(const std::string &deviceId, int32_t sessionId, bool isSuccess);
+
+    /**
+     * ContinueMission, continue ability from mission center.
+     * @param deviceId, target deviceId.
+     * @param missionId, indicates which ability to continue.
+     * @param versionCode, version of the remote target ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode);
+
+    /**
+     * notify continuation result to application.
+     * @param missionId, indicates which ability to notify.
+     * @param result, continuation result.
+     * @return
+     */
+    ErrCode NotifyContinuationResult(int32_t missionId, int32_t result);
 
     /**
      * @brief Lock specified mission.
@@ -586,6 +606,7 @@ public:
      */
     ErrCode RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * Set mission label of this ability.
      *
@@ -595,7 +616,6 @@ public:
      */
     ErrCode SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * Set mission icon of this ability.
      *
