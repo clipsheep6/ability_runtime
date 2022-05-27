@@ -357,6 +357,32 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(resultCode) || !data.WriteParcelable(&resultWant)) {
+        HILOG_ERROR("data write failed.");
+        return INNER_ERR;
+    }
+    error = Remote()->SendRequest(IAbilityManager::SEND_RESULT_TO_ABILITY, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode)
 {
     int error;
