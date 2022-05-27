@@ -663,5 +663,11 @@ std::string JsRuntime::BuildNativeAndJsBackStackTrace()
     nativeEngine_->ResumeVM();
     return straceStr;
 }
+
+void JsRuntime::NotifyApplicationStatus(bool isBackground)
+{
+    HILOG_INFO("NotifyApplicationStatus, isBackground %{public}d.", isBackground);
+    nativeEngine_->NotifyApplicationStatus(isBackground);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
