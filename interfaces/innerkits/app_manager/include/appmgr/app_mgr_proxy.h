@@ -225,6 +225,15 @@ public:
     virtual int BlockAppService() override;
     #endif
 
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) override;
+
 private:
     bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

@@ -43,7 +43,6 @@ ohos_source_set("appmgr_mst_source") {
     "${services_path}/appmgr/src/module_running_record.cpp",
     "${services_path}/appmgr/src/remote_client_manager.cpp",
     "${services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
-    "${services_path}/common/src/event_report.cpp",
   ]
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
@@ -90,6 +89,7 @@ ohos_source_set("appmgr_mst_source") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   if (os_account_part_enabled) {

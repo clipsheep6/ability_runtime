@@ -190,7 +190,7 @@ public:
      *
      * @param pid The process id.
      * @param tokens The token of ability records.
-     * @return Returns true on success, others on failure.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) = 0;
     #ifdef ABILITY_COMMAND_FOR_TEST
@@ -230,6 +230,15 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) = 0;
 
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns true on success, others on failure.
+     */
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) = 0;
+
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
@@ -255,6 +264,7 @@ public:
         START_RENDER_PROCESS,
         ATTACH_RENDER_PROCESS,
         GET_RENDER_PROCESS_TERMINATION_STATUS,
+        APP_GET_APPLICATION_INFO_BY_PROCESS_ID,
     };
 };
 }  // namespace AppExecFwk

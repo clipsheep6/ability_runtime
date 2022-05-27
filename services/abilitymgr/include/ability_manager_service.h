@@ -46,7 +46,15 @@ namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
 using OHOS::AppExecFwk::IAbilityController;
-
+struct DialogPosition {
+    int32_t offsetX = 0;
+    int32_t offsetY = 0;
+    int32_t width = 0;
+    int32_t height = 0; 
+    int32_t width_narrow = 0;
+    int32_t height_narrow = 0;
+    bool wideScreen = true;
+};
 class PendingWantManager;
 /**
  * @class AbilityManagerService
@@ -755,6 +763,22 @@ public:
     void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId);
 
     /**
+     * Excute the task of stack about application not resoponse.
+     *
+     * @param pid The not response process ID.
+     */
+    void ExcuteANRStackTask(int pid);
+    
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+
+    /**
      * FreeInstall form remote call.
      *
      * @param want Want need to install.
@@ -919,6 +943,8 @@ private:
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
 
+    void GetDialogPositionAndSize(DialogPosition &position);
+
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
@@ -1016,6 +1042,8 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
+    
+    void GetAppNameFromResource(std::string &appName, int32_t labelId, const std::string &bundleName);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

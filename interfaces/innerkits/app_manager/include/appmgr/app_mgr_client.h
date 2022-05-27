@@ -269,6 +269,15 @@ public:
      */
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
+
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**
