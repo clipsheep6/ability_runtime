@@ -257,6 +257,11 @@ enum {
      * recent missions that currently are not available to the user.
      */
     RECENT_IGNORE_UNAVAILABLE = 0x0002,
+
+    /**
+     * Undefine error code.
+     */
+    UNDEFINE_ERROR_CODE = 3,
 };
 
 enum NativeFreeInstallError {
@@ -264,92 +269,92 @@ enum NativeFreeInstallError {
     /**
      * FA search failed.
      */
-    FA_FREE_INSTALL_QUERY_ERROR = 0x800001,
+    FA_FREE_INSTALL_QUERY_ERROR = -1,
 
     /**
      * HAG query timeout.
      */
-    HAG_QUERY_TIMEOUT = 0x800002,
+    HAG_QUERY_TIMEOUT = -4,
 
     /**
      * FA Network unavailable.
      */
-    FA_NETWORK_UNAVAILABLE = 0x800003,
+    FA_NETWORK_UNAVAILABLE = -2,
 
     /**
      * FA internal system error.
      */
-    FA_FREE_INSTALL_SERVICE_ERROR = 0x600001,
+    FA_FREE_INSTALL_SERVICE_ERROR = 0x820101,
 
     /**
      * FA distribution center crash.
      */
-    FA_CRASH = 0x600002,
+    FA_CRASH = 0x820102,
 
     /**
      * FA distribution center processing timeout(30s).
      */
-    FA_TIMEOUT = 0x600003,
+    FA_TIMEOUT = 0x820103,
 
     /**
      * BMS unknown exception.
      */
-    UNKNOWN_EXCEPTION = 0x600004,
+    UNKNOWN_EXCEPTION = 0x820104,
 
     /**
      * It is not supported to pull up PA across applications on the same device
      */
-    NOT_SUPPORT_PA_ON_SAME_DEVICE = 0x800004,
+    NOT_SUPPORT_PA_ON_SAME_DEVICE = -11,
 
     /**
      * FA internal system error.
      */
-    FA_INTERNET_ERROR = 0x800005,
+    FA_INTERNET_ERROR = -3,
 
     /**
      * The user confirms to jump to the application market upgrade.
      */
-    JUMP_TO_THE_APPLICATION_MARKET_UPGRADE = 0x800006,
+    JUMP_TO_THE_APPLICATION_MARKET_UPGRADE = -8,
 
     /**
      * User gives up.
      */
-    USER_GIVES_UP = 0x800007,
+    USER_GIVES_UP = -7,
 
     /**
      * Installation error in free installation.
      */
-    INSTALLATION_ERROR_IN_FREE_INSTALL = 0x800008,
+    INSTALLATION_ERROR_IN_FREE_INSTALL = -5,
 
     /**
      * HAP package download timed out.
      */
-    HAP_PACKAGE_DOWNLOAD_TIMED_OUT = 0x800009,
+    HAP_PACKAGE_DOWNLOAD_TIMED_OUT = -9,
 
     /**
      * There are concurrent tasks, waiting for retry.
      */
-    CONCURRENT_TASKS_WAITING_FOR_RETRY = 0x800010,
+    CONCURRENT_TASKS_WAITING_FOR_RETRY = -6,
 
     /**
      * FA package does not support free installation.
      */
-    FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL = 0x800011,
+    FA_PACKAGE_DOES_NOT_SUPPORT_FREE_INSTALL = -10,
 
     /**
      * The app is not allowed to pull this FA.
      */
-    NOT_ALLOWED_TO_PULL_THIS_FA = 0x800012,
+    NOT_ALLOWED_TO_PULL_THIS_FA = -901,
 
     /**
      * Not support cross-device free install PA
      */
-    NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA = 0x80013,
+    NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA = -12,
 
     /**
      * Free install timeout
      */
-    FREE_INSTALL_TIMEOUT = 0x710003,
+    FREE_INSTALL_TIMEOUT = 29360204,
 
     /**
      * Not top ability
@@ -360,11 +365,6 @@ enum NativeFreeInstallError {
      * Target bundle name is not exist in targetBundleList.
      */
     TARGET_BUNDLE_NOT_EXIST = 0x500002,
-
-    /**
-     * FA Network unavailable in free install.
-     */
-    FA_FREE_INSTALL_INTERNET_ERROR = 0x800013,
 
     /**
      * Permission denied.
@@ -390,9 +390,24 @@ enum NativeFreeInstallError {
      * Remote service's device is offline.
      */
     DEVICE_OFFLINE_ERR = 29360142,
+
+    /**
+     * Result(29360175) for account access permission check failed.
+     */
+    DMS_ACCOUNT_ACCESS_PERMISSION_DENIED = 29360175,
+
+    /**
+     * Result(29360131) for remote invalid parameters.
+     */
+    INVALID_REMOTE_PARAMETERS_ERR = 29360131,
+
+    /*
+     * Result(29360205) for continue freeinstall failed.
+     */
+    CONTINUE_FREE_INSTALL_FAILED = 29360205,
 };
 
-static const std::map<NativeFreeInstallError, int> FIErrorToAppMaps = {
+static const std::map<NativeFreeInstallError, int32_t> FIErrorToAppMaps = {
     {FREE_INSTALL_OK, 0},
     {FA_FREE_INSTALL_QUERY_ERROR, 1},
     {HAG_QUERY_TIMEOUT, 1},
@@ -413,13 +428,19 @@ static const std::map<NativeFreeInstallError, int> FIErrorToAppMaps = {
     {NOT_SUPPORT_CROSS_DEVICE_FREE_INSTALL_PA, 7},
     {DMS_PERMISSION_DENIED, 8},
     {DMS_COMPONENT_ACCESS_PERMISSION_DENIED, 8},
+    {DMS_ACCOUNT_ACCESS_PERMISSION_DENIED, 8},
     {INVALID_PARAMETERS_ERR, 9},
+    {INVALID_REMOTE_PARAMETERS_ERR, 9},
     {REMOTE_DEVICE_NOT_COMPATIBLE, 10},
     {DEVICE_OFFLINE_ERR, 11},
     {FREE_INSTALL_TIMEOUT, 12},
     {NOT_TOP_ABILITY, 13},
     {TARGET_BUNDLE_NOT_EXIST, 14},
-    {FA_FREE_INSTALL_INTERNET_ERROR, 15}
+    // {RESOLVE_ABILITY_ERR, 15},
+    // {RESOLVE_APP_ERR, 16},
+    // {CHECK_PERMISSION_FAILED, 17},
+    // {ABILITY_VISIBLE_FALSE_DENY_REQUEST, 18},
+    {CONTINUE_FREE_INSTALL_FAILED, 19}
 };
 
 static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
@@ -504,7 +525,15 @@ static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
         "Component access permission denied."
     },
     {
+        DMS_ACCOUNT_ACCESS_PERMISSION_DENIED,
+        "Component access permission denied."
+    },
+    {
         INVALID_PARAMETERS_ERR,
+        "Invalid parameters."
+    },
+    {
+        INVALID_REMOTE_PARAMETERS_ERR,
         "Invalid parameters."
     },
     {
@@ -517,7 +546,7 @@ static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
     },
     {
         FREE_INSTALL_TIMEOUT,
-        "free install timeout."
+        "Free install timeout."
     },
     {
         NOT_TOP_ABILITY,
@@ -527,10 +556,26 @@ static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
         TARGET_BUNDLE_NOT_EXIST,
         "Target bundle name is not exist in targetBundleList."
     },
+    // {
+    //     RESOLVE_ABILITY_ERR,
+    //     "Error to ability info from BMS or DistributedMS."
+    // },
+    // {
+    //     RESOLVE_APP_ERR,
+    //     "Error to app info from BMS or DistributedMS."
+    // },
+    // {
+    //     CHECK_PERMISSION_FAILED,
+    //     "Error check permission failed."
+    // },
+    // {
+    //     ABILITY_VISIBLE_FALSE_DENY_REQUEST,
+    //     "Ability visible attribute is false."
+    // },
     {
-        FA_FREE_INSTALL_INTERNET_ERROR,
-        "Network unavailable."
-    },
+        CONTINUE_FREE_INSTALL_FAILED,
+        "Error continue freeinstall failed."
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

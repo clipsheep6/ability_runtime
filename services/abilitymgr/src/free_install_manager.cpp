@@ -121,7 +121,7 @@ bool FreeInstallManager::CheckTargetBundleList(const Want &want, int32_t userId,
     return false;
 }
 
-int FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int requestCode,
+int32_t FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int32_t requestCode,
     const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
 {
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
@@ -174,7 +174,7 @@ int FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int reques
     return HandleFreeInstallErrorCode(future.get());
 }
 
-int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
+int32_t FreeInstallManager::NotifyDmsCallback(const Want &want, int32_t resultCode)
 {
     if (dmsFreeInstallCbs_.empty()) {
         HILOG_ERROR("Has no dms callback.");
@@ -219,7 +219,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
     return reply.ReadInt32();
 }
 
-void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode)
+void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int32_t resultCode)
 {
     if (freeInstallList_.empty()) {
         HILOG_INFO("Has no app callback.");
@@ -264,8 +264,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
     }
 }
 
-int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-    int32_t userId, int requestCode)
+int32_t FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+    int32_t userId, int32_t requestCode)
 {
     HILOG_INFO("%{public}s", __func__);
     if (callback == nullptr) {
@@ -296,7 +296,7 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
     return ERR_OK;
 }
 
-int FreeInstallManager::HandleFreeInstallErrorCode(int resultCode)
+int32_t FreeInstallManager::HandleFreeInstallErrorCode(int32_t resultCode)
 {
     auto it = FIErrorStrs.find(static_cast<enum NativeFreeInstallError>(resultCode));
     if (it != FIErrorStrs.end()) {
@@ -306,12 +306,12 @@ int FreeInstallManager::HandleFreeInstallErrorCode(int resultCode)
     auto itToApp = FIErrorToAppMaps.find(static_cast<enum NativeFreeInstallError>(resultCode));
     if (itToApp == FIErrorToAppMaps.end()) {
         HILOG_ERROR("Undefind error code.");
-        return resultCode;
+        return UNDEFINE_ERROR_CODE;
     }
     return itToApp->second;
 }
 
-int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
+int32_t FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
     const sptr<IRemoteObject> &callerToken, std::string& localDeviceId)
 {
     if (CheckIsFreeInstall(want)) {
@@ -337,7 +337,7 @@ int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
         }
         auto bms = AbilityUtil::GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-        int callerUid = IPCSkeleton::GetCallingUid();
+        int32_t callerUid = IPCSkeleton::GetCallingUid();
         std::string LocalBundleName;
         bms->GetBundleNameForUid(callerUid, LocalBundleName);
         if (LocalBundleName != wantBundleName) {
@@ -348,7 +348,7 @@ int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
         if (!(bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId,
             abilityInfo))) {
             HILOG_INFO("AbilityManagerService::IsConnectFreeInstall. try to FreeInstall");
-            int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false);
+            int32_t result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false);
             if (result) {
                 HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. FreeInstall error");
                 return result;
@@ -359,7 +359,7 @@ int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
     return ERR_OK;
 }
 
-void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId)
+void FreeInstallManager::OnInstallFinished(int32_t resultCode, const Want &want, int32_t userId)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     NotifyDmsCallback(want, resultCode);
@@ -379,7 +379,7 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
     }
 }
 
-void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId)
+void FreeInstallManager::OnRemoteInstallFinished(int32_t resultCode, const Want &want, int32_t userId)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     NotifyFreeInstallResult(want, resultCode);
