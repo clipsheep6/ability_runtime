@@ -4148,7 +4148,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
-    abilityRecord->ProcessForegroundAbility(flag);
+    abilityRecord->ProcessForegroundAbility(nullptr, flag);
     AAFWK::EventInfo eventInfo;
     eventInfo.sceneFlag = flag;
     AAFWK::EventReport::SendAbilityEvent(AAFWK::DO_FOREGROUND_ABILITY,
