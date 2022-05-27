@@ -11,6 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-aafwk_path = "//foundation/aafwk/standard"
+aafwk_path = "//foundation/ability/ability_runtime"
 IPC_SUBSYSTEM_DIR = "//foundation/communication/ipc"
 IDL_TEST_DIR = "${aafwk_path}/idl/test/native"

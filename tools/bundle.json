@@ -31,13 +31,13 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/aafwk/standard/tools:tools_target"
+                "//foundation/ability/ability_runtime/tools:tools_target"
             ],
             "inner_kits": [],
             "test": [
-                "//foundation/aafwk/standard/tools/test:moduletest",
-                "//foundation/aafwk/standard/tools/test:systemtest",
-                "//foundation/aafwk/standard/tools/test:unittest"
+                "//foundation/ability/ability_runtime/tools/test:moduletest",
+                "//foundation/ability/ability_runtime/tools/test:systemtest",
+                "//foundation/ability/ability_runtime/tools/test:unittest"
             ]
         }
     }

@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
 
 ohos_unittest("ability_manager_client_test") {
   module_out_path = "ability_runtime/ability_call_test"

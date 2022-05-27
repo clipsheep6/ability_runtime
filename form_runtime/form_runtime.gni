@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ability_base_path = "//foundation/aafwk/standard/ability_base"
+ability_base_path = "//foundation/ability/ability_runtime/ability_base"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
-ability_runtime_path = "//foundation/aafwk/standard"
+ability_runtime_path = "//foundation/ability/ability_runtime"
 ability_runtime_innerapi_path = "${ability_runtime_path}/interfaces/innerkits"
 ability_runtime_kits_path = "${ability_runtime_path}/frameworks/kits"
 ability_runtime_services_path = "${ability_runtime_path}/services"
@@ -22,6 +22,6 @@ bundlefwk_innerkits_path = "${bundlefwk_path}/interfaces/innerkits"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
 distributeddatamgr_path = "//foundation/distributeddatamgr"
 distributedschedule_path = "//foundation/distributedschedule"
-form_runtime_path = "//foundation/aafwk/standard/form_runtime"
+form_runtime_path = "//foundation/ability/ability_runtime/form_runtime"
 form_runtime_napi_path = "${form_runtime_path}/frameworks/js/napi"
 global_path = "//base/global"

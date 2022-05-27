@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/form_runtime/form_runtime.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/form_runtime/form_runtime.gni")
 
 group("benchmarktest") {
   testonly = true

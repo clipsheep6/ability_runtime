@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ability_runtime_path = "//foundation/aafwk/standard"
+ability_runtime_path = "//foundation/ability/ability_runtime"
 ability_runtime_innerapi_path = "${ability_runtime_path}/interfaces/innerkits"
-ability_base_path = "//foundation/aafwk/standard/ability_base"
+ability_base_path = "//foundation/ability/ability_runtime/ability_base"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_base_native_path = "${ability_base_path}/frameworks/native"
