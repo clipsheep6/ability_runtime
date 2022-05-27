@@ -421,7 +421,7 @@ private:
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
-    int DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
