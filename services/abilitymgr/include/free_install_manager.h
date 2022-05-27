@@ -45,7 +45,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnInstallFinished(int32_t resultCode, const Want &want, int32_t userId);
 
     /**
      * OnRemoteInstallFinished, DMS has finished.
@@ -54,7 +54,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnRemoteInstallFinished(int32_t resultCode, const Want &want, int32_t userId);
 
     /**
      * Start to free install.
@@ -66,7 +66,7 @@ public:
      * @param ifOperateRemote, is from other devices.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int FreeInstall(const Want &want, int32_t userId, int requestCode,
+    int32_t FreeInstall(const Want &want, int32_t userId, int32_t requestCode,
         const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
 
     /**
@@ -79,8 +79,8 @@ public:
      * @param requestCode, ability request code.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-        int32_t userId, int requestCode);
+    int32_t FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
+        int32_t userId, int32_t requestCode);
 
     /**
      * Check if the connect request is free install.
@@ -90,7 +90,7 @@ public:
      * @param localDeviceId, the device id of local.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int IsConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
+    int32_t IsConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
         std::string& localDeviceId);
 
 private:
@@ -109,10 +109,10 @@ private:
 
     bool CheckIsFreeInstall(const Want &want);
     bool CheckTargetBundleList(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    int HandleFreeInstallErrorCode(int resultCode);
-    int NotifyDmsCallback(const Want &want, int resultCode);
+    int32_t HandleFreeInstallErrorCode(int32_t resultCode);
+    int32_t NotifyDmsCallback(const Want &want, int32_t resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode);
+    void NotifyFreeInstallResult(const Want &want, int32_t resultCode);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
