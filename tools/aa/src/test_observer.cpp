@@ -36,7 +36,8 @@ TestObserver::~TestObserver()
 void TestObserver::TestStatus(const std::string &msg, const int64_t &resultCode)
 {
     HILOG_INFO("enter, msg : %{public}s, code : %{public}" PRId64, msg.data(), resultCode);
-    std::cout << msg << std::endl;
+    printf("%s\n", msg.data());
+    fflush(stdout);
 }
 
 void TestObserver::TestFinished(const std::string &msg, const int64_t &resultCode)
