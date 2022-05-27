@@ -2098,7 +2098,7 @@ sptr<Media::PixelMap> MissionListManager::GetPixelMap(const uint32_t windowIconI
     return sptr<Media::PixelMap>(pixelMapPtr.release());
 }
 
-sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
+sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(const sptr<IRemoteObject> &abilityToken,
     const std::shared_ptr<StartOptions> &startOptions, const Want &want) const
 {
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
@@ -2113,7 +2113,7 @@ sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(cons
 }
 
 sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-    const sptr<IRemoteObject> abilityToken) const
+    const sptr<IRemoteObject> &abilityToken) const
 {
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     auto abilityStartSetting = abilityRequest.startSetting;

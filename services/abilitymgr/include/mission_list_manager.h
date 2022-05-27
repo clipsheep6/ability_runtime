@@ -386,10 +386,10 @@ private:
         const AppExecFwk::AbilityInfo &abilityInfo) const;
     sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> &abilityToken,
         const std::shared_ptr<StartOptions> &startOptions, const Want &want) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-        const sptr<IRemoteObject> abilityToken) const;
+        const sptr<IRemoteObject> &abilityToken) const;
     void CancelStartingWindow(const sptr<IRemoteObject> abilityToken, bool isDelay) const;
     void NotifyStartingWindow(bool isCold, const std::shared_ptr<Mission> &targetMission,
         const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const AbilityRequest &abilityRequest,
