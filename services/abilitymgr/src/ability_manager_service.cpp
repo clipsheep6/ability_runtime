@@ -322,14 +322,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
 
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -359,7 +359,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return result;
         }
     }
-    UpdateCallerInfo(abilityRequest.want);
+    UpdateCallerInfo(abilityRequest->want);
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(validUserId);
         if (!connectManager) {
@@ -403,13 +403,13 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -424,7 +424,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return result;
     }
 
-    abilityRequest.startSetting = std::make_shared<AbilityStartSetting>(abilityStartSetting);
+    abilityRequest->startSetting = std::make_shared<AbilityStartSetting>(abilityStartSetting);
 
     if (abilityInfo.type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot start data ability, use 'AcquireDataAbility()' instead.");
@@ -477,14 +477,14 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
 
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -518,8 +518,8 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_WOULD_BLOCK;
     }
     GrantUriPermission(want, validUserId);
-    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
-    abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+    abilityRequest->want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    abilityRequest->want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     auto missionListManager = GetListManagerByUserId(validUserId);
     if (missionListManager == nullptr) {
         HILOG_ERROR("missionListManager is Null. userId=%{public}d", validUserId);
@@ -528,10 +528,10 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     return missionListManager->StartAbility(abilityRequest);
 }
 
-int AbilityManagerService::CheckStartExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
+int AbilityManagerService::CheckStartExtensionAbility(const Want &want, std::shared_ptr<AbilityRequest> abilityRequest,
     int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType)
 {
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     auto result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
         HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
@@ -557,7 +557,7 @@ int AbilityManagerService::CheckStartExtensionAbility(const Want &want, AbilityR
         return ERR_INVALID_VALUE;
     }
 
-    UpdateCallerInfo(abilityRequest.want);
+    UpdateCallerInfo(abilityRequest->want);
     return ERR_OK;
 }
 
@@ -581,14 +581,14 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
 
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -1024,13 +1024,13 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
     }
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     int32_t validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : userId;
     HILOG_DEBUG("validUserId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -1668,11 +1668,11 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     auto userId = GetValidUserId(INVALID_USER_ID);
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     std::string dataAbilityUri = localUri.ToString();
     HILOG_INFO("%{public}s, called. userId %{public}d", __func__, userId);
-    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest.abilityInfo));
-    if (!queryResult || abilityRequest.abilityInfo.name.empty() || abilityRequest.abilityInfo.bundleName.empty()) {
+    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfoByUri(dataAbilityUri, userId, abilityRequest->abilityInfo));
+    if (!queryResult || abilityRequest->abilityInfo.name.empty() || abilityRequest->abilityInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid ability info for data ability acquiring.");
         return nullptr;
     }
@@ -1683,15 +1683,15 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     }
 
     HILOG_DEBUG("Query data ability info: %{public}s|%{public}s|%{public}s",
-        abilityRequest.appInfo.name.c_str(),
-        abilityRequest.appInfo.bundleName.c_str(),
-        abilityRequest.abilityInfo.name.c_str());
+        abilityRequest->appInfo.name.c_str(),
+        abilityRequest->appInfo.bundleName.c_str(),
+        abilityRequest->abilityInfo.name.c_str());
 
-    if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
+    if (CheckStaticCfgPermission(abilityRequest->abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
         return nullptr;
     }
 
-    if (abilityRequest.abilityInfo.applicationInfo.singleton) {
+    if (abilityRequest->abilityInfo.applicationInfo.singleton) {
         userId = U0_USER_ID;
     }
 
@@ -1700,23 +1700,23 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSystem);
 }
 
-bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
+bool AbilityManagerService::CheckDataAbilityRequest(std::shared_ptr<AbilityRequest> abilityRequest)
 {
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
+    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRequest->abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return false;
     }
-    abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
-    if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
+    abilityRequest->appInfo = abilityRequest->abilityInfo.applicationInfo;
+    if (abilityRequest->appInfo.name.empty() || abilityRequest->appInfo.bundleName.empty()) {
         HILOG_ERROR("Invalid app info for data ability acquiring.");
         return false;
     }
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+    if (abilityRequest->abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("BMS query result is not a data ability.");
         return false;
     }
-    abilityRequest.uid = abilityRequest.appInfo.uid;
+    abilityRequest->uid = abilityRequest->appInfo.uid;
     return true;
 }
 
@@ -2434,14 +2434,14 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
     (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
 }
 
-int AbilityManagerService::GenerateAbilityRequest(
-    const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
+int AbilityManagerService::GenerateAbilityRequest(const Want &want, int requestCode,
+    std::shared_ptr<AbilityRequest> request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    request.want = want;
-    request.requestCode = requestCode;
-    request.callerToken = callerToken;
-    request.startSetting = nullptr;
+    request->want = want;
+    request->requestCode = requestCode;
+    request->callerToken = callerToken;
+    request->startSetting = nullptr;
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
@@ -2454,8 +2454,8 @@ int AbilityManagerService::GenerateAbilityRequest(
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
     HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
-    if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
+    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request->abilityInfo));
+    if (request->abilityInfo.name.empty() || request->abilityInfo.bundleName.empty()) {
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
@@ -2472,33 +2472,33 @@ int AbilityManagerService::GenerateAbilityRequest(
         HILOG_DEBUG("Extension ability info found, name=%{public}s.",
             extensionInfo.name.c_str());
         // For compatibility translates to AbilityInfo
-        InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
+        InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
     }
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
-        request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
-    if (request.abilityInfo.type == AppExecFwk::AbilityType::SERVICE && request.abilityInfo.isStageBasedModel) {
+        request->abilityInfo.name.c_str(), request->abilityInfo.isStageBasedModel);
+    if (request->abilityInfo.type == AppExecFwk::AbilityType::SERVICE && request->abilityInfo.isStageBasedModel) {
         HILOG_INFO("Stage mode, abilityInfo SERVICE type reset EXTENSION.");
-        request.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+        request->abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
     }
 
-    if (request.abilityInfo.applicationInfo.name.empty() || request.abilityInfo.applicationInfo.bundleName.empty()) {
+    if (request->abilityInfo.applicationInfo.name.empty() || request->abilityInfo.applicationInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
     }
-    request.appInfo = request.abilityInfo.applicationInfo;
-    request.uid = request.appInfo.uid;
+    request->appInfo = request->abilityInfo.applicationInfo;
+    request->uid = request->appInfo.uid;
     HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
-        request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
+        request->appInfo.name.c_str(), request->appInfo.bundleName.c_str(), request->uid);
 
     return ERR_OK;
 }
 
 int AbilityManagerService::GenerateExtensionAbilityRequest(
-    const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
+    const Want &want, std::shared_ptr<AbilityRequest> request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
-    request.want = want;
-    request.callerToken = callerToken;
-    request.startSetting = nullptr;
+    request->want = want;
+    request->callerToken = callerToken;
+    request->startSetting = nullptr;
 
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
@@ -2523,19 +2523,19 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     HILOG_DEBUG("Extension ability info found, name=%{public}s.",
         extensionInfo.name.c_str());
     // For compatibility translates to AbilityInfo
-    InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
+    InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
 
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
-        request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
+        request->abilityInfo.name.c_str(), request->abilityInfo.isStageBasedModel);
 
-    if (request.abilityInfo.applicationInfo.name.empty() || request.abilityInfo.applicationInfo.bundleName.empty()) {
+    if (request->abilityInfo.applicationInfo.name.empty() || request->abilityInfo.applicationInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
     }
-    request.appInfo = request.abilityInfo.applicationInfo;
-    request.uid = request.appInfo.uid;
+    request->appInfo = request->abilityInfo.applicationInfo;
+    request->uid = request->appInfo.uid;
     HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
-        request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
+        request->appInfo.name.c_str(), request->appInfo.bundleName.c_str(), request->uid);
 
     return ERR_OK;
 }
@@ -2580,14 +2580,14 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId)
         return ERR_INVALID_VALUE;
     }
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         return result;
     }
 
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
     HILOG_DEBUG("validUserId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
@@ -2744,8 +2744,8 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
     HILOG_INFO("App data abilities preloading for bundle '%{public}s'...", bundleName.data());
 
     auto begin = system_clock::now();
-    AbilityRequest dataAbilityRequest;
-    dataAbilityRequest.appInfo = bundleInfo.applicationInfo;
+    std::shared_ptr<AbilityRequest> dataAbilityRequest = std::make_shared<AbilityRequest>();
+    dataAbilityRequest->appInfo = bundleInfo.applicationInfo;
     for (auto it = bundleInfo.abilityInfos.begin(); it != bundleInfo.abilityInfos.end(); ++it) {
         if (it->type != AppExecFwk::AbilityType::DATA) {
             continue;
@@ -2754,8 +2754,8 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
             HILOG_ERROR("App data ability preloading for '%{public}s' timeout.", bundleName.c_str());
             return ERR_TIMED_OUT;
         }
-        dataAbilityRequest.abilityInfo = *it;
-        dataAbilityRequest.uid = bundleInfo.uid;
+        dataAbilityRequest->abilityInfo = *it;
+        dataAbilityRequest->uid = bundleInfo.uid;
         HILOG_INFO("App data ability preloading: '%{public}s.%{public}s'...", it->bundleName.c_str(), it->name.c_str());
 
         auto dataAbility = dataAbilityManager->Acquire(dataAbilityRequest, false, nullptr, false);
@@ -3238,20 +3238,20 @@ int AbilityManagerService::StartAbilityByCall(
         return StartRemoteAbilityByCall(want, connect->AsObject());
     }
 
-    AbilityRequest abilityRequest;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
-    abilityRequest.callerToken = callerToken;
-    abilityRequest.startSetting = nullptr;
-    abilityRequest.want = want;
-    abilityRequest.connect = connect;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->callerUid = IPCSkeleton::GetCallingUid();
+    abilityRequest->callerToken = callerToken;
+    abilityRequest->startSetting = nullptr;
+    abilityRequest->want = want;
+    abilityRequest->connect = connect;
     int result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
     }
 
-    if (!abilityRequest.abilityInfo.isStageBasedModel) {
+    if (!abilityRequest->abilityInfo.isStageBasedModel) {
         HILOG_ERROR("target ability is not stage base model.");
         return RESOLVE_CALL_ABILITY_VERSION_ERR;
     }
@@ -3263,8 +3263,8 @@ int AbilityManagerService::StartAbilityByCall(
     }
 
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
-        abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
-    if (abilityRequest.abilityInfo.applicationInfo.singleton) {
+        abilityRequest->abilityInfo.applicationInfo.singleton ? "true" : "false");
+    if (abilityRequest->abilityInfo.applicationInfo.singleton) {
         auto missionListManager = GetListManagerByUserId(U0_USER_ID);
         if (missionListManager == nullptr) {
             HILOG_ERROR("missionListManager is Null. userId=%{public}d", U0_USER_ID);
@@ -3296,11 +3296,11 @@ int AbilityManagerService::ReleaseAbility(
     return currentMissionListManager_->ReleaseLocked(connect, element);
 }
 
-int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityRequest)
+int AbilityManagerService::CheckCallPermissions(const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
-    auto abilityInfo = abilityRequest.abilityInfo;
-    auto callerUid = abilityRequest.callerUid;
+    auto abilityInfo = abilityRequest->abilityInfo;
+    auto callerUid = abilityRequest->callerUid;
     auto targetUid = abilityInfo.applicationInfo.uid;
 
     auto bms = GetBundleManager();
@@ -3311,7 +3311,7 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
         isCallerSystemApp, isTargetSystemApp);
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto apl = abilityRequest.appInfo.appPrivilegeLevel;
+    auto apl = abilityRequest->appInfo.appPrivilegeLevel;
     if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE && !isCallerSystemApp) {
         HILOG_DEBUG("caller is common app.");
         std::string bundleName;
@@ -4174,9 +4174,10 @@ bool AbilityManagerService::IsNeedTimeoutForTest(const std::string &abilityName,
     return false;
 }
 
-bool AbilityManagerService::VerifyUriPermission(const AbilityRequest &abilityRequest, const Want &want)
+bool AbilityManagerService::VerifyUriPermission(
+    const std::shared_ptr<AbilityRequest>& abilityRequest, const Want &want)
 {
-    if (abilityRequest.abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::FILESHARE) {
+    if (abilityRequest->abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::FILESHARE) {
         HILOG_DEBUG("Only FILESHARE need to Verify uri permission.");
         return true;
     }

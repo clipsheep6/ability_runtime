@@ -578,10 +578,10 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_031, TestSize.Level0)
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_AcquireDataAbility_001, TestSize.Level1)
 {
     OHOS::Uri dataAbilityUri("dataability:///data.bundle.DataAbility");
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "data.client.bundle";
-    abilityRequest.abilityInfo.name = "ClientAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->appInfo.bundleName = "data.client.bundle";
+    abilityRequest->abilityInfo.name = "ClientAbility";
+    abilityRequest->abilityInfo.type = AbilityType::DATA;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).WillOnce(Return(NO_ERROR));
@@ -615,10 +615,10 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_AcquireDataAbility_002, Te
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_AcquireDataAbility_003, TestSize.Level1)
 {
     OHOS::Uri dataAbilityUri("dataability:///data.bundle.DataAbility");
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "data.client.bundle";
-    abilityRequest.abilityInfo.name = "ClientAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->appInfo.bundleName = "data.client.bundle";
+    abilityRequest->abilityInfo.name = "ClientAbility";
+    abilityRequest->abilityInfo.type = AbilityType::DATA;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).WillOnce(Return(TRANSACTION_ERR));
@@ -636,10 +636,10 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_AcquireDataAbility_003, Te
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseDataAbility_001, TestSize.Level1)
 {
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "data.client.bundle";
-    abilityRequest.abilityInfo.name = "ClientAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->appInfo.bundleName = "data.client.bundle";
+    abilityRequest->abilityInfo.name = "ClientAbility";
+    abilityRequest->abilityInfo.type = AbilityType::DATA;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).WillOnce(Return(NO_ERROR));
@@ -656,10 +656,10 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseDataAbility_001, Te
  */
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseDataAbility_002, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "data.client.bundle";
-    abilityRequest.abilityInfo.name = "ClientAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->appInfo.bundleName = "data.client.bundle";
+    abilityRequest->abilityInfo.name = "ClientAbility";
+    abilityRequest->abilityInfo.type = AbilityType::DATA;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(0);
@@ -693,10 +693,10 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseDataAbility_003, Te
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ReleaseDataAbility_004, TestSize.Level1)
 {
     OHOS::sptr<IAbilityScheduler> scheduler = new AbilityScheduler();
-    AbilityRequest abilityRequest;
-    abilityRequest.appInfo.bundleName = "data.client.bundle";
-    abilityRequest.abilityInfo.name = "ClientAbility";
-    abilityRequest.abilityInfo.type = AbilityType::DATA;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->appInfo.bundleName = "data.client.bundle";
+    abilityRequest->abilityInfo.name = "ClientAbility";
+    abilityRequest->abilityInfo.type = AbilityType::DATA;
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).WillOnce(Return(TRANSACTION_ERR));

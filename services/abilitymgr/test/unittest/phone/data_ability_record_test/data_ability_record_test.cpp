@@ -40,7 +40,7 @@ public:
 
 protected:
     sptr<AbilitySchedulerMock> abilitySchedulerMock_ {nullptr};
-    AbilityRequest abilityRequest_;
+    std::shared_ptr<AbilityRequest> abilityRequest_ = std::make_shared<AbilityRequest>();
     std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
     OHOS::AAFwk::AbilityState abilityState_;
 };
@@ -56,10 +56,10 @@ void DataAbilityRecordTest::SetUp(void)
         abilitySchedulerMock_ = new AbilitySchedulerMock();
     }
 
-    abilityRequest_.appInfo.bundleName = "com.data_ability.hiworld";
-    abilityRequest_.appInfo.name = "com.data_ability.hiworld";
-    abilityRequest_.abilityInfo.name = "DataAbilityHiworld";
-    abilityRequest_.abilityInfo.type = AbilityType::DATA;
+    abilityRequest_->appInfo.bundleName = "com.data_ability.hiworld";
+    abilityRequest_->appInfo.name = "com.data_ability.hiworld";
+    abilityRequest_->abilityInfo.name = "DataAbilityHiworld";
+    abilityRequest_->abilityInfo.type = AbilityType::DATA;
 
     if (abilityRecord_ == nullptr) {
         OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -98,7 +98,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_NE(dataAbilityRecord->GetToken(), nullptr);
     EXPECT_NE(dataAbilityRecord->GetAbilityRecord()->GetToken(), nullptr);
-    EXPECT_EQ(dataAbilityRecord->GetRequest().appInfo.name, abilityRequest_.appInfo.name);
+    EXPECT_EQ(dataAbilityRecord->GetRequest()->appInfo.name, abilityRequest_->appInfo.name);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_Flow_001 end.");
 }
@@ -135,7 +135,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_002, TestSi
     HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_002 start.");
 
     // clear app name
-    abilityRequest_.appInfo.name = "";
+    abilityRequest_->appInfo.name = "";
     std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_INVALID_VALUE);
 

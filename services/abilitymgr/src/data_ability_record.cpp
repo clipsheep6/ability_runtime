@@ -23,11 +23,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-DataAbilityRecord::DataAbilityRecord(const AbilityRequest &req) : request_(req)
+DataAbilityRecord::DataAbilityRecord(const std::shared_ptr<AbilityRequest> &req) : request_(req)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
-    if (request_.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+    if (request_->abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("BUG: Construct a data ability with wrong ability type.");
     }
 }
@@ -46,7 +46,7 @@ int DataAbilityRecord::StartLoading()
         return ERR_ALREADY_EXISTS;
     }
 
-    if (request_.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+    if (request_->abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Start a data ability with wrong ability type.");
         return ERR_INVALID_VALUE;
     }
@@ -428,7 +428,7 @@ int DataAbilityRecord::KillBoundClientProcesses()
     return ERR_OK;
 }
 
-const AbilityRequest &DataAbilityRecord::GetRequest() const
+const std::shared_ptr<AbilityRequest> &DataAbilityRecord::GetRequest() const
 {
     return request_;
 }

@@ -110,37 +110,37 @@ public:
     void TearDown();
 
 protected:
-    static const AbilityRequest &MakeDefaultAbilityRequest();
-    static const AbilityRequest &MakeHomeAbilityRequest();
+    static const std::shared_ptr<AbilityRequest> &MakeDefaultAbilityRequest();
+    static const std::shared_ptr<AbilityRequest> &MakeHomeAbilityRequest();
 
 private:
-    inline static AbilityRequest testAbilityRequest_;
+    inline static std::shared_ptr<AbilityRequest> testAbilityRequest_ = std::make_shared<AbilityRequest>();
 };
 
 void AbilityRecordModuleTest::SetUpTestCase()
 {
     int testCode = 123;
-    testAbilityRequest_.requestCode = testCode;
+    testAbilityRequest_->requestCode = testCode;
 
-    testAbilityRequest_.abilityInfo.package = "test";
-    testAbilityRequest_.abilityInfo.name = "test";
-    testAbilityRequest_.abilityInfo.label = "test";
-    testAbilityRequest_.abilityInfo.description = "test";
-    testAbilityRequest_.abilityInfo.iconPath = "/test";
-    testAbilityRequest_.abilityInfo.visible = false;
-    testAbilityRequest_.abilityInfo.kind = "page";
-    testAbilityRequest_.abilityInfo.permissions = {};
-    testAbilityRequest_.abilityInfo.bundleName = "test";
-    testAbilityRequest_.abilityInfo.applicationName = "test";
-    testAbilityRequest_.abilityInfo.deviceId = "test";
-    testAbilityRequest_.abilityInfo.codePath = "/test";
-    testAbilityRequest_.abilityInfo.resourcePath = "/test";
-    testAbilityRequest_.abilityInfo.libPath = "/test";
+    testAbilityRequest_->abilityInfo.package = "test";
+    testAbilityRequest_->abilityInfo.name = "test";
+    testAbilityRequest_->abilityInfo.label = "test";
+    testAbilityRequest_->abilityInfo.description = "test";
+    testAbilityRequest_->abilityInfo.iconPath = "/test";
+    testAbilityRequest_->abilityInfo.visible = false;
+    testAbilityRequest_->abilityInfo.kind = "page";
+    testAbilityRequest_->abilityInfo.permissions = {};
+    testAbilityRequest_->abilityInfo.bundleName = "test";
+    testAbilityRequest_->abilityInfo.applicationName = "test";
+    testAbilityRequest_->abilityInfo.deviceId = "test";
+    testAbilityRequest_->abilityInfo.codePath = "/test";
+    testAbilityRequest_->abilityInfo.resourcePath = "/test";
+    testAbilityRequest_->abilityInfo.libPath = "/test";
 
-    testAbilityRequest_.appInfo.name = "test";
-    testAbilityRequest_.appInfo.bundleName = "test";
-    testAbilityRequest_.appInfo.deviceId = "test";
-    testAbilityRequest_.appInfo.signatureKey = "test";
+    testAbilityRequest_->appInfo.name = "test";
+    testAbilityRequest_->appInfo.bundleName = "test";
+    testAbilityRequest_->appInfo.deviceId = "test";
+    testAbilityRequest_->appInfo.signatureKey = "test";
 }
 
 void AbilityRecordModuleTest::TearDownTestCase()
@@ -152,21 +152,21 @@ void AbilityRecordModuleTest::SetUp()
 void AbilityRecordModuleTest::TearDown()
 {}
 
-const AbilityRequest &AbilityRecordModuleTest::MakeDefaultAbilityRequest()
+const std::shared_ptr<AbilityRequest> &AbilityRecordModuleTest::MakeDefaultAbilityRequest()
 {
-    Want::ClearWant(&testAbilityRequest_.want);
-    testAbilityRequest_.want.SetAction("test");
-    testAbilityRequest_.want.AddEntity("test");
+    Want::ClearWant(&testAbilityRequest_->want);
+    testAbilityRequest_->want.SetAction("test");
+    testAbilityRequest_->want.AddEntity("test");
 
     return testAbilityRequest_;
 }
 
-const AbilityRequest &AbilityRecordModuleTest::MakeHomeAbilityRequest()
+const std::shared_ptr<AbilityRequest> &AbilityRecordModuleTest::MakeHomeAbilityRequest()
 {
-    Want::ClearWant(&testAbilityRequest_.want);
-    testAbilityRequest_.want.SetAction(Want::ACTION_HOME);
-    testAbilityRequest_.want.AddEntity(Want::ENTITY_HOME);
-    testAbilityRequest_.appInfo.isLauncherApp = true;
+    Want::ClearWant(&testAbilityRequest_->want);
+    testAbilityRequest_->want.SetAction(Want::ACTION_HOME);
+    testAbilityRequest_->want.AddEntity(Want::ENTITY_HOME);
+    testAbilityRequest_->appInfo.isLauncherApp = true;
 
     return testAbilityRequest_;
 }
@@ -189,9 +189,9 @@ HWTEST_F(AbilityRecordModuleTest, Init_001, TestSize.Level2)
         EXPECT_TRUE(abilityRecord->GetRecordId() >= 0);
         EXPECT_FALSE(abilityRecord->IsLauncherAbility());
         EXPECT_EQ(abilityRecord->GetAbilityState(), INITIAL);
-        EXPECT_EQ(abilityRecord->GetRequestCode(), abilityRequest.requestCode);
-        EXPECT_EQ(abilityRecord->GetAbilityInfo(), abilityRequest.abilityInfo);
-        EXPECT_EQ(abilityRecord->GetApplicationInfo(), abilityRequest.appInfo);
+        EXPECT_EQ(abilityRecord->GetRequestCode(), abilityRequest->requestCode);
+        EXPECT_EQ(abilityRecord->GetAbilityInfo(), abilityRequest->abilityInfo);
+        EXPECT_EQ(abilityRecord->GetApplicationInfo(), abilityRequest->appInfo);
     }
 }
 
@@ -212,9 +212,9 @@ HWTEST_F(AbilityRecordModuleTest, Init_002, TestSize.Level2)
         EXPECT_TRUE(abilityRecord->GetToken());
         EXPECT_TRUE(abilityRecord->IsLauncherAbility());
         EXPECT_EQ(abilityRecord->GetAbilityState(), INITIAL);
-        EXPECT_EQ(abilityRecord->GetRequestCode(), abilityRequest.requestCode);
-        EXPECT_EQ(abilityRecord->GetAbilityInfo(), abilityRequest.abilityInfo);
-        EXPECT_EQ(abilityRecord->GetApplicationInfo(), abilityRequest.appInfo);
+        EXPECT_EQ(abilityRecord->GetRequestCode(), abilityRequest->requestCode);
+        EXPECT_EQ(abilityRecord->GetAbilityInfo(), abilityRequest->abilityInfo);
+        EXPECT_EQ(abilityRecord->GetApplicationInfo(), abilityRequest->appInfo);
     }
 }
 
@@ -305,14 +305,14 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
 
         // Connect
         testResult = false;
-        auto mockConnectHandler = [&](const Want &want) { testResult = want == abilityRequest.want; };
+        auto mockConnectHandler = [&](const Want &want) { testResult = want == abilityRequest->want; };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleConnectAbility(_)).Times(1).WillOnce(Invoke(mockConnectHandler));
         abilityRecord->ConnectAbility();
         EXPECT_TRUE(testResult);
 
         // Disconnect
         testResult = false;
-        auto mockDisconnectHandler = [&](const Want &want) { testResult = want == abilityRequest.want; };
+        auto mockDisconnectHandler = [&](const Want &want) { testResult = want == abilityRequest->want; };
         EXPECT_CALL(*mockAbilityScheduerStub, ScheduleDisconnectAbility(_))
             .Times(1)
             .WillOnce(Invoke(mockDisconnectHandler));
@@ -323,12 +323,12 @@ HWTEST_F(AbilityRecordModuleTest, AbilityScheduler_001, TestSize.Level3)
         testResult = false;
         int testResultCode = 123;
         auto mockSendResultHandler = [&](int requestCode, int resultCode, const Want &want) {
-            testResult = requestCode == abilityRequest.requestCode && resultCode == testResultCode &&
-                         want == abilityRequest.want;
+            testResult = requestCode == abilityRequest->requestCode && resultCode == testResultCode &&
+                         want == abilityRequest->want;
         };
         EXPECT_CALL(*mockAbilityScheduerStub, SendResult(_, _, _)).Times(1).WillOnce(Invoke(mockSendResultHandler));
         auto abilityResult =
-            std::make_shared<AbilityResult>(abilityRequest.requestCode, testResultCode, abilityRequest.want);
+            std::make_shared<AbilityResult>(abilityRequest->requestCode, testResultCode, abilityRequest->want);
         EXPECT_TRUE(abilityResult);
         abilityRecord->SetResult(abilityResult);
         abilityRecord->SendResult();
@@ -421,7 +421,7 @@ HWTEST_F(AbilityRecordModuleTest, Want_001, TestSize.Level1)
     EXPECT_TRUE(abilityRecord);
 
     auto initWant = abilityRecord->GetWant();
-    EXPECT_EQ(initWant, abilityRequest.want);
+    EXPECT_EQ(initWant, abilityRequest->want);
 
     Want setWant;
     setWant.SetAction("newAction");

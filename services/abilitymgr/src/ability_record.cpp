@@ -108,22 +108,23 @@ AbilityRecord::~AbilityRecord()
     }
 }
 
-std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
+std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(
+    const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(
-        abilityRequest.want, abilityRequest.abilityInfo, abilityRequest.appInfo, abilityRequest.requestCode);
+        abilityRequest->want, abilityRequest->abilityInfo, abilityRequest->appInfo, abilityRequest->requestCode);
     CHECK_POINTER_AND_RETURN(abilityRecord, nullptr);
-    abilityRecord->SetUid(abilityRequest.uid);
+    abilityRecord->SetUid(abilityRequest->uid);
     if (!abilityRecord->Init()) {
         HILOG_ERROR("failed to init new ability record");
         return nullptr;
     }
-    if (abilityRequest.startSetting != nullptr) {
-        HILOG_INFO("abilityRequest.startSetting...");
-        abilityRecord->SetStartSetting(abilityRequest.startSetting);
+    if (abilityRequest->startSetting != nullptr) {
+        HILOG_INFO("abilityRequest->startSetting...");
+        abilityRecord->SetStartSetting(abilityRequest->startSetting);
     }
-    if (abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
-        HILOG_INFO("abilityRequest.callType is CALL_REQUEST_TYPE.");
+    if (abilityRequest->IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
+        HILOG_INFO("abilityRequest->callType is CALL_REQUEST_TYPE.");
         abilityRecord->SetStartedByCall(true);
     }
     return abilityRecord;
@@ -1160,10 +1161,10 @@ bool AbilityRecord::CallRequest()
     return callContainer_->CallRequestDone(callStub);
 }
 
-ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
+ResolveResultType AbilityRecord::Resolve(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
-    auto callback = abilityRequest.connect;
-    if (abilityRequest.callType != AbilityCallType::CALL_REQUEST_TYPE || !callback) {
+    auto callback = abilityRequest->connect;
+    if (abilityRequest->callType != AbilityCallType::CALL_REQUEST_TYPE || !callback) {
         HILOG_ERROR("only startd by call type can create a call record.");
         return ResolveResultType::NG_INNER_ERROR;
     }
@@ -1176,13 +1177,13 @@ ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
     }
 
     HILOG_DEBUG("create call record for this resolve. callerUid:%{public}d ,targetname:%{public}s",
-        abilityRequest.callerUid,
-        abilityRequest.abilityInfo.name.c_str());
+        abilityRequest->callerUid,
+        abilityRequest->abilityInfo.name.c_str());
 
     std::shared_ptr<CallRecord> callRecord = callContainer_->GetCallRecord(callback);
     if (!callRecord) {
         callRecord = CallRecord::CreateCallRecord(
-            abilityRequest.callerUid, shared_from_this(), callback, abilityRequest.callerToken);
+            abilityRequest->callerUid, shared_from_this(), callback, abilityRequest->callerToken);
         if (!callRecord) {
             HILOG_ERROR("mark_shared error.");
             return ResolveResultType::NG_INNER_ERROR;

@@ -54,7 +54,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(const AbilityRequest &abilityRequest);
+    int StartAbility(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * TerminateAbility with token and result want.
@@ -79,7 +79,7 @@ public:
      * @param abilityRequest, request.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StopServiceAbility(const AbilityRequest &abilityRequest);
+    int StopServiceAbility(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * Destroys this Service ability if the number of times it
@@ -101,8 +101,8 @@ public:
      * @param callerToken, caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int ConnectAbilityLocked(const AbilityRequest &abilityRequest, const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callerToken);
+    int ConnectAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest,
+        const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken);
 
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
@@ -249,7 +249,7 @@ private:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbilityLocked(const AbilityRequest &abilityRequest);
+    int StartAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * TerminateAbilityLocked with token and result want.
@@ -279,7 +279,7 @@ private:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StopServiceAbilityLocked(const AbilityRequest &abilityRequest);
+    int StopServiceAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * LoadAbility.
@@ -363,7 +363,7 @@ private:
      * @param targetAbilityRecord, the target service ability record.
      * @param isLoadedAbility, whether the target ability has been loaded.
      */
-    void GetOrCreateServiceRecord(const AbilityRequest &abilityRequest, const bool isCreatedByConnect,
+    void GetOrCreateServiceRecord(const std::shared_ptr<AbilityRequest> &abilityRequest, const bool isCreatedByConnect,
         std::shared_ptr<AbilityRecord> &targetAbilityRecord, bool &isLoadedAbility);
 
     /**

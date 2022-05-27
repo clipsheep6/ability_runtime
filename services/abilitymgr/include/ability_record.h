@@ -188,7 +188,7 @@ public:
      * @param abilityRequest,create ability record.
      * @return Returns ability record ptr.
      */
-    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest);
+    static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * Init ability record.
@@ -668,7 +668,7 @@ public:
     bool IsSwitchingPause();
 
     // new version
-    ResolveResultType Resolve(const AbilityRequest &abilityRequest);
+    ResolveResultType Resolve(const std::shared_ptr<AbilityRequest> &abilityRequest);
     bool Release(const sptr<IAbilityConnection> & connect);
     bool IsNeedToCallRequest() const;
     bool IsStartedByCall() const;

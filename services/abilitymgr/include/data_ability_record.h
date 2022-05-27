@@ -30,7 +30,7 @@ namespace OHOS {
 namespace AAFwk {
 class DataAbilityRecord : public std::enable_shared_from_this<DataAbilityRecord> {
 public:
-    explicit DataAbilityRecord(const AbilityRequest &req);
+    explicit DataAbilityRecord(const std::shared_ptr<AbilityRequest> &req);
     virtual ~DataAbilityRecord();
 
 public:
@@ -44,7 +44,7 @@ public:
     int RemoveClients(const std::shared_ptr<AbilityRecord> &client = nullptr);
     size_t GetClientCount(const sptr<IRemoteObject> &client = nullptr) const;
     int KillBoundClientProcesses();
-    const AbilityRequest &GetRequest() const;
+    const std::shared_ptr<AbilityRequest> &GetRequest() const;
     std::shared_ptr<AbilityRecord> GetAbilityRecord();
     sptr<IRemoteObject> GetToken();
     void Dump() const;
@@ -63,7 +63,7 @@ private:
 
 private:
     std::condition_variable_any loadedCond_ {};
-    AbilityRequest request_ {};
+    std::shared_ptr<AbilityRequest> request_ = nullptr;
     AbilityRecordPtr ability_ {};
     sptr<IAbilityScheduler> scheduler_ {};
     std::list<ClientInfo> clients_ {};
