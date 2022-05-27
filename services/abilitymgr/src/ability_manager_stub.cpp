@@ -67,6 +67,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[START_CONTINUATION] = &AbilityManagerStub::StartContinuationInner;
     requestFuncMap_[NOTIFY_COMPLETE_CONTINUATION] = &AbilityManagerStub::NotifyCompleteContinuationInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilityManagerStub::NotifyContinuationResultInner;
+    requestFuncMap_[SEND_RESULT_TO_ABILITY] = &AbilityManagerStub::SendResultToAbilityInner;
     requestFuncMap_[REGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::RegisterRemoteMissionListenerInner;
     requestFuncMap_[UNREGISTER_REMOTE_MISSION_LISTENER] = &AbilityManagerStub::UnRegisterRemoteMissionListenerInner;
     requestFuncMap_[START_ABILITY_FOR_OPTIONS] = &AbilityManagerStub::StartAbilityForOptionsInner;
@@ -192,6 +193,23 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     } else {
         result = CloseAbility(token, resultCode, resultWant);
     }
+    reply.WriteInt32(result);
+    if (resultWant != nullptr) {
+        delete resultWant;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SendResultToAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    int requestCode = data.ReadInt32();
+    int resultCode = data.ReadInt32();
+    Want *resultWant = data.ReadParcelable<Want>();
+    if (resultWant == nullptr) {
+        HILOG_ERROR("resultWant is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = SendResultToAbility(requestCode, resultCode, *resultWant);
     reply.WriteInt32(result);
     if (resultWant != nullptr) {
         delete resultWant;
