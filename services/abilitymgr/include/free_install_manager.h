@@ -93,6 +93,18 @@ public:
     int IsConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
         std::string& localDeviceId);
 
+    /**
+     * Check if the connect request is free install.
+     * @param want, the want of the ability to free install.
+     * @param userId, designation User ID.
+     * @param callerToken, caller ability token.
+     * @param requestCode, ability request code.
+     * @param isRemote, is remote ability to free install.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int IsStartFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
+        int requestCode, bool isRemote);
+
 private:
     std::weak_ptr<AbilityManagerService> server_;
     struct FreeInstallInfo {

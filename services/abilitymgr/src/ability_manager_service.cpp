@@ -266,6 +266,20 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        HILOG_INFO("StartAbility with free install flags");
+        int32_t validUserId = GetValidUserId(userId);
+        auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
+        int ret = manager->IsStartFreeInstall(want, validUserId, callerToken, requestCode,
+            CheckIfOperateRemote(want));
+        if (ret != ERR_OK) {
+            eventInfo.errCode = ret;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return eventInfo.errCode;
+        }
+    }
     int32_t ret = StartAbilityInner(want, nullptr, requestCode, -1, userId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -299,16 +313,16 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
 
     if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
         HILOG_INFO("StartAbility with free install flags");
-        Want fiWant = want;
-        std::string freeInstallType = "StartAbility";
-        fiWant.SetParam(FREE_INSTALL_TYPE, freeInstallType);
         int32_t validUserId = GetValidUserId(userId);
         auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
-        eventInfo.errCode = manager->FreeInstall(fiWant, validUserId, requestCode, callerToken,
+        int ret = manager->IsStartFreeInstall(want, validUserId, callerToken, requestCode,
             CheckIfOperateRemote(want));
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return eventInfo.errCode;
+        if (ret != ERR_OK) {
+            eventInfo.errCode = ret;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return eventInfo.errCode;
+        }
     }
 
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
@@ -440,6 +454,20 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        HILOG_INFO("StartAbility with free install flags");
+        int32_t validUserId = GetValidUserId(userId);
+        auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
+        int ret = manager->IsStartFreeInstall(want, validUserId, callerToken, requestCode,
+            CheckIfOperateRemote(want));
+        if (ret != ERR_OK) {
+            eventInfo.errCode = ret;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return eventInfo.errCode;
+        }
+    }
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         eventInfo.errCode = ERR_INVALID_VALUE;
@@ -561,6 +589,20 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        HILOG_INFO("StartAbility with free install flags");
+        int32_t validUserId = GetValidUserId(userId);
+        auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
+        int ret = manager->IsStartFreeInstall(want, validUserId, callerToken, requestCode,
+            CheckIfOperateRemote(want));
+        if (ret != ERR_OK) {
+            eventInfo.errCode = ret;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return eventInfo.errCode;
+        }
+    }
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         eventInfo.errCode = ERR_INVALID_VALUE;
