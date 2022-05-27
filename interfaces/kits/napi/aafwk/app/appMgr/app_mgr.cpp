@@ -76,22 +76,24 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
         NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
     }
 
-    AsyncCallbackInfo *async_callback_info = new AsyncCallbackInfo {
+    AsyncCallbackInfo *async_callback_info_ptr = new AsyncCallbackInfo {
         .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr
     };
+    std::unique_ptr<AsyncCallbackInfo> async_callback_info(async_callback_info_ptr);
     std::string bundleName;
     ParseBundleName(env, bundleName, argv[0]);
 
     if (argc >= argcNum) {
         async_callback_info->bundleName = bundleName;
-        napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]);
+        NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]));
 
         napi_value resourceName;
-        napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack", NAPI_AUTO_LENGTH, &resourceName);
+        NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack",
+            NAPI_AUTO_LENGTH, &resourceName));
 
-        napi_create_async_work(env,
+        NAPI_CALL(env, napi_create_async_work(env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -120,14 +122,16 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
                 napi_delete_async_work(env, async_callback_info->asyncWork);
                 delete async_callback_info;
             },
-            (void *)async_callback_info,
-            &async_callback_info->asyncWork);
+            (void *)async_callback_info.get(),
+            &async_callback_info->asyncWork));
 
         NAPI_CALL(env, napi_queue_async_work(env, async_callback_info->asyncWork));
+        async_callback_info.release();
         return NULL;
     } else {
         napi_value resourceName;
-        napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNamePromise", NAPI_AUTO_LENGTH, &resourceName);
+        NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNamePromise",
+            NAPI_AUTO_LENGTH, &resourceName));
 
         napi_deferred deferred;
         napi_value promise;
@@ -135,7 +139,7 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
         async_callback_info->deferred = deferred;
         async_callback_info->bundleName = bundleName;
 
-        napi_create_async_work(env,
+        NAPI_CALL(env, napi_create_async_work(env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
@@ -156,9 +160,10 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
                 napi_delete_async_work(env, async_callback_info->asyncWork);
                 delete async_callback_info;
             },
-            (void *)async_callback_info,
-            &async_callback_info->asyncWork);
-        napi_queue_async_work(env, async_callback_info->asyncWork);
+            (void *)async_callback_info.get(),
+            &async_callback_info->asyncWork));
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info->asyncWork));
+        async_callback_info.release();
         return promise;
     }
 }

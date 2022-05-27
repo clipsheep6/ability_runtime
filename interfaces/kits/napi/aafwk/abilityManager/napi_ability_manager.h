@@ -80,13 +80,6 @@ struct AsyncClearUpApplicationDataCallbackInfo {
     int32_t result = -1;
 };
 
-struct SystemMemroyInfoCB {
-    std::shared_ptr<SystemMemoryAttr> info = nullptr;
-    napi_async_work asyncWork = nullptr;
-    napi_deferred deferred = nullptr;
-    napi_ref callback = nullptr;
-};
-
 struct CallbackInfo {
     napi_async_work asyncWork = nullptr;
     napi_deferred deferred = nullptr;
