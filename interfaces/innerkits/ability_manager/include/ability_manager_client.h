@@ -185,6 +185,16 @@ public:
     ErrCode TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant);
 
     /**
+     * SendResult with want, return want from ability manager service.
+     *
+     * @param requestCode requestCode.
+     * @param resultCode resultCode.
+     * @param Want Ability want returned.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode SendResultToAbility(int requestCode, int resultCode, Want& resultWant);
+
+    /**
      * CloseAbility with want, return want from ability manager service.
      *
      * @param token Ability token.
