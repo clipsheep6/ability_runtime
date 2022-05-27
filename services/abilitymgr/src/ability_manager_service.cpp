@@ -721,14 +721,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-        if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-            iface_cast<ISystemAbilityTokenCallback>(callerToken) == nullptr) {
-            HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-            return ERR_INVALID_VALUE;
-        }
-        HILOG_INFO("%{public}s: Caller is system ability.", __func__);    
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {    
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
         eventInfo.errCode = ERR_INVALID_VALUE;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
