@@ -311,6 +311,10 @@ void AbilityRecord::SetAbilityState(AbilityState state)
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE) {
         SetRestarting(false);
     }
+    auto mission = GetMission();
+    if (mission) {
+        mission->SetANRState(false);
+    }
 }
 
 void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)

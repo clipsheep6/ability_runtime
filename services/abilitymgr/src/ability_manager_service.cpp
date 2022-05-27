@@ -56,6 +56,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
+#include "ui_service_mgr_client.h"
 #include "event_report.h"
 #include "hisysevent.h"
 
@@ -77,6 +78,18 @@ const int32_t MIN_ARGS_SIZE = 1;
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+
+const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
+const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
+const int32_t UI_HALF = 2;
+const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
+const int32_t UI_WIDTH_780DP = 1560;
+
+const int32_t UI_DEFAULT_WIDTH = 2560;
+const int32_t UI_DEFAULT_HEIGHT = 1600;
+const std::string EVENT_WAITING_CODE = "0";
+const std::string EVENT_CLOSE_CODE = "1";
+const std::string APP_NAME = "appName";
 
 #ifndef OS_ACCOUNT_PART_ENABLED
 constexpr static int UID_TRANSFORM_DIVISOR = 200000;
@@ -841,6 +854,56 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     return eventInfo.errCode;
 }
 
+<<<<<<< HEAD
+int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+{
+    HILOG_INFO("Stop extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+        HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    int32_t validUserId = GetValidUserId(userId);
+    if (!JudgeMultiUserConcurrency(validUserId)) {
+        HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
+        return ERR_INVALID_VALUE;
+    }
+
+    AbilityRequest abilityRequest;
+    auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request local error.");
+        return result;
+    }
+
+    auto abilityInfo = abilityRequest.abilityInfo;
+    validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : validUserId;
+    HILOG_DEBUG("userId is : %{public}d, singleton is : %{public}d",
+        validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
+
+    result = CheckOptExtensionAbility(want, abilityRequest, validUserId, extensionType);
+    if (result != ERR_OK) {
+        HILOG_ERROR("CheckOptExtensionAbility error.");
+        return result;
+    }
+
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_INFO("Stop extension begin, name is %{public}s.", abilityInfo.name.c_str());
+    return connectManager->StopServiceAbility(abilityRequest);
+}
+
+=======
+>>>>>>> master_0527
 
 void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUserId)
 {
@@ -3955,22 +4018,99 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+    
+    AppExecFwk::ApplicationInfo appInfo;
+    if (appScheduler_) {
+        if (appScheduler_->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
+            HILOG_ERROR("Get application info failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        HILOG_ERROR("appScheduler_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
 
     int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
-    auto timeoutTask = [pid]() {
-        if (kill(pid, SIGKILL) != ERR_OK) {
-            HILOG_ERROR("Kill app not response process failed");
-        }
-    };
-    if (!SetANRMissionByProcessID(pid)) {
-        HILOG_ERROR("Set app not response mission record failed");
-    }
-    handler_->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
-    if (kill(pid, SIGUSR1) != ERR_OK) {
-        HILOG_ERROR("Send singal SIGUSR1 error.");
-        return SEND_USR1_SIG_FAIL;
-    }
+
+    DialogPosition position;
+    position.width = UI_ANR_DIALOG_WIDTH;
+    position.height = UI_ANR_DIALOG_HEIGHT;
+    position.width_narrow = UI_ANR_DIALOG_WIDTH;
+    position.height_narrow = UI_ANR_DIALOG_HEIGHT;
+    GetDialogPositionAndSize(position);
+
+
+    std::string appName {""};
+    GetAppNameFromResource(appName, appInfo.labelId, appInfo.bundleName);
+    nlohmann::json jsonObj;
+    jsonObj[APP_NAME] = appName;
+    const std::string params = jsonObj.dump();
+   
+    Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
+        "dialog_anr_service",
+        params,
+        OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
+        position.offsetX, position.offsetY, position.width, position.height,
+        [aams = shared_from_this(), pid, anrTimeOut, bundleName = appInfo.bundleName](int32_t id,
+            const std::string& event, const std::string& params) {
+            AppExecFwk::ApplicationInfo appInfo;
+            Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
+            if (!aams) {
+                HILOG_ERROR("abilitymanager is null.");
+                return;
+            }
+            if (params == EVENT_WAITING_CODE) {
+                if (aams->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK && appInfo.bundleName == bundleName) {
+                    aams->ExcuteANRStackTask(pid);
+                }
+            } else if (params == EVENT_CLOSE_CODE) {
+                auto timeoutTask = [pid]() {
+                    if (kill(pid, SIGKILL) != ERR_OK) {
+                        HILOG_ERROR("Kill app not response process failed");
+                    }
+                };
+                if (aams->GetApplicationInfoByProcessID(pid, appInfo) == ERR_OK && appInfo.bundleName == bundleName) {
+                    aams->GetEventHandler()->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
+                    aams->ExcuteANRStackTask(pid);
+                }
+            }
+        });
+    HILOG_INFO("AbilityManagerService::SendANRProcessID end");
     return ERR_OK;
+}
+
+void AbilityManagerService::GetAppNameFromResource(std::string &appName, int32_t labelId, const std::string& bundleName)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("resourceManager init failed!");
+        return;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    auto bms = GetBundleManager();
+    CHECK_POINTER(bms);
+    if (!IN_PROCESS_CALL(
+        bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, GetUserId()))) {
+        HILOG_ERROR("Failed to get bundle info.");
+        return;
+    }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    UErrorCode status = U_ZERO_ERROR;
+    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    resConfig->SetLocaleInfo(locale);
+    resourceManager->UpdateResConfig(*resConfig);
+
+    for (auto resPath = bundleInfo.moduleResPaths.begin(); resPath != bundleInfo.moduleResPaths.end(); resPath++) {
+        if (resPath->empty()) {
+            continue;
+        }
+        if (!resourceManager->AddResource(resPath->c_str())) {
+            HILOG_INFO("resourceManager add %{public}s resource path failed!", bundleInfo.name.c_str());
+        }
+    }
+    resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
+    HILOG_INFO("get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
 }
 
 bool AbilityManagerService::IsRunningInStabilityTest()
@@ -4346,7 +4486,7 @@ bool AbilityManagerService::SetANRMissionByProcessID(int pid)
             HILOG_WARN("mission is nullptr.");
             continue;
         }
-        mission->SetANRState();
+        mission->SetANRState(true);
     }
     return true;
 }
@@ -4562,6 +4702,30 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     int32_t validUserId = GetValidUserId(userId);
     return manager->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
+void AbilityManagerService::ExcuteANRStackTask(int pid)
+{
+    if (!SetANRMissionByProcessID(pid)) {
+        HILOG_ERROR("Set app not response mission record failed");
+    }
+    if (kill(pid, SIGUSR1) != ERR_OK) {
+        HILOG_ERROR("Send singal SIGUSR1 error.");
+    }
+}
+
+int AbilityManagerService::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    HILOG_INFO("%{public}s", __func__);
+    if (appScheduler_) {
+        if (appScheduler_->GetApplicationInfoByProcessID(pid, application) != ERR_OK) {
+            HILOG_ERROR("Get application info failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        HILOG_ERROR("appScheduler_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
 {
@@ -4709,6 +4873,31 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     }
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
+}
+
+void AbilityManagerService::GetDialogPositionAndSize(DialogPosition &position)
+{
+    position.wideScreen = true;
+    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    if (display == nullptr) {
+        HILOG_WARN("share dialog GetDefaultDisplay fail, try again.");
+        display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
+    }
+
+    if (display != nullptr) {
+        if (display->GetWidth() < UI_WIDTH_780DP) {
+            HILOG_INFO("share dialog narrow.");
+            position.wideScreen = false;
+            position.width = position.width_narrow;
+            position.height = position.height_narrow;
+        }
+        position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
+        position.offsetY = (display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP) / UI_HALF;
+    } else {
+        HILOG_WARN("share dialog get display fail, use default wide.");
+        position.offsetX = (UI_DEFAULT_WIDTH - position.width) / UI_HALF;
+        position.offsetY = UI_DEFAULT_HEIGHT - position.height - UI_DEFAULT_BUTTOM_CLIP;
+    }
 }
 
 #ifdef SUPPORT_GRAPHICS

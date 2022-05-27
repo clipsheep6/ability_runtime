@@ -2170,11 +2170,39 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
         HILOG_ERROR("no such appRecord");
         return ERR_NAME_NOT_FOUND;
     }
+
+    // auto ApplicationInfo = appRecord->GetApplicationInfo();
+    // if (ApplicationInfo) {
+    //     HILOG_ERROR("ApplicationInfo->bundleName#############: %{public}s", ApplicationInfo->bundleName.c_str());
+    //     HILOG_ERROR("ApplicationInfo->labelId#############: %{public}s",std::to_string(ApplicationInfo->labelId).c_str());
+    // } else {
+    //     HILOG_ERROR("ApplicationInfo is null #############");
+    // }
+
     for (auto &item : appRecord->GetAbilities()) {
         tokens.emplace_back(item.first);
     }
     return ERR_OK;
 }
+
+int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord");
+        return ERR_NAME_NOT_FOUND;
+    }
+
+    auto ApplicationInfo = appRecord->GetApplicationInfo();
+    if (ApplicationInfo) {
+        application = *ApplicationInfo;
+    } else {
+        HILOG_ERROR("ApplicationInfo is nullptr !");
+        return ERR_NO_INIT;
+    }
+    return ERR_OK;
+}
+
 
 int AppMgrServiceInner::VerifyProcessPermission()
 {

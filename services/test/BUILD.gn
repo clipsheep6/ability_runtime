@@ -58,5 +58,6 @@ group("moduletest") {
     "moduletest/running_infos_module_test:moduletest",
     "moduletest/start_option_display_id_test:moduletest",
     "//third_party/jsoncpp:jsoncpp",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 }
