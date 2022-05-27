@@ -92,7 +92,13 @@ void FormSysEventReceiver::OnReceiveEvent(const EventFwk::CommonEventData &event
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED) {
         auto task = [this, want, bundleName]() {
             int userId = want.GetIntParam(KEY_USER_ID, 0);
-            HandleBundleDataCleared(bundleName, userId);
+            sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+            if (iBundleMgr == nullptr) {
+                HILOG_ERROR("%{public}s error, failed to get IBundleMgr.", __func__);
+                return;
+            }
+            int uid = IN_PROCESS_CALL(iBundleMgr->GetUidByBundleName(bundleName, userId));
+            HandleBundleDataCleared(bundleName, uid);
         };
         eventHandler_->PostTask(task);
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED) {
@@ -237,7 +243,7 @@ bool FormSysEventReceiver::ProviderFormUpdated(const int64_t formId,
 
 void FormSysEventReceiver::HandleBundleFormInfoChanged(const std::string &bundleName, int32_t userId)
 {
-    FormInfoMgr::GetInstance().UpdateStaticFormInfos(bundleName, userId);
+    FormInfoMgr::GetInstance().Update(bundleName, userId);
 }
 
 void FormSysEventReceiver::HandleBundleFormInfoRemoved(const std::string &bundleName, int32_t userId)
@@ -245,12 +251,9 @@ void FormSysEventReceiver::HandleBundleFormInfoRemoved(const std::string &bundle
     FormInfoMgr::GetInstance().Remove(bundleName, userId);
 }
 
-void FormSysEventReceiver::HandleBundleDataCleared(const std::string &bundleName, int32_t userId)
+void FormSysEventReceiver::HandleBundleDataCleared(const std::string &bundleName, const int uid)
 {
-    HILOG_DEBUG("%{public}s, bundleName:%{public}s, userId:%{public}d", __func__, bundleName.c_str(), userId);
-    // clear dynamic form info
-    FormInfoMgr::GetInstance().RemoveAllDynamicFormsInfo(bundleName, userId);
-
+    HILOG_DEBUG("%{public}s, bundleName:%{public}s, uid:%{public}d", __func__, bundleName.c_str(), uid);
     // as provider data is cleared
     std::set<int64_t> reCreateForms;
     FormDataMgr::GetInstance().GetReCreateFormRecordsByBundleName(bundleName, reCreateForms);
@@ -259,13 +262,6 @@ void FormSysEventReceiver::HandleBundleDataCleared(const std::string &bundleName
             ReCreateForm(formId);
         }
     }
-
-    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
-    if (iBundleMgr == nullptr) {
-        HILOG_ERROR("%{public}s error, failed to get IBundleMgr.", __func__);
-        return;
-    }
-    int uid = IN_PROCESS_CALL(iBundleMgr->GetUidByBundleName(bundleName, userId));
 
     // as form host data is cleared
     HandleFormHostDataCleared(uid);

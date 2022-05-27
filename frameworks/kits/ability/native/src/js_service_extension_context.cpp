@@ -28,7 +28,6 @@
 #include "napi_remote_object.h"
 #include "napi_common_start_options.h"
 #include "start_options.h"
-#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -119,7 +118,6 @@ private:
     std::weak_ptr<ServiceExtensionContext> context_;
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         HILOG_INFO("OnStartAbility is called");
         // only support one or two or three params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
@@ -827,14 +825,12 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     HILOG_INFO("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
-    std::string moduleName = element.GetModuleName();
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
-        [bundleName, abilityName, moduleName](
+        [bundleName, abilityName](
             const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
             return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
-                   (moduleName == obj.first.want.GetElement().GetModuleName());
+                   (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != connects_.end()) {
         // match bundlename && abilityname

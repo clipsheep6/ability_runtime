@@ -215,8 +215,7 @@ std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByName(const AppExec
     for (auto mission : missions_) {
         if (mission) {
             const AppExecFwk::AbilityInfo &abilityInfo = mission->GetAbilityRecord()->GetAbilityInfo();
-            AppExecFwk::ElementName localElement(abilityInfo.deviceId, abilityInfo.bundleName,
-                abilityInfo.name, abilityInfo.moduleName);
+            AppExecFwk::ElementName localElement(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name);
             if (localElement == element) {
                 return mission->GetAbilityRecord();
             }

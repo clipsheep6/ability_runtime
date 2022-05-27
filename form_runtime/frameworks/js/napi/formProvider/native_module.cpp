@@ -14,6 +14,11 @@
  */
 #include "napi/native_api.h"
 
+#include <cstdio>
+#include <cstring>
+#include <pthread.h>
+#include <unistd.h>
+
 #include "hilog_wrapper.h"
 #include "napi/native_node_api.h"
 #include "napi_form_provider.h"
@@ -30,16 +35,13 @@ EXTERN_C_START
  */
 static napi_value Init(napi_env env, napi_value exports)
 {
-    HILOG_INFO("napi_module Init start...");
+    HILOG_INFO("napi_moudule Init start...");
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("setFormNextRefreshTime", NAPI_SetFormNextRefreshTime),
         DECLARE_NAPI_FUNCTION("updateForm", NAPI_UpdateForm),
-        DECLARE_NAPI_FUNCTION("requestPublishForm", NAPI_RequestPublishForm),
-        DECLARE_NAPI_FUNCTION("addFormInfo", NAPI_AddFormInfo),
-        DECLARE_NAPI_FUNCTION("removeFormInfo", NAPI_RemoveFormInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
-    HILOG_INFO("napi_module Init end...");
+    HILOG_INFO("napi_moudule Init end...");
 
     return exports;
 }
@@ -53,8 +55,8 @@ static napi_module _module = {
     .nm_filename = nullptr,
     .nm_register_func = Init,
     .nm_modname = "application.formProvider",
-    .nm_priv = nullptr,
-    .reserved = {nullptr}
+    .nm_priv = ((void *)0),
+    .reserved = {0}
 };
 
 // Registers a Node-API module.

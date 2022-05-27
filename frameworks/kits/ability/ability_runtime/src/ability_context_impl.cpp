@@ -125,7 +125,6 @@ ErrCode AbilityContextImpl::StartAbilityWithAccount(const AAFwk::Want &want, int
 ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions,
     int requestCode)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("AbilityContextImpl::StartAbility. Start calling StartAbility.");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     HILOG_INFO("AbilityContextImpl::StartAbility. End calling StartAbility. ret=%{public}d", err);
@@ -240,7 +239,6 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
 bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want,
                                         const sptr<AbilityConnectCallback> &connectCallback)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Connect ability begin, ability:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
@@ -262,7 +260,6 @@ bool AbilityContextImpl::ConnectAbilityWithAccount(const AAFwk::Want &want, int 
 void AbilityContextImpl::DisconnectAbility(const AAFwk::Want &want,
                                            const sptr<AbilityConnectCallback> &connectCallback)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Disconnect ability begin, caller:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
@@ -350,7 +347,6 @@ ErrCode AbilityContextImpl::TerminateSelf()
 
 ErrCode AbilityContextImpl::CloseAbility()
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
     isTerminating_ = true;
     AAFwk::Want resultWant;

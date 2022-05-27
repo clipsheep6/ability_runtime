@@ -1,0 +1,8 @@
+{
+  "message": {
+    "title": "no response",
+    "titleList": "The app is not responding, if you close the app, you may lose recent data, and the app may respond if you keep waiting.",
+    "waiting": "Wait",
+    "close": "Close"     
+  }
+}
