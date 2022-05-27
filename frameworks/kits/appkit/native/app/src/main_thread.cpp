@@ -452,6 +452,7 @@ void MainThread::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
     const std::shared_ptr<AAFwk::Want> &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("MainThread schedule launch ability, name is %{public}s, type is %{public}d.",
         info.name.c_str(), info.type);
 
@@ -857,7 +858,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::shared_ptr<AbilityRuntime::ContextImpl> contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     contextImpl->SetResourceManager(resourceManager);
     contextImpl->SetApplicationInfo(std::make_shared<ApplicationInfo>(appInfo));
-    contextImpl->InitAppContext();
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         std::make_shared<AbilityRuntime::ApplicationContext>();
     applicationContext->AttachContextImpl(contextImpl);
@@ -1505,25 +1505,21 @@ void MainThread::HandleSignal(int signal)
 {
     switch (signal) {
         case SIGUSR1:
-            HILOG_INFO("MainThread::ScheduleANRProcess called begin");
             if (handleANRThread_ == nullptr) {
                 handleANRThread_ = std::make_shared<std::thread>(&MainThread::HandleScheduleANRProcess);
             }
             break;
         case SIGNAL_JS_HEAP: {
-            HILOG_INFO("Dump js heap called.");
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
             dfxHandler_->PostTask(heapFunc);
             break;
         }
         case SIGNAL_JS_HEAP_PRIV: {
-            HILOG_INFO("Dump js heap private called.");
             auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
             dfxHandler_->PostTask(privateHeapFunc);
             break;
         }
         default:
-            HILOG_INFO("Signal:%{public}d need not to handle.", signal);
             break;
     }
 }
