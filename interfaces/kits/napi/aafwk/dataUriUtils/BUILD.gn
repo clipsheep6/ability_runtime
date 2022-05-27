@@ -13,7 +13,7 @@
 
 # import("//build/config/ohos/rules.gni")
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
 ohos_shared_library("datauriutils") {
   include_dirs = [
     "./",

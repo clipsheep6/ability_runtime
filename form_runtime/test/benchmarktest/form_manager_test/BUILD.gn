@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/aafwk/standard/form_runtime/form_runtime.gni")
+import("//foundation/ability/ability_runtime/form_runtime/form_runtime.gni")
 
 module_output_path = "aafwk_standard/interfaces"
 
@@ -39,7 +39,7 @@ ohos_benchmarktest("BenchmarkTestForFormManager") {
     "utils_base:utils",
   ]
   resource_config_file =
-      "//foundation/aafwk/standard/test/resource/benchmark/ohos_test.xml"
+      "//foundation/ability/ability_runtime/test/resource/benchmark/ohos_test.xml"
 }
 
 group("benchmarktest") {

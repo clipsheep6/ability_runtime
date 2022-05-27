@@ -32,8 +32,8 @@
             "sub_component": [],
             "inner_kits": [],
             "test": [
-                "//foundation/aafwk/standard/idl/test/ts/moduletest:moduletest",
-                "//foundation/aafwk/standard/idl/test/ts/unittest:unittest"
+                "//foundation/ability/ability_runtime/idl/test/ts/moduletest:moduletest",
+                "//foundation/ability/ability_runtime/idl/test/ts/unittest:unittest"
             ]
         }
     }
