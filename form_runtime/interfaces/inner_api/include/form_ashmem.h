@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,31 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_CALLER_INFO_H
-#define OHOS_AAFWK_INTERFACES_INNERKITS_CALLER_INFO_H
+#ifndef FOUNDATION_APPEXECFWK_OHOS_FORM_ASHMEM_H
+#define FOUNDATION_APPEXECFWK_OHOS_FORM_ASHMEM_H
 
-#include <string>
-#include "parcel.h"
-#include "want.h"
+#include "ashmem.h"
 
 namespace OHOS {
-namespace AAFwk {
+namespace AppExecFwk {
 /**
- * @struct CallerInfo
- * Defines caller ability record info.
+ * @class FormAshmem
+ * Defines form ashmem.
  */
-struct CallerInfo : public Parcelable {
-    int requestCode = -1;
-    std::string deviceId;
-    std::string bundleName;
-    std::string abilityName;
-    std::string moduleName;
+class FormAshmem : public Parcelable {
+public:
+    FormAshmem() = default;
+    ~FormAshmem();
 
-    bool ReadFromParcel(Parcel &parcel);
+    bool WriteToAshmem(std::string name, char *data, int32_t size);
+    int32_t GetAshmemSize();
+    int32_t GetAshmemFd();
+
     virtual bool Marshalling(Parcel &parcel) const override;
-    static CallerInfo *Unmarshalling(Parcel &parcel);
-};
+    static FormAshmem* Unmarshalling(Parcel &parcel);
+private:
+    bool ReadFromParcel(Parcel &parcel);
 
-}  // namespace AAFwk
+    sptr<Ashmem> ashmem_;
+};
+}  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_INTERFACES_INNERKITS_CALLER_INFO_H
+
+#endif  // FOUNDATION_APPEXECFWK_OHOS_FORM_ASHMEM_H

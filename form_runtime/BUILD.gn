@@ -98,6 +98,7 @@ ohos_shared_library("libfms") {
     "distributeddatamgr:distributeddata_inner",
     "eventhandler:libeventhandler",
     "form_runtime:form_manager",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -193,6 +194,7 @@ config("formmgr_sdk_config") {
 
 ohos_shared_library("form_manager") {
   sources = [
+    "interfaces/inner_api/src/form_ashmem.cpp",
     "interfaces/inner_api/src/form_host_proxy.cpp",
     "interfaces/inner_api/src/form_host_stub.cpp",
     "interfaces/inner_api/src/form_js_info.cpp",

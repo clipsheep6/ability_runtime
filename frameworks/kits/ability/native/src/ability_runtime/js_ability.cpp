@@ -34,6 +34,7 @@
 #include "string_wrapper.h"
 #include "context/context.h"
 #include "context/application_context.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -119,6 +120,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
 
 void JsAbility::OnStart(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnStart begin, ability is %{public}s.", GetAbilityName().c_str());
     Ability::OnStart(want);
 
@@ -126,7 +128,7 @@ void JsAbility::OnStart(const Want &want)
         HILOG_WARN("Not found Ability.js");
         return;
     }
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
@@ -163,6 +165,7 @@ void JsAbility::OnStart(const Want &want)
 
 void JsAbility::OnStop()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Ability::OnStop();
 
     CallObjectMethod("onDestroy");
@@ -179,7 +182,7 @@ void JsAbility::OnStop()
         HILOG_INFO("The service connection is not disconnected.");
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityDestroy(jsAbilityObj_);
     }
@@ -190,6 +193,7 @@ const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 
 void JsAbility::OnSceneCreated()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnSceneCreated begin, ability is %{public}s.", GetAbilityName().c_str());
     Ability::OnSceneCreated();
     auto jsAppWindowStage = CreateAppWindowStage();
@@ -206,7 +210,7 @@ void JsAbility::OnSceneCreated()
         delegator->PostPerformScenceCreated(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityWindowStageCreate(jsAbilityObj_);
     }
@@ -246,7 +250,7 @@ void JsAbility::onSceneDestroyed()
         delegator->PostPerformScenceDestroyed(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityWindowStageDestroy(jsAbilityObj_);
     }
@@ -255,6 +259,7 @@ void JsAbility::onSceneDestroyed()
 
 void JsAbility::OnForeground(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnForeground begin, ability is %{public}s.", GetAbilityName().c_str());
     Ability::OnForeground(want);
 
@@ -281,7 +286,7 @@ void JsAbility::OnForeground(const Want &want)
         delegator->PostPerformForeground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
@@ -290,6 +295,7 @@ void JsAbility::OnForeground(const Want &want)
 
 void JsAbility::OnBackground()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Ability::OnBackground();
 
     CallObjectMethod("onBackground");
@@ -300,7 +306,7 @@ void JsAbility::OnBackground()
         delegator->PostPerformBackground(CreateADelegatorAbilityProperty());
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
@@ -448,7 +454,7 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
         return false;
     }
 
-    auto applicationContext = AbilityRuntime::Context::GetJsApplicationContext();
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityContinue(jsAbilityObj_);
     }

@@ -26,6 +26,7 @@
 #include "resource_manager.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -145,6 +146,7 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     elementName->SetAbilityName(info->name);
     elementName->SetBundleName(info->bundleName);
     elementName->SetDeviceID(info->deviceId);
+    elementName->SetModuleName(info->moduleName);
     HILOG_INFO("%{public}s end.", __func__);
     return elementName;
 }
@@ -161,12 +163,14 @@ std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
     elementName->SetAbilityName(callingAbilityName_);
     elementName->SetBundleName(callingBundleName_);
     elementName->SetDeviceID(callingDeviceId_);
+    elementName->SetModuleName(callingModuleName_);
     HILOG_INFO("%{public}s end.", __func__);
     return elementName;
 }
 
 bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
 
     std::shared_ptr<AbilityInfo> abilityInfo = GetAbilityInfo();
@@ -194,6 +198,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
 
 ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
 
@@ -439,12 +444,13 @@ bool AbilityContext::DeleteFile(const std::string &fileName)
     return ContextContainer::DeleteFile(fileName);
 }
 
-void AbilityContext::SetCallingContext(
-    const std::string &deviceId, const std::string &bundleName, const std::string &abilityName)
+void AbilityContext::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
+    const std::string &abilityName, const std::string &moduleName)
 {
     callingDeviceId_ = deviceId;
     callingBundleName_ = bundleName;
     callingAbilityName_ = abilityName;
+    callingModuleName_ = moduleName;
 }
 
 Uri AbilityContext::GetCaller()
