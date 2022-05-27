@@ -15,6 +15,7 @@
 
 #include "app_running_manager.h"
 
+#include "app_mgr_service_inner.h"
 #include "datetime_ex.h"
 #include "iremote_object.h"
 
@@ -339,7 +340,7 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token)) {
+    if (appRecord->IsLastAbilityRecord(token, false)) {
         appRecord->SetTerminating();
     }
 
@@ -359,13 +360,13 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         return;
     }
 
-    if (appRecord->IsLastAbilityRecord(token)) {
+    if (appRecord->IsLastAbilityRecord(token, false)) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
 }
 
-void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
+void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
     if (!token) {
         HILOG_ERROR("token is nullptr.");
@@ -378,12 +379,20 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
         return;
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    bool isKeepAlive = appRecord->IsKeepAliveApp();
+    HILOG_INFO("The ability is the last in the isKeepAlive:%{public}d.", isKeepAlive);
+    if (appRecord->IsLastAbilityRecord(token, isClearMissionFlag) && !isKeepAlive) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
+        HILOG_INFO("The ability is the last in the isClearMissionFlag:%{public}d.", isClearMissionFlag);
         appRecord->SetTerminating();
+        if (isClearMissionFlag) {
+            appRecord->TerminateAbility(token, false);
+            std::shared_ptr<AppMgrServiceInner> appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+            appMgrServiceInner->KillApplication(appRecord->GetBundleName());
+        } else {
+            appRecord->TerminateAbility(token, false);
+        }
     }
-
-    appRecord->TerminateAbility(token, false);
 }
 
 void AppRunningManager::GetRunningProcessInfoByToken(

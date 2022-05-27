@@ -50,7 +50,7 @@ public:
      *
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode TerminateAbility(const sptr<IRemoteObject> &token);
+    virtual AppMgrResultCode TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag);
 
     /**
      * Update ability state.

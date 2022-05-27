@@ -877,8 +877,9 @@ void AppRunningRecord::SetEventHandler(const std::shared_ptr<AMSEventHandler> &h
     eventHandler_ = handler;
 }
 
-bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
+bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
+    HILOG_ERROR("AppRunningRecord IsLastAbilityRecord called");
     if (!token) {
         HILOG_ERROR("token is nullptr");
         return false;
@@ -892,7 +893,7 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.size() == 1) {
-        return moduleRecord->IsLastAbilityRecord(token);
+        return moduleRecord->IsLastAbilityRecord(token, isClearMissionFlag);
     }
 
     return false;

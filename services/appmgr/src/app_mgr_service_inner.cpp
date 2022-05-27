@@ -814,7 +814,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
     return appRecord;
 }
 
-void AppMgrServiceInner::TerminateAbility(const sptr<IRemoteObject> &token)
+void AppMgrServiceInner::TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability come.");
@@ -829,7 +829,7 @@ void AppMgrServiceInner::TerminateAbility(const sptr<IRemoteObject> &token)
     }
 
     if (appRunningManager_) {
-        appRunningManager_->TerminateAbility(token);
+        appRunningManager_->TerminateAbility(token, isClearMissionFlag);
     }
 }
 
