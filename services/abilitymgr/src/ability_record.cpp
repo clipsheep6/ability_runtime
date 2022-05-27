@@ -249,7 +249,6 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityInfo_.name.c_str());
     if (lifecycleDeal_ == nullptr) {
         HILOG_ERROR("Move the ability to background fail, lifecycleDeal_ is null.");
@@ -280,7 +279,6 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
 
 int AbilityRecord::TerminateAbility()
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
 }
@@ -310,6 +308,10 @@ void AbilityRecord::SetAbilityState(AbilityState state)
     currentState_ = state;
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE) {
         SetRestarting(false);
+    }
+    auto mission = GetMission();
+    if (mission) {
+        mission->SetANRState(false);
     }
 }
 
@@ -456,7 +458,6 @@ void AbilityRecord::Activate()
 
 void AbilityRecord::Inactivate()
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Inactivate ability start, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
@@ -470,7 +471,6 @@ void AbilityRecord::Inactivate()
 
 void AbilityRecord::Terminate(const Closure &task)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Begin to terminate ability, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -499,7 +499,6 @@ void AbilityRecord::ConnectAbility()
 
 void AbilityRecord::DisconnectAbility()
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Disconnect ability, ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->DisconnectAbility(want_);

@@ -30,7 +30,6 @@
 #include "start_options.h"
 #include "want.h"
 #include "event_handler.h"
-#include "hitrace_meter.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
@@ -131,7 +130,6 @@ NativeValue* JsAbilityContext::ConnectAbilityWithAccount(NativeEngine* engine, N
 
 NativeValue* JsAbilityContext::DisconnectAbility(NativeEngine* engine, NativeCallbackInfo* info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     JsAbilityContext* me = CheckParamsAndGetThis<JsAbilityContext>(engine, info);
     return (me != nullptr) ? me->OnDisconnectAbility(*engine, *info) : nullptr;
 }
@@ -168,7 +166,6 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
 
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("OnStartAbility is called.");
 
     if (info.argc == ARGC_ZERO) {
@@ -703,7 +700,6 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
 
 NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability called.");
     // only support two params
     if (info.argc != ARGC_TWO) {
@@ -1250,13 +1246,11 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     HILOG_INFO("OnAbilityDisconnectDone abilityConnects_.size:%{public}zu", abilityConnects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
-    std::string moduleName = element.GetModuleName();
     auto item = std::find_if(abilityConnects_.begin(), abilityConnects_.end(),
-        [bundleName, abilityName, moduleName] (
+        [bundleName, abilityName] (
             const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
                 return (bundleName == obj.first.want.GetBundle()) &&
-                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
-                    (moduleName == obj.first.want.GetElement().GetModuleName());
+                    (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != abilityConnects_.end()) {
         // match bundlename && abilityname

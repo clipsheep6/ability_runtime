@@ -86,6 +86,7 @@ ohos_moduletest("running_infos_module_test") {
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   if (os_account_part_enabled) {
@@ -112,7 +113,6 @@ ohos_moduletest("running_infos_module_test") {
     "dataability:native_dataability",
     "dsoftbus_standard:softbus_client",
     "hicollie_native:libhicollie",
-    "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

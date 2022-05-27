@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_APP_CONTEXT_H
-#define FOUNDATION_APPEXECFWK_OHOS_APP_CONTEXT_H
+#ifndef FOUNDATION_APPEXECFWK_OHOS_APPLICATION_CONTEXT_H
+#define FOUNDATION_APPEXECFWK_OHOS_APPLICATION_CONTEXT_H
 
 #include "context_container.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class AppContext : public ContextContainer, public std::enable_shared_from_this<AppContext> {
+class ApplicationContext : public ContextContainer, public std::enable_shared_from_this<ApplicationContext> {
 public:
-    AppContext();
-    virtual ~AppContext();
+    ApplicationContext();
+    virtual ~ApplicationContext();
 
     /**
      * @brief Obtains information about the current ability.
@@ -160,4 +160,4 @@ protected:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_APP_CONTEXT_H
+#endif  // FOUNDATION_APPEXECFWK_OHOS_APPLICATION_CONTEXT_H

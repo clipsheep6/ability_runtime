@@ -20,124 +20,88 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsAbilityLifecycleCallback::JsAbilityLifecycleCallback(NativeEngine* engine)
+AbilityLifecycleCallback::AbilityLifecycleCallback(NativeEngine &engine)
     : engine_(engine)
 {
 }
 
-int32_t JsAbilityLifecycleCallback::serialNumber_ = 0;
+AbilityLifecycleCallback::~AbilityLifecycleCallback() = default;
 
-void JsAbilityLifecycleCallback::CallJsMethodInner(
-    const std::string &methodName, const std::shared_ptr<NativeReference> &ability)
+void AbilityLifecycleCallback::OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    for (auto &callback : callbacks_) {
-        if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
-            return;
-        }
+    HILOG_INFO("AbilityLifecycleCallback onAbilityCreate");
+    CallLifecycleCBFunction("onAbilityCreate", abilityObj);
+}
 
-        auto value = callback.second->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
-            return;
-        }
+void AbilityLifecycleCallback::OnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityWindowStageCreate", abilityObj);
+}
 
-        auto method = obj->GetProperty(methodName.data());
-        if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
-            return;
-        }
+void AbilityLifecycleCallback::OnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityWindowStageDestroy", abilityObj);
+}
 
-        auto nativeAbilityObj = engine_->CreateNull();
-        if (ability != nullptr) {
-            nativeAbilityObj = ability->Get();
-        }
+void AbilityLifecycleCallback::OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityDestroy", abilityObj);
+}
 
-        NativeValue *argv[] = { nativeAbilityObj };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+void AbilityLifecycleCallback::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityForeground", abilityObj);
+}
+
+void AbilityLifecycleCallback::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityBackground", abilityObj);
+}
+void AbilityLifecycleCallback::OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj)
+{
+    CallLifecycleCBFunction("onAbilityContinue", abilityObj);
+}
+
+void AbilityLifecycleCallback::SetJsCallback(NativeValue *jsCallback)
+{
+    jsCallback_ = std::shared_ptr<NativeReference>(engine_.CreateReference(jsCallback, 1));
+}
+
+NativeValue *AbilityLifecycleCallback::CallLifecycleCBFunction(const std::string &functionName,
+    const std::weak_ptr<NativeReference> &abilityObj)
+{
+    if (functionName.empty()) {
+        HILOG_ERROR("Invalid function name");
+        return nullptr;
     }
-}
 
-void JsAbilityLifecycleCallback::CallJsMethod(
-    const std::string &methodName, const std::weak_ptr<NativeReference> &abilityObj)
-{
-    HILOG_INFO("methodName = %{public}s", methodName.c_str());
-    // js callback should run in js thread
-    auto ability = abilityObj.lock();
-    if (!ability) {
-        return;
+    if (!jsCallback_) {
+        HILOG_ERROR("Invalid jsCallback");
+        return nullptr;
     }
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [JsAbilityLifecycleCallback = this, methodName, ability](
-            NativeEngine &engine, AsyncTask &task, int32_t status) {
-            if (JsAbilityLifecycleCallback) {
-                JsAbilityLifecycleCallback->CallJsMethodInner(methodName, ability);
-            }
-        });
-    NativeReference *callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule(*engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
 
-void JsAbilityLifecycleCallback::OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityCreate", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityWindowStageCreate", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityWindowStageDestroy", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityDestroy", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityForeground", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityBackground", abilityObj);
-}
-
-void JsAbilityLifecycleCallback::OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj)
-{
-    CallJsMethod("onAbilityContinue", abilityObj);
-}
-
-int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback)
-{
-    if (engine_ == nullptr) {
-        return -1;
+    auto value = jsCallback_->Get();
+    auto obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
     }
-    int32_t callbackId = serialNumber_;
-    if (callbackId < INT32_MAX) {
-        callbackId++;
-    } else {
-        callbackId = -1;
+
+    auto method = obj->GetProperty(functionName.data());
+    if (method == nullptr) {
+        HILOG_ERROR("Failed to get %{public}s from object", functionName.data());
+        return nullptr;
     }
-    callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
-    return callbackId;
-}
 
-void JsAbilityLifecycleCallback::UnRegister(int32_t callbackId)
-{
-    callbacks_.erase(callbackId);
-}
+    auto nativeAbilityObj = engine_.CreateNull();
+    if (!abilityObj.expired()) {
+        if (abilityObj.lock() != nullptr) {
+            nativeAbilityObj = abilityObj.lock()->Get();
+        }
+    }
 
-bool JsAbilityLifecycleCallback::IsEmpty()
-{
-    return callbacks_.empty();
+    NativeValue* argv[] = { nativeAbilityObj };
+    return engine_.CallFunction(value, method, argv, ArraySize(argv));
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

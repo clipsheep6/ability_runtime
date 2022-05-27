@@ -446,8 +446,7 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
 
     abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId,
         lifeCycleStateInfo.caller.bundleName,
-        lifeCycleStateInfo.caller.abilityName,
-        lifeCycleStateInfo.caller.moduleName);
+        lifeCycleStateInfo.caller.abilityName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
     HILOG_INFO("Handle ability transaction end.");
 }
@@ -792,7 +791,6 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
  */
 void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule disconnect ability begin, isExtension:%{public}d.", isExtension_);
     wptr<AbilityThread> weak = this;
     auto task = [weak, want]() {
@@ -1178,7 +1176,6 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<EventRunner> &mainRunner,
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("AbilityThread main start.");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     if (thread == nullptr) {
@@ -1204,7 +1201,6 @@ void AbilityThread::AbilityThreadMain(
     std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("AbilityThread main start.");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     if (thread == nullptr || abilityRecord == nullptr) {

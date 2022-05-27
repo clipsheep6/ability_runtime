@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-#include "app_context.h"
+#include "app/include/application_context.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-AppContext::AppContext()
+ApplicationContext::ApplicationContext()
 {}
-AppContext::~AppContext()
+ApplicationContext::~ApplicationContext()
 {}
 
 /**
@@ -29,7 +29,7 @@ AppContext::~AppContext()
  *
  * @return Returns the AbilityInfo object for the current ability.
  */
-const std::shared_ptr<AbilityInfo> AppContext::GetAbilityInfo()
+const std::shared_ptr<AbilityInfo> ApplicationContext::GetAbilityInfo()
 {
     return nullptr;
 }
@@ -49,7 +49,7 @@ const std::shared_ptr<AbilityInfo> AppContext::GetAbilityInfo()
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::StartAbility(const AAFwk::Want &want, int requestCode)
+ErrCode ApplicationContext::StartAbility(const AAFwk::Want &want, int requestCode)
 {
     return ERR_INVALID_VALUE;
 }
@@ -64,7 +64,7 @@ ErrCode AppContext::StartAbility(const AAFwk::Want &want, int requestCode)
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::StartAbility(const Want &want, int requestCode,
+ErrCode ApplicationContext::StartAbility(const Want &want, int requestCode,
     const AbilityStartSetting &abilityStartSetting)
 {
     return ERR_INVALID_VALUE;
@@ -78,7 +78,7 @@ ErrCode AppContext::StartAbility(const Want &want, int requestCode,
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::TerminateAbility(int requestCode)
+ErrCode ApplicationContext::TerminateAbility(int requestCode)
 {
     return ERR_INVALID_VALUE;
 }
@@ -88,7 +88,7 @@ ErrCode AppContext::TerminateAbility(int requestCode)
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::TerminateAbility()
+ErrCode ApplicationContext::TerminateAbility()
 {
     return ERR_INVALID_VALUE;
 }
@@ -108,7 +108,7 @@ ErrCode AppContext::TerminateAbility()
  * @return Returns {@code true} if the {@code startId} matches the number of startup times
  *         and this Service ability will be destroyed; returns {@code false} otherwise.
  */
-bool AppContext::TerminateAbilityResult(int startId)
+bool ApplicationContext::TerminateAbilityResult(int startId)
 {
     return false;
 }
@@ -121,7 +121,7 @@ bool AppContext::TerminateAbilityResult(int startId)
  *
  * @return Returns the bundle name of the calling ability; returns null if no calling ability is available.
  */
-std::string AppContext::GetCallingBundle()
+std::string ApplicationContext::GetCallingBundle()
 {
     return "";
 }
@@ -135,7 +135,7 @@ std::string AppContext::GetCallingBundle()
  *
  * @return True means success and false means failure
  */
-bool AppContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
+bool ApplicationContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
 {
     return false;
 }
@@ -148,7 +148,7 @@ bool AppContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConn
  *
  * @return errCode ERR_OK on success, others on failure.
  */
-ErrCode AppContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
+ErrCode ApplicationContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
 {
     return ERR_INVALID_VALUE;
 }
@@ -163,12 +163,12 @@ ErrCode AppContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &con
  *
  * @return Returns true if the ability is destroyed successfully; returns false otherwise.
  */
-bool AppContext::StopAbility(const AAFwk::Want &want)
+bool ApplicationContext::StopAbility(const AAFwk::Want &want)
 {
     return false;
 }
 
-sptr<IRemoteObject> AppContext::GetToken()
+sptr<IRemoteObject> ApplicationContext::GetToken()
 {
     return nullptr;
 }
@@ -178,7 +178,7 @@ sptr<IRemoteObject> AppContext::GetToken()
  *
  * @param wants Indicates the Want containing information array about the target ability to start.
  */
-void AppContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
+void ApplicationContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
 {}
 
 /**
@@ -186,7 +186,7 @@ void AppContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
  *
  * @return Returns the unique mission ID.
  */
-int AppContext::GetMissionId()
+int ApplicationContext::GetMissionId()
 {
     return -1;
 }

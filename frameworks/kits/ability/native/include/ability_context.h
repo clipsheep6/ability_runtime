@@ -442,8 +442,7 @@ public:
      *
      * @param abilityName abilityName of the calling ability
      */
-    void SetCallingContext(const std::string &deviceId, const std::string &bundleName,
-        const std::string &abilityName, const std::string &moduleName = "");
+    void SetCallingContext(const std::string &deviceId, const std::string &bundleName, const std::string &abilityName);
 
     /**
      * @brief Obtains information about the caller of this ability.
@@ -588,7 +587,6 @@ protected:
     std::string callingDeviceId_;
     std::string callingBundleName_;
     std::string callingAbilityName_;
-    std::string callingModuleName_;
     std::map<sptr<AAFwk::IAbilityConnection>, sptr<IRemoteObject>> abilityConnectionMap_;
 
 private:

@@ -242,7 +242,6 @@ void MissionListManager::StartWaittingAbility()
 int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
     const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
     auto targetList = GetTargetMissionList(callerAbility, abilityRequest);
@@ -340,8 +339,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     // no reused mission, create a new one.
     bool isSingleton = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON;
     std::string missionName = isSingleton ? AbilityUtil::ConvertBundleNameSingleton(
-        abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName) :
-        abilityRequest.abilityInfo.bundleName;
+        abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name) : abilityRequest.abilityInfo.bundleName;
 
     // try reuse mission info
     InnerMissionInfo info;
@@ -485,7 +483,7 @@ std::shared_ptr<Mission> MissionListManager::GetReusedMission(const AbilityReque
 
     std::shared_ptr<Mission> reUsedMission = nullptr;
     std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+        abilityRequest.abilityInfo.name);
 
     // find launcher first.
     if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
@@ -622,7 +620,6 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetCurrentTopAbilityLocked() 
 
 int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto abilityRecord = GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
@@ -777,7 +774,6 @@ std::shared_ptr<Mission> MissionListManager::GetMissionById(int missionId) const
 
 int MissionListManager::AbilityTransactionDone(const sptr<IRemoteObject> &token, int state, const PacMap &saveData)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     HILOG_INFO("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
@@ -963,7 +959,6 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
 int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
     int resultCode, const Want *resultWant, bool flag)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Terminate ability, ability is %{public}s.", element.c_str());
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
@@ -1328,7 +1323,6 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
 
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("Move the ability to background fail, ability record is null.");
         return;
