@@ -78,6 +78,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleAttachRenderProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_RENDER_PROCESS_TERMINATION_STATUS)] =
         &AppMgrStub::HandleGetRenderProcessTerminationStatus;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_APPLICATION_INFO_BY_PROCESS_ID)] =
+        &AppMgrStub::HandleGetApplicationInfoByProcessID;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -363,6 +365,25 @@ int32_t AppMgrStub::HandleGetAbilityRecordsByProcessID(MessageParcel &data, Mess
     }
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t pid = data.ReadInt32();
+    AppExecFwk::ApplicationInfo application;
+    bool result = GetApplicationInfoByProcessID(pid, application);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (result) {
+        if (!reply.WriteParcelable(&application)) {
+            HILOG_ERROR("write application info failed");
+            return ERR_INVALID_VALUE;
+        }
     }
     return NO_ERROR;
 }
