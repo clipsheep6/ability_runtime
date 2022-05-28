@@ -49,6 +49,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(BACKGROUND, "BACKGROUND"),
     std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
     std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -65,6 +66,7 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_ACTIVE, ACTIVE),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
 };
 #ifndef OS_ACCOUNT_PART_ENABLED
 const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
