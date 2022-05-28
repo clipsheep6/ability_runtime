@@ -15,6 +15,8 @@
 
 #include "mission_list_manager.h"
 
+#include <cstdlib>
+
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
 #include "ability_util.h"
@@ -2118,9 +2120,12 @@ sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(cons
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
     auto abilityStartSetting = abilityRequest.startSetting;
     if (abilityStartSetting) {
-        auto mode = std::stoi(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY));
+        int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+        auto mode =
+            strtol(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY).c_str(), nullptr, base);
         info->mode_ = static_cast<uint32_t>(mode);
-        auto displayId = std::stoi(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY));
+        auto displayId =
+            strtol(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str(), nullptr, base);
         info->displayId_ = static_cast<uint64_t>(displayId);
     } else {
         SetWindowModeAndDisplayId(info, abilityRequest.want);
