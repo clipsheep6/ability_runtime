@@ -101,6 +101,7 @@ ohos_source_set("abilityms_test_source") {
     "${services_path}/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
     "//utils/native/base:utils",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   if (os_account_part_enabled) {
@@ -168,6 +169,7 @@ group("unittest") {
     "unittest/phone/ability_manager_client_test:unittest",
     "unittest/phone/ability_manager_proxy_test:unittest",
     "unittest/phone/ability_manager_service_account_test:unittest",
+    "unittest/phone/ability_manager_service_anr_test:unittest",
     "unittest/phone/ability_manager_stub_test:unittest",
     "unittest/phone/ability_record_dump_test:unittest",
     "unittest/phone/ability_record_test:unittest",
