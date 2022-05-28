@@ -3335,6 +3335,10 @@ int AbilityManagerService::GetAppMemorySize()
     int ret = GetParameter(key, def, valueGet, len);
     int resultInt = 0;
     if ((ret != GET_PARAMETER_OTHER) && (ret != GET_PARAMETER_INCORRECT)) {
+        if (valueGet == nullptr) {
+            HILOG_WARN("%{public}s, valueGet is nullptr", __func__);
+            return APP_MEMORY_SIZE;
+        }
         int len = strlen(valueGet);
         for (int i = 0; i < len; i++) {
             if (valueGet[i] >= '0' && valueGet[i] <= '9') {
@@ -4061,7 +4065,7 @@ int AbilityManagerService::StartUserTest(const Want &want, const sptr<IRemoteObj
         HILOG_ERROR("Failed to get bundle info by U0_USER_ID %{public}d.", U0_USER_ID);
         int32_t userId = GetUserId();
         if (!IN_PROCESS_CALL(
-            bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, GetUserId()))) {
+            bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
             HILOG_ERROR("Failed to get bundle info by userId %{public}d.", userId);
             return GET_BUNDLE_INFO_FAILED;
         }
