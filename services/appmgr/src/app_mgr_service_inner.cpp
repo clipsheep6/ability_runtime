@@ -1059,8 +1059,7 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
         if (want) {
             ownerUserId = want->GetIntParam(ABILITY_OWNER_USERID, -1);
         }
-        auto abilityRecord = appRecord->GetAbilityRunningRecord(abilityInfo->name,
-            abilityInfo->moduleName, ownerUserId);
+        auto abilityRecord = appRecord->GetAbilityRunningRecord(abilityInfo->name, ownerUserId);
         if (abilityRecord) {
             HILOG_WARN("same ability info in singleton launch mode, will not add ability");
             return;

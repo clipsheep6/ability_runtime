@@ -42,21 +42,20 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName,
-        const std::string &moduleName, bool mode);
+    AbilityInfo CreateAbilityInfo(
+        const std::string &name, const std::string &appName, const std::string &bundleName, bool mode);
     ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
     inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
 };
 
-AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(const std::string &name, const std::string &appName,
-    const std::string &bundleName, const std::string &moduleName, bool mode)
+AbilityInfo OnNewWantModuleTest::CreateAbilityInfo(
+    const std::string &name, const std::string &appName, const std::string &bundleName, bool mode)
 {
     AbilityInfo abilityInfo;
     abilityInfo.visible = true;
     abilityInfo.name = name;
     abilityInfo.applicationName = appName;
     abilityInfo.bundleName = bundleName;
-    abilityInfo.moduleName = moduleName;
     abilityInfo.applicationInfo.bundleName = bundleName;
     abilityInfo.applicationName = "com.ix.hiMusic";
     abilityInfo.applicationInfo.name = "com.ix.hiMusic";
@@ -113,22 +112,21 @@ HWTEST_F(OnNewWantModuleTest, Startability_001, TestSize.Level1)
     std::string abilityName = "MusicAbility";
     std::string appName = "test_app";
     std::string bundleName = "com.ix.hiMusic";
-    std::string moduleName = "entry";
 
     Want want;
-    ElementName element("device", "com.ix.hiMusic", "MusicAbility", "entry");
+    ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
     AbilityRequest abilityRequest;
     abilityRequest.want = want;
-    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, moduleName, true);
+    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, true);
     abilityRequest.appInfo = CreateAppInfo(appName, bundleName);
 
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::FOREGROUND);
 
-    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+    std::string missionName =
+        AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, missionName);
 
     missionListManager->Init();
@@ -154,22 +152,21 @@ HWTEST_F(OnNewWantModuleTest, Startability_002, TestSize.Level1)
     std::string abilityName = "MusicAbility";
     std::string appName = "test_app";
     std::string bundleName = "com.ix.hiMusic";
-    std::string moduleName = "entry";
 
     Want want;
-    ElementName element("device", "com.ix.hiMusic", "MusicAbility", "entry");
+    ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
     AbilityRequest abilityRequest;
     abilityRequest.want = want;
-    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, moduleName, false);
+    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, false);
     abilityRequest.appInfo = CreateAppInfo(appName, bundleName);
 
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::FOREGROUND);
 
-    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+    std::string missionName =
+        AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, missionName);
 
     missionListManager->Init();

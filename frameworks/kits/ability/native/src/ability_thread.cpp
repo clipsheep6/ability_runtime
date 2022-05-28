@@ -446,8 +446,7 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
 
     abilityImpl_->SetCallingContext(lifeCycleStateInfo.caller.deviceId,
         lifeCycleStateInfo.caller.bundleName,
-        lifeCycleStateInfo.caller.abilityName,
-        lifeCycleStateInfo.caller.moduleName);
+        lifeCycleStateInfo.caller.abilityName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
     HILOG_INFO("Handle ability transaction end.");
 }
