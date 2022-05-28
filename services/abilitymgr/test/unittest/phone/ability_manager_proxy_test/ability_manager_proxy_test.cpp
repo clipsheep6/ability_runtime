@@ -165,6 +165,45 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_004, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: SendResultToAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SendResultToAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal conditions of SendResultToAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendResultToAbility_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    int res1 = proxy_->SendResultToAbility(-1, -1, want);
+    EXPECT_EQ(res1, NO_ERROR);
+    EXPECT_EQ(IAbilityManager::SEND_RESULT_TO_ABILITY, mock_->code_);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: SendResultToAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService SendResultToAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the abnormal conditions of SendResultToAbility
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendResult_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeErrorSendRequest));
+    Want want;
+    int res = proxy_->SendResultToAbility(-1, -1, want);
+
+    EXPECT_EQ(IAbilityManager::SEND_RESULT_TO_ABILITY, mock_->code_);
+    EXPECT_NE(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ConnectAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ConnectAbility

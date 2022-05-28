@@ -298,6 +298,11 @@ public:
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif
 
+    virtual int SendResultToAbility(int requestCode, int resultCode, Want &resultWant) override
+    {
+        return 0;
+    }
+
     virtual int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override
     {

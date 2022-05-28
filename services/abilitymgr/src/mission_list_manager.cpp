@@ -41,6 +41,9 @@ constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr uint32_t NEXTABILITY_TIMEOUT = 1000;         // ms
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const int DEFAULT_DMS_MISSION_ID = -1;
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -265,7 +268,18 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     } else {
         targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     }
-    targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+
+    std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
+    HILOG_INFO("Get srcNetWorkId = %{public}s", srcDeviceId.c_str());
+    int missionId = abilityRequest.want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
+    HILOG_INFO("Get missionId = %{public}d", missionId);
+    if (!srcDeviceId.empty() && missionId != DEFAULT_DMS_MISSION_ID) {
+        Want* newWant = const_cast<Want*>(&abilityRequest.want);
+        newWant->RemoveParam(DMS_SRC_NETWORK_ID);
+        newWant->RemoveParam(DMS_MISSION_ID);
+    }
+    std::string srcAbilityId = srcDeviceId + "_" + std::to_string(missionId);
+    targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode, srcAbilityId);
 
     // 3. move mission to target list
     bool isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
