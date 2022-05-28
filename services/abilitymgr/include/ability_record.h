@@ -775,9 +775,10 @@ private:
     int32_t restratMax_ = -1;
     std::string specifiedFlag_;
     std::mutex lock_;
+    mutable std::mutex dumpInfoLock_;
     mutable std::mutex dumpLock_;
     mutable std::condition_variable dumpCondition_;
-    mutable bool isDumpWaiting_ = false;
+    mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
 
 #ifdef SUPPORT_GRAPHICS
