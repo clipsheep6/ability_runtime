@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@ namespace AbilityRuntime {
 namespace {
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
+constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * 1024 * 1024;
 #if defined(_ARM64_)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #else
@@ -278,6 +279,84 @@ bool MakeFilePath(const std::string& codePath, const std::string& modulePath, st
     fileName = resolvedPath;
     return true;
 }
+
+void RegisterInitWorkerFunc(NativeEngine& engine)
+{
+    auto&& initWorkerFunc = [](NativeEngine* nativeEngine) {
+        HILOG_INFO("RegisterInitWorkerFunc called");
+        if (nativeEngine == nullptr) {
+            HILOG_ERROR("Input nativeEngine is nullptr");
+            return;
+        }
+
+        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
+        if (globalObj == nullptr) {
+            HILOG_ERROR("Failed to get global object");
+            return;
+        }
+
+        InitConsoleLogModule(*nativeEngine, *globalObj);
+    };
+    engine.SetInitWorkerFunc(initWorkerFunc);
+}
+
+bool GetResourceData(const std::string& filePath, std::vector<uint8_t>& content)
+{
+    std::ifstream stream(filePath);
+    if (!stream.is_open()) {
+        HILOG_ERROR("GetResourceData failed with file can't open, check uri.");
+        return false;
+    }
+
+    stream.seekg(0, std::ios::end);
+    auto fileLen = stream.tellg();
+    if (fileLen > ASSET_FILE_MAX_SIZE) {
+        HILOG_ERROR("GetResourceData failed with file too large.");
+        stream.close();
+        return false;
+    }
+
+    content.resize(fileLen);
+    stream.seekg(0, std::ios::beg);
+    stream.read(reinterpret_cast<char*>(content.data()), content.size());
+    stream.close();
+
+    return true;
+}
+
+void RegisterAssetFunc(NativeEngine& engine, const std::string& codePath)
+{
+    auto&& assetFunc = [codePath](const std::string& uri, std::vector<uint8_t>& content, std::string &ami) {
+        if (uri.empty()) {
+            HILOG_ERROR("Uri is empty.");
+            return;
+        }
+
+        HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
+        size_t index = uri.find_last_of(".");
+        if (index == std::string::npos) {
+            HILOG_ERROR("Invalid uri");
+            return;
+        }
+
+        std::string fileUri = uri.substr(0, index) + ".abc";
+        std::string targetFile = codePath;
+        targetFile += (codePath.back() == '/') ? fileUri : "/" + fileUri;
+        ami = targetFile;
+        HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
+        if (!GetResourceData(ami, content)) {
+            HILOG_ERROR("Get asset content failed.");
+            return;
+        }
+    };
+    engine.SetGetAssetFunc(assetFunc);
+}
+
+void RegisterWorker(NativeEngine& engine, const std::string& codePath)
+{
+    RegisterInitWorkerFunc(engine);
+    RegisterAssetFunc(engine, codePath);
+}
 } // namespace
 
 std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
@@ -336,6 +415,8 @@ bool JsRuntime::Initialize(const Options& options)
     if (moduleManager && !packagePath.empty()) {
         moduleManager->SetAppLibPath(packagePath.c_str());
     }
+
+    RegisterWorker(*nativeEngine_, options.codePath);
 
     return true;
 }
