@@ -201,7 +201,8 @@ public:
     int ClearAllMissions();
 
     void ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
-        std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive);
+        std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
 
     /**
      * @brief Set the Mission Locked State object
@@ -216,7 +217,8 @@ public:
      *
      * @param abilityRecord the ability to move
      */
-    void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
 
     /**
      * @brief handle time out event
@@ -425,13 +427,17 @@ private:
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
+    void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
-    int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission);
-    int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
+    int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
+    int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag,
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
@@ -463,6 +469,16 @@ private:
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId);
+    bool IsLastMissionOfApp(std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+        const std::shared_ptr<AbilityRecord> &abilityRecord);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> GetBundleNamesOfMissionList(
+        std::list<std::shared_ptr<MissionList>> &currentMissionLists_,
+        std::shared_ptr<MissionList> &defaultStandardList_,
+        std::shared_ptr<MissionList> &defaultSingleList_);
+    void GetBundleNameOfMission(
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+        std::shared_ptr<Mission> &mission);
+    std::string GetBundleNameByMission(std::shared_ptr<Mission> &mission);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

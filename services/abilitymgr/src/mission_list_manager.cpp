@@ -604,7 +604,8 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
     }
 
     abilityRecord->SetMinimizeReason(fromUser);
-    MoveToBackgroundTask(abilityRecord);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+    MoveToBackgroundTask(abilityRecord, bundleNamesMap);
     UpdateMissionTimeStamp(abilityRecord);
     return ERR_OK;
 }
@@ -644,7 +645,8 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     if (abilityRecord->IsStartedByCall()) {
         // started by callability, directly move to background.
         abilityRecord->SetStartToBackground(true);
-        MoveToBackgroundTask(abilityRecord);
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+        MoveToBackgroundTask(abilityRecord, bundleNamesMap);
         return ERR_OK;
     }
 
@@ -916,13 +918,15 @@ int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> 
     // remove background timeout task.
     handler->RemoveTask(std::to_string(abilityRecord->GetEventId()));
     auto self(shared_from_this());
-    auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+    auto task = [self, abilityRecord, &bundleNamesMap]() { self->CompleteBackground(abilityRecord, bundleNamesMap); };
     handler->PostTask(task);
 
     return ERR_OK;
 }
 
-void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
@@ -945,10 +949,10 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
     auto self(shared_from_this());
     for (auto terminateAbility : terminateAbilityList_) {
         if (terminateAbility->GetAbilityState() == AbilityState::BACKGROUND) {
-            auto timeoutTask = [terminateAbility, self]() {
+            auto timeoutTask = [terminateAbility, &bundleNamesMap, self]() {
                 HILOG_WARN("Disconnect ability terminate timeout.");
                 self->PrintTimeOutLog(terminateAbility, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
-                self->CompleteTerminate(terminateAbility);
+                self->CompleteTerminate(terminateAbility, bundleNamesMap);
             };
             terminateAbility->Terminate(timeoutTask);
         }
@@ -991,7 +995,8 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &a
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
     }
 
-    return TerminateAbilityLocked(abilityRecord, flag);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+    return TerminateAbilityLocked(abilityRecord, flag, bundleNamesMap);
 }
 
 int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &caller, int requestCode)
@@ -1014,8 +1019,10 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &c
     return TerminateAbility(targetAbility, DEFAULT_INVAL_VALUE, nullptr, true);
 }
 
-int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag)
+int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
+    HILOG_INFO("%{public}s called", __func__);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_DEBUG("Terminate ability locked, ability is %{public}s.", element.c_str());
     // remove AbilityRecord out of stack
@@ -1028,7 +1035,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
         if (abilityRecord->GetNextAbilityRecord()) {
             abilityRecord->GetNextAbilityRecord()->ProcessForegroundAbility();
         } else {
-            MoveToBackgroundTask(abilityRecord);
+            MoveToBackgroundTask(abilityRecord, bundleNamesMap);
         }
         return ERR_OK;
     }
@@ -1036,11 +1043,12 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     // 2. if the ability was BACKGROUNDING, waiting for completeBackgroundNew
 
     // 3. ability on background, schedule to terminate.
+    HILOG_INFO("%{public}s called, background", __func__);
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
         auto self(shared_from_this());
-        auto task = [abilityRecord, self]() {
+        auto task = [abilityRecord, &bundleNamesMap, self]() {
             HILOG_WARN("Disconnect ability terminate timeout.");
-            self->CompleteTerminate(abilityRecord);
+            self->CompleteTerminate(abilityRecord, bundleNamesMap);
         };
         abilityRecord->Terminate(task);
     }
@@ -1152,14 +1160,17 @@ int MissionListManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveTask(std::to_string(abilityRecord->GetEventId()));
     auto self(shared_from_this());
-    auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+    auto task = [self, abilityRecord, &bundleNamesMap]() { self->CompleteTerminate(abilityRecord, bundleNamesMap); };
     handler->PostTask(task);
 
     return ERR_OK;
 }
 
-void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
+void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
+    HILOG_INFO("%{public}s called", __func__);
     CHECK_POINTER(abilityRecord);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (abilityRecord->GetAbilityState() != AbilityState::TERMINATING) {
@@ -1174,6 +1185,10 @@ void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> 
     }
 
     CompleteTerminateAndUpdateMission(abilityRecord);
+    if (!bundleNamesMap.empty() && IsLastMissionOfApp(bundleNamesMap, abilityRecord)) {
+        HILOG_INFO("%{public}s, IsLastMissionOfApp, KillApplication.", __func__);
+        DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(abilityRecord->GetApplicationInfo().bundleName);
+    }
 }
 
 void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1223,6 +1238,7 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityFromTerminateList(c
 
 int MissionListManager::ClearMission(int missionId)
 {
+    HILOG_INFO("ClearMission called.");
     if (missionId < 0) {
         HILOG_ERROR("Mission id is invalid.");
         return ERR_INVALID_VALUE;
@@ -1233,10 +1249,13 @@ int MissionListManager::ClearMission(int missionId)
         HILOG_ERROR("Mission id is launcher, can not clear.");
         return ERR_INVALID_VALUE;
     }
-    return ClearMissionLocked(missionId, mission);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(
+        currentMissionLists_, defaultStandardList_, defaultSingleList_);
+    return ClearMissionLocked(missionId, mission, bundleNamesMap);
 }
 
-int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission)
+int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
     if (missionId != -1) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteMissionInfo(missionId);
@@ -1256,7 +1275,7 @@ int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Missio
     }
 
     abilityRecord->SetTerminatingState();
-    auto ret = TerminateAbilityLocked(abilityRecord, false);
+    auto ret = TerminateAbilityLocked(abilityRecord, false, bundleNamesMap);
     if (ret != ERR_OK) {
         HILOG_ERROR("clear mission error: %{public}d.", ret);
         return REMOVE_MISSION_FAILED;
@@ -1267,11 +1286,14 @@ int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Missio
 
 int MissionListManager::ClearAllMissions()
 {
+    HILOG_INFO("%{public}s called.", __func__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteAllMissionInfos(listenerController_);
     std::list<std::shared_ptr<Mission>> foregroundAbilities;
-    ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false);
-    ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false);
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap = GetBundleNamesOfMissionList(
+        currentMissionLists_, defaultStandardList_, defaultSingleList_);
+    ClearAllMissionsLocked(defaultStandardList_->GetAllMissions(), foregroundAbilities, false, bundleNamesMap);
+    ClearAllMissionsLocked(defaultSingleList_->GetAllMissions(), foregroundAbilities, false, bundleNamesMap);
 
     for (auto listIter = currentMissionLists_.begin(); listIter != currentMissionLists_.end();) {
         auto missionList = (*listIter);
@@ -1279,15 +1301,16 @@ int MissionListManager::ClearAllMissions()
         if (!missionList || missionList->GetType() == MissionListType::LAUNCHER) {
             continue;
         }
-        ClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true);
+        ClearAllMissionsLocked(missionList->GetAllMissions(), foregroundAbilities, true, bundleNamesMap);
     }
 
-    ClearAllMissionsLocked(foregroundAbilities, foregroundAbilities, false);
+    ClearAllMissionsLocked(foregroundAbilities, foregroundAbilities, false, bundleNamesMap);
     return ERR_OK;
 }
 
 void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Mission>> &missionList,
-    std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive)
+    std::list<std::shared_ptr<Mission>> &foregroundAbilities, bool searchActive,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
     for (auto listIter = missionList.begin(); listIter != missionList.end();) {
         auto mission = (*listIter);
@@ -1300,7 +1323,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             foregroundAbilities.push_front(mission);
             continue;
         }
-        ClearMissionLocked(-1, mission);
+        ClearMissionLocked(-1, mission, bundleNamesMap);
     }
 }
 
@@ -1328,7 +1351,8 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     return ERR_OK;
 }
 
-void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
+void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityRecord == nullptr) {
@@ -1339,10 +1363,10 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     abilityRecord->SetIsNewWant(false);
     auto self(shared_from_this());
     UpdateMissionSnapshot(abilityRecord);
-    auto task = [abilityRecord, self]() {
+    auto task = [abilityRecord, &bundleNamesMap, self]() {
         HILOG_ERROR("Mission list manager move to background timeout.");
         self->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG);
-        self->CompleteBackground(abilityRecord);
+        self->CompleteBackground(abilityRecord, bundleNamesMap);
     };
     abilityRecord->BackgroundAbility(task);
 }
@@ -2827,6 +2851,80 @@ void MissionListManager::AddUninstallTags(const std::string &bundleName, int32_t
     }
 }
 
+bool MissionListManager::IsLastMissionOfApp(std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+    const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    std::string bundleName = abilityRecord->GetApplicationInfo().bundleName;
+    std::list<std::shared_ptr<Mission>> sameAppMissions = bundleNamesMap[bundleName];
+    if (sameAppMissions.size() > 1) {
+        for (auto iter = sameAppMissions.begin(); iter != sameAppMissions.end();) {
+            if ((*iter)->GetMissionId() == abilityRecord->GetMissionId()) {
+                sameAppMissions.erase(iter++);
+            } else {
+                iter++;
+            }
+        }
+        return false;
+    } else if (sameAppMissions.size() == 1) {
+        for (auto iter = sameAppMissions.begin(); iter != sameAppMissions.end();) {
+            if ((*iter)->GetMissionId() == abilityRecord->GetMissionId() && (*iter)->IsLockedState()) {
+                return false;
+            } else {
+                iter++;
+            }
+        }
+        return true;
+    } else {
+        return true;
+    }
+}
+
+std::map<std::string, std::list<std::shared_ptr<Mission>>> MissionListManager::GetBundleNamesOfMissionList(
+        std::list<std::shared_ptr<MissionList>> &currentMissionLists_,
+        std::shared_ptr<MissionList> &defaultStandardList_,
+        std::shared_ptr<MissionList> &defaultSingleList_)
+{
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+    for (auto& missionList : currentMissionLists_) {
+        for (auto& mission : missionList->GetAllMissions()) {
+            GetBundleNameOfMission(bundleNamesMap, mission);
+        }
+    }
+
+    for (auto& mission : defaultStandardList_->GetAllMissions()) {
+        GetBundleNameOfMission(bundleNamesMap, mission);
+    }
+
+    for (auto& mission : defaultSingleList_->GetAllMissions()) {
+        GetBundleNameOfMission(bundleNamesMap, mission);
+    }
+
+    return bundleNamesMap;
+}
+
+void MissionListManager::GetBundleNameOfMission(
+    std::map<std::string, std::list<std::shared_ptr<Mission>>> &bundleNamesMap,
+    std::shared_ptr<Mission> &mission)
+{
+    std::string bundleName = GetBundleNameByMission(mission);
+    if (bundleNamesMap.find(bundleName) == bundleNamesMap.end()) {
+        std::list<std::shared_ptr<Mission>> sameAppMissions;
+        sameAppMissions.push_front(mission);
+        bundleNamesMap[bundleName] = sameAppMissions;
+    } else {
+        std::list<std::shared_ptr<Mission>> sameAppMissions = bundleNamesMap[bundleName];
+        sameAppMissions.push_front(mission);
+    }
+}
+
+std::string MissionListManager::GetBundleNameByMission(std::shared_ptr<Mission> &mission)
+{
+    if (mission->GetAbilityRecord() == nullptr) {
+        return "";
+    }
+    return mission->GetAbilityRecord()->GetApplicationInfo().bundleName;
+}
+
 bool MissionListManager::IsStarted()
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
@@ -2846,7 +2944,8 @@ void MissionListManager::PauseManager()
             continue;
         }
         abilityRecord->SetSwitchingPause(true);
-        MoveToBackgroundTask(abilityRecord);
+        std::map<std::string, std::list<std::shared_ptr<Mission>>> bundleNamesMap;
+        MoveToBackgroundTask(abilityRecord, bundleNamesMap);
     }
 }
 
