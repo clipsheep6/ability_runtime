@@ -27,7 +27,7 @@
 #include "json/json.h"
 #include "parcel.h"
 #include "base_def.h"
-#include "foundation/aafwk/standard/ability_base/interfaces/inner_api/base/include/base_object.h"
+#include "foundation/ability/ability_runtime/ability_base/interfaces/inner_api/base/include/base_object.h"
 #include "base_interfaces.h"
 
 // json key define

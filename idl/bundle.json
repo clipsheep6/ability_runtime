@@ -5,7 +5,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/aafwk/standard/idl"
+        "destPath": "foundation/ability/ability_runtime/idl"
     },
     "dirs": {},
     "scripts": {},
@@ -32,8 +32,8 @@
             "sub_component": [],
             "inner_kits": [],
             "test": [
-                "//foundation/aafwk/standard/idl/test/ts/moduletest:moduletest",
-                "//foundation/aafwk/standard/idl/test/ts/unittest:unittest"
+                "//foundation/ability/ability_runtime/idl/test/ts/moduletest:moduletest",
+                "//foundation/ability/ability_runtime/idl/test/ts/unittest:unittest"
             ]
         }
     }

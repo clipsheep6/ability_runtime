@@ -12,8 +12,8 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/dataobsmgr/dataobsms.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/services/dataobsmgr/dataobsms.gni")
 
 group("dataobsms_target") {
   deps = [ ":dataobsms" ]

@@ -25,7 +25,7 @@
 #include "ability_record_mgr.h"
 #include "application_impl.h"
 #include "resource_manager.h"
-#include "foundation/aafwk/standard/interfaces/innerkits/runtime/include/runtime.h"
+#include "foundation/ability/ability_runtime/interfaces/innerkits/runtime/include/runtime.h"
 #include "ipc_singleton.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER

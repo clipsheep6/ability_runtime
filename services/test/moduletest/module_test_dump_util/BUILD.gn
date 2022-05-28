@@ -12,8 +12,9 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/abilitymgr/abilitymgr.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
+import(
+    "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
 
 group("module_test_dump_util") {
   deps = [ ":module_test_dump_util_lib" ]

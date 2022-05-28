@@ -15,7 +15,7 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/aafwk/standard/form_runtime/form_runtime.gni")
+import("//foundation/ability/ability_runtime/form_runtime/form_runtime.gni")
 module_output_path = "form_runtime/formmgr"
 
 ##############################fuzztest##########################################

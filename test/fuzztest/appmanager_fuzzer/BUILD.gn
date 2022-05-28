@@ -15,7 +15,7 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
 module_output_path = "ability_runtime/appmgr"
 
 ##############################fuzztest##########################################

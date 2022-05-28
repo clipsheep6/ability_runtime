@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-aafwk_path = "//foundation/aafwk/standard"
+aafwk_path = "//foundation/ability/ability_runtime"
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
 multimedia_path = "//foundation/multimedia/image_standard"
-services_path = "//foundation/aafwk/standard/services"
+services_path = "//foundation/ability/ability_runtime/services"
 multimodalinput_path = "//foundation/multimodalinput/input"
 windowmanager_path = "//foundation/windowmanager"
 graphic_path = "//foundation/graphic/graphic_2d"
@@ -22,18 +22,17 @@ global_path = "//base/global"
 distributedschedule_path = "//foundation/distributedschedule"
 notification_path = "//base/notification"
 distributeddatamgr_path = "//foundation/distributeddatamgr"
-kits_path = "//foundation/aafwk/standard/frameworks/kits"
-innerkits_path = "//foundation/aafwk/standard/interfaces/innerkits"
+kits_path = "//foundation/ability/ability_runtime/frameworks/kits"
+innerkits_path = "//foundation/ability/ability_runtime/interfaces/innerkits"
 bundlefwk_innerkits_path = "${bundlefwk_path}/interfaces/innerkits"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
 ans_core_path =
     "//base/notification/distributed_notification_service/frameworks/core"
-system_test_app_path =
-    "//foundation/aafwk/standard/test/resource/amssystemtestability/abilitySrc"
-form_runtime_path = "//foundation/aafwk/standard/form_runtime"
+system_test_app_path = "//foundation/ability/ability_runtime/test/resource/amssystemtestability/abilitySrc"
+form_runtime_path = "//foundation/ability/ability_runtime/form_runtime"
 form_runtime_napi_path = "${form_runtime_path}/frameworks/js/napi"
 
-ability_base_path = "//foundation/aafwk/standard/ability_base"
+ability_base_path = "//foundation/ability/ability_runtime/ability_base"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_base_native_path = "${ability_base_path}/frameworks/native"
 
