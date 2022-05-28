@@ -366,6 +366,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetMission = std::make_shared<Mission>(info.missionInfo.id, targetRecord, missionName, startMethod);
         targetRecord->SetUseNewMission();
         targetRecord->SetMission(targetMission);
+        targetRecord->SetOwnerMissionUserId(userId_);
     } else {
         HILOG_DEBUG("Update old mission data.");
         auto state = targetMission->UpdateMissionId(info.missionInfo.id, startMethod);
@@ -1350,7 +1351,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         EVENT_KEY_PACKAGE_NAME, processInfo.bundleNames,
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);
-    
+
     HILOG_WARN("LIFECYCLE_TIMEOUT: uid：%{public}d, pid：%{public}d, abilityName: %{public}s, msg: %{public}s",
         processInfo.uid_,
         processInfo.pid_,
@@ -1671,6 +1672,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
     abilityRecord->SetUseNewMission();
     mission = std::make_shared<Mission>(innerMissionInfo.missionInfo.id, abilityRecord, innerMissionInfo.missionName);
     abilityRecord->SetMission(mission);
+    abilityRecord->SetOwnerMissionUserId(userId_);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
     listenerController_->NotifyMissionCreated(innerMissionInfo.missionInfo.id);
     return newMissionList;

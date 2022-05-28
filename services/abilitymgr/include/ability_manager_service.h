@@ -1122,7 +1122,6 @@ private:
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByUserId(int32_t userId);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
     std::shared_ptr<AbilityStackManager> GetStackManagerByToken(const sptr<IRemoteObject> &token);
-    std::shared_ptr<MissionListManager> GetListManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByToken(const sptr<IRemoteObject> &token);
 
