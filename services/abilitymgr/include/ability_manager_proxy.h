@@ -136,6 +136,16 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) override;
 
     /**
+     * SendResultToAbility with want, return want from ability manager service.(Only used for dms)
+     *
+     * @param requestCode, request code.
+     * @param resultCode, resultCode to return.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int SendResultToAbility(int32_t requestCode, int32_t resultCode, Want& resultWant) override;
+
+    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param callerToken, caller ability token.

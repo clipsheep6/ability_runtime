@@ -135,6 +135,14 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
     return abms->StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
 
+ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCode, Want& resultWant)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("startSendResultToAbility come.");
+    return abms->SendResultToAbility(requestCode, resultCode, resultWant);
+}
+
 ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {

@@ -70,6 +70,7 @@ abilityms_files = [
   "src/remote_mission_listener_stub.cpp",
   "src/mission_list_manager.cpp",
   "src/mission_list.cpp",
+  "src/system_ability_token_callback_proxy.cpp",
 
   #multi user
   "src/user_controller.cpp",

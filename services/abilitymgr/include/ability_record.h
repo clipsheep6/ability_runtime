@@ -87,6 +87,59 @@ public:
 };
 
 /**
+ * @class SystemAbilityCallerRecord
+ * Record system caller ability of for-result start mode and result.
+ */
+class SystemAbilityCallerRecord {
+public:
+    SystemAbilityCallerRecord(std::string &srcAbilityId, const sptr<IRemoteObject> &callerToken)
+        : srcAbilityId_(srcAbilityId), callerToken_(callerToken)
+    {}
+    virtual ~SystemAbilityCallerRecord()
+    {}
+
+    std::string GetSrcAbilityId()
+    {
+        return srcAbilityId_;
+    }
+    const sptr<IRemoteObject> GetCallerToken()
+    {
+        return callerToken_;
+    }
+    void SetResult(Want &want, int resultCode)
+    {
+        resultWant_ = want;
+        resultCode_ = resultCode;
+    }
+    Want &GetResultWant()
+    {
+        return resultWant_;
+    }
+    int &GetResultCode()
+    {
+        return resultCode_;
+    }
+    /**
+     * Set result to system ability.
+     *
+     */
+    void SetResultToSystemAbility(std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+        Want &resultWant, int resultCode);
+    /**
+     * Send result to system ability.
+     *
+     */
+    void SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
+        const sptr<IRemoteObject> &callerToken);
+
+private:
+    std::string srcAbilityId_;
+    sptr<IRemoteObject> callerToken_;
+    Want resultWant_;
+    int resultCode_ = -1;
+};
+
+/**
  * @class CallerRecord
  * Record caller ability of for-result start mode and result.
  */
@@ -94,6 +147,9 @@ class CallerRecord {
 public:
     CallerRecord() = default;
     CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller) : requestCode_(requestCode), caller_(caller)
+    {}
+    CallerRecord(int requestCode, std::shared_ptr<SystemAbilityCallerRecord> saCaller) : requestCode_(requestCode),
+        saCaller_(saCaller)
     {}
     virtual ~CallerRecord()
     {}
@@ -106,10 +162,15 @@ public:
     {
         return caller_.lock();
     }
+    std::shared_ptr<SystemAbilityCallerRecord> GetSaCaller()
+    {
+        return saCaller_;
+    }
 
 private:
     int requestCode_ = -1;  // requestCode of for-result start mode
     std::weak_ptr<AbilityRecord> caller_;
+    std::shared_ptr<SystemAbilityCallerRecord> saCaller_ = nullptr;
 };
 
 /**
@@ -493,6 +554,12 @@ public:
     void SaveResultToCallers(const int resultCode, const Want *resultWant);
 
     /**
+     * save result to caller ability.
+     *
+     */
+    void SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller);
+
+    /**
      * add connect record to the list.
      *
      */
@@ -526,7 +593,14 @@ public:
      * add caller record
      *
      */
-    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode);
+    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId = "");
+
+    /**
+     * add system ability caller record
+     *
+     */
+    void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
+        std::string srcAbilityId);
 
     /**
      * get caller record to list.
