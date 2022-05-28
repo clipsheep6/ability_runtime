@@ -854,7 +854,6 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     return eventInfo.errCode;
 }
 
-<<<<<<< HEAD
 int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
@@ -901,9 +900,6 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     HILOG_INFO("Stop extension begin, name is %{public}s.", abilityInfo.name.c_str());
     return connectManager->StopServiceAbility(abilityRequest);
 }
-
-=======
->>>>>>> master_0527
 
 void AbilityManagerService::GrantUriPermission(const Want &want, int32_t validUserId)
 {
