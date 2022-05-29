@@ -347,6 +347,9 @@ void AbilityImpl::NewWant(const Want &want)
     }
     ability_->SetWant(want);
     ability_->OnNewWant(want);
+#ifdef SUPPORT_GRAPHICS
+    ability_->ContinuationRestore(want);
+#endif
     HILOG_INFO("%{public}s end.", __func__);
 }
 

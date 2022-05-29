@@ -166,8 +166,15 @@ public:
         OnConfigurationUpdated_++;
     }
 
+    void ContinuationRestore(const Want &want)
+    {
+        GTEST_LOG_(INFO) << "Mock Ability::ContinuationRestore called";
+        continueRestoreCalled_ = true;
+    }
+
     MockPageAbility::Event state_ = UNDEFINED;
     bool onNewWantCalled_ = false;
+    bool continueRestoreCalled_ = false;
     int OnConfigurationUpdated_ = 0;
     std::vector<std::string> value;
 };

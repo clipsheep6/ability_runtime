@@ -77,6 +77,7 @@ public:
 protected:
     void DoOnForeground(const Want &want) override;
     void RequsetFocus(const Want &want) override;
+    void ContinuationRestore(const Want &want) override;
 
 private:
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
