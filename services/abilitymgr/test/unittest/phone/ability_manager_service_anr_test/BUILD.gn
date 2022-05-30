@@ -51,23 +51,24 @@ ohos_unittest("ability_manager_service_anr_test") {
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/aafwk/standard/interfaces/innerkits/app_manager:app_manager",
     "//foundation/aafwk/standard/services/abilitymgr:abilityms",
+
     #"//foundation/appexecfwk/standard/interfaces/innerkits/libeventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/icu/icu4c:shared_icuuc",
     "//third_party/libpng:libpng",
     "//utils/native/base:utils",
-    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "device_manager_base:devicemanagersdk",
     "dsoftbus_standard:softbus_client",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ability_base:base",
-    "ability_base:want",
-    "ability_base:zuri",
   ]
 }
 
