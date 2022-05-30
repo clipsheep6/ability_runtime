@@ -37,6 +37,7 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("requestPublishForm", NAPI_RequestPublishForm),
         DECLARE_NAPI_FUNCTION("addFormInfo", NAPI_AddFormInfo),
         DECLARE_NAPI_FUNCTION("removeFormInfo", NAPI_RemoveFormInfo),
+        DECLARE_NAPI_FUNCTION("getFormsInfo", NAPI_GetFormsInfo),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
     HILOG_INFO("napi_module Init end...");
