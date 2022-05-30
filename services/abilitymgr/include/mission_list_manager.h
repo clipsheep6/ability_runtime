@@ -396,6 +396,7 @@ private:
         const std::shared_ptr<AbilityRecord> &callerAbility);
     void NotifyStartingWindow(bool isCold, const std::shared_ptr<AbilityRecord> &targetAbilityRecord,
         std::shared_ptr<StartOptions> &startOptions, int32_t missionId);
+    void ProcessForeground(std::shared_ptr<AbilityRecord> &abilityRecord);
 #endif
 
 private:
