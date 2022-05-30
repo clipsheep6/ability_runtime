@@ -107,7 +107,7 @@ public:
     /**
      * @brief Set application not response state true
      */
-    void SetANRState();
+    void SetANRState(bool state);
 
     /**
      * @brief Is application not response state

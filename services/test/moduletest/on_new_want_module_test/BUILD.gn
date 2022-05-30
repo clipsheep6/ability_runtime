@@ -62,6 +62,7 @@ ohos_moduletest("on_new_want_module_test") {
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   if (os_account_part_enabled) {

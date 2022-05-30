@@ -90,6 +90,7 @@ ohos_source_set("appmgr_mst_source") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   if (os_account_part_enabled) {

@@ -567,6 +567,34 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
     return reply.ReadInt32();
 }
 
+int AppMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    data.WriteInt32(pid);
+    if (!SendTransactCmd(IAppMgr::Message::APP_GET_APPLICATION_INFO_BY_PROCESS_ID, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    if (!reply.ReadBool()) {
+        HILOG_ERROR("reply result false");
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<AppExecFwk::ApplicationInfo> info(reply.ReadParcelable<AppExecFwk::ApplicationInfo>());
+    if (!info) {
+        HILOG_ERROR("readParcelableInfo failed");
+        return ERR_NULL_OBJECT;
+    }
+    application = *info;
+    HILOG_DEBUG("get parcelable info success");
+
+    return 0;
+}
+
 int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
     int32_t sharedFd, pid_t &renderPid)
 {

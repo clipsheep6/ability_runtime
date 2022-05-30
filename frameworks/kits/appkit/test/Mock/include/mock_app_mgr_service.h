@@ -53,6 +53,7 @@ public:
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int &status));
+    MOCK_METHOD2(GetApplicationInfoByProcessID, int(const int pid, AppExecFwk::ApplicationInfo &application));
     
     void AttachApplication(const sptr<IRemoteObject> &app)
     {
