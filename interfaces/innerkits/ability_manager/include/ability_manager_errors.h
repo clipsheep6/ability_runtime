@@ -249,6 +249,11 @@ enum {
      * Result(2097198) for parcel fail.
      */
     ERR_AAFWK_PARCEL_FAIL,
+
+    /**
+     * Result(2097199) for Connect: An error of the get window service.
+     */
+    GET_WINDOW_SERVICE_FAILED,
 };
 
 enum {

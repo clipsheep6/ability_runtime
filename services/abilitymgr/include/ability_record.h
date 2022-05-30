@@ -269,13 +269,13 @@ public:
      * foreground the ability.
      *
      */
-    void ForegroundAbility(uint32_t sceneFlag = 0);
+    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
      *
      */
-    void ProcessForegroundAbility(uint32_t sceneFlag = 0);
+    void ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * move the ability to back ground.
