@@ -23,11 +23,10 @@ namespace AAFWK {
 namespace {
 // event params
 const std::string TYPE = "TYPE";
-const std::string EVENT_KEY_PID = "PID";
-const std::string EVENT_KEY_USERID = "USERID";
+const std::string EVENT_KEY_APP_PID = "APP_PID";
+const std::string EVENT_KEY_USERID = "USER_ID";
 const std::string EVENT_KEY_FORM_ID = "FORM_ID";
 const std::string EVENT_KEY_ERROR_CODE = "ERROR_CODE";
-const std::string EVENT_KEY_SCENE_FLAG = "SCENE_FLAG";
 const std::string EVENT_KEY_BUNDLE_NAME = "BUNDLE_NAME";
 const std::string EVENT_KEY_MODULE_NAME = "MODULE_NAME";
 const std::string EVENT_KEY_ABILITY_NAME = "ABILITY_NAME";
@@ -44,6 +43,7 @@ void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type
         HiSysEvent::Domain::AAFWK,
         eventName,
         type,
+        EVENT_KEY_APP_PID, eventInfo.pid,
         EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
         EVENT_KEY_VERSION_NAME, eventInfo.versionName,
         EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
@@ -64,7 +64,7 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
             EVENT_KEY_ERROR_CODE, eventInfo.errCode);
-    } else if (eventName == START_ABILITY_ERROR) {
+    } else if (eventName == START_ABILITY) {
         HiSysEvent::Write(
             HiSysEvent::Domain::AAFWK,
             eventName,
@@ -73,13 +73,7 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else if (eventName == DO_FOREGROUND_ABILITY || eventName == DO_BACKGROUND_ABILITY) {
-        HiSysEvent::Write(
-            HiSysEvent::Domain::AAFWK,
-            eventName,
-            type,
-            EVENT_KEY_SCENE_FLAG, eventInfo.sceneFlag);
-    } else {
+    } else if (eventName == TERMINATE_ABILITY || eventName == CLOSE_ABILITY) {
         HiSysEvent::Write(
             HiSysEvent::Domain::AAFWK,
             eventName,
@@ -114,7 +108,8 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
             EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
-    } else {
+    } else if (eventName == START_EXTENSION_ERROR || eventName == STOP_EXTENSION_ERROR ||
+        eventName == CONNECT_SERVICE_ERROR) {
         HiSysEvent::Write(
             HiSysEvent::Domain::AAFWK,
             eventName,
@@ -123,6 +118,12 @@ void EventReport::SendExtensionEvent(const std::string &eventName, HiSysEventTyp
             EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+            EVENT_KEY_ERROR_CODE, eventInfo.errCode);
+    } else if (eventName == DISCONNECT_SERVICE_ERROR) {
+        HiSysEvent::Write(
+            HiSysEvent::Domain::AAFWK,
+            eventName,
+            type,
             EVENT_KEY_ERROR_CODE, eventInfo.errCode);
     }
 }
@@ -152,7 +153,8 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
             EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-    } else {
+    } else if (eventName == DELETE_FORM || eventName == CASTTEMP_FORM || eventName == RELEASE_FORM ||
+        eventName == SET_NEXT_REFRESH_TIME_FORM) {
         HiSysEvent::Write(
             HiSysEvent::Domain::AAFWK,
             eventName,

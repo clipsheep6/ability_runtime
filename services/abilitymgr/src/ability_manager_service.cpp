@@ -838,7 +838,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     if (result != ERR_OK) {
         HILOG_ERROR("CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::STOP_EXTENSION_ERROR,
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
             HiSysEventType::FAULT,
             eventInfo);
         return result;
@@ -855,9 +855,11 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     }
     HILOG_INFO("Stop extension begin, name is %{public}s.", abilityInfo.name.c_str());
     eventInfo.errCode = connectManager->StopServiceAbility(abilityRequest);
-    AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
-        HiSysEventType::FAULT,
-        eventInfo);
+    if (eventInfo.errCode != ERR_OK) {
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
+            HiSysEventType::FAULT,
+            eventInfo);
+    }
     return eventInfo.errCode;
 }
 
@@ -4201,10 +4203,6 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
     }
 
     abilityRecord->ProcessForegroundAbility(nullptr, flag);
-    AAFWK::EventInfo eventInfo;
-    eventInfo.sceneFlag = flag;
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::DO_FOREGROUND_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
     return ERR_OK;
 }
 
@@ -4219,10 +4217,6 @@ int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token,
     abilityRecord->lifeCycleStateInfo_.sceneFlag = flag;
     int ret = MinimizeAbility(token);
     abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
-    AAFWK::EventInfo eventInfo;
-    eventInfo.sceneFlag = flag;
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::DO_FOREGROUND_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
     return ret;
 }
 

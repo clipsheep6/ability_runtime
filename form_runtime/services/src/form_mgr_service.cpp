@@ -96,7 +96,7 @@ int FormMgrService::AddForm(const int64_t formId, const Want &want,
     AAFWK::EventInfo eventInfo;
     eventInfo.userId = formId;
     eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.moduleName = want.GetStringParam(AppExecFwk::Constants::PARAM_MODULE_NAME_KEY);
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendFormEvent(AAFWK::ADD_FORM, HiSysEventType::BEHAVIOR, eventInfo);
     if (ret != ERR_OK) {
@@ -190,7 +190,7 @@ int FormMgrService::RequestForm(const int64_t formId, const sptr<IRemoteObject> 
     AAFWK::EventInfo eventInfo;
     eventInfo.userId = formId;
     eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.moduleName = want.GetStringParam(AppExecFwk::Constants::PARAM_MODULE_NAME_KEY);
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendFormEvent(AAFWK::REQUEST_FORM, HiSysEventType::BEHAVIOR, eventInfo);
 
@@ -378,7 +378,7 @@ int FormMgrService::MessageEvent(const int64_t formId, const Want &want, const s
     }
     AAFWK::EventInfo eventInfo;
     eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.moduleName = want.GetStringParam(AppExecFwk::Constants::PARAM_MODULE_NAME_KEY);
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendFormEvent(AAFWK::MESSAGE_EVENT_FORM,
         HiSysEventType::BEHAVIOR, eventInfo);
@@ -402,7 +402,7 @@ int FormMgrService::RouterEvent(const int64_t formId, Want &want)
     AAFWK::EventInfo eventInfo;
     eventInfo.userId = formId;
     eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.moduleName = want.GetStringParam(AppExecFwk::Constants::PARAM_MODULE_NAME_KEY);
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendFormEvent(AAFWK::ROUTE_EVENT_FORM,
         HiSysEventType::BEHAVIOR, eventInfo);
@@ -600,7 +600,7 @@ int FormMgrService::AcquireFormState(const Want &want, const sptr<IRemoteObject>
     }
     AAFWK::EventInfo eventInfo;
     eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.moduleName = want.GetStringParam(AppExecFwk::Constants::PARAM_MODULE_NAME_KEY);
     eventInfo.abilityName = want.GetElement().GetAbilityName();
     AAFWK::EventReport::SendFormEvent(AAFWK::ACQUIREFORMSTATE_FORM,
         HiSysEventType::BEHAVIOR, eventInfo);
