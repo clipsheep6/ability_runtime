@@ -89,8 +89,8 @@ ohos_source_set("appmgr_mst_source") {
     "${services_path}/common:perm_verification",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
     "//third_party/icu/icu4c:shared_icuuc",
+    "//utils/native/base:utils",
   ]
 
   if (os_account_part_enabled) {
