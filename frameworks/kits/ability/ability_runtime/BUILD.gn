@@ -44,7 +44,10 @@ ohos_shared_library("ability_context_native") {
     "src/local_call_record.cpp",
   ]
 
-  deps = [ "${kits_path}/appkit:app_context" ]
+  deps = [
+    "${kits_path}/appkit:app_context",
+    "${kits_path}/appkit:app_context_utils",
+  ]
 
   external_deps = [
     "ability_base:configuration",

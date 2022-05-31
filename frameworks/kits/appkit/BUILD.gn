@@ -114,6 +114,7 @@ ohos_shared_library("appkit_native") {
   deps = [
     ":appkit_delegator",
     "${aafwk_path}/frameworks/kits/appkit:app_context",
+    "${aafwk_path}/frameworks/kits/appkit:app_context_utils",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
   ]
 
@@ -173,18 +174,74 @@ ohos_shared_library("app_context") {
     "native/ability_runtime/context/ability_lifecycle_callback.cpp",
     "native/ability_runtime/context/application_context.cpp",
     "native/ability_runtime/context/context_impl.cpp",
-    "native/ability_runtime/context/js_application_context_utils.cpp",
-    "native/ability_runtime/context/js_context_utils.cpp",
-    "native/ability_runtime/context/js_hap_module_info_utils.cpp",
-    "native/ability_runtime/context/js_resource_manager_utils.cpp",
     "native/app/src/sys_mgr_client.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
+  deps = [ "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility" ]
+
+  public_deps =
+      [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
+  ]
+
+  if (os_account_part_enabled) {
+    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+    public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    deps += [
+      "${multimodalinput_path}/frameworks/proxy:libmmi-client",
+      "//third_party/icu/icu4c:shared_icuuc",
+    ]
+    public_deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+  }
+  part_name = "ability_runtime"
+}
+
+# build so
+ohos_shared_library("app_context_utils") {
+  cflags_cc = []
+  include_dirs = [
+    "native/ability_runtime/context",
+    "native/app/include",
+  ]
+
+  configs = [ ":appkit_config" ]
+
+  public_configs = [ ":appkit_public_config" ]
+
+  sources = [
+    "native/ability_runtime/context/js_application_context_utils.cpp",
+    "native/ability_runtime/context/js_context_utils.cpp",
+    "native/ability_runtime/context/js_hap_module_info_utils.cpp",
+    "native/ability_runtime/context/js_resource_manager_utils.cpp",
+  ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
   deps = [
-    # "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]
 
