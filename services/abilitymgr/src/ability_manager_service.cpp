@@ -4021,7 +4021,6 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
-    
     AppExecFwk::ApplicationInfo appInfo;
     if (appScheduler_) {
         if (appScheduler_->GetApplicationInfoByProcessID(pid, appInfo) != ERR_OK) {
@@ -4032,9 +4031,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
         HILOG_ERROR("appScheduler_ is nullptr.");
         return ERR_INVALID_VALUE;
     }
-
     int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
-
 #ifdef SUPPORT_GRAPHICS
     DialogPosition position;
     position.width = UI_ANR_DIALOG_WIDTH;
@@ -4042,13 +4039,11 @@ int AbilityManagerService::SendANRProcessID(int pid)
     position.width_narrow = UI_ANR_DIALOG_WIDTH;
     position.height_narrow = UI_ANR_DIALOG_HEIGHT;
     GetDialogPositionAndSize(position);
-
     std::string appName {""};
     GetAppNameFromResource(appName, appInfo.labelId, appInfo.bundleName);
     nlohmann::json jsonObj;
     jsonObj[APP_NAME] = appName;
     const std::string params = jsonObj.dump();
-   
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         "dialog_anr_service",
         params,
@@ -4093,11 +4088,11 @@ int AbilityManagerService::SendANRProcessID(int pid)
         return SEND_USR1_SIG_FAIL;
     }
 #endif
-
     HILOG_INFO("AbilityManagerService::SendANRProcessID end");
     return ERR_OK;
 }
 
+#ifdef SUPPORT_GRAPHICS
 void AbilityManagerService::GetAppNameFromResource(std::string &appName, int32_t labelId, const std::string& bundleName)
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
@@ -4131,7 +4126,7 @@ void AbilityManagerService::GetAppNameFromResource(std::string &appName, int32_t
     resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
     HILOG_INFO("get app display info, labelId: %{public}d, appname: %{public}s", labelId, appName.c_str());
 }
-
+#endif
 
 bool AbilityManagerService::IsRunningInStabilityTest()
 {

@@ -66,13 +66,11 @@ static void WaitUntilTaskFinished()
     }
 }
 
-#define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
-
 namespace {
 const std::string WaitUntilTaskFinishedByTimer = "BundleMgrService";
 }  // namespace
 
-class AbilityManagerServiceTest : public testing::Test {
+class AbilityManagerServiceAnrTest : public testing::Test {
 public:
     static void TearDownTestCase();
     void SetUp();
@@ -87,9 +85,9 @@ public:
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
-void AbilityManagerServiceTest::OnStartAms()
+void AbilityManagerServiceAnrTest::OnStartAms()
 {
-     if (abilityMs_) {
+    if (abilityMs_) {
         if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
             return;
         }
@@ -119,23 +117,23 @@ void AbilityManagerServiceTest::OnStartAms()
     GTEST_LOG_(INFO) << "OnStart fail";
 }
 
-void AbilityManagerServiceTest::OnStopAms()
+void AbilityManagerServiceAnrTest::OnStopAms()
 {
     abilityMs_->OnStop();
 }
 
-void AbilityManagerServiceTest::TearDownTestCase()
+void AbilityManagerServiceAnrTest::TearDownTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
 }
 
-void AbilityManagerServiceTest::SetUp()
+void AbilityManagerServiceAnrTest::SetUp()
 {
     OnStartAms();
     WaitUntilTaskFinished();
 }
 
-void AbilityManagerServiceTest::TearDown()
+void AbilityManagerServiceAnrTest::TearDown()
 {
     OnStopAms();
 }
@@ -149,7 +147,7 @@ void AbilityManagerServiceTest::TearDown()
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
  * click close buntton, kill the new process
  */
-HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_001, TestSize.Level1)
+HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
     pid_t pid;
     if ((pid=fork()) == 0) {
@@ -157,7 +155,7 @@ HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_001, TestSize.Level1)
         }
     }
     else {
-        Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
+        Ace::UIServiceMgrClientMock::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);
         result = kill(pid, SIGKILL);
@@ -174,7 +172,7 @@ HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_001, TestSize.Level1)
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
  * click waiting buntton, do not kill the new process
  */
-HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_002, TestSize.Level1)
+HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {
     pid_t pid;
     if ((pid=fork()) == 0) {
@@ -182,7 +180,7 @@ HWTEST_F(AbilityManagerServiceTest, SendANRProcessID_002, TestSize.Level1)
         }
     }
     else {
-        Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
+        Ace::UIServiceMgrClientMock::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);
         result = kill(pid, SIGKILL);

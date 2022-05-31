@@ -50,7 +50,7 @@ struct DialogPosition {
     int32_t offsetX = 0;
     int32_t offsetY = 0;
     int32_t width = 0;
-    int32_t height = 0; 
+    int32_t height = 0;
     int32_t width_narrow = 0;
     int32_t height_narrow = 0;
     bool wideScreen = true;
@@ -1052,9 +1052,9 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
-    
+#ifdef SUPPORT_GRAPHICS
     void GetAppNameFromResource(std::string &appName, int32_t labelId, const std::string &bundleName);
-
+#endif
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

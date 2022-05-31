@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_H
-#define OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_H
+#ifndef OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#define OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
 
 #include <mutex>
 
@@ -28,11 +28,11 @@
 
 namespace OHOS {
 namespace Ace {
-class UIServiceMgrClient {
+class UIServiceMgrClientMock{
 public:
-    UIServiceMgrClient();
-    virtual ~UIServiceMgrClient();
-    static std::shared_ptr<UIServiceMgrClient> GetInstance();
+    UIServiceMgrClientMock();
+    virtual ~UIServiceMgrClientMock();
+    static std::shared_ptr<UIServiceMgrClientMock> GetInstance();
 
     ErrCode RegisterCallBack(const AAFwk::Want& want, const sptr<IUIService>& uiService);
 
@@ -63,7 +63,7 @@ public:
     ErrCode ShowAppPickerDialog(
         const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, int32_t userId);
     
-    void static SetDialogCheckState(int pid,const std::string& code)
+    void static SetDialogCheckState(int pid, const std::string& code)
     {
         pid_ = pid;
         code_ = code;
@@ -78,11 +78,11 @@ private:
         int32_t& offsetX, int32_t& offsetY, int32_t& width, int32_t& height, bool& wideScreen);
 
     static std::mutex mutex_;
-    static std::shared_ptr<UIServiceMgrClient> instance_;
+    static std::shared_ptr<UIServiceMgrClientMock> instance_;
     sptr<IRemoteObject> remoteObject_;
     static int pid_;
     static std::string code_;
 };
 }  // namespace Ace
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_H
+#endif  // OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
