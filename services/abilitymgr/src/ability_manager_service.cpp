@@ -4035,13 +4035,13 @@ int AbilityManagerService::SendANRProcessID(int pid)
 
     int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
 
+#ifdef SUPPORT_GRAPHICS
     DialogPosition position;
     position.width = UI_ANR_DIALOG_WIDTH;
     position.height = UI_ANR_DIALOG_HEIGHT;
     position.width_narrow = UI_ANR_DIALOG_WIDTH;
     position.height_narrow = UI_ANR_DIALOG_HEIGHT;
     GetDialogPositionAndSize(position);
-
 
     std::string appName {""};
     GetAppNameFromResource(appName, appInfo.labelId, appInfo.bundleName);
@@ -4078,6 +4078,22 @@ int AbilityManagerService::SendANRProcessID(int pid)
                 }
             }
         });
+#elif
+    auto timeoutTask = [pid]() {
+        if (kill(pid, SIGKILL) != ERR_OK) {
+            HILOG_ERROR("Kill app not response process failed");
+        }
+    };
+    if (!SetANRMissionByProcessID(pid)) {
+        HILOG_ERROR("Set app not response mission record failed");
+    }
+    handler_->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
+    if (kill(pid, SIGUSR1) != ERR_OK) {
+        HILOG_ERROR("Send singal SIGUSR1 error.");
+        return SEND_USR1_SIG_FAIL;
+    }
+#endif
+
     HILOG_INFO("AbilityManagerService::SendANRProcessID end");
     return ERR_OK;
 }
