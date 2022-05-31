@@ -277,7 +277,7 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
     eventInfo.bundleName = applicationInfo->name;
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
-    eventInfo.processName = applicationInfo->process;
+    eventInfo.processName = appRecord->GetProcessName();
     AAFWK::EventReport::SendAppEvent(AAFWK::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -320,7 +320,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     eventInfo.bundleName = applicationInfo->name;
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
-    eventInfo.processName = applicationInfo->process;
+    eventInfo.processName = appRecord->GetProcessName();
     AAFWK::EventReport::SendAppEvent(AAFWK::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
@@ -362,7 +362,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     eventInfo.bundleName = applicationInfo->name;
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
-    eventInfo.processName = applicationInfo->process;
+    eventInfo.processName = appRecord->GetProcessName();
     AAFWK::EventReport::SendAppEvent(AAFWK::APP_FOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -391,7 +391,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     eventInfo.bundleName = applicationInfo->name;
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
-    eventInfo.processName = applicationInfo->process;
+    eventInfo.processName = appRecord->GetProcessName();
     AAFWK::EventReport::SendAppEvent(AAFWK::APP_BACKGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -429,7 +429,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     eventInfo.bundleName = applicationInfo->name;
     eventInfo.versionName = applicationInfo->versionName;
     eventInfo.versionCode = applicationInfo->versionCode;
-    eventInfo.processName = applicationInfo->process;
+    eventInfo.processName = appRecord->GetProcessName();
     AAFWK::EventReport::SendAppEvent(AAFWK::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessDied(appRecord);
 

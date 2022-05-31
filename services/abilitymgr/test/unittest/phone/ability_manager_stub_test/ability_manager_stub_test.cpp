@@ -346,6 +346,32 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_011, TestSize.Level1)
  * Function: OnRemoteRequest
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService OnRemoteRequest
+ * EnvConditions: code is SEND_RESULT_TO_ABILITY
+ * CaseDescription: Verify that on remote request is normal
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_012, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    int requestCode = -1;
+    int resultCode = -1;
+    Want want;
+    data.WriteInt32(requestCode);
+    data.WriteInt32(resultCode);
+    data.WriteParcelable(&want);
+    int res = stub_->OnRemoteRequest(IAbilityManager::SEND_RESULT_TO_ABILITY, data, reply, option);
+
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OnRemoteRequest
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService OnRemoteRequest
  * EnvConditions: code is DUMP_STATE
  * CaseDescription: Verify that on remote request is normal
  */

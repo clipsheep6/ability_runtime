@@ -1623,6 +1623,12 @@ protected:
      */
     sptr<Rosen::WindowOption> GetWindowOption(const Want &want);
 
+    /**
+     * @brief Restore window stage data and scene in ability continuation.
+     *
+     */
+    virtual void ContinuationRestore(const Want &want);
+
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;
     sptr<AbilityDisplayListener> abilityDisplayListener_ = nullptr;

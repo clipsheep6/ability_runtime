@@ -47,6 +47,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "sa_mgr_client.h"
+#include "system_ability_token_callback.h"
 #include "softbus_bus_center.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
@@ -112,6 +113,10 @@ const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
 const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
 const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
+const std::string DMS_PROCESS_NAME = "distributedsched";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const int DEFAULT_DMS_MISSION_ID = -1;
+const int DEFAULT_REQUEST_CODE = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -314,8 +319,18 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     if (CheckIfOperateRemote(want)) {
-        HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
-        eventInfo.errCode = StartRemoteAbility(want, requestCode);
+        if (requestCode == DEFAULT_REQUEST_CODE) {
+            HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
+            eventInfo.errCode = StartRemoteAbility(want, requestCode);
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return eventInfo.errCode;
+        }
+        int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+        Want newWant = want;
+        newWant.SetParam(DMS_MISSION_ID, missionId);
+        HILOG_INFO("AbilityManagerService::StartAbility. try to StartAbilityForResult");
+        eventInfo.errCode = StartRemoteAbility(newWant, requestCode);
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
         return eventInfo.errCode;
@@ -340,8 +355,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-        return ERR_INVALID_VALUE;
+        auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+        if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
+            iface_cast<ISystemAbilityTokenCallback>(callerToken) == nullptr) {
+            HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
+            return ERR_INVALID_VALUE;
+        }
+        HILOG_INFO("%{public}s: Caller is system ability.", __func__);
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
@@ -818,7 +838,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     if (result != ERR_OK) {
         HILOG_ERROR("CheckOptExtensionAbility error.");
         eventInfo.errCode = result;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::STOP_EXTENSION_ERROR,
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
             HiSysEventType::FAULT,
             eventInfo);
         return result;
@@ -835,9 +855,11 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     }
     HILOG_INFO("Stop extension begin, name is %{public}s.", abilityInfo.name.c_str());
     eventInfo.errCode = connectManager->StopServiceAbility(abilityRequest);
-    AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
-        HiSysEventType::FAULT,
-        eventInfo);
+    if (eventInfo.errCode != ERR_OK) {
+        AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
+            HiSysEventType::FAULT,
+            eventInfo);
+    }
     return eventInfo.errCode;
 }
 
@@ -967,10 +989,38 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
 }
 
+int AbilityManagerService::SendResultToAbility(int requestCode, int resultCode, Want &resultWant)
+{
+    HILOG_INFO("%{public}s", __func__);
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
+        result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        HILOG_ERROR("Check processName failed");
+        return ERR_INVALID_VALUE;
+    }
+    int missionId = resultWant.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
+    resultWant.RemoveParam(DMS_MISSION_ID);
+    if (missionId == DEFAULT_DMS_MISSION_ID) {
+        HILOG_ERROR("MissionId is empty");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> abilityToken = GetAbilityTokenByMissionId(missionId);
+    CHECK_POINTER_AND_RETURN(abilityToken, ERR_INVALID_VALUE);
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, resultWant));
+    abilityRecord->SendResult();
+    return ERR_OK;
+}
+
 int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode)
 {
     HILOG_INFO("%{public}s", __func__);
-    want.DumpInfo(0);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
@@ -1209,16 +1259,20 @@ int AbilityManagerService::ConnectAbility(
     if (CheckIfOperateRemote(abilityWant)) {
         HILOG_INFO("AbilityManagerService::ConnectAbility. try to ConnectRemoteAbility");
         eventInfo.errCode = ConnectRemoteAbility(abilityWant, connect->AsObject());
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
-            HiSysEventType::FAULT, eventInfo);
+        if (eventInfo.errCode != ERR_OK) {
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
         return eventInfo.errCode;
     }
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         HILOG_INFO("%{public}s invalid Token.", __func__);
         eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, nullptr);
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
-            HiSysEventType::FAULT, eventInfo);
+        if (eventInfo.errCode != ERR_OK) {
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
         return eventInfo.errCode;
     }
     eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, callerToken);
@@ -1239,13 +1293,13 @@ int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &con
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    eventInfo.errCode = DisconnectLocalAbility(connect);
-    eventInfo.errCode |= DisconnectRemoteAbility(connect->AsObject());
-    if (eventInfo.errCode != ERR_OK) {
+    if (ERR_OK != DisconnectRemoteAbility(connect->AsObject()) &&
+        ERR_OK != DisconnectRemoteAbility(connect->AsObject())) {
+        eventInfo.errCode = INNER_ERR;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::DISCONNECT_SERVICE_ERROR,
             HiSysEventType::FAULT, eventInfo);
     }
-    return eventInfo.errCode;
+    return ERR_OK;
 }
 
 int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t userId,
@@ -3335,6 +3389,10 @@ int AbilityManagerService::GetAppMemorySize()
     int ret = GetParameter(key, def, valueGet, len);
     int resultInt = 0;
     if ((ret != GET_PARAMETER_OTHER) && (ret != GET_PARAMETER_INCORRECT)) {
+        if (valueGet == nullptr) {
+            HILOG_WARN("%{public}s, valueGet is nullptr", __func__);
+            return APP_MEMORY_SIZE;
+        }
         int len = strlen(valueGet);
         for (int i = 0; i < len; i++) {
             if (valueGet[i] >= '0' && valueGet[i] <= '9') {
@@ -4061,7 +4119,7 @@ int AbilityManagerService::StartUserTest(const Want &want, const sptr<IRemoteObj
         HILOG_ERROR("Failed to get bundle info by U0_USER_ID %{public}d.", U0_USER_ID);
         int32_t userId = GetUserId();
         if (!IN_PROCESS_CALL(
-            bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, GetUserId()))) {
+            bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId))) {
             HILOG_ERROR("Failed to get bundle info by userId %{public}d.", userId);
             return GET_BUNDLE_INFO_FAILED;
         }
@@ -4148,11 +4206,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
         return ERR_WOULD_BLOCK;
     }
 
-    abilityRecord->ProcessForegroundAbility(flag);
-    AAFWK::EventInfo eventInfo;
-    eventInfo.sceneFlag = flag;
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::DO_FOREGROUND_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
+    abilityRecord->ProcessForegroundAbility(nullptr, flag);
     return ERR_OK;
 }
 
@@ -4167,10 +4221,6 @@ int AbilityManagerService::DoAbilityBackground(const sptr<IRemoteObject> &token,
     abilityRecord->lifeCycleStateInfo_.sceneFlag = flag;
     int ret = MinimizeAbility(token);
     abilityRecord->lifeCycleStateInfo_.sceneFlag = SCENE_FLAG_NORMAL;
-    AAFWK::EventInfo eventInfo;
-    eventInfo.sceneFlag = flag;
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::DO_FOREGROUND_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
     return ret;
 }
 

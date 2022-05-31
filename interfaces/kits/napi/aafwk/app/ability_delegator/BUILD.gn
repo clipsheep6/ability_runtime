@@ -34,6 +34,7 @@ ohos_shared_library("abilitydelegatorregistry") {
   deps = [
     "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
     "${kits_path}/appkit:app_context",
+    "${kits_path}/appkit:app_context_utils",
     "${kits_path}/appkit:appkit_delegator",
   ]
 

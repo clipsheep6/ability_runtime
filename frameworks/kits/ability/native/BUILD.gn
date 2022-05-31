@@ -201,6 +201,7 @@ ohos_shared_library("abilitykit_native") {
     ":static_subscriber_ipc",
     "${innerkits_path}/dataobs_manager:dataobs_manager",
     "${kits_path}/appkit:app_context",
+    "${kits_path}/appkit:app_context_utils",
     "${kits_path}/appkit:appkit_delegator",
   ]
 

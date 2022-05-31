@@ -1309,6 +1309,7 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NewWant_001, TestSize.Level1)
                 Want want;
                 mockAbilityimpl->NewWant(want);
                 EXPECT_EQ(1, pMocKPageAbility->onNewWantCalled_);
+                EXPECT_EQ(1, pMocKPageAbility->continueRestoreCalled_);
             }
         }
     }

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_INNER_EVENT_REPORT_H
-#define FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_INNER_EVENT_REPORT_H
+#ifndef FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
+#define FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
 
 #include <string>
 #include <unordered_map>
@@ -40,8 +40,6 @@ const std::string DISCONNECT_SERVICE_ERROR = "DISCONNECT_SERVICE_ERROR";
 const std::string START_ABILITY = "START_ABILITY";
 const std::string TERMINATE_ABILITY = "TERMINATE_ABILITY";
 const std::string CLOSE_ABILITY = "CLOSE_ABILITY";
-const std::string DO_FOREGROUND_ABILITY = "DO_FOREGROUND_ABILITY";
-const std::string DO_BACKGROUND_ABILITY = "DO_BACKGROUND_ABILITY";
 // serviceExtensionAbility behavior event
 const std::string START_SERVICE = "START_SERVICE";
 const std::string STOP_SERVICE = "STOP_SERVICE";
@@ -72,7 +70,6 @@ struct EventInfo {
     int64_t formId = -1;
     int32_t extensionType = -1;
     uint32_t versionCode = 0;
-    uint32_t sceneFlag = -1;
     std::string versionName;
     std::string bundleName;
     std::string moduleName;
@@ -88,7 +85,6 @@ struct EventInfo {
         userId = -1;
         formId =-1;
         versionCode = 0;
-        sceneFlag = -1;
         versionName.clear();
         bundleName.clear();
         moduleName.clear();
@@ -111,4 +107,4 @@ public:
 };
 }  // namespace AAFWK
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_INNER_EVENT_REPORT_H
+#endif  // FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H

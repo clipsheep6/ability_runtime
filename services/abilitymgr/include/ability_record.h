@@ -87,6 +87,59 @@ public:
 };
 
 /**
+ * @class SystemAbilityCallerRecord
+ * Record system caller ability of for-result start mode and result.
+ */
+class SystemAbilityCallerRecord {
+public:
+    SystemAbilityCallerRecord(std::string &srcAbilityId, const sptr<IRemoteObject> &callerToken)
+        : srcAbilityId_(srcAbilityId), callerToken_(callerToken)
+    {}
+    virtual ~SystemAbilityCallerRecord()
+    {}
+
+    std::string GetSrcAbilityId()
+    {
+        return srcAbilityId_;
+    }
+    const sptr<IRemoteObject> GetCallerToken()
+    {
+        return callerToken_;
+    }
+    void SetResult(Want &want, int resultCode)
+    {
+        resultWant_ = want;
+        resultCode_ = resultCode;
+    }
+    Want &GetResultWant()
+    {
+        return resultWant_;
+    }
+    int &GetResultCode()
+    {
+        return resultCode_;
+    }
+    /**
+     * Set result to system ability.
+     *
+     */
+    void SetResultToSystemAbility(std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+        Want &resultWant, int resultCode);
+    /**
+     * Send result to system ability.
+     *
+     */
+    void SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
+        const sptr<IRemoteObject> &callerToken);
+
+private:
+    std::string srcAbilityId_;
+    sptr<IRemoteObject> callerToken_;
+    Want resultWant_;
+    int resultCode_ = -1;
+};
+
+/**
  * @class CallerRecord
  * Record caller ability of for-result start mode and result.
  */
@@ -94,6 +147,9 @@ class CallerRecord {
 public:
     CallerRecord() = default;
     CallerRecord(int requestCode, std::weak_ptr<AbilityRecord> caller) : requestCode_(requestCode), caller_(caller)
+    {}
+    CallerRecord(int requestCode, std::shared_ptr<SystemAbilityCallerRecord> saCaller) : requestCode_(requestCode),
+        saCaller_(saCaller)
     {}
     virtual ~CallerRecord()
     {}
@@ -106,10 +162,15 @@ public:
     {
         return caller_.lock();
     }
+    std::shared_ptr<SystemAbilityCallerRecord> GetSaCaller()
+    {
+        return saCaller_;
+    }
 
 private:
     int requestCode_ = -1;  // requestCode of for-result start mode
     std::weak_ptr<AbilityRecord> caller_;
+    std::shared_ptr<SystemAbilityCallerRecord> saCaller_ = nullptr;
 };
 
 /**
@@ -208,13 +269,13 @@ public:
      * foreground the ability.
      *
      */
-    void ForegroundAbility(uint32_t sceneFlag = 0);
+    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
      *
      */
-    void ProcessForegroundAbility(uint32_t sceneFlag = 0);
+    void ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
 
     /**
      * move the ability to back ground.
@@ -493,6 +554,12 @@ public:
     void SaveResultToCallers(const int resultCode, const Want *resultWant);
 
     /**
+     * save result to caller ability.
+     *
+     */
+    void SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller);
+
+    /**
      * add connect record to the list.
      *
      */
@@ -526,7 +593,7 @@ public:
      * add caller record
      *
      */
-    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode);
+    void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId = "");
 
     /**
      * get caller record to list.
@@ -712,6 +779,15 @@ private:
     void GrantUriPermission(const Want &want);
     int GetCurrentAccountId();
 
+    /**
+     * add system ability caller record
+     *
+     */
+    void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
+        std::string srcAbilityId);
+    
+    bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken);
+
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
@@ -775,9 +851,10 @@ private:
     int32_t restratMax_ = -1;
     std::string specifiedFlag_;
     std::mutex lock_;
+    mutable std::mutex dumpInfoLock_;
     mutable std::mutex dumpLock_;
     mutable std::condition_variable dumpCondition_;
-    mutable bool isDumpWaiting_ = false;
+    mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
 
 #ifdef SUPPORT_GRAPHICS

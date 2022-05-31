@@ -728,211 +728,6 @@ napi_value NapiGetNull(napi_env env)
     return result;
 }
 
-static napi_value SystemMemoryAttrConvertJSObject(napi_env env, const SystemMemoryAttr &memoryInfo)
-{
-    napi_value retJsObject = nullptr;
-    napi_value jsAvailSysMem = nullptr;
-    napi_value jsTotalSysMem = nullptr;
-    napi_value jsThreshold = nullptr;
-    napi_value jsIsSysInlowMem = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &retJsObject));
-    NAPI_CALL(env, napi_create_int64(env, memoryInfo.availSysMem_, &jsAvailSysMem));
-    NAPI_CALL(env, napi_create_int64(env, memoryInfo.totalSysMem_, &jsTotalSysMem));
-    NAPI_CALL(env, napi_create_int64(env, memoryInfo.threshold_, &jsThreshold));
-    NAPI_CALL(env, napi_get_boolean(env, memoryInfo.isSysInlowMem_, &jsIsSysInlowMem));
-
-    HILOG_DEBUG("SystemMemoryAttrConvertJSObject %{public}zu %{public}zu %{public}zu %{public}s",
-        static_cast<size_t>(memoryInfo.availSysMem_),
-        static_cast<size_t>(memoryInfo.totalSysMem_),
-        static_cast<size_t>(memoryInfo.threshold_),
-        (memoryInfo.isSysInlowMem_ ? "true" : "false"));
-
-    NAPI_CALL(env, napi_set_named_property(env, retJsObject, "availSysMem", jsAvailSysMem));
-    NAPI_CALL(env, napi_set_named_property(env, retJsObject, "totalSysMem", jsTotalSysMem));
-    NAPI_CALL(env, napi_set_named_property(env, retJsObject, "threshold", jsThreshold));
-    NAPI_CALL(env, napi_set_named_property(env, retJsObject, "isSysInlowMem", jsIsSysInlowMem));
-
-    return retJsObject;
-}
-
-static void GetSystemMemoryAttrExecute(napi_env env, void *data)
-{
-    SystemMemroyInfoCB *pdata = static_cast<SystemMemroyInfoCB *>(data);
-    if (pdata == nullptr) {
-        HILOG_ERROR("GetSystemMemoryAttrExecute input params data is nullptr");
-        return;
-    }
-
-    if (pdata->info == nullptr) {
-        pdata->info = std::make_shared<SystemMemoryAttr>();
-        if (pdata->info == nullptr) {
-            HILOG_ERROR("GetSystemMemoryAttrExecute pdata->info is nullptr");
-            return;
-        }
-    }
-    GetAbilityManagerInstance()->GetSystemMemoryAttr(*pdata->info);
-}
-
-static void GetSystemMemoryAttrAsyncComplete(napi_env env, napi_status status, void *data)
-{
-    HILOG_INFO("%{public}s, main event thread complete.", __func__);
-    const int errorCodeFailed = -1;
-    const int errorCodeSuccess = 0;
-    const unsigned int argsCount = 2;
-    const unsigned int paramFirst = 0;
-    const unsigned int paramSecond = 1;
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_value result[argsCount] = {nullptr};
-    napi_value callResult = nullptr;
-    SystemMemroyInfoCB *pdata = static_cast<SystemMemroyInfoCB *>(data);
-    if (pdata == nullptr) {
-        HILOG_ERROR("%{public}s, main event thread complete end.", __func__);
-        return;
-    }
-
-    if (pdata->info == nullptr) {
-        result[paramFirst] = GetCallbackErrorValue(env, errorCodeFailed);
-        NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &result[paramSecond]));
-        HILOG_ERROR("%{public}s, main event thread complete end.", __func__);
-    } else {
-        result[paramFirst] = GetCallbackErrorValue(env, errorCodeSuccess);
-        result[paramSecond] = SystemMemoryAttrConvertJSObject(env, *pdata->info);
-    }
-
-    NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefined));
-    NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, pdata->callback, &callback));
-    NAPI_CALL_RETURN_VOID(
-        env, napi_call_function(env, undefined, callback, argsCount, &result[paramFirst], &callResult));
-    if (pdata->callback != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, pdata->callback));
-    }
-
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, pdata->asyncWork));
-    if (pdata != nullptr) {
-        delete pdata;
-        pdata = nullptr;
-    }
-    HILOG_INFO("%{public}s, main event thread complete end.", __func__);
-}
-
-static void GetSystemMemoryAttrPromiseComplete(napi_env env, napi_status status, void *data)
-{
-    HILOG_INFO("%{public}s, main event thread complete.", __func__);
-    napi_value result = nullptr;
-    SystemMemroyInfoCB *pdata = static_cast<SystemMemroyInfoCB *>(data);
-    if (pdata == nullptr) {
-        HILOG_ERROR("%{public}s, main event thread complete end.", __func__);
-        return;
-    }
-
-    if (pdata->info == nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_get_null(env, &result));
-        HILOG_ERROR("%{public}s, info is nullptr.", __func__);
-    } else {
-        result = SystemMemoryAttrConvertJSObject(env, *pdata->info);
-    }
-
-    NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, pdata->deferred, result));
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, pdata->asyncWork));
-    if (pdata != nullptr) {
-        delete pdata;
-        pdata = nullptr;
-    }
-    HILOG_INFO("%{public}s,  main event thread complete end.", __func__);
-}
-
-static napi_value GetSystemMemoryAttrPromise(napi_env env)
-{
-    napi_value resourceName = nullptr;
-    napi_async_work asyncWork = nullptr;
-    napi_value retPromise = nullptr;
-    SystemMemroyInfoCB *cb = new (std::nothrow) SystemMemroyInfoCB;
-    if (cb == nullptr) {
-        HILOG_INFO("%{public}s, promise cb new failed", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retPromise));
-        return retPromise;
-    }
-
-    cb->asyncWork = nullptr;
-    cb->callback = nullptr;
-    cb->deferred = nullptr;
-    cb->info = nullptr;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-    NAPI_CALL(env, napi_create_promise(env, &cb->deferred, &retPromise));
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            GetSystemMemoryAttrExecute,
-            GetSystemMemoryAttrPromiseComplete,
-            (void *)cb,
-            &asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, asyncWork));
-    HILOG_INFO("%{public}s, promise end", __func__);
-    return retPromise;
-}
-
-static napi_value GetSystemMemoryAttrAsync(napi_env env, napi_value args)
-{
-    napi_value resourceName = nullptr;
-    napi_value retAsync = nullptr;
-    napi_valuetype valuetype = napi_undefined;
-    SystemMemroyInfoCB *cb = new (std::nothrow) SystemMemroyInfoCB;
-    if (cb == nullptr) {
-        HILOG_ERROR("%{public}s, async cb new failed", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retAsync));
-        return retAsync;
-    }
-
-    cb->asyncWork = nullptr;
-    cb->callback = nullptr;
-    cb->deferred = nullptr;
-    cb->info = nullptr;
-    NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
-    NAPI_CALL(env, napi_typeof(env, args, &valuetype));
-    if (valuetype == napi_function) {
-        NAPI_CALL(env, napi_create_reference(env, args, 1, &cb->callback));
-    }
-
-    NAPI_CALL(env,
-        napi_create_async_work(env,
-            nullptr,
-            resourceName,
-            GetSystemMemoryAttrExecute,
-            GetSystemMemoryAttrAsyncComplete,
-            (void *)cb,
-            &cb->asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, cb->asyncWork));
-
-    HILOG_INFO("%{public}s, async end", __func__);
-    NAPI_CALL(env, napi_create_int32(env, 0, &retAsync));
-    return retAsync;
-}
-
-napi_value NAPI_GetSystemMemoryAttr(napi_env env, napi_callback_info info)
-{
-    size_t argc = 1;
-    napi_value args = nullptr;
-    napi_value ret = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, &args, NULL, NULL));
-    HILOG_INFO("%{public}s argc = [%{public}zu]", __func__, argc);
-
-    if (argc == 0) {
-        // promise
-        ret = GetSystemMemoryAttrPromise(env);
-    } else if (argc == 1) {
-        // async
-        ret = GetSystemMemoryAttrAsync(env, args);
-    } else {
-        HILOG_ERROR("%{public}s js input param error", __func__);
-        NAPI_CALL(env, napi_get_null(env, &ret));
-    }
-
-    HILOG_INFO("%{public}s end", __func__);
-    return ret;
-}
-
 static void GetAppMemorySizeExecute(napi_env env, void *data)
 {
     CallbackInfo *cb = static_cast<CallbackInfo *>(data);
@@ -1005,18 +800,15 @@ static napi_value GetAppMemorySizePromise(napi_env env)
 {
     napi_value resourceName = nullptr;
     napi_value retPromise = nullptr;
-    CallbackInfo *cb = new (std::nothrow) CallbackInfo;
-    if (cb == nullptr) {
-        HILOG_ERROR("%{public}s, create cd failed", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retPromise));
-        return retPromise;
-    }
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_promise(env, &cb->deferred, &retPromise));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetAppMemorySizeExecute,
-                       GetAppMemorySizePromiseComplete, (void *)cb, &cb->asyncWork));
+                       GetAppMemorySizePromiseComplete, (void *)cb.get(), &cb->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, cb->asyncWork));
+
     HILOG_INFO("%{public}s, promise end", __func__);
+    cb.release();
     return retPromise;
 }
 
@@ -1025,12 +817,7 @@ static napi_value GetAppMemorySizeAsync(napi_env env, napi_value args)
     napi_value resourceName = nullptr;
     napi_value retAsync = nullptr;
     napi_valuetype valuetype = napi_undefined;
-    CallbackInfo *cb = new (std::nothrow) CallbackInfo;
-    if (cb == nullptr) {
-        HILOG_ERROR("%{public}s, create cd failed", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retAsync));
-        return retAsync;
-    }
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
 
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
@@ -1039,9 +826,10 @@ static napi_value GetAppMemorySizeAsync(napi_env env, napi_value args)
     }
     NAPI_CALL(env, napi_create_reference(env, args, 1, &cb->callback));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetAppMemorySizeExecute,
-                       GetAppMemorySizeAsyncComplete, (void *)cb, &cb->asyncWork));
+                       GetAppMemorySizeAsyncComplete, (void *)cb.get(), &cb->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, cb->asyncWork));
     HILOG_INFO("%{public}s, async end", __func__);
+    cb.release();
     NAPI_CALL(env, napi_create_int32(env, 0, &retAsync));
     return retAsync;
 }
@@ -1100,18 +888,15 @@ static napi_value IsRamConstrainedDevicePromise(napi_env env)
 {
     napi_value resourceName = nullptr;
     napi_value retPromise = nullptr;
-    CallbackInfo *cb = new (std::nothrow) CallbackInfo;
-    if (cb == nullptr) {
-        HILOG_ERROR("%{public}s, create cb failed.", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retPromise));
-        return retPromise;
-    }
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
+
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_promise(env, &cb->deferred, &retPromise));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, IsRamConstrainedDeviceExecute,
-                       IsRamConstrainedDevicePromiseComplete, (void *)cb, &cb->asyncWork));
+                       IsRamConstrainedDevicePromiseComplete, (void *)cb.get(), &cb->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, cb->asyncWork));
     HILOG_INFO("%{public}s, promise end", __func__);
+    cb.release();
     return retPromise;
 }
 
@@ -1152,12 +937,7 @@ static napi_value IsRamConstrainedDeviceAsync(napi_env env, napi_value args)
     napi_value resourceName = nullptr;
     napi_value retAsync = nullptr;
     napi_valuetype valuetype = napi_undefined;
-    CallbackInfo *cb = new (std::nothrow) CallbackInfo;
-    if (cb == nullptr) {
-        HILOG_ERROR("%{public}s, create cd failed", __func__);
-        NAPI_CALL(env, napi_get_null(env, &retAsync));
-        return retAsync;
-    }
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
 
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
@@ -1168,9 +948,10 @@ static napi_value IsRamConstrainedDeviceAsync(napi_env env, napi_value args)
     }
     NAPI_CALL(env, napi_create_reference(env, args, 1, &cb->callback));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, IsRamConstrainedDeviceExecute,
-                       IsRamConstrainedDeviceAsyncComplete, (void *)cb, &cb->asyncWork));
+                       IsRamConstrainedDeviceAsyncComplete, (void *)cb.get(), &cb->asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, cb->asyncWork));
     HILOG_INFO("%{public}s, async end", __func__);
+    cb.release();
     NAPI_CALL(env, napi_create_int32(env, 0, &retAsync));
     return retAsync;
 }

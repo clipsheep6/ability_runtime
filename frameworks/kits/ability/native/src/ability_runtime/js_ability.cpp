@@ -366,7 +366,7 @@ void JsAbility::DoOnForeground(const Want &want)
         }
 
         // multi-instance ability continuation
-        HILOG_INFO("lauch reason = %{public}d", launchParam_.launchReason);
+        HILOG_INFO("launch reason = %{public}d", launchParam_.launchReason);
         if (IsRestoredInContinuation()) {
             std::string pageStack;
             GetPageStackFromWant(want, pageStack);
@@ -420,6 +420,26 @@ void JsAbility::RequsetFocus(const Want &want)
         HILOG_INFO("set window mode = %{public}d.", windowMode);
     }
     scene_->GoForeground(Ability::sceneFlag_);
+}
+
+void JsAbility::ContinuationRestore(const Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    if (!IsRestoredInContinuation() || scene_ == nullptr) {
+        return;
+    }
+
+    std::string pageStack;
+    GetPageStackFromWant(want, pageStack);
+    HandleScope handleScope(jsRuntime_);
+    auto &engine = jsRuntime_.GetNativeEngine();
+    if (abilityContext_->GetContentStorage()) {
+        scene_->GetMainWindow()->SetUIContent(pageStack, &engine, abilityContext_->GetContentStorage()->Get(), true);
+    } else {
+        HILOG_ERROR("restore: content storage is nullptr");
+    }
+    OnSceneRestored();
+    WaitingDistributedObjectSyncComplete(want);
 }
 #endif
 
@@ -516,7 +536,12 @@ void JsAbility::OnNewWant(const Want &want)
 
     obj->SetProperty("lastRequestWant", jsWant);
 
-    CallObjectMethod("onNewWant", &jsWant, 1);
+    NativeValue *argv[] = {
+        jsWant,
+        CreateJsLaunchParam(nativeEngine, GetLaunchParam()),
+    };
+    CallObjectMethod("onNewWant", argv, ArraySize(argv));
+
     HILOG_INFO("%{public}s end.", __func__);
 }
 

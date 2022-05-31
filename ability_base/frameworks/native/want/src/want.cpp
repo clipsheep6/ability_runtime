@@ -1228,37 +1228,38 @@ Want *Want::ParseUri(const std::string &uri)
     if (want == nullptr) {
         return nullptr;
     }
-    Want *baseWant = want;
     bool inPicker = false;
     pos = uri.find_first_of(";", begin);
-    do {
-        if (pos != std::string::npos) {
+    while (pos != std::string::npos) {
+        content = uri.substr(begin, pos - begin);
+        if (content.compare("PICK") == 0) {
+            inPicker = true;
+            begin = pos + 1;
+            pos = uri.find(";", begin);
+            break;
+        }
+        ret = ParseUriInternal(content, element, *want);
+        if (!ret) {
+            break;
+        }
+        begin = pos + 1;
+        pos = uri.find(";", begin);
+    }
+    if (inPicker) {
+        sptr<Want> pickerWant = new (std::nothrow) Want();
+        ElementName pickerElement;
+        while (pos != std::string::npos) {
             content = uri.substr(begin, pos - begin);
-            if (content.compare("PICK") == 0) {
-                want = new (std::nothrow) Want();
-                if (want == nullptr) {
-                    return nullptr;
-                }
-                inPicker = true;
-                continue;
-            }
-            ret = ParseUriInternal(content, element, *want);
+            ret = ParseUriInternal(content, pickerElement, *pickerWant);
             if (!ret) {
                 break;
             }
             begin = pos + 1;
             pos = uri.find(";", begin);
-            if (pos == std::string::npos) {
-                break;
-            }
-        } else {
-            break;
         }
-    } while (true);
-    if (inPicker) {
-        if (baseWant->GetBundle().empty()) {
+        pickerWant->SetElement(pickerElement);
+        if (want->GetBundle().empty()) {
         }
-        want = baseWant;
     }
     if (ret) {
         want->SetElement(element);
