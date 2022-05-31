@@ -22,6 +22,7 @@
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "accesstoken_kit.h"
 #include "bundle_mgr_client.h"
 #include "hitrace_meter.h"
 #include "errors.h"
@@ -29,15 +30,25 @@
 #ifdef OS_ACCOUNT_PART_ENABLED
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
+#include "system_ability_token_callback.h"
+#include "system_ability_token_callback_proxy.h"
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {
 namespace AAFwk {
+using namespace OHOS::Security;
 const std::string DEBUG_APP = "debugApp";
+const std::string DMS_PROCESS_NAME = "distributedsched";
+const std::string DMS_MISSION_ID = "dmsMissionId";
+const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
+const int32_t SEND_RESULT_CANCELED = -1;
+const int DEFAULT_REQUEST_CODE = -1;
+const int VECTOR_SIZE = 2;
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
     std::map<AbilityState, std::string>::value_type(INACTIVE, "INACTIVE"),
@@ -49,6 +60,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(BACKGROUND, "BACKGROUND"),
     std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
     std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -65,6 +77,7 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_ACTIVE, ACTIVE),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
 };
 #ifndef OS_ACCOUNT_PART_ENABLED
 const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
@@ -200,13 +213,21 @@ bool AbilityRecord::CanRestartRootLauncher()
     return true;
 }
 
-void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
+void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (handler && task) {
+        if (!want_.GetBoolParam(DEBUG_APP, false)) {
+            handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+        } else {
+            HILOG_INFO("Is debug mode, no need to handle time out.");
+        }
+    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -226,7 +247,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 }
 
-void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
+void AbilityRecord::ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag)
 {
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
@@ -239,7 +260,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(sceneFlag);
+            ForegroundAbility(task, sceneFlag);
         }
     } else {
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
@@ -581,22 +602,97 @@ void AbilityRecord::SendResultToCallers()
         std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
         if (callerAbilityRecord != nullptr && callerAbilityRecord->GetResult() != nullptr) {
             callerAbilityRecord->SendResult();
+        } else {
+            std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
+            if (callerSystemAbilityRecord != nullptr) {
+                HILOG_INFO("Send result to system ability.");
+                callerSystemAbilityRecord->SendResultToSystemAbility(caller->GetRequestCode(),
+                    callerSystemAbilityRecord->GetResultCode(), callerSystemAbilityRecord->GetResultWant(),
+                    callerSystemAbilityRecord->GetCallerToken());
+            }
         }
     }
 }
 
 void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *resultWant)
 {
-    for (auto caller : GetCallerRecordList()) {
+    auto callerRecordList = GetCallerRecordList();
+    if (callerRecordList.empty()) {
+        HILOG_WARN("callerRecordList is empty.");
+        return;
+    }
+    auto lastestCaller = callerRecordList.back();
+    for (auto caller : callerRecordList) {
         if (caller == nullptr) {
             HILOG_WARN("Caller record is nullptr.");
             continue;
         }
-        std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
-        if (callerAbilityRecord != nullptr) {
-            callerAbilityRecord->SetResult(
-                std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
+        if (caller == lastestCaller) {
+            HILOG_INFO("Caller record is the latest.");
+            SaveResult(resultCode, resultWant, caller);
+            continue;
         }
+        SaveResult(SEND_RESULT_CANCELED, resultWant, caller);
+    }
+}
+
+void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller)
+{
+    std::shared_ptr<AbilityRecord> callerAbilityRecord = caller->GetCaller();
+    if (callerAbilityRecord != nullptr) {
+        callerAbilityRecord->SetResult(
+            std::make_shared<AbilityResult>(caller->GetRequestCode(), resultCode, *resultWant));
+    } else {
+        std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
+        if (callerSystemAbilityRecord != nullptr) {
+            HILOG_INFO("Caller is system ability.");
+            Want* newWant = const_cast<Want*>(resultWant);
+            callerSystemAbilityRecord->SetResultToSystemAbility(callerSystemAbilityRecord, *newWant,
+                resultCode);
+        }
+    }
+}
+
+void SystemAbilityCallerRecord::SetResultToSystemAbility(
+    std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord,
+    Want &resultWant, int resultCode)
+{
+    std::vector<std::string> data;
+    std::string srcAbilityId = callerSystemAbilityRecord->GetSrcAbilityId();
+    SplitStr(srcAbilityId, "_", data);
+    if (data.size() != VECTOR_SIZE) {
+        HILOG_ERROR("Check data size failed");
+        return;
+    }
+    std::string srcDeviceId = data[0];
+    HILOG_INFO("Get srcDeviceId = %{public}s", srcDeviceId.c_str());
+    int missionId = atoi(data[1].c_str());
+    HILOG_INFO("Get missionId = %{public}d", missionId);
+    resultWant.SetParam(DMS_SRC_NETWORK_ID, srcDeviceId);
+    resultWant.SetParam(DMS_MISSION_ID, missionId);
+    callerSystemAbilityRecord->SetResult(resultWant, resultCode);
+}
+
+void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int resultCode, Want &resultWant,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s", __func__);
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    HILOG_INFO("Try to SendResult, callerUid = %{public}d, AccessTokenId = %{public}u",
+        callerUid, accessToken);
+    if (callerToken == nullptr) {
+        HILOG_ERROR("CallerToken is nullptr");
+        return;
+    }
+    auto object = iface_cast<ISystemAbilityTokenCallback>(callerToken);
+    if (object == nullptr) {
+        HILOG_ERROR("Remote object is nullptr");
+        return;
+    }
+    int result = object->SendResult(resultWant, callerUid, requestCode, accessToken, resultCode);
+    if (result != ERR_OK) {
+        HILOG_ERROR("SendResultToSystemAbility error = %{public}d", result);
     }
 }
 
@@ -625,10 +721,14 @@ void AbilityRecord::RemoveConnectRecordFromList(const std::shared_ptr<Connection
     connRecordList_.remove(connRecord);
 }
 
-void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode)
+void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Add caller record.");
+    if (requestCode != DEFAULT_REQUEST_CODE && IsSystemAbilityCall(callerToken)) {
+        AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
+        return;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER(abilityRecord);
 
@@ -650,6 +750,48 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
     HILOG_INFO("caller %{public}s, %{public}s",
         abilityRecord->GetAbilityInfo().bundleName.c_str(),
         abilityRecord->GetAbilityInfo().name.c_str());
+}
+
+bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken)
+{
+    if (callerToken == nullptr) {
+        return false;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord != nullptr) {
+        return false;
+    }
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
+    if (!isNativeCall) {
+        HILOG_INFO("Is not native call.");
+        return false;
+    }
+    auto object = iface_cast<ISystemAbilityTokenCallback>(callerToken);
+    if (object != nullptr && object->GetDescriptor() == SYSTEM_ABILITY_TOKEN_CALLBACK) {
+        HILOG_INFO("Is system ability call.");
+        return true;
+    }
+    return false;
+}
+
+void AbilityRecord::AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
+    std::string srcAbilityId)
+{
+    HILOG_INFO("Add system ability caller record.");
+    std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
+        std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, callerToken);
+    auto isExist = [&srcAbilityId](const std::shared_ptr<CallerRecord> &callerRecord) {
+        std::shared_ptr<SystemAbilityCallerRecord> saCaller = callerRecord->GetSaCaller();
+        return (saCaller != nullptr && saCaller->GetSrcAbilityId() == srcAbilityId);
+    };
+    auto record = std::find_if(callerList_.begin(), callerList_.end(), isExist);
+    if (record != callerList_.end()) {
+        HILOG_INFO("Find same system ability caller record.");
+        callerList_.erase(record);
+    }
+    callerList_.emplace_back(std::make_shared<CallerRecord>(requestCode, systemAbilityRecord));
+    HILOG_INFO("Add system ability record end.");
 }
 
 std::list<std::shared_ptr<CallerRecord>> AbilityRecord::GetCallerRecordList() const
@@ -1312,27 +1454,20 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
         return;
     }
     std::unique_lock<std::mutex> lock(dumpLock_);
-    isDumpWaiting_ = true;
     scheduler_->DumpAbilityInfo(params, info);
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler) {
-        handler->PostTask([condition = &dumpCondition_, isWaiting = &isDumpWaiting_]() mutable {
-                HILOG_INFO("Dump time out, isWaiting:%{public}d.", *isWaiting);
-                if (*isWaiting && condition != nullptr) {
-                    *isWaiting = false;
-                    condition->notify_all();
-                }
-            }, std::string("Dump") + std::to_string(recordId_), AbilityManagerService::DUMP_TIMEOUT);
-    }
-
     HILOG_INFO("Dump begin wait.");
-    while (isDumpWaiting_) {
-        dumpCondition_.wait(lock);
+    isDumpTimeout_ = false;
+    std::chrono::milliseconds timeout { AbilityManagerService::DUMP_TIMEOUT };
+    if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
+        isDumpTimeout_ = true;
     }
     HILOG_INFO("Dump done and begin parse.");
-    for (auto one : dumpInfos_) {
-        info.emplace_back(one);
+    if (!isDumpTimeout_) {
+        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        for (auto one : dumpInfos_) {
+            info.emplace_back(one);
+        }
     }
 
     if (!dumpConfig) {
@@ -1348,19 +1483,17 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
 void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
 {
     HILOG_INFO("DumpAbilityInfoDone begin.");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler) {
-        handler->RemoveTask(std::string("Dump") + std::to_string(recordId_));
-    }
-    if (!isDumpWaiting_) {
-        HILOG_ERROR("not waiting.");
+    if (isDumpTimeout_) {
+        HILOG_WARN("%{public}s, dump time out.", __func__);
         return;
     }
-    dumpInfos_.clear();
-    for (auto info : infos) {
-        dumpInfos_.emplace_back(info);
+    {
+        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        dumpInfos_.clear();
+        for (auto info : infos) {
+            dumpInfos_.emplace_back(info);
+        }
     }
-    isDumpWaiting_ = false;
     dumpCondition_.notify_all();
 }
 

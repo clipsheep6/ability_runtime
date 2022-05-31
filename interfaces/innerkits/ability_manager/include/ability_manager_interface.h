@@ -186,6 +186,19 @@ public:
         const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant = nullptr) = 0;
 
     /**
+     * SendResultToAbility, send the result to ability.
+     *
+     * @param requestCode, the requestCode of the ability to terminate.
+     * @param resultCode, the resultCode of the ability to terminate.
+     * @param resultWant, the Want of the ability to return.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int SendResultToAbility(int requestCode, int resultCode, Want &resultWant)
+    {
+        return 0;
+    }
+
+    /**
      * TerminateAbility, terminate the special ability.
      *
      * @param callerToken, caller ability token.
@@ -914,6 +927,8 @@ public:
         CONTINUE_ABILITY = 1104,
 
         CONTINUE_MISSION = 1105,
+
+        SEND_RESULT_TO_ABILITY = 1106,
 
         // ipc id for mission manager(1110)
         REGISTER_REMOTE_MISSION_LISTENER = 1110,

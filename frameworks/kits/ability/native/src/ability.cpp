@@ -413,14 +413,19 @@ bool Ability::IsRestoredInContinuation() const
         HILOG_ERROR("abilityContext_ is null");
         return false;
     }
-    if (launchParam_.launchReason == LaunchReason::LAUNCHREASON_CONTINUATION
-        && abilityInfo_->launchMode == LaunchMode::STANDARD
-        && abilityContext_->GetContentStorage() != nullptr) {
-        HILOG_INFO("Is Restored In Continuation");
-        return true;
+
+    if (launchParam_.launchReason != LaunchReason::LAUNCHREASON_CONTINUATION) {
+        HILOG_INFO("launchReason is %{public}d", launchParam_.launchReason);
+        return false;
     }
-    HILOG_INFO("not Restored In Continuation");
-    return false;
+
+    if (abilityContext_->GetContentStorage() == nullptr) {
+        HILOG_INFO("not Restored In Continuation");
+        return false;
+    }
+
+    HILOG_INFO("Is Restored In Continuation");
+    return true;
 }
 
 void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
@@ -3798,6 +3803,11 @@ int Ability::GetDisplayOrientation()
     }
     HILOG_DEBUG("%{public}s, get window orientation: UNSPECIFIED", __func__);
     return 0;
+}
+
+void Ability::ContinuationRestore(const Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
 }
 #endif
 }  // namespace AppExecFwk

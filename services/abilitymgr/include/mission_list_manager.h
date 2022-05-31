@@ -396,6 +396,7 @@ private:
         const std::shared_ptr<AbilityRecord> &callerAbility);
     void NotifyStartingWindow(bool isCold, const std::shared_ptr<AbilityRecord> &targetAbilityRecord,
         std::shared_ptr<StartOptions> &startOptions, int32_t missionId);
+    void ProcessForeground(std::shared_ptr<AbilityRecord> &abilityRecord);
 #endif
 
 private:
@@ -421,10 +422,10 @@ private:
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
-    int DispatchForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void CompleteForegroundNew(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -457,6 +458,7 @@ private:
     void BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility);
 
     // new version for call inner function.
+    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);

@@ -72,9 +72,6 @@ DataAbilityHelper::DataAbilityHelper(const sptr<IRemoteObject> &token, const std
     tryBind_ = false;
     dataAbilityProxy_ = dataAbilityProxy;
     isSystemCaller_ = true;
-    if (isSystemCaller_ && dataAbilityProxy_) {
-        AddDataAbilityDeathRecipient(dataAbilityProxy_->AsObject());
-    }
     HILOG_INFO("DataAbilityHelper::DataAbilityHelper end");
 }
 

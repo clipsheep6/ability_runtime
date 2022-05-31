@@ -270,7 +270,7 @@ void AnalysisValuesBucket(NativeRdb::ValuesBucket &valuesBucket, const napi_env 
     HILOG_INFO("ValuesBucket num:%{public}d ", arrLen);
     for (size_t i = 0; i < arrLen; ++i) {
         napi_value key = 0;
-        status = napi_get_element(env, keys, i, &key);
+        (void)napi_get_element(env, keys, i, &key);
         std::string keyStr = UnwrapStringFromJS(env, key);
         napi_value value = 0;
         napi_get_property(env, arg, key, &value);
@@ -2556,6 +2556,12 @@ napi_value CallErrorWrap(napi_env env, napi_value thisVar, napi_callback_info in
     } else {
         ret = CallErrorPromise(env, errorCB);
     }
+    if (ret == nullptr) {
+        HILOG_ERROR("%{public}s,ret == nullptr", __func__);
+        delete errorCB;
+        errorCB = nullptr;
+        ret = WrapVoidToJS(env);
+    }
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
 }
@@ -2646,7 +2652,7 @@ napi_value CallAsync(napi_env env, napi_value *args, const size_t argCallback, D
             nullptr,
             resourceName,
             CallExecuteCB,
-            InsertAsyncCompleteCB,
+            CallAsyncCompleteCB,
             (void *)callCB,
             &callCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work(env, callCB->cbBase.asyncWork));
@@ -2719,7 +2725,7 @@ void AnalysisPacMap(AppExecFwk::PacMap &pacMap, const napi_env &env, const napi_
     }
     for (size_t i = 0; i < arrLen; ++i) {
         napi_value key = 0;
-        status = napi_get_element(env, keys, i, &key);
+        (void)napi_get_element(env, keys, i, &key);
         std::string keyStr = UnwrapStringFromJS(env, key);
         napi_value value = 0;
         napi_get_property(env, arg, key, &value);

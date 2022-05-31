@@ -59,6 +59,20 @@ void AbilityManagerClientTest::SetUp()
 
 /*
  * Feature: AbilityManagerClient
+ * Function: SendResultToAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerClient SendResultToAbility
+ * EnvConditions: NA
+ * CaseDescription: Verify the SendResultToAbility call normal
+ */
+HWTEST_F(AbilityManagerClientTest, SendResultToAbility_001, TestSize.Level1)
+{
+    Want want;
+    EXPECT_EQ(client_->SendResultToAbility(-1, -1, want), 0);
+}
+
+/*
+ * Feature: AbilityManagerClient
  * Function: StartAbilityByCall
  * SubFunction: NA
  * FunctionPoints: AbilityManagerClient StartAbility

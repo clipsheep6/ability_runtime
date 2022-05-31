@@ -76,8 +76,8 @@ std::shared_ptr<CallRecord> CallContainer::GetCallRecord(const sptr<IAbilityConn
 bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
 {
     HILOG_DEBUG("call container release call record by callback.");
-    CHECK_POINTER_AND_RETURN(connect, nullptr);
-    CHECK_POINTER_AND_RETURN(connect->AsObject(), nullptr);
+    CHECK_POINTER_AND_RETURN(connect, false);
+    CHECK_POINTER_AND_RETURN(connect->AsObject(), false);
 
     auto iter = callRecordMap_.find(connect->AsObject());
     if (iter != callRecordMap_.end()) {

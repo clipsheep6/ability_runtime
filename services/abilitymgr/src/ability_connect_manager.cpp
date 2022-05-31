@@ -893,9 +893,10 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
 {
     CHECK_POINTER(abilityRecord);
     const AppExecFwk::AbilityInfo &abilityInfo = abilityRecord->GetAbilityInfo();
-    std::string element = abilityInfo.deviceId + "/" + abilityInfo.bundleName + "/" + abilityInfo.name;
-    HILOG_INFO("Remove service(%{public}s) from map.", abilityInfo.name.c_str());
-    auto it = serviceMap_.find(element);
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
+        abilityInfo.name, abilityInfo.moduleName);
+    HILOG_INFO("Remove service(%{public}s) from map.", element.GetURI().c_str());
+    auto it = serviceMap_.find(element.GetURI());
     if (it != serviceMap_.end()) {
         HILOG_INFO("Remove service(%{public}s) from map.", abilityInfo.name.c_str());
         serviceMap_.erase(it);
