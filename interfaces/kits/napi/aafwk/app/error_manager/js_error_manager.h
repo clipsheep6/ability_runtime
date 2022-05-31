@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include "event_handler.h"
 #include "ierror_observer.h"
 #include "native_engine/native_engine.h"
 
