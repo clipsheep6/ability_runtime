@@ -856,11 +856,12 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
     }
 
     handler->RemoveEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, abilityRecord->GetEventId());
-#ifdef SUPPORT_GRAPHICS
-    abilityRecord->SetStartingWindow(false);
-#endif
     auto self(shared_from_this());
     if (success) {
+#ifdef SUPPORT_GRAPHICS
+        HILOG_INFO("%{public}s foreground successed.", __func__);
+        abilityRecord->SetStartingWindow(false);
+#endif
         auto task = [self, abilityRecord]() { self->CompleteForegroundSuccess(abilityRecord); };
         handler->PostTask(task);
     } else {
