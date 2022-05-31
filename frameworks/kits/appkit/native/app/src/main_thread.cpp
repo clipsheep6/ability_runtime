@@ -23,6 +23,7 @@
 #include "ability_delegator_registry.h"
 #include "ability_loader.h"
 #include "ability_thread.h"
+#include "app_data_manager.h"
 #include "app_loader.h"
 #include "application_env_impl.h"
 #include "hitrace_meter.h"
@@ -1560,6 +1561,7 @@ void MainThread::HandleScheduleANRProcess()
     if (rFD != -1) {
         close(rFD);
     }
+    DelayedSingleton<AppDataManager>::GetInstance()->NotifyObserversUnhandledException(mainThreadStackInfo);
 }
 
 void MainThread::Start()

@@ -95,6 +95,7 @@ ohos_shared_library("appkit_native") {
     "native/app/src/ability_manager.cpp",
     "native/app/src/ability_record_mgr.cpp",
     "native/app/src/app_context.cpp",
+    "native/app/src/app_data_manager.cpp",
     "native/app/src/app_loader.cpp",
     "native/app/src/application_env.cpp",
     "native/app/src/application_env_impl.cpp",
