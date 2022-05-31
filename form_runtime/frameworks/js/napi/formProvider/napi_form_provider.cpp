@@ -759,11 +759,15 @@ static ErrCode RequestPublishFormParse(napi_env env, napi_value *argv,
 static napi_value RequestPublishFormCallback(napi_env env, napi_value *argv, bool withFormBindingData)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    auto *asyncCallbackInfo = new AsyncRequestPublishFormCallbackInfo {
+    auto *asyncCallbackInfo = new (std::nothrow) AsyncRequestPublishFormCallbackInfo {
         .env = env,
         .ability = GetGlobalAbility(env),
         .withFormBindingData = withFormBindingData,
     };
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
+        return nullptr;
+    }
 
     int32_t callbackIdx = 1;
     if (withFormBindingData) {
@@ -824,12 +828,16 @@ static napi_value RequestPublishFormPromise(napi_env env, napi_value *argv, bool
     napi_value promise;
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
 
-    auto *asyncCallbackInfo = new AsyncRequestPublishFormCallbackInfo {
+    auto *asyncCallbackInfo = new (std::nothrow) AsyncRequestPublishFormCallbackInfo {
         .env = env,
         .ability = GetGlobalAbility(env),
         .deferred = deferred,
         .withFormBindingData = withFormBindingData,
     };
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
+        return nullptr;
+    }
 
     ErrCode errCode = RequestPublishFormParse(env, argv, asyncCallbackInfo);
     if (errCode != ERR_OK) {
@@ -1028,7 +1036,7 @@ napi_value NAPI_AddFormInfo(napi_env env, napi_callback_info info)
         return RetErrMsg(InitErrMsg(env, ERR_APPEXECFWK_FORM_INVALID_PARAM, callbackType, argv[1]));
     }
 
-    auto *asyncCallbackInfo = new AsyncAddFormInfoCallbackInfo {
+    auto *asyncCallbackInfo = new (std::nothrow) AsyncAddFormInfoCallbackInfo {
         .env = env,
         .ability = GetGlobalAbility(env),
         .asyncWork = nullptr,
@@ -1037,6 +1045,10 @@ napi_value NAPI_AddFormInfo(napi_env env, napi_callback_info info)
         .formInfo = {},
         .result = ERR_OK,
     };
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
+        return nullptr;
+    }
 
     ErrCode errCode = UnwrapFormInfo(env, argv[0], asyncCallbackInfo->formInfo);
     if (errCode != ERR_OK) {
@@ -1218,12 +1230,16 @@ napi_value NAPI_RemoveFormInfo(napi_env env, napi_callback_info info)
         return RetErrMsg(InitErrMsg(env, errCode, callbackType, argv[ARGS_SIZE_TWO]));
     }
 
-    auto *asyncCallbackInfo = new AsyncRemoveFormInfoCallbackInfo {
+    auto *asyncCallbackInfo = new (std::nothrow) AsyncRemoveFormInfoCallbackInfo {
         .env = env,
         .ability = GetGlobalAbility(env),
         .moduleName = moduleName,
         .formName = formName,
     };
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
+        return nullptr;
+    }
 
     if (argc == ARGS_SIZE_THREE) {
         // Check the value type of the arguments

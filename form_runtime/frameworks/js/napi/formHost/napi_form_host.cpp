@@ -231,7 +231,7 @@ static void ParseFormInfoIntoNapi(napi_env env, const FormInfo &formInfo, napi_v
     napi_set_named_property(env, result, "isStatic", isStatic);
 
     // window
-    napi_value formWindowObject = nullptr;
+    napi_value formWindowObject;
     napi_create_object(env, &formWindowObject);
     napi_value autoDesignWidth;
     napi_get_boolean(env, formInfo.window.autoDesignWidth, &autoDesignWidth);

@@ -298,6 +298,11 @@ void InnerCreatePromiseRetMsg(napi_env env, int32_t code, napi_value* result)
 napi_value RetErrMsg(AsyncErrMsgCallbackInfo* asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s called.", __func__);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallback == nullptr");
+        return nullptr;
+    }
+
     napi_env env = asyncCallbackInfo->env;
     napi_value value = asyncCallbackInfo->callbackValue;
 
@@ -372,7 +377,7 @@ napi_value RetErrMsg(AsyncErrMsgCallbackInfo* asyncCallbackInfo)
 
 AsyncErrMsgCallbackInfo *InitErrMsg(napi_env env, int32_t code, int32_t type, napi_value callbackValue)
 {
-    auto *asyncErrorInfo = new AsyncErrMsgCallbackInfo {
+    auto *asyncErrorInfo = new (std::nothrow) AsyncErrMsgCallbackInfo {
         .env = env,
         .asyncWork = nullptr,
         .deferred = nullptr,
