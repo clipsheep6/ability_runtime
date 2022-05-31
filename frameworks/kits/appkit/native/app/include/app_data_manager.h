@@ -29,9 +29,12 @@ namespace AppExecFwk {
 class AppDataManager : public std::enable_shared_from_this<AppDataManager> {
     DECLARE_DELAYED_SINGLETON(AppDataManager)
 public:
-    void AddErrorObservers(int64_t observerId, const std::shared_ptr<IErrorObserver> &observer);
-    void RemoveErrorObservers(int64_t observerId);
-    void NotifyObservers(const std::string &errMsg);
+    bool AddErrorObservers(int64_t observerId, const std::shared_ptr<IErrorObserver> &observer);
+    bool RemoveErrorObservers(int64_t observerId);
+    void NotifyObserversUnhandledException(const std::string &errMsg);
+
+private:
+    bool ContainsObserver(const std::shared_ptr<IErrorObserver> &observer);
 
 private:
     std::unordered_map<int64_t, std::shared_ptr<IErrorObserver>> errorObservers_;

@@ -18,18 +18,18 @@
 #include <cstdint>
 
 #include "app_data_manager.h"
+#include "event_runner.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
-#include "event_runner.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
-constexpr int32_t ERROR_CODE_ONE = 1;
+constexpr int32_t ERROR_CODE = -1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 
@@ -59,7 +59,7 @@ public:
 private:
     NativeValue* OnRegisterErrorObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("Register errorObserver is called");
+        HILOG_INFO("Register errorObserver is called.");
         // only support one
         if (info.argc != ARGC_ONE) {
             HILOG_ERROR("The param is invalid, observers need.");
@@ -70,7 +70,6 @@ private:
         std::shared_ptr<JsErrorObserver> observer = std::make_shared<JsErrorObserver>(engine);
         observer->SetJsObserverObject(info.argv[0]);
         int64_t observerId = serialNumber_;
-        observerIds_.emplace(observerId, observer);
         if (serialNumber_ < INT64_MAX) {
             serialNumber_++;
         } else {
@@ -78,14 +77,21 @@ private:
         }
         HILOG_INFO("%{public}s create observer", __func__);
         AsyncTask::CompleteCallback complete =
-            [observerId, observer](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            [&observerId, observer](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("RegisterApplicationStateObserver callback begin");
-                DelayedSingleton<AppExecFwk::AppDataManager>::GetInstance()->AddErrorObservers(observerId, observer);
+                if (!DelayedSingleton<AppExecFwk::AppDataManager>::GetInstance()->AddErrorObservers(
+                    observerId, observer)) {
+                    observerId = -1;
+                }
             };
 
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
             engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        if (observerId == -1) {
+            return engine.CreateUndefined();
+        }
+        observerIds_.emplace(observerId, observer);
         return engine.CreateNumber(observerId);
     }
 
@@ -107,24 +113,27 @@ private:
         if (item != observerIds_.end()) {
             // match id
             observer = item->second;
-            HILOG_INFO("%{public}s find observer exist", __func__);
+            HILOG_INFO("Unregister errorObserver come, find observer.");
         } else {
-            HILOG_INFO("%{public}s not find observer exist.", __func__);
+            HILOG_ERROR("Unregister errorObserver come, not find observer.");
         }
 
         AsyncTask::CompleteCallback complete =
             [observer, observerId](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("unregister errorObserver called.");
+                HILOG_INFO("Unregister errorObserver called.");
                 if (observer == nullptr) {
-                    HILOG_ERROR("observer is nullptr");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "observer is nullptr"));
+                    HILOG_ERROR("observer is not exist");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
                     return;
                 }
-                DelayedSingleton<AppExecFwk::AppDataManager>::GetInstance()->RemoveErrorObservers(observerId);
-                task.Resolve(engine, engine.CreateUndefined());
+                if (DelayedSingleton<AppExecFwk::AppDataManager>::GetInstance()->RemoveErrorObservers(observerId)) {
+                    task.Resolve(engine, engine.CreateUndefined());
+                } else {
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
+                }
                 observerIds_.erase(observerId);
-                HILOG_INFO("UnregisterApplicationStateObserver erase size:%{public}zu", observerIds_.size());
+                HILOG_INFO("Unregister errorObserver finish, now size:%{public}zu", observerIds_.size());
             };
 
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
@@ -146,7 +155,7 @@ NativeValue* JsErrorManagerInit(NativeEngine* engine, NativeValue* exportObj)
 
     NativeObject* object = ConvertNativeValueTo<NativeObject>(exportObj);
     if (object == nullptr) {
-        HILOG_INFO("object null");
+        HILOG_INFO("object is nullptr");
         return nullptr;
     }
 
@@ -192,7 +201,7 @@ void JsErrorObserver::CallJsFunction(const char* methodName, NativeValue* const*
 {
     HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
     if (jsObserverObject_ == nullptr) {
-        HILOG_ERROR("jsObserverObject_ nullptr");
+        HILOG_ERROR("jsObserverObject_ is nullptr");
         return;
     }
     NativeValue* value = jsObserverObject_->Get();
@@ -204,12 +213,11 @@ void JsErrorObserver::CallJsFunction(const char* methodName, NativeValue* const*
 
     NativeValue* method = obj->GetProperty(methodName);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get from object");
+        HILOG_ERROR("Failed to get method");
         return;
     }
-    HILOG_INFO("CallJsFunction CallFunction success");
+    HILOG_INFO("CallJsFunction success");
     engine_.CallFunction(value, method, argv, argc);
-    HILOG_INFO("CallJsFunction end");
 }
 
 void JsErrorObserver::SetJsObserverObject(NativeValue* jsObserverObject)

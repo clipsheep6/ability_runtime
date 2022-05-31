@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "ierror_observer.h"
 #include "event_handler.h"
+#include "ierror_observer.h"
 #include "native_engine/native_engine.h"
 
 #ifndef OHOS_APPEXECFWK_RUNTIME_ERROR_MANAGER_H

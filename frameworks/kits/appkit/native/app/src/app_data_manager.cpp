@@ -22,23 +22,33 @@ AppDataManager::AppDataManager() {}
 
 AppDataManager::~AppDataManager() {}
 
-void AppDataManager::AddErrorObservers(int64_t observerId, const std::shared_ptr<IErrorObserver> &observer)
+bool AppDataManager::AddErrorObservers(int64_t observerId, const std::shared_ptr<IErrorObserver> &observer)
 {
     HILOG_DEBUG("Add error observers come.");
+    if (observer == nullptr) {
+        HILOG_ERROR("Observer is nullptr.");
+        return false;
+    }
+
     std::lock_guard<std::recursive_mutex> lock(observerMutex_);
+    if (ContainsObserver(observer)) {
+        HILOG_ERROR("Observer is already exists.");
+        return false;
+    }
     errorObservers_[observerId] = observer;
+    return true;
 }
 
-void AppDataManager::RemoveErrorObservers(int64_t observerId)
+bool AppDataManager::RemoveErrorObservers(int64_t observerId)
 {
-    HILOG_DEBUG("Add error observers come.");
+    HILOG_DEBUG("Remove error observers come.");
     std::lock_guard<std::recursive_mutex> lock(observerMutex_);
-    errorObservers_.erase(observerId);
+    return errorObservers_.erase(observerId) == 1;
 }
 
-void AppDataManager::NotifyObservers(const std::string &errMsg)
+void AppDataManager::NotifyObserversUnhandledException(const std::string &errMsg)
 {
-    HILOG_DEBUG("Add error observers come.");
+    HILOG_DEBUG("Notify error observers come.");
     std::lock_guard<std::recursive_mutex> lock(observerMutex_);
     for (auto it = errorObservers_.begin(); it != errorObservers_.end(); it++) {
         auto observer = it->second;
@@ -46,6 +56,18 @@ void AppDataManager::NotifyObservers(const std::string &errMsg)
             observer->OnUnhandledException(errMsg);
         }
     }
+}
+
+bool AppDataManager::ContainsObserver(const std::shared_ptr<IErrorObserver> &observerParam)
+{
+    for (auto it = errorObservers_.begin(); it != errorObservers_.end(); it++) {
+        auto observer = it->second;
+        if (observer && observer == observerParam) {
+            return true;
+        }
+    }
+
+    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

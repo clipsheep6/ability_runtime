@@ -1561,7 +1561,7 @@ void MainThread::HandleScheduleANRProcess()
     if (rFD != -1) {
         close(rFD);
     }
-    DelayedSingleton<AppDataManager>::GetInstance()->NotifyObservers(mainThreadStackInfo);
+    DelayedSingleton<AppDataManager>::GetInstance()->NotifyObserversUnhandledException(mainThreadStackInfo);
 }
 
 void MainThread::Start()
