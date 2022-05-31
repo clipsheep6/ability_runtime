@@ -13,16 +13,27 @@
  * limitations under the License.
  */
 
-#include "event_handler.h"
 #include "ierror_observer.h"
 #include "native_engine/native_engine.h"
 
-#ifndef OHOS_APPEXECFWK_RUNTIME_ERROR_MANAGER_H
-#define OHOS_APPEXECFWK_RUNTIME_ERROR_MANAGER_H
+#ifndef OHOS_APPEXECFWK_RUNTIME_JS_ERROR_OBSERVER_H
+#define OHOS_APPEXECFWK_RUNTIME_JS_ERROR_OBSERVER_H
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* JsErrorManagerInit(NativeEngine* engine, NativeValue* exportObj);
+class JsErrorObserver : public AppExecFwk::IErrorObserver {
+public:
+    explicit JsErrorObserver(NativeEngine& engine);
+    ~JsErrorObserver();
+    void OnUnhandledException(std::string errMsg) override;
+    void HandleOnUnhandledException(const std::string &errMsg);
+    void SetJsObserverObject(NativeValue* jsObserverObject);
+    void CallJsFunction(const char* methodName, NativeValue* const* argv, size_t argc);
+
+private:
+    NativeEngine& engine_;
+    std::unique_ptr<NativeReference> jsObserverObject_ = nullptr;
+};
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif // OHOS_APPEXECFWK_RUNTIME_ERROR_MANAGER_H
+#endif // OHOS_APPEXECFWK_RUNTIME_JS_ERROR_OBSERVER_H

@@ -24,6 +24,7 @@ ohos_shared_library("errormanager_napi") {
   sources = [
     "error_manager_module.cpp",
     "js_error_manager.cpp",
+    "js_error_observer.cpp",
   ]
 
   configs = [ "${aafwk_path}/services/common:common_config" ]

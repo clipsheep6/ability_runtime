@@ -1,0 +1,82 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "js_error_observer.h"
+
+#include <cstdint>
+
+#include "hilog_wrapper.h"
+#include "js_runtime.h"
+#include "js_runtime_utils.h"
+#include "napi/native_api.h"
+
+namespace OHOS {
+namespace AbilityRuntime {
+constexpr size_t ARGC_ONE = 1;
+JsErrorObserver::JsErrorObserver(NativeEngine& engine) : engine_(engine) {}
+
+JsErrorObserver::~JsErrorObserver() = default;
+
+void JsErrorObserver::OnUnhandledException(std::string errMsg)
+{
+    HILOG_DEBUG("OnUnhandledException come.");
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([jsObserver = this, errMsg](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            if (jsObserver) {
+                jsObserver->HandleOnUnhandledException(errMsg);
+            }
+        });
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule(
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
+{
+    HILOG_DEBUG("HandleOnUnhandledException come.");
+    NativeValue* argv[] = { CreateJsValue(engine_, errMsg) };
+    CallJsFunction("onUnhandledException", argv, ARGC_ONE);
+}
+
+void JsErrorObserver::CallJsFunction(const char* methodName, NativeValue* const* argv, size_t argc)
+{
+    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    if (jsObserverObject_ == nullptr) {
+        HILOG_ERROR("jsObserverObject_ is nullptr");
+        return;
+    }
+    NativeValue* value = jsObserverObject_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return;
+    }
+
+    NativeValue* method = obj->GetProperty(methodName);
+    if (method == nullptr) {
+        HILOG_ERROR("Failed to get method");
+        return;
+    }
+    HILOG_INFO("CallJsFunction success");
+    engine_.CallFunction(value, method, argv, argc);
+}
+
+void JsErrorObserver::SetJsObserverObject(NativeValue* jsObserverObject)
+{
+    jsObserverObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
+}
+}  // namespace AbilityRuntime
+}  // namespace OHOS
