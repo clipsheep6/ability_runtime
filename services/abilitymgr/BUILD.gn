@@ -77,6 +77,8 @@ ohos_shared_library("abilityms") {
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/common:perm_verification",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "${services_path}/dialog_ui/dialog_anr/js:dialog_anr_js_files_etc",
+    "//third_party/icu/icu4c:shared_icuuc",
   ]
 
   external_deps = [
