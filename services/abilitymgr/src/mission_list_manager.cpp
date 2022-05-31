@@ -2299,7 +2299,7 @@ void MissionListManager::StartingWindowCold(const std::shared_ptr<AbilityRecord>
     auto colorErrval = resourceMgr->GetColorById(colorId, bgColor);
     if (colorErrval != OHOS::Global::Resource::RState::SUCCESS) {
         HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
-        bgColor = 0xffffffff;
+        bgColor = 0x99ffffff;
     }
     HILOG_DEBUG("%{public}s colorId is %{public}u, bgColor is %{public}u.", __func__, colorId, bgColor);
 
