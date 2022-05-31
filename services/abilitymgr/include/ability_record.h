@@ -596,13 +596,6 @@ public:
     void AddCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode, std::string srcAbilityId = "");
 
     /**
-     * add system ability caller record
-     *
-     */
-    void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
-        std::string srcAbilityId);
-
-    /**
      * get caller record to list.
      *
      */
@@ -785,6 +778,15 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
     void GrantUriPermission(const Want &want);
     int GetCurrentAccountId();
+
+    /**
+     * add system ability caller record
+     *
+     */
+    void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
+        std::string srcAbilityId);
+    
+    bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken);
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id

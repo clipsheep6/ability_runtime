@@ -42,6 +42,7 @@ const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -724,11 +725,11 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Add caller record.");
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (requestCode != DEFAULT_REQUEST_CODE && callerToken != nullptr && abilityRecord == nullptr) {
+    if (requestCode != DEFAULT_REQUEST_CODE && IsSystemAbilityCall(callerToken)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
     }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     CHECK_POINTER(abilityRecord);
 
     auto isExist = [&abilityRecord](const std::shared_ptr<CallerRecord> &callerRecord) {
@@ -751,27 +752,46 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
         abilityRecord->GetAbilityInfo().name.c_str());
 }
 
+bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken)
+{
+    if (callerToken == nullptr) {
+        return false;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord != nullptr) {
+        return false;
+    }
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    bool isNativeCall = tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE;
+    if (!isNativeCall) {
+        HILOG_INFO("Is not native call.");
+        return false;
+    }
+    auto object = iface_cast<ISystemAbilityTokenCallback>(callerToken);
+    if (object != nullptr && object->GetDescriptor() == SYSTEM_ABILITY_TOKEN_CALLBACK) {
+        HILOG_INFO("Is system ability call.");
+        return true;
+    }
+    return false;
+}
+
 void AbilityRecord::AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
     std::string srcAbilityId)
 {
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE &&
-        iface_cast<ISystemAbilityTokenCallback>(callerToken) != nullptr) {
-        HILOG_INFO("Add system ability caller record.");
-        std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
-            std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, callerToken);
-        auto isExist = [&srcAbilityId](const std::shared_ptr<CallerRecord> &callerRecord) {
-            std::shared_ptr<SystemAbilityCallerRecord> saCaller = callerRecord->GetSaCaller();
-            return (saCaller != nullptr && saCaller->GetSrcAbilityId() == srcAbilityId);
-        };
-        auto record = std::find_if(callerList_.begin(), callerList_.end(), isExist);
-        if (record != callerList_.end()) {
-            HILOG_INFO("Find same system ability caller record.");
-            callerList_.erase(record);
-        }
-        callerList_.emplace_back(std::make_shared<CallerRecord>(requestCode, systemAbilityRecord));
-        HILOG_INFO("Add system ability record end.");
+    HILOG_INFO("Add system ability caller record.");
+    std::shared_ptr<SystemAbilityCallerRecord> systemAbilityRecord =
+        std::make_shared<SystemAbilityCallerRecord>(srcAbilityId, callerToken);
+    auto isExist = [&srcAbilityId](const std::shared_ptr<CallerRecord> &callerRecord) {
+        std::shared_ptr<SystemAbilityCallerRecord> saCaller = callerRecord->GetSaCaller();
+        return (saCaller != nullptr && saCaller->GetSrcAbilityId() == srcAbilityId);
+    };
+    auto record = std::find_if(callerList_.begin(), callerList_.end(), isExist);
+    if (record != callerList_.end()) {
+        HILOG_INFO("Find same system ability caller record.");
+        callerList_.erase(record);
     }
+    callerList_.emplace_back(std::make_shared<CallerRecord>(requestCode, systemAbilityRecord));
+    HILOG_INFO("Add system ability record end.");
 }
 
 std::list<std::shared_ptr<CallerRecord>> AbilityRecord::GetCallerRecordList() const
