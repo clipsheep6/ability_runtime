@@ -2359,7 +2359,7 @@ void MissionListManager::StartingWindowHot(const std::shared_ptr<AbilityRecord> 
 
 void MissionListManager::CancelStartingWindow(const sptr<IRemoteObject> abilityToken, bool isDelay) const
 {
-    HILOG_INFO("%{public}s, call CancelStartingWindow.", __func__);
+    HILOG_INFO("%{public}s, call CancelStartingWindow...0", __func__);
     auto windowHandler = GetWMSHandler();
     if (!windowHandler) {
         HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
@@ -2375,18 +2375,25 @@ void MissionListManager::CancelStartingWindow(const sptr<IRemoteObject> abilityT
     auto task = [windowHandler, abilityToken] {
         auto abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
         if (!abilityRecord) {
-            HILOG_INFO("%{public}s, abilityRecord is nullptr.", __func__);
+            HILOG_ERROR("%{public}s, abilityRecord is nullptr.", __func__);
+        }
+        if (!windowHandler) {
+            HILOG_ERROR("%{public}s, windowHandler is nullptr.", __func__);
         }
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow()) {
-            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            HILOG_ERROR("%{public}s, call windowHandler CancelStartingWindow.", __func__);
             windowHandler->CancelStartingWindow(abilityToken);
             abilityRecord->SetStartingWindow(false);
+        } else {
+            HILOG_ERROR("%{public}s, StartingWindow is false.", __func__);
         }
     };
     if (isDelay) {
+        HILOG_ERROR("%{public}s, StartingWindow delayTime PostTask.", __func__);
         int64_t delayTime = 5 * 1000;
         handler->PostTask(task, delayTime);
     } else {
+        HILOG_ERROR("%{public}s, StartingWindow IMMEDIATE PostTask.", __func__);
         handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
     }
 }
@@ -2400,10 +2407,18 @@ void MissionListManager::ProcessForeground(std::shared_ptr<AbilityRecord> &abili
         return;
     }
     auto task = [windowHandler, abilityRecord] {
+        if (!abilityRecord) {
+            HILOG_INFO("%{public}s, abilityRecord is nullptr.", __func__);
+        }
+        if (!windowHandler) {
+            HILOG_INFO("%{public}s, windowHandler is nullptr.", __func__);
+        }
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow()) {
             HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
+        } else {
+            HILOG_INFO("%{public}s, StartingWindow is false.", __func__);
         }
     };
     abilityRecord->ProcessForegroundAbility(task);
