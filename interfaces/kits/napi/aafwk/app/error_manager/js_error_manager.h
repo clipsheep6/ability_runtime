@@ -38,7 +38,6 @@ private:
     std::unique_ptr<NativeReference> jsObserverObject_ = nullptr;
 };
 
-static std::map<int64_t, std::shared_ptr<JsErrorObserver>> observerIds_;
 static int64_t serialNumber_ = 0;
 static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 }  // namespace AbilityRuntime

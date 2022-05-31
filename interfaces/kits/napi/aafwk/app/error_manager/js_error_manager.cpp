@@ -91,7 +91,6 @@ private:
         if (observerId == -1) {
             return engine.CreateUndefined();
         }
-        observerIds_.emplace(observerId, observer);
         return engine.CreateNumber(observerId);
     }
 
@@ -105,35 +104,19 @@ private:
 
         // unwrap connectId
         int64_t observerId = -1;
-        std::shared_ptr<JsErrorObserver> observer = nullptr;
         napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
         HILOG_INFO("unregister errorObserver called, observer:%{public}d", (int32_t)observerId);
-        auto item = observerIds_.find(observerId);
-        if (item != observerIds_.end()) {
-            // match id
-            observer = item->second;
-            HILOG_INFO("Unregister errorObserver come, find observer.");
-        } else {
-            HILOG_ERROR("Unregister errorObserver come, not find observer.");
-        }
 
         AsyncTask::CompleteCallback complete =
-            [observer, observerId](
+            [observerId](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("Unregister errorObserver called.");
-                if (observer == nullptr) {
-                    HILOG_ERROR("observer is not exist");
-                    task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
-                    return;
-                }
                 if (DelayedSingleton<AppExecFwk::AppDataManager>::GetInstance()->RemoveErrorObservers(observerId)) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
                 }
-                observerIds_.erase(observerId);
-                HILOG_INFO("Unregister errorObserver finish, now size:%{public}zu", observerIds_.size());
             };
 
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
