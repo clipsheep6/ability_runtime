@@ -558,6 +558,8 @@ public:
         int requestCode,
         int callerUid = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
+        
+    int IsStartFreeInstall(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId);
 
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 

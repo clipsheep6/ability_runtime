@@ -240,18 +240,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             continue;
         }
 
-        std::string freeInstallType = want.GetStringParam(FREE_INSTALL_TYPE);
-        if (!isFromRemote && resultCode == ERR_OK && freeInstallType == "ConnectAbility") {
+        if (!isFromRemote && resultCode == ERR_OK) {
             resultCode = ERR_OK;
-        } else if (!isFromRemote && resultCode == ERR_OK && freeInstallType == "StartAbility") {
-            HILOG_INFO("Handle apps startability.");
-            auto server = server_.lock();
-            CHECK_POINTER(server);
-            if ((*it).want.GetBoolParam(FREE_INSTALL_UPGRADED_KEY, false)) {
-                HILOG_INFO("Handle apps upgraded.");
-                resultCode = server->StartAbilityInner((*it).want, nullptr, (*it).requestCode, -1, -1);
-            }
-            resultCode = server->StartAbilityInner((*it).want, (*it).callerToken, (*it).requestCode, -1, -1);
         }
 
         if ((*it).promise != nullptr) {
@@ -358,6 +348,21 @@ int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
     }
     return ERR_OK;
 }
+
+
+int FreeInstallManager::IsStartFreeInstall(const Want &want, int32_t userId,
+    const sptr<IRemoteObject> &callerToken, int requestCode, bool isRemote)
+{
+    if (CheckIsFreeInstall(want)) {
+        int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false);
+        if (result) {
+            HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. FreeInstall error");
+            return result;
+        }
+    }
+    return ERR_OK;
+}
+
 
 void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId)
 {
