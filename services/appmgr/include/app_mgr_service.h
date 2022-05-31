@@ -217,6 +217,15 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status) override;
 
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns true on success, others on failure.
+     */
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block app service.
