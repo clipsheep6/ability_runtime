@@ -385,17 +385,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, int c
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
-        if (clearMissionFlag == CLEAR_MISSION_FLAG) {
+        if (clearMissionFlag == CLEAR_MISSION_FLAG || clearMissionFlag == CLEAR_ALL_MISSION_FLAG) {
             HILOG_INFO("The ability is the last, clearMissionFlag KillApplication");
             appMgrServiceInner->KillApplication(appRecord->GetBundleName());
-        }
-        if (clearMissionFlag == CLEAR_ALL_MISSION_FLAG) {
-            std::list<int> bgTaskUids = DelayedSingleton<AbilityManagerService>::GetInstance()->GetBgTaskUids();
-            HILOG_INFO("The ability is the last, clearAllMissionFlag KillApplication");
-            auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), appRecord->GetUid());
-            if (iter == bgTaskUids.end()) {
-                appMgrServiceInner->KillApplication(appRecord->GetBundleName());
-            }
         }
     }
 

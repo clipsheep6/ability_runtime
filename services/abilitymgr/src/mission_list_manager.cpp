@@ -1354,6 +1354,12 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             continue;
         }
 
+        std::list<int> bgTaskUids = DelayedSingleton<AbilityManagerService>::GetInstance()->GetBgTaskUids();
+        auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), mission->GetAbilityRecord()->GetUid());
+        if (iter != bgTaskUids.end()) {
+            continue;
+        }
+
         if (searchActive && mission->GetAbilityRecord() && mission->GetAbilityRecord()->IsActiveState()) {
             foregroundAbilities.push_front(mission);
             continue;
