@@ -4073,7 +4073,7 @@ int AbilityManagerService::SendANRProcessID(int pid)
                 }
             }
         });
-#elif
+#else
     auto timeoutTask = [pid]() {
         if (kill(pid, SIGKILL) != ERR_OK) {
             HILOG_ERROR("Kill app not response process failed");
@@ -4881,7 +4881,7 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
 }
-
+#ifdef SUPPORT_GRAPHICS
 void AbilityManagerService::GetDialogPositionAndSize(DialogPosition &position)
 {
     position.wideScreen = true;
@@ -4906,7 +4906,7 @@ void AbilityManagerService::GetDialogPositionAndSize(DialogPosition &position)
         position.offsetY = UI_DEFAULT_HEIGHT - position.height - UI_DEFAULT_BUTTOM_CLIP;
     }
 }
-
+#endif
 #ifdef SUPPORT_GRAPHICS
 int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {

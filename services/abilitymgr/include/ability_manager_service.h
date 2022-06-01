@@ -952,9 +952,9 @@ private:
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
-
+#ifdef SUPPORT_GRAPHICS
     void GetDialogPositionAndSize(DialogPosition &position);
-
+#endif
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
