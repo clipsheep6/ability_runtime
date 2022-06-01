@@ -49,6 +49,26 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
 
+AsyncBase::AsyncBase(napi_env env)
+{
+    this->env = env;
+}
+
+AsyncBase::~AsyncBase()
+{
+    if (asyncWork != nullptr) {
+        HILOG_INFO("AsyncBase::~AsyncBase delete asyncWork.");
+        napi_delete_async_work(env, asyncWork);
+        asyncWork = nullptr;
+    }
+
+    if (callback != nullptr) {
+        HILOG_INFO("AsyncBase::~AsyncBase delete callback.");
+        napi_delete_reference(env, callback);
+        callback = nullptr;
+    }
+}
+
 napi_value ParseBundleName(napi_env env, std::string &bundleName, napi_value args)
 {
     char buf[NapiAbilityMgr::BUFFER_LENGTH_MAX] = {0};
@@ -182,6 +202,7 @@ auto NAPI_GetAllRunningProcessesAsyncExecuteCallback = [](napi_env env, void *da
 auto NAPI_GetAllRunningProcessesAsyncCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("getAllRunningProcesses compeleted(CallBack Mode)...");
     AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -191,25 +212,18 @@ auto NAPI_GetAllRunningProcessesAsyncCompleteCallback = [](napi_env env, napi_st
     napi_create_array(env, &result[1]);
     GetAllRunningProcessesForResult(env, async_callback_info->info, result[1]);
     napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+    napi_get_reference_value(env, async_callback_info->callback, &callback);
     napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (async_callback_info->callback[0] != nullptr) {
-        napi_delete_reference(env, async_callback_info->callback[0]);
-    }
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 auto NAPI_GetAllRunningProcessesPromiseCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("getAllRunningProcesses compeleted(Promise Mode)...");
     AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result = nullptr;
     napi_create_array(env, &result);
     GetAllRunningProcessesForResult(env, async_callback_info->info, result);
     napi_resolve_deferred(async_callback_info->env, async_callback_info->deferred, result);
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 napi_value NAPI_GetAllRunningProcessesWrap(
@@ -219,7 +233,7 @@ napi_value NAPI_GetAllRunningProcessesWrap(
     if (callBackMode) {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_GetAllRunningProcessesCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
+        std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
         napi_create_async_work(env,
             nullptr,
             resourceName,
@@ -229,13 +243,13 @@ napi_value NAPI_GetAllRunningProcessesWrap(
             &async_callback_info.asyncWork);
 
         NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
+        asyncCallbackInfoPtr.release();
         // create return
-        napi_value ret = 0;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
+        return nullptr;
     } else {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_GetAllRunningProcessesPromise", NAPI_AUTO_LENGTH, &resourceName);
+        std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
 
         napi_deferred deferred = nullptr;
         napi_value promise = nullptr;
@@ -249,7 +263,8 @@ napi_value NAPI_GetAllRunningProcessesWrap(
             NAPI_GetAllRunningProcessesPromiseCompleteCallback,
             (void *)&async_callback_info,
             &async_callback_info.asyncWork);
-        napi_queue_async_work(env, async_callback_info.asyncWork);
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
+        asyncCallbackInfoPtr.release();
         return promise;
     }
 }
@@ -269,26 +284,16 @@ napi_value NAPI_GetAllRunningProcesses(napi_env env, napi_callback_info info)
         callBackMode = true;
     }
 
-    AsyncCallbackInfo *async_callback_info = new (std::nothrow) AsyncCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
+    AsyncCallbackInfo *async_callback_info = new (std::nothrow) AsyncCallbackInfo { env };
     if (async_callback_info == nullptr) {
         return nullptr;
     }
 
     if (callBackMode) {
-        napi_create_reference(env, argv[0], 1, &async_callback_info->callback[0]);
+        napi_create_reference(env, argv[0], 1, &async_callback_info->callback);
     }
 
-    napi_value ret = NAPI_GetAllRunningProcessesWrap(env, info, callBackMode, *async_callback_info);
-    if (ret == nullptr) {
-        delete async_callback_info;
-        async_callback_info = nullptr;
-    }
-
-    return ((callBackMode) ? (nullptr) : (ret));
+    return NAPI_GetAllRunningProcessesWrap(env, info, callBackMode, *async_callback_info);
 }
 
 auto NAPI_GetActiveProcessInfosAsyncExecuteCallback = [](napi_env env, void *data) {
@@ -300,6 +305,7 @@ auto NAPI_GetActiveProcessInfosAsyncExecuteCallback = [](napi_env env, void *dat
 auto NAPI_GetActiveProcessInfosAsyncCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("getActiveProcessInfos compeleted(CallBack Mode)...");
     AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -309,25 +315,18 @@ auto NAPI_GetActiveProcessInfosAsyncCompleteCallback = [](napi_env env, napi_sta
     napi_create_array(env, &result[1]);
     GetActiveProcessInfosForResult(env, async_callback_info->info, result[1]);
     napi_get_undefined(env, &undefined);
-    napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+    napi_get_reference_value(env, async_callback_info->callback, &callback);
     napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (async_callback_info->callback[0] != nullptr) {
-        napi_delete_reference(env, async_callback_info->callback[0]);
-    }
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 auto NAPI_GetActiveProcessInfosPromiseCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("getActiveProcessInfos compeleted(Promise Mode)...");
     AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result = nullptr;
     napi_create_array(env, &result);
     GetActiveProcessInfosForResult(env, async_callback_info->info, result);
     napi_resolve_deferred(async_callback_info->env, async_callback_info->deferred, result);
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 napi_value NAPI_GetActiveProcessInfosWrap(
@@ -337,7 +336,7 @@ napi_value NAPI_GetActiveProcessInfosWrap(
     if (callBackMode) {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_GetActiveProcessInfosCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
+        std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
         napi_create_async_work(env,
             nullptr,
             resourceName,
@@ -347,13 +346,12 @@ napi_value NAPI_GetActiveProcessInfosWrap(
             &async_callback_info.asyncWork);
 
         NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
-        // create return
-        napi_value ret = 0;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
+        asyncCallbackInfoPtr.release();
+        return nullptr;
     } else {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_GetActiveProcessInfosPromise", NAPI_AUTO_LENGTH, &resourceName);
+        std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
 
         napi_deferred deferred = nullptr;
         napi_value promise = nullptr;
@@ -367,7 +365,8 @@ napi_value NAPI_GetActiveProcessInfosWrap(
             NAPI_GetActiveProcessInfosPromiseCompleteCallback,
             (void *)&async_callback_info,
             &async_callback_info.asyncWork);
-        napi_queue_async_work(env, async_callback_info.asyncWork);
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
+        asyncCallbackInfoPtr.release();
         return promise;
     }
 }
@@ -387,26 +386,16 @@ napi_value NAPI_GetActiveProcessInfos(napi_env env, napi_callback_info info)
         callBackMode = true;
     }
 
-    AsyncCallbackInfo *async_callback_info = new (std::nothrow) AsyncCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
+    AsyncCallbackInfo *async_callback_info = new (std::nothrow) AsyncCallbackInfo { env };
     if (async_callback_info == nullptr) {
         return nullptr;
     }
 
     if (callBackMode) {
-        napi_create_reference(env, argv[0], 1, &async_callback_info->callback[0]);
+        napi_create_reference(env, argv[0], 1, &async_callback_info->callback);
     }
 
-    napi_value ret = NAPI_GetActiveProcessInfosWrap(env, info, callBackMode, *async_callback_info);
-    if (ret == nullptr) {
-        delete async_callback_info;
-        async_callback_info = nullptr;
-    }
-
-    return ((callBackMode) ? (nullptr) : (ret));
+    return NAPI_GetActiveProcessInfosWrap(env, info, callBackMode, *async_callback_info);
 }
 
 auto NAPI_KillProcessesByBundleNameAsyncExecuteCallback = [](napi_env env, void *data) {
@@ -418,6 +407,7 @@ auto NAPI_KillProcessesByBundleNameAsyncExecuteCallback = [](napi_env env, void 
 auto NAPI_KillProcessesByBundleNameAsyncCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("killProcessesByBundleName compeleted(CallBack Mode)...");
     AsyncKillProcessCallbackInfo *async_callback_info = (AsyncKillProcessCallbackInfo *)data;
+    std::unique_ptr<AsyncKillProcessCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -427,20 +417,14 @@ auto NAPI_KillProcessesByBundleNameAsyncCompleteCallback = [](napi_env env, napi
     napi_create_int32(async_callback_info->env, async_callback_info->result, &result[1]);
     napi_get_undefined(env, &undefined);
 
-    napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+    napi_get_reference_value(env, async_callback_info->callback, &callback);
     napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-
-    if (async_callback_info->callback[0] != nullptr) {
-        napi_delete_reference(env, async_callback_info->callback[0]);
-    }
-
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 auto NAPI_KillProcessesByBundleNamePromiseCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("killProcessesByBundleName compeleted(Promise Mode)...");
     AsyncKillProcessCallbackInfo *async_callback_info = (AsyncKillProcessCallbackInfo *)data;
+    std::unique_ptr<AsyncKillProcessCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result = nullptr;
     napi_create_int32(async_callback_info->env, async_callback_info->result, &result);
     if (async_callback_info->result == ERR_OK) {
@@ -448,8 +432,6 @@ auto NAPI_KillProcessesByBundleNamePromiseCompleteCallback = [](napi_env env, na
     } else {
         napi_reject_deferred(async_callback_info->env, async_callback_info->deferred, result);
     }
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 napi_value NAPI_KillProcessesByBundleNameWrap(
@@ -459,7 +441,7 @@ napi_value NAPI_KillProcessesByBundleNameWrap(
     if (callBackMode) {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack", NAPI_AUTO_LENGTH, &resourceName);
-
+        std::unique_ptr<AsyncKillProcessCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
         napi_create_async_work(env,
             nullptr,
             resourceName,
@@ -469,13 +451,12 @@ napi_value NAPI_KillProcessesByBundleNameWrap(
             &async_callback_info.asyncWork);
 
         NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
-        // create return
-        napi_value ret = 0;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
+        asyncCallbackInfoPtr.release();
+        return nullptr;
     } else {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNamePromise", NAPI_AUTO_LENGTH, &resourceName);
+        std::unique_ptr<AsyncKillProcessCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
 
         napi_deferred deferred = nullptr;
         napi_value promise = nullptr;
@@ -489,7 +470,8 @@ napi_value NAPI_KillProcessesByBundleNameWrap(
             NAPI_KillProcessesByBundleNamePromiseCompleteCallback,
             (void *)&async_callback_info,
             &async_callback_info.asyncWork);
-        napi_queue_async_work(env, async_callback_info.asyncWork);
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
+        asyncCallbackInfoPtr.release();
         return promise;
     }
 }
@@ -515,27 +497,17 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
         callBackMode = true;
     }
 
-    AsyncKillProcessCallbackInfo *async_callback_info = new (std::nothrow) AsyncKillProcessCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr,
-    };
+    AsyncKillProcessCallbackInfo *async_callback_info = new (std::nothrow) AsyncKillProcessCallbackInfo { env };
     if (async_callback_info == nullptr) {
         return nullptr;
     }
 
     async_callback_info->bundleName = bundleName;
     if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]);
+        napi_create_reference(env, argv[1], 1, &async_callback_info->callback);
     }
 
-    napi_value ret = NAPI_KillProcessesByBundleNameWrap(env, info, callBackMode, *async_callback_info);
-    if (ret == nullptr) {
-        delete async_callback_info;
-        async_callback_info = nullptr;
-    }
-
-    return ((callBackMode) ? (nullptr) : (ret));
+    return NAPI_KillProcessesByBundleNameWrap(env, info, callBackMode, *async_callback_info);
 }
 
 auto NAPI_ClearUpApplicationDataAsyncExecuteCallback = [](napi_env env, void *data) {
@@ -548,6 +520,7 @@ auto NAPI_ClearUpApplicationDataAsyncExecuteCallback = [](napi_env env, void *da
 auto NAPI_ClearUpApplicationDataAsyncCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("clearUpApplicationData compeleted(CallBack Mode)...");
     AsyncClearUpApplicationDataCallbackInfo *async_callback_info = (AsyncClearUpApplicationDataCallbackInfo *)data;
+    std::unique_ptr<AsyncClearUpApplicationDataCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result[NUMBER_OF_PARAMETERS_TWO] = {0};
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -556,19 +529,14 @@ auto NAPI_ClearUpApplicationDataAsyncCompleteCallback = [](napi_env env, napi_st
     napi_create_int32(async_callback_info->env, async_callback_info->result, &result[1]);
     napi_get_undefined(env, &undefined);
 
-    napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+    napi_get_reference_value(env, async_callback_info->callback, &callback);
     napi_call_function(env, undefined, callback, NUMBER_OF_PARAMETERS_TWO, &result[0], &callResult);
-    if (async_callback_info->callback[0] != nullptr) {
-        napi_delete_reference(env, async_callback_info->callback[0]);
-    }
-
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 auto NAPI_ClearUpApplicationDataPromiseCompleteCallback = [](napi_env env, napi_status status, void *data) {
     HILOG_INFO("clearUpApplicationData compeleted(Promise Mode)...");
     AsyncClearUpApplicationDataCallbackInfo *async_callback_info = (AsyncClearUpApplicationDataCallbackInfo *)data;
+    std::unique_ptr<AsyncClearUpApplicationDataCallbackInfo> asyncCallbackInfoPtr {async_callback_info};
     napi_value result = nullptr;
     napi_create_int32(async_callback_info->env, async_callback_info->result, &result);
     if (async_callback_info->result == ERR_OK) {
@@ -576,8 +544,6 @@ auto NAPI_ClearUpApplicationDataPromiseCompleteCallback = [](napi_env env, napi_
     } else {
         napi_reject_deferred(async_callback_info->env, async_callback_info->deferred, result);
     }
-    napi_delete_async_work(env, async_callback_info->asyncWork);
-    delete async_callback_info;
 };
 
 napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info, bool callBackMode,
@@ -587,6 +553,7 @@ napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info
     if (callBackMode) {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_ClearUpApplicationDataCallBack", NAPI_AUTO_LENGTH, &resourceName);
+        std::unique_ptr<AsyncClearUpApplicationDataCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
 
         napi_create_async_work(env,
             nullptr,
@@ -597,13 +564,12 @@ napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info
             &async_callback_info.asyncWork);
 
         NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
-        // create return
-        napi_value ret = 0;
-        NAPI_CALL(env, napi_create_int32(env, 0, &ret));
-        return ret;
+        asyncCallbackInfoPtr.release();
+        return nullptr;
     } else {
         napi_value resourceName = nullptr;
         napi_create_string_latin1(env, "NAPI_ClearUpApplicationDataPromise", NAPI_AUTO_LENGTH, &resourceName);
+        std::unique_ptr<AsyncClearUpApplicationDataCallbackInfo> asyncCallbackInfoPtr {&async_callback_info};
 
         napi_deferred deferred = nullptr;
         napi_value promise = nullptr;
@@ -617,7 +583,8 @@ napi_value NAPI_ClearUpApplicationDataWrap(napi_env env, napi_callback_info info
             NAPI_ClearUpApplicationDataPromiseCompleteCallback,
             (void *)&async_callback_info,
             &async_callback_info.asyncWork);
-        napi_queue_async_work(env, async_callback_info.asyncWork);
+        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info.asyncWork));
+        asyncCallbackInfoPtr.release();
         return promise;
     }
 }  // namespace AppExecFwk
@@ -644,27 +611,17 @@ napi_value NAPI_ClearUpApplicationData(napi_env env, napi_callback_info info)
     }
 
     AsyncClearUpApplicationDataCallbackInfo *async_callback_info =
-        new (std::nothrow) AsyncClearUpApplicationDataCallbackInfo {
-            .env = env,
-            .asyncWork = nullptr,
-            .deferred = nullptr,
-        };
+        new (std::nothrow) AsyncClearUpApplicationDataCallbackInfo { env };
     if (async_callback_info == nullptr) {
         return nullptr;
     }
 
     async_callback_info->bundleName = bundleName;
     if (callBackMode) {
-        napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]);
+        napi_create_reference(env, argv[1], 1, &async_callback_info->callback);
     }
 
-    napi_value ret = NAPI_ClearUpApplicationDataWrap(env, info, callBackMode, *async_callback_info);
-    if (ret == nullptr) {
-        delete async_callback_info;
-        async_callback_info = nullptr;
-    }
-
-    return ((callBackMode) ? (nullptr) : (ret));
+    return NAPI_ClearUpApplicationDataWrap(env, info, callBackMode, *async_callback_info);
 }
 
 void CreateWeightReasonCodeObject(napi_env env, napi_value value)
@@ -743,6 +700,8 @@ static void GetAppMemorySizePromiseComplete(napi_env env, napi_status status, vo
 {
     HILOG_INFO("%{public}s, main event thread complete.", __func__);
     CallbackInfo *cb = static_cast<CallbackInfo *>(data);
+    std::unique_ptr<CallbackInfo> callbackInfoPtr {cb};
+
     if (cb == nullptr) {
         HILOG_ERROR("%{public}s, create cd failed.", __func__);
         return;
@@ -751,10 +710,6 @@ static void GetAppMemorySizePromiseComplete(napi_env env, napi_status status, vo
     napi_create_int32(env, cb->result, &result);
     NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, cb->deferred, result));
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, cb->asyncWork));
-    if (cb != nullptr) {
-        delete cb;
-        cb = nullptr;
-    }
     HILOG_INFO("%{public}s,  main event thread complete end.", __func__);
 }
 
@@ -766,6 +721,7 @@ static void GetAppMemorySizeAsyncComplete(napi_env env, napi_status status, void
         HILOG_ERROR("%{public}s, create cd failed.", __func__);
         return;
     }
+    std::unique_ptr<CallbackInfo> callbackInfoPtr {cb};
     const int errorCodeFailed = -1;
     const int errorCodeSuccess = 0;
     const unsigned int argsCount = 2;
@@ -789,10 +745,6 @@ static void GetAppMemorySizeAsyncComplete(napi_env env, napi_status status, void
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, cb->callback));
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, cb->asyncWork));
-    if (cb != nullptr) {
-        delete cb;
-        cb = nullptr;
-    }
     HILOG_INFO("%{public}s, main event thread complete end.", __func__);
 }
 
@@ -800,7 +752,7 @@ static napi_value GetAppMemorySizePromise(napi_env env)
 {
     napi_value resourceName = nullptr;
     napi_value retPromise = nullptr;
-    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>(env);
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_promise(env, &cb->deferred, &retPromise));
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName, GetAppMemorySizeExecute,
@@ -817,7 +769,7 @@ static napi_value GetAppMemorySizeAsync(napi_env env, napi_value args)
     napi_value resourceName = nullptr;
     napi_value retAsync = nullptr;
     napi_valuetype valuetype = napi_undefined;
-    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>(env);
 
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));
@@ -873,14 +825,11 @@ static void IsRamConstrainedDevicePromiseComplete(napi_env env, napi_status stat
         HILOG_ERROR("%{public}s, create cb failed.", __func__);
         return;
     }
+    std::unique_ptr<CallbackInfo> callbackInfoPtr {cb};
     napi_value result = nullptr;
     napi_get_boolean(env, cb->isRamConstrainedDevice, &result);
     NAPI_CALL_RETURN_VOID(env, napi_resolve_deferred(env, cb->deferred, result));
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, cb->asyncWork));
-    if (cb != nullptr) {
-        delete cb;
-        cb = nullptr;
-    }
     HILOG_INFO("%{public}s,  main event thread complete end.", __func__);
 }
 
@@ -888,7 +837,7 @@ static napi_value IsRamConstrainedDevicePromise(napi_env env)
 {
     napi_value resourceName = nullptr;
     napi_value retPromise = nullptr;
-    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>(env);
 
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_create_promise(env, &cb->deferred, &retPromise));
@@ -908,6 +857,7 @@ static void IsRamConstrainedDeviceAsyncComplete(napi_env env, napi_status status
         HILOG_ERROR("%{public}s, create cd failed.", __func__);
         return;
     }
+    std::unique_ptr<CallbackInfo> callbackInfoPtr {cb};
     const int errorCodeSuccess = 0;
     const unsigned int argsCount = 2;
     const unsigned int paramFirst = 0;
@@ -925,10 +875,6 @@ static void IsRamConstrainedDeviceAsyncComplete(napi_env env, napi_status status
         NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, cb->callback));
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, cb->asyncWork));
-    if (cb != nullptr) {
-        delete cb;
-        cb = nullptr;
-    }
     HILOG_INFO("%{public}s, main event thread complete end.", __func__);
 }
 
@@ -937,7 +883,7 @@ static napi_value IsRamConstrainedDeviceAsync(napi_env env, napi_value args)
     napi_value resourceName = nullptr;
     napi_value retAsync = nullptr;
     napi_valuetype valuetype = napi_undefined;
-    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>();
+    std::unique_ptr<CallbackInfo> cb = std::make_unique<CallbackInfo>(env);
 
     NAPI_CALL(env, napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName));
     NAPI_CALL(env, napi_typeof(env, args, &valuetype));

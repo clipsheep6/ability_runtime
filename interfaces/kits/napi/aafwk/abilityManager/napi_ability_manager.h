@@ -46,44 +46,39 @@ const int BUSINESS_ERROR_CODE_OK = 0;
 const uint8_t NUMBER_OF_PARAMETERS_TWO = 2;
 const uint8_t NUMBER_OF_PARAMETERS_THREE = 3;
 
-struct AsyncCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::vector<RunningProcessInfo> info;
-};
-
-struct AsyncClearMissionsCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    int32_t result = -1;
-};
-
-struct AsyncKillProcessCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::string bundleName;
-    int32_t result = -1;
-};
-
-struct AsyncClearUpApplicationDataCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
-    std::string bundleName;
-    int32_t result = -1;
-};
-
-struct CallbackInfo {
+struct AsyncBase {
+    explicit AsyncBase(napi_env env);
+    virtual ~AsyncBase();
+    napi_env env = nullptr;
     napi_async_work asyncWork = nullptr;
     napi_deferred deferred = nullptr;
     napi_ref callback = nullptr;
+};
+
+struct AsyncCallbackInfo : public AsyncBase {
+    explicit AsyncCallbackInfo(napi_env env): AsyncBase(env) {};
+    std::vector<RunningProcessInfo> info;
+};
+
+struct AsyncClearMissionsCallbackInfo : public AsyncBase {
+    explicit AsyncClearMissionsCallbackInfo(napi_env env): AsyncBase(env) {};
+    int32_t result = -1;
+};
+
+struct AsyncKillProcessCallbackInfo : public AsyncBase {
+    explicit AsyncKillProcessCallbackInfo(napi_env env): AsyncBase(env) {};
+    std::string bundleName;
+    int32_t result = -1;
+};
+
+struct AsyncClearUpApplicationDataCallbackInfo : public AsyncBase {
+    explicit AsyncClearUpApplicationDataCallbackInfo(napi_env env): AsyncBase(env) {};
+    std::string bundleName;
+    int32_t result = -1;
+};
+
+struct CallbackInfo : public AsyncBase {
+    explicit CallbackInfo(napi_env env): AsyncBase(env) {};
     int result = -1;
     bool isRamConstrainedDevice = false;
 };
