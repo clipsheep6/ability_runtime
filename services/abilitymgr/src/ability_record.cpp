@@ -31,7 +31,6 @@
 #include "os_account_manager.h"
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "system_ability_token_callback.h"
-#include "system_ability_token_callback_proxy.h"
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {
@@ -685,12 +684,22 @@ void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode, int r
         HILOG_ERROR("CallerToken is nullptr");
         return;
     }
-    auto object = iface_cast<ISystemAbilityTokenCallback>(callerToken);
-    if (object == nullptr) {
-        HILOG_ERROR("Remote object is nullptr");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(SYSTEM_ABILITY_TOKEN_CALLBACK)) {
+        HILOG_ERROR("SendResultToSystemAbility Write interface token failed.");
         return;
     }
-    int result = object->SendResult(resultWant, callerUid, requestCode, accessToken, resultCode);
+    if (!data.WriteParcelable(&resultWant)) {
+        HILOG_ERROR("fail to WriteParcelable");
+        return;
+    }
+    data.WriteInt32(callerUid);
+    data.WriteInt32(requestCode);
+    data.WriteUint32(accessToken);
+    data.WriteInt32(resultCode);
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    int result = callerToken->SendRequest(ISystemAbilityTokenCallback::SEND_RESULT, data, reply, option);
     if (result != ERR_OK) {
         HILOG_ERROR("SendResultToSystemAbility error = %{public}d", result);
     }
@@ -767,8 +776,10 @@ bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken)
         HILOG_INFO("Is not native call.");
         return false;
     }
-    auto object = iface_cast<ISystemAbilityTokenCallback>(callerToken);
-    if (object != nullptr && object->GetDescriptor() == SYSTEM_ABILITY_TOKEN_CALLBACK) {
+    AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenInfo(IPCSkeleton::GetCallingTokenID(),
+        nativeTokenInfo);
+    if (result == ERR_OK && nativeTokenInfo.processName == DMS_PROCESS_NAME) {
         HILOG_INFO("Is system ability call.");
         return true;
     }
