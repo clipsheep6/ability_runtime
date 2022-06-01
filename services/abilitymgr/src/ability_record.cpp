@@ -1714,23 +1714,18 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
     std::unique_lock<std::mutex> lock(dumpLock_);
     scheduler_->DumpAbilityInfo(params, info);
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler) {
-        handler->PostTask([condition = &dumpCondition_, isWaiting = &isDumpWaiting_]() {
-                HILOG_INFO("Dump time out, isWaiting:%{public}d.", *isWaiting);
-                if (*isWaiting && condition != nullptr) {
-                    condition->notify_all();
-                }
-            }, std::string("Dump") + std::to_string(recordId_), AbilityManagerService::DUMP_TIMEOUT);
-    }
-
     HILOG_INFO("Dump begin wait.");
-    isDumpWaiting_ = true;
-    dumpCondition_.wait(lock);
-    isDumpWaiting_ = false;
+    isDumpTimeout_ = false;
+    std::chrono::milliseconds timeout { AbilityManagerService::DUMP_TIMEOUT };
+    if (dumpCondition_.wait_for(lock, timeout) == std::cv_status::timeout) {
+        isDumpTimeout_ = true;
+    }
     HILOG_INFO("Dump done and begin parse.");
-    for (auto one : dumpInfos_) {
-        info.emplace_back(one);
+    if (!isDumpTimeout_) {
+        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        for (auto one : dumpInfos_) {
+            info.emplace_back(one);
+        }
     }
 
     if (!dumpConfig) {
@@ -1746,17 +1741,16 @@ void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::ve
 void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
 {
     HILOG_INFO("DumpAbilityInfoDone begin.");
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler) {
-        handler->RemoveTask(std::string("Dump") + std::to_string(recordId_));
-    }
-    if (!isDumpWaiting_) {
-        HILOG_ERROR("not waiting.");
+    if (isDumpTimeout_) {
+        HILOG_WARN("%{public}s, dump time out.", __func__);
         return;
     }
-    dumpInfos_.clear();
-    for (auto info : infos) {
-        dumpInfos_.emplace_back(info);
+    {
+        std::lock_guard<std::mutex> infoLock(dumpInfoLock_);
+        dumpInfos_.clear();
+        for (auto info : infos) {
+            dumpInfos_.emplace_back(info);
+        }
     }
     dumpCondition_.notify_all();
 }
