@@ -372,7 +372,7 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     if (abilitState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         abilityRecord->Inactivate();
     } else if (abilitState == AppAbilityState::ABILITY_STATE_BACKGROUND) {
-        DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token);
+        DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token, false);
         RemoveServiceAbility(abilityRecord);
     }
 }
@@ -851,7 +851,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
             "Transition life state error. expect %{public}s, actual %{public}s", expect.c_str(), actual.c_str());
         return;
     }
-    DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken());
+    DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
     RemoveServiceAbility(abilityRecord);
 }
 

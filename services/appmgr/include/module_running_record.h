@@ -75,7 +75,7 @@ public:
     std::shared_ptr<AbilityRunningRecord> AddAbility(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want);
 
-    bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
+    bool IsLastAbilityRecord(const sptr<IRemoteObject> &token, bool isClearMissionFlag);
 
     // Get abilities_ for this process
     /**

@@ -441,7 +441,7 @@ public:
 
     int64_t GetEventId() const;
 
-    bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
+    bool IsLastAbilityRecord(const sptr<IRemoteObject> &token, bool isClearMissionFlag);
 
     void SetTerminating();
 

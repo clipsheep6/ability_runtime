@@ -747,6 +747,8 @@ public:
     void SetStartToBackground(const bool flag);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
+    void SetClearMissionFlag(bool clearMissionFlag);
+    bool IsClearMissionFlag();
 
     void SetSpecifiedFlag(const std::string &flag);
     std::string GetSpecifiedFlag() const;
@@ -846,6 +848,8 @@ private:
     bool isStartToBackground_ = false;
     bool isDlp_ = false;
     bool minimizeReason_ = false;
+
+    bool isClearMissionFlag_ = false;
 
     int32_t restartCount_ = -1;
     int32_t restratMax_ = -1;

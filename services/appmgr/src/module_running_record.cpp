@@ -86,13 +86,12 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
     return abilityRecord;
 }
 
-bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
+bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
     if (!token) {
         HILOG_ERROR("token is nullptr");
         return false;
     }
-
     return ((abilities_.size() == 1) && (abilities_.find(token) != abilities_.end()));
 }
 
