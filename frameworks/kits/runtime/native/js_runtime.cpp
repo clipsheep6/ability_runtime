@@ -89,11 +89,15 @@ private:
     {
         panda::RuntimeOption pandaOption;
         int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
+        size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
+        size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
         pandaOption.SetArkProperties(arkProperties);
+        pandaOption.SetGcThreadNum(gcThreadNum);
+        pandaOption.SetLongPauseTime(longPauseTime);
         HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d", arkProperties);
         pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
         pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
-        pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::ERROR);
+        pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
         pandaOption.SetLogBufPrint(PrintVmLog);
         vm_ = panda::JSNApi::CreateJSVM(pandaOption);
         if (vm_ == nullptr) {
