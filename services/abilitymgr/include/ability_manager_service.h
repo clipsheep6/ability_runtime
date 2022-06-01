@@ -902,6 +902,7 @@ private:
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void UpdateCallerInfo(Want& want);
 
+    bool IsSystemAbility();
     bool CheckIfOperateRemote(const Want &want);
     bool GetLocalDeviceId(std::string& localDeviceId);
     std::string AnonymizeDeviceId(const std::string& deviceId);

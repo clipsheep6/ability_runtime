@@ -355,9 +355,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-        if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-            iface_cast<ISystemAbilityTokenCallback>(callerToken) == nullptr) {
+        if (!IsSystemAbility()) {
             HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
             return ERR_INVALID_VALUE;
         }
@@ -1077,6 +1075,23 @@ bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
     }
     HILOG_ERROR("AbilityManagerService::GetLocalDeviceId localDeviceId null");
     return false;
+}
+
+bool AbilityManagerService::IsSystemAbility()
+{
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        HILOG_ERROR("%{public}s Check token type failed.", __func__);
+        return false;
+    }
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(IPCSkeleton::GetCallingTokenID(),
+        nativeTokenInfo);
+    if (result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        HILOG_INFO("%{public}s Check process name failed.", __func__);
+        return false;
+    }
+    return true;
 }
 
 std::string AbilityManagerService::AnonymizeDeviceId(const std::string& deviceId)
