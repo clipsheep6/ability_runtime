@@ -46,7 +46,7 @@ public:
      * @param token, token, he unique identification to terminate the ability.
      * @return
      */
-    virtual void TerminateAbility(const sptr<IRemoteObject> &token) override;
+    virtual void TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag) override;
 
     /**
      * UpdateAbilityState, call UpdateAbilityState() through the proxy object, update the ability status.

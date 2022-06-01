@@ -79,7 +79,7 @@ public:
      *
      * @return
      */
-    virtual void TerminateAbility(const sptr<IRemoteObject> &token);
+    virtual void TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag);
 
     /**
      * UpdateAbilityState, update the ability status.

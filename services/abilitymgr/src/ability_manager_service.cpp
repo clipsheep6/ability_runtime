@@ -243,6 +243,13 @@ bool AbilityManagerService::Init()
 
     auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startSystemTask, "StartSystemApplication");
+
+    bgtaskObserver_ = std::make_shared<AmsBgTaskObserver>();
+    if (OHOS::BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_)
+        != OHOS::ERR_OK) {
+        HILOG_ERROR("register bgtaskObserver fail");
+    }
+
     HILOG_INFO("Init success.");
     return true;
 }
@@ -4619,6 +4626,11 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
     int32_t validUserId = GetValidUserId(userId);
     return manager->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
+}
+
+std::list<int> AbilityManagerService::GetBgTaskUids()
+{
+    return bgtaskObserver_->GetBgTaskUids();
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility()

@@ -15,6 +15,7 @@
 
 #include "app_running_manager.h"
 
+#include "app_mgr_service_inner.h"
 #include "datetime_ex.h"
 #include "iremote_object.h"
 
@@ -30,6 +31,8 @@ namespace AppExecFwk {
 #ifndef OS_ACCOUNT_PART_ENABLED
 namespace {
 constexpr static int UID_TRANSFORM_DIVISOR = 200000;
+constexpr static int CLEAR_MISSION_FLAG = 1;
+constexpr static int CLEAR_ALL_MISSION_FLAG = 2;
 static void GetOsAccountIdFromUid(int uid, int &osAccountId)
 {
     osAccountId = uid / UID_TRANSFORM_DIVISOR;
@@ -365,7 +368,8 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
 }
 
-void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
+void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag,
+    std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     if (!token) {
         HILOG_ERROR("token is nullptr.");
@@ -381,6 +385,18 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
+        if (clearMissionFlag == CLEAR_MISSION_FLAG) {
+            HILOG_INFO("The ability is the last, clearMissionFlag KillApplication");
+            appMgrServiceInner->KillApplication(appRecord->GetBundleName());
+        }
+        if (clearMissionFlag == CLEAR_ALL_MISSION_FLAG) {
+            std::list<int> bgTaskUids = DelayedSingleton<AbilityManagerService>::GetInstance()->GetBgTaskUids();
+            HILOG_INFO("The ability is the last, clearAllMissionFlag KillApplication");
+            auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), appRecord->GetUid());
+            if (iter == bgTaskUids.end()) {
+                appMgrServiceInner->KillApplication(appRecord->GetBundleName());
+            }
+        }
     }
 
     appRecord->TerminateAbility(token, false);
