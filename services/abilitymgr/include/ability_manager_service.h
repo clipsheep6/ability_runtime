@@ -784,28 +784,28 @@ public:
     std::list<int> GetBgTaskUids();
 
     class AmsBgTaskObserver : public OHOS::BackgroundTaskMgr::BackgroundTaskSubscriber {
-        public:
-            void OnContinuousTaskStart(const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo>
-                    &continuousTaskCallbackInfo)
-            {
-                HILOG_ERROR("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
-                bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
-            }
+    public:
+        void OnContinuousTaskStart(
+            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo)
+        {
+            HILOG_ERROR("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
+            bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
+        }
 
-            void OnContinuousTaskStop(const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo>
-                    &continuousTaskCallbackInfo) 
-            {
-                HILOG_ERROR("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
-                bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
-            }
+        void OnContinuousTaskStop(
+            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo) 
+        {
+            HILOG_ERROR("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
+            bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
+        }
 
-            std::list<int> GetBgTaskUids()
-            {
-                return bgTaskUids_;
-            }
-        
-        private:
-            std::list<int> bgTaskUids_;
+        std::list<int> GetBgTaskUids()
+        {
+            return bgTaskUids_;
+        }
+    
+    private:
+        std::list<int> bgTaskUids_;
     };
 
     // MSG 0 - 20 represents timeout message
