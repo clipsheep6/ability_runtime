@@ -12,11 +12,14 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
 
 config("mysa_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager/include",
+  ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -40,7 +43,10 @@ ohos_shared_library("libmysa") {
     "src/my_sa_manager_stub_impl.cpp",
   ]
 
-  deps = [ "${innerkits_path}/my_sa:my_sa_mgr" ]
+  deps = [
+    "${innerkits_path}/my_sa:my_sa_mgr",
+    "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager:ability_manager"
+  ]
 
   external_deps = [
     "ability_base:want",

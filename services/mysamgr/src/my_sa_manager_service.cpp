@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#include "ability_connect_callback_stub.h"
+#include "ability_manager_client.h"
+
 #include "my_sa_manager_service.h"
 
 #include "hilog_wrapper.h"
@@ -20,9 +23,34 @@
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
+#include <thread>
+#include <chrono>
 
 namespace OHOS {
 namespace AAFwk {
+
+class MyConnection : public AbilityConnectionStub {
+public:
+    void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
+        const sptr<IRemoteObject> &remoteObject, int resultCode) override
+    {
+        std::string uri = element.GetURI();
+        HILOG_WARN("zhoujun MyConnection::OnAbilityConnectDone uri:%{public}s.", uri.c_str());
+    }
+
+    /**
+     * OnAbilityDisconnectDone, AbilityMs notify caller ability the result of disconnect.
+     *
+     * @param element, service ability's ElementName.
+     * @param resultCode, ERR_OK on success, others on failure.
+     */
+    void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override
+    {
+        std::string uri = element.GetURI();
+        HILOG_WARN("zhoujun MyConnection::OnAbilityDisconnectDone uri:%{public}s.", uri.c_str());
+    }
+};
+
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<MySaManagerService>::GetInstance().get());
 
@@ -52,6 +80,34 @@ void MySaManagerService::OnStart()
         HILOG_INFO("register to system ability manager success");
         registerToService_ = true;
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    HILOG_WARN("zhoujun SA test begin");
+
+    Want want1;
+    want1.SetElementName("ohos.com.application.server", "ServiceAbility");
+    sptr<IAbilityConnection> connect1 = new MyConnection();
+
+    HILOG_WARN("zhoujun SA test: ConnectAbility");
+    int ret = AbilityManagerClient::GetInstance()->ConnectAbility(want1, connect1, -1);
+    HILOG_WARN("zhoujun SA test: ConnectAbility ret = %{public}d", ret);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connect1);
+    HILOG_WARN("zhoujun SA test: ConnectAbility, DisconnectAbility ret = %{public}d", ret);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    HILOG_WARN("zhoujun SA test: StartAbilityByCall");
+
+    Want want2;
+    want2.SetElementName("ohos.com.application.calltest", "MainAbility");
+    sptr<IAbilityConnection> connect2 = new MyConnection();
+
+    ret = AbilityManagerClient::GetInstance()->StartAbilityByCall(want2, connect2);
+    HILOG_WARN("zhoujun SA test: StartAbilityByCall ret = %{public}d", ret);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connect2);
+    HILOG_WARN("zhoujun SA test: StartAbilityByCall, DisconnectAbility ret = %{public}d", ret);
+    HILOG_WARN("zhoujun SA test end");
 }
 
 void MySaManagerService::OnStop()
