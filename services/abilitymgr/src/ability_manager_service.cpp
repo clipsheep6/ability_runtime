@@ -4410,6 +4410,7 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
             }
             HILOG_WARN("verify access token fail, read permission: %{public}s", abilityInfo.readPermission.c_str());
         }
+        
         if (!abilityInfo.writePermission.empty()) {
             int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission);
             if (checkWritePermission == ERR_OK) {
