@@ -672,7 +672,7 @@ private:
     std::shared_ptr<EventRunner> mainEventRunner_;
     std::shared_ptr<HapModuleInfo> hapModuleInfoLocal_ = nullptr;
     bool isCreateBySystemApp_ = false;
-    std::string currArea_ = CONTEXT_ELS[EL_DEFAULT];
+    std::string currArea_ = "el2";
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
