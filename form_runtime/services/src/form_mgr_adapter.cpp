@@ -77,6 +77,10 @@ int FormMgrAdapter::AddForm(const int64_t formId, const Want &want,
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
+    if (formId > 0 && FormDataMgr::GetInstance().IsRequestPublishForm(formId)) {
+        return AddRequestPublishForm(formId, want, callerToken, formInfo);
+    }
+
     // check form count limit
     bool tempFormFlag = want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
     int callingUid = IPCSkeleton::GetCallingUid();
@@ -1293,12 +1297,6 @@ int FormMgrAdapter::SetNextRefreshTime(const int64_t formId, const int64_t nextT
     return SetNextRefreshtTimeLocked(matchedFormId, nextTime, userId);
 }
 
-/**
- * @brief Add the form info.
- *
- * @param formInfo Indicates the form info to be added.
- * @return Returns ERR_OK on success, others on failure.
- */
 ErrCode FormMgrAdapter::AddFormInfo(FormInfo &formInfo)
 {
     std::string bundleName;
@@ -1320,13 +1318,6 @@ ErrCode FormMgrAdapter::AddFormInfo(FormInfo &formInfo)
     return FormInfoMgr::GetInstance().AddDynamicFormInfo(formInfo, userId);
 }
 
-/**
- * @brief Remove the specified form info.
- *
- * @param moduleName Indicates the module name of the dynamic form info to be removed.
- * @param formName Indicates the form name of the dynamic form info to be removed.
- * @return Returns ERR_OK on success, others on failure.
- */
 ErrCode FormMgrAdapter::RemoveFormInfo(const std::string &moduleName, const std::string &formName)
 {
     std::string bundleName;
@@ -1340,18 +1331,266 @@ ErrCode FormMgrAdapter::RemoveFormInfo(const std::string &moduleName, const std:
     return FormInfoMgr::GetInstance().RemoveDynamicFormInfo(bundleName, moduleName, formName, userId);
 }
 
-/**
- * @brief Request to publish a form to the form host.
- *
- * @param want The want of the form to publish.
- * @param withFormBindingData Indicates whether the formBindingData is carried with.
- * @param formBindingData Indicates the form data.
- * @return Returns ERR_OK on success, others on failure.
- */
-ErrCode FormMgrAdapter::RequestPublishForm(Want &want, bool withFormBindingData,
-                                           std::unique_ptr<FormProviderData> &formBindingData)
+ErrCode FormMgrAdapter::CheckPublishForm(Want &want)
 {
+    std::string bundleName;
+    if (!GetBundleName(bundleName)) {
+        return ERR_APPEXECFWK_FORM_GET_BUNDLE_FAILED;
+    }
+    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        HILOG_ERROR("%{public}s fail, failed to get IBundleMgr.", __func__);
+        return ERR_APPEXECFWK_FORM_GET_BMS_FAILED;
+    }
+    if (!CheckIsSystemAppByBundleName(iBundleMgr, bundleName)) {
+        HILOG_ERROR("Only system app can request publish form.");
+        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
+    }
+
+    if (bundleName != want.GetElement().GetBundleName()) {
+        HILOG_WARN("The bundleName in want does not match the bundleName of current calling user.");
+        want.SetBundle(bundleName);
+    }
+
+    std::string moduleName = want.GetStringParam(Constants::PARAM_MODULE_NAME_KEY);
+    if (moduleName.empty()) {
+        HILOG_ERROR("%{public}s error, moduleName is empty.", __func__);
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    bool isTemporary = want.GetBoolParam(AppExecFwk::Constants::PARAM_FORM_TEMPORARY_KEY, false);
+    if (isTemporary) {
+        HILOG_WARN("The published form should not be temp.");
+        want.SetParam(AppExecFwk::Constants::PARAM_FORM_TEMPORARY_KEY, false);
+    }
+
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string formName = want.GetStringParam(AppExecFwk::Constants::PARAM_FORM_NAME_KEY);
+    std::vector<FormInfo> formInfos {};
+    ErrCode errCode = FormInfoMgr::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("%{public}s error, failed to get forms info.", __func__);
+        return errCode;
+    }
+    for (auto &formInfo: formInfos) {
+        int32_t dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, 0);
+        if ((formInfo.abilityName == abilityName) && (formInfo.name == formName) &&
+            (IsDimensionValid(formInfo, dimensionId))) {
+            want.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
+            return ERR_OK;
+        }
+    }
+    HILOG_ERROR("failed to find match form info.");
+    return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+}
+
+ErrCode FormMgrAdapter::RequestPublishFormToHost(Want &want)
+{
+    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    /* Query the highest priority ability or extension ability for publishing form */
+    Want wantAction;
+    wantAction.SetAction(Constants::FORM_PUBLISH_ACTION);
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo extensionAbilityInfo;
+    int callingUid = IPCSkeleton::GetCallingUid();
+    int32_t userId = GetCurrentUserId(callingUid);
+    if (!IN_PROCESS_CALL(iBundleMgr->ImplicitQueryInfoByPriority(wantAction,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, abilityInfo, extensionAbilityInfo))) {
+        HILOG_ERROR("Failed to ImplicitQueryInfoByPriority for publishing form");
+        return ERR_APPEXECFWK_FORM_GET_HOST_FAILED;
+    }
+
+    if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
+        HILOG_ERROR("Query highest priority ability failed, no form host ability found.");
+        return ERR_APPEXECFWK_FORM_GET_HOST_FAILED;
+    }
+
+    Want wantToHost;
+    ElementName elementName = want.GetElement();
+    wantToHost.SetParam(Constants::PARAM_BUNDLE_NAME_KEY, elementName.GetBundleName());
+    wantToHost.SetParam(Constants::PARAM_ABILITY_NAME_KEY, elementName.GetAbilityName());
+    std::string strFormId = want.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY);
+    wantToHost.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, strFormId);
+    std::string formName = want.GetStringParam(Constants::PARAM_FORM_NAME_KEY);
+    wantToHost.SetParam(Constants::PARAM_FORM_NAME_KEY, formName);
+    std::string moduleName = want.GetStringParam(Constants::PARAM_MODULE_NAME_KEY);
+    wantToHost.SetParam(Constants::PARAM_MODULE_NAME_KEY, moduleName);
+    int32_t dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, 0);
+    wantToHost.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
+    bool tempFormFlag = want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
+    wantToHost.SetParam(Constants::PARAM_FORM_TEMPORARY_KEY, tempFormFlag);
+
+    if (!abilityInfo.name.empty()) {
+        /* highest priority ability */
+        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
+            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
+        wantToHost.SetElementName(abilityInfo.bundleName, abilityInfo.name);
+    } else {
+        /* highest priority extension ability */
+        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
+            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
+        wantToHost.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
+    }
+
+    return FormAmsHelper::GetInstance().GetAbilityManager()->StartAbility(wantToHost, userId, DEFAULT_INVAL_VALUE);
+}
+
+ErrCode FormMgrAdapter::RequestPublishForm(Want &want, bool withFormBindingData,
+                                           std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    ErrCode errCode = CheckPublishForm(want);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    // generate formId
+    formId = FormDataMgr::GetInstance().GenerateFormId();
+    if (formId < 0) {
+        HILOG_ERROR("%{public}s fail, generateFormId no invalid formId", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+    HILOG_DEBUG("formId:%{public}" PRId64 "", formId);
+    std::string strFormId  = std::to_string(formId);
+    want.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, strFormId);
+
+    if (withFormBindingData) {
+        errCode = FormDataMgr::GetInstance().AddRequestPublishFormInfo(formId, want, formBindingData);
+    } else {
+        std::unique_ptr<FormProviderData> noFormBindingData = nullptr;
+        errCode = FormDataMgr::GetInstance().AddRequestPublishFormInfo(formId, want, noFormBindingData);
+    }
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    errCode = RequestPublishFormToHost(want);
+    if (errCode != ERR_OK) {
+        FormDataMgr::GetInstance().RemoveRequestPublishFormInfo(formId);
+    }
+    return errCode;
+}
+
+ErrCode FormMgrAdapter::CheckAddRequestPublishForm(const Want &want, const Want &formProviderWant)
+{
+    std::string bundleName = want.GetElement().GetBundleName();
+    std::string bundleNameProvider = formProviderWant.GetElement().GetBundleName();
+    if (bundleNameProvider != bundleName) {
+        HILOG_ERROR("The bundleName is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    std::string moduleName = want.GetStringParam(Constants::PARAM_MODULE_NAME_KEY);
+    std::string moduleNameProvider = formProviderWant.GetStringParam(Constants::PARAM_MODULE_NAME_KEY);
+    if (moduleNameProvider != moduleName) {
+        HILOG_ERROR("The moduleName is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    std::string abilityName = want.GetElement().GetAbilityName();
+    std::string abilityNameProvider = formProviderWant.GetElement().GetAbilityName();
+    if (abilityNameProvider != abilityName) {
+        HILOG_ERROR("The abilityName is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    std::string formName = want.GetStringParam(Constants::PARAM_FORM_NAME_KEY);
+    std::string formNameProvider = formProviderWant.GetStringParam(Constants::PARAM_FORM_NAME_KEY);
+    if (formNameProvider != formName) {
+        HILOG_ERROR("The formName is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    int32_t dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, 0);
+    int32_t dimensionIdProvider = formProviderWant.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, 0);
+    if (dimensionIdProvider != dimensionId) {
+        HILOG_ERROR("The dimensionId is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    bool isTemporary = want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
+    bool isTemporaryProvider = formProviderWant.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
+    if (isTemporaryProvider != isTemporary) {
+        HILOG_ERROR("The temporary is not match.");
+        return ERR_APPEXECFWK_FORM_INVALID_PARAM;
+    }
+
+    int32_t callingUid = IPCSkeleton::GetCallingUid();
+    ErrCode errCode = 0;
+    if (isTemporary) {
+        errCode = FormDataMgr::GetInstance().CheckTempEnoughForm();
+    } else {
+        int32_t currentUserId = GetCurrentUserId(callingUid);
+        errCode = FormDataMgr::GetInstance().CheckEnoughForm(callingUid, currentUserId);
+    }
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("%{public}s fail, too much forms in system", __func__);
+        return errCode;
+    }
     return ERR_OK;
+}
+
+ErrCode FormMgrAdapter::AddRequestPublishForm(const int64_t formId, const Want &want,
+                                              const sptr<IRemoteObject> &callerToken, FormJsInfo &formJsInfo)
+{
+    HILOG_INFO("Add request publish form.");
+    Want formProviderWant;
+    std::unique_ptr<FormProviderData> formProviderData = nullptr;
+    ErrCode errCode = FormDataMgr::GetInstance().GetRequestPublishFormInfo(formId, formProviderWant, formProviderData);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("Failed to get request publish form");
+        return errCode;
+    }
+
+    errCode = CheckAddRequestPublishForm(want, formProviderWant);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    FormItemInfo formItemInfo;
+    errCode = GetFormConfigInfo(want, formItemInfo);
+    formItemInfo.SetFormId(formId);
+    formItemInfo.SetDeviceId(want.GetElement().GetDeviceID());
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("%{public}s fail, get form config info failed.", __func__);
+        return errCode;
+    }
+    if (!formItemInfo.IsValidItem()) {
+        HILOG_ERROR("%{public}s fail, input param itemInfo is invalid", __func__);
+        return ERR_APPEXECFWK_FORM_GET_INFO_FAILED;
+    }
+
+    int32_t callingUid = IPCSkeleton::GetCallingUid();
+    if (!FormDataMgr::GetInstance().AllotFormHostRecord(formItemInfo, callerToken, formId, callingUid)) {
+        HILOG_ERROR("%{public}s fail, AllotFormHostRecord failed when no matched formRecord", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+
+    // get current userId
+    int32_t currentUserId = GetCurrentUserId(callingUid);
+    // allot form record
+    FormRecord formRecord = FormDataMgr::GetInstance().AllotFormRecord(formItemInfo, callingUid, currentUserId);
+
+    // create form info for js
+    FormDataMgr::GetInstance().CreateFormInfo(formId, formRecord, formJsInfo);
+    if (formProviderData != nullptr) {
+        formJsInfo.formData = formProviderData->GetDataString();
+        formJsInfo.formProviderData = *formProviderData;
+        if (formJsInfo.formData.size() <= Constants::MAX_FORM_DATA_SIZE) {
+            HILOG_INFO("%{public}s, updateJsForm, data is less than 1k, cache data.", __func__);
+            FormCacheMgr::GetInstance().AddData(formId, formJsInfo.formData, formProviderData->GetImageDataMap());
+        }
+    }
+    // storage info
+    if (!formItemInfo.IsTemporaryForm()) {
+        if (ErrCode errorCode = FormDbCache::GetInstance().UpdateDBRecord(formId, formRecord); errorCode != ERR_OK) {
+            HILOG_ERROR("%{public}s fail, UpdateDBRecord failed", __func__);
+            return errorCode;
+        }
+    }
+
+    // start update timer
+    return AddFormTimer(formRecord);
 }
 
 /**

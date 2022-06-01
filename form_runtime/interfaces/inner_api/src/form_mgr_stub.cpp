@@ -280,8 +280,12 @@ ErrCode FormMgrStub::HandleRequestPublishForm(MessageParcel &data, MessageParcel
         formProviderData.reset(data.ReadParcelable<FormProviderData>());
     }
 
-    ErrCode result = RequestPublishForm(*want, withFormBindingData, formProviderData);
+    int64_t formId = 0;
+    ErrCode result = RequestPublishForm(*want, withFormBindingData, formProviderData, formId);
     reply.WriteInt32(result);
+    if (result == ERR_OK) {
+        reply.WriteInt64(formId);
+    }
     return result;
 }
 /**

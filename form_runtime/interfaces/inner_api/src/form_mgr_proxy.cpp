@@ -213,12 +213,6 @@ int FormMgrProxy::SetNextRefreshTime(const int64_t formId, const int64_t nextTim
     return reply.ReadInt32();
 }
 
-/**
-* @brief Add the form info.
-*
-* @param formInfo Indicates the form info to be added.
-* @return Returns ERR_OK on success, others on failure.
-*/
 ErrCode FormMgrProxy::AddFormInfo(FormInfo &formInfo)
 {
     MessageParcel data;
@@ -246,13 +240,6 @@ ErrCode FormMgrProxy::AddFormInfo(FormInfo &formInfo)
     return reply.ReadInt32();
 }
 
-/**
- * @brief Remove the specified form info.
- *
- * @param moduleName Indicates the module name of the dynamic form info to be removed.
- * @param formName Indicates the form name of the dynamic form info to be removed.
- * @return Returns ERR_OK on success, others on failure.
- */
 ErrCode FormMgrProxy::RemoveFormInfo(const std::string &moduleName, const std::string &formName)
 {
     MessageParcel data;
@@ -284,16 +271,8 @@ ErrCode FormMgrProxy::RemoveFormInfo(const std::string &moduleName, const std::s
     return reply.ReadInt32();
 }
 
-/**
- * @brief Request to publish a form to the form host.
- *
- * @param want The want of the form to publish.
- * @param withFormBindingData Indicates whether the formBindingData is carried with.
- * @param formBindingData Indicates the form data.
- * @return Returns ERR_OK on success, others on failure.
- */
 ErrCode FormMgrProxy::RequestPublishForm(Want &want, bool withFormBindingData,
-                                         std::unique_ptr<FormProviderData> &formBindingData)
+                                         std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -327,7 +306,11 @@ ErrCode FormMgrProxy::RequestPublishForm(Want &want, bool withFormBindingData,
         HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d", __func__, error);
         return ERR_APPEXECFWK_FORM_SEND_FMS_MSG;
     }
-    return reply.ReadInt32();
+    ErrCode errCode = reply.ReadInt32();
+    if (errCode == ERR_OK) {
+        formId = reply.ReadInt64();
+    }
+    return errCode;
 }
 
 /**

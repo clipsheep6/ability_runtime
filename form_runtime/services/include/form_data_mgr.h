@@ -35,6 +35,8 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using Want = AAFwk::Want;
+
 /**
  * @class FormDataMgr
  * form data manager.
@@ -407,7 +409,7 @@ public:
      * @param want The want of onAcquireFormState.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    ErrCode AcquireFormStateBack(AppExecFwk::FormState state, const std::string &provider, const AAFwk::Want &want);
+    ErrCode AcquireFormStateBack(AppExecFwk::FormState state, const std::string &provider, const Want &want);
 
     /**
      * @brief Notify the form is visible or not.
@@ -426,6 +428,41 @@ public:
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
     ErrCode SetRecordVisible(int64_t matchedFormId, bool isVisible);
+
+    /**
+     * @brief add request publish form info.
+     * @param formId The form id of the form to publish.
+     * @param want The want of the form to publish.
+     * @param formProviderData The form data.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode AddRequestPublishFormInfo(int64_t formId, const Want &want,
+                                      std::unique_ptr<FormProviderData> &formProviderData);
+
+    /**
+     * @brief remove request publish form info.
+     * @param formId The form id of the form to publish.
+     * @return Returns true if this function is successfully called; returns false otherwise.
+     */
+    ErrCode RemoveRequestPublishFormInfo(int64_t formId);
+
+    /**
+     * @brief check whether request publish form info.
+      * @param formId The form id of the form to publish.
+     * @return Returns true if this function is successfully called; returns false otherwise.
+     */
+    bool IsRequestPublishForm(int64_t formId);
+
+    /**
+     * @brief get request publish form info.
+     * @param formId The form id of the form to publish.
+     * @param want The want of the form to publish.
+     * @param formProviderData The form data.
+     * @return Returns true if this function is successfully called; returns false otherwise.
+     */
+    ErrCode GetRequestPublishFormInfo(int64_t formId, Want &want,
+                                      std::unique_ptr<FormProviderData> &formProviderData);
+
 private:
     /**
      * @brief Create form record.
@@ -503,10 +540,13 @@ private:
     mutable std::mutex formHostRecordMutex_;
     mutable std::mutex formTempMutex_;
     mutable std::mutex formStateRecordMutex_;
+    mutable std::mutex formRequestPublishFormsMutex_;
     std::map<int64_t, FormRecord> formRecords_;
     std::vector<FormHostRecord> clientRecords_;
     std::vector<int64_t> tempForms_;
     std::map<std::string, FormHostRecord> formStateRecord_;
+    using FormRequestPublishFormInfo = std::pair<Want, std::unique_ptr<FormProviderData>>;
+    std::map<int64_t, FormRequestPublishFormInfo> formRequestPublishForms_;
     int64_t udidHash_;
 };
 }  // namespace AppExecFwk

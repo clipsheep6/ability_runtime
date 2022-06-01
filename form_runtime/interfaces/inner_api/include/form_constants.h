@@ -26,6 +26,8 @@ namespace Constants {
     const std::string PARAM_FORM_IDENTITY_KEY = "ohos.extra.param.key.form_identity";
     const std::string PARAM_FORM_CALLING_IDENTITY_KEY = "ohos.extra.param.key.form_calling_identity";
     const std::string PARAM_MODULE_NAME_KEY = "ohos.extra.param.key.module_name";
+    const std::string PARAM_BUNDLE_NAME_KEY = "ohos.extra.param.key.bundle_name";
+    const std::string PARAM_ABILITY_NAME_KEY = "ohos.extra.param.key.ability_name";
     const std::string PARAM_FORM_NAME_KEY = "ohos.extra.param.key.form_name";
     const std::string PARAM_FORM_DIMENSION_KEY = "ohos.extra.param.key.form_dimension";
     const std::string PARAM_MESSAGE_KEY = "ohos.extra.param.key.message";
@@ -51,6 +53,7 @@ namespace Constants {
     const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public";
     const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle";
     const std::string LOCAL_BUNDLES = "/data/bundles";
+    const std::string FORM_PUBLISH_ACTION = "action.form.publish";
     const int TYPE_RESET_LIMIT = 1;
     const int TYPE_STATIC_UPDATE = 2;
     const int TYPE_DYNAMIC_UPDATE = 3;

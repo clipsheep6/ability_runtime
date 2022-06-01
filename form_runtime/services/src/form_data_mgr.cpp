@@ -1222,7 +1222,7 @@ bool FormDataMgr::CreateFormStateRecord(std::string &provider, const FormItemInf
  * @return Returns true if this function is successfully called; returns false otherwise.
  */
 ErrCode FormDataMgr::AcquireFormStateBack(AppExecFwk::FormState state, const std::string &provider,
-                                          const AAFwk::Want &want)
+                                          const Want &want)
 {
     std::lock_guard<std::mutex> lock(formStateRecordMutex_);
     auto iter = formStateRecord_.find(provider);
@@ -1488,6 +1488,56 @@ int32_t FormDataMgr::ClearHostDataByInvalidForms(int32_t callingUid, std::map<in
         }
     }
     HILOG_INFO("DeleteInvalidForms host done");
+    return ERR_OK;
+}
+
+ErrCode FormDataMgr::AddRequestPublishFormInfo(int64_t formId, const Want &want,
+                                               std::unique_ptr<FormProviderData> &formProviderData)
+{
+    HILOG_INFO("add request publish form info, formId: %{public}" PRId64 "", formId);
+    std::lock_guard<std::mutex> lock(formRequestPublishFormsMutex_);
+
+    auto insertResult = formRequestPublishForms_.insert(
+        std::make_pair(formId, std::make_pair(want, std::move(formProviderData))));
+    if (!insertResult.second) {
+        HILOG_ERROR("Failed to emplace requestPublishFormInfo");
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+    return ERR_OK;
+}
+
+ErrCode FormDataMgr::RemoveRequestPublishFormInfo(int64_t formId)
+{
+    HILOG_INFO("remove request publish form info, formId: %{public}" PRId64 "", formId);
+    std::lock_guard<std::mutex> lock(formRequestPublishFormsMutex_);
+    formRequestPublishForms_.erase(formId);
+    return ERR_OK;
+}
+
+bool FormDataMgr::IsRequestPublishForm(int64_t formId)
+{
+    std::lock_guard<std::mutex> lock(formRequestPublishFormsMutex_);
+    auto result = formRequestPublishForms_.find(formId);
+    if (result == formRequestPublishForms_.end()) {
+        return false;
+    }
+    return true;
+}
+
+ErrCode FormDataMgr::GetRequestPublishFormInfo(int64_t formId, Want &want,
+                                               std::unique_ptr<FormProviderData> &formProviderData)
+{
+    HILOG_INFO("get request publish form info, formId: %{public}" PRId64 "", formId);
+    std::lock_guard<std::mutex> lock(formRequestPublishFormsMutex_);
+    auto result = formRequestPublishForms_.find(formId);
+    if (result == formRequestPublishForms_.end()) {
+        HILOG_INFO("request publish form id not found, formId: %{public}" PRId64 "", formId);
+        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
+    }
+
+    want = result->second.first;
+    formProviderData = std::move(result->second.second);
+    formRequestPublishForms_.erase(result);
     return ERR_OK;
 }
 }  // namespace AppExecFwk

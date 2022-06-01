@@ -169,10 +169,11 @@ public:
      * @param want The want of the form to publish.
      * @param withFormBindingData Indicates whether the formBindingData is carried with.
      * @param formBindingData Indicates the form data.
+     * @param formId Return the form id to be published.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode RequestPublishForm(Want &want, bool withFormBindingData,
-                               std::unique_ptr<FormProviderData> &formBindingData);
+                               std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId);
 
     /**
      * @brief enable update form.
@@ -529,6 +530,39 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode AddFormTimer(const FormRecord &formRecord);
+
+    /**
+     * @brief check the publish form.
+     * @param want The want of the form to publish.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CheckPublishForm(Want &want);
+
+    /**
+     * @brief Post request publish form to host.
+     * @param want The want of the form to publish.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RequestPublishFormToHost(Want &want);
+
+    /**
+     * @brief check the argv of AddRequestPublishForm.
+     * @param want The want of the form to add.
+     * @param formProviderWant The want of the form to publish from provider.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode CheckAddRequestPublishForm(const Want &want, const Want &formProviderWant);
+
+    /**
+     * @brief add request publish form.
+     * @param formId The Id of the forms to add.
+     * @param want The want of the form to add.
+     * @param callerToken Caller ability token.
+     * @param formJsInfo Return form info to form host.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode AddRequestPublishForm(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken,
+                                  FormJsInfo &formJsInfo);
 
     /**
      * @brief get bundleName.

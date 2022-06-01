@@ -282,13 +282,14 @@ static ErrCode UnwrapFormInfo(napi_env env, napi_value value, FormInfo &formInfo
         UnwrapBooleanByPropertyName(env, jsWindowValue, "autoDesignWidth", formInfo.window.autoDesignWidth);
     }
 
-    auto colorMode = (int32_t) FormsColorMode::AUTO_MODE;
+    auto colorMode = static_cast<int32_t>(FormsColorMode::AUTO_MODE);
     UnwrapInt32ByPropertyName(env, value, "colorMode", colorMode);
-    if (colorMode < (int32_t) FormsColorMode::AUTO_MODE || colorMode > (int32_t) FormsColorMode::LIGHT_MODE) {
+    if (colorMode < static_cast<int32_t>(FormsColorMode::AUTO_MODE) ||
+        colorMode > static_cast<int32_t>(FormsColorMode::LIGHT_MODE)) {
         HILOG_ERROR("%{public}s called. Invalid form color mode: %{public}d.", __func__, colorMode);
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
-    formInfo.colorMode = (FormsColorMode) colorMode;
+    formInfo.colorMode = static_cast<FormsColorMode>(colorMode);
 
     UnwrapFormInfoCustomData(env, value, formInfo.customizeDatas);
     return FormInfoCheck(formInfo);
@@ -722,9 +723,9 @@ static void InnerRequestPublishForm(napi_env env, AsyncRequestPublishFormCallbac
     }
 
     ErrCode errCode = FormMgr::GetInstance().RequestPublishForm(asyncCallbackInfo->want,
-        asyncCallbackInfo->withFormBindingData, asyncCallbackInfo->formProviderData);
+        asyncCallbackInfo->withFormBindingData, asyncCallbackInfo->formProviderData, asyncCallbackInfo->formId);
     if (errCode != ERR_OK) {
-        HILOG_ERROR("Failed to AddFormInfo, error code is %{public}d.", errCode);
+        HILOG_ERROR("Failed to RequestPublishForm, error code is %{public}d.", errCode);
     }
     asyncCallbackInfo->result = errCode;
     HILOG_DEBUG("%{public}s, end", __func__);
@@ -742,15 +743,15 @@ static ErrCode RequestPublishFormParse(napi_env env, napi_value *argv,
     if (asyncCallbackInfo->withFormBindingData) {
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, argv[1], &valueType);
-        if (valueType == napi_object) {
-            auto formProviderData = std::make_unique<OHOS::AppExecFwk::FormProviderData>();
-            std::string formDataStr = GetStringByProp(env, argv[1], "data");
-            formProviderData->SetDataString(formDataStr);
-            formProviderData->ParseImagesData();
-            asyncCallbackInfo->formProviderData = std::move(formProviderData);
-        } else {
+        if (valueType != napi_object) {
+            HILOG_ERROR("%{public}s, wrong type for argv[1].", __func__);
             return ERR_APPEXECFWK_FORM_INVALID_PARAM;
         }
+        auto formProviderData = std::make_unique<FormProviderData>();
+        std::string formDataStr = GetStringByProp(env, argv[1], "data");
+        formProviderData->SetDataString(formDataStr);
+        formProviderData->ParseImagesData();
+        asyncCallbackInfo->formProviderData = std::move(formProviderData);
     }
 
     return ERR_OK;
@@ -759,6 +760,18 @@ static ErrCode RequestPublishFormParse(napi_env env, napi_value *argv,
 static napi_value RequestPublishFormCallback(napi_env env, napi_value *argv, bool withFormBindingData)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
+
+    int32_t callbackIdx = 1;
+    if (withFormBindingData) {
+        callbackIdx++;
+    }
+    napi_valuetype valueType = napi_undefined;
+    NAPI_CALL(env, napi_typeof(env, argv[callbackIdx], &valueType));
+    if (valueType != napi_function) {
+        HILOG_ERROR("The arguments[1] type of requestPublishForm is incorrect, expected type is function.");
+        return nullptr;
+    }
+
     auto *asyncCallbackInfo = new (std::nothrow) AsyncRequestPublishFormCallbackInfo {
         .env = env,
         .ability = GetGlobalAbility(env),
@@ -769,22 +782,12 @@ static napi_value RequestPublishFormCallback(napi_env env, napi_value *argv, boo
         return nullptr;
     }
 
-    int32_t callbackIdx = 1;
-    if (withFormBindingData) {
-        callbackIdx++;
-    }
-
     ErrCode errCode = RequestPublishFormParse(env, argv, asyncCallbackInfo);
     if (errCode != ERR_OK) {
         delete asyncCallbackInfo;
         return RetErrMsg(InitErrMsg(env, errCode, CALLBACK_FLG, argv[callbackIdx]));
     }
-
-    napi_valuetype valueType = napi_undefined;
-    NAPI_CALL(env, napi_typeof(env, argv[callbackIdx], &valueType));
-    NAPI_ASSERT(env, valueType == napi_function,
-        "The arguments[1] type of requestPublishForm is incorrect, expected type is function.");
-    napi_create_reference(env, argv[1], REF_COUNT, &asyncCallbackInfo->callback);
+    napi_create_reference(env, argv[callbackIdx], REF_COUNT, &asyncCallbackInfo->callback);
 
     napi_value resourceName;
     napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
@@ -805,6 +808,12 @@ static napi_value RequestPublishFormCallback(napi_env env, napi_value *argv, boo
                 napi_value callback;
                 napi_value callbackValues[ARGS_SIZE_TWO] = {nullptr, nullptr};
                 InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, callbackValues);
+                if (asyncCallbackInfo->result == ERR_OK) {
+                    std::string strFormId = std::to_string(asyncCallbackInfo->formId);
+                    napi_value formId;
+                    napi_create_string_utf8(env, strFormId.c_str(), strFormId.length(), &formId);
+                    callbackValues[1] = formId;
+                }
 
                 napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
                 napi_value callResult;
@@ -858,12 +867,15 @@ static napi_value RequestPublishFormPromise(napi_env env, napi_value *argv, bool
         },
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("%{public}s, promise complete", __func__);
-            auto *asyncCallbackInfo = (AsyncAddFormInfoCallbackInfo *) data;
+            auto *asyncCallbackInfo = (AsyncRequestPublishFormCallbackInfo *) data;
             napi_value result;
-            InnerCreatePromiseRetMsg(env, asyncCallbackInfo->result, &result);
+
             if (asyncCallbackInfo->result == ERR_OK) {
+                std::string strFormId = std::to_string(asyncCallbackInfo->formId);
+                napi_create_string_utf8(env, strFormId.c_str(), strFormId.length(), &result);
                 napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
             } else {
+                InnerCreatePromiseRetMsg(env, asyncCallbackInfo->result, &result);
                 napi_reject_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
             }
             napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
@@ -1081,7 +1093,7 @@ static void InnerRemoveFormInfo(napi_env env, AsyncRemoveFormInfoCallbackInfo *c
 
     ErrCode errCode = FormMgr::GetInstance().RemoveFormInfo(asyncCallbackInfo->moduleName, asyncCallbackInfo->formName);
     if (errCode != ERR_OK) {
-        HILOG_ERROR("Failed to AddFormInfo, error code is %{public}d.", errCode);
+        HILOG_ERROR("Failed to RemoveFormInfo, error code is %{public}d.", errCode);
     }
     asyncCallbackInfo->result = errCode;
     HILOG_DEBUG("%{public}s, end", __func__);

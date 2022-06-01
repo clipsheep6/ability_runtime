@@ -56,6 +56,7 @@ struct AsyncRequestPublishFormCallbackInfo {
     bool withFormBindingData = false;
     std::unique_ptr<OHOS::AppExecFwk::FormProviderData> formProviderData = nullptr;
     int32_t result = OHOS::ERR_OK;
+    int64_t formId = 0;
 };
 
 struct AsyncAddFormInfoCallbackInfo {

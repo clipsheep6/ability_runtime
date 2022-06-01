@@ -214,10 +214,11 @@ public:
      * @param want The want of the form to publish.
      * @param withFormBindingData Indicates whether the formBindingData is carried with.
      * @param formBindingData Indicates the form data.
+     * @param formId Return the form id to be published.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode RequestPublishForm(Want &want, bool withFormBindingData,
-                               std::unique_ptr<FormProviderData> &formBindingData);
+                               std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId);
 
     /**
      * @brief Lifecycle Update.
