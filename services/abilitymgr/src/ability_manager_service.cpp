@@ -3506,7 +3506,7 @@ int AbilityManagerService::ReleaseAbility(
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
     std::string elementName = element.GetURI();
-    HILOG_DEBUG("try to release called ability, name: %{public}s.", elementName.c_str());
+    HILOG_WARN("try to release called ability, name: %{public}s.", elementName.c_str());
 
     if (CheckIsRemote(element.GetDeviceID())) {
         HILOG_INFO("release remote ability");
