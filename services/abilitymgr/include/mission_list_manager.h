@@ -435,6 +435,7 @@ private:
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
+    void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 #ifdef SUPPORT_GRAPHICS
     void NotifyAnimationFromRecentTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
