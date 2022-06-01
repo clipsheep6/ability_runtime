@@ -34,6 +34,7 @@ config("formmgr_sdk_config") {
 
 ohos_shared_library("form_manager") {
   sources = [
+    "src/form_ashmem.cpp",
     "src/form_host_proxy.cpp",
     "src/form_host_stub.cpp",
     "src/form_js_info.cpp",
