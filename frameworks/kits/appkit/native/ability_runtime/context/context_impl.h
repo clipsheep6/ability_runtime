@@ -273,7 +273,7 @@ private:
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
     std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
-    std::string currArea_ = CONTEXT_ELS[EL_DEFAULT];
+    std::string currArea_ = "el2";
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
