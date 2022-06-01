@@ -277,8 +277,7 @@ HWTEST_F(AbilityToolTest, AbilityTool_Start_0600, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n" +
-                                 ABILITY_TOOL_HELP_MSG_START);
+    EXPECT_NE(cmd.ExecCommand().find(ABILITY_TOOL_HELP_MSG_START), string::npos);
 }
 
 /**
@@ -520,7 +519,7 @@ HWTEST_F(AbilityToolTest, AbilityTool_Test_0300, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]);
     AbilityToolCommand cmd(argc, argv);
-    EXPECT_EQ(cmd.ExecCommand(), ABILITY_TOOL_HELP_LACK_OPTIONS + "\n" + ABILITY_TOOL_HELP_MSG_TEST);
+    EXPECT_NE(cmd.ExecCommand().find(ABILITY_TOOL_HELP_MSG_TEST), string::npos);
 }
 
 /**

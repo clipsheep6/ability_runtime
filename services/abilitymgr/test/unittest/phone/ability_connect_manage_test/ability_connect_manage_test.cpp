@@ -66,7 +66,7 @@ public:
     AbilityConnectManager *ConnectManager() const;
 
     AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+        const std::string &appName, const std::string &bundleName, const std::string &moduleName);
 
     static constexpr int TEST_WAIT_TIME = 1000000;
 
@@ -85,9 +85,10 @@ private:
 };
 
 AbilityRequest AbilityConnectManageTest::GenerateAbilityRequest(const std::string &deviceName,
-    const std::string &abilityName, const std::string &appName, const std::string &bundleName)
+    const std::string &abilityName, const std::string &appName, const std::string &bundleName,
+    const std::string &moduleName)
 {
-    ElementName element(deviceName, bundleName, abilityName);
+    ElementName element(deviceName, bundleName, abilityName, moduleName);
     Want want;
     want.SetElement(element);
 
@@ -97,6 +98,7 @@ AbilityRequest AbilityConnectManageTest::GenerateAbilityRequest(const std::strin
     abilityInfo.type = AbilityType::SERVICE;
     abilityInfo.name = abilityName;
     abilityInfo.bundleName = bundleName;
+    abilityInfo.moduleName = moduleName;
     abilityInfo.deviceId = deviceName;
     ApplicationInfo appinfo;
     appinfo.name = appName;
@@ -122,14 +124,16 @@ void AbilityConnectManageTest::SetUp(void)
     std::string abilityName = "ServiceAbility";
     std::string appName = "hiservcie";
     std::string bundleName = "com.ix.hiservcie";
-    abilityRequest_ = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    std::string moduleName = "entry";
+    abilityRequest_ = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName, moduleName);
     serviceRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
     serviceToken_ = serviceRecord_->GetToken();
     std::string deviceName1 = "device";
     std::string abilityName1 = "musicServiceAbility";
     std::string appName1 = "musicservcie";
     std::string bundleName1 = "com.ix.musicservcie";
-    abilityRequest1_ = GenerateAbilityRequest(deviceName1, abilityName1, appName1, bundleName1);
+    std::string moduleName1 = "entry";
+    abilityRequest1_ = GenerateAbilityRequest(deviceName1, abilityName1, appName1, bundleName1, moduleName1);
     serviceRecord1_ = AbilityRecord::CreateAbilityRecord(abilityRequest1_);
     serviceToken1_ = serviceRecord_->GetToken();
     callbackA_ = new AbilityConnectCallback();
@@ -529,7 +533,8 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_013, TestSize.Level1)
     std::string abilityNameB = "ServiceAbilityB";
     std::string appNameB = "hiservcieB";
     std::string bundleNameB = "com.ix.hiservcieB";
-    auto abilityRequestB = GenerateAbilityRequest(deviceNameB, abilityNameB, appNameB, bundleNameB);
+    std::string moduleNameB = "entry";
+    auto abilityRequestB = GenerateAbilityRequest(deviceNameB, abilityNameB, appNameB, bundleNameB, moduleNameB);
     result = ConnectManager()->ConnectAbilityLocked(abilityRequestB, callbackA_, nullptr);
     EXPECT_EQ(0, result);
 
@@ -568,7 +573,8 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_014, TestSize.Level1)
     std::string abilityNameB = "ServiceAbilityB";
     std::string appNameB = "hiservcieB";
     std::string bundleNameB = "com.ix.hiservcieB";
-    auto abilityRequestB = GenerateAbilityRequest(deviceNameB, abilityNameB, appNameB, bundleNameB);
+    std::string moduleNameB = "entry";
+    auto abilityRequestB = GenerateAbilityRequest(deviceNameB, abilityNameB, appNameB, bundleNameB, moduleNameB);
     result = ConnectManager()->ConnectAbilityLocked(abilityRequestB, callbackB_, nullptr);
     EXPECT_EQ(0, result);
 

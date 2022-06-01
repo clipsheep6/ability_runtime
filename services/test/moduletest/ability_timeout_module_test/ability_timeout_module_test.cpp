@@ -343,6 +343,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
 
     // died rootlauncher ability
     rootLauncher->SetAbilityState(AbilityState::FOREGROUND);
+    rootLauncher->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
     abilityMs_->OnAbilityDied(rootLauncher);
 
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
@@ -378,6 +379,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
     EXPECT_EQ(rootLauncher, ability);
     EXPECT_TRUE(rootLauncher->IsLauncherRoot());
     rootLauncher->SetAbilityState(AbilityState::FOREGROUND);
+    rootLauncher->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
@@ -425,6 +427,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
 
     // died rootlauncher ability
     rootLauncher->SetAbilityState(AbilityState::FOREGROUND);
+    rootLauncher->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
     int i = 0;
     while (i < rootLauncher->restratMax_) {
         abilityMs_->OnAbilityDied(rootLauncher);

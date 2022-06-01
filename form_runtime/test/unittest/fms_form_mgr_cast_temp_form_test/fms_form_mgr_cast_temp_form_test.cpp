@@ -141,9 +141,15 @@ HWTEST_F(FmsFormMgrCastTempFormTest, CastTempForm_001, TestSize.Level0)
     std::vector<FormDBInfo> formDBInfos;
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
     EXPECT_EQ(originDbInfoSize + dataCnt, formDBInfos.size());
-    FormDBInfo dbInfo {formDBInfos[0]};
-    EXPECT_EQ(formId, dbInfo.formId);
-    EXPECT_EQ(userUidCnt, dbInfo.formUserUids.size());
+    bool formExist = false;
+    for (size_t i = 0; i < formDBInfos.size(); i++) {
+        if (formId == formDBInfos[i].formId) {
+            EXPECT_EQ(userUidCnt, formDBInfos[i].formUserUids.size());
+            formExist = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(formExist);
     // host is added
     FormHostRecord hostRecord;
     ret = FormDataMgr::GetInstance().GetFormHostRecord(formId, hostRecord);

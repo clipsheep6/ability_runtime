@@ -248,13 +248,15 @@ HWTEST_F(MissionListManagerTest, MissionListManager_005, Function | MediumTest |
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.abilityInfo.bundleName = "test_bundle";
     abilityRequest.abilityInfo.name = "test_name";
+    abilityRequest.abilityInfo.moduleName = "test_moduleName";
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
 
     Want want;
     AppExecFwk::AbilityInfo abilityInfo = abilityRequest.abilityInfo;
     AppExecFwk::ApplicationInfo applicationInfo;
     int32_t id;
-    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" + abilityRequest.abilityInfo.name;
+    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" +
+        abilityRequest.abilityInfo.moduleName + ":" + abilityRequest.abilityInfo.name;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord =
@@ -293,13 +295,15 @@ HWTEST_F(MissionListManagerTest, MissionListManager_006, Function | MediumTest |
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.abilityInfo.bundleName = "test_bundle";
     abilityRequest.abilityInfo.name = "test_name";
+    abilityRequest.abilityInfo.moduleName = "test_moduleName";
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     abilityRequest.connect = connCallback;
     Want want;
     AppExecFwk::AbilityInfo abilityInfo = abilityRequest.abilityInfo;
     AppExecFwk::ApplicationInfo applicationInfo;
     int32_t id;
-    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" + abilityRequest.abilityInfo.name;
+    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" +
+        abilityRequest.abilityInfo.moduleName + ":" + abilityRequest.abilityInfo.name;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord =
@@ -548,13 +552,15 @@ HWTEST_F(MissionListManagerTest, MissionListManager_014, Function | MediumTest |
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.abilityInfo.bundleName = "test_bundle";
     abilityRequest.abilityInfo.name = "test_name";
+    abilityRequest.abilityInfo.moduleName = "test_moduleName";
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     abilityRequest.connect = connCallback;
     Want want;
     AppExecFwk::AbilityInfo abilityInfo = abilityRequest.abilityInfo;
     AppExecFwk::ApplicationInfo applicationInfo;
     int32_t id;
-    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" + abilityRequest.abilityInfo.name;
+    std::string missionName = "#" + abilityRequest.abilityInfo.bundleName + ":" +
+        abilityRequest.abilityInfo.moduleName + ":" + abilityRequest.abilityInfo.name;
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
     std::shared_ptr<AbilityRecord> abilityRecord =

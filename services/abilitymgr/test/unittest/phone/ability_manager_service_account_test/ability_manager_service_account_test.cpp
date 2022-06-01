@@ -277,7 +277,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_005, TestSize.Le
     want.SetElement(element);
     StartOptions abilityStartOptions;
     auto result = abilityMs_->StartAbility(want, abilityStartOptions, nullptr, 0, -1);
-    EXPECT_EQ(OHOS::ERR_OK, result);
+    EXPECT_NE(OHOS::ERR_OK, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_005 end";
 }
 
