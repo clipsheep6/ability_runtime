@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace Ace {
-class UIServiceMgrClientMock{
+class UIServiceMgrClientMock {
 public:
     UIServiceMgrClientMock();
     virtual ~UIServiceMgrClientMock();

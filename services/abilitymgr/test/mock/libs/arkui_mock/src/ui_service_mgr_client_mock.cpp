@@ -84,15 +84,8 @@ ErrCode UIServiceMgrClientMock::ReturnRequest(const AAFwk::Want& want, const std
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::ShowDialog(const std::string& name,
-                                       const std::string& params,
-                                       OHOS::Rosen::WindowType windowType,
-                                       int x,
-                                       int y,
-                                       int width,
-                                       int height,
-                                       DialogCallback callback,
-                                       int* id)
+ErrCode UIServiceMgrClientMock::ShowDialog(const std::string& name, const std::string& params,
+    OHOS::Rosen::WindowType windowType, int x, int y, int width, int height, DialogCallback callback, int* id)
 {
     if (code_ == EVENT_WAITING_CODE) {
         return 0;

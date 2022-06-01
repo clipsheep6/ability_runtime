@@ -79,17 +79,18 @@ const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
 
+#ifdef SUPPORT_GRAPHICS
 const int32_t UI_ANR_DIALOG_WIDTH = 328 * 2;
 const int32_t UI_ANR_DIALOG_HEIGHT = 192 * 2;
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
 const int32_t UI_WIDTH_780DP = 1560;
-
 const int32_t UI_DEFAULT_WIDTH = 2560;
 const int32_t UI_DEFAULT_HEIGHT = 1600;
 const std::string EVENT_WAITING_CODE = "0";
 const std::string EVENT_CLOSE_CODE = "1";
 const std::string APP_NAME = "appName";
+#endif
 
 #ifndef OS_ACCOUNT_PART_ENABLED
 constexpr static int UID_TRANSFORM_DIVISOR = 200000;
