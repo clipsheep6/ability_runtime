@@ -793,7 +793,7 @@ public:
         }
 
         void OnContinuousTaskStop(
-            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo) 
+            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo)
         {
             HILOG_ERROR("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
             bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
