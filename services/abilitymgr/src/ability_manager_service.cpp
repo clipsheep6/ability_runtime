@@ -325,13 +325,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(IPCSkeleton::GetCallingTokenID());
-        if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-            iface_cast<ISystemAbilityTokenCallback>(callerToken) == nullptr) {
+        auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
+            CheckSpecificSystemAbilityAccessPermission();
+        if (!isSpecificSA) {
             HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
             return ERR_INVALID_VALUE;
         }
-        HILOG_INFO("%{public}s: Caller is system ability.", __func__);
+        HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;

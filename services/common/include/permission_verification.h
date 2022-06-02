@@ -31,6 +31,8 @@ public:
 
     bool IsSACall();
 
+    bool CheckSpecificSystemAbilityAccessPermission();
+
     bool VerifyRunningInfoPerm();
 
     bool VerifyControllerPerm();

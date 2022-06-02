@@ -22,6 +22,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+const std::string DMS_PROCESS_NAME = "distributedsched";
 bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName)
 {
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
@@ -46,6 +47,23 @@ bool PermissionVerification::IsSACall()
     }
     HILOG_DEBUG("Not SA called.");
     return false;
+}
+
+bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission()
+{
+    HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
+    if (!IsSACall()) {
+        HILOG_ERROR("caller tokenType is not native, verify failed.");
+        return false;
+    }
+    auto callerToken = GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    if (result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        HILOG_ERROR("Check process name failed.");
+        return false;
+    }
+    return true;
 }
 
 bool PermissionVerification::VerifyRunningInfoPerm()
