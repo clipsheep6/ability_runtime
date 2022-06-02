@@ -78,6 +78,12 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             HiSysEvent::Domain::AAFWK,
             eventName,
             type);
+    } else if (eventName == ABILITY_ONFOREGROUND || eventName == ABILITY_ONBACKGROUND) {
+        HiSysEvent::Write(
+            HiSysEvent::Domain::AAFWK,
+            eventName,
+            type,
+            EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     }
 }
 

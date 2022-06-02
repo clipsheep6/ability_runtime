@@ -40,6 +40,8 @@ const std::string DISCONNECT_SERVICE_ERROR = "DISCONNECT_SERVICE_ERROR";
 const std::string START_ABILITY = "START_ABILITY";
 const std::string TERMINATE_ABILITY = "TERMINATE_ABILITY";
 const std::string CLOSE_ABILITY = "CLOSE_ABILITY";
+const std::string ABILITY_ONFOREGROUND = "ABILITY_ONFOREGROUND";
+const std::string ABILITY_ONBACKGROUND = "ABILITY_ONBACKGROUND";
 // serviceExtensionAbility behavior event
 const std::string START_SERVICE = "START_SERVICE";
 const std::string STOP_SERVICE = "STOP_SERVICE";
