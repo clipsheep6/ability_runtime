@@ -17,6 +17,7 @@
 
 #include <new>
 #include <regex>
+#include <unistd.h>
 
 #include "ability_constants.h"
 #include "ability_delegator.h"
@@ -24,6 +25,7 @@
 #include "ability_loader.h"
 #include "ability_thread.h"
 #include "app_loader.h"
+#include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "hitrace_meter.h"
 #include "configuration_convertor.h"
@@ -905,6 +907,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
+            DelayedSingleton<ApplicationDataManager>::GetInstance()->NotifyUnhandledException(summary);
             time_t timet;
             struct tm localUTC;
             struct timeval gtime;

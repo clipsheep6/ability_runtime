@@ -28,6 +28,7 @@ group("napi_packages") {
     "${aafwk_napi_path}/app/app_manager:appmanager_napi",
     "${aafwk_napi_path}/app/application_context:applicationcontext_napi",
     "${aafwk_napi_path}/app/context:context_napi",
+    "${aafwk_napi_path}/app/error_manager:errormanager_napi",
     "${aafwk_napi_path}/app/test_runner:testrunner_napi",
     "${aafwk_napi_path}/callee:callee_napi",
     "${aafwk_napi_path}/caller:caller_napi",
