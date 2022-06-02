@@ -21,7 +21,7 @@ namespace AbilityRuntime {
 int LocalCallContainer::StartAbilityInner(
     const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("start ability by call.");
+    HILOG_WARN("start ability by call.");
 
     if (!callback) {
         HILOG_ERROR("callback is nullptr.");
@@ -35,10 +35,10 @@ int LocalCallContainer::StartAbilityInner(
     }
 
     if (want.GetElement().GetDeviceID().empty()) {
-        HILOG_DEBUG("start ability by call, element:DeviceID is empty");
+        HILOG_WARN("start ability by call, element:DeviceID is empty");
     }
 
-    HILOG_DEBUG("start ability by call, element:%{public}s", want.GetElement().GetURI().c_str());
+    HILOG_WARN("start ability by call, element:%{public}s", want.GetElement().GetURI().c_str());
 
     AppExecFwk::ElementName element = want.GetElement();
     std::shared_ptr<LocalCallRecord> localCallRecord;
@@ -52,9 +52,9 @@ int LocalCallContainer::StartAbilityInner(
         callProxyRecords_.emplace(uri, localCallRecord);
     }
 
-    HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) begin");
+    HILOG_WARN("start ability by call, localCallRecord->AddCaller(callback) begin");
     localCallRecord->AddCaller(callback);
-    HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) end");
+    HILOG_WARN("start ability by call, localCallRecord->AddCaller(callback) end");
 
     auto remote = localCallRecord->GetRemoteObject();
     if (!remote) {
@@ -64,22 +64,22 @@ int LocalCallContainer::StartAbilityInner(
             return ERR_INVALID_VALUE;
         }
         sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
-        HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
+        HILOG_WARN("start ability by call, abilityClient->StartAbilityByCall call");
         return abilityClient->StartAbilityByCall(want, connect, callerToken);
     }
     // already finish call request.
-    HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) begin");
+    HILOG_WARN("start ability by call, callback->InvokeCallBack(remote) begin");
     callback->InvokeCallBack(remote);
-    HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) end");
+    HILOG_WARN("start ability by call, callback->InvokeCallBack(remote) end");
 
     return ERR_OK;
 }
 
 int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 {
-    HILOG_DEBUG("LocalCallContainer::Release begain.");
+    HILOG_WARN("LocalCallContainer::Release begain.");
     auto isExist = [&callback](auto &record) {
-        HILOG_DEBUG("LocalCallContainer::Release begain1.");
+        HILOG_WARN("LocalCallContainer::Release begain1.");
         return record.second->RemoveCaller(callback);
     };
 
@@ -97,7 +97,7 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 
     if (record->IsExistCallBack()) {
         // just release callback.
-        HILOG_DEBUG("LocalCallContainer::Release begain2.");
+        HILOG_WARN("LocalCallContainer::Release begain2.");
         return ERR_OK;
     }
 
@@ -115,13 +115,13 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
     }
 
     callProxyRecords_.erase(iter);
-    HILOG_DEBUG("LocalCallContainer::Release end.");
+    HILOG_WARN("LocalCallContainer::Release end.");
     return ERR_OK;
 }
 
 void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
 {
-    HILOG_DEBUG("LocalCallContainer::DumpCalls called.");
+    HILOG_WARN("LocalCallContainer::DumpCalls called.");
     info.emplace_back("          caller connections:");
     for (auto iter = callProxyRecords_.begin(); iter != callProxyRecords_.end(); iter++) {
         std::string tempstr = "            LocalCallRecord";
@@ -152,7 +152,7 @@ void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
 void LocalCallContainer::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone start %{public}s .", element.GetURI().c_str());
+    HILOG_WARN("LocalCallContainer::OnAbilityConnectDone start %{public}s .", element.GetURI().c_str());
     if (resultCode != ERR_OK) {
         HILOG_ERROR("OnAbilityConnectDone failed.");
     }
@@ -164,7 +164,7 @@ void LocalCallContainer::OnAbilityConnectDone(
         localCallRecord->InvokeCallBack();
     }
 
-    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone end.");
+    HILOG_WARN("LocalCallContainer::OnAbilityConnectDone end.");
     return;
 }
 
@@ -198,7 +198,7 @@ void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject> &remote)
 
     iter->second->OnCallStubDied(remote);
     callProxyRecords_.erase(iter);
-    HILOG_DEBUG("LocalCallContainer::OnCallStubDied end.");
+    HILOG_WARN("LocalCallContainer::OnCallStubDied end.");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
