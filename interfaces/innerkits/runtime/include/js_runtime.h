@@ -49,7 +49,8 @@ public:
         return Language::JS;
     }
 
-    std::unique_ptr<NativeReference> LoadModule(const std::string& moduleName, const std::string& modulePath);
+    std::unique_ptr<NativeReference> LoadModule(
+        const std::string& moduleName, const std::string& modulePath, bool esmodule = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const TimerTask& task, const std::string& name, int64_t delayTime);
@@ -59,14 +60,17 @@ public:
     void DumpHeapSnapshot(bool isPrivate) override;
     std::string BuildNativeAndJsBackStackTrace() override;
 
-    virtual bool RunScript(const std::string& path);
-    virtual bool RunSandboxScript(const std::string& path);
+    bool RunSandboxScript(const std::string& path);
+    virtual bool RunScript(const std::string& path) = 0;
 
 protected:
     JsRuntime() = default;
 
     virtual bool Initialize(const Options& options);
     void Deinitialize();
+
+    virtual NativeValue* LoadJsBundle(const std::string& path);
+    virtual NativeValue* LoadJsModule(const std::string& path) = 0;
 
     bool isArkEngine_ = false;
     bool debugMode_ = false;

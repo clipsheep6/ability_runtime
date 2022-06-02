@@ -47,6 +47,357 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
+constexpr char DEFAULT_BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
+constexpr char BUNDLES_INSTALL_PATH[] = "/data/bundles/";
+
+constexpr char PREFIX_BUNDLE[] = "@bundle:";
+constexpr char PREFIX_MODULE[] = "@module:";
+constexpr char PREFIX_LOCAL[] = "@local:";
+
+constexpr char NPM_PATH_SEGMENT[] = "node_modules";
+
+constexpr char NPM_ENTRY_FILE[] = "index.abc";
+constexpr char NPM_ENTRY_LINK[] = "entry.txt";
+
+constexpr char EXT_NAME_ABC[] = ".abc";
+constexpr char EXT_NAME_ETS[] = ".ets";
+constexpr char EXT_NAME_TS[] = ".ts";
+constexpr char EXT_NAME_JS[] = ".js";
+
+constexpr size_t NPM_LEVEL_START = 0;
+constexpr size_t NPM_LEVEL_END = 1;
+
+inline bool StringEndWith(const std::string& str, const char* endStr, size_t endStrLen)
+{
+    size_t len = str.length();
+    return ((len >= endStrLen) && (str.compare(len - endStrLen, endStrLen, endStr) == 0));
+}
+
+inline bool StringStartWith(const std::string& str, const char* startStr, size_t startStrLen)
+{
+    return ((str.length() >= startStrLen) && (str.compare(0, startStrLen, startStr) == 0));
+}
+
+void SplitString(const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/")
+{
+    if (str.empty() || pos >= str.length()) {
+        return;
+    }
+
+    size_t startPos = pos;
+    size_t endPos = 0;
+    while ((endPos = str.find_first_of(seps, startPos)) != std::string::npos) {
+        if (endPos > startPos) {
+            out.emplace_back(str.substr(startPos, endPos - startPos));
+        }
+        startPos = endPos + 1;
+    }
+
+    if (startPos < str.length()) {
+        out.emplace_back(str.substr(startPos));
+    }
+}
+
+std::string JoinString(const std::vector<std::string>& strs, char sep, size_t startIndex = 0)
+{
+    std::string out;
+    for (size_t index = startIndex; index < strs.size(); ++index) {
+        if (!strs[index].empty()) {
+            out.append(strs[index]) += sep;
+        }
+    }
+    if (!out.empty()) {
+        out.pop_back();
+    }
+    return out;
+}
+
+inline std::string StripString(const std::string& str, const char* charSet = " \t\n\r")
+{
+    size_t startPos = str.find_first_not_of(charSet);
+    if (startPos == std::string::npos) {
+        return std::string();
+    }
+
+    return str.substr(startPos, str.find_last_not_of(charSet) - startPos + 1);
+}
+
+class JsModuleSearcher {
+public:
+    JsModuleSearcher(const JsModuleSearcher&) = default;
+    JsModuleSearcher(JsModuleSearcher&&) = default;
+    JsModuleSearcher& operator=(const JsModuleSearcher&) = default;
+    JsModuleSearcher& operator=(JsModuleSearcher&&) = default;
+
+    explicit JsModuleSearcher(const std::string& bundleName) : bundleName_(bundleName) {}
+
+    std::string operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
+    {
+        HILOG_INFO("Search JS module (%{public}s, %{public}s) begin",
+            curJsModulePath.c_str(), newJsModuleUri.c_str());
+
+        std::string newJsModulePath;
+
+        if (curJsModulePath.empty() || newJsModuleUri.empty()) {
+            return newJsModulePath;
+        }
+    
+        switch (newJsModuleUri[0]) {
+            case '.': {
+                newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
+                break;
+            }
+            case '@': {
+                newJsModulePath = ParseOhmUri(curJsModulePath, newJsModuleUri);
+                if (newJsModulePath.empty()) {
+                    newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+                }
+                break;
+            }
+            default: {
+                newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+                break;
+            }
+        }
+
+        FixExtName(newJsModulePath);
+
+        HILOG_INFO("Search JS module (%{public}s, %{public}s) => %{public}s end",
+            curJsModulePath.c_str(), newJsModuleUri.c_str(), newJsModulePath.c_str());
+
+        return newJsModulePath;
+    }
+
+private:
+    static void FixExtName(std::string& path)
+    {
+        if (path.empty()) {
+            return;
+        }
+
+        if (StringEndWith(path, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
+            return;
+        }
+
+        if (StringEndWith(path, EXT_NAME_ETS, sizeof(EXT_NAME_ETS) - 1)) {
+            path.erase(path.length() - (sizeof(EXT_NAME_ETS) - 1), sizeof(EXT_NAME_ETS) - 1);
+        } else if (StringEndWith(path, EXT_NAME_TS, sizeof(EXT_NAME_TS) - 1)) {
+            path.erase(path.length() - (sizeof(EXT_NAME_TS) - 1), sizeof(EXT_NAME_TS) - 1);
+        } else if (StringEndWith(path, EXT_NAME_JS, sizeof(EXT_NAME_JS) - 1)) {
+            path.erase(path.length() - (sizeof(EXT_NAME_JS) - 1), sizeof(EXT_NAME_JS) - 1);
+        }
+
+        path.append(EXT_NAME_ABC);
+    }
+
+    static std::string GetInstallPath(const std::string& curJsModulePath, bool module = true)
+    {
+        size_t pos = std::string::npos;
+        if (StringStartWith(curJsModulePath, DEFAULT_BUNDLE_INSTALL_PATH, sizeof(DEFAULT_BUNDLE_INSTALL_PATH) - 1)) {
+            pos = sizeof(DEFAULT_BUNDLE_INSTALL_PATH) - 1 - 1;
+        } else {
+            if (!StringStartWith(curJsModulePath, BUNDLES_INSTALL_PATH, sizeof(BUNDLES_INSTALL_PATH) - 1)) {
+                return std::string();
+            }
+
+            pos = curJsModulePath.find('/', sizeof(BUNDLES_INSTALL_PATH) - 1);
+            if (pos == std::string::npos) {
+                return std::string();
+            }
+        }
+
+        if (module) {
+            pos = curJsModulePath.find('/', pos + 1);
+            if (pos == std::string::npos) {
+                return std::string();
+            }
+        }
+
+        return curJsModulePath.substr(0, pos + 1);
+    }
+
+    static std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri)
+    {
+        std::string moduleInstallPath = GetInstallPath(curJsModulePath, true);
+        if (moduleInstallPath.empty()) {
+            return std::string();
+        }
+
+        std::vector<std::string> pathVector;
+        SplitString(curJsModulePath, pathVector, moduleInstallPath.length());
+
+        if (pathVector.empty()) {
+            return std::string();
+        }
+
+        // Remove file name, reserve only dir name
+        pathVector.pop_back();
+
+        std::vector<std::string> relativePathVector;
+        SplitString(newJsModuleUri, relativePathVector);
+
+        for (auto& value : relativePathVector) {
+            if (value == ".") {
+                continue;
+            } else if (value == "..") {
+                if (pathVector.empty()) {
+                    return std::string();
+                }
+                pathVector.pop_back();
+            } else {
+                pathVector.emplace_back(std::move(value));
+            }
+        }
+
+        return moduleInstallPath + JoinString(pathVector, '/');
+    }
+
+    static std::string FindNpmPackageInPath(const std::string& npmPath)
+    {
+        std::string fileName = npmPath + "/" + NPM_ENTRY_FILE;
+
+        char path[PATH_MAX];
+        if (realpath(fileName.c_str(), path) != nullptr) {
+            return path;
+        }
+
+        fileName = npmPath + "/" + NPM_ENTRY_LINK;
+        if (realpath(fileName.c_str(), path) == nullptr) {
+            return std::string();
+        }
+
+        std::ifstream stream(path, std::ios::ate);
+        if (!stream.is_open()) {
+            return std::string();
+        }
+
+        size_t fileLen = stream.tellg();
+        if (fileLen >= sizeof(path)) {
+            return std::string();
+        }
+
+        stream.seekg(0);
+        stream.read(path, fileLen);
+        path[fileLen] = '\0';
+        return npmPath + '/' + StripString(path);
+    }
+
+    static std::string FindNpmPackageInTopLevel(const std::string& moduleInstallPath, const std::string& npmPackage,
+        size_t start = NPM_LEVEL_START)
+    {
+        for (size_t level = start; level <= NPM_LEVEL_END; ++level) {
+            std::string path = moduleInstallPath + NPM_PATH_SEGMENT + '/' + std::to_string(level) + '/' + npmPackage;
+            path = FindNpmPackageInPath(path);
+            if (!path.empty()) {
+                return path;
+            }
+        }
+
+        return std::string();
+    }
+
+    static std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage)
+    {
+        std::string moduleInstallPath = GetInstallPath(curJsModulePath);
+        if (moduleInstallPath.empty()) {
+            return std::string();
+        }
+
+        std::vector<std::string> pathVector;
+        SplitString(curJsModulePath, pathVector, moduleInstallPath.length());
+        if (pathVector.empty()) {
+            return std::string();
+        }
+
+        if (pathVector[0] != NPM_PATH_SEGMENT) {
+            return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage);
+        }
+
+        // Remove file name, reserve only dir name
+        pathVector.pop_back();
+
+        // Find npm package until reach top level npm path such as 'node_modules/0',
+        // so there must be 2 element in vector
+        while (pathVector.size() > 2) {
+            std::string path =
+                moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + npmPackage;
+            path = FindNpmPackageInPath(path);
+            if (!path.empty()) {
+                return path;
+            }
+
+            pathVector.pop_back();
+        }
+
+        char* p = nullptr;
+        size_t index = std::strtoul(pathVector.back().c_str(), &p, 10);
+        if (p == nullptr || *p != '\0') {
+            return std::string();
+        }
+
+        return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage, index);
+    }
+
+    std::string ParseOhmUri(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
+    {
+        std::string moduleInstallPath;
+        std::vector<std::string> pathVector;
+        size_t index = 0;
+
+        if (StringStartWith(newJsModuleUri, PREFIX_BUNDLE, sizeof(PREFIX_BUNDLE) - 1)) {
+            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_BUNDLE) - 1);
+
+            // Uri should have atleast 3 segments
+            if (pathVector.size() < 3) {
+                return std::string();
+            }
+
+            const auto& bundleName = pathVector[index++];
+            if (bundleName == bundleName_) {
+                moduleInstallPath = DEFAULT_BUNDLE_INSTALL_PATH;
+            } else {
+                moduleInstallPath = BUNDLES_INSTALL_PATH;
+                moduleInstallPath.append(bundleName).append("/");
+            }
+            moduleInstallPath.append(pathVector[index++]).append("/");
+        } else if (StringStartWith(newJsModuleUri, PREFIX_MODULE, sizeof(PREFIX_MODULE) - 1)) {
+            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_MODULE) - 1);
+
+            // Uri should have atleast 2 segments
+            if (pathVector.size() < 2) {
+                return std::string();
+            }
+
+            moduleInstallPath = GetInstallPath(curJsModulePath, false);
+            if (moduleInstallPath.empty()) {
+                return std::string();
+            }
+            moduleInstallPath.append(pathVector[index++]).append("/");
+        } else if (StringStartWith(newJsModuleUri, PREFIX_LOCAL, sizeof(PREFIX_LOCAL) - 1)) {
+            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_LOCAL) - 1);
+
+            if (pathVector.empty()) {
+                return std::string();
+            }
+
+            moduleInstallPath = GetInstallPath(curJsModulePath);
+            if (moduleInstallPath.empty()) {
+                return std::string();
+            }
+        } else {
+            return std::string();
+        }
+
+        if (pathVector[index] != NPM_PATH_SEGMENT) {
+            return moduleInstallPath + JoinString(pathVector, '/', index);
+        }
+
+        return FindNpmPackageInTopLevel(moduleInstallPath, JoinString(pathVector, '/', index + 1));
+    }
+
+    std::string bundleName_;
+};
+
 class ArkJsRuntime : public JsRuntime {
 public:
     ArkJsRuntime()
@@ -78,6 +429,23 @@ public:
         return vm_ != nullptr ? panda::JSNApi::Execute(vm_, path.c_str(), PANDA_MAIN_FUNCTION) : false;
     }
 
+    NativeValue* LoadJsModule(const std::string& path) override
+    {
+        if (!RunScript(path)) {
+            HILOG_ERROR("Failed to run script: %{public}s", path.c_str());
+            return nullptr;
+        }
+
+        panda::Local<panda::ObjectRef> exportObj = panda::JSNApi::GetExportObject(vm_, path, "default");
+        if (exportObj->IsNull()) {
+            HILOG_ERROR("Get export object failed");
+            return nullptr;
+        }
+
+        return ArkNativeEngine::ArkValueToNativeValue(
+            static_cast<ArkNativeEngine*>(nativeEngine_.get()), exportObj);
+    }
+
 private:
     static int32_t PrintVmLog(int32_t id, int32_t level, const char* tag, const char* fmt, const char* message)
     {
@@ -103,6 +471,8 @@ private:
         if (vm_ == nullptr) {
             return false;
         }
+
+        panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
 
         nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
         return JsRuntime::Initialize(options);
@@ -443,9 +813,37 @@ void JsRuntime::Deinitialize()
     nativeEngine_.reset();
 }
 
-std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& moduleName, const std::string& modulePath)
+NativeValue* JsRuntime::LoadJsBundle(const std::string& path)
 {
-    HILOG_INFO("JsRuntime::LoadModule(%{public}s, %{public}s)", moduleName.c_str(), modulePath.c_str());
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
+    NativeValue* exports = nativeEngine_->CreateObject();
+    globalObj->SetProperty("exports", exports);
+
+    if (!RunScript(path)) {
+        HILOG_ERROR("Failed to run script: %{public}s", path.c_str());
+        return nullptr;
+    }
+
+    NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
+    if (exportsObj == nullptr) {
+        HILOG_ERROR("Failed to get exports objcect: %{public}s", path.c_str());
+        return nullptr;
+    }
+
+    NativeValue* exportObj = exportsObj->GetProperty("default");
+    if (exportObj == nullptr) {
+        HILOG_ERROR("Failed to get default objcect: %{public}s", path.c_str());
+        return nullptr;
+    }
+
+    return exportObj;
+}
+
+std::unique_ptr<NativeReference> JsRuntime::LoadModule(
+    const std::string& moduleName, const std::string& modulePath, bool esmodule)
+{
+    HILOG_INFO("JsRuntime::LoadModule(%{public}s, %{public}s, %{public}s)", moduleName.c_str(), modulePath.c_str(),
+        esmodule ? "true" : "false");
 
     HandleScope handleScope(*this);
 
@@ -461,24 +859,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
             return std::unique_ptr<NativeReference>();
         }
 
-        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
-        NativeValue* exports = nativeEngine_->CreateObject();
-        globalObj->SetProperty("exports", exports);
-
-        if (!RunScript(fileName)) {
-            HILOG_ERROR("Failed to run script: %{public}s", fileName.c_str());
-            return std::unique_ptr<NativeReference>();
-        }
-
-        NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
-        if (exportsObj == nullptr) {
-            HILOG_ERROR("Failed to get exports objcect: %{public}s", modulePath.c_str());
-            return std::unique_ptr<NativeReference>();
-        }
-
-        classValue = exportsObj->GetProperty("default");
+        classValue = esmodule ? LoadJsModule(fileName) : LoadJsBundle(fileName);
         if (classValue == nullptr) {
-            HILOG_ERROR("Failed to get default objcect: %{public}s", modulePath.c_str());
             return std::unique_ptr<NativeReference>();
         }
 

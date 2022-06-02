@@ -876,6 +876,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (isStageBased) {
         // Create runtime
         AbilityRuntime::Runtime::Options options;
+        options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;

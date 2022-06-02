@@ -84,7 +84,8 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     HandleScope handleScope(jsRuntime_);
     auto &engine = jsRuntime_.GetNativeEngine();
 
-    jsAbilityObj_ = jsRuntime_.LoadModule(moduleName, srcPath);
+    jsAbilityObj_ =
+        jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(jsAbilityObj_->Get());
     if (obj == nullptr) {
