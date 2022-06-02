@@ -391,10 +391,16 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "applicationContext is nullptr"));
                 return;
             }
-            callback->UnRegister(callbackId);
-            if (callback->IsEmpty()) {
-                applicationContext->UnregisterAbilityLifecycleCallback(callback);
+
+            if (callback != nullptr) {
+                callback->UnRegister(callbackId);
+                if (callback->IsEmpty()) {
+                    applicationContext->UnregisterAbilityLifecycleCallback(callback);
+                }
+            } else {
+                HILOG_INFO("nothing is registered.");
             }
+
             task.Resolve(engine, engine.CreateUndefined());
         };
     NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
