@@ -22,10 +22,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-class BgTaskObserver : public BackgroundTaskMgr::BackgroundTaskSubscriber {
+class BackgroundTaskObserver : public BackgroundTaskMgr::BackgroundTaskSubscriber {
 public:
-    BgTaskObserver();
-    virtual ~BgTaskObserver();
+    BackgroundTaskObserver();
+    virtual ~BackgroundTaskObserver();
     std::list<int> GetBgTaskUids();
 
 private:

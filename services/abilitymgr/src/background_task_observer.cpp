@@ -17,9 +17,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-BgTaskObserver::BgTaskObserver(){}
+BgTaskObserver::BgTaskObserver()
+{}
 
-BgTaskObserver::~BgTaskObserver(){}
+BgTaskObserver::~BgTaskObserver()
+{}
 
 void BgTaskObserver::OnContinuousTaskStart(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)

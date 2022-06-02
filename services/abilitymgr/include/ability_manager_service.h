@@ -1063,7 +1063,7 @@ private:
 
     static sptr<AbilityManagerService> instance_;
 
-    std::shared_ptr<AmsBgTaskObserver> bgtaskObserver_;
+    std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
