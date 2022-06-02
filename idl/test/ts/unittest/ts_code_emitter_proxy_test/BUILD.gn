@@ -20,7 +20,7 @@ config("idl_unittest_test_config") {
     "../../common",
     "${IDL_DIR}/",
     "${IDL_DIR}/codegen/",
-    "//utils/native/base/include/",
+    "//third_party/bounds_checking_function/include/",
   ]
 }
 
@@ -87,9 +87,9 @@ ohos_unittest("ts_code_emitter_proxy_test") {
   sources += idl_common_sources
 
   deps = [
+    "//third_party/bounds_checking_function:libsec_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utilsecurec",
   ]
 }
 

@@ -19,7 +19,7 @@ config("idl_unittest_test_config") {
   include_dirs = [
     "../../common",
     "${IDL_DIR}/",
-    "//utils/native/base/include/",
+    "//third_party/bounds_checking_function/include/",
   ]
 }
 
@@ -82,7 +82,7 @@ ohos_unittest("ts_code_emitter_stub_test") {
   configs = [ ":idl_unittest_test_config" ]
   sources = [ "ts_code_emitter_stub_test.cpp" ]
   sources += common_sources
-  deps = [ "//utils/native/base:utilsecurec" ]
+  deps = [ "//third_party/bounds_checking_function:libsec_static" ]
 }
 
 group("unittest") {
