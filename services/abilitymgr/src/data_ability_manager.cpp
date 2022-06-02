@@ -486,6 +486,7 @@ DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
         if (it != dataAbilityRecordsLoading_.end()) {
             dataAbilityRecordsLoading_.erase(it);
         }
+        DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(dataAbilityRecord->GetToken());
         return nullptr;
     }
 
