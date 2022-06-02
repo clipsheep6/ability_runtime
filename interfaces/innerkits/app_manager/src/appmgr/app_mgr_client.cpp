@@ -139,7 +139,7 @@ AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, con
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
-AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag)
+AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {

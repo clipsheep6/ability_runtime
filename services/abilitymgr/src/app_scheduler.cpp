@@ -89,7 +89,7 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     return ERR_OK;
 }
 
-int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag)
+int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Terminate ability.");

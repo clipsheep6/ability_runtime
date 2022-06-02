@@ -1247,12 +1247,12 @@ bool AbilityRecord::IsMinimizeFromUser() const
     return minimizeReason_;
 }
 
-void AbilityRecord::SetClearMissionFlag(int clearMissionFlag)
+void AbilityRecord::SetClearMissionFlag(bool clearMissionFlag)
 {
     clearMissionFlag_= clearMissionFlag;
 }
 
-int AbilityRecord::GetClearMissionFlag()
+bool AbilityRecord::IsClearMissionFlag()
 {
     return clearMissionFlag_;
 }

@@ -44,8 +44,6 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
-const int CLEAR_MISSION = 1;
-const int CLEAR_ALL_MISSION = 2;
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -1290,10 +1288,10 @@ int MissionListManager::ClearMission(int missionId)
         HILOG_ERROR("Mission id is launcher, can not clear.");
         return ERR_INVALID_VALUE;
     }
-    return ClearMissionLocked(missionId, mission, CLEAR_MISSION);
+    return ClearMissionLocked(missionId, mission);
 }
 
-int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission, int clearMissionFlag)
+int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission)
 {
     if (missionId != -1) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->DeleteMissionInfo(missionId);
@@ -1313,7 +1311,7 @@ int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Missio
     }
 
     abilityRecord->SetTerminatingState();
-    abilityRecord->SetClearMissionFlag(1);
+    abilityRecord->SetClearMissionFlag(true);
     auto ret = TerminateAbilityLocked(abilityRecord, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("clear mission error: %{public}d.", ret);
@@ -1364,7 +1362,7 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             foregroundAbilities.push_front(mission);
             continue;
         }
-        ClearMissionLocked(-1, mission, CLEAR_ALL_MISSION);
+        ClearMissionLocked(-1, mission);
     }
 }
 

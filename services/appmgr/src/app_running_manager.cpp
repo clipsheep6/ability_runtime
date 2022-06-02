@@ -31,8 +31,6 @@ namespace AppExecFwk {
 #ifndef OS_ACCOUNT_PART_ENABLED
 namespace {
 constexpr static int UID_TRANSFORM_DIVISOR = 200000;
-constexpr static int CLEAR_MISSION_FLAG = 1;
-constexpr static int CLEAR_ALL_MISSION_FLAG = 2;
 static void GetOsAccountIdFromUid(int uid, int &osAccountId)
 {
     osAccountId = uid / UID_TRANSFORM_DIVISOR;
@@ -368,7 +366,7 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
 }
 
-void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag,
+void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag,
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     if (!token) {
@@ -385,8 +383,8 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, int c
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
-        if (clearMissionFlag == CLEAR_MISSION_FLAG || clearMissionFlag == CLEAR_ALL_MISSION_FLAG) {
-            HILOG_INFO("The ability is the last, clearMissionFlag KillApplication");
+        if (clearMissionFlag) {
+            HILOG_INFO("The ability is the last, KillApplication");
             appMgrServiceInner->KillApplication(appRecord->GetBundleName());
         }
     }

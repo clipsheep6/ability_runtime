@@ -94,7 +94,7 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     HILOG_DEBUG("end");
 }
 
-void AmsMgrProxy::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag)
+void AmsMgrProxy::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     HILOG_DEBUG("start");
     MessageParcel data;
@@ -107,7 +107,7 @@ void AmsMgrProxy::TerminateAbility(const sptr<IRemoteObject> &token, int clearMi
         HILOG_ERROR("Failed to write token");
         return;
     }
-    if (!data.WriteInt8(clearMissionFlag)) {
+    if (!data.WriteBool(clearMissionFlag)) {
         HILOG_ERROR("Failed to write clearMissionFlag");
         return;
     }

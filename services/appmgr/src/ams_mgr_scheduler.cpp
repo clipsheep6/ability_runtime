@@ -92,7 +92,7 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
     amsHandler_->PostTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
 }
 
-void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, int clearMissionFlag)
+void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     if (!IsReady()) {
         return;

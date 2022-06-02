@@ -431,7 +431,7 @@ private:
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
-    int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission, int clearMissionFlag);
+    int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
