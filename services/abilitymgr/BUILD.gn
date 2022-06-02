@@ -48,7 +48,7 @@ config("abilityms_config") {
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
     "//foundation/resourceschedule/background_task_mgr/interfaces/innerkits/include",
-    "//foundation/resourceschedule/background_task_mgr/utils/bgtask_observer/include"
+    "//foundation/resourceschedule/background_task_mgr/utils/bgtask_observer/include",
   ]
 
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]

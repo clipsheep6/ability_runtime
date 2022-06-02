@@ -849,7 +849,7 @@ private:
     bool isDlp_ = false;
     bool minimizeReason_ = false;
 
-    boo clearMissionFlag_ = false;
+    bool clearMissionFlag_ = false;
 
     int32_t restartCount_ = -1;
     int32_t restratMax_ = -1;
