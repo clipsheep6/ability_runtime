@@ -245,8 +245,7 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startSystemTask, "StartSystemApplication");
 
     bgtaskObserver_ = std::make_shared<AmsBgTaskObserver>();
-    if (OHOS::BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_)
-        != OHOS::ERR_OK) {
+    if (ERR_OK != BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_)) {
         HILOG_ERROR("register bgtaskObserver fail");
     }
 

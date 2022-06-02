@@ -31,9 +31,6 @@
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "data_ability_manager.h"
-#include "foundation/resourceschedule/background_task_mgr/interfaces/innerkits/include/background_task_mgr_helper.h"
-#include "foundation/resourceschedule/background_task_mgr/interfaces/innerkits/include/background_task_subscriber.h"
-#include "foundation/resourceschedule/background_task_mgr/utils/bgtask_observer/include/bgtask_observer.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
@@ -782,31 +779,6 @@ public:
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
     std::list<int> GetBgTaskUids();
-
-    class AmsBgTaskObserver : public OHOS::BackgroundTaskMgr::BackgroundTaskSubscriber {
-    public:
-        void OnContinuousTaskStart(
-            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo)
-        {
-            HILOG_ERROR("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
-            bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
-        }
-
-        void OnContinuousTaskStop(
-            const std::shared_ptr<OHOS::BackgroundTaskMgr::ContinuousTaskCallbackInfo> &continuousTaskCallbackInfo)
-        {
-            HILOG_ERROR("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
-            bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
-        }
-
-        std::list<int> GetBgTaskUids()
-        {
-            return bgTaskUids_;
-        }
-    
-    private:
-        std::list<int> bgTaskUids_;
-    };
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
