@@ -927,6 +927,32 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
 
     /* PostTask to trigger start Ability from waiting queue */
     handler->PostTask(startWaittingAbilityTask, "startWaittingAbility", NEXTABILITY_TIMEOUT);
+    TerminatePreviousAbility(abilityRecord);
+}
+
+void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    auto teminatingAbilityRecord = abilityRecord->GetPreAbilityRecord();
+    if (!teminatingAbilityRecord) {
+        HILOG_INFO("%{public}s, teminatingAbilityRecord is nullptr.", __func__);
+        return;
+    }
+    abilityRecord->SetPreAbilityRecord(nullptr);
+    auto self(shared_from_this());
+    if (teminatingAbilityRecord->GetAbilityState() == AbilityState::FOREGROUND) {
+        auto task = [teminatingAbilityRecord, self] {
+            HILOG_INFO("%{public}s, teminatingAbilityRecord move to background.", __func__);
+            self->CompleteBackground(teminatingAbilityRecord);
+        };
+        teminatingAbilityRecord->BackgroundAbility(task);
+    }
+    if (teminatingAbilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
+        auto task = [teminatingAbilityRecord, self]() {
+            HILOG_INFO("%{public}s, To terminate teminatingAbilityRecord.", __func__);
+            self->CompleteTerminate(teminatingAbilityRecord);
+        };
+        teminatingAbilityRecord->Terminate(task);
+    }
 }
 
 int MissionListManager::DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1053,7 +1079,9 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
         if (abilityRecord->GetNextAbilityRecord()) {
-            abilityRecord->GetNextAbilityRecord()->ProcessForegroundAbility(nullptr);
+            auto nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
+            nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
+            nextAbilityRecord->ProcessForegroundAbility(nullptr);
         } else {
             MoveToBackgroundTask(abilityRecord);
         }
@@ -1531,6 +1559,7 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
 #endif
 
     HandleForgroundNewTimeout(abilityRecord);
+    TerminatePreviousAbility(abilityRecord);
 }
 
 void MissionListManager::HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &timeOutAbilityRecord)
