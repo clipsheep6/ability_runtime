@@ -539,6 +539,13 @@ private:
     ErrCode CheckPublishForm(Want &want);
 
     /**
+     * @brief Query the request host.
+     * @param want The want of the form to publish.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode QueryPublishFormToHost(Want &want);
+
+    /**
      * @brief Post request publish form to host.
      * @param want The want of the form to publish.
      * @return Returns ERR_OK on success, others on failure.

@@ -392,6 +392,15 @@ public:
     int32_t ClearHostDataByInvalidForms(int32_t callingUid, std::map<int64_t, bool> &removedFormsMap);
 
     /**
+     * @brief delete publish forms temp data
+     * @param userId User ID.
+     * @param bundleName BundleName.
+     * @param validFormIds The set of the valid forms.
+     * @return Returns -
+     */
+    void DeleteInvalidPublishForms(int32_t userId, std::string bundleName, std::set<int64_t> &validFormIds);
+
+    /**
      * @brief Create form state host record.
      * @param provider The provider of the form state
      * @param info The form item info.

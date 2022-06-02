@@ -1460,6 +1460,43 @@ int32_t FormDataMgr::DeleteInvalidTempForms(int32_t userId, int32_t callingUid, 
 }
 
 /**
+ * @brief delete publish forms temp data
+ * @param userId User ID.
+ * @param bundleName BundleName.
+ * @param validFormIds The set of the valid forms.
+ * @return Returns -
+ */
+void FormDataMgr::DeleteInvalidPublishForms(int32_t userId, std::string bundleName, std::set<int64_t> &validFormIds)
+{
+    HILOG_INFO("DeleteInvalidPublishForms start, userId = %{public}d, bundleName = %{public}s",
+        userId, bundleName.c_str());
+
+    int32_t deleteNum = 0;
+    for (auto iter = formRequestPublishForms_.begin(); iter != formRequestPublishForms_.end();) {
+        int64_t formId = iter->first;
+        // check valid form set
+        if (validFormIds.find(formId) != validFormIds.end()) {
+            ++iter;
+            continue;
+        }
+
+        Want want = iter->second.first;
+        if (bundleName != want.GetStringParam(Constants::PARAM_BUNDLE_NAME_KEY)) {
+            ++iter;
+            continue;
+        }
+        if (userId != want.GetIntParam(Constants::PARAM_FORM_USER_ID, -1)) {
+            ++iter;
+            continue;
+        }
+        ++deleteNum;
+        iter = formRequestPublishForms_.erase(iter);
+    }
+
+    HILOG_INFO("DeleteInvalidPublishForms done, delete num is %{public}d", deleteNum);
+}
+
+/**
  * @brief clear host data by invalid forms.
  * @param callingUid The UID of the proxy.
  * @param removedFormsMap The map of the removed invalid forms.

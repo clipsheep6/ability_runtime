@@ -15,6 +15,7 @@
 
 #include <cinttypes>
 #include <regex>
+#include <system_error>
 
 #include "ability_manager_errors.h"
 #include "appexecfwk_errors.h"
@@ -1384,7 +1385,7 @@ ErrCode FormMgrAdapter::CheckPublishForm(Want &want)
     return ERR_APPEXECFWK_FORM_INVALID_PARAM;
 }
 
-ErrCode FormMgrAdapter::RequestPublishFormToHost(Want &want)
+ErrCode FormMgrAdapter::QueryPublishFormToHost(Want &want)
 {
     sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
     /* Query the highest priority ability or extension ability for publishing form */
@@ -1405,6 +1406,26 @@ ErrCode FormMgrAdapter::RequestPublishFormToHost(Want &want)
         return ERR_APPEXECFWK_FORM_GET_HOST_FAILED;
     }
 
+    if (!abilityInfo.name.empty()) {
+        /* highest priority ability */
+        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
+            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
+        want.SetParam(Constants::PARAM_BUNDLE_NAME_KEY, abilityInfo.bundleName);
+        want.SetParam(Constants::PARAM_ABILITY_NAME_KEY, abilityInfo.name);
+    } else {
+        /* highest priority extension ability */
+        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
+            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
+        want.SetParam(Constants::PARAM_BUNDLE_NAME_KEY, extensionAbilityInfo.bundleName);
+        want.SetParam(Constants::PARAM_ABILITY_NAME_KEY, extensionAbilityInfo.name);
+    }
+    want.SetParam(Constants::PARAM_FORM_USER_ID, userId);
+
+    return ERR_OK;
+}
+
+ErrCode FormMgrAdapter::RequestPublishFormToHost(Want &want)
+{
     Want wantToHost;
     ElementName elementName = want.GetElement();
     wantToHost.SetParam(Constants::PARAM_BUNDLE_NAME_KEY, elementName.GetBundleName());
@@ -1419,18 +1440,10 @@ ErrCode FormMgrAdapter::RequestPublishFormToHost(Want &want)
     wantToHost.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
     bool tempFormFlag = want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
     wantToHost.SetParam(Constants::PARAM_FORM_TEMPORARY_KEY, tempFormFlag);
-
-    if (!abilityInfo.name.empty()) {
-        /* highest priority ability */
-        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
-            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
-        wantToHost.SetElementName(abilityInfo.bundleName, abilityInfo.name);
-    } else {
-        /* highest priority extension ability */
-        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
-            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
-        wantToHost.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
-    }
+    std::string bundleName = want.GetStringParam(Constants::PARAM_BUNDLE_NAME_KEY);
+    std::string abilityName = want.GetStringParam(Constants::PARAM_ABILITY_NAME_KEY);
+    wantToHost.SetElementName(bundleName, abilityName);
+    int32_t userId = want.GetIntParam(Constants::PARAM_FORM_USER_ID, -1);
 
     return FormAmsHelper::GetInstance().GetAbilityManager()->StartAbility(wantToHost, userId, DEFAULT_INVAL_VALUE);
 }
@@ -1440,6 +1453,11 @@ ErrCode FormMgrAdapter::RequestPublishForm(Want &want, bool withFormBindingData,
 {
     HILOG_INFO("%{public}s called.", __func__);
     ErrCode errCode = CheckPublishForm(want);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+
+    errCode = QueryPublishFormToHost(want);
     if (errCode != ERR_OK) {
         return errCode;
     }
@@ -2130,6 +2148,12 @@ int FormMgrAdapter::DeleteInvalidForms(const std::vector<int64_t> &formIds, cons
                 FormTimerMgr::GetInstance().RemoveFormTimer(removedForm.first);
             }
         }
+    }
+
+    std::string bundleName;
+    if (GetBundleName(bundleName)) {
+        // delete invalid publish form data
+        FormDataMgr::GetInstance().DeleteInvalidPublishForms(userId, bundleName, matchedFormIds);
     }
 
     numFormsDeleted = (int32_t) removedFormsMap.size();
