@@ -12,8 +12,9 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/aafwk/standard/aafwk.gni")
-import("//foundation/aafwk/standard/services/abilitymgr/abilitymgr.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
+import(
+    "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
 
 ohos_source_set("abilityms_test_source") {
   cflags_cc = []

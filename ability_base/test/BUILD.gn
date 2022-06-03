@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/aafwk/standard/ability_base/ability_base.gni")
+import("//foundation/ability/ability_runtime/ability_base/ability_base.gni")
 
 base_output_path = "aafwk/base_test"
 

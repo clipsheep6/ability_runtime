@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/idl/idl.gni")
+import("//foundation/ability/ability_runtime/idl/idl.gni")
 
 config("ipc_test_config") {
   include_dirs = [

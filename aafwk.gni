@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-aafwk_path = "//foundation/aafwk/standard"
+aafwk_path = "//foundation/ability/ability_runtime"
 aafwk_napi_path = "${aafwk_path}/interfaces/kits/napi/aafwk"
 ability_base_path = "${aafwk_path}/ability_base"
 form_runtime_path = "${aafwk_path}/form_runtime"

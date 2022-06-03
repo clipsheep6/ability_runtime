@@ -57,7 +57,7 @@
 
 ```
 foundation/
-└──foundation/aafwk/standard
+└──foundation/ability/ability_runtime
    ├── frameworks
    │   └── kits
    │       └── ability				# AbilityKit实现的核心代码

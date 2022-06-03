@@ -5,7 +5,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/aafwk/standard/form_runtime"
+        "destPath": "foundation/ability/ability_runtime/form_runtime"
     },
     "dirs": {},
     "scripts": {},
@@ -45,16 +45,16 @@
         },
         "build": {
             "sub_component": [
-              "//foundation/aafwk/standard/form_runtime/sa_profile:form_sa_profile",
-              "//foundation/aafwk/standard/form_runtime:fms_services_target",
-              "//foundation/aafwk/standard/form_runtime:fms_innerkits_target",
-              "//foundation/aafwk/standard/form_runtime:fmskit_native",
-              "//foundation/aafwk/standard/form_runtime:form_napi_packages"
+              "//foundation/ability/ability_runtime/form_runtime/sa_profile:form_sa_profile",
+              "//foundation/ability/ability_runtime/form_runtime:fms_services_target",
+              "//foundation/ability/ability_runtime/form_runtime:fms_innerkits_target",
+              "//foundation/ability/ability_runtime/form_runtime:fmskit_native",
+              "//foundation/ability/ability_runtime/form_runtime:form_napi_packages"
             ],
             "inner_kits": [
               {
                 "header": {
-                  "header_base": "//foundation/aafwk/standard/form_runtime/interfaces/inner_api/include",
+                  "header_base": "//foundation/ability/ability_runtime/form_runtime/interfaces/inner_api/include",
                   "header_files": [
                     "form_death_callback.h",
                     "form_host_interface.h",
@@ -72,22 +72,22 @@
                     "form_js_info.h"
                   ]
                 },
-                "name": "//foundation/aafwk/standard/form_runtime:form_manager"
+                "name": "//foundation/ability/ability_runtime/form_runtime:form_manager"
               },
               {
                 "header": {
-                  "header_base": "//foundation/aafwk/standard/form_runtime/interfaces/kits/native/include",
+                  "header_base": "//foundation/ability/ability_runtime/form_runtime/interfaces/kits/native/include",
                   "header_files": [
                     "form_callback_interface.h",
                     "form_host_client.h",
                     "form_mgr.h"
                   ]
                 },
-                "name": "//foundation/aafwk/standard/form_runtime:fmskit_native"
+                "name": "//foundation/ability/ability_runtime/form_runtime:fmskit_native"
               }
           ],
           "test": [
-              "//foundation/aafwk/standard/form_runtime/test:unittest"
+              "//foundation/ability/ability_runtime/form_runtime/test:unittest"
           ]
         }
     }

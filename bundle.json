@@ -5,7 +5,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/aafwk/standard"
+        "destPath": "foundation/ability/ability_runtime"
     },
     "dirs": {},
     "scripts": {},
@@ -23,7 +23,7 @@
         "rom": "",
         "ram": "",
         "hisysevent_config":[
-          "//foundation/aafwk/standard/hisysevent.yaml"
+          "//foundation/ability/ability_runtime/hisysevent.yaml"
         ],
         "deps": {
           "components": [
@@ -55,21 +55,21 @@
         },
         "build": {
           "sub_component": [
-            "//foundation/aafwk/standard/services:ams_services_target",
-            "//foundation/aafwk/standard/interfaces/innerkits:innerkits_target",
-            "//foundation/aafwk/standard/frameworks/kits/ability/native:static_subscriber_ipc",
-            "//foundation/aafwk/standard/frameworks/kits/ability/native:service_extension_module",
-            "//foundation/aafwk/standard/sa_profile:aafwk_sa_profile",
-            "//foundation/aafwk/standard/interfaces/kits/napi:napi_packages",
-            "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime:ability_context_native",
-            "//foundation/aafwk/standard/frameworks/kits/appkit:app_context",
-            "//foundation/aafwk/standard/frameworks/kits/appkit:appkit_native",
-            "//foundation/aafwk/standard/frameworks/kits/wantagent:wantagent_innerkits"
+            "//foundation/ability/ability_runtime/services:ams_services_target",
+            "//foundation/ability/ability_runtime/interfaces/innerkits:innerkits_target",
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/native:static_subscriber_ipc",
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/native:service_extension_module",
+            "//foundation/ability/ability_runtime/sa_profile:aafwk_sa_profile",
+            "//foundation/ability/ability_runtime/interfaces/kits/napi:napi_packages",
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime:ability_context_native",
+            "//foundation/ability/ability_runtime/frameworks/kits/appkit:app_context",
+            "//foundation/ability/ability_runtime/frameworks/kits/appkit:appkit_native",
+            "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
           ],
           "inner_kits": [
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/interfaces/innerkits/wantagent/include/",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/wantagent/include/",
                 "header_files": [
                   "cancel_listener.h",
                   "completed_callback.h",
@@ -83,11 +83,11 @@
                   "want_agent.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/frameworks/kits/wantagent:wantagent_innerkits"
+              "name": "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/interfaces/innerkits/ability_manager/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager/include",
                 "header_files": [
                   "ability_connect_callback_interface.h",
                   "ability_connect_callback_stub.h",
@@ -99,39 +99,39 @@
                   "stop_user_callback_stub.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/interfaces/innerkits/ability_manager:ability_manager"
+              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager:ability_manager"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime/include",
+                "header_base": "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/include",
                 "header_files": [
                   "ability_context.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime:ability_context_native"
+              "name": "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime:ability_context_native"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/interfaces/innerkits/runtime/include/",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/runtime/include/",
                 "header_files": [
                   "js_runtime.h",
                   "runtime.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/interfaces/innerkits/runtime:runtime"
+              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/runtime:runtime"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/interfaces/innerkits/napi_base_context/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/napi_base_context/include",
                 "header_files": [
                   "napi_base_context.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/interfaces/innerkits/napi_base_context:napi_base_context"
+              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/napi_base_context:napi_base_context"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/interfaces/innerkits/app_manager/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/app_manager/include",
                 "header_files": [
                   "appmgr/app_mgr_client.h",
                   "appmgr/iapp_state_callback.h",
@@ -140,11 +140,11 @@
                   "appmgr/app_process_data.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/interfaces/innerkits/app_manager:app_manager"
+              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/app_manager:app_manager"
             },
             {
               "header": {
-                "header_base": "//foundation/aafwk/standard/frameworks/kits/ability/native/include/",
+                "header_base": "//foundation/ability/ability_runtime/frameworks/kits/ability/native/include/",
                 "header_files": [
                   "extension.h",
                   "extension_base.h",
@@ -152,24 +152,24 @@
                   "extension_module_loader.h"
                 ]
               },
-              "name": "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native"
+              "name": "//foundation/ability/ability_runtime/frameworks/kits/ability/native:abilitykit_native"
             }
           ],
           "test": [
-            "//foundation/aafwk/standard/frameworks/kits/ability/native/test:unittest",
-            "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime/test/moduletest:moduletest",
-            "//foundation/aafwk/standard/frameworks/kits/ability/ability_runtime/test/unittest:unittest",
-            "//foundation/aafwk/standard/frameworks/kits/test:moduletest",
-            "//foundation/aafwk/standard/services/test:moduletest",
-            "//foundation/aafwk/standard/services/abilitymgr/test:unittest",
-	          "//foundation/aafwk/standard/services/dataobsmgr/test:unittest",
-	          "//foundation/aafwk/standard/services/appmgr/test:unittest",
-            "//foundation/aafwk/standard/frameworks/kits/appkit/native/test:unittest",
-            "//foundation/aafwk/standard/frameworks/kits/appkit/native/test:moduletest",
-            "//foundation/aafwk/standard/frameworks/kits/appkit/test:moduletest",
-            "//foundation/aafwk/standard/frameworks/kits/wantagent/test/:unittest",
-            "//foundation/aafwk/standard/test/benchmarktest:benchmarktest",
-            "//foundation/aafwk/standard/test/fuzztest:fuzztest"
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/native/test:unittest",
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/moduletest:moduletest",
+            "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/unittest:unittest",
+            "//foundation/ability/ability_runtime/frameworks/kits/test:moduletest",
+            "//foundation/ability/ability_runtime/services/test:moduletest",
+            "//foundation/ability/ability_runtime/services/abilitymgr/test:unittest",
+	          "//foundation/ability/ability_runtime/services/dataobsmgr/test:unittest",
+	          "//foundation/ability/ability_runtime/services/appmgr/test:unittest",
+            "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/test:unittest",
+            "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/test:moduletest",
+            "//foundation/ability/ability_runtime/frameworks/kits/appkit/test:moduletest",
+            "//foundation/ability/ability_runtime/frameworks/kits/wantagent/test/:unittest",
+            "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
+            "//foundation/ability/ability_runtime/test/fuzztest:fuzztest"
           ]
         }
     }

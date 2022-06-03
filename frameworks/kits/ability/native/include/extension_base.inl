@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
-#include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/application_context.h"
+#include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
+#include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/application_context.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

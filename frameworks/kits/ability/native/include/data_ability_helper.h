@@ -21,7 +21,7 @@
 #include <string>
 
 #include "context.h"
-#include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
+#include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 #include "uri.h"
 
 using Uri = OHOS::Uri;

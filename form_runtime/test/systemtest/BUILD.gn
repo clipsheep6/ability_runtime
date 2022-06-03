@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/aafwk/standard/form_runtime/form_runtime.gni")
+import("//foundation/ability/ability_runtime/form_runtime/form_runtime.gni")
 
 config("form_manager_test_config") {
   defines = [

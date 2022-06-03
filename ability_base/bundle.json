@@ -5,7 +5,7 @@
     "license": "Apache License 2.0",
     "publishAs": "code-segment",
     "segment": {
-        "destPath": "foundation/aafwk/standard/ability_base"
+        "destPath": "foundation/ability/ability_runtime/ability_base"
     },
     "dirs": {},
     "scripts": {},
@@ -32,12 +32,12 @@
         },
         "build": {
             "sub_component": [
-                "//foundation/aafwk/standard/ability_base:base_innerkits_target"
+                "//foundation/ability/ability_runtime/ability_base:base_innerkits_target"
             ],
             "inner_kits": [
                 {
                     "header": {
-                      "header_base": "//foundation/aafwk/standard/ability_base/interfaces/inner_api/base/include/",
+                      "header_base": "//foundation/ability/ability_runtime/ability_base/interfaces/inner_api/base/include/",
                       "header_files": [
                         "base_def.h",
                         "base_interfaces.h",
@@ -54,11 +54,11 @@
                         "string_wrapper.h"
                       ]
                     },
-                    "name": "//foundation/aafwk/standard/ability_base:base"
+                    "name": "//foundation/ability/ability_runtime/ability_base:base"
                 },
                 {
                     "header": {
-                      "header_base": "//foundation/aafwk/standard/ability_base/interfaces/inner_api/want/include/",
+                      "header_base": "//foundation/ability/ability_runtime/ability_base/interfaces/inner_api/want/include/",
                       "header_files": [
                         "element_name.h",
                         "want.h",
@@ -70,30 +70,30 @@
                         "pac_map.h"
                       ]
                     },
-                    "name": "//foundation/aafwk/standard/ability_base:want"
+                    "name": "//foundation/ability/ability_runtime/ability_base:want"
                 },
                 {
                     "header": {
-                      "header_base": "//foundation/aafwk/standard/ability_base/interfaces/inner_api/configuration/include",
+                      "header_base": "//foundation/ability/ability_runtime/ability_base/interfaces/inner_api/configuration/include",
                       "header_files": [
                         "configuration.h",
                         "global_configuration_key.h"
                       ]
                     },
-                    "name": "//foundation/aafwk/standard/ability_base:configuration"
+                    "name": "//foundation/ability/ability_runtime/ability_base:configuration"
                 },
                 {
                   "header": {
-                    "header_base": "//foundation/aafwk/standard/ability_base/interfaces/inner_api/uri/include",
+                    "header_base": "//foundation/ability/ability_runtime/ability_base/interfaces/inner_api/uri/include",
                     "header_files": [
                       "uri.h"
                     ]
                   },
-                  "name": "//foundation/aafwk/standard/ability_base:zuri"
+                  "name": "//foundation/ability/ability_runtime/ability_base:zuri"
                 }
             ],
             "test": [
-              "//foundation/aafwk/standard/ability_base/test:unittest"
+              "//foundation/ability/ability_runtime/ability_base/test:unittest"
             ]
         }
     }

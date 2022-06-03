@@ -16,8 +16,8 @@
 #ifndef ABILITY_RUNTIME_ABILITY_CONTEXT_H
 #define ABILITY_RUNTIME_ABILITY_CONTEXT_H
 
-#include "foundation/aafwk/standard/frameworks/kits/ability/native/include/iability_callback.h"
-#include "foundation/aafwk/standard/frameworks/kits/appkit/native/ability_runtime/context/context.h"
+#include "foundation/ability/ability_runtime/frameworks/kits/ability/native/include/iability_callback.h"
+#include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 
 #include "ability_connect_callback.h"
 #include "ability_info.h"
