@@ -121,7 +121,7 @@ HWTEST_F(FmsFormDbRecordTest, FmsFormDbRecordTest_006, TestSize.Level0) // GetAl
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 bundleName:" << record.bundleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 moduleName:" << record.moduleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 abilityName:" << record.abilityName;
-    for (unsigned int j = 0; j < record.formUserUids.size(); j++){
+    for (unsigned int j = 0; j < record.formUserUids.size(); j++) {
         GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 formUserUids:" << record.formUserUids[j];
     }
 
@@ -132,7 +132,7 @@ HWTEST_F(FmsFormDbRecordTest, FmsFormDbRecordTest_006, TestSize.Level0) // GetAl
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 bundleName:" << record.bundleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 moduleName:" << record.moduleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 abilityName:" << record.abilityName;
-    for (unsigned int j = 0; j < record.formUserUids.size(); j++){
+    for (unsigned int j = 0; j < record.formUserUids.size(); j++) {
         GTEST_LOG_(INFO) << "FmsFormDbRecordTest_006 formUserUids:" << record.formUserUids[j];
     }
     FormDbCache::GetInstance().DeleteFormInfo(0);
@@ -156,7 +156,7 @@ HWTEST_F(FmsFormDbRecordTest, FmsFormDbRecordTest_007, TestSize.Level0) // GetAl
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 bundleName:" << record.bundleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 moduleName:" << record.moduleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 abilityName:" << record.abilityName;
-    for (unsigned int j = 0; j < record.formUserUids.size(); j++){
+    for (unsigned int j = 0; j < record.formUserUids.size(); j++) {
         GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 formUserUids:" << record.formUserUids[j];
     }
 
@@ -167,7 +167,7 @@ HWTEST_F(FmsFormDbRecordTest, FmsFormDbRecordTest_007, TestSize.Level0) // GetAl
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 bundleName:" << record.bundleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 moduleName:" << record.moduleName;
     GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 abilityName:" << record.abilityName;
-    for (unsigned int j = 0; j < record.formUserUids.size(); j++){
+    for (unsigned int j = 0; j < record.formUserUids.size(); j++) {
         GTEST_LOG_(INFO) << "FmsFormDbRecordTest_007 formUserUids:" << record.formUserUids[j];
     }
     FormDbCache::GetInstance().DeleteFormInfo(0);

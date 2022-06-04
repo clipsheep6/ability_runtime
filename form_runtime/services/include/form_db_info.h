@@ -174,7 +174,7 @@ public:
      * @brief Destructor
      *
      */
-    virtual ~InnerFormInfo(){};
+    virtual ~InnerFormInfo() {};
     /**
      * @brief overloaded == for Indicates the formInfo by formId
      * @return Returns true if the data equal; returns false otherwise.

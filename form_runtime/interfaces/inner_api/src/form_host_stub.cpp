@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
+#include "form_host_stub.h"
+
 #include "appexecfwk_errors.h"
 #include "app_scheduler_interface.h"
 #include "errors.h"
-#include "form_host_stub.h"
 #include "form_mgr_errors.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"

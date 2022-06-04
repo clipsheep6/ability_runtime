@@ -30,10 +30,10 @@
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
-const std::string FORM_HOST_BUNDLE_NAME = "com.form.provider.service";
-const std::string FORM_PROVIDER_ABILITY_NAME = "com.form.provider.app.test.abiliy";
-const std::string PARAM_PROVIDER_MODULE_NAME = "com.form.provider.app.test.abiliy";
-const std::string FORM_NAME = "formName";
+static const std::string FORM_HOST_BUNDLE_NAME = "com.form.provider.service";
+static const std::string FORM_PROVIDER_ABILITY_NAME = "com.form.provider.app.test.abiliy";
+static const std::string PARAM_PROVIDER_MODULE_NAME = "com.form.provider.app.test.abiliy";
+static const std::string FORM_NAME = "formName";
 
 namespace {
 class FmsFormDataMgrTest : public testing::Test {

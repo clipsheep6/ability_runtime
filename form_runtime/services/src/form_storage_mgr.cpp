@@ -16,10 +16,10 @@
 #include "form_storage_mgr.h"
 
 #include <cinttypes>
+#include <cstdio>
 #include <dirent.h>
 #include <fstream>
 #include <iomanip>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

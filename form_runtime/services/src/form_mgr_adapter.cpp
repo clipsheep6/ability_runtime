@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_mgr_adapter.h"
+
 #include <cinttypes>
 #include <regex>
 #include <system_error>
@@ -34,7 +36,6 @@
 #include "form_dump_mgr.h"
 #include "form_event_notify_connection.h"
 #include "form_info_mgr.h"
-#include "form_mgr_adapter.h"
 #include "form_mgr_errors.h"
 #include "form_provider_info.h"
 #include "form_provider_interface.h"
@@ -647,7 +648,7 @@ int FormMgrAdapter::DumpStorageFormInfos(std::string &formInfos) const
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
     if (formDBInfos.size() > 0) {
         std::sort(formDBInfos.begin(), formDBInfos.end(),
-        [] (FormDBInfo &formDBInfoA, FormDBInfo &formDBInfoB) -> bool {
+            [] (FormDBInfo &formDBInfoA, FormDBInfo &formDBInfoB) -> bool {
             return formDBInfoA.formId < formDBInfoB.formId;
         });
         FormDumpMgr::GetInstance().DumpStorageFormInfos(formDBInfos, formInfos);

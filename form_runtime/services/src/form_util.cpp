@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_util.h"
+
 #include <chrono>
 #include <cinttypes>
 #include <ctime>
@@ -21,7 +23,6 @@
 
 #include "bundle_constants.h"
 #include "form_constants.h"
-#include "form_util.h"
 #include "hilog_wrapper.h"
 #ifdef OS_ACCOUNT_PART_ENABLED
 #include "ohos_account_kits.h"

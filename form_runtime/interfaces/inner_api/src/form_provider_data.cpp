@@ -105,7 +105,7 @@ std::string FormProviderData::GetDataString() const
  */
 void FormProviderData::AddImageData(std::string picName, char *data, int32_t size)
 {
-    if ((picName.length() == 0) || (sizeof(data) == 0)) {
+    if ((picName.length() == 0) || (!data)) {
         HILOG_ERROR("input param is NULL!");
         return;
     }
@@ -308,7 +308,8 @@ bool FormProviderData::ReadFromParcel(Parcel &parcel)
 bool FormProviderData::Marshalling(Parcel &parcel) const
 {
     HILOG_INFO("%{public}s called, jsonFormProviderData_: %{public}s", __func__, jsonFormProviderData_.dump().c_str());
-    if (!parcel.WriteString16(Str8ToStr16(jsonFormProviderData_.empty() ? JSON_EMPTY_STRING : jsonFormProviderData_.dump()))) {
+    if (!parcel.WriteString16(Str8ToStr16(jsonFormProviderData_.empty() ?
+        JSON_EMPTY_STRING : jsonFormProviderData_.dump()))) {
         return false;
     }
 

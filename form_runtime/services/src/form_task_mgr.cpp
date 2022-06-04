@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_task_mgr.h"
+
 #include <cinttypes>
 
 #include "form_constants.h"
@@ -22,7 +24,6 @@
 #include "form_mgr_adapter.h"
 #include "form_provider_interface.h"
 #include "form_supply_callback.h"
-#include "form_task_mgr.h"
 #include "form_util.h"
 #include "hilog_wrapper.h"
 

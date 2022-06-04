@@ -24,8 +24,8 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 
-const int64_t PARAM_FORM_ID_FIRST = 1001;
-const int64_t PARAM_FORM_ID_SECOND = 1002;
+static const int64_t PARAM_FORM_ID_FIRST = 1001;
+static const int64_t PARAM_FORM_ID_SECOND = 1002;
 
 namespace {
 class FmsFormCacheMgrTest : public testing::Test {

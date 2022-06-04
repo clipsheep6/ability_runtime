@@ -22,13 +22,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-#define DECLARE_DELAYED_IPCSINGLETON(MyClass) \
-public:                                       \
-    (~MyClass)();                             \
-                                              \
-private:                                      \
-    friend DelayedIPCSingleton<MyClass>;      \
-    MyClass();
+#define DECLARE_DELAYED_IPCSINGLETON(MyClass)    \
+    do {                                         \
+        public:                                  \
+            (~MyClass)();                        \
+                                                 \
+        private:                                 \
+            friend DelayedIPCSingleton<MyClass>; \
+            MyClass();                           \
+    } while (0)
 
 template<typename T>
 class DelayedIPCSingleton : public NoCopyable {

@@ -20,8 +20,8 @@ namespace OHOS {
 namespace AppExecFwk {
 const std::string LINE_SEPARATOR = "\n";
 
-FormDumpMgr::FormDumpMgr(){}
-FormDumpMgr::~FormDumpMgr(){}
+FormDumpMgr::FormDumpMgr() {}
+FormDumpMgr::~FormDumpMgr() {}
 /**
  * @brief Dump all of form storage infos.
  * @param storageInfos Form storage infos
