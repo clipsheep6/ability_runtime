@@ -45,7 +45,7 @@
 
 ![PageAbility-Lifecycel-Callbacks](figures/page-ability-lifecycle-callbacks.png)
 
-
+注意：这个图有误，从BACKGROUND回INITIAL，需要调用onStop()
 
 **ServiceAbility类型Ability生命周期回调如下图所示:**
 
