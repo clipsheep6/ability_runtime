@@ -466,6 +466,8 @@ private:
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId);
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    bool GetBundleAndHapInfo(const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &appInfo,
+        AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
