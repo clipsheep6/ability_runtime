@@ -78,6 +78,10 @@ private:
     int32_t HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachRenderProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRenderProcessTerminationStatus(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetConfiguration(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUpdateConfiguration(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterConfigurationObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterConfigurationObserver(MessageParcel &data, MessageParcel &reply);
 #ifdef ABILITY_COMMAND_FOR_TEST
     int32_t HandleBlockAppServiceDone(MessageParcel &data, MessageParcel &reply);
 #endif

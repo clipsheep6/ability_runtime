@@ -1025,14 +1025,14 @@ const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
     return SpecifiedWant_;
 }
 
-void AppRunningRecord::UpdateConfiguration(const Configuration &config)
+int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
     HILOG_INFO("call %{public}s", __func__);
     if (!appLifeCycleDeal_) {
         HILOG_INFO("appLifeCycleDeal_ is null");
-        return;
+        return ERR_INVALID_VALUE;
     }
-    appLifeCycleDeal_->UpdateConfiguration(config);
+    return appLifeCycleDeal_->UpdateConfiguration(config);
 }
 
 void AppRunningRecord::SetRenderRecord(const std::shared_ptr<RenderRecord> &record)

@@ -60,7 +60,6 @@ private:
     int NotifyChangeInner(MessageParcel &data, MessageParcel &reply);
     int NormalizeUriInner(MessageParcel &data, MessageParcel &reply);
     int DenormalizeUriInner(MessageParcel &data, MessageParcel &reply);
-    int UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply);
     int ExecuteBatchInner(MessageParcel &data, MessageParcel &reply);
     int NotifyContinuationResultInner(MessageParcel &data, MessageParcel &reply);
     int DumpAbilityInfoInner(MessageParcel& data, MessageParcel& reply);

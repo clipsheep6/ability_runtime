@@ -465,18 +465,20 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
     appRecord->ScheduleProcessSecurityExit();
 }
 
-void AppRunningManager::UpdateConfiguration(const Configuration &config)
+int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
     HILOG_INFO("call %{public}s", __func__);
     std::lock_guard<std::recursive_mutex> guard(lock_);
     HILOG_INFO("current app size %{public}d", static_cast<int>(appRunningRecordMap_.size()));
+    int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord) {
             HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
-            appRecord->UpdateConfiguration(config);
+            result = appRecord->UpdateConfiguration(config);
         }
     }
+    return result;
 }
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRenderPid(const pid_t pid)

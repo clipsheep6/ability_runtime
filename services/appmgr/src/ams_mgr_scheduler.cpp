@@ -251,40 +251,5 @@ void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpe
     auto task = [=]() { amsMgrServiceInner_->RegisterStartSpecifiedAbilityResponse(response); };
     amsHandler_->PostTask(task);
 }
-
-void AmsMgrScheduler::UpdateConfiguration(const Configuration &config)
-{
-    HILOG_INFO("AmsMgrScheduler UpdateConfiguration begin");
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-            AAFwk::PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
-        if (!isCallingPerm) {
-            HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-            return;
-        }
-    }
-
-    if (!IsReady()) {
-        return;
-    }
-    auto task = [=]() { amsMgrServiceInner_->UpdateConfiguration(config); };
-    amsHandler_->PostTask(task);
-    HILOG_INFO("AmsMgrScheduler UpdateConfiguration end");
-}
-
-int AmsMgrScheduler::GetConfiguration(Configuration& config)
-{
-    HILOG_INFO("AmsMgrScheduler GetConfiguration begin");
-    if (!IsReady()) {
-        return ERR_INVALID_OPERATION;
-    }
-    if (!amsMgrServiceInner_->GetConfiguration()) {
-        return ERR_INVALID_OPERATION;
-    }
-    config = *(amsMgrServiceInner_->GetConfiguration());
-    HILOG_INFO("AmsMgrScheduler GetConfiguration end");
-    return ERR_OK;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -138,11 +138,6 @@ public:
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif
 
-    int UpdateConfiguration(const AppExecFwk::Configuration &config)
-    {
-        return 0;
-    }
-
     sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) override
     {

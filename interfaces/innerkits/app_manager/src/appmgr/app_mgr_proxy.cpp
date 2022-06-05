@@ -666,6 +666,116 @@ int AppMgrProxy::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
     return 0;
 }
 
+int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
+{
+    HILOG_INFO("AppMgrProxy UpdateConfiguration");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteParcelable(&config)) {
+        HILOG_ERROR("parcel config failed");
+        return ERR_INVALID_DATA;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_INVALID_DATA;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::UPDATE_CONFIGURATION), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::GetConfiguration(Configuration &config)
+{
+    HILOG_INFO("AppMgrProxy GetConfiguration");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("parcel data failed");
+        return ERR_INVALID_DATA;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_INVALID_DATA;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_CONFIGURATION), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    std::unique_ptr<Configuration> info(reply.ReadParcelable<Configuration>());
+    if (!info) {
+        HILOG_ERROR("read configuration failed.");
+        return ERR_UNKNOWN_OBJECT;
+    }
+    config = *info;
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
+{
+    if (!observer) {
+        HILOG_ERROR("observer null");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_DEBUG("RegisterConfigurationObserver start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::REGISTER_CONFIGURATION_OBSERVER),
+        data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
+{
+    HILOG_DEBUG("UnregisterConfigurationObserver start");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    auto error = Remote()->SendRequest(static_cast<uint32_t>(IAppMgr::Message::UNREGISTER_CONFIGURATION_OBSERVER),
+        data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrProxy::BlockAppService()
 {

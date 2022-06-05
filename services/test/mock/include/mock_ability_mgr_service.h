@@ -60,7 +60,6 @@ public:
     MOCK_METHOD1(KillProcess, int(const std::string &));
     MOCK_METHOD2(UninstallApp, int(const std::string &, int32_t));
     MOCK_METHOD4(OnRemoteRequest, int(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option));
-    MOCK_METHOD1(UpdateConfiguration, int(const AppExecFwk::Configuration &));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));

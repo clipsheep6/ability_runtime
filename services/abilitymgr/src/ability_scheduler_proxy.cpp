@@ -170,24 +170,6 @@ void AbilitySchedulerProxy::ScheduleRestoreAbilityState(const PacMap &inState)
     }
 }
 
-void AbilitySchedulerProxy::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-    if (!data.WriteParcelable(&config)) {
-        HILOG_ERROR("fail to WriteParcelable");
-        return;
-    }
-    int32_t err = Remote()->SendRequest(IAbilityScheduler::SCHEDULE_UPDATE_CONFIGURATION, data, reply, option);
-    if (err != NO_ERROR) {
-        HILOG_ERROR("ScheduleRestoreAbilityState fail to SendRequest. err: %{public}d", err);
-    }
-}
-
 /**
  * @brief Obtains the MIME types of files supported.
  *

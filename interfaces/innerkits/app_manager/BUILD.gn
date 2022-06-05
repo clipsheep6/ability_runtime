@@ -58,6 +58,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/app_task_info.cpp",
     "src/appmgr/application_state_observer_proxy.cpp",
     "src/appmgr/application_state_observer_stub.cpp",
+    "src/appmgr/configuration_observer_proxy.cpp",
+    "src/appmgr/configuration_observer_stub.cpp",
     "src/appmgr/priority_object.cpp",
     "src/appmgr/process_data.cpp",
     "src/appmgr/process_info.cpp",

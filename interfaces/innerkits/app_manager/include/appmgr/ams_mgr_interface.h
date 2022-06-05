@@ -149,16 +149,6 @@ public:
     virtual void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) = 0;
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
-	
-	 /**
-     *  ANotify application update system environment changes.
-     *
-     * @param config System environment change parameters.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual void UpdateConfiguration(const Configuration &config) = 0;
-
-    virtual int GetConfiguration(Configuration &config) = 0;
 
     enum class Message {
         LOAD_ABILITY = 0,

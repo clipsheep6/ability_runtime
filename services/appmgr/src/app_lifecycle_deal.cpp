@@ -141,14 +141,15 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
     appThread_->ScheduleAcceptWant(want, moduleName);
 }
 
-void AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
+int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
     HILOG_INFO("call %{public}s", __func__);
     if (!appThread_) {
         HILOG_INFO("appThread_ is null");
-        return;
+        return ERR_INVALID_VALUE;
     }
     appThread_->ScheduleConfigurationUpdated(config);
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

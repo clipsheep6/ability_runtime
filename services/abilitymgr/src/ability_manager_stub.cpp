@@ -93,7 +93,6 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[UNREGISTER_CANCEL_LISTENER] = &AbilityManagerStub::UnregisterCancelListenerInner;
     requestFuncMap_[GET_PENDING_REQUEST_WANT] = &AbilityManagerStub::GetPendingRequestWantInner;
     requestFuncMap_[GET_PENDING_WANT_SENDER_INFO] = &AbilityManagerStub::GetPendingRequestWantInner;
-    requestFuncMap_[UPDATE_CONFIGURATION] = &AbilityManagerStub::UpdateConfigurationInner;
     requestFuncMap_[GET_SYSTEM_MEMORY_ATTR] = &AbilityManagerStub::GetSystemMemoryAttrInner;
     requestFuncMap_[GET_APP_MEMORY_SIZE] = &AbilityManagerStub::GetAppMemorySizeInner;
     requestFuncMap_[IS_RAM_CONSTRAINED_DEVICE] = &AbilityManagerStub::IsRamConstrainedDeviceInner;
@@ -568,21 +567,6 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<AppExecFwk::Configuration> config(data.ReadParcelable<AppExecFwk::Configuration>());
-    if (config == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: config is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    int result = UpdateConfiguration(*config);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("AbilityManagerStub: update configuration failed.");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 

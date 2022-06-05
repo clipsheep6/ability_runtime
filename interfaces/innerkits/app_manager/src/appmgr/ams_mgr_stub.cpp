@@ -61,10 +61,6 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleStartSpecifiedAbility;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
         &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::UPDATE_CONFIGURATION)] =
-        &AmsMgrStub::HandleUpdateConfiguration;
-    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION)] =
-        &AmsMgrStub::HandleGetConfiguration;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -289,31 +285,6 @@ int32_t AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &d
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     sptr<IStartSpecifiedAbilityResponse> response = iface_cast<IStartSpecifiedAbilityResponse>(obj);
     RegisterStartSpecifiedAbilityResponse(response);
-    return NO_ERROR;
-}
-
-int32_t AmsMgrStub::HandleUpdateConfiguration(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Configuration> config(data.ReadParcelable<Configuration>());
-    if (config) {
-        UpdateConfiguration(*config);
-        return NO_ERROR;
-    }
-    return UNKNOWN_ERROR;
-}
-
-int32_t AmsMgrStub::HandleGetConfiguration(MessageParcel &data, MessageParcel &reply)
-{
-    Configuration config;
-    int ret = GetConfiguration(config);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("GetConfiguration error");
-        return ERR_INVALID_VALUE;
-    }
-    if (!reply.WriteParcelable(&config)) {
-        HILOG_ERROR("GetConfiguration error");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

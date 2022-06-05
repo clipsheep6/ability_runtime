@@ -347,8 +347,6 @@ public:
      */
     ErrCode ClearUpApplicationData(const std::string &bundleName);
 
-    int UpdateConfiguration(const AppExecFwk::Configuration &config);
-
     sptr<IWantSender> GetWantSender(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken);
 
     ErrCode SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo);

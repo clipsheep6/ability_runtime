@@ -53,6 +53,10 @@ public:
         int32_t sharedFd, pid_t &renderPid));
     MOCK_METHOD1(AttachRenderProcess, void(const sptr<IRemoteObject> &renderScheduler));
     MOCK_METHOD2(GetRenderProcessTerminationStatus, int(pid_t renderPid, int &status));
+    MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
+    MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration &config));
+    MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
+    MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
     
     void AttachApplication(const sptr<IRemoteObject> &app)
     {

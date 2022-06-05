@@ -136,11 +136,6 @@ public:
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
 
-    int UpdateConfiguration(const AppExecFwk::Configuration &config)
-    {
-        return 0;
-    }
-
     sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) override
     {

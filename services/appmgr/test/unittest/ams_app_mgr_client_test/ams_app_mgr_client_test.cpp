@@ -71,35 +71,6 @@ void AmsAppMgrClientTest::TearDown()
 {}
 
 /**
- * @tc.name: AppMgrClient_GetConfiguration_0100
- * @tc.desc: GetConfiguration
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AmsAppMgrClientTest, AppMgrClient_GetConfiguration_0100, TestSize.Level1)
-{
-    HILOG_INFO("AppMgrClient_GetConfiguration_0100 start");
-
-    EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
-
-    sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
-    EXPECT_CALL(*(static_cast<MockAmsMgrScheduler *>(amsMgrScheduler.GetRefPtr())), GetConfiguration(_)).Times(1);
-
-    EXPECT_CALL(*(static_cast<MockAppMgrService *>((iface_cast<IAppMgr>(client_->GetRemoteObject())).GetRefPtr())),
-        GetAmsMgr())
-        .Times(1)
-        .WillOnce(Return(amsMgrScheduler));
-
-    Configuration config;
-    auto result = client_->GetConfiguration(config);
-    HILOG_INFO("result = %{public}d", result);
-
-    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-
-    HILOG_INFO("AppMgrClient_GetConfiguration_0100 end");
-}
-
-/**
  * @tc.name: AppMgrClient_GetProcessRunningInfosByUserId_0100
  * @tc.desc: GetProcessRunningInfosByUserId
  * @tc.type: FUNC
@@ -474,33 +445,6 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_015, TestSize.Level1)
         .Times(1)
         .WillOnce(Return(ERR_OK));
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ClearUpApplicationData("com.test"));
-}
-
-/*
- * Feature: AppMgrService
- * Function: AppMgrClient::UpdateConfiguration
- * SubFunction: RegisterAppStateCallback Function
- * FunctionPoints: AppMgrClient UpdateConfiguration interface
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Notify app of configuration change
- */
-HWTEST_F(AmsAppMgrClientTest, AppMgrClient_016, TestSize.Level1)
-{
-    HILOG_INFO("UpdateConfiguration start");
-    EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
-    sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
-
-    EXPECT_CALL(*(static_cast<MockAmsMgrScheduler *>(amsMgrScheduler.GetRefPtr())), UpdateConfiguration(_))
-        .Times(1);
-
-    EXPECT_CALL(*(static_cast<MockAppMgrService *>((iface_cast<IAppMgr>(client_->GetRemoteObject())).GetRefPtr())),
-        GetAmsMgr())
-        .Times(1)
-        .WillOnce(Return(amsMgrScheduler));
-
-    Configuration config;
-    EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->UpdateConfiguration(config));
-    HILOG_INFO("UpdateConfiguration end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

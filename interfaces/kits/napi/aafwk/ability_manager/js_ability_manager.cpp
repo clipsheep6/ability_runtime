@@ -18,6 +18,7 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "app_mgr_interface.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
@@ -34,6 +35,14 @@ namespace OHOS {
 namespace AbilityRuntime {
 using AbilityManagerClient = AAFwk::AbilityManagerClient;
 namespace {
+OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
+{
+    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    OHOS::sptr<OHOS::IRemoteObject> appObject = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+    return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
+}
+
 class JsAbilityManager final {
 public:
     JsAbilityManager() = default;
@@ -146,7 +155,7 @@ private:
             }
 
             complete = [changeConfig](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                auto errcode = AbilityManagerClient::GetInstance()->UpdateConfiguration(changeConfig);
+                auto errcode = GetAppManagerInstance()->UpdateConfiguration(changeConfig);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {

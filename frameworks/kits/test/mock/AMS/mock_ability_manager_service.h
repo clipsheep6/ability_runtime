@@ -136,11 +136,6 @@ public:
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif
 
-    int UpdateConfiguration(const AppExecFwk::Configuration &config)
-    {
-        return 0;
-    }
-
     virtual int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;

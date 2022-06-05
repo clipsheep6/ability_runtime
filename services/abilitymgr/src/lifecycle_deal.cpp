@@ -118,14 +118,6 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
     abilityScheduler->ScheduleRestoreAbilityState(inState);
 }
 
-void LifecycleDeal::UpdateConfiguration(const AppExecFwk::Configuration &config)
-{
-    HILOG_INFO("%{public}s, %{public}d", __func__, __LINE__);
-    auto abilityScheduler = GetScheduler();
-    CHECK_POINTER(abilityScheduler);
-    abilityScheduler->ScheduleUpdateConfiguration(config);
-}
-
 void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo)
 {
     HILOG_INFO("ForegroundNew.");

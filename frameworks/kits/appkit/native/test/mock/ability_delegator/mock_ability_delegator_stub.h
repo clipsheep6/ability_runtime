@@ -84,7 +84,6 @@ public:
     MOCK_METHOD1(LockMission, int(int));
     MOCK_METHOD1(UnlockMission, int(int));
     MOCK_METHOD0(GetMissionLockModeState, int());
-    MOCK_METHOD1(UpdateConfiguration, int(const AppExecFwk::Configuration &));
     MOCK_METHOD2(
         ChangeFocusAbility, int(const sptr<IRemoteObject> &lostFocusToken, const sptr<IRemoteObject> &getFocusToken));
     MOCK_METHOD1(MinimizeMultiWindow, int(int missionId));
@@ -221,7 +220,6 @@ public:
     MOCK_METHOD1(LockMission, int(int));
     MOCK_METHOD1(UnlockMission, int(int));
     MOCK_METHOD0(GetMissionLockModeState, int());
-    MOCK_METHOD1(UpdateConfiguration, int(const AppExecFwk::Configuration &));
     MOCK_METHOD2(
         ChangeFocusAbility, int(const sptr<IRemoteObject> &lostFocusToken, const sptr<IRemoteObject> &getFocusToken));
     MOCK_METHOD1(MinimizeMultiWindow, int(int missionId));

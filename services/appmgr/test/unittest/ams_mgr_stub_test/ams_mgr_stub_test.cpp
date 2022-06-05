@@ -58,30 +58,5 @@ void AmsMgrStubTest::WriteInterfaceToken(MessageParcel &data)
 
     data.WriteInterfaceToken(AmsMgrStub::GetDescriptor());
 }
-
-/**
- * @tc.name: AmsMgrStub_GetConfiguration_0100
- * @tc.desc: GetConfiguration
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AmsMgrStubTest, AmsMgrStub_GetConfiguration_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AmsMgrStub_GetConfiguration_0100 start";
-
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    WriteInterfaceToken(data);
-
-    EXPECT_CALL(*mockAmsMgrScheduler_, GetConfiguration(_)).Times(1);
-
-    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
-        static_cast<uint32_t>(IAmsMgr::Message::GET_CONFIGURATION), data, reply, option);
-    EXPECT_EQ(result, NO_ERROR);
-
-    GTEST_LOG_(INFO) << "AmsMgrStub_GetConfiguration_0100 end";
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

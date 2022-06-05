@@ -431,14 +431,6 @@ public:
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
 
     /**
-     * Updates the configuration by modifying the configuration.
-     *
-     * @param config Indicates the new configuration
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int UpdateConfiguration(const AppExecFwk::Configuration &config) override;
-
-    /**
      * remove all service record.
      *
      */

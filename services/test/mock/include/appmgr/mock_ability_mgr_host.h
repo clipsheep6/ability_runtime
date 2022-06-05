@@ -131,11 +131,6 @@ public:
         return 0;
     }
 
-    int UpdateConfiguration(const Configuration &config) override
-    {
-        return 0;
-    }
-
     virtual sptr<AAFwk::IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) override
     {

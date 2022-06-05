@@ -60,9 +60,6 @@ void AbilityScheduler::ScheduleSaveAbilityState()
 void AbilityScheduler::ScheduleRestoreAbilityState(const PacMap &inState)
 {}
 
-void AbilityScheduler::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
-{}
-
 std::vector<std::string> AbilityScheduler::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
     std::vector<std::string> values;

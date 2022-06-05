@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include <regex>
+#include <unordered_map>
 
 #include "iremote_object.h"
 #include "refbase.h"
@@ -35,6 +36,7 @@
 #include "app_task_info.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
+#include "iconfiguration_observer.h"
 #include "app_process_manager.h"
 #include "remote_client_manager.h"
 #include "app_running_manager.h"
@@ -426,10 +428,16 @@ public:
      * UpdateConfiguration, ANotify application update system environment changes.
      *
      * @param config, System environment change parameters.
+     * @return Returns ERR_OK on success, others on failure.
      */
-    void UpdateConfiguration(const Configuration &config);
+    int32_t UpdateConfiguration(const Configuration &config);
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
+
+    int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer);
+
+    int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver>& observer);
+
     /**
      * Start empty process
      */
@@ -736,6 +744,8 @@ private:
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
+    std::recursive_mutex confiurtaionObserverLock_;
+    std::vector<sptr<IConfigurationObserver>> confiurtaionObservers_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -18,9 +18,11 @@
 #include "app_mgr_client.h"
 #include "configuration.h"
 #include "hilog_wrapper.h"
+#include "mock_configuration_observer.h"
 
 using namespace testing;
 using namespace testing::ext;
+using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -94,6 +96,71 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetConfiguration_0100, TestSize.Level1)
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
     HILOG_INFO("AppMgrClient_GetConfiguration_0100 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterConfigurationObserver_0100
+ * @tc.desc: RegisterConfigurationObserver
+ * @tc.type: FUNC
+ * @tc.require: SR000GVI12
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0100, TestSize.Level1)
+{
+    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0100 start");
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<MockConfigurationObserver> observer = new MockConfigurationObserver();
+    result = appMgrClient->RegisterConfigurationObserver(observer);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sleep(1);
+    Configuration configuration;
+    configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "ZH-HANS");
+    appMgrClient->UpdateConfiguration(configuration);
+
+    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0100 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterConfigurationObserver_0100
+ * @tc.desc: UnregisterConfigurationObserver
+ * @tc.type: FUNC
+ * @tc.require: SR000GVI12
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0100, TestSize.Level1)
+{
+    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0100 start");
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sptr<MockConfigurationObserver> observer = new MockConfigurationObserver();
+    result = appMgrClient->RegisterConfigurationObserver(observer);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sleep(1);
+    Configuration configuration;
+    configuration.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "ZH-HANS");
+    appMgrClient->UpdateConfiguration(configuration);
+
+    sleep(1);
+    result = appMgrClient->UnregisterConfigurationObserver(observer);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    sleep(1);
+    Configuration configurationOther;
+    configurationOther.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en_US");
+    appMgrClient->UpdateConfiguration(configurationOther);
+
+    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0100 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

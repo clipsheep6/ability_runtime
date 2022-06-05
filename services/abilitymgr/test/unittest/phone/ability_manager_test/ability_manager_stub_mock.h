@@ -62,7 +62,6 @@ public:
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject> &token));
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode));
-    MOCK_METHOD1(UpdateConfiguration, int(const AppExecFwk::Configuration &));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken));
     MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender> &target, const SenderInfo &senderInfo));

@@ -29,6 +29,7 @@
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
+#include "iconfiguration_observer.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -200,6 +201,10 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual AppMgrResultCode UpdateConfiguration(const Configuration &config);
+
+    virtual AppMgrResultCode RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer);
+
+    virtual AppMgrResultCode UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**

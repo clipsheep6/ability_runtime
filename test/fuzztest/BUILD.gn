@@ -27,7 +27,6 @@ group("fuzztest") {
     "appmanager_fuzzer:fuzztest",
     "startcontinuation_fuzzer:fuzztest",
     "stopserviceability_fuzzer:fuzztest",
-    "updateconfiguration_fuzzer:fuzztest",
     "uripermissionmanager_fuzzer:fuzztest",
     "wantagenthelperstring_fuzzer:fuzztest",
     "wantagenthelpertrigger_fuzzer:fuzztest",

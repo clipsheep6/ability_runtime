@@ -27,7 +27,6 @@ class DataAbilityPredicates;
 class ValuesBucket;
 }  // namespace NativeRdb
 namespace AppExecFwk {
-class Configuration;
 }  // namespace AppExecFwk
 namespace AAFwk {
 /**
@@ -85,8 +84,6 @@ public:
      * ScheduleRestoreAbilityState, scheduling restore ability state.
      */
     void ScheduleRestoreAbilityState(const PacMap &inState) override;
-
-    void ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config) override;
 
     /**
      * @brief Obtains the MIME types of files supported.

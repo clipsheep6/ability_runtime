@@ -17,7 +17,6 @@
 #define OHOS_AAFWK_ABILITY_SCHEDULER_INTERFACE_H
 
 #include <iremote_broker.h>
-#include "configuration.h"
 #include "lifecycle_state_info.h"
 #include "pac_map.h"
 #include "want.h"
@@ -34,8 +33,6 @@ class DataAbilityOperation;
 }
 namespace AAFwk {
 using OHOS::AppExecFwk::PacMap;
-using OHOS::AppExecFwk::Configuration;
-
 class IDataAbilityObserver;
 
 /**
@@ -89,11 +86,6 @@ public:
      * ScheduleRestoreAbilityState, scheduling restore ability state.
      */
     virtual void ScheduleRestoreAbilityState(const PacMap &inState) = 0;
-
-    /*
-     * ScheduleUpdateConfiguration, scheduling update configuration.
-     */
-    virtual void ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
 
     /**
      * @brief Obtains the MIME types of files supported.
@@ -348,9 +340,6 @@ public:
 
         // ipc id for dataAbilityObServer change
         SCHEDULE_NOTIFYCHANGE,
-
-        // ipc id for scheduling update configuration
-        SCHEDULE_UPDATE_CONFIGURATION,
 
         // ipc id for scheduling NormalizeUri
         SCHEDULE_NORMALIZEURI,

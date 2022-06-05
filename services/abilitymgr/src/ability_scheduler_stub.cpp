@@ -54,7 +54,6 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_NOTIFYCHANGE] = &AbilitySchedulerStub::NotifyChangeInner;
     requestFuncMap_[SCHEDULE_NORMALIZEURI] = &AbilitySchedulerStub::NormalizeUriInner;
     requestFuncMap_[SCHEDULE_DENORMALIZEURI] = &AbilitySchedulerStub::DenormalizeUriInner;
-    requestFuncMap_[SCHEDULE_UPDATE_CONFIGURATION] = &AbilitySchedulerStub::UpdateConfigurationInner;
     requestFuncMap_[SCHEDULE_EXECUTEBATCH] = &AbilitySchedulerStub::ExecuteBatchInner;
     requestFuncMap_[NOTIFY_CONTINUATION_RESULT] = &AbilitySchedulerStub::NotifyContinuationResultInner;
     requestFuncMap_[REQUEST_CALL_REMOTE] = &AbilitySchedulerStub::CallRequestInner;
@@ -526,17 +525,6 @@ int AbilitySchedulerStub::DenormalizeUriInner(MessageParcel &data, MessageParcel
         HILOG_ERROR("fail to WriteParcelable type");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilitySchedulerStub::UpdateConfigurationInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::shared_ptr<AppExecFwk::Configuration> globalConfiguration(data.ReadParcelable<AppExecFwk::Configuration>());
-    if (globalConfiguration == nullptr) {
-        HILOG_ERROR("AbilitySchedulerStub globalConfiguration is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    ScheduleUpdateConfiguration(*globalConfiguration);
     return NO_ERROR;
 }
 

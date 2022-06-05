@@ -25,7 +25,6 @@
 #include "ability_running_info.h"
 #include "ability_scheduler_interface.h"
 #include "ability_start_setting.h"
-#include "configuration.h"
 #include "extension_running_info.h"
 #include "iability_controller.h"
 #include "mission_listener_interface.h"
@@ -383,14 +382,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) = 0;
-
-    /**
-     * Updates the configuration by modifying the configuration.
-     *
-     * @param config Indicates the new configuration
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
 
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) = 0;
@@ -766,9 +757,6 @@ public:
 
         // ipc id for get mission lock mode state (36)
         GET_MISSION_LOCK_MODE_STATE,
-
-        // ipc id for update configuration (37)
-        UPDATE_CONFIGURATION,
 
         // ipc id for minimize ability (38)
         MINIMIZE_ABILITY,

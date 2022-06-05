@@ -31,10 +31,6 @@ public:
     {}
 
     virtual ~MockAbilityMgrProxy() = default;
-    virtual int UpdateConfiguration(const Configuration &config) override
-    {
-        return 0;
-    }
     virtual int StartAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;
@@ -331,10 +327,6 @@ public:
         sem_.Post();
     }
 
-    virtual int UpdateConfiguration(const Configuration &config) override
-    {
-        return 0;
-    }
     virtual int StartAbility(const AAFwk::Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;

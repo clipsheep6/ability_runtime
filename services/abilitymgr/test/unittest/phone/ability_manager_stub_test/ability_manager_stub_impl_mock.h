@@ -201,11 +201,6 @@ public:
         return 0;
     }
 
-    int UpdateConfiguration(const AppExecFwk::Configuration &config)
-    {
-        return 0;
-    }
-
     virtual int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;

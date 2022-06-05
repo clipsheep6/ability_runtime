@@ -54,7 +54,6 @@ public:
     void CommandAbility(const Want &want, bool reStart, int startId);
     void SaveAbilityState();
     void RestoreAbilityState(const PacMap &inState);
-    void UpdateConfiguration(const AppExecFwk::Configuration &config);
     void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo);
     void BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo);
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);

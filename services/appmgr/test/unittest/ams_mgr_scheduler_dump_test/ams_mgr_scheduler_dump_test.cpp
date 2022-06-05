@@ -25,10 +25,6 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace {
-const int DISPLAY_ID = 1024;
-}  // namespace
-
 class AmsMgrSchedulerDumpTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -48,39 +44,5 @@ void AmsMgrSchedulerDumpTest::SetUp()
 
 void AmsMgrSchedulerDumpTest::TearDown()
 {}
-
-/**
- * @tc.name: AmsMgrSchedulerDump_GetConfiguration_0100
- * @tc.desc: GetConfiguration
- * @tc.type: FUNC
- * @tc.require: SR000GH1GO
- */
-HWTEST_F(AmsMgrSchedulerDumpTest, AmsMgrSchedulerDump_GetConfiguration_0100, TestSize.Level0)
-{
-    HILOG_INFO("AmsMgrSchedulerDump_GetConfiguration_0100 start");
-
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    auto config = std::make_shared<Configuration>();
-    config->defaultDisplayId_ = DISPLAY_ID;
-    appMgrServiceInner->configuration_ = config;
-
-    auto amsEventHandler =
-        std::make_shared<AMSEventHandler>(EventRunner::Create("AmsMgrSchedulerDumpTest"), appMgrServiceInner);
-    EXPECT_NE(amsEventHandler, nullptr);
-
-    std::unique_ptr<AmsMgrScheduler> amsMgrScheduler =
-        std::make_unique<AmsMgrScheduler>(appMgrServiceInner, amsEventHandler);
-    EXPECT_NE(amsMgrScheduler, nullptr);
-    EXPECT_EQ(amsMgrScheduler->IsReady(), true);
-
-    Configuration configFromAmsMgrScheduler;
-    auto result = amsMgrScheduler->GetConfiguration(configFromAmsMgrScheduler);
-    EXPECT_EQ(result, ERR_OK);
-    EXPECT_EQ(configFromAmsMgrScheduler.defaultDisplayId_, config->defaultDisplayId_);
-
-    HILOG_INFO("AmsMgrSchedulerDump_GetConfiguration_0100 end");
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

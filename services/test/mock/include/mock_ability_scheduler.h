@@ -33,7 +33,6 @@ public:
     MOCK_METHOD0(AsObject, sptr<IRemoteObject>());
     MOCK_METHOD0(ScheduleSaveAbilityState, void());
     MOCK_METHOD1(ScheduleRestoreAbilityState, void(const PacMap &inState));
-    MOCK_METHOD1(ScheduleUpdateConfiguration, void(const AppExecFwk::Configuration &config));
     MOCK_METHOD1(ScheduleNewWant, void(const Want &want));
     MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver));
     MOCK_METHOD2(

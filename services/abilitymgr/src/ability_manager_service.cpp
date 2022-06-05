@@ -1199,12 +1199,6 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
     return missionListManager->MinimizeAbility(token, fromUser);
 }
 
-int AbilityManagerService::UpdateConfiguration(const AppExecFwk::Configuration &config)
-{
-    HILOG_INFO("%{public}s called", __func__);
-    return DelayedSingleton<AppScheduler>::GetInstance()->UpdateConfiguration(config);
-}
-
 int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {

@@ -433,9 +433,9 @@ public:
     *  Notify application update system environment changes.
     *
     * @param config System environment change parameters.
-    * @return
+    * @return Returns ERR_OK on success, others on failure.
     */
-    void UpdateConfiguration(const Configuration &config);
+    int32_t UpdateConfiguration(const Configuration &config);
 
     void SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler);
 

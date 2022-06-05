@@ -332,13 +332,6 @@ ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleNa
     return abms->ClearUpApplicationData(bundleName);
 }
 
-ErrCode AbilityManagerClient::UpdateConfiguration(const AppExecFwk::Configuration &config)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->UpdateConfiguration(config);
-}
-
 sptr<IWantSender> AbilityManagerClient::GetWantSender(
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
