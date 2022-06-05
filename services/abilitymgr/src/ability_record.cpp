@@ -345,8 +345,14 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
             }
         }
         if (schedulerDeathRecipient_ == nullptr) {
+            std::weak_ptr<AbilityRecord> thisWeakPtr(shared_from_this());
             schedulerDeathRecipient_ =
-                new AbilitySchedulerRecipient(std::bind(&AbilityRecord::OnSchedulerDied, this, std::placeholders::_1));
+                new AbilitySchedulerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                    auto abilityRecord = thisWeakPtr.lock();
+                    if (abilityRecord) {
+                        abilityRecord->OnSchedulerDied(remote);
+                    }
+                });
         }
         isReady_ = true;
         scheduler_ = scheduler;

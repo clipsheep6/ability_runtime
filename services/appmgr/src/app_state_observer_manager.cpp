@@ -258,8 +258,14 @@ void AppStateObserverManager::AddObserverDeathRecipient(const sptr<IApplicationS
         HILOG_ERROR("This death recipient has been added.");
         return;
     } else {
-        sptr<IRemoteObject::DeathRecipient> deathRecipient = new ApplicationStateObserverRecipient(
-            std::bind(&AppStateObserverManager::OnObserverDied, this, std::placeholders::_1));
+        std::weak_ptr<AppStateObserverManager> thisWeakPtr(shared_from_this());
+        sptr<IRemoteObject::DeathRecipient> deathRecipient =
+            new ApplicationStateObserverRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                auto appStateObserverManager = thisWeakPtr.lock();
+                if (appStateObserverManager) {
+                    appStateObserverManager->OnObserverDied(remote);
+                }
+            });
         observer->AsObject()->AddDeathRecipient(deathRecipient);
         recipientMap_.emplace(observer->AsObject(), deathRecipient);
     }
