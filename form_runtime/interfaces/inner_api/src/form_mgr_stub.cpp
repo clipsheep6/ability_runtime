@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
+#include "form_mgr_stub.h"
+
 #include "appexecfwk_errors.h"
 #include "form_info.h"
 #include "form_mgr_errors.h"
-#include "form_mgr_stub.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"

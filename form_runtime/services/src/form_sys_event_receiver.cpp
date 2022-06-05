@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_sys_event_receiver.h"
+
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
@@ -27,7 +29,6 @@
 #include "form_db_info.h"
 #include "form_info_mgr.h"
 #include "form_provider_mgr.h"
-#include "form_sys_event_receiver.h"
 #include "form_timer_mgr.h"
 #include "form_util.h"
 #include "hilog_wrapper.h"
@@ -335,8 +336,7 @@ void FormSysEventReceiver::BatchDeleteNoHostDBForms(const int uid, std::map<Form
         int result = FormProviderMgr::GetInstance().NotifyProviderFormsBatchDelete(bundleName, abilityName, formIds);
         if (result != ERR_OK) {
             HILOG_ERROR("%{public}s error, NotifyProviderFormsBatchDelete failed! bundleName:%{public}s,\
-            abilityName:%{public}s",
-                __func__, bundleName.c_str(), abilityName.c_str());
+                abilityName:%{public}s", __func__, bundleName.c_str(), abilityName.c_str());
             for (int64_t formId : formIds) {
                 FormDBInfo dbInfo;
                 int errCode = FormDbCache::GetInstance().GetDBRecord(formId, dbInfo);
@@ -384,8 +384,7 @@ void FormSysEventReceiver::BatchDeleteNoHostTempForms(const int uid, std::map<Fo
         int result = FormProviderMgr::GetInstance().NotifyProviderFormsBatchDelete(bundleName, abilityName, formIds);
         if (result != ERR_OK) {
             HILOG_ERROR("%{public}s error, NotifyProviderFormsBatchDelete failed! bundleName:%{public}s,\
-            abilityName:%{public}s",
-                __func__, bundleName.c_str(), abilityName.c_str());
+                abilityName:%{public}s", __func__, bundleName.c_str(), abilityName.c_str());
             for (int64_t formId : formIds) {
                 FormDataMgr::GetInstance().AddFormUserUid(formId, uid);
             }

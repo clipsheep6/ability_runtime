@@ -137,7 +137,7 @@ HWTEST_F(FmsFormMgrDeleteFormTest, DeleteForm_001, TestSize.Level0)
     FormRecord formInfo;
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
     EXPECT_TRUE(ret);
-    size_t dataCnt{1};
+    size_t dataCnt {1};
     EXPECT_EQ(dataCnt, formInfo.formUserUids.size());
     // Database is not deleted yet.
     std::vector<FormDBInfo> formDBInfos;
@@ -192,7 +192,7 @@ HWTEST_F(FmsFormMgrDeleteFormTest, DeleteForm_002, TestSize.Level0)
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
     EXPECT_FALSE(ret);
     // Database is deleted.
-    size_t dataCnt{0};
+    size_t dataCnt {0};
     std::vector<FormDBInfo> formDBInfos;
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
     EXPECT_EQ(dataCnt, formDBInfos.size());
@@ -291,7 +291,7 @@ HWTEST_F(FmsFormMgrDeleteFormTest, DeleteForm_007, TestSize.Level0)
     FormRecord formInfo;
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
     EXPECT_TRUE(ret);
-    size_t dataCnt{1};
+    size_t dataCnt {1};
     EXPECT_EQ(dataCnt, formInfo.formUserUids.size());
     // Database is not deleted yet.
     std::vector<FormDBInfo> formDBInfos;
@@ -344,7 +344,7 @@ HWTEST_F(FmsFormMgrDeleteFormTest, DeleteForm_008, TestSize.Level0)
     FormRecord formInfo;
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
     EXPECT_TRUE(ret);
-    size_t dataCnt{1};
+    size_t dataCnt {1};
     EXPECT_EQ(dataCnt, formInfo.formUserUids.size());
     // Database is not deleted yet.
     std::vector<FormDBInfo> formDBInfos;

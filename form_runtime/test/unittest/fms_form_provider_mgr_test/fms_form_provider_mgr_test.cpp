@@ -110,7 +110,8 @@ HWTEST_F(FmsFormProviderMgrTest, AcquireForm_001, TestSize.Level0)
     GTEST_LOG_(INFO) << "fms_form_mgr_provider_test_001 start";
     int64_t formId = 0x114514aa00000000;
     FormProviderInfo formProviderInfo;
-    EXPECT_EQ(ERR_APPEXECFWK_FORM_INVALID_PARAM, FormProviderMgr::GetInstance().AcquireForm(-114514L, formProviderInfo));
+    EXPECT_EQ(ERR_APPEXECFWK_FORM_INVALID_PARAM,
+        FormProviderMgr::GetInstance().AcquireForm(-114514L, formProviderInfo));
     int callingUid {0};
     FormItemInfo record;
     record.SetFormId(formId);

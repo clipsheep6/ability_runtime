@@ -13,12 +13,13 @@
  * limitations under the License.
  */
 
+#include "form_db_cache.h"
+
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
 #include "form_bms_helper.h"
 #include "form_data_mgr.h"
-#include "form_db_cache.h"
 #include "form_db_info.h"
 #include "form_mgr_errors.h"
 #include "form_provider_mgr.h"
@@ -145,7 +146,7 @@ ErrCode FormDbCache::DeleteFormInfoByBundleName(const std::string &bundleName, c
 {
     std::lock_guard<std::mutex> lock(formDBInfosMutex_);
     std::vector<FormDBInfo>::iterator itRecord;
-    for (itRecord = formDBInfos_.begin(); itRecord != formDBInfos_.end(); ) {
+    for (itRecord = formDBInfos_.begin(); itRecord != formDBInfos_.end();) {
         if ((bundleName == itRecord->bundleName) && (userId == itRecord->userId)) {
             int64_t formId = itRecord->formId;
             if (dataStorage_->DeleteStorageFormInfo(std::to_string(formId)) == ERR_OK) {

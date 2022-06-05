@@ -28,7 +28,7 @@ using namespace OHOS::AAFwk;
 using namespace OHOS::AppExecFwk;
 
 namespace {
-const int32_t NUM_THREADS = 4;
+static const int32_t NUM_THREADS = 4;
 
 class FormManagerTest : public benchmark::Fixture {
 public:

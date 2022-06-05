@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_provider_mgr.h"
+
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
@@ -24,7 +26,6 @@
 #include "form_delete_connection.h"
 #include "form_mgr_errors.h"
 #include "form_msg_event_connection.h"
-#include "form_provider_mgr.h"
 #include "form_record.h"
 #include "form_refresh_connection.h"
 #include "form_timer_mgr.h"
@@ -34,8 +35,8 @@
 #endif
 namespace OHOS {
 namespace AppExecFwk {
-FormProviderMgr::FormProviderMgr(){}
-FormProviderMgr::~FormProviderMgr(){}
+FormProviderMgr::FormProviderMgr() {}
+FormProviderMgr::~FormProviderMgr() {}
 /**
  * @brief handle for acquire back from ams.
  * @param formId The id of the form.

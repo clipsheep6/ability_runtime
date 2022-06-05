@@ -1205,13 +1205,14 @@ bool PacMap::ToJson(const PacMapList &mapList, Json::Value &dataObject) const
         isOK = false;
         if (IPacMap::Query(it->second.GetRefPtr()) != nullptr) {
             PacMap *pacmap = static_cast<PacMap *>(IPacMap::Query(it->second.GetRefPtr()));
-            if (pacmap != nullptr) {
-                Json::Value item2;
-                isOK = pacmap->ToJson(pacmap->dataList_, item2);
-                if (isOK) {
-                    item["type"] = PACMAP_DATA_PACMAP;
-                    item["data"] = item2;
-                }
+            if (pacmap == nullptr) {
+                continue;
+            }
+            Json::Value item2;
+            isOK = pacmap->ToJson(pacmap->dataList_, item2);
+            if (isOK) {
+                item["type"] = PACMAP_DATA_PACMAP;
+                item["data"] = item2;
             }
         } else {
             isOK = GetBaseJsonValue(it, item);
@@ -1778,6 +1779,5 @@ sptr<IPacMap> PacMap::Parse(const std::string &str)
 
     return ret;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

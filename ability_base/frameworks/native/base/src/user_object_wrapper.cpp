@@ -129,6 +129,5 @@ UserObjectBase *UserObjectBaseLoader::GetUserObjectByName(const std::string &cla
         return nullptr;
     }
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

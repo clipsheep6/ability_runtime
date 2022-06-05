@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
+#include "mock_form_provider_client.h"
+
 #include "errors.h"
 #include "form_constants.h"
 #include "form_supply_interface.h"
 #include "hilog_wrapper.h"
-#include "mock_form_provider_client.h"
 #include "string_ex.h"
 
 namespace OHOS {
