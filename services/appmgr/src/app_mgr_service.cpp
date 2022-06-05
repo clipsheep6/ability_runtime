@@ -416,6 +416,14 @@ int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);
 }
 
+int AppMgrService::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetApplicationInfoByProcessID(pid, application);
+}
+
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
     int32_t sharedFd, pid_t &renderPid)
 {

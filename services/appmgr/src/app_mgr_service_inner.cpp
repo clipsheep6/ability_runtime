@@ -2176,6 +2176,24 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
     return ERR_OK;
 }
 
+int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord");
+        return ERR_NAME_NOT_FOUND;
+    }
+
+    auto ApplicationInfo = appRecord->GetApplicationInfo();
+    if (ApplicationInfo) {
+        application = *ApplicationInfo;
+    } else {
+        HILOG_ERROR("ApplicationInfo is nullptr !");
+        return ERR_NO_INIT;
+    }
+    return ERR_OK;
+}
+
 int AppMgrServiceInner::VerifyProcessPermission()
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
