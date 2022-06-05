@@ -18,7 +18,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
+#include <sstream>
 #include "nlohmann/json.hpp"
 
 namespace OHOS {
@@ -40,15 +40,24 @@ public:
             std::cout << "json file can not open!" << std::endl;
             return;
         }
-        nlohmann::json jsonObj;
-        jf >> jsonObj;
+
+        std::stringstream strStream;
+        strStream << jf.rdbuf();
+        nlohmann::json jsonObj = json::parse(strStream.str(), nullptr, false);
+        if (jsonObj.is_discarded()) {
+            jf.close();
+            return;
+        }
+
         const auto &jsonObjEnd = jsonObj.end();
-        if (jsonObj.find(PERFORMANCE_EXECUTION_TIMES_KEY) != jsonObjEnd) {
+        if (jsonObj.find(PERFORMANCE_EXECUTION_TIMES_KEY) != jsonObjEnd &&
+            jsonObj.at(PERFORMANCE_EXECUTION_TIMES_KEY).is_number_integer()) {
             jsonObj.at(PERFORMANCE_EXECUTION_TIMES_KEY).get_to(stlevel.executionTimesLevel);
             if (stlevel.executionTimesLevel == 0) {
                 stlevel.executionTimesLevel = 1;
             }
         }
+        jf.close();
     }
 };
 }  // namespace AppExecFwk

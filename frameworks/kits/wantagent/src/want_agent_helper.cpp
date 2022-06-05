@@ -384,18 +384,19 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     if (jsonString.empty()) {
         return nullptr;
     }
-    nlohmann::json jsonObject = nlohmann::json::parse(jsonString);
-
+    nlohmann::json jsonObject = nlohmann::json::parse(jsonString, nullptr, false);
+    if (jsonObject.is_discarded()) {
+        WANT_AGENT_LOGE("WantAgentHelper::FromString string parse failure.");
+        return nullptr;
+    }
     int requestCode = -1;
     if (jsonObject.contains("requestCode")) {
         requestCode = jsonObject.at("requestCode").get<int>();
     }
-
     WantAgentConstant::OperationType operationType = WantAgentConstant::OperationType::UNKNOWN_TYPE;
     if (jsonObject.contains("operationType")) {
         operationType = static_cast<WantAgentConstant::OperationType>(jsonObject.at("operationType").get<int>());
     }
-
     int flags = -1;
     std::vector<WantAgentConstant::Flags> flagsVec = {};
     if (jsonObject.contains("flags")) {
@@ -412,7 +413,6 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     } else if (flags | FLAG_IMMUTABLE) {
         flagsVec.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     }
-
     std::vector<std::shared_ptr<AAFwk::Want>> wants = {};
     if (jsonObject.contains("wants")) {
         for (auto &wantObj : jsonObject.at("wants")) {
@@ -420,7 +420,6 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
             wants.emplace_back(std::make_shared<AAFwk::Want>(*Want::FromString(wantString)));
         }
     }
-
     std::shared_ptr<AAFwk::WantParams> extraInfo = nullptr;
     if (jsonObject.contains("extraInfo")) {
         auto extraInfoObj = jsonObject.at("extraInfo");
@@ -433,7 +432,6 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
         }
     }
     WantAgentInfo info(requestCode, operationType, flagsVec, wants, extraInfo);
-
     return GetWantAgent(info);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent

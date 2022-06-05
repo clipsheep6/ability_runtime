@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <sstream>
 #include "ams_configuration_parameter.h"
 #include "hilog_wrapper.h"
 
@@ -74,8 +74,9 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
         return READ_FAIL;
     }
 
-    json amsJson;
-    inFile >> amsJson;
+    std::stringstream strStream;
+    strStream << inFile.rdbuf();
+    json amsJson = json::parse(strStream.str(), nullptr, false);
     if (amsJson.is_discarded()) {
         HILOG_INFO("json discarded error ...");
         nonConfigFile_ = true;
@@ -108,17 +109,43 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     return READ_OK;
 }
 
-int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::json& Object)
+int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::json& object)
 {
     int ret = -1;
-    if (Object.contains(AmsConfig::SERVICE_ITEM_AMS)) {
-        canStartSettingsData_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_SETTINGS_DATA).get<bool>();
-        missionSaveTime_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
+
+    if (object.contains(AmsConfig::SERVICE_ITEM_AMS)) {
+        if (!object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::STARTUP_SETTINGS_DATA) ||
+            !object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_SETTINGS_DATA).is_boolean()) {
+            return ret;
+        }
+        canStartSettingsData_ = object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::STARTUP_SETTINGS_DATA).get<bool>();
+
+        if (!object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::MISSION_SAVE_TIME) ||
+            !object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).is_number_integer()) {
+            return ret;
+        }
+        missionSaveTime_ = object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::MISSION_SAVE_TIME).get<int>();
+
+        if (!object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME) ||
+            !object.at(AmsConfig::SERVICE_ITEM_AMS)
+            .at(AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME).is_number_integer()) {
+            return ret;
+        }
         anrTime_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME).get<int>();
+            object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME).get<int>();
+
+        if (!object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::AMS_TIMEOUT_TIME) ||
+            !object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::AMS_TIMEOUT_TIME).is_number_integer()) {
+            return ret;
+        }
         amsTime_ =
-            Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::AMS_TIMEOUT_TIME).get<int>();
-        maxRestartNum_ = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::ROOT_LAUNCHER_RESTART_MAX).get<int>();
+            object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::AMS_TIMEOUT_TIME).get<int>();
+
+        if (!object.at(AmsConfig::SERVICE_ITEM_AMS).contains(AmsConfig::ROOT_LAUNCHER_RESTART_MAX) ||
+            !object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::ROOT_LAUNCHER_RESTART_MAX).is_number_integer()) {
+            return ret;
+        }
+        maxRestartNum_ = object.at(AmsConfig::SERVICE_ITEM_AMS).at(AmsConfig::ROOT_LAUNCHER_RESTART_MAX).get<int>();
         HILOG_INFO("get ams service config succes!");
         ret = 0;
     }
@@ -126,17 +153,18 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
     return ret;
 }
 
-int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::json &Object)
+int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::json &object)
 {
     int ret = 0;
-    if (!Object.contains("memorythreshold")) {
+    if (!object.contains("memorythreshold")) {
         HILOG_ERROR("LoadAppConfigurationForMemoryThreshold return error");
         ret = -1;
         return ret;
     }
 
-    if (Object.at("memorythreshold").contains("home_application")) {
-        memThreshold_["home_application"] = Object.at("memorythreshold").at("home_application").get<std::string>();
+    if (object.at("memorythreshold").contains("home_application") &&
+        object.at("memorythreshold").at("home_application").is_string()) {
+        memThreshold_["home_application"] = object.at("memorythreshold").at("home_application").get<std::string>();
     } else {
         HILOG_ERROR("LoadAppConfigurationForMemoryThreshold memorythreshold::home_application is nullptr");
     }
@@ -144,10 +172,13 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
     return ret;
 }
 
-int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
+int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& object)
 {
-    if (Object.contains(AmsConfig::SYSTEM_CONFIGURATION)) {
-        orientation_ = Object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).get<std::string>();
+    if (object.contains(AmsConfig::SYSTEM_CONFIGURATION) &&
+        object.at(AmsConfig::SYSTEM_CONFIGURATION).contains(AmsConfig::SYSTEM_ORIENTATION) &&
+        object.at(AmsConfig::SYSTEM_CONFIGURATION).at(AmsConfig::SYSTEM_ORIENTATION).is_string()) {
+        orientation_ = object.at(AmsConfig::SYSTEM_CONFIGURATION)
+        .at(AmsConfig::SYSTEM_ORIENTATION).get<std::string>();
         return READ_OK;
     }
 

@@ -57,6 +57,7 @@ const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
 const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
 const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
 const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
+const std::string SYSTEM_MEMORY_THRESHOLD = "memoryThreshold";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -319,11 +320,11 @@ void AppMgrService::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::strin
         memThreshold = EXPERIENCE_MEM_THRESHOLD;
         HILOG_ERROR("%{public}s, discarded memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
     } else {
-        if (!memJson.contains("memoryThreshold")) {
+        if (!memJson.contains(SYSTEM_MEMORY_THRESHOLD) || !memJson.at(SYSTEM_MEMORY_THRESHOLD).is_number_integer()) {
             memThreshold = EXPERIENCE_MEM_THRESHOLD;
             HILOG_ERROR("%{public}s, memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
         } else {
-            memThreshold = memJson.at("memorythreshold").get<int>();
+            memThreshold = memJson.at(SYSTEM_MEMORY_THRESHOLD).get<int>();
             HILOG_INFO("memThreshold = %{public}d", memThreshold);
         }
     }
