@@ -19,9 +19,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "errors.h"
 #include "hisysevent.h"
-#include "extension_ability_info.h"
 
 using HiSysEventType = OHOS::HiviewDFX::HiSysEvent::EventType;
 using HiSysEvent = OHOS::HiviewDFX::HiSysEvent;
@@ -72,30 +70,14 @@ struct EventInfo {
     int64_t formId = -1;
     int32_t extensionType = -1;
     uint32_t versionCode = 0;
+    int32_t errCode = -1;
     std::string versionName;
     std::string bundleName;
     std::string moduleName;
     std::string abilityName;
     std::string processName;
-
-    // olny used in fault event
-    ErrCode errCode = ERR_OK;
-
-    void Reset()
-    {
-        pid =-1;
-        userId = -1;
-        formId =-1;
-        versionCode = 0;
-        versionName.clear();
-        bundleName.clear();
-        moduleName.clear();
-        abilityName.clear();
-        processName.clear();
-        extensionType = (int32_t)AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
-        errCode = ERR_OK;
-    }
 };
+
 class EventReport {
 public:
     static void SendAppEvent(const std::string &eventName, HiSysEventType type,

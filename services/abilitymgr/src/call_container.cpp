@@ -173,8 +173,14 @@ void CallContainer::AddConnectDeathRecipient(const sptr<IAbilityConnection> &con
         HILOG_ERROR("This death recipient has been added.");
         return;
     } else {
-        sptr<IRemoteObject::DeathRecipient> deathRecipient = new AbilityConnectCallbackRecipient(
-            std::bind(&CallContainer::OnConnectionDied, this, std::placeholders::_1));
+        std::weak_ptr<CallContainer> thisWeakPtr(shared_from_this());
+        sptr<IRemoteObject::DeathRecipient> deathRecipient =
+            new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                auto callContainer = thisWeakPtr.lock();
+                if (callContainer) {
+                    callContainer->OnConnectionDied(remote);
+                }
+            });
         connect->AsObject()->AddDeathRecipient(deathRecipient);
         deathRecipientMap_.emplace(connect->AsObject(), deathRecipient);
     }

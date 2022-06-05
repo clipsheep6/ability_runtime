@@ -76,6 +76,7 @@ ohos_shared_library("abilityms") {
   configs = [ ":abilityms_config" ]
   deps = [
     "${innerkits_path}/uri_permission:uri_permission_mgr",
+    "${services_path}/common:event_report",
     "${services_path}/common:perm_verification",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]

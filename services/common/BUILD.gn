@@ -16,29 +16,16 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
 
-group("common_target") {
-  deps = [ ":abilitymgr_common" ]
+group("ams_common_target") {
+  deps = [
+    ":event_report",
+    ":perm_verification",
+  ]
 }
 
 config("common_config") {
-  include_dirs = [ "include/" ]
-}
-
-ohos_source_set("abilitymgr_common") {
-  configs = [ ":common_config" ]
-
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
-
-  subsystem_name = "aafwk"
-  part_name = "ability_runtime"
-}
-
-config("perm_verification_config") {
   visibility = [ ":*" ]
-  include_dirs = [
-    "include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-  ]
+  include_dirs = [ "include" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -47,20 +34,27 @@ config("perm_verification_config") {
 
 #build so
 ohos_shared_library("perm_verification") {
-  public_configs = [ ":perm_verification_config" ]
+  public_configs = [ ":common_config" ]
 
-  sources = [
-    "src/event_report.cpp",
-    "src/permission_verification.cpp",
-  ]
+  sources = [ "src/permission_verification.cpp" ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
-    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "utils_base:utils",
   ]
+
+  subsystem_name = "aafwk"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("event_report") {
+  public_configs = [ ":common_config" ]
+
+  sources = [ "src/event_report.cpp" ]
+
+  external_deps = [ "hisysevent_native:libhisysevent" ]
 
   subsystem_name = "aafwk"
   part_name = "ability_runtime"

@@ -14,7 +14,6 @@
  */
 
 #include "event_report.h"
-#include "hilog_wrapper.h"
 
 #include <chrono>
 

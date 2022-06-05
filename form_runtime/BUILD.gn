@@ -80,6 +80,7 @@ ohos_shared_library("libfms") {
   }
   deps = [
     "${ability_runtime_kits_path}/appkit:app_context",
+    "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 

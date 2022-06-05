@@ -51,7 +51,6 @@ ohos_source_set("appmgr_mst_source") {
   include_dirs = [
     "//third_party/json/include",
     "${services_path}/appmgr/test/mock/include",
-    "${services_path}/appmgr/include/lmks",
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/frameworks/common/account_error/include",
   ]
