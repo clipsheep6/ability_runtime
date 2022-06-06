@@ -683,7 +683,6 @@ int32_t FormMgrService::GetFormsInfo(const std::string &moduleName, std::vector<
     }
     HILOG_INFO("GetFormsInfo flows to GetFormsInfoByModule");
     return FormMgrAdapter::GetInstance().GetFormsInfoByModule(callerBundleName, moduleName, formInfos);
-
 }
 
 /**

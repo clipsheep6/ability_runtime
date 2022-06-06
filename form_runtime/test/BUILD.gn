@@ -58,6 +58,9 @@ group("unittest") {
     "unittest/fms_form_set_next_refresh_test:unittest",
     "unittest/fms_form_sys_event_receiver_test:unittest",
     "unittest/fms_form_timer_mgr_test:unittest",
+    "unittest/form_mgr_proxy_test:unittest",
+    "unittest/form_mgr_stub_test:unittest",
+    "unittest/form_mgr_test:unittest",
   ]
 }
 
