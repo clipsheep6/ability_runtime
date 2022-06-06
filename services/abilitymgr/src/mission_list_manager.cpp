@@ -2859,6 +2859,7 @@ void MissionListManager::UninstallApp(const std::string &bundleName, int32_t uid
 void MissionListManager::AddUninstallTags(const std::string &bundleName, int32_t uid)
 {
     HILOG_INFO("AddUninstallTags, bundleName: %{public}s, uid:%{public}d", bundleName.c_str(), uid);
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
     for (auto it = currentMissionLists_.begin(); it != currentMissionLists_.end();) {
         auto missionList = *it;
         if (missionList) {
@@ -2876,6 +2877,23 @@ void MissionListManager::AddUninstallTags(const std::string &bundleName, int32_t
     DelayedSingleton<MissionInfoMgr>::GetInstance()->HandleUnInstallApp(bundleName, uid, matchedMissions);
     if (listenerController_) {
         listenerController_->HandleUnInstallApp(matchedMissions);
+    }
+
+    EraseWaittingAbility(bundleName, uid);
+}
+
+void MissionListManager::EraseWaittingAbility(const std::string &bundleName, int32_t uid)
+{
+    std::queue<AbilityRequest> abilityQueue;
+    waittingAbilityQueue_.swap(abilityQueue);
+    while (!abilityQueue.empty()) {
+        AbilityRequest tempAbilityRequest = abilityQueue.front();
+        abilityQueue.pop();
+        if (tempAbilityRequest.abilityInfo.bundleName == bundleName && tempAbilityRequest.uid == uid) {
+            HILOG_INFO("AddUninstallTags, erase AbilityRequest from waittingAbilityQueue.");
+        } else {
+            waittingAbilityQueue_.push(tempAbilityRequest);
+        }
     }
 }
 
