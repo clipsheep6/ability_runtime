@@ -31,6 +31,7 @@
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "data_ability_manager.h"
+#include "free_install_manager.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
@@ -551,8 +552,8 @@ public:
         int callerUid = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
         
-    int IsStartFreeInstall(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId);
-
+    bool IsStartFreeInstall(const Want &want);
+    int StartFreeInstall(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId);
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
@@ -1042,6 +1043,8 @@ private:
 
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
+
+    std::shared_ptr<FreeInstallManager> freeInstallManager_;
 
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;

@@ -350,15 +350,13 @@ int FreeInstallManager::IsConnectFreeInstall(const Want &want, int32_t userId,
 }
 
 
-int FreeInstallManager::IsStartFreeInstall(const Want &want, int32_t userId,
+int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId,
     const sptr<IRemoteObject> &callerToken, int requestCode, bool isRemote)
 {
-    if (CheckIsFreeInstall(want)) {
-        int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false);
-        if (result) {
-            HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. FreeInstall error");
-            return result;
-        }
+    int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, isRemote);
+    if (result) {
+        HILOG_ERROR("AbilityManagerService::IsConnectFreeInstall. FreeInstall error");
+        return result;
     }
     return ERR_OK;
 }

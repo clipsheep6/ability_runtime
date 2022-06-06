@@ -102,7 +102,7 @@ public:
      * @param isRemote, is remote ability to free install.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int IsStartFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
+    int StartFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
         int requestCode, bool isRemote);
 
 private:

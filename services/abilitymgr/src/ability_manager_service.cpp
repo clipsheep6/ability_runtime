@@ -36,7 +36,6 @@
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
-#include "free_install_manager.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
@@ -219,6 +218,9 @@ bool AbilityManagerService::Init()
     handler_ = std::make_shared<AbilityEventHandler>(eventLoop_, weak_from_this());
     CHECK_POINTER_RETURN_BOOL(handler_);
 
+    freeInstallManager_ = std::make_shared<FreeInstallManager>(weak_from_this());
+    CHECK_POINTER_RETURN_BOOL(freeInstallManager_);
+
     // init user controller.
     userController_ = std::make_shared<UserController>();
     userController_->Init();
@@ -335,12 +337,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    int ret = IsStartFreeInstall(want, callerToken, requestCode, validUserId);
-    if (ret != ERR_OK) {
-        return ret;
-    }
+
     if (callerToken != nullptr) {
         if (CheckIfOperateRemote(want)) {
+            if (IsStartFreeInstall(want)) {
+                return StartFreeInstall(want, callerToken, requestCode, validUserId);
+            }
             if (requestCode == DEFAULT_REQUEST_CODE) {
                 HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
                 return StartRemoteAbility(want, requestCode);
@@ -350,6 +352,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             newWant.SetParam(DMS_MISSION_ID, missionId);
             HILOG_INFO("AbilityManagerService::StartAbility. try to StartAbilityForResult");
             return StartRemoteAbility(newWant, requestCode);
+        }
+    }
+    if (IsStartFreeInstall(want)) {
+        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+        if (ret != ERR_OK) {
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            return ret;
         }
     }
 
@@ -448,10 +457,19 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    int ret = IsStartFreeInstall(want, callerToken, requestCode, validUserId);
-    if (ret != ERR_OK) {
-        return ret;
+
+    if (IsStartFreeInstall(want)) {
+        if (CheckIfOperateRemote(want)) {
+            HILOG_ERROR("can not start remote free install");
+            return ERR_INVALID_VALUE;
+        }
+        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+        if (ret != ERR_OK) {
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            return ret;
+        }
     }
+
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
         eventInfo.errCode = ERR_INVALID_VALUE;
@@ -535,7 +553,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    ret = missionListManager->StartAbility(abilityRequest);
+    auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -573,9 +591,17 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    int ret = IsStartFreeInstall(want, callerToken, requestCode, validUserId);
-    if (ret != ERR_OK) {
-        return ret;
+
+    if (IsStartFreeInstall(want)) {
+        if (CheckIfOperateRemote(want)) {
+            HILOG_ERROR("can not start remote free install");
+            return ERR_INVALID_VALUE;
+        }
+        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+        if (ret != ERR_OK) {
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            return ret;
+        }
     }
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -654,7 +680,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    ret = missionListManager->StartAbility(abilityRequest);
+    auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -663,16 +689,20 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     return ret;
 }
 
-int AbilityManagerService::IsStartFreeInstall(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+bool AbilityManagerService::IsStartFreeInstall(const Want &want)
 {
     auto flags = want.GetFlags();
     if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-        HILOG_INFO("StartAbility with free install flags");
-        auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
-        return manager->IsStartFreeInstall(want, userId, callerToken, requestCode, CheckIfOperateRemote(want));
+        return true;
     }
-    return ERR_OK;
+    return false;
+}
+
+int AbilityManagerService::StartFreeInstall(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    HILOG_INFO("StartAbility with free install flags");
+    return freeInstallManager_->StartFreeInstall(want, userId, callerToken, requestCode, CheckIfOperateRemote(want));
 }
 
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -1230,8 +1260,8 @@ int AbilityManagerService::ConnectAbility(
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
-    int result = manager->IsConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
+
+    int result = freeInstallManager_->IsConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
     if (result != ERR_OK) {
         eventInfo.errCode = result;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
@@ -4610,9 +4640,8 @@ int AbilityManagerService::BlockAppService()
 int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
     int32_t userId, int requestCode)
 {
-    auto manager = std::make_shared<FreeInstallManager>(weak_from_this());
     int32_t validUserId = GetValidUserId(userId);
-    return manager->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
+    return freeInstallManager_->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
