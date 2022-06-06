@@ -19,6 +19,7 @@
 #include <climits>
 #include <cstdlib>
 #include <fstream>
+#include <sys/epoll.h>
 
 #include "native_engine/impl/ark/ark_native_engine.h"
 #ifdef SUPPORT_GRAPHICS
@@ -66,6 +67,8 @@ constexpr char EXT_NAME_JS[] = ".js";
 
 constexpr size_t NPM_LEVEL_START = 0;
 constexpr size_t NPM_LEVEL_END = 1;
+
+constexpr char TIMER_TASK[] = "uv_timer_task";
 
 inline bool StringEndWith(const std::string& str, const char* endStr, size_t endStrLen)
 {
@@ -735,6 +738,73 @@ void RegisterWorker(NativeEngine& engine, const std::string& codePath)
     RegisterInitWorkerFunc(engine);
     RegisterAssetFunc(engine, codePath);
 }
+
+class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
+public:
+    explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
+
+    void OnReadable(int32_t) override
+    {
+        HILOG_DEBUG("UvLoopHandler::OnReadable is triggered");
+        OnTriggered();
+    }
+
+    void OnWritable(int32_t) override
+    {
+        HILOG_DEBUG("UvLoopHandler::OnWritable is triggered");
+        OnTriggered();
+    }
+
+private:
+    void OnTriggered()
+    {
+        HILOG_DEBUG("UvLoopHandler::OnTriggered is triggered");
+
+        auto fd = uv_backend_fd(uvLoop_);
+        struct epoll_event ev;
+        do {
+            uv_run(uvLoop_, UV_RUN_NOWAIT);
+        } while (epoll_wait(fd, &ev, 1, 0) > 0);
+
+        auto eventHandler = GetOwner();
+        if (!eventHandler) {
+            return;
+        }
+
+        int32_t timeout = uv_backend_timeout(uvLoop_);
+        if (timeout < 0) {
+            if (haveTimerTask_) {
+                eventHandler->RemoveTask(TIMER_TASK);
+            }
+            return;
+        }
+
+        int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
+        if (timeStamp == lastTimeStamp_) {
+            return;
+        }
+
+        if (haveTimerTask_) {
+            eventHandler->RemoveTask(TIMER_TASK);
+        }
+
+        auto callback = [wp = weak_from_this()] {
+            auto sp = wp.lock();
+            if (sp) {
+                // Timer task is triggered, so there is no timer task now.
+                sp->haveTimerTask_ = false;
+                sp->OnTriggered();
+            }
+        };
+        eventHandler->PostTask(callback, TIMER_TASK, timeout);
+        lastTimeStamp_ = timeStamp;
+        haveTimerTask_ = true;
+    }
+
+    uv_loop_t* uvLoop_ = nullptr;
+    int64_t lastTimeStamp_ = 0;
+    bool haveTimerTask_ = false;
+};
 } // namespace
 
 std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
@@ -750,14 +820,19 @@ bool JsRuntime::Initialize(const Options& options)
 {
     // Create event handler for runtime
     eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(options.eventRunner);
-    nativeEngine_->SetPostTask([this](bool needSync) {
-        eventHandler_->PostTask(
-            [this, needSync]() {
-                nativeEngine_->Loop(LOOP_NOWAIT, needSync);
-            },
-            "idleTask");
-    });
-    nativeEngine_->CheckUVLoop();
+
+    auto uvLoop = nativeEngine_->GetUVLoop();
+    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+    if (fd < 0) {
+        HILOG_ERROR("Failed to get backend fd from uv loop");
+        return false;
+    }
+
+    // MUST run uv loop once before we listen its backend fd.
+    uv_run(uvLoop, UV_RUN_NOWAIT);
+
+    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
+    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
 
     HandleScope handleScope(*this);
 
@@ -808,8 +883,14 @@ void JsRuntime::Deinitialize()
     }
 
     methodRequireNapiRef_.reset();
-    nativeEngine_->CancelCheckUVLoop();
-    RemoveTask("idleTask");
+
+    auto uvLoop = nativeEngine_->GetUVLoop();
+    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+    if (fd >= 0) {
+        eventHandler_->RemoveFileDescriptorListener(fd);
+    }
+    RemoveTask(TIMER_TASK);
+
     nativeEngine_.reset();
 }
 
