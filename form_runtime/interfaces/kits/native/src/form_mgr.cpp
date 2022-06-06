@@ -732,6 +732,17 @@ int FormMgr::GetFormsInfoByModule(std::string &bundleName, std::string &moduleNa
     return remoteProxy_->GetFormsInfoByModule(bundleName, moduleName, formInfos);
 }
 
+int32_t FormMgr::GetFormsInfo(const std::string &moduleName, std::vector<FormInfo> &formInfos)
+{
+    HILOG_INFO("%{public}s starts.", __func__);
+    int errCode = Connect();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("%{public}s failed errCode:%{public}d.", __func__, errCode);
+        return errCode;
+    }
+    return remoteProxy_->GetFormsInfo(moduleName, formInfos);
+}
+
 /**
  * @brief Update action string for router event.
  * @param formId Indicates the unique id of form.

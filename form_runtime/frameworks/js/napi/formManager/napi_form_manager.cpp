@@ -48,13 +48,13 @@ namespace {
 }
 
 /**
- * @brief NapiGetResut
+ * @brief NapiGetResult
  *
  * @param[in] env The environment that the Node-API call is invoked under
  *
  * @return napi_value
  */
-napi_value NapiGetResut(napi_env env, int iResult)
+napi_value NapiGetResult(napi_env env, int iResult)
 {
     napi_value result;
     NAPI_CALL(env, napi_create_int32(env, iResult, &result));
@@ -268,7 +268,7 @@ napi_value RetErrMsg(AsyncErrMsgCallbackInfo* asyncCallbackInfo)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -678,7 +678,7 @@ napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -796,7 +796,7 @@ napi_value ReleaseFormCallback(napi_env env, AsyncReleaseFormCallbackInfo *async
         (void *)asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 // ReleaseForm promise
@@ -958,7 +958,7 @@ napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info)
                 "The arguments[2] type of releaseForm is incorrect,expected type is function or boolean.");
         }
     }
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 /**
@@ -1098,7 +1098,7 @@ napi_value NAPI_RequestForm(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -1307,7 +1307,7 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -1523,7 +1523,7 @@ napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -1700,7 +1700,7 @@ napi_value NAPI_CastTempForm(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -1897,7 +1897,7 @@ napi_value NAPI_NotifyVisibleForms(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -2099,7 +2099,7 @@ napi_value NAPI_NotifyInvisibleForms(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -2301,7 +2301,7 @@ napi_value NAPI_EnableFormsUpdate(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -2502,7 +2502,7 @@ napi_value NAPI_DisableFormsUpdate(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -2640,7 +2640,7 @@ napi_value NAPI_CheckFMSReady(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -2728,7 +2728,7 @@ napi_value DeleteInvalidFormsCallback(napi_env env, AsyncDeleteInvalidFormsCallb
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value DeleteInvalidFormsPromise(napi_env env, AsyncDeleteInvalidFormsCallbackInfo *const asyncCallbackInfo)
@@ -2891,7 +2891,7 @@ napi_value AcquireFormStateCallback(napi_env env, AsyncAcquireFormStateCallbackI
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value AcquireFormStatePromise(napi_env env, AsyncAcquireFormStateCallbackInfo *const asyncCallbackInfo)
@@ -3018,7 +3018,7 @@ napi_value RegisterFormUninstallObserverCallback(napi_env env,
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value RegisterFormUninstallObserverPromise(napi_env env,
@@ -3140,7 +3140,7 @@ napi_value UnregisterFormUninstallObserverCallback(napi_env env,
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value UnregisterFormUninstallObserverPromise(napi_env env,
@@ -3260,7 +3260,7 @@ napi_value NotifyFormsVisibleCallback(napi_env env, AsyncNotifyFormsVisibleCallb
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value NotifyFormsVisiblePromise(napi_env env, AsyncNotifyFormsVisibleCallbackInfo *const asyncCallbackInfo)
@@ -3401,7 +3401,7 @@ napi_value NotifyFormsEnableUpdateCallback(napi_env env,
         (void *) asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 napi_value NotifyFormsEnableUpdatePromise(napi_env env,
@@ -3659,7 +3659,7 @@ napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info)
             (void *)asyncCallbackInfo,
             &asyncCallbackInfo->asyncWork);
         NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     } else {
         HILOG_INFO("%{public}s, promise.", __func__);
         napi_deferred deferred;
@@ -3751,7 +3751,7 @@ napi_value GetFormsInfoCallback(napi_env env, AsyncGetFormsInfoCallbackInfo *asy
         (void *)asyncCallbackInfo,
         &asyncCallbackInfo->asyncWork);
     NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 
 // GetFormsInfo promise
@@ -3825,7 +3825,7 @@ napi_value GetFormsInfoTwoArgv(napi_env env, napi_value *argv, AsyncGetFormsInfo
     } else {
         NAPI_ASSERT(env, false, "The arguments[1] type of getFormsInfo is incorrect,\
             expected type is string or function.");
-        return NapiGetResut(env, 1);
+        return NapiGetResult(env, 1);
     }
 }
 
@@ -3879,6 +3879,6 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
     } else if (argc == ARGS_SIZE_ONE) { // GetFormsInfoByApp promise
         return GetFormsInfoPromise(env, asyncCallbackInfo, true);
     }
-    return NapiGetResut(env, 1);
+    return NapiGetResult(env, 1);
 }
 

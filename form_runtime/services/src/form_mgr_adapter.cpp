@@ -2310,7 +2310,7 @@ int FormMgrAdapter::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
  * @param formInfos Return the forms' information of the specify application name.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormMgrAdapter::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos)
+int FormMgrAdapter::GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos)
 {
     return FormInfoMgr::GetInstance().GetFormsInfoByBundle(bundleName, formInfos);
 }
@@ -2322,7 +2322,7 @@ int FormMgrAdapter::GetFormsInfoByApp(std::string &bundleName, std::vector<FormI
  * @param formInfos Return the forms' information of the specify bundle name and module name.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormMgrAdapter::GetFormsInfoByModule(std::string &bundleName, std::string &moduleName,
+int FormMgrAdapter::GetFormsInfoByModule(const std::string &bundleName, const std::string &moduleName,
                                          std::vector<FormInfo> &formInfos)
 {
     return FormInfoMgr::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);

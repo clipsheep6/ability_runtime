@@ -301,7 +301,7 @@ public:
      * @param formInfos Return the forms' information of the specify application name.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos);
+    int GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos);
 
     /**
      * @brief Get forms info by bundle name and module name.
@@ -310,7 +310,8 @@ public:
      * @param formInfos Return the forms' information of the specify bundle name and module name.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos);
+    int GetFormsInfoByModule(const std::string &bundleName, const std::string &moduleName,
+        std::vector<FormInfo> &formInfos);
 
     /**
      * @brief Update action string for router event.

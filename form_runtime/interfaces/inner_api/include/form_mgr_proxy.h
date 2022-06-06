@@ -278,6 +278,15 @@ public:
                                      std::vector<FormInfo> &formInfos) override;
 
     /**
+    * @brief This function is called by formProvider and gets forms info by the bundle name of the calling ability.
+    *        The bundle name will be retrieved by form service manager.
+    * @param moduleName the module that the formInfos have to belong to.
+    * @param formInfos Return the forms' information of the calling bundle name
+    * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t GetFormsInfo(const std::string &moduleName, std::vector<FormInfo> &formInfos) override;
+
+    /**
      * @brief Update action string for router event.
      * @param formId Indicates the unique id of form.
      * @param action Indicates the origin action string.
@@ -292,7 +301,7 @@ private:
     int GetParcelableInfo(IFormMgr::Message code, MessageParcel &data, T &parcelableInfo);
     int SendTransactCmd(IFormMgr::Message code, MessageParcel &data, MessageParcel &reply);
     int GetStringInfo(IFormMgr::Message code, MessageParcel &data, std::string &stringInfo);
-    int GetFormsInfo(IFormMgr::Message code, MessageParcel &data, std::vector<FormInfo> &formInfos);
+    int32_t GetFormsInfo(IFormMgr::Message code, MessageParcel &data, std::vector<FormInfo> &formInfos);
 private:
     static inline BrokerDelegator<FormMgrProxy> delegator_;
 };

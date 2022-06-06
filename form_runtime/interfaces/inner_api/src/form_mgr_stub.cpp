@@ -91,6 +91,8 @@ FormMgrStub::FormMgrStub()
         &FormMgrStub::HandleGetFormsInfoByApp;
     memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_GET_FORMS_INFO_BY_MODULE)] =
         &FormMgrStub::HandleGetFormsInfoByModule;
+    memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_GET_FORMS_INFO)] =
+        &FormMgrStub::HandleGetFormsInfo;
     memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_ROUTER_EVENT)] =
         &FormMgrStub::HandleRouterEvent;
     memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_UPDATE_ROUTER_ACTION)] =
@@ -785,6 +787,26 @@ int32_t FormMgrStub::HandleGetFormsInfoByModule(MessageParcel &data, MessageParc
     int32_t result = GetFormsInfoByModule(bundleName, moduleName, infos);
     reply.WriteInt32(result);
     if (result == ERR_OK) {
+        if (!WriteParcelableVector(infos, reply)) {
+            HILOG_ERROR("write failed");
+            return ERR_APPEXECFWK_PARCEL_ERROR;
+        }
+    }
+    return result;
+}
+
+int32_t FormMgrStub::HandleGetFormsInfo(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    // read moduleName from data.
+    std::string moduleName = data.ReadString();
+    // write result of calling FMS into reply.
+    std::vector<FormInfo> infos;
+    // call FormMgrService to get formInfos into infos.
+    int32_t result = GetFormsInfo(moduleName, infos);
+    reply.WriteInt32(result);
+    if (result == ERR_OK) {
+        // write fetched formInfos into reply.
         if (!WriteParcelableVector(infos, reply)) {
             HILOG_ERROR("write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
