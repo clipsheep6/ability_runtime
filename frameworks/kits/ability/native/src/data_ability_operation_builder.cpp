@@ -51,11 +51,9 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
     std::shared_ptr<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket start");
-    if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
-        type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR(
-            "DataAbilityOperationBuilder::WithValuesBucket only inserts, updates can have values, type=%{public}d",
-            type_);
+    if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE) {
+        HILOG_ERROR("DataAbilityOperationBuilder::WithValuesBucket only inserts, updates can have values,"
+            " type=%{public}d", type_);
         return nullptr;
     }
 
@@ -71,11 +69,10 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPr
     std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicates start");
-    if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE &&
-        type_ != DataAbilityOperation::TYPE_ASSERT) {
+    if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE) {
         HILOG_ERROR(
-            "DataAbilityOperationBuilder::withPredicates only deletes and updates can have selections, type=%{public}d",
-            type_);
+            "DataAbilityOperationBuilder::withPredicates only deletes and updates can have selections,"
+            " type=%{public}d", type_);
         return nullptr;
     }
     dataAbilityPredicates_ = predicates;
@@ -86,11 +83,9 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithEx
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithExpectedCount start");
     HILOG_INFO("DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
-    if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
-        type_ != DataAbilityOperation::TYPE_ASSERT) {
+    if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE) {
         HILOG_ERROR("DataAbilityOperationBuilder::withExpectedCount only updates, deletes can have expected counts, "
-            "type=%{public}d",
-            type_);
+            "type=%{public}d", type_);
         return nullptr;
     }
     expectedCount_ = count;
@@ -102,15 +97,11 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPr
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicatesBackReference start");
     HILOG_INFO("DataAbilityOperationBuilder::WithPredicatesBackReference requestArgIndex:%{public}d, "
-        "previousResult:%{public}d",
-        requestArgIndex,
-        previousResult);
+        "previousResult:%{public}d", requestArgIndex, previousResult);
     if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
-        HILOG_ERROR(
-            "DataAbilityOperationBuilder::withPredicatesBackReference only updates, deletes, and asserts can have "
-            "select back-references, type=%{public}d",
-            type_);
+        HILOG_ERROR("DataAbilityOperationBuilder::withPredicatesBackReference only updates, deletes, "
+            "and asserts can have select back-references, type=%{public}d", type_);
         return nullptr;
     }
     dataAbilityPredicatesBackReferences_.insert(std::make_pair(requestArgIndex, previousResult));
@@ -124,8 +115,7 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT) {
         HILOG_ERROR("DataAbilityOperationBuilder::withValueBackReferences only inserts, updates, and asserts can have "
-            "value back-references, type=%{public}d",
-            type_);
+            "value back-references, type=%{public}d", type_);
         return nullptr;
     }
     valuesBucketReferences_ = backReferences;
@@ -138,10 +128,8 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithIn
     HILOG_INFO("DataAbilityOperationBuilder::WithInterruptionAllowed  interrupted=%{public}d", interrupted);
     if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
         type_ != DataAbilityOperation::TYPE_ASSERT && type_ != DataAbilityOperation::TYPE_DELETE) {
-        HILOG_ERROR(
-            "DataAbilityOperationBuilder::withInterruptionAllowed only inserts, updates, delete, and asserts can "
-            "have value back-references, type=%{public}d",
-            type_);
+        HILOG_ERROR("DataAbilityOperationBuilder::withInterruptionAllowed only inserts, updates, delete, "
+            "and asserts can have value back-references, type=%{public}d", type_);
         return nullptr;
     }
     interrupted_ = interrupted;

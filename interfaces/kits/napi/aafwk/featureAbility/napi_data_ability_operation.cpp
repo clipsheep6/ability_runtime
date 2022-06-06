@@ -120,6 +120,13 @@ napi_value BuildDataAbilityOperation(
     UnwrapBooleanByPropertyName(env, param, "interrupted", interrupted);
     builder->WithInterruptionAllowed(interrupted);
 
+    // get backReferences
+    std::shared_ptr<NativeRdb::ValuesBucket> backReferences = std::make_shared<NativeRdb::ValuesBucket>();
+    backReferences->Clear();
+    napi_value jsBackReferences = GetPropertyValueByPropertyName(env, param, "valueBackReferences", napi_object);
+    UnwrapValuesBucket(backReferences, env, jsBackReferences);
+    builder->WithValueBackReferences(backReferences);
+
     if (builder != nullptr) {
         HILOG_INFO("%{public}s, builder is not nullptr", __func__);
         dataAbilityOperation = builder->Build();
