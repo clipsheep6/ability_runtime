@@ -21,43 +21,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-bool MissionPixelMap::ReadFromParcel(Parcel &parcel)
-{
-    std::unique_ptr<AppExecFwk::ElementName> ability(parcel.ReadParcelable<AppExecFwk::ElementName>());
-    if (ability == nullptr) {
-        return false;
-    }
-    topAbility = *ability;
-    std::unique_ptr<AAFwk::ImageInfo> image(parcel.ReadParcelable<AAFwk::ImageInfo>());
-    if (image == nullptr) {
-        return false;
-    }
-    imageInfo = *image;
-    return true;
-}
-
-MissionPixelMap *MissionPixelMap::Unmarshalling(Parcel &parcel)
-{
-    MissionPixelMap *info = new (std::nothrow) MissionPixelMap();
-
-    if (!info->ReadFromParcel(parcel)) {
-        delete info;
-        info = nullptr;
-    }
-    return info;
-}
-
-bool MissionPixelMap::Marshalling(Parcel &parcel) const
-{
-    if (!parcel.WriteParcelable(&topAbility)) {
-        return false;
-    }
-    if (!parcel.WriteParcelable(&imageInfo)) {
-        return false;
-    }
-    return true;
-}
-
 bool MissionSnapshot::ReadFromParcel(Parcel &parcel)
 {
 #ifdef SUPPORT_GRAPHICS

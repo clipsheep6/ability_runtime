@@ -26,19 +26,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-/**
- * @struct MissionPixelMap
- * MissionPixelMap is used to save information about mission sanpshot.
- */
-struct MissionPixelMap : public Parcelable {
-    AppExecFwk::ElementName topAbility;
-    AAFwk::ImageInfo imageInfo;
-
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static MissionPixelMap *Unmarshalling(Parcel &parcel);
-};
-
 struct MissionSnapshot : public Parcelable {
     AppExecFwk::ElementName topAbility;
 #ifdef SUPPORT_GRAPHICS

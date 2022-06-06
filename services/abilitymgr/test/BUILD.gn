@@ -125,8 +125,6 @@ ohos_source_set("abilityms_test_source") {
       "${services_path}/abilitymgr/src/mission_snapshot.cpp",
       "${services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
       "${services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
-      "${services_path}/abilitymgr/src/screenshot_handler.cpp",
-      "${services_path}/abilitymgr/src/screenshot_response.cpp",
     ]
     deps += [
       "${global_path}/i18n/frameworks/intl:intl_util",
@@ -208,7 +206,6 @@ group("unittest") {
       "unittest/phone/mission_list_manager_test:unittest",
       "unittest/phone/mission_list_manager_ut_test:unittest",
       "unittest/phone/mission_list_test:unittest",
-      "unittest/phone/screenshot_handler_test:unittest",
       "unittest/phone/specified_mission_list_test:unittest",
       "unittest/phone/start_option_display_id_test:unittest",
     ]
