@@ -135,5 +135,20 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseAbility_0200, Funct
     ErrCode ret = context_->ReleaseAbility(callback);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_IsTerminating_0100
+ * @tc.name: IsTerminating
+ * @tc.desc: Test IsTerminating return value when called SetTerminating.
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_IsTerminating_0100, Function | MediumTest | Level1)
+{
+    context_->SetTerminating(true);
+    bool ret = context_->IsTerminating();
+    EXPECT_TRUE(ret);
+    context_->SetTerminating(false);
+    ret = context_->IsTerminating();
+    EXPECT_FALSE(ret);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
