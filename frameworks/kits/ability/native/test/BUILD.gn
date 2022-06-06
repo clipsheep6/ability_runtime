@@ -1129,6 +1129,42 @@ ohos_unittest("continuation_test") {
   }
 }
 
+ohos_unittest("new_ability_impl_test") {
+  module_out_path = module_output_path
+  if (ability_runtime_graphics) {
+    sources = [
+      "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/mock_replace_ability_impl.cpp",
+      "../src/new_ability_impl.cpp",
+      "unittest/new_ability_impl_test.cpp",
+    ]
+
+    configs = [ ":module_private_config" ]
+
+    deps = [
+      "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+      "${aafwk_path}/frameworks/kits/appkit:app_context",
+      "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+      "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
+      "${ability_base_path}:base",
+      "${ability_base_path}:want",
+      "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
+      "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
+      "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+      "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+      "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+      "//third_party/googletest:gtest_main",
+      "//utils/native/base:utils",
+    ]
+
+    external_deps = [
+      "hitrace_native:hitrace_meter",
+      "hiviewdfx_hilog_native:libhilog",
+      "input:libmmi-client",
+      "ipc:ipc_core",
+    ]
+  }
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -1153,6 +1189,7 @@ group("unittest") {
     ":data_ability_operation_test",
     ":data_ability_result_test",
     ":data_uri_utils_test",
+    ":new_ability_impl_test",
     ":pac_map_test",
     ":service_ability_impl_test",
     ":task_handler_client_test",

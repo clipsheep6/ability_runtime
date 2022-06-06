@@ -128,7 +128,18 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
 }
 
 void AbilityImpl::NewWant(const Want &want)
-{}
+{
+    GTEST_LOG_(INFO) << "Mock AbilityImpl::NewWant called";
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::NewWant ability_ is nullptr");
+        return;
+    }
+    ability_->SetWant(want);
+    ability_->OnNewWant(want);
+#ifdef SUPPORT_GRAPHICS
+    ability_->ContinuationRestore(want);
+#endif
+}
 
 std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
