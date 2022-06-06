@@ -32,6 +32,11 @@
 #endif // OS_ACCOUNT_PART_ENABLED
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
+#ifdef SUPPORT_GRAPHICS
+#include "image_source.h"
+#include "locale_config.h"
+#include "mission_info_mgr.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -42,6 +47,7 @@ const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
+const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -221,11 +227,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     SendEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (handler && task) {
-        if (!want_.GetBoolParam(DEBUG_APP, false)) {
-            handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
-        } else {
-            HILOG_INFO("Is debug mode, no need to handle time out.");
-        }
+        handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
     }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
@@ -246,7 +248,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     }
 }
 
-void AbilityRecord::ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag)
+void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 {
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
@@ -259,13 +261,437 @@ void AbilityRecord::ProcessForegroundAbility(const Closure &task, uint32_t scene
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(task, sceneFlag);
+            ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         LoadAbility();
     }
 }
+
+#ifdef SUPPORT_GRAPHICS
+void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest &abilityRequest,
+    std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
+    uint32_t sceneFlag)
+{
+    std::string element = GetWant().GetElement().GetURI();
+    HILOG_INFO("ability record: %{public}s", element.c_str());
+
+    if (isReady_) {
+        if (IsAbilityState(AbilityState::BACKGROUND)) {
+            // background to activte state
+            HILOG_DEBUG("MoveToForground, %{public}s", element.c_str());
+            lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
+
+            StartingWindowTask(isRecent, false, abilityRequest, startOptions);
+            AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
+            CancelStartingWindowHotTask();
+
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
+        } else {
+            HILOG_DEBUG("Activate %{public}s", element.c_str());
+            ForegroundAbility(nullptr, sceneFlag);
+        }
+    } else {
+        lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
+        StartingWindowTask(isRecent, true, abilityRequest, startOptions);
+        AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
+        CancelStartingWindowColdTask();
+        LoadAbility();
+    }
+}
+
+std::shared_ptr<Want> AbilityRecord::GetWantFromMission() const
+{
+    InnerMissionInfo innerMissionInfo;
+    int getMission = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(
+        missionId_, innerMissionInfo);
+    if (getMission != ERR_OK) {
+        HILOG_ERROR("cannot find mission info from MissionInfoList by missionId: %{public}d", missionId_);
+        return nullptr;
+    }
+
+    return std::make_shared<Want>(innerMissionInfo.missionInfo.want);
+}
+
+void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
+    const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility)
+{
+    HILOG_INFO("%{public}s was called.", __func__);
+    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
+        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
+        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
+        return;
+    }
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (!handler) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto self(weak_from_this());
+    if (isRecent) {
+        auto want = GetWantFromMission();
+        auto task = [self, startOptions, want] {
+            auto ability = self.lock();
+            if (ability) {
+                ability->NotifyAnimationFromRecentTask(startOptions, want);
+            }
+        };
+        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+    } else {
+        if (!IsForeground()) {
+            auto task = [self, callerAbility, abilityRequest] {
+                auto ability = self.lock();
+                if (ability) {
+                    ability->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
+                }
+            };
+            handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+        }
+    }
+}
+
+void AbilityRecord::SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo,
+    sptr<AbilityTransitionInfo> &info) const
+{
+    std::vector<AppExecFwk::CustomizeData> datas = abilityInfo.metaData.customizeData;
+    for (AppExecFwk::CustomizeData data : datas) {
+        if (data.name == SHOW_ON_LOCK_SCREEN) {
+            info->isShowWhenLocked_ = true;
+            break;
+        }
+    }
+}
+
+void AbilityRecord::SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
+    sptr<AbilityTransitionInfo> &info) const
+{
+    info->abilityName_ = abilityInfo.name;
+    info->bundleName_ = abilityInfo.bundleName;
+    SetShowWhenLocked(abilityInfo, info);
+}
+
+void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
+    const std::shared_ptr<Want> &want) const
+{
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    auto toInfo = CreateAbilityTransitionInfo(token_, startOptions, want);
+    SetAbilityTransitionInfo(abilityInfo_, toInfo);
+    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    fromInfo->isRecent_ = true;
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+}
+
+void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
+    const AbilityRequest &abilityRequest) const
+{
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    if (callerAbility) {
+        auto callerAbilityInfo = callerAbility->GetAbilityInfo();
+        SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
+        fromInfo->abilityToken_ = callerAbility->GetToken();
+    } else {
+        fromInfo->abilityToken_ = abilityRequest.callerToken;
+    }
+
+    auto toInfo = CreateAbilityTransitionInfo(abilityRequest, token_);
+    SetAbilityTransitionInfo(abilityInfo_, toInfo);
+
+    windowHandler->NotifyWindowTransition(fromInfo, toInfo);
+}
+
+void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
+    std::shared_ptr<StartOptions> &startOptions)
+{
+    HILOG_INFO("%{public}s was called.", __func__);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (!handler) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto self(weak_from_this());
+    if (isRecent) {
+        auto want = GetWantFromMission();
+        auto task = [self, startOptions, want, isCold] {
+            auto ability = self.lock();
+            if (ability) {
+                AbilityRequest abilityRequest;
+                if (isCold) {
+                    ability->StartingWindowCold(startOptions, want, abilityRequest);
+                } else {
+                    ability->StartingWindowHot(startOptions, want, abilityRequest);
+                }
+            }
+        };
+        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+    } else {
+        auto task = [self, abilityRequest, isCold] {
+            auto ability = self.lock();
+            if (ability) {
+                std::shared_ptr<StartOptions> startOptions = nullptr;
+                std::shared_ptr<Want> want = nullptr;
+                if (isCold) {
+                    ability->StartingWindowCold(startOptions, want, abilityRequest);
+                } else {
+                    ability->StartingWindowHot(startOptions, want, abilityRequest);
+                }
+            }
+        };
+        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+    }
+}
+
+void AbilityRecord::CancelStartingWindowHotTask()
+{
+    HILOG_INFO("%{public}s was called.", __func__);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (!handler) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    auto abilityRecord(shared_from_this());
+    auto delayTask = [windowHandler, abilityRecord] {
+        if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
+            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            windowHandler->CancelStartingWindow(abilityRecord->GetToken());
+            abilityRecord->SetStartingWindow(false);
+        }
+    };
+    handler->PostTask(delayTask, "CancelStartingWindowHot", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+}
+
+void AbilityRecord::CancelStartingWindowColdTask()
+{
+    HILOG_INFO("%{public}s was called.", __func__);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    if (!handler) {
+        HILOG_ERROR("Fail to get AbilityEventHandler.");
+        return;
+    }
+
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    auto abilityRecord(shared_from_this());
+    auto delayTask = [windowHandler, abilityRecord] {
+        if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
+            (abilityRecord->GetScheduler() == nullptr ||
+            abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
+            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            windowHandler->CancelStartingWindow(abilityRecord->GetToken());
+            abilityRecord->SetStartingWindow(false);
+        }
+    };
+    handler->PostTask(delayTask, "CancelStartingWindowCold", AbilityManagerService::FOREGROUNDNEW_TIMEOUT);
+}
+
+sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const
+{
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityMgr) {
+        HILOG_WARN("%{public}s, Get Ability Manager Service failed.", __func__);
+        return nullptr;
+    }
+    return abilityMgr->GetWMSHandler();
+}
+
+void AbilityRecord::SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info,
+    const std::shared_ptr<Want> &want) const
+{
+    if (!want) {
+        HILOG_WARN("%{public}s, want is invalid.", __func__);
+        return;
+    }
+    auto mode = want->GetIntParam(Want::PARAM_RESV_WINDOW_MODE, -1);
+    auto displayId = want->GetIntParam(Want::PARAM_RESV_DISPLAY_ID, -1);
+    if (mode != -1) {
+        info->mode_ = static_cast<uint32_t>(mode);
+    }
+    if (displayId != -1) {
+        info->displayId_ = static_cast<uint64_t>(displayId);
+    }
+}
+
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
+    const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const
+{
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    if (startOptions != nullptr) {
+        info->mode_ = static_cast<uint32_t>(startOptions->GetWindowMode());
+        info->displayId_ = static_cast<uint64_t>(startOptions->GetDisplayID());
+    } else {
+        SetWindowModeAndDisplayId(info, want);
+    }
+    info->abilityToken_ = abilityToken;
+    return info;
+}
+
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
+    const sptr<IRemoteObject> abilityToken) const
+{
+    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    auto abilityStartSetting = abilityRequest.startSetting;
+    if (abilityStartSetting) {
+        int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+        auto mode =
+            strtol(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY).c_str(), nullptr, base);
+        info->mode_ = static_cast<uint32_t>(mode);
+        auto displayId =
+            strtol(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str(), nullptr, base);
+        info->displayId_ = static_cast<uint64_t>(displayId);
+    } else {
+        SetWindowModeAndDisplayId(info, std::make_shared<Want>(abilityRequest.want));
+    }
+    info->abilityToken_ = abilityToken;
+    return info;
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResourceManager(
+    const AppExecFwk::AbilityInfo &abilityInfo) const
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
+    if (!resourceMgr->AddResource(abilityInfo.resourcePath.c_str())) {
+        HILOG_WARN("%{public}s AddResource failed.", __func__);
+    }
+
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    UErrorCode status = U_ZERO_ERROR;
+    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    resConfig->SetLocaleInfo(locale);
+    resourceMgr->UpdateResConfig(*resConfig);
+    return resourceMgr;
+}
+
+sptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const
+{
+    std::string iconPath;
+    auto iconPathErrval = resourceMgr->GetMediaById(windowIconId, iconPath);
+    if (iconPathErrval != OHOS::Global::Resource::RState::SUCCESS) {
+        HILOG_ERROR("GetMediaById iconPath failed");
+        return nullptr;
+    }
+    HILOG_DEBUG("GetMediaById iconPath: %{private}s", iconPath.c_str());
+
+    uint32_t errorCode = 0;
+    Media::SourceOptions opts;
+    auto imageSource = Media::ImageSource::CreateImageSource(iconPath, opts, errorCode);
+    if (errorCode != 0) {
+        HILOG_ERROR("Failed to create image source path %{private}s err %{public}d", iconPath.c_str(), errorCode);
+        return nullptr;
+    }
+
+    Media::DecodeOptions decodeOpts;
+    auto pixelMapPtr = imageSource->CreatePixelMap(decodeOpts, errorCode);
+    if (errorCode != 0) {
+        HILOG_ERROR("Failed to create pixelmap path %{private}s err %{public}d", iconPath.c_str(), errorCode);
+        return nullptr;
+    }
+    HILOG_DEBUG("%{public}s OUT.", __func__);
+    return sptr<Media::PixelMap>(pixelMapPtr.release());
+}
+
+void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions,
+    const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
+{
+    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
+        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
+        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
+        return;
+    }
+
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    auto pixelMap = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetSnapshot(missionId_);
+    if (!pixelMap) {
+        HILOG_WARN("%{public}s, Get snapshot failed.", __func__);
+        return;
+    }
+
+    sptr<AbilityTransitionInfo> info;
+    if (startOptions) {
+        info = CreateAbilityTransitionInfo(token_, startOptions, want);
+    } else {
+        info = CreateAbilityTransitionInfo(abilityRequest, token_);
+    }
+
+    SetStartingWindow(true);
+    windowHandler->StartingWindow(info, pixelMap);
+}
+
+void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions,
+    const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
+{
+    if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
+        abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
+        HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
+        return;
+    }
+
+    auto windowHandler = GetWMSHandler();
+    if (!windowHandler) {
+        HILOG_WARN("%{public}s, Get WMS handler failed.", __func__);
+        return;
+    }
+
+    auto resourceMgr = CreateResourceManager(abilityInfo_);
+    if (!resourceMgr) {
+        HILOG_WARN("%{public}s, Get resourceMgr failed.", __func__);
+        return;
+    }
+
+    auto windowIconId = static_cast<uint32_t>(abilityInfo_.startWindowIconId);
+    auto pixelMap = GetPixelMap(windowIconId, resourceMgr);
+
+    uint32_t bgColor = 0;
+    auto colorId = static_cast<uint32_t>(abilityInfo_.startWindowBackgroundId);
+    auto colorErrval = resourceMgr->GetColorById(colorId, bgColor);
+    if (colorErrval != OHOS::Global::Resource::RState::SUCCESS) {
+        HILOG_WARN("%{public}s. Failed to GetColorById.", __func__);
+        bgColor = 0xdfffffff;
+    }
+    HILOG_DEBUG("%{public}s colorId is %{public}u, bgColor is %{public}u.", __func__, colorId, bgColor);
+
+    sptr<AbilityTransitionInfo> info;
+    if (startOptions) {
+        info = CreateAbilityTransitionInfo(token_, startOptions, want);
+    } else {
+        info = CreateAbilityTransitionInfo(abilityRequest, token_);
+    }
+
+    SetStartingWindow(true);
+    windowHandler->StartingWindow(info, pixelMap, bgColor);
+}
+#endif
 
 void AbilityRecord::BackgroundAbility(const Closure &task)
 {

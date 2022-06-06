@@ -29,10 +29,6 @@
 #include "snapshot.h"
 #include "start_options.h"
 #include "want.h"
-#ifdef SUPPORT_GRAPHICS
-#include "resource_manager.h"
-#include "window_manager_service_handler.h"
-#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -366,37 +362,8 @@ public:
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const;
 
 private:
-    void NotifyAnimationFromRecentTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        const std::shared_ptr<StartOptions> &startOptions, const Want &want) const;
-    void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
-        const AbilityRequest &abilityRequest, const sptr<IRemoteObject> abilityToken) const;
-    void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
-    void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
-    void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const Want &want) const;
-
-    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
-
-    void StartingWindowCold(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        const std::shared_ptr<StartOptions> &startOptions, const Want &want,
-        const AbilityRequest &abilityRequest) const;
-    void StartingWindowHot(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        const std::shared_ptr<StartOptions> &startOptions, const Want &want, const AbilityRequest &abilityRequest,
-        int32_t missionId) const;
-    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
-        const AppExecFwk::AbilityInfo &abilityInfo) const;
-    sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
-        std::shared_ptr<Global::Resource::ResourceManager> resourceManager) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
-        const std::shared_ptr<StartOptions> &startOptions, const Want &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-        const sptr<IRemoteObject> abilityToken) const;
-    void CancelStartingWindow(const sptr<IRemoteObject> abilityToken, bool isDelay) const;
-    void NotifyStartingWindow(bool isCold, const std::shared_ptr<Mission> &targetMission,
-        const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const AbilityRequest &abilityRequest,
-        const std::shared_ptr<AbilityRecord> &callerAbility);
-    void NotifyStartingWindow(bool isCold, const std::shared_ptr<AbilityRecord> &targetAbilityRecord,
-        std::shared_ptr<StartOptions> &startOptions, int32_t missionId);
-    void ProcessForeground(std::shared_ptr<AbilityRecord> &abilityRecord);
+    Closure GetCancelStartingWindow(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
+    void CancelStartingWindow(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
 #endif
 
 private:
@@ -413,7 +380,7 @@ private:
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
     void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
-        std::shared_ptr<AbilityRecord> &targetRecord, bool &isCold);
+        std::shared_ptr<AbilityRecord> &targetRecord);
     void MoveMissionToTargetList(bool isCallFromLauncher,
         const std::shared_ptr<MissionList> &targetMissionList,
         const std::shared_ptr<Mission> &mission);
@@ -436,7 +403,7 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
-    std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission, bool &isCold);
+    std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
     void UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void PostStartWaittingAbility();
     void HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);

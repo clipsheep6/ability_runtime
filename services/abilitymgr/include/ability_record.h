@@ -25,19 +25,22 @@
 #include "ability_connect_callback_interface.h"
 #include "ability_info.h"
 #include "ability_start_setting.h"
+#include "ability_state.h"
 #include "ability_token_stub.h"
-#ifdef SUPPORT_GRAPHICS
-#include "ability_window_configuration.h"
-#endif
 #include "app_scheduler.h"
 #include "application_info.h"
-#include "ability_state.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "call_container.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
-#include "want.h"
 #include "uri.h"
+#include "want.h"
+#ifdef SUPPORT_GRAPHICS
+#include "ability_window_configuration.h"
+#include "resource_manager.h"
+#include "start_options.h"
+#include "window_manager_service_handler.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -275,7 +278,7 @@ public:
      * process request of foregrounding the ability.
      *
      */
-    void ProcessForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
+    void ProcessForegroundAbility(uint32_t sceneFlag = 0);
 
     /**
      * move the ability to back ground.
@@ -327,6 +330,11 @@ public:
      * @param scheduler , ability scheduler.
      */
     void SetScheduler(const sptr<IAbilityScheduler> &scheduler);
+
+    inline sptr<IAbilityScheduler> GetScheduler() const
+    {
+        return scheduler_;
+    }
 
     /**
      * get ability's token.
@@ -401,6 +409,14 @@ public:
     {
         isStartingWindow_ = isStartingWindow;
     }
+
+    /**
+     * process request of foregrounding the ability.
+     *
+     */
+    void ProcessForegroundAbility(bool isRecent, const AbilityRequest &abilityRequest,
+        std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
+        uint32_t sceneFlag = 0);
 #endif
 
     /**
@@ -787,6 +803,40 @@ private:
         std::string srcAbilityId);
     
     bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken);
+
+#ifdef SUPPORT_GRAPHICS
+    std::shared_ptr<Want> GetWantFromMission() const;
+    void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
+        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
+    void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
+    void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
+        sptr<AbilityTransitionInfo> &info) const;
+    void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
+        const AbilityRequest &abilityRequest) const;
+    void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want) const;
+
+    void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
+        std::shared_ptr<StartOptions> &startOptions);
+    void StartingWindowColdTask(bool isRecnet, const AbilityRequest &abilityRequest,
+        std::shared_ptr<StartOptions> &startOptions);
+    void CancelStartingWindowColdTask();
+    void CancelStartingWindowHotTask();
+    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
+    void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
+        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> abilityToken) const;
+    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
+        const AppExecFwk::AbilityInfo &abilityInfo) const;
+    sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
+        std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
+    void StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
+        const AbilityRequest &abilityRequest);
+    void StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
+        const AbilityRequest &abilityRequest);
+#endif
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
