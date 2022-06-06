@@ -770,6 +770,8 @@ public:
     virtual int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
         int32_t userId, int requestCode = DEFAULT_INVAL_VALUE) override;
 
+    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -883,7 +885,6 @@ private:
      */
     void GetGlobalConfiguration();
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     int StartRemoteAbility(const Want &want, int requestCode);
     int ConnectLocalAbility(
         const Want &want,

@@ -24,10 +24,10 @@
 #include "errors.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
+#include "in_process_call_wrapper.h"
 #include "mission_info_mgr.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
-#include "in_process_call_wrapper.h"
 #endif
 
 namespace OHOS {
@@ -44,6 +44,12 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
+
+int32_t GetUserIdByUid(int32_t uid)
+{
+    return uid / BASE_USER_RANGE;
+}
+
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -209,7 +215,10 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
 
 void MissionListManager::EnqueueWaittingAbility(const AbilityRequest &abilityRequest)
 {
+    HILOG_INFO("%{public}s. ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+        abilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
     waittingAbilityQueue_.push(abilityRequest);
+    HILOG_INFO("%{public}s. waiting queue size is %{public}zu", __func__, waittingAbilityQueue_.size());
     return;
 }
 
@@ -219,10 +228,15 @@ void MissionListManager::EnqueueWaittingAbilityToFront(const AbilityRequest &abi
     std::queue<AbilityRequest> abilityQueue;
     abilityQueue.push(abilityRequest);
     waittingAbilityQueue_.swap(abilityQueue);
+    HILOG_INFO("%{public}s. front ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+        abilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
+
     while (!abilityQueue.empty()) {
         AbilityRequest tempAbilityRequest = abilityQueue.front();
         abilityQueue.pop();
         waittingAbilityQueue_.push(tempAbilityRequest);
+        HILOG_INFO("%{public}s. ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+            tempAbilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
     }
 }
 
@@ -240,12 +254,48 @@ void MissionListManager::StartWaittingAbility()
 
     if (!waittingAbilityQueue_.empty()) {
         AbilityRequest abilityRequest = waittingAbilityQueue_.front();
-        HILOG_INFO("%{public}s. ability name: %{public}s", __func__, abilityRequest.abilityInfo.name.c_str());
+        HILOG_INFO("%{public}s. ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+            abilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
         waittingAbilityQueue_.pop();
+        HILOG_INFO("%{public}s. waiting queue size is %{public}zu", __func__, waittingAbilityQueue_.size());
+
+        AppExecFwk::BundleInfo bundleInfo;
+        AppExecFwk::HapModuleInfo hapModuleInfo;
+        if (!GetBundleAndHapInfo(abilityRequest.abilityInfo, abilityRequest.appInfo, bundleInfo, hapModuleInfo)) {
+            HILOG_WARN("%{public}s. The ability was uninstalled, not to start.", __func__);
+            return;
+        }
         auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
         StartAbility(topAbility, callerAbility, abilityRequest);
         return;
     }
+}
+
+bool MissionListManager::GetBundleAndHapInfo(const AppExecFwk::AbilityInfo &abilityInfo,
+    const AppExecFwk::ApplicationInfo &appInfo, AppExecFwk::BundleInfo &bundleInfo,
+    AppExecFwk::HapModuleInfo &hapModuleInfo)
+{
+    auto bundleMgr = DelayedSingleton<AbilityManagerService>::GetInstance()->GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleManager fail");
+        return false;
+    }
+
+    auto userId = GetUserIdByUid(appInfo.uid);
+    HILOG_INFO("GetBundleAndHapInfo come, call bms GetBundleInfo and GetHapModuleInfo, userId is %{public}d", userId);
+    bool bundleMgrResult = IN_PROCESS_CALL(bundleMgr->GetBundleInfo(appInfo.bundleName,
+        AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
+    if (!bundleMgrResult) {
+        HILOG_ERROR("GetBundleInfo is fail");
+        return false;
+    }
+    bundleMgrResult = bundleMgr->GetHapModuleInfo(abilityInfo, userId, hapModuleInfo);
+    if (!bundleMgrResult) {
+        HILOG_ERROR("GetHapModuleInfo is fail");
+        return false;
+    }
+
+    return true;
 }
 
 int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -1988,6 +2038,7 @@ void MissionListManager::BackToLauncher()
 
     std::queue<AbilityRequest> emptyQueue;
     std::swap(waittingAbilityQueue_, emptyQueue);
+    HILOG_INFO("%{public}s. waiting queue size is %{public}zu", __func__, waittingAbilityQueue_.size());
 
     launcherList_->AddMissionToTop(launcherRootMission);
     MoveMissionListToTop(launcherList_);
@@ -2744,11 +2795,15 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (waittingAbilityQueue_.empty()) {
+        HILOG_INFO("%{public}s. waiting queue size is 0.", __func__);
         return;
     }
 
+    HILOG_INFO("%{public}s. waiting queue size is %{public}zu", __func__, waittingAbilityQueue_.size());
     AbilityRequest abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
+    HILOG_INFO("%{public}s. ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+        abilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
@@ -2778,15 +2833,20 @@ void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Wan
     HILOG_DEBUG("%{public}s called.", __func__);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     if (waittingAbilityQueue_.empty()) {
+        HILOG_INFO("%{public}s. waiting queue size is 0.", __func__);
         return;
     }
     waittingAbilityQueue_.pop();
 
     if (waittingAbilityQueue_.empty()) {
+        HILOG_INFO("%{public}s. waiting queue size is 0 after pop.", __func__);
         return;
     }
+    HILOG_INFO("%{public}s. waiting queue size is %{public}zu", __func__, waittingAbilityQueue_.size());
     AbilityRequest abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
+    HILOG_INFO("%{public}s. ability name: %{public}s, waiting queue size is %{public}zu", __func__,
+        abilityRequest.abilityInfo.name.c_str(), waittingAbilityQueue_.size());
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
