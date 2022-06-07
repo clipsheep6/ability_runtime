@@ -27,7 +27,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 AppMgrClient::AppMgrClient()
 {}
 
@@ -103,6 +102,5 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
 
 void AppMgrClient::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig)
 {}
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

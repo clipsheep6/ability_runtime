@@ -228,7 +228,6 @@ public:
         return 0;
     }
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_SERVICES_MOCK_FORM_MGR_SERVICE_H

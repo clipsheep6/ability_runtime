@@ -100,7 +100,6 @@ private:
     static constexpr int VALUE_NULL = -1;
     // object exist in parcel
     static constexpr int VALUE_OBJECT = 1;
-
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

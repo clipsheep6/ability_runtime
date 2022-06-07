@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 std::mutex ApplicationStateObserverStub::callbackMutex_;
 
 ApplicationStateObserverStub::ApplicationStateObserverStub()

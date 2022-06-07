@@ -223,7 +223,6 @@ INTERFACE(IRemoteObjectWrap, 520d74e7 - 9aff - 7191 - 31b5 - f60c47f25c41)
 
     virtual sptr<IRemoteObject> GetValue() = 0;
 };
-
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_AAFWK_BASE_IINTERFACE_H

@@ -876,7 +876,6 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
             delete work;
             work = nullptr;
         });
-
     if (rev != 0) {
         if (onRequestPermissionCB != nullptr) {
             delete onRequestPermissionCB;

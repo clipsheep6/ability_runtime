@@ -440,7 +440,6 @@ bool ContinuationManager::HandleContinueAbility(bool reversible, const std::stri
     auto task = [continuationHandler, continueToken, deviceId]() {
         continuationHandler->HandleStartContinuation(continueToken, deviceId);
     };
-
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("ContinuationManager::HandleContinueAbility failed.PostTask failed");
         return false;

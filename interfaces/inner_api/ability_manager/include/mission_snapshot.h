@@ -37,7 +37,6 @@ struct MissionSnapshot : public Parcelable {
     virtual bool Marshalling(Parcel &parcel) const override;
     static MissionSnapshot *Unmarshalling(Parcel &parcel);
 };
-
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif  // OHOS_AAFWK_INTERFACES_INNERKITS_MISSION_SNAPSHOT_H

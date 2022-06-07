@@ -347,6 +347,5 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_InActive_003, TestSize.Level1)
 
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_InActive_003 end";
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

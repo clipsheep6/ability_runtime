@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 void ContinuationRegisterManager::Init(
     const std::shared_ptr<ContinuationRegisterManagerProxy> &continuationRegisterManagerProxy)
 {

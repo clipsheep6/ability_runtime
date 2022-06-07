@@ -241,7 +241,6 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
             return item.missionInfo.id == missionId;
         }
     );
-
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
         return -1;
@@ -270,7 +269,6 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
             return item.missionInfo.id == missionId;
         }
     );
-
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
         return -1;
@@ -291,7 +289,6 @@ bool MissionInfoMgr::FindReusedSingletonMission(const std::string &missionName, 
             return (missionName == item.missionName && item.isSingletonMode);
         }
     );
-
     if (it == missionInfoList_.end()) {
         HILOG_WARN("can not find target singleton mission:%{public}s", missionName.c_str());
         return false;

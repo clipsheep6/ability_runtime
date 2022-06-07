@@ -132,6 +132,5 @@ bool Mission::UpdateMissionId(int32_t id, int32_t method)
     missionId_ = id;
     return true;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

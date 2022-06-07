@@ -20,7 +20,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 ConnectCallbackStub::ConnectCallbackStub()
 {
     memberFuncMap_[COMMAND_CONNECT] = &ConnectCallbackStub::ConnectInner;

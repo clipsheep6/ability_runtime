@@ -52,6 +52,5 @@ AppMgrResultCode MockAppMgrClient::RegisterAppStateCallback(const sptr<IAppState
 {
     return AppMgrResultCode::RESULT_OK;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

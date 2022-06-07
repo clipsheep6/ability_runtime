@@ -31,7 +31,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 class DemoAbilityManagerClientData {
 public:
     DemoAbilityManagerClientData() {};
@@ -71,7 +70,6 @@ ErrCode AbilityManagerClient::ReleaseDataAbility(
 {
     return ERR_OK;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS
 

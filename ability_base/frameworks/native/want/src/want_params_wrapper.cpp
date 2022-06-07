@@ -18,7 +18,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 constexpr int32_t WANT_PARAM_WRAPPER_TWO = 2;
 
 IINTERFACE_IMPL_1(WantParamWrapper, Object, IWantParams);

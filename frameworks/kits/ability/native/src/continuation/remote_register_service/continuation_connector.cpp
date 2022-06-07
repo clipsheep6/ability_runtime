@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 sptr<ContinuationConnector> ContinuationConnector::instance_ = nullptr;
 std::mutex ContinuationConnector::mutex_;
 const std::string ContinuationConnector::CONNECTOR_DEVICE_ID("");
@@ -269,6 +268,5 @@ void ContinuationConnector::BindRemoteRegisterAbility()
     tmpcontext->ConnectAbility(want, this);
     HILOG_INFO("%{public}s called end", __func__);
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

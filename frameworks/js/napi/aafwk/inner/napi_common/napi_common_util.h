@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 static constexpr int32_t DEFAULT_BUF_SIZE = 1024;
 static constexpr int32_t ASYNC_RST_SIZE = 2;
 
@@ -255,7 +254,6 @@ void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *dat
 std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_APPEXECFWK_NAPI_COMMON_UTIL_H

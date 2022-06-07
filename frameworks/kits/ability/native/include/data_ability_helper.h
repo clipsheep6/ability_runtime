@@ -350,7 +350,6 @@ public:
 private:
     RemoteDiedHandler handler_;
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H

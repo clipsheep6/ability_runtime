@@ -776,6 +776,5 @@ HWTEST_F(DataAbilityHelperForObserverTest, AaFwk_DataAbilityHelper_DenormalizeUr
 
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityHelper_DenormalizeUri_0200 end";
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

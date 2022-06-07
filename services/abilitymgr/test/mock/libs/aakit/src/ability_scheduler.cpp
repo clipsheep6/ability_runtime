@@ -19,7 +19,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 AbilityScheduler::AbilityScheduler()
 {}
 

@@ -447,7 +447,6 @@ ErrCode AbilityManagerShellCommand::RunAsDumpsysCommand()
     }
 
     while (true) {
-
         int option = getopt_long(argc_, argv_, SHORT_OPTIONS_DUMPSYS.c_str(), LONG_OPTIONS_DUMPSYS, nullptr);
 
         HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);

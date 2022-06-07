@@ -1295,6 +1295,5 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess004, TestSize.Level1)
     EXPECT_EQ(record1, nullptr);
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartProcess004 end");
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

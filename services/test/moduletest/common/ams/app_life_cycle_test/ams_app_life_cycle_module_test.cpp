@@ -951,7 +951,6 @@ HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_013, TestSize.Level3)
  */
 HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_014, TestSize.Level1)
 {
-
     pid_t pid = 1000;
     sptr<IRemoteObject> token = GetAbilityToken();
     auto abilityInfo = GetAbilityInfo("0", "MainAbility", "p1", "com.ohos.test.special");

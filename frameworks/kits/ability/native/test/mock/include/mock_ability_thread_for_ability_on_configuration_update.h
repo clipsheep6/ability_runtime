@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 class AbilityTest : public Ability {
 public:
     AbilityTest() = default;
@@ -50,7 +49,6 @@ public:
 };
 
 std::shared_ptr<AbilityTest> AbilityTest::abilitTest_ = nullptr;
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

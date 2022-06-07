@@ -402,9 +402,7 @@ public:
     {
         return true;
     }
-
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

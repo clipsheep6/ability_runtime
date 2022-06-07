@@ -167,7 +167,6 @@ private:
     mutable std::mutex abilityMutex_;
     std::weak_ptr<Ability> owner_;
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_FORM_PROVIDER_CLIENT_H

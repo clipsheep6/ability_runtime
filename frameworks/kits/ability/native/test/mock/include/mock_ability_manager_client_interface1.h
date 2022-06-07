@@ -31,7 +31,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 class IAbilityMock : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.AbilityMock");
@@ -77,7 +76,6 @@ public:
 
 namespace OHOS {
 namespace AAFwk {
-
 class MockAbilityManagerClient : public AbilityManagerClient {
 public:
     MockAbilityManagerClient();

@@ -348,7 +348,6 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
         }
         for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
              it++) {
-
             if (!out.WriteInt32(it->first)) {
                 HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
                 return false;

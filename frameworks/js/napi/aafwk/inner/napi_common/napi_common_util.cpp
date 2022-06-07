@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
 {
     napi_valuetype valueType = napi_undefined;

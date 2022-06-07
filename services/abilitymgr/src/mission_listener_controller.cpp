@@ -89,7 +89,6 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
             return (item && item->AsObject() == listener->AsObject());
         }
     );
-
     if (it != missionListeners_.end()) {
         missionListeners_.erase(it);
     }
@@ -153,7 +152,6 @@ void MissionListenerController::HandleUnInstallApp(const std::list<int32_t> &mis
         }
     };
     handler_->PostTask(task);
-
 }
 
 void MissionListenerController::NotifyMissionSnapshotChanged(int32_t missionId)
@@ -232,7 +230,6 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
             return (item && item->AsObject() == remoteObj);
         }
     );
-
     if (it != missionListeners_.end()) {
         missionListeners_.erase(it);
     }

@@ -18,7 +18,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 #define NAPI_ERR_NO_ERROR 0
 #define NAPI_ERR_NO_PERMISSION -100
 #define NAPI_ERR_INNER_DATA -101            // Internal data error, data allocation fail

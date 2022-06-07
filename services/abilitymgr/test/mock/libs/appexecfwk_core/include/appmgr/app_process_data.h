@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 struct AppProcessData : public Parcelable {
     /**
      * @brief read this Sequenceable object from a Parcel.

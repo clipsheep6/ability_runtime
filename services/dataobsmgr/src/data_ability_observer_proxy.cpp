@@ -19,7 +19,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-
 DataAbilityObserverProxy::DataAbilityObserverProxy(const sptr<IRemoteObject> &remote)
     : IRemoteProxy<IDataAbilityObserver>(remote)
 {}

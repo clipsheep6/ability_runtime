@@ -1577,7 +1577,6 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     }
     bool success = continuationManager_->RestoreData(
         want.GetParams(), reversible, want.GetStringParam(ContinuationHandler::ORIGINAL_DEVICE_ID));
-
     if (success && reversible) {
         // Register this ability to receive reverse continuation callback.
         std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> ReplicaHandler = continuationHandler_;
@@ -2558,7 +2557,6 @@ ErrCode Ability::CastTempForm(const int64_t formId)
 
     HILOG_INFO("%{public}s, castTempForm begin of temp form %{public}" PRId64, __func__, formId);
     ErrCode result = FormMgr::GetInstance().CastTempForm(formId, FormHostClient::GetInstance());
-
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s error, some internal server occurs, error code is %{public}d.", __func__, result);
         return result;
@@ -2797,7 +2795,6 @@ void Ability::ProcessFormUninstall(const int64_t formId)
         std::lock_guard<std::mutex> lock(formLock);
         // get callback iterator by formId
         std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = appCallbacks_.find(formId);
-
         // call the callback function when you need to be notified
         if (appCallbackIterator == appCallbacks_.end()) {
             HILOG_ERROR("%{public}s failed, callback not find, formId: %{public}" PRId64 ".", __func__, formId);
@@ -3052,7 +3049,6 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
         // get callback iterator by formId
         std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
             appCallbacks_.find(formJsInfo.formId);
-
         // call the callback function when you need to be notified
         if (appCallbackIterator == appCallbacks_.end()) {
             HILOG_ERROR(
@@ -3261,7 +3257,6 @@ void Ability::OnDeathReceived()
                 // get callback iterator by formId
                 std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
                     appCallbacks_.find(formId);
-
                 if (appCallbackIterator == appCallbacks_.end()) {
                     HILOG_WARN("%{public}s error, lack of form callback for form, formId:%{public}" PRId64 ".",
                         __func__,
@@ -3580,7 +3575,6 @@ void Ability::DoOnForeground(const Want& want)
         HILOG_INFO("%{public}s end abilityWindow_->OnPostAbilityForeground.", __func__);
     } else {
         HILOG_INFO("========================abilityWindow_ != nullptr ======================");
-
     }
 }
 

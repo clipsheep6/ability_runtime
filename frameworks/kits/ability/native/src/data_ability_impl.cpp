@@ -340,6 +340,5 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
     HILOG_INFO("DataAbilityImpl::ExecuteBatch end, results size:%{public}zu", results.size());
     return results;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

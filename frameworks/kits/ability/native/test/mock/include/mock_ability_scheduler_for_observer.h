@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 // copy AbilityThread class
 class MockAbilitySchedulerStub : public AAFwk::AbilitySchedulerStub {
 public:
@@ -71,7 +70,6 @@ public:
         return sptr<IRemoteObject>(nullptr);
     };
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

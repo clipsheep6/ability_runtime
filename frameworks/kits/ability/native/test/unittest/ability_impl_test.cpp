@@ -1187,7 +1187,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_GetCurrentState_001, TestSize.Level1
  */
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DoKeyDown_001, TestSize.Level1)
 {
-
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DoKeyDown_001 start";
     auto keyEvent = MMI::KeyEvent::Create();
     AbilityImpl_->DoKeyDown(keyEvent);
@@ -1236,7 +1235,6 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DoTouchEvent_001, TestSize.Level1)
  */
 HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_001, TestSize.Level1)
 {
-
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SendResult_001 start";
     std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();

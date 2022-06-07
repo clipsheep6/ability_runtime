@@ -90,7 +90,6 @@ bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, int32_t flags, 
         abilityInfo.applicationInfo.singleton = false;
     }
     return flag;
-
 }
 
 bool BundleMgrService::QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo)

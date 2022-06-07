@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 /**
  * @brief A constructor used to create a DataAbilityResult instance
  * with the input parameter count specified.
@@ -178,6 +177,5 @@ bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
 
     return true;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

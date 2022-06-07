@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 class AbilityHandler;
 class AbilityPostEventTimeout : public std::enable_shared_from_this<AbilityPostEventTimeout> {
 public:
@@ -47,7 +46,6 @@ private:
 
     static std::atomic<uint32_t> allocationId_;
 };
-
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_POST_EVENT_TIMEOUT_H

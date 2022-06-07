@@ -391,6 +391,5 @@ bool ContinuationHandler::ReverseContinueAbility()
     HILOG_INFO("%{public}s called end", __func__);
     return requestSendSuccess;
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

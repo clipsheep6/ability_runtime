@@ -122,6 +122,5 @@ void ReverseContinuationSchedulerReplica::HandlerNotifyReverseResult(int reverse
     replicaHandlerTmp->NotifyReverseResult(reverseResult);
     HILOG_INFO("%{public}s called end", __func__);
 }
-
 }  // namespace AppExecFwk
 }  // namespace OHOS

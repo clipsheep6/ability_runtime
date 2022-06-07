@@ -97,7 +97,6 @@ public:
  * AppScheduler , access app manager service.
  */
 class AppScheduler : virtual RefBase, public AppExecFwk::AppStateCallbackHost {
-
     DECLARE_DELAYED_SINGLETON(AppScheduler)
 public:
     /**

@@ -26,7 +26,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 napi_ref thread_local g_dataAbilityHelper;
 bool thread_local g_dataAbilityHelperStatus = false;
 
