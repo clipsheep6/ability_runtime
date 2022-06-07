@@ -46,7 +46,6 @@ void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type
         EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
         EVENT_KEY_VERSION_NAME, eventInfo.versionName,
         EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
         EVENT_KEY_PROCESS_NAME, eventInfo.processName);
 }
 
@@ -82,6 +81,8 @@ void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType 
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
+            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+            EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
     }
 }
@@ -154,7 +155,7 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
-            EVENT_KEY_ABILITY_NAME, eventInfo.formId,
+            EVENT_KEY_FORM_ID, eventInfo.formId,
             EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
             EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
             EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
@@ -164,7 +165,7 @@ void EventReport::SendFormEvent(const std::string &eventName, HiSysEventType typ
             HiSysEvent::Domain::AAFWK,
             eventName,
             type,
-            EVENT_KEY_ABILITY_NAME, eventInfo.formId);
+            EVENT_KEY_FORM_ID, eventInfo.formId);
     }
 }
 }  // namespace AAFWK

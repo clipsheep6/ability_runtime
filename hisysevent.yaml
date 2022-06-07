@@ -111,6 +111,18 @@ CLOSE_ABILITY:
 TERMINATE_ABILITY:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: terminate ability}
 
+ABILITY_ONFOREGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
+ABILITY_ONBACKGROUND:
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start ability}
+  BUNDLE_NAME: {type: STRING, desc: bundle name}
+  MODULE_NAME: {type: STRING, desc: module name}
+  ABILITY_NAME: {type: STRING, desc: ability name}
+
 # serviceExtensionAbility behavior event
 
 START_SERVICE:
@@ -143,7 +155,7 @@ DISCONNECT_SERVICE:
 
 APP_ATTACH:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: attach app}
-  PID: {type: INT32, desc: pid}
+  APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
@@ -151,7 +163,7 @@ APP_ATTACH:
 
 APP_LAUNCH:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: launch app}
-  PID: {type: INT32, desc: pid}
+  APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
@@ -159,7 +171,7 @@ APP_LAUNCH:
 
 APP_FOREGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: foreground app}
-  PID: {type: INT32, desc: pid}
+  APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
@@ -167,7 +179,7 @@ APP_FOREGROUND:
 
 APP_BACKGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: background app}
-  PID: {type: INT32, desc: pid}
+  APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}
@@ -175,7 +187,7 @@ APP_BACKGROUND:
 
 APP_TERMINATE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: terminate app}
-  PID: {type: INT32, desc: pid}
+  APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
   PROCESS_NAME: {type: STRING, desc: process name}

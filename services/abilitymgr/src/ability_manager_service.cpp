@@ -960,11 +960,12 @@ int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, in
     AAFWK::EventInfo eventInfo;
     AAFWK::EventReport::SendAbilityEvent(AAFWK::TERMINATE_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
+    eventInfo.errCode = TerminateAbilityWithFlag(token, resultCode, resultWant, true);
     if (eventInfo.errCode != ERR_OK) {
         AAFWK::EventReport::SendAbilityEvent(AAFWK::TERMINATE_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
     }
-    return TerminateAbilityWithFlag(token, resultCode, resultWant, true);
+    return eventInfo.errCode;
 }
 
 int AbilityManagerService::CloseAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
@@ -1325,7 +1326,7 @@ int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &con
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    if (ERR_OK != DisconnectRemoteAbility(connect->AsObject()) &&
+    if (ERR_OK != DisconnectLocalAbility(connect) &&
         ERR_OK != DisconnectRemoteAbility(connect->AsObject())) {
         eventInfo.errCode = INNER_ERR;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::DISCONNECT_SERVICE_ERROR,

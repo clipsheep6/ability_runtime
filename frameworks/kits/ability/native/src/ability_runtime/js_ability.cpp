@@ -294,7 +294,14 @@ void JsAbility::OnForeground(const Want &want)
     }
     HILOG_INFO("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
     AAFWK::EventInfo eventInfo;
-    eventInfo.abilityName = GetAbilityName();
+    if (abilityContext_ != nullptr) {
+        auto abilityinfo = abilityContext_->GetAbilityInfo();
+        if (abilityinfo != nullptr) {
+            eventInfo.bundleName = abilityinfo->bundleName;
+            eventInfo.moduleName = abilityinfo->moduleName;
+            eventInfo.abilityName = abilityinfo->name;
+        }
+    }
     AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONFOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
@@ -317,7 +324,14 @@ void JsAbility::OnBackground()
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
     AAFWK::EventInfo eventInfo;
-    eventInfo.abilityName = GetAbilityName();
+    if (abilityContext_ != nullptr) {
+        auto abilityinfo = abilityContext_->GetAbilityInfo();
+        if (abilityinfo != nullptr) {
+            eventInfo.bundleName = abilityinfo->bundleName;
+            eventInfo.moduleName = abilityinfo->moduleName;
+            eventInfo.abilityName = abilityinfo->name;
+        }
+    }
     AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONBACKGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
 }
