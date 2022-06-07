@@ -47,6 +47,6 @@ ohos_shared_library("uri_permission_mgr") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

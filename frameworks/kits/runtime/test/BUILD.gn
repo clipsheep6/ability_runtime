@@ -18,6 +18,6 @@ ohos_executable("runtime_test") {
 
   external_deps = [ "ability_runtime:runtime" ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

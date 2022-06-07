@@ -68,7 +68,7 @@ ohos_source_set("tools_aa_source_set") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_tools"
 }
 
@@ -93,7 +93,7 @@ ohos_executable("aa") {
 
   install_enable = true
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_tools"
 }
 

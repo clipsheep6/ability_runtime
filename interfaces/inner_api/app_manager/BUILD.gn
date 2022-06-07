@@ -102,6 +102,6 @@ ohos_shared_library("app_manager") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

@@ -56,7 +56,7 @@ ohos_shared_library("missionmanager_napi") {
 
   relative_install_dir = "module/application"
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 
@@ -98,6 +98,6 @@ ohos_shared_library("distributedmissionmanager") {
 
   relative_install_dir = "module"
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

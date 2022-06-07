@@ -49,6 +49,6 @@ ohos_shared_library("napi_app_mgr") {
   }
 
   relative_install_dir = "module"
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

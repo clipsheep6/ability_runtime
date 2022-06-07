@@ -27,6 +27,6 @@ ohos_shared_library("napi_base_context") {
 
   external_deps = [ "napi:ace_napi" ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
