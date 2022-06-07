@@ -80,4 +80,7 @@ abilityms_files = [
   "src/atomic_service_status_callback_stub.cpp",
   "src/atomic_service_status_callback.cpp",
   "src/free_install_manager.cpp",
+
+  #background_task_observer
+  "src/background_task_observer.cpp",
 ]

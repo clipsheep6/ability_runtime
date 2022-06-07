@@ -34,6 +34,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "hitrace_meter.h"
+#include "background_task_mgr_helper.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
 #include "hilog_wrapper.h"
@@ -245,6 +246,12 @@ bool AbilityManagerService::Init()
 
     auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startSystemTask, "StartSystemApplication");
+
+    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
+    if (ERR_OK != BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(*bgtaskObserver_)) {
+        HILOG_ERROR("register bgtaskObserver fail");
+    }
+
     HILOG_INFO("Init success.");
     return true;
 }
@@ -4642,6 +4649,16 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
 {
     int32_t validUserId = GetValidUserId(userId);
     return freeInstallManager_->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
+}
+
+bool AbilityManagerService::IsBgTaskUid(const int uid)
+{
+    std::list<int> bgTaskUids = bgtaskObserver_->GetBgTaskUids();
+    auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), uid);
+    if (iter != bgTaskUids.end()) {
+        return true;
+    }
+    return false;
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
