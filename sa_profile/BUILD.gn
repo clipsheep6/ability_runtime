@@ -19,6 +19,7 @@ ohos_sa_profile("aafwk_sa_profile") {
     "182.xml",
     "183.xml",
     "501.xml",
+    "184.xml",
   ]
 
   part_name = "ability_runtime"

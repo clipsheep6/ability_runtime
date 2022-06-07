@@ -19,5 +19,6 @@ group("ams_services_target") {
     "common:ams_common_target",
     "dataobsmgr:dataobsms",
     "uripermmgr:libupms",
+    "mysamgr:libmysa",
   ]
 }
