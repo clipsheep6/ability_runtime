@@ -29,6 +29,8 @@ namespace OHOS {
 namespace AAFwk {
 #ifdef SUPPORT_GRAPHICS
 constexpr int32_t BPP = 4; // bytes per pixel
+constexpr float SCALE_X = 0.5f;
+constexpr float SCALE_Y = 0.5f;
 #endif
 
 MissionDataStorage::MissionDataStorage(int userId)
@@ -165,6 +167,14 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const MissionSnapsh
         const uint8_t* data = missionSnapshot.snapshot->GetPixels();
         saveMissionFile = WriteToPng(filePath.c_str(), missionSnapshot.snapshot->GetWidth(),
             missionSnapshot.snapshot->GetHeight(), data);
+
+        missionSnapshot.snapshot->scale(SCALE_X, SCALE_Y);
+        const uint8_t* dataLittle = missionSnapshot.snapshot->GetPixels();
+        filePath = GetMissionDataDirPath() + "/" + MISSION_JSON_FILE_PREFIX + "_" + std::to_string(missionId) + "_little" + PNG_FILE_SUFFIX;
+        HILOG_INFO("snapshot: begin save little snapshot %{public}s .", filePath.c_str());
+        saveMissionFile = WriteToPng(filePath.c_str(), missionSnapshot.snapshot->GetWidth(),
+            missionSnapshot.snapshot->GetHeight(), dataLittle);
+        HILOG_INFO("snapshot: end save little snapshot %{public}s .", filePath.c_str());
     }
 
     if (!saveMissionFile) {
