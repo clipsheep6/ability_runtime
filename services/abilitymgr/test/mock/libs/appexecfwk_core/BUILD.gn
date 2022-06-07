@@ -19,10 +19,10 @@ config("appexecfwk_core_mock_config") {
     "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/appmgr",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/bundlemgr",
-    "${aafwk_path}/interfaces/innerkits/ability_manager/include",
+    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${aafwk_path}/services/abilitymgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${aafwk_path}/interfaces/innerkits/app_manager/include/appmgr",
+    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${aafwk_path}/frameworks/kits/ability/native/include/",
     "//base/telephony/core_service/sim/include/",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/aakit/include/",
@@ -40,7 +40,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",

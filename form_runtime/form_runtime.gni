@@ -14,7 +14,7 @@
 ability_base_path = "//foundation/ability/ability_runtime/ability_base"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_runtime_path = "//foundation/ability/ability_runtime"
-ability_runtime_innerapi_path = "${ability_runtime_path}/interfaces/innerkits"
+ability_runtime_innerapi_path = "${ability_runtime_path}/interfaces/inner_api"
 ability_runtime_kits_path = "${ability_runtime_path}/frameworks/kits"
 ability_runtime_services_path = "${ability_runtime_path}/services"
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"

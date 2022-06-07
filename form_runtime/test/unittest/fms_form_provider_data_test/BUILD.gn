@@ -40,7 +40,7 @@ ohos_unittest("FmsFormProviderDataTest") {
   deps = [
     "${ability_base_path}:base",
     "${ability_base_path}:want",
-    "${ability_runtime_path}/interfaces/innerkits/app_manager:app_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",

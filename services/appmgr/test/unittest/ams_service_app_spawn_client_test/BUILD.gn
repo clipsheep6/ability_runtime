@@ -50,7 +50,7 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
   }
 
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
     "${ability_base_path}:base",
     "${ability_base_path}:want",

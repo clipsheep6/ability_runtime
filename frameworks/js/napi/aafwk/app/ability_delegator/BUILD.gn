@@ -11,38 +11,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import("//ark/ts2abc/ts2panda/ts2abc_config.gni")
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
-ohos_shared_library("uripermissionmanager_napi") {
+
+ohos_shared_library("abilitydelegatorregistry") {
+  include_dirs = [
+    "./",
+    "${kits_path}/appkit/native/ability_delegator/include/",
+  ]
+
   sources = [
-    "js_uri_perm_mgr.cpp",
+    "ability_monitor.cpp",
+    "js_ability_delegator.cpp",
+    "js_ability_delegator_registry.cpp",
+    "js_ability_delegator_utils.cpp",
+    "js_ability_monitor.cpp",
     "native_module.cpp",
   ]
 
   configs = [ "${services_path}/common:common_config" ]
 
-  include_dirs = []
-
   deps = [
-    "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
+    "${kits_path}/appkit:app_context",
+    "${kits_path}/appkit:app_context_utils",
+    "${kits_path}/appkit:appkit_delegator",
   ]
 
   external_deps = [
-    "ability_base:zuri",
+    "ability_base:base",
+    "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "napi:ace_napi",
   ]
 
   if (!ability_runtime_graphics) {
-    external_deps += [
-      "ipc:ipc_core",
-      "utils_base:utils",
-    ]
+    external_deps += [ "utils_base:utils" ]
   }
 
   relative_install_dir = "module/application"

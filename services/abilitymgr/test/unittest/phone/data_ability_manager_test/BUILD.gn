@@ -26,7 +26,7 @@ ohos_unittest("data_ability_manager_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
 
     # "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${aafwk_path}/interfaces/innerkits/ability_manager/include",
+    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${aafwk_path}/services/common/include",
   ]

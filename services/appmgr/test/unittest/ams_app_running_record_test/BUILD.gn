@@ -49,8 +49,8 @@ ohos_unittest("AmsAppRunningRecordTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",

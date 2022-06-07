@@ -56,11 +56,11 @@
         "build": {
           "sub_component": [
             "//foundation/ability/ability_runtime/services:ams_services_target",
-            "//foundation/ability/ability_runtime/interfaces/innerkits:innerkits_target",
+            "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
             "//foundation/ability/ability_runtime/frameworks/kits/ability/native:static_subscriber_ipc",
             "//foundation/ability/ability_runtime/frameworks/kits/ability/native:service_extension_module",
             "//foundation/ability/ability_runtime/sa_profile:aafwk_sa_profile",
-            "//foundation/ability/ability_runtime/interfaces/kits/napi:napi_packages",
+            "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
             "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime:ability_context_native",
             "//foundation/ability/ability_runtime/frameworks/kits/appkit:app_context",
             "//foundation/ability/ability_runtime/frameworks/kits/appkit:appkit_native",
@@ -69,7 +69,7 @@
           "inner_kits": [
             {
               "header": {
-                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/wantagent/include/",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent/include/",
                 "header_files": [
                   "cancel_listener.h",
                   "completed_callback.h",
@@ -87,7 +87,7 @@
             },
             {
               "header": {
-                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
                 "header_files": [
                   "ability_connect_callback_interface.h",
                   "ability_connect_callback_stub.h",
@@ -99,7 +99,7 @@
                   "stop_user_callback_stub.h"
                 ]
               },
-              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/ability_manager:ability_manager"
+              "name": "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager"
             },
             {
               "header": {
@@ -112,26 +112,26 @@
             },
             {
               "header": {
-                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/runtime/include/",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/",
                 "header_files": [
                   "js_runtime.h",
                   "runtime.h"
                 ]
               },
-              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/runtime:runtime"
+              "name": "//foundation/ability/ability_runtime/interfaces/inner_api/runtime:runtime"
             },
             {
               "header": {
-                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/napi_base_context/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/napi_base_context/include",
                 "header_files": [
                   "napi_base_context.h"
                 ]
               },
-              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/napi_base_context:napi_base_context"
+              "name": "//foundation/ability/ability_runtime/interfaces/inner_api/napi_base_context:napi_base_context"
             },
             {
               "header": {
-                "header_base": "//foundation/ability/ability_runtime/interfaces/innerkits/app_manager/include",
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager/include",
                 "header_files": [
                   "appmgr/app_mgr_client.h",
                   "appmgr/iapp_state_callback.h",
@@ -140,7 +140,7 @@
                   "appmgr/app_process_data.h"
                 ]
               },
-              "name": "//foundation/ability/ability_runtime/interfaces/innerkits/app_manager:app_manager"
+              "name": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager:app_manager"
             },
             {
               "header": {

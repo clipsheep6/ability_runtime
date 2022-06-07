@@ -27,7 +27,7 @@ config("module_private_config") {
     "//third_party/json/include",
     "//utils/native/base/include",
     "//sdk/appexecfwk_L2/appexecfwk_base/include",
-    "${aafwk_path}/interfaces/innerkits/ability_manager/include",
+    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
     "${bundlefwk_innerkits_path}/libeventhandler/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
@@ -38,7 +38,7 @@ config("module_private_config") {
     "${aafwk_path}/frameworks/kits/test/mock/DemoAbility",
     "${aafwk_path}/services/abilitymgr/include",
     "//third_party/jsoncpp/include",
-    "${aafwk_path}/interfaces/innerkits/dataobs_manager/include",
+    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
   ]
 }
 
@@ -82,8 +82,8 @@ ohos_moduletest("ability_moduletest") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -141,8 +141,8 @@ ohos_moduletest("ability_conetxt_test") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -181,7 +181,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:app_context",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -235,8 +235,8 @@ ohos_moduletest("data_ability_operation_moduletest") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -273,7 +273,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "${aafwk_path}/frameworks/kits/test/mock/DemoObServer",
     "${aafwk_path}/frameworks/kits/ability/native/test/mock/include",
     "${aafwk_path}/services/dataobsmgr/include",
-    "${aafwk_path}/interfaces/innerkits/dataobs_manager/include",
+    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
     "${distributedschedule_path}/samgr/services/samgr/native/include",
     "//foundation/communication/ipc/interfaces/innerkits/libdbinder/include",
   ]
@@ -289,7 +289,7 @@ ohos_moduletest("data_ability_helper_module_test") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",

@@ -24,7 +24,7 @@ ohos_unittest("pending_want_manager_dump_test") {
   configs = [ "${aafwk_path}/services/abilitymgr:abilityms_config" ]
 
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "//third_party/googletest:gtest_main",
   ]

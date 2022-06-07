@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,33 +11,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# import("//build/config/ohos/rules.gni")
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
-ohos_shared_library("featureability") {
+ohos_shared_library("datauriutils") {
   include_dirs = [
     "./",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/common/include",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/include",
+    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility",
   ]
 
   sources = [
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/common/src/js_utils.cpp",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/src/napi_result_set.cpp",
-    "feature_ability.cpp",
-    "feature_ability_constant.cpp",
-    "napi_context.cpp",
-    "napi_data_ability_helper.cpp",
-    "napi_data_ability_operation.cpp",
+    "napi_data_uri_utils.cpp",
     "native_module.cpp",
   ]
 
   deps = [
-    "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
-    "${innerkits_path}/dataobs_manager:dataobs_manager",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
     "${kits_path}/appkit:appkit_native",
-    "//third_party/libuv:uv_static",
   ]
 
   external_deps = [
@@ -47,26 +37,14 @@ ohos_shared_library("featureability") {
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
-    "ability_runtime:napi_base_context",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "dataability:native_dataability",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "relational_store:native_appdatafwk",
-    "relational_store:native_rdb",
-    "relational_store:rdb_data_share_adapter",
     "utils_base:utils",
-
-    #"appdatamgr_jskits:rdb",
   ]
-
-  if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
-  }
 
   relative_install_dir = "module/ability"
 

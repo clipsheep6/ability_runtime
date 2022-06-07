@@ -50,7 +50,7 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:want",
     "${services_path}/appmgr/test:appmgr_test_source",
   ]

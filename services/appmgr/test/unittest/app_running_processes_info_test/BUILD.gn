@@ -47,8 +47,8 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
     "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
     "${innerkits_path}/uri_permission:uri_permission_mgr",

@@ -81,7 +81,7 @@ ohos_shared_library("appkit_native") {
     "${aafwk_path}/services/common/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
   ]
 
   configs = [ ":appkit_config" ]

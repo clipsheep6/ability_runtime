@@ -22,7 +22,7 @@ ohos_unittest("AmsAbilityRunningRecordTest") {
   include_dirs = [
     "${ability_base_innerapi_path}/want/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include",
-    "${aafwk_path}/interfaces/innerkits/app_manager/inclide",
+    "${aafwk_path}/interfaces/inner_api/app_manager/inclide",
     "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
@@ -49,8 +49,8 @@ ohos_unittest("AmsAbilityRunningRecordTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",

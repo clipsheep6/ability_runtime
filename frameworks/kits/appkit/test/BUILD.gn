@@ -20,7 +20,7 @@ module_output_path = "ability_runtime/moduletest/application_test/"
 config("module_private_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/include/appmgr",
+    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${ability_base_innerapi_path}/uri/include",
     "${ability_base_innerapi_path}/want/include/ohos/aafwk_L2/content",
     "${aafwk_path}/frameworks/kits/appkit/native/test/mock/include",
@@ -43,7 +43,7 @@ config("module_private_config") {
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
 
@@ -60,8 +60,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
     "${ability_base_path}:configuration",
     "${ability_base_path}:want",
@@ -84,7 +84,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
 
@@ -101,8 +101,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
     "${ability_base_path}:configuration",
     "${ability_base_path}:want",
@@ -125,7 +125,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
 
@@ -142,8 +142,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
     "${ability_base_path}:configuration",
     "${ability_base_path}:want",
@@ -166,7 +166,7 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
 
@@ -183,8 +183,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
     "${ability_base_path}:configuration",
     "${ability_base_path}:want",

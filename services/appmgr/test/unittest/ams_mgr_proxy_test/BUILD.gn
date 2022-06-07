@@ -20,7 +20,7 @@ ohos_unittest("AmsMgrProxyTest") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/include/appmgr",
+    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${aafwk_path}/services/appmgr/include",
     "${aafwk_path}/services/appmgr/test/mock/include",
   ]

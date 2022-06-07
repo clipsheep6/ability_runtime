@@ -29,7 +29,7 @@ ohos_shared_library("abilitymanager_napi") {
   ]
 
   deps = [
-    "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
     "${services_path}/abilitymgr:abilityms",
   ]
 

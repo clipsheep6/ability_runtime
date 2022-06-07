@@ -29,7 +29,7 @@ ohos_unittest("dataobs_mgr_service_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/dataobs_manager:dataobs_manager",
+    "${aafwk_path}/interfaces/inner_api/dataobs_manager:dataobs_manager",
     "${aafwk_path}/services/dataobsmgr:dataobsms",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",

@@ -44,7 +44,7 @@ ohos_unittest("FmsFormDbRecordTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/interfaces/innerkits/app_manager:app_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${form_runtime_path}:fms_target",
 

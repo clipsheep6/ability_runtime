@@ -23,14 +23,14 @@ ohos_moduletest("IpcAbilityMgrServiceModuleTest") {
 
   configs = [
     "${services_path}/test:aafwk_module_test_config",
-    "${aafwk_path}/interfaces/innerkits/app_manager:appmgr_sdk_config",
+    "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${services_path}/common:perm_verification",

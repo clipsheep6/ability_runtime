@@ -20,8 +20,8 @@ ohos_unittest("AmsAppMgrClientTest") {
   module_out_path = module_output_path
   cflags_cc = []
   sources = [
-    "${aafwk_path}/interfaces/innerkits//app_manager/src/appmgr/app_mgr_client.cpp",
-    "${aafwk_path}/interfaces/innerkits//app_manager/src/appmgr/app_service_manager.cpp",
+    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_mgr_client.cpp",
+    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_service_manager.cpp",
   ]
 
   sources += [ "ams_app_mgr_client_test.cpp" ]
@@ -38,13 +38,13 @@ ohos_unittest("AmsAppMgrClientTest") {
   ]
 
   configs =
-      [ "${aafwk_path}/interfaces/innerkits/app_manager:appmgr_sdk_config" ]
+      [ "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:want",
     "${bundlefwk_path}/libs/libeventhandler:libeventhandler_target",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",

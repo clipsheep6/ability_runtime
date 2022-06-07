@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -14,49 +14,32 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
 
-ohos_shared_library("abilitydelegatorregistry") {
-  include_dirs = [
-    "./",
-    "${kits_path}/appkit/native/ability_delegator/include/",
-  ]
+ohos_shared_library("featureability_napi") {
+  include_dirs = []
 
   sources = [
-    "ability_monitor.cpp",
-    "js_ability_delegator.cpp",
-    "js_ability_delegator_registry.cpp",
-    "js_ability_delegator_utils.cpp",
-    "js_ability_monitor.cpp",
-    "native_module.cpp",
+    "distribute_constants.cpp",
+    "feature_ability_module.cpp",
+    "js_feature_ability.cpp",
   ]
 
   configs = [ "${services_path}/common:common_config" ]
 
-  deps = [
-    "${aafwk_path}/interfaces/kits/napi/aafwk/inner/napi_common:napi_common",
-    "${kits_path}/appkit:app_context",
-    "${kits_path}/appkit:app_context_utils",
-    "${kits_path}/appkit:appkit_delegator",
-  ]
+  deps =
+      [ "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common" ]
 
   external_deps = [
-    "ability_base:base",
     "ability_base:want",
-    "ability_runtime:ability_manager",
+    "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
+    "utils_base:utils",
   ]
 
-  if (!ability_runtime_graphics) {
-    external_deps += [ "utils_base:utils" ]
-  }
-
-  relative_install_dir = "module/application"
+  relative_install_dir = "module"
 
   subsystem_name = "aafwk"
   part_name = "ability_runtime"

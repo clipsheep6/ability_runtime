@@ -23,7 +23,7 @@ ohos_moduletest("ability_timeout_module_test") {
     "${services_path}/test/mock/include",
     "//third_party/jsoncpp/include",
     "${aafwk_path}/frameworks/kits/ability/native/include/distributed_ability_runtime",
-    "${aafwk_path}/interfaces/innerkits/dataobs_manager/include",
+    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include/xcollie",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
   ]
@@ -65,10 +65,10 @@ ohos_moduletest("ability_timeout_module_test") {
 
   configs = [
     "${services_path}/test:aafwk_module_test_config",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager_public_config",
+    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager_public_config",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock_config",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base_sdk_config",
-    "${aafwk_path}/interfaces/innerkits/app_manager:appmgr_sdk_config",
+    "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -76,7 +76,7 @@ ohos_moduletest("ability_timeout_module_test") {
   }
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",

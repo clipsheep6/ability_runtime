@@ -52,7 +52,7 @@ ohos_unittest("FmsFormSysEventReceiverTest") {
   }
   deps = [
     "${ability_runtime_path}/frameworks/kits/wantagent:wantagent_innerkits",
-    "${ability_runtime_path}/interfaces/innerkits/app_manager:app_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_path}/libs/libeventhandler:libeventhandler_target",
     "${form_runtime_path}:fms_target",

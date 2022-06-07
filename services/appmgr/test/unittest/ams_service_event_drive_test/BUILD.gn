@@ -32,7 +32,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
   ]
 
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/system_memory_attr.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/system_memory_attr.cpp",
     "${services_path}/appmgr/src/ability_running_record.cpp",
     "${services_path}/appmgr/src/app_death_recipient.cpp",
     "${services_path}/appmgr/src/app_mgr_service.cpp",
@@ -52,7 +52,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
     "${ability_base_path}:base",
     "${ability_base_path}:want",

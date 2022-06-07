@@ -17,7 +17,7 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 config("appmgr_test_config") {
   configs = [
     "${services_path}/appmgr:appmgr_config",
-    "${aafwk_path}/interfaces/innerkits/app_manager:appmgr_sdk_config",
+    "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
     "${aafwk_path}/services/test:services_mock_ams_config",
     "${bundlefwk_inner_api_path}/appexecfwk_core:bundlemgr_sdk_config",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base_sdk_config",
@@ -40,21 +40,21 @@ ohos_source_set("appmgr_test_source") {
   testonly = true
 
   sources = [
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_launch_data.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_proxy.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_mgr_stub.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_process_data.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_record_id.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_scheduler_host.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_scheduler_proxy.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_state_callback_host.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_state_callback_proxy.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/app_task_info.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/process_info.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/profile.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/render_scheduler_host.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/render_scheduler_proxy.cpp",
-    "${aafwk_path}/interfaces/innerkits/app_manager/src/appmgr/running_process_info.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_launch_data.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_proxy.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_process_data.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_record_id.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_scheduler_host.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_scheduler_proxy.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_state_callback_host.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_state_callback_proxy.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_task_info.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/process_info.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/profile.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/render_scheduler_host.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/render_scheduler_proxy.cpp",
+    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/running_process_info.cpp",
   ]
 
   include_dirs = [ "//third_party/json/include" ]
@@ -74,7 +74,7 @@ ohos_source_set("appmgr_test_source") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/innerkits/app_manager:app_manager",
+    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
