@@ -14,7 +14,7 @@
  */
 
 #include "util/string.h"
-#include "util/string_builder.h"
+
 #include <atomic>
 #include <cctype>
 #include <cstddef>
@@ -22,9 +22,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <new>
-#include "securec.h"
 
+#include "securec.h"
 #include "util/logger.h"
+#include "util/string_builder.h"
 
 namespace OHOS {
 namespace Idl {
@@ -663,6 +664,5 @@ String String::Format(const char* format, ...)
     va_end(argsCopy);
     return string;
 }
-
 }
 }

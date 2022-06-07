@@ -16,8 +16,7 @@
 #include "form_binding_data.h"
 #include "native_engine/native_engine.h"
 
-extern "C" __attribute__((constructor))
-void NAPI_application_formBindingData_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_application_formBindingData_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {

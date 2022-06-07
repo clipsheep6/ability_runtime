@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_supply_callback.h"
+
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
@@ -20,7 +22,6 @@
 #include "form_constants.h"
 #include "form_mgr_errors.h"
 #include "form_provider_mgr.h"
-#include "form_supply_callback.h"
 #include "form_util.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"

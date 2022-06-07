@@ -1243,7 +1243,6 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
         return RetErrMsg(asyncErrorInfo);
     }
 
-
     int32_t time;
     napi_get_value_int32(env, argv[1], &time);
 
@@ -1264,7 +1263,7 @@ napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info)
 
         // Check the value type of the arguments
         valueType = napi_undefined;
-        NAPI_CALL(env, napi_typeof(env, argv[2], &valueType));
+        NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_TWO], &valueType));
         NAPI_ASSERT(env, valueType == napi_function, "The arguments[2] type of setFormNextRefreshTime is incorrect,\
         expected type is function.");
 

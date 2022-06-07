@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "form_supply_stub.h"
+
 #include "appexecfwk_errors.h"
 #include "form_constants.h"
 #include "form_mgr_errors.h"

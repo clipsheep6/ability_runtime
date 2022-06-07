@@ -160,7 +160,7 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_001, TestSize.Level0)
     EXPECT_EQ(ERR_OK, FormMgr::GetInstance().AddForm(0L, want, token_, formJsInfo));
     token_->Wait();
 
-    size_t dataCnt{1};
+    size_t dataCnt {1};
     int64_t formId = formJsInfo.formId;
     // Form record alloted.
     FormRecord formInfo;
@@ -233,8 +233,8 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_002, TestSize.Level0)
     EXPECT_EQ(ERR_OK, FormMgr::GetInstance().AddForm(formId, want, token_, formJsInfo));
     token_->Wait();
 
-    size_t dataCnt{1};
-    size_t formUserUidCnt{1};
+    size_t dataCnt {1};
+    size_t formUserUidCnt {1};
     // Cache params updated.
     FormRecord formInfo;
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
@@ -302,8 +302,8 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_003, TestSize.Level0)
     EXPECT_EQ(ERR_OK, FormMgr::GetInstance().AddForm(formId, want, token_, formJsInfo));
     token_->Wait();
 
-    size_t dataCnt{1};
-    size_t formUserUidCnt{1};
+    size_t dataCnt {1};
+    size_t formUserUidCnt {1};
     // Cache params updated.
     FormRecord formInfo;
     bool ret = FormDataMgr::GetInstance().GetFormRecord(formId, formInfo);
@@ -529,7 +529,7 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_008, TestSize.Level0)
     int callingUid {0}, tempCount = 0;
     // Set cache info .
     FormItemInfo record1[Constants::MAX_FORMS+7];
-    for (; tempCount<Constants::MAX_FORMS+7; tempCount++){
+    for (; tempCount<Constants::MAX_FORMS+7; tempCount++) {
         record1[tempCount].SetFormId(formId+tempCount);
         record1[tempCount].SetProviderBundleName(FORM_PROVIDER_BUNDLE_NAME);
         record1[tempCount].SetModuleName(PARAM_FORM_NAME);
@@ -564,7 +564,7 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_008, TestSize.Level0)
     FormDbCache::GetInstance().DeleteFormInfo(formId);
     FormDataMgr::GetInstance().DeleteHostRecord(token_, formId);
 
-    for (tempCount = 0; tempCount<Constants::MAX_FORMS+7; tempCount++){
+    for (tempCount = 0; tempCount<Constants::MAX_FORMS+7; tempCount++) {
     FormDataMgr::GetInstance().DeleteFormRecord(formId + tempCount);
     FormDbCache::GetInstance().DeleteFormInfo(formId + tempCount);
     FormDataMgr::GetInstance().DeleteHostRecord(token_, tempCount);

@@ -27,8 +27,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 const int FORM_DISCONNECT_DELAY_TIME = 5000; // ms
-FormAmsHelper::FormAmsHelper(){}
-FormAmsHelper::~FormAmsHelper(){}
+FormAmsHelper::FormAmsHelper()
+{}
+
+FormAmsHelper::~FormAmsHelper()
+{}
 
 /**
  * @brief acquire a form ability manager, if it not existed,

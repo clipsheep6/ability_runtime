@@ -48,7 +48,6 @@ File::File(const String& path, int mode)
         if (absolutePath != nullptr) {
             path_ = absolutePath;
             free(absolutePath);
-
         } else {
             path_ = path;
         }

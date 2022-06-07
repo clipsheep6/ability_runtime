@@ -15,8 +15,6 @@
 
 #include "form_mgr.h"
 
-#include <thread>
-
 #include "appexecfwk_errors.h"
 #include "form_errors.h"
 #include "form_mgr_errors.h"
@@ -29,7 +27,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-FormMgr::FormMgr(){}
+FormMgr::FormMgr() {}
 FormMgr::~FormMgr()
 {
     if (remoteProxy_ != nullptr) {

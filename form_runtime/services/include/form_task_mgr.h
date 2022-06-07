@@ -24,6 +24,7 @@
 #include "form_js_info.h"
 #include "form_provider_info.h"
 #include "form_record.h"
+#include "form_state_info.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "form_record.h"

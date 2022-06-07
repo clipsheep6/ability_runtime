@@ -22,7 +22,6 @@
 
 namespace OHOS {
 namespace Idl {
-
 class ASTInterfaceType;
 class ASTSequenceableType;
 class ASTNamespace : public ASTNode {

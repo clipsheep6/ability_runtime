@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <singleton.h>
+#include <thread>
 
 #include "form_callback_interface.h"
 #include "form_constants.h"
@@ -44,6 +45,9 @@ class FormMgr final : public DelayedRefSingleton<FormMgr> {
     DECLARE_DELAYED_REF_SINGLETON(FormMgr)
 public:
     DISALLOW_COPY_AND_MOVE(FormMgr);
+
+    friend class FormMgrDeathRecipient;
+
     /**
      * @brief Get the error message by error code.
      * @param errorCode the error code return form fms.
@@ -374,10 +378,6 @@ private:
      */
     void ResetProxy(const wptr<IRemoteObject> &remote);
 
-public:
-    friend class FormMgrDeathRecipient;
-
-private:
     /**
      * @class FormMgrDeathRecipient
      * FormMgrDeathRecipient notices IRemoteBroker died.

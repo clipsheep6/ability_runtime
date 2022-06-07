@@ -57,7 +57,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~FormProviderData(){};
+    virtual ~FormProviderData() {};
 
     /**
      * @brief Updates form data in this {@code FormProviderData} object.
