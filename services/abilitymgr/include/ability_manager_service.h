@@ -28,6 +28,7 @@
 #include "ability_event_handler.h"
 #include "ability_manager_stub.h"
 #include "app_scheduler.h"
+#include "background_task_observer.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "data_ability_manager.h"

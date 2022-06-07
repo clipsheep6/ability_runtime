@@ -34,6 +34,7 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "hitrace_meter.h"
+#include "background_task_mgr_helper.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
 #include "free_install_manager.h"
