@@ -15,7 +15,7 @@
 
 let dataUriUtils = {
     URI_SPLIT : '/',
-    getId(uri) {
+    getId : (uri) => {
         console.debug("DataUriUtils getId called.");
         if (typeof uri !== 'string') {
             return -1;
@@ -30,7 +30,7 @@ let dataUriUtils = {
         }
         return Number(ret);
     },
-    updateId(uri, id) {
+    updateId : (uri, id) => {
         console.debug("DataUriUtils updateId called.");
         if (typeof uri !== 'string' || typeof id !== 'number') {
             return uri;
@@ -41,7 +41,7 @@ let dataUriUtils = {
         }
         return ret + this.URI_SPLIT + id;
     },
-    deleteId(uri) {
+    deleteId : (uri) => {
         console.debug("DataUriUtils deleteId called.");
         if (typeof uri !== 'string') {
             return uri;
@@ -56,7 +56,7 @@ let dataUriUtils = {
         }
         return uri.substring(0, index);
     },
-    attachId(uri, id) {
+    attachId: (uri, id) => {
         console.debug("DataUriUtils attachId called.");
         if (typeof uri !== 'string' || typeof id !== 'number') {
             return uri;
