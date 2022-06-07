@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const URI_SPLIT = '/'
 
 let dataUriUtils = {
-    URI_SPLIT : '/',
     getId : (uri) => {
         console.debug("DataUriUtils getId called.");
         if (typeof uri !== 'string') {
             return -1;
         }
-        let index = uri.lastIndexOf(this.URI_SPLIT);
+        let index = uri.lastIndexOf(URI_SPLIT);
         if (index === -1) {
             return -1;
         }
@@ -35,18 +35,18 @@ let dataUriUtils = {
         if (typeof uri !== 'string' || typeof id !== 'number') {
             return uri;
         }
-        let ret = this.deleteId(uri);
+        let ret = dataUriUtils.deleteId(uri);
         if (ret === uri) {
             return uri;
         }
-        return ret + this.URI_SPLIT + id;
+        return ret + URI_SPLIT + id;
     },
     deleteId : (uri) => {
         console.debug("DataUriUtils deleteId called.");
         if (typeof uri !== 'string') {
             return uri;
         }
-        let index = uri.lastIndexOf(this.URI_SPLIT);
+        let index = uri.lastIndexOf(URI_SPLIT);
         if (index === -1) {
             return uri;
         }
@@ -56,12 +56,12 @@ let dataUriUtils = {
         }
         return uri.substring(0, index);
     },
-    attachId: (uri, id) => {
+    attachId : (uri, id) => {
         console.debug("DataUriUtils attachId called.");
         if (typeof uri !== 'string' || typeof id !== 'number') {
             return uri;
         }
-        return uri + this.URI_SPLIT + id;
+        return uri + URI_SPLIT + id;
     }
 };
 
