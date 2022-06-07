@@ -48,6 +48,7 @@ public:
     virtual void StartDebugMode(bool needBreakPoint, int32_t instanceId = 0) = 0;
     virtual std::string BuildNativeAndJsBackStackTrace() = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
+    virtual void NotifyApplicationState(bool isBackground) = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

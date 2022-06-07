@@ -59,6 +59,7 @@ public:
     NativeValue* ClearCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info);
     void DumpHeapSnapshot(bool isPrivate) override;
     std::string BuildNativeAndJsBackStackTrace() override;
+    void NotifyApplicationState(bool isBackground) override;
 
     bool RunSandboxScript(const std::string& path);
     virtual bool RunScript(const std::string& path) = 0;
