@@ -289,17 +289,19 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         if (targetAbilityRecord->GetAbilityInfo().applicationInfo.isLauncherApp) {
             targetAbilityRecord->SetLauncherRoot();
         }
+#ifdef SUPPORT_GRAPHICS
+    }
+    std::shared_ptr<StartOptions> startOptions = nullptr;
+    targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
+    return 0;
+#else
         return targetAbilityRecord->LoadAbility();
     } else {
         // schedule target ability to foreground.
-#ifdef SUPPORT_GRAPHICS
-        std::shared_ptr<StartOptions> startOptions = nullptr;
-        targetAbilityRecord->ProcessForegroundAbility(false, abilityRequest, startOptions, callerAbility);
-#else
         targetAbilityRecord->ProcessForegroundAbility();
-#endif
         return 0;
     }
+#endif
 }
 
 static int32_t CallType2StartMethod(int32_t callType)
