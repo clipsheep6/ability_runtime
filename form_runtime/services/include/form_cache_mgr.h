@@ -22,6 +22,7 @@
 #include <string>
 
 #include "form_ashmem.h"
+#include "form_provider_data.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -38,28 +39,24 @@ public:
      * @brief Get form data.
      * @param formId Form id.
      * @param data Cache data.
-     * @param imageMap Image map cache.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool GetData(const int64_t formId, std::string &data,
-        std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap) const;
+    bool GetData(int64_t formId, std::string &data) const;
 
     /**
      * @brief Add form data.
      * @param formId Form id.
      * @param data Cache data.
-     * @param imageMap Image map cache.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool AddData(const int64_t formId, const std::string &data,
-        const std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap);
+    bool AddData(int64_t formId, const std::string &data);
 
     /**
      * @brief Delete form data.
      * @param formId Form id.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool DeleteData(const int64_t formId);
+    bool DeleteData(int64_t formId);
 
     /**
      * @brief update form data.
@@ -67,17 +64,17 @@ public:
      * @param data Cache data.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool UpdateData(const int64_t formId, const std::string &data);
+    bool UpdateData(int64_t formId, const std::string &data);
+
     /**
      * @brief Check if form data is exist or not.
      * @param formId, Form id.
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool IsExist(const int64_t formId) const;
+    bool IsExist(int64_t formId) const;
 private:
     mutable std::mutex cacheMutex_;
     std::map<int64_t, std::string> cacheData_;
-    std::map<int64_t, std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>>> cacheImageMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
