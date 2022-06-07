@@ -851,6 +851,16 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         HILOG_DEBUG("MainThread::handleLaunchApplication GetBundleInfo fail.");
     }
 
+    bool moduelJson = false;
+    bool isStageBased = false;
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
+        isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    }
+
+    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}d",
+        isStageBased, moduelJson, (int32_t)bundleInfo.hapModuleInfos.size());
+
     if (!InitResourceManager(resourceManager, contextDeal, appInfo, bundleInfo, config)) {
         HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");
         return;
@@ -865,15 +875,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     applicationContext->InitApplicationContext();
     application_->SetApplicationContext(applicationContext);
-
-    bool moduelJson = false;
-    bool isStageBased = false;
-    if (!bundleInfo.hapModuleInfos.empty()) {
-        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
-        isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
-    }
-    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}d",
-        isStageBased, moduelJson, (int32_t)bundleInfo.hapModuleInfos.size());
 
     if (isStageBased) {
         // Create runtime

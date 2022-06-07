@@ -38,6 +38,7 @@ public:
     static NativeValue* GetApplicationContext(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* SwitchArea(NativeEngine* engine, NativeCallbackInfo* info);
     static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info);
 
     NativeValue* OnGetCacheDir(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetTempDir(NativeEngine& engine, NativeCallbackInfo& info);
@@ -65,6 +66,7 @@ private:
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnSwitchArea(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
 
     std::shared_ptr<Context> keepContext_;
 
@@ -95,13 +97,6 @@ NativeValue* JsBaseContext::SwitchArea(NativeEngine* engine, NativeCallbackInfo*
     HILOG_INFO("JsBaseContext::SwitchArea is called");
     JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
     return me != nullptr ? me->OnSwitchArea(*engine, *info) : nullptr;
-}
-
-NativeValue* JsBaseContext::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    HILOG_INFO("JsBaseContext::GetArea is called");
-    JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
-    return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
 }
 
 NativeValue* JsBaseContext::OnSwitchArea(NativeEngine& engine, NativeCallbackInfo& info)
@@ -135,6 +130,58 @@ NativeValue* JsBaseContext::OnSwitchArea(NativeEngine& engine, NativeCallbackInf
     BindNativeProperty(*object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(*object, "bundleCodeDir", GetBundleCodeDir);
     return engine.CreateUndefined();
+}
+
+NativeValue* JsBaseContext::CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsBaseContext::CreateModuleContext is called");
+    JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
+    return me != nullptr ? me->OnCreateModuleContext(*engine, *info) : nullptr;
+}
+
+NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return engine.CreateUndefined();
+    }
+
+    std::shared_ptr<Context> moduleContext = nullptr;
+    std::string bundleName;
+    std::string moduleName;
+
+    if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
+        HILOG_INFO("Parse inner module name.");
+        if (!ConvertFromJsValue(engine, info.argv[0], moduleName)) {
+            HILOG_ERROR("Parse moduleName failed");
+            return engine.CreateUndefined();
+        }
+        moduleContext = context->CreateModuleContext(moduleName);
+    } else {
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("Parse bundleName failed");
+            return engine.CreateUndefined();
+        }
+        HILOG_INFO("Parse outer module name.");
+        moduleContext = context->CreateModuleContext(bundleName, moduleName);
+    }
+
+    if (!moduleContext) {
+        HILOG_ERROR("failed to create module context.");
+        return engine.CreateUndefined();
+    }
+
+    JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
+    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+}
+
+NativeValue* JsBaseContext::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    HILOG_INFO("JsBaseContext::GetArea is called");
+    JsBaseContext* me = CheckParamsAndGetThis<JsBaseContext>(engine, info, BASE_CONTEXT_NAME);
+    return me != nullptr ? me->OnGetArea(*engine, *info) : nullptr;
 }
 
 NativeValue* JsBaseContext::OnGetArea(NativeEngine& engine, NativeCallbackInfo& info)
@@ -345,7 +392,7 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     }
     auto resourceManager = context->GetResourceManager();
     if (resourceManager != nullptr) {
-        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager));
+        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager, context));
     }
 
     BindNativeProperty(*object, "cacheDir", JsBaseContext::GetCacheDir);
@@ -360,6 +407,7 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     BindNativeFunction(engine, *object, "getApplicationContext", JsBaseContext::GetApplicationContext);
     BindNativeFunction(engine, *object, "switchArea", JsBaseContext::SwitchArea);
     BindNativeFunction(engine, *object, "getArea", JsBaseContext::GetArea);
+    BindNativeFunction(engine, *object, "createModuleContext", JsBaseContext::CreateModuleContext);
 
     return objValue;
 }

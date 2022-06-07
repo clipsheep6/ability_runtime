@@ -48,6 +48,7 @@ public:
     static NativeValue *CreateBundleContext(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue *SwitchArea(NativeEngine *engine, NativeCallbackInfo *info);
     static NativeValue* GetArea(NativeEngine* engine, NativeCallbackInfo* info);
+    static NativeValue* CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info);
 
     NativeValue *OnRegisterAbilityLifecycleCallback(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnUnregisterAbilityLifecycleCallback(NativeEngine &engine, NativeCallbackInfo &info);
@@ -80,6 +81,7 @@ private:
     NativeValue *OnCreateBundleContext(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnSwitchArea(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue* OnGetArea(NativeEngine& engine, NativeCallbackInfo& info);
+    NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
     std::shared_ptr<ApplicationContext> keepApplicationContext_;
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;
 };
@@ -160,6 +162,52 @@ NativeValue *JsApplicationContextUtils::OnSwitchArea(NativeEngine &engine, Nativ
     BindNativeProperty(*object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(*object, "bundleCodeDir", GetBundleCodeDir);
     return engine.CreateUndefined();
+}
+
+
+NativeValue* JsApplicationContextUtils::CreateModuleContext(NativeEngine* engine, NativeCallbackInfo* info)
+{
+    JsApplicationContextUtils *me =
+        CheckParamsAndGetThis<JsApplicationContextUtils>(engine, info, APPLICATION_CONTEXT_NAME);
+    return me != nullptr ? me->OnCreateModuleContext(*engine, *info) : nullptr;
+}
+
+NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info)
+{
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        return engine.CreateUndefined();
+    }
+
+    std::shared_ptr<Context> moduleContext = nullptr;
+    std::string bundleName;
+    std::string moduleName;
+
+    if (!ConvertFromJsValue(engine, info.argv[1], moduleName)) {
+        HILOG_INFO("Parse inner module name.");
+        if (!ConvertFromJsValue(engine, info.argv[0], moduleName)) {
+            HILOG_ERROR("Parse moduleName failed");
+            return engine.CreateUndefined();
+        }
+        moduleContext = applicationContext->CreateModuleContext(moduleName);
+    } else {
+        if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
+            HILOG_ERROR("Parse bundleName failed");
+            return engine.CreateUndefined();
+        }
+        HILOG_INFO("Parse outer module name.");
+        moduleContext = applicationContext->CreateModuleContext(bundleName, moduleName);
+    }
+
+    if (!moduleContext) {
+        HILOG_ERROR("failed to create module context.");
+        return engine.CreateUndefined();
+    }
+
+    JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, true);
+    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
 }
 
 NativeValue* JsApplicationContextUtils::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
@@ -433,8 +481,9 @@ NativeValue *CreateJsApplicationContext(
         object->SetProperty("currentHapModuleInfo", CreateJsHapModuleInfo(engine, *hapModuleInfo));
     }
     auto resourceManager = applicationContext->GetResourceManager();
+    std::shared_ptr<Context> context = std::dynamic_pointer_cast<Context>(applicationContext);
     if (resourceManager != nullptr) {
-        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager));
+        object->SetProperty("resourceManager", CreateJsResourceManager(engine, resourceManager, context));
     }
 
     BindNativeProperty(*object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
@@ -451,6 +500,8 @@ NativeValue *CreateJsApplicationContext(
     BindNativeFunction(engine, *object, "createBundleContext", JsApplicationContextUtils::CreateBundleContext);
     BindNativeFunction(engine, *object, "switchArea", JsApplicationContextUtils::SwitchArea);
     BindNativeFunction(engine, *object, "getArea", JsApplicationContextUtils::GetArea);
+    BindNativeFunction(engine, *object, "createModuleContext", JsApplicationContextUtils::CreateModuleContext);
+
     HILOG_INFO("CreateJsApplicationContext end");
     return objValue;
 }

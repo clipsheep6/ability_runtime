@@ -45,6 +45,8 @@ public:
     std::shared_ptr<AppExecFwk::ApplicationInfo> GetApplicationInfo() const override;
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
+    std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;
+    std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName, const std::string &moduleName) override;
 
     std::string GetBundleCodePath() const override;
     ErrCode StartAbility(const AAFwk::Want &want, int requestCode) override;

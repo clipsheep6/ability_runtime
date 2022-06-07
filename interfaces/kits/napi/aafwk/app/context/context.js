@@ -68,6 +68,14 @@ class Context {
         return this.__context_impl__.createBundleContext(bundleName)
     }
 
+    createModuleContext(moduleName) {
+        return this.__context_impl__.createModuleContext(moduleName)
+    }
+
+    createModuleContext(bundleName, moduleName) {
+        return this.__context_impl__.createModuleContext(bundleName, moduleName)
+    }
+
     getApplicationContext() {
         return this.__context_impl__.getApplicationContext()
     }

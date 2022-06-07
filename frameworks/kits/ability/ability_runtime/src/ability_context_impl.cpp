@@ -302,6 +302,17 @@ std::shared_ptr<Context> AbilityContextImpl::CreateBundleContext(const std::stri
     return stageContext_ ? stageContext_->CreateBundleContext(bundleName) : nullptr;
 }
 
+std::shared_ptr<Context> AbilityContextImpl::CreateModuleContext(const std::string &moduleName)
+{
+    return stageContext_ ? stageContext_->CreateModuleContext(moduleName) : nullptr;
+}
+
+std::shared_ptr<Context> AbilityContextImpl::CreateModuleContext(const std::string &bundleName,
+                                                                 const std::string &moduleName)
+{
+    return stageContext_ ? stageContext_->CreateModuleContext(bundleName, moduleName) : nullptr;
+}
+
 void AbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo)
 {
     abilityInfo_ = abilityInfo;

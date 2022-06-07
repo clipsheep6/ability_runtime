@@ -62,7 +62,7 @@ class ApplicationContext {
         this.__context_impl__ = obj
         this.__context_impl__.eventHub = new EventHub()
     }
-   
+
     registerAbilityLifecycleCallback(abilityLifecycleCallback) {
         return this.__context_impl__.registerAbilityLifecycleCallback(abilityLifecycleCallback)
     }
@@ -70,9 +70,17 @@ class ApplicationContext {
     unregisterAbilityLifecycleCallback(callbackId, callback) {
         return this.__context_impl__.unregisterAbilityLifecycleCallback(callbackId, callback)
     }
-    
+
     createBundleContext(bundleName) {
         return this.__context_impl__.createBundleContext(bundleName)
+    }
+
+    createModuleContext(moduleName) {
+        return this.__context_impl__.createModuleContext(moduleName)
+    }
+
+    createModuleContext(bundleName, moduleName) {
+        return this.__context_impl__.createModuleContext(bundleName, moduleName)
     }
 
     set area(mode) {

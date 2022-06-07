@@ -16,6 +16,7 @@
 #ifndef ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
 #define ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
 
+#include "context.h"
 #include "resource_manager.h"
 
 class NativeEngine;
@@ -26,7 +27,8 @@ namespace AbilityRuntime {
 class JsRuntime;
 
 NativeValue* CreateJsResourceManager(NativeEngine& engine,
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager,
+    std::shared_ptr<AbilityRuntime::Context> context);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H

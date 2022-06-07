@@ -137,6 +137,17 @@ std::shared_ptr<Context> ApplicationContext::CreateBundleContext(const std::stri
     return (contextImpl_ != nullptr) ? contextImpl_->CreateBundleContext(bundleName) : nullptr;
 }
 
+std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string &moduleName)
+{
+    return contextImpl_ ? contextImpl_->CreateModuleContext(moduleName) : nullptr;
+}
+
+std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::string &bundleName,
+                                                                 const std::string &moduleName)
+{
+    return contextImpl_ ? contextImpl_->CreateModuleContext(bundleName, moduleName) : nullptr;
+}
+
 std::shared_ptr<AppExecFwk::ApplicationInfo> ApplicationContext::GetApplicationInfo() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetApplicationInfo() : nullptr;

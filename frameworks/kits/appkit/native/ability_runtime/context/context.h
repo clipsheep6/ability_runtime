@@ -179,6 +179,27 @@ public:
     virtual void SwitchArea(int mode) = 0;
 
     /**
+     * @brief Creates a Context object for a hap with the given hap name and app name.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a Context object created for the specified hap and app.
+     */
+    virtual std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) = 0;
+
+    /**
+     * @brief Creates a Context object for a hap with the given hap name and app name.
+     *
+     * @param bundleName Indicates the app name of the application.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a Context object created for the specified hap and app.
+     */
+    virtual std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName,
+                                                          const std::string &moduleName) = 0;
+
+    /**
      * @brief Get file area
      *
      * @return file area.

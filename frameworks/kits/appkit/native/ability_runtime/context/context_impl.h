@@ -110,6 +110,26 @@ public:
     void SwitchArea(int mode) override;
 
     /**
+     * @brief Creates a Context object for a hap with the given hap name and app name.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a Context object created for the specified hap and app.
+     */
+    std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;
+
+    /**
+     * @brief Creates a Context object for a hap with the given hap name and app name.
+     *
+     * @param bundleName Indicates the app name of the application.
+     *
+     * @param moduleName Indicates the module name of the hap.
+     *
+     * @return Returns a Context object created for the specified hap and app.
+     */
+    std::shared_ptr<Context> CreateModuleContext(const std::string &bundleName, const std::string &moduleName) override;
+
+    /**
      * @brief Get file area
      *
      * @return file area.
@@ -260,8 +280,8 @@ private:
     static const std::string CONTEXT_ELS[];
     int flags_ = 0x00000000;
 
-    void InitResourceManager(
-        const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext) const;
+    void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
+        const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const;
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);

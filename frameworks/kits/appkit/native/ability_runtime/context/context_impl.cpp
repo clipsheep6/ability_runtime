@@ -169,6 +169,57 @@ void ContextImpl::SwitchArea(int mode)
     HILOG_DEBUG("ContextImpl::SwitchArea end, currArea:%{public}s.", currArea_.c_str());
 }
 
+std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &moduleName)
+{
+    return CreateModuleContext(GetBundleName(), moduleName);
+}
+
+std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
+{
+    if (bundleName.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
+        return nullptr;
+    }
+
+    if (moduleName.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is empty");
+        return nullptr;
+    }
+
+    sptr<AppExecFwk::IBundleMgr> bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleManager is nullptr");
+        return nullptr;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    int accountId = GetCurrentAccountId();
+    if (accountId == 0) {
+        accountId = GetCurrentActiveAccountId();
+    }
+    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
+        (size_t)bundleName.length(), bundleName.c_str());
+    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+
+    if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
+        return nullptr;
+    }
+
+    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
+
+    std::string prefix = ABS_CODE_PATH + FILE_SEPARATOR + bundleName + FILE_SEPARATOR + moduleName + FILE_SEPARATOR;
+    bundleInfo.moduleResPaths.erase(
+        std::remove_if(bundleInfo.moduleResPaths.begin(), bundleInfo.moduleResPaths.end(), [&prefix](std::string path) {
+            return path.compare(0, prefix.size(), prefix) != 0;
+        }),
+        bundleInfo.moduleResPaths.end());
+    InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
+
+    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
+    return appContext;
+}
+
 int ContextImpl::GetArea()
 {
     HILOG_DEBUG("ContextImpl::GetArea begin");
@@ -279,14 +330,14 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     appContext->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
 
     // init resourceManager.
-    InitResourceManager(bundleInfo, appContext);
+    InitResourceManager(bundleInfo, appContext, false);
 
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
 
-void ContextImpl::InitResourceManager(
-    const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext) const
+void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
+    const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     if (appContext == nullptr || resourceManager == nullptr) {
@@ -297,13 +348,20 @@ void ContextImpl::InitResourceManager(
     HILOG_DEBUG(
         "ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
     std::vector<std::string> moduleResPaths;
-    std::regex pattern(ABS_CODE_PATH);
+    std::string inner(ABS_CODE_PATH + FILE_SEPARATOR + GetBundleName());
+    std::string outer(ABS_CODE_PATH);
     for (auto item : bundleInfo.moduleResPaths) {
         if (item.empty()) {
             continue;
         }
-        moduleResPaths.emplace_back(std::regex_replace(item, pattern, LOCAL_BUNDLES));
+        if (currentBundle) {
+            item.replace(0, inner.size(), LOCAL_CODE_PATH);
+        } else {
+            item.replace(0, outer.size(), LOCAL_BUNDLES);
+        }
+        moduleResPaths.emplace_back(item);
     }
+
     for (auto moduleResPath : moduleResPaths) {
         if (!moduleResPath.empty()) {
             if (!resourceManager->AddResource(moduleResPath.c_str())) {

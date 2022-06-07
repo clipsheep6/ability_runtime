@@ -160,5 +160,19 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetHapModuleInfo_001, Function 
     EXPECT_EQ(contextImpl_->GetHapModuleInfo(), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_GetHapModuleInfo_001 end";
 }
+
+/**
+ * @tc.number: AppExecFwk_ContextImpl_CreateModuleContext_001
+ * @tc.name: CreateModuleContext
+ * @tc.desc: Test whether CreateModuleContext is called normally.
+ * @tc.type: FUNC
+ * @tc.require: SR000H6I25
+ */
+HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_CreateModuleContext_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
+    EXPECT_EQ(contextImpl_->CreateModuleContext("module_name"), nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
 }  // namespace AppExecFwk
 }
