@@ -219,6 +219,7 @@ public:
 
 class BundleMgrService : public BundleMgrStub {
 public:
+    static bool IsSystemApp;
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
     MOCK_METHOD2(CleanBundleDataFiles, bool(const std::string &bundleName, const int userId));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
@@ -409,6 +410,10 @@ public:
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
     }
+    virtual bool CheckIsSystemAppByUid(const int uid) override
+    {
+        return IsSystemApp;
+    };
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

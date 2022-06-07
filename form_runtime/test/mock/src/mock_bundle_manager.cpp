@@ -31,6 +31,8 @@ const std::string FORM_JS_COMPOMENT_NAME = "jsComponentName";
 const std::string PARAM_FORM_NAME = "com.form.name.test";
 const std::string DEVICE_ID = "ohos-phone1";
 
+bool BundleMgrService::IsSystemApp = false;
+
 bool BundleMgrProxy::GetBundleInfo(
     const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId)
 {
