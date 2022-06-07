@@ -28,7 +28,8 @@ gen_js_obj("data_uri_utils_js") {
 }
 
 gen_js_obj("data_uri_utils_abc") {
-  input = get_label_info(":gen_data_uri_utils_abc", "target_out_dir") + "/data_uri_utils.abc"
+  input = get_label_info(":gen_data_uri_utils_abc", "target_out_dir") +
+          "/data_uri_utils.abc"
   output = target_out_dir + "/data_uri_utils_abc.o"
   dep = ":gen_data_uri_utils_abc"
 }
@@ -44,6 +45,6 @@ ohos_shared_library("data_uri_utils_napi") {
   external_deps = [ "napi:ace_napi" ]
 
   relative_install_dir = "module/application"
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

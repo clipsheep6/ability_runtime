@@ -25,7 +25,7 @@ void NAPI_application_dataUriUtils_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.dataUriUtils",
+        .name = "ability.dataUriUtils",
         .fileName = "application/libdatauriutils_napi.so/data_uri_utils.js",
     };
 
