@@ -1352,9 +1352,9 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
             continue;
         }
 
-        std::list<int> bgTaskUids = DelayedSingleton<AbilityManagerService>::GetInstance()->GetBgTaskUids();
-        auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), mission->GetAbilityRecord()->GetUid());
-        if (iter != bgTaskUids.end()) {
+        if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsBgTaskUid(
+                mission->GetAbilityRecord()->GetUid())) {
+            HILOG_INFO("the mission is bgtask, do not need clear");
             continue;
         }
 

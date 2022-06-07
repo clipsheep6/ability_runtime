@@ -26,12 +26,14 @@ BgTaskObserver::~BgTaskObserver()
 void BgTaskObserver::OnContinuousTaskStart(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
+    std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
 }
 
 void BgTaskObserver::OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
+    std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
 }
 

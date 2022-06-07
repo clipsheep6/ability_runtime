@@ -36,6 +36,7 @@ private:
 
 private:
     std::list<int> bgTaskUids_;
+    std::mutex bgTaskMutex_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

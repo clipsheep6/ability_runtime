@@ -4627,9 +4627,14 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     return manager->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
 
-std::list<int> AbilityManagerService::GetBgTaskUids()
+bool AbilityManagerService::IsBgTaskUid(const int uid)
 {
-    return bgtaskObserver_->GetBgTaskUids();
+    std::list<int> bgTaskUids = bgtaskObserver_->GetBgTaskUids();
+    auto iter = find(bgTaskUids.begin(), bgTaskUids.end(), uid);
+    if (iter != bgTaskUids.end()) {
+        return true;
+    }
+    return false;
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetTopAbility()

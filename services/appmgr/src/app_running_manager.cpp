@@ -20,6 +20,7 @@
 #include "iremote_object.h"
 
 #include "appexecfwk_errors.h"
+#include "common_event_support.h"
 #include "hilog_wrapper.h"
 #ifdef OS_ACCOUNT_PART_ENABLED
 #include "os_account_manager.h"
@@ -385,7 +386,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
             HILOG_INFO("The ability is the last, KillApplication");
-            appMgrServiceInner->KillApplication(appRecord->GetBundleName());
+            appMgrServiceInner->KillApplicationByUid(appRecord->GetBundleName(), appRecord->GetUid());
+            appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
+                EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         }
     }
 
