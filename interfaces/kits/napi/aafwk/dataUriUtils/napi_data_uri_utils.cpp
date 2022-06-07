@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,10 +38,10 @@ napi_value DataUriUtilsInit(napi_env env, napi_value exports)
 {
     HILOG_INFO("%{public}s,called", __func__);
     napi_property_descriptor properties[] = {
-        DECLARE_NAPI_FUNCTION("getIdSync", NAPI_GetIdSync),
-        DECLARE_NAPI_FUNCTION("attachIdSync", NAPI_AttachIdSync),
-        DECLARE_NAPI_FUNCTION("deleteIdSync", NAPI_DeleteIdSync),
-        DECLARE_NAPI_FUNCTION("updateIdSync", NAPI_UpdateIdSync),
+        DECLARE_NAPI_FUNCTION("getId", NAPI_GetIdSync),
+        DECLARE_NAPI_FUNCTION("attachId", NAPI_AttachIdSync),
+        DECLARE_NAPI_FUNCTION("deleteId", NAPI_DeleteIdSync),
+        DECLARE_NAPI_FUNCTION("updateId", NAPI_UpdateIdSync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
 
