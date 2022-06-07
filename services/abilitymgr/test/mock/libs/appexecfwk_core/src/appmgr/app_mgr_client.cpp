@@ -40,7 +40,7 @@ AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, con
     return AppMgrResultCode::RESULT_OK;
 }
 
-AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token)
+AppMgrResultCode AppMgrClient::TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
     return AppMgrResultCode::RESULT_OK;
 }
