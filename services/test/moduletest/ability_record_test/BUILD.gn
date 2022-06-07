@@ -24,7 +24,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${aafwk_path}/frameworks/kits/ability/native/include/distributed_ability_runtime",
     "${aafwk_path}/interfaces/innerkits/dataobs_manager/include",
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include/xcollie",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
+    "//base/startup/init_lite/interfaces/innerkits/include/syspara",
   ]
 
   sources = [
@@ -84,7 +84,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/common:perm_verification",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+    "//base/startup/init_lite/interfaces/innerkits:libbegetutil",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
