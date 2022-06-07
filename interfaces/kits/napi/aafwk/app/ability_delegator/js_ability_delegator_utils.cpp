@@ -48,6 +48,7 @@ NativeValue *CreateJsAbilityDelegator(NativeEngine &engine)
     BindNativeFunction(engine, *object, "doAbilityForeground", JSAbilityDelegator::DoAbilityForeground);
     BindNativeFunction(engine, *object, "doAbilityBackground", JSAbilityDelegator::DoAbilityBackground);
     BindNativeFunction(engine, *object, "print", JSAbilityDelegator::Print);
+    BindNativeFunction(engine, *object, "printSync", JSAbilityDelegator::PrintSync);
     BindNativeFunction(engine, *object, "executeShellCommand", JSAbilityDelegator::ExecuteShellCommand);
     BindNativeFunction(engine, *object, "finishTest", JSAbilityDelegator::FinishTest);
     return objValue;

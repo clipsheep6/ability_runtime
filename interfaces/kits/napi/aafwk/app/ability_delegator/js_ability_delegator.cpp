@@ -139,6 +139,12 @@ NativeValue *JSAbilityDelegator::Print(NativeEngine *engine, NativeCallbackInfo 
     return (me != nullptr) ? me->OnPrint(*engine, *info) : nullptr;
 }
 
+NativeValue *JSAbilityDelegator::PrintSync(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnPrintSync(*engine, *info) : nullptr;
+}
+
 NativeValue *JSAbilityDelegator::ExecuteShellCommand(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
@@ -308,6 +314,26 @@ NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInf
     AsyncTask::Schedule(
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+NativeValue *JSAbilityDelegator::OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
+
+    std::string msg;
+    if (!ParsePrintPara(engine, info, msg)) {
+        HILOG_ERROR("Parse print parameters failed");
+        return engine.CreateNull();
+    }
+
+    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (!delegator) {
+        HILOG_ERROR("Invalid delegator");
+        return engine.CreateNull();
+    }
+
+    delegator->Print(msg);
+    return engine.CreateNull();
 }
 
 NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info)
