@@ -316,9 +316,9 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
 
     serviceInner_->ApplicationBackgrounded(testAppA.appRecord_->GetRecordId());
 
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA1"));
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA2"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA2"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA2"));
     serviceInner_->ApplicationTerminated(testAppA.appRecord_->GetRecordId());
 
@@ -361,7 +361,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
     serviceInner_->ApplicationForegrounded(testAppB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(testAppA.GetToken("abilityA1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA1"));
     serviceInner_->ApplicationTerminated(testAppA.appRecord_->GetRecordId());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testAppB.GetAbility("abilityB1")->GetState());
@@ -377,7 +377,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
     serviceInner_->ApplicationForegrounded(testappC.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(testAppB.GetToken("abilityB1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppB.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"));
+    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"), false);
     serviceInner_->AbilityTerminated(testAppB.GetToken("abilityB1"));
     serviceInner_->ApplicationTerminated(testAppB.appRecord_->GetRecordId());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, testappC.GetAbility("abilityC1")->GetState());
@@ -411,12 +411,12 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(testAppB.GetToken("abilityB1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppB.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"));
+    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"), false);
     serviceInner_->AbilityTerminated(testAppB.GetToken("abilityB1"));
     serviceInner_->ApplicationTerminated(testAppB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(testAppA.GetToken("abilityA1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA1"));
     serviceInner_->ApplicationTerminated(testAppA.appRecord_->GetRecordId());
 
@@ -497,14 +497,14 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(testAppB.GetToken("abilityB1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppB.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"));
+    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"), false);
     serviceInner_->AbilityTerminated(testAppB.GetToken("abilityB1"));
     serviceInner_->ApplicationTerminated(testAppB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(testAppA.GetToken("abilityA1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA1"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA1"));
-    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA2"));
+    serviceInner_->TerminateAbility(testAppA.GetToken("abilityA2"), false);
     serviceInner_->AbilityTerminated(testAppA.GetToken("abilityA2"));
     serviceInner_->ApplicationTerminated(testAppA.appRecord_->GetRecordId());
 
@@ -546,9 +546,9 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(testAppB.GetToken("abilityB1"), AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(testAppB.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"));
+    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB1"), false);
     serviceInner_->AbilityTerminated(testAppB.GetToken("abilityB1"));
-    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB2"));
+    serviceInner_->TerminateAbility(testAppB.GetToken("abilityB2"), false);
     serviceInner_->AbilityTerminated(testAppB.GetToken("abilityB2"));
     serviceInner_->ApplicationTerminated(testAppB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(testAppA.GetToken("abilityA1"), AbilityState::ABILITY_STATE_BACKGROUND);

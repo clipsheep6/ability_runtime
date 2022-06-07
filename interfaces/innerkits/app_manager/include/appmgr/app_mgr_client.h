@@ -47,7 +47,7 @@ public:
      * Terminate ability.
      *
      * @param token Ability identify.
-     *
+     * @param clearMissionFlag, indicates whether terminate the ability when clearMision.
      * @return Returns RESULT_OK on success, others on failure.
      */
     virtual AppMgrResultCode TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag);

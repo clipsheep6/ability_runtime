@@ -50,6 +50,7 @@ public:
      * TerminateAbility, call TerminateAbility() through the proxy object, terminate the token ability.
      *
      * @param token, token, he unique identification to terminate the ability.
+     * @param clearMissionFlag, indicates whether terminate the ability when clearMision.
      * @return
      */
     virtual void TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag) = 0;

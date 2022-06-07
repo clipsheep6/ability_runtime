@@ -16,7 +16,6 @@
 #ifndef OHOS_AAFWK_BACKGROUND_TASK_OBSERVER_H
 #define OHOS_AAFWK_BACKGROUND_TASK_OBSERVER_H
 
-#include "background_task_mgr_helper.h"
 #include "background_task_subscriber.h"
 #include "bgtask_observer.h"
 
