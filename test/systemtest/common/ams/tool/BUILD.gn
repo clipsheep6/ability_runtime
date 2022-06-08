@@ -60,7 +60,7 @@ ohos_shared_library("system_test_ability_util_lib") {
     "ipc:ipc_core",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 

@@ -65,7 +65,7 @@ void CppCodeEmitter::EmitInterfaceStdlibInclusions(StringBuilder& sb)
     bool includeNum = false;
     for (int i = 0; i < metaComponent_->typeNumber_; i++) {
         MetaType* mt = metaComponent_->types_[i];
-        switch(mt->kind_) {
+        switch (mt->kind_) {
             case TypeKind::Byte: {
                 if (!includeNum) {
                     sb.Append("#include <cstdint>\n");
@@ -882,7 +882,7 @@ void CppCodeEmitter::EmitReturnParameter(const String& name, MetaType* mt, Strin
 
 String CppCodeEmitter::EmitType(MetaType* mt, unsigned int attributes, bool isInnerType)
 {
-    switch(mt->kind_) {
+    switch (mt->kind_) {
         case TypeKind::Char:
             if (attributes & ATTR_IN) {
                 return "zchar";

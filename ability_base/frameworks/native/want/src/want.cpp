@@ -329,7 +329,6 @@ Uri Want::GetLowerCaseScheme(const Uri &uri)
 {
     std::string strUri = const_cast<Uri &>(uri).ToString();
     std::string schemeStr = const_cast<Uri &>(uri).GetScheme();
-
     if (strUri.empty() || schemeStr.empty()) {
         return uri;
     }
@@ -916,7 +915,6 @@ Want &Want::SetParam(const std::string &key, const std::vector<float> &value)
 long Want::GetLongParam(const std::string &key, long defaultValue) const
 {
     auto value = parameters_.GetParam(key);
-
     if (ILong::Query(value) != nullptr) {
         return Long::Unbox(ILong::Query(value));
     } else if (IString::Query(value) != nullptr) {
@@ -1819,31 +1817,31 @@ std::string Want::Decode(const std::string &str)
     std::string decode;
 
     for (std::size_t i = 0; i < str.length();) {
+        if (str[i] != '\\') {
+            decode += str[i];
+            i++;
+            break;
+        }
+        if (++i >= str.length()) {
+            decode += "\\";
+            break;
+        }
         if (str[i] == '\\') {
-            if (++i >= str.length()) {
-                decode += "\\";
-                break;
-            }
-            if (str[i] == '\\') {
-                decode += "\\";
-                i++;
-            } else if (str[i] == '0') {
-                if (str.compare(i, OCT_EQUALSTO.length(), OCT_EQUALSTO) == 0) {
-                    decode += "=";
-                    i += OCT_EQUALSTO.length();
-                } else if (str.compare(i, OCT_SEMICOLON.length(), OCT_SEMICOLON) == 0) {
-                    decode += ";";
-                    i += OCT_SEMICOLON.length();
-                } else {
-                    decode += "\\" + str.substr(i, 1);
-                    i++;
-                }
+            decode += "\\";
+            i++;
+        } else if (str[i] == '0') {
+            if (str.compare(i, OCT_EQUALSTO.length(), OCT_EQUALSTO) == 0) {
+                decode += "=";
+                i += OCT_EQUALSTO.length();
+            } else if (str.compare(i, OCT_SEMICOLON.length(), OCT_SEMICOLON) == 0) {
+                decode += ";";
+                i += OCT_SEMICOLON.length();
             } else {
                 decode += "\\" + str.substr(i, 1);
                 i++;
             }
         } else {
-            decode += str[i];
+            decode += "\\" + str.substr(i, 1);
             i++;
         }
     }

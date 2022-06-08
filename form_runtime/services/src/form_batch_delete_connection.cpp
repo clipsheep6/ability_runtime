@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include "appexecfwk_errors.h"
 #include "form_batch_delete_connection.h"
+
+#include "appexecfwk_errors.h"
 #include "form_constants.h"
 #include "form_supply_callback.h"
 #include "form_task_mgr.h"

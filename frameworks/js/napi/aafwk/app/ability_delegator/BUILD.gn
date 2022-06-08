@@ -58,6 +58,6 @@ ohos_shared_library("abilitydelegatorregistry") {
 
   relative_install_dir = "module/application"
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

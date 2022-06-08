@@ -96,8 +96,8 @@ public:
         refreshTime = INT64_MAX;
         type = UpdateType::TYPE_INTERVAL_CHANGE;
     }
-    ~FormTimer(void){
-    }
+
+    ~FormTimer(void) {}
 };
 /**
  * @class UpdateAtItem
@@ -117,7 +117,8 @@ public:
     int64_t formId = 0L;
     int64_t settedTime = INT64_MAX;
     int32_t userId = -1;
-    DynamicRefreshItem(){}
+
+    DynamicRefreshItem() {}
 
     DynamicRefreshItem(int64_t id, int64_t time, int32_t uId = 0)
     {
@@ -125,8 +126,8 @@ public:
         settedTime = time;
         userId = uId;
     }
-    ~DynamicRefreshItem(void){
-    }
+
+    ~DynamicRefreshItem(void) {}
 };
 /**
  * @struct LimitInfo

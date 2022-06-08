@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-
 /**
  * @brief Request to give back a Form.
  * @param formId The Id of the forms to create.

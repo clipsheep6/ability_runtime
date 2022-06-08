@@ -294,7 +294,7 @@ FormProviderInfo FormStServiceAbilityA::OnCreate(const Want &want)
     HILOG_INFO("%{public}s start", __func__);
     FormProviderInfo formProviderInfo;
     if (!want.HasParameter(Constants::PARAM_FORM_IDENTITY_KEY)) {
-         HILOG_ERROR("%{public}s, formId not exist", __func__);
+        HILOG_ERROR("%{public}s, formId not exist", __func__);
         return formProviderInfo;
     }
     std::string formId = want.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY);
@@ -353,7 +353,8 @@ void FormStServiceAbilityA::OnCastTemptoNormal(const int64_t formId)
     clock_gettime(CLOCK_REALTIME, &ts);
     long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
 
-    PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnCastTemptoNormal");
+    PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK,
+        "OnCastTemptoNormal");
     HILOG_INFO("%{public}s end, formId: %{public}s, current time: %{public}ld", __func__,
         std::to_string(formId).c_str(), currentTime);
 }
@@ -366,7 +367,8 @@ void FormStServiceAbilityA::OnVisibilityChanged(const std::map<int64_t, int32_t>
     clock_gettime(CLOCK_REALTIME, &ts);
     long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
 
-    PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK, "OnVisibilityChanged");
+    PublishEvent(COMMON_EVENT_TEST_ACTION1, FORM_EVENT_TRIGGER_RESULT::FORM_EVENT_TRIGGER_RESULT_OK,
+        "OnVisibilityChanged");
     HILOG_INFO("%{public}s end, current time: %{public}ld", __func__, currentTime);
 }
 

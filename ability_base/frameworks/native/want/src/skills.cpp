@@ -18,7 +18,6 @@ using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AAFwk {
-
 const size_t LENGTH_FOR_FINDMINETYPE = 3;
 /**
  * @brief Default constructor used to create a Skills instance.
@@ -298,7 +297,6 @@ void Skills::AddPath(const PatternsMatcher &patternsMatcher)
     auto hasPath = std::find_if(paths_.begin(), paths_.end(), [&patternsMatcher](const PatternsMatcher pm) {
         return (pm.GetPattern() == patternsMatcher.GetPattern()) && (pm.GetType() == patternsMatcher.GetType());
     });
-
     if (hasPath == paths_.end()) {
         paths_.emplace_back(patternsMatcher);
     }
@@ -337,7 +335,6 @@ void Skills::RemovePath(const std::string &path)
 {
     auto hasPath = std::find_if(
         paths_.begin(), paths_.end(), [&path](const PatternsMatcher pm) { return pm.GetPattern() == path; });
-
     if (hasPath != paths_.end()) {
         paths_.erase(hasPath);
     }
@@ -353,7 +350,6 @@ void Skills::RemovePath(const PatternsMatcher &patternsMatcher)
     auto hasPath = std::find_if(paths_.begin(), paths_.end(), [&patternsMatcher](const PatternsMatcher pm) {
         return (pm.GetPattern() == patternsMatcher.GetPattern()) && (pm.GetType() == patternsMatcher.GetType());
     });
-
     if (hasPath != paths_.end()) {
         paths_.erase(hasPath);
     }
@@ -465,7 +461,6 @@ void Skills::AddSchemeSpecificPart(const std::string &schemeSpecificPart)
         schemeSpecificParts_.begin(), schemeSpecificParts_.end(), [&patternsMatcher](const PatternsMatcher pm) {
             return (pm.GetPattern() == patternsMatcher.GetPattern()) && (pm.GetType() == patternsMatcher.GetType());
         });
-
     if (it == schemeSpecificParts_.end()) {
         schemeSpecificParts_.emplace_back(patternsMatcher);
     }
@@ -494,7 +489,6 @@ void Skills::RemoveSchemeSpecificPart(const std::string &schemeSpecificPart)
     auto it = std::find_if(schemeSpecificParts_.begin(),
         schemeSpecificParts_.end(),
         [&schemeSpecificPart](const PatternsMatcher pm) { return pm.GetPattern() == schemeSpecificPart; });
-
     if (it != schemeSpecificParts_.end()) {
         schemeSpecificParts_.erase(it);
     }
@@ -602,7 +596,6 @@ void Skills::RemoveType(const std::string &type)
 {
     auto it = std::find_if(
         types_.begin(), types_.end(), [&type](const PatternsMatcher pm) { return pm.GetPattern() == type; });
-
     if (it != types_.end()) {
         types_.erase(it);
     }
@@ -618,7 +611,6 @@ void Skills::RemoveType(const PatternsMatcher &patternsMatcher)
     auto it = std::find_if(types_.begin(), types_.end(), [&patternsMatcher](const PatternsMatcher pm) {
         return (pm.GetPattern() == patternsMatcher.GetPattern()) && (pm.GetType() == patternsMatcher.GetType());
     });
-
     if (it != types_.end()) {
         types_.erase(it);
     }
@@ -747,15 +739,14 @@ int Skills::MatchData(const std::string &type, const std::string &scheme, Uri da
             std::vector<std::string> authorities = authorities_;
             if (authorities.size() >= 0) {
                 bool authMatch = HasAuthority(data.GetAuthority());
-                if (authMatch == true) {
-                    std::vector<PatternsMatcher> paths = paths_;
-                    if (paths.size() <= 0) {
-                        match = authMatch;
-                    } else if (HasPath(data.GetPath())) {
-                        match = RESULT_PATH;
-                    } else {
-                        return DISMATCH_DATA;
-                    }
+                if (authMatch == false) {
+                    return DISMATCH_DATA;
+                }
+                std::vector<PatternsMatcher> paths = paths_;
+                if (paths.size() <= 0) {
+                    match = authMatch;
+                } else if (HasPath(data.GetPath())) {
+                    match = RESULT_PATH;
                 } else {
                     return DISMATCH_DATA;
                 }
@@ -817,23 +808,25 @@ bool Skills::FindMimeType(const std::string &type)
 
     auto typeIt = type.find(0, 1, '/');
     size_t slashpos = type.size() - typeIt;
-    if (slashpos > 0) {
-        std::string typeSubstr = type.substr(0, slashpos);
+    if (slashpos <= 0) {
+        return false;
+    }
 
-        auto hasType = std::find_if(types.begin(), types.end(), [&typeSubstr](const PatternsMatcher pm) {
-            return pm.GetPattern() == typeSubstr;
-        });
-        if (hasPartialTypes_ && hasType != types.end()) {
-            return true;
-        }
+    std::string typeSubstr = type.substr(0, slashpos);
 
-        if (typeLength == slashpos + posOffset && type.at(slashpos + posNext) == '*') {
-            size_t numTypes = types.size();
-            for (size_t i = 0; i < numTypes; i++) {
-                std::string value = types.at(i).GetPattern();
-                if (RegionMatches(type, 0, value, 0, slashpos + posNext)) {
-                    return true;
-                }
+    hasType = std::find_if(types.begin(), types.end(), [&typeSubstr](const PatternsMatcher pm) {
+        return pm.GetPattern() == typeSubstr;
+    });
+    if (hasPartialTypes_ && hasType != types.end()) {
+        return true;
+    }
+
+    if (typeLength == slashpos + posOffset && type.at(slashpos + posNext) == '*') {
+        size_t numTypes = types.size();
+        for (size_t i = 0; i < numTypes; i++) {
+            std::string value = types.at(i).GetPattern();
+            if (RegionMatches(type, 0, value, 0, slashpos + posNext)) {
+                return true;
             }
         }
     }
@@ -1060,6 +1053,5 @@ bool Skills::ReadFromParcel(Parcel &parcel)
 
     return true;
 }
-
 }  // namespace AAFwk
 }  // namespace OHOS

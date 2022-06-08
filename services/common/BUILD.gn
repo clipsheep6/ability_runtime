@@ -45,7 +45,7 @@ ohos_shared_library("perm_verification") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }
 
@@ -56,6 +56,6 @@ ohos_shared_library("event_report") {
 
   external_deps = [ "hisysevent_native:libhisysevent" ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

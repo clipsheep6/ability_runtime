@@ -80,6 +80,6 @@ ohos_shared_library("wantagent_innerkits") {
     external_deps += [ "multimedia_image_standard:image_native" ]
   }
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#include "form_acquire_connection.h"
+
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
-#include "form_acquire_connection.h"
 #include "form_constants.h"
 #include "form_supply_callback.h"
 #include "form_task_mgr.h"

@@ -20,8 +20,7 @@ extern const char _binary_form_extension_context_js_end[];
 extern const char _binary_form_extension_context_abc_start[];
 extern const char _binary_form_extension_context_abc_end[];
 
-extern "C" __attribute__((constructor))
-void NAPI_application_FormExtensionContext_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_application_FormExtensionContext_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
@@ -32,8 +31,8 @@ void NAPI_application_FormExtensionContext_AutoRegister()
     moduleManager->Register(&newModuleInfo);
 }
 
-extern "C" __attribute__((visibility("default")))
-void NAPI_application_FormExtensionContext_GetJSCode(const char **buf, int *bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_FormExtensionContext_GetJSCode(
+    const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_form_extension_context_js_start;
@@ -45,8 +44,8 @@ void NAPI_application_FormExtensionContext_GetJSCode(const char **buf, int *bufL
 }
 
 // ability_context JS register
-extern "C" __attribute__((visibility("default")))
-void NAPI_application_FormExtensionContext_GetABCCode(const char **buf, int *buflen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_FormExtensionContext_GetABCCode(
+    const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_form_extension_context_abc_start;

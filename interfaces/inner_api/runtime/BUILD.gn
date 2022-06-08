@@ -88,6 +88,6 @@ ohos_shared_library("runtime") {
     ]
   }
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

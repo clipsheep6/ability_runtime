@@ -82,5 +82,5 @@ ohos_executable("idl") {
   deps = [ "//third_party/bounds_checking_function:libsec_static" ]
 
   part_name = "idl"
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
 }

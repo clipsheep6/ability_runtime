@@ -67,6 +67,6 @@ ohos_shared_library("particleability") {
 
   relative_install_dir = "module/ability"
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "ability_runtime"
 }

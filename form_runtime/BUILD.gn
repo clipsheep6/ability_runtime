@@ -122,7 +122,7 @@ ohos_shared_library("libfms") {
     external_deps += [ "power_manager_native:powermgr_client" ]
   }
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "form_runtime"
 }
 
@@ -172,7 +172,7 @@ ohos_shared_library("fmskit_native") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "form_runtime"
 }
 
@@ -237,7 +237,7 @@ ohos_shared_library("form_manager") {
     "utils_base:utils",
   ]
 
-  subsystem_name = "aafwk"
+  subsystem_name = "ability"
   part_name = "form_runtime"
 }
 

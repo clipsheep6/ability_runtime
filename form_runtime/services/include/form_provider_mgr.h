@@ -59,7 +59,6 @@ public:
     ErrCode UpdateForm(const int64_t formId, FormRecord &formRecord, const FormProviderData &formProviderData);
     /**
      * @brief Refresh form.
-     * 
      * @param formId The form id.
      * @param want The want of the form to request.
      * @param isVisibleToFresh The form is visible to fresh.
@@ -68,15 +67,14 @@ public:
     ErrCode RefreshForm(const int64_t formId, const Want &want, bool isVisibleToFresh);
     /**
      * @brief Connect ams for refresh form
-     * 
      * @param formId The form id.
      * @param record Form data.
      * @param want The want of the form.
      * @param isTimerRefresh The flag of timer refresh.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectAmsForRefresh(const int64_t formId, const FormRecord &record, const Want &want, 
-    const bool isTimerRefresh);
+    ErrCode ConnectAmsForRefresh(const int64_t formId, const FormRecord &record, const Want &want,
+        const bool isTimerRefresh);
     /**
      * @brief Notify provider form delete.
      * @param formId The form id.
@@ -91,8 +89,8 @@ public:
      * @param formIds form id list.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode NotifyProviderFormsBatchDelete(const std::string &bundleName, const std::string &abilityName, 
-    const std::set<int64_t> &formIds);
+    ErrCode NotifyProviderFormsBatchDelete(const std::string &bundleName, const std::string &abilityName,
+        const std::set<int64_t> &formIds);
     /**
      * @brief Acquire form state.
      * @param state form state.
@@ -115,7 +113,6 @@ private:
     FormRecord GetFormAbilityInfo(const FormRecord &record) const;
     /**
      * @brief Increase the timer refresh count.
-     * 
      * @param formId The form id.
      */
     void IncreaseTimerRefreshCount(const int64_t formId);

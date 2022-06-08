@@ -250,6 +250,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
 
 void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
 
@@ -264,6 +265,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
+        HILOG_INFO("To load ability.");
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         LoadAbility();
     }
@@ -274,8 +276,9 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
     uint32_t sceneFlag)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
-    HILOG_INFO("ability record: %{public}s", element.c_str());
+    HILOG_INFO("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
         if (IsAbilityState(AbilityState::BACKGROUND)) {
@@ -293,6 +296,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
+        HILOG_INFO("SUPPORT_GRAPHICS: to load ability.");
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         StartingWindowTask(isRecent, true, abilityRequest, startOptions);
         AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
@@ -416,6 +420,7 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
 void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
     std::shared_ptr<StartOptions> &startOptions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s was called.", __func__);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     if (!handler) {
@@ -619,6 +624,8 @@ sptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
 void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions,
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("%{public}s was called.", __func__);
     if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
         abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
         HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
@@ -651,6 +658,8 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
 void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions,
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("%{public}s was called.", __func__);
     if (abilityInfo_.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
         abilityInfo_.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
         HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);

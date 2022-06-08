@@ -40,7 +40,7 @@ bool FormJsInfo::ReadFromParcel(Parcel &parcel)
     icon = Str16ToStr8(parcel.ReadString16());
 
     std::unique_ptr<FormProviderData> bindingData(parcel.ReadParcelable<FormProviderData>());
-    if (nullptr == bindingData){
+    if (bindingData == nullptr) {
         return false;
     }
     formProviderData = *bindingData;
