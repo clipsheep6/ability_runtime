@@ -25,8 +25,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ContextImpl : public Context, public std::enable_shared_from_this<ContextImpl> {
 public:
-    ContextImpl() = default;
-    virtual ~ContextImpl() = default;
+    ContextImpl();
+    virtual ~ContextImpl();
 
     /**
      * @brief Obtains the bundle name of the current ability.
@@ -279,6 +279,7 @@ private:
     std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
     std::string currArea_ = CONTEXT_ELS[EL_DEFAULT];
+    int32_t countNum_ = 0;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
