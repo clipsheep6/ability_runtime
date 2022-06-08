@@ -36,6 +36,16 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AbilityRuntime::Constants;
 
+ContextImpl::ContextImpl()
+{
+    HILOG_ERROR("ContextImpl::create count = %{public}d", countNum_++);
+}
+
+ContextImpl::~ContextImpl()
+{
+    HILOG_ERROR("ContextImpl::destroy count = %{public}d", countNum_--);
+}
+
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
