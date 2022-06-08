@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <map>
+#include <shared_mutex>
 #include <string>
 
 #include "context.h"
@@ -329,7 +330,7 @@ private:
     bool tryBind_ = false;
     bool isSystemCaller_ = false;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy_ = nullptr;
-    std::mutex lock_;
+    std::shared_mutex lock_;
     static std::mutex oplock_;
 
     sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;  // caller binderDied Recipient
