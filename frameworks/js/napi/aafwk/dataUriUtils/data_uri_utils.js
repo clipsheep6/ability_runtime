@@ -25,7 +25,7 @@ let dataUriUtils = {
             return -1;
         }
         let ret = uri.substring(index + 1);
-        if (ret === "" || isNaN(ret)) {
+        if (ret === "" || isNaN(Number(ret)) {
             return -1;
         }
         return Number(ret);
@@ -51,7 +51,7 @@ let dataUriUtils = {
             return uri;
         }
         var id = uri.substring(index + 1);
-        if (id === "" || isNaN(id)) {
+        if (id === "" || isNaN(Number(id)) {
             return uri;
         }
         return uri.substring(0, index);
