@@ -23,9 +23,9 @@ config("amsKitSystemTestServiceconfig") {
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/services/common/include",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
     "${aafwk_path}/frameworks/kits/appkit/native/app",
     "${bundlefwk_path}/services/bundlemgr/include",
+    "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/jsoncpp/include",
   ]
   defines = [
@@ -57,7 +57,7 @@ ohos_shared_library("amsKitSystemTestService") {
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_path}/services/bundlemgr:libbms",
-    "${libs_path}/libeventhandler:libeventhandler_target",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utilsbase",
   ]

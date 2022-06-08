@@ -53,7 +53,7 @@ ohos_unittest("data_ability_record_test") {
     "${services_path}/common:perm_verification",
 
     #"${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",

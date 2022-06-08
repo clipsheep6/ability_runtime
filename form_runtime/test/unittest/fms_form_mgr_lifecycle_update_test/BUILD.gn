@@ -26,21 +26,20 @@ ohos_unittest("FmsFormMgrLifecycleUpdateTest") {
   ]
 
   include_dirs = [
+    "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/json/include",
-    "${ability_runtime_path}/services/formmgr/include",
-    "${bundlefwk_path}/services/bundlemgr/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include/",
-    "${form_runtime_path}/interfaces/inner_api/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr/",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
-    "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/distributeddata/include",
-    "${form_runtime_path}/test/mock/include",
-    "${form_runtime_path}/interfaces/kits/native/include",
     "${ability_runtime_path}/frameworks/kits/ability/native/include",
     "${ability_runtime_path}/frameworks/kits/appkit/native/app/include",
+    "${ability_runtime_path}/services/formmgr/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
+    "${bundlefwk_path}/services/bundlemgr/include",
+    "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/distributeddata/include",
+    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${form_runtime_path}/interfaces/inner_api/include",
+    "${form_runtime_path}/interfaces/kits/native/include",
+    "${form_runtime_path}/test/mock/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
   ]
 
@@ -55,7 +54,6 @@ ohos_unittest("FmsFormMgrLifecycleUpdateTest") {
   deps = [
     "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
 
-    #"${bundlefwk_path}/libs/libeventhandler:libeventhandler_target",
     #"//base/startup/appspawn_standard:appspawn_socket_client",
     "${ability_base_path}:base",
     "${ability_base_path}:want",

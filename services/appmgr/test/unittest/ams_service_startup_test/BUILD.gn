@@ -43,7 +43,7 @@ ohos_unittest("AmsServiceStartupTest") {
 
   sources += [ "ams_service_startup_test.cpp" ]
 
-  configs = [ "${bundlefwk_path}/libs/libeventhandler:libeventhandler_config" ]
+  configs = [ "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -53,11 +53,11 @@ ohos_unittest("AmsServiceStartupTest") {
     "${aafwk_path}/services/appmgr:libappms",
     "${ability_base_path}:base",
     "${ability_base_path}:want",
-    "${bundlefwk_path}/libs/libeventhandler:libeventhandler_target",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",
     "${services_path}/common:perm_verification",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//utils/native/base:utils",
   ]
 

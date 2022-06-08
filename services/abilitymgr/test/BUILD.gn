@@ -97,10 +97,10 @@ ohos_source_set("abilityms_test_source") {
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//utils/native/base:utils",
   ]
 

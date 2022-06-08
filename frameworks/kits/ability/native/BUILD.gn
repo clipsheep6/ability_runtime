@@ -251,9 +251,9 @@ ohos_shared_library("abilitykit_native") {
   }
 
   public_deps = [
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//foundation/arkui/napi:ace_napi",
   ]
 

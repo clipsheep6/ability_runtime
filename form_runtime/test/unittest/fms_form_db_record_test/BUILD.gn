@@ -22,17 +22,14 @@ ohos_unittest("FmsFormDbRecordTest") {
   sources = [ "${form_runtime_path}/test/unittest/fms_form_db_record_test/fms_form_db_record_test.cpp" ]
 
   include_dirs = [
+    "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/json/include",
     "${ability_runtime_path}/services/formmgr/include",
-
     "${bundlefwk_inner_api_path}/appexecfwk_base/include/",
-    "${form_runtime_path}/interfaces/inner_api/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr/",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
-
-    #"${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
     "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/distributeddata/include",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
+    "${form_runtime_path}/interfaces/inner_api/include",
   ]
 
   configs = [
@@ -44,16 +41,14 @@ ohos_unittest("FmsFormDbRecordTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${form_runtime_path}:fms_target",
-
-    #"${bundlefwk_path}/libs/libeventhandler:libeventhandler_target",
     "${ability_base_path}:base",
     "${ability_base_path}:configuration",
     "${ability_base_path}:want",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${form_runtime_path}:fms_target",
     "//utils/native/base:utils",
   ]
 

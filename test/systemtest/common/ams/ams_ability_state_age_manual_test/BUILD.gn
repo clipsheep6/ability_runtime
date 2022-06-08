@@ -53,10 +53,9 @@ ohos_systemtest("ams_ability_state_age_manual_test") {
     "${aafwk_path}/services/appmgr:appmgr_config",
 
     # "${aafwk_path}/frameworks/kits/appkit:appkit_config",
-
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler_config",
     ":system_test_ams_ability_state_age_manual_test_config",
     "test/systemtest/common/ams/tool/:system_test_ability_util_config",
-    "${bundlefwk_path}/libs/libeventhandler:libeventhandler_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -67,8 +66,8 @@ ohos_systemtest("ams_ability_state_age_manual_test") {
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]

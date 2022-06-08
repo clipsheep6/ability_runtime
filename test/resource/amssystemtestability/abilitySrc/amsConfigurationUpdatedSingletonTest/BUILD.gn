@@ -16,12 +16,12 @@ SUBST_TOOLS_DIR = "test/resource/amssystemtestability/abilitySrc/tools"
 config("amsConfigurationUpdatedSingletonTestConfig") {
   visibility = [ ":*" ]
   include_dirs = [
+    "//base/notification/eventhandler/interfaces/inner_api",
     "${SUBDEMOSYSTEM_DIR}/include",
     "${aafwk_path}/frameworks/kits/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
-    "${innerkits_path}/libeventhandler/include",
     "${services_path}/bundlemgr/include",
     "${aafwk_path}/services/abilitymgr/include",
     "${common_path}/log/include",

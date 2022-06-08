@@ -44,6 +44,7 @@ config("module_private_config") {
 config("module_context_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "//base/notification/eventhandler/interfaces/inner_api",
     "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${ability_base_innerapi_path}/uri/include",
     "${ability_base_innerapi_path}/want/include",
@@ -52,7 +53,6 @@ config("module_context_config") {
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/frameworks/kits/appkit/native/app/include/task",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
   ]
   cflags = []
@@ -81,9 +81,9 @@ ohos_unittest("context_deal_interface_test") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -120,11 +120,10 @@ ohos_unittest("application_test") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
-    "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
 
@@ -158,8 +157,8 @@ ohos_unittest("context_container_test") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
@@ -191,8 +190,8 @@ ohos_unittest("context_deal_test") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -228,8 +227,8 @@ ohos_unittest("application_impl_test") {
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_innerkits_path}/libeventhandler:libeventhandler",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]

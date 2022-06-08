@@ -18,13 +18,13 @@ config("ability_manager_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
+    "//base/notification/eventhandler/interfaces/inner_api",
     "${ability_base_innerapi_path}/configuration/include",
     "${ability_base_innerapi_path}/uri/include",
     "//third_party/jsoncpp/include",
     "${ability_base_innerapi_path}/want/include",
     "//utils/native/base/include",
     "${kits_path}/ability/native/include",
-    "${bundlefwk_innerkits_path}/libeventhandler/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${innerkits_path}/app_manager/include/appmgr",
