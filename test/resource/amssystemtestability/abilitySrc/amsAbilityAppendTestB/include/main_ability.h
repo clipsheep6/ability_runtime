@@ -66,7 +66,7 @@ public:
 
     MainAbility *mainAbility;
     std::unordered_map<std::string, std::function<void(int, int, int)>> mapTestFunc_;
-    ~FirstEventSubscriber(){};
+    ~FirstEventSubscriber() {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

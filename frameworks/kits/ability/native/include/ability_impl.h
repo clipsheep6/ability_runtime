@@ -451,7 +451,7 @@ private:
 class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:
     WindowLifeCycleImpl(const sptr<IRemoteObject>& token, const std::shared_ptr<AbilityImpl>& owner)
-        : token_(token) , owner_(owner) {}
+        : token_(token), owner_(owner) {}
     virtual ~WindowLifeCycleImpl() {}
     void AfterForeground() override;
     void AfterBackground() override;

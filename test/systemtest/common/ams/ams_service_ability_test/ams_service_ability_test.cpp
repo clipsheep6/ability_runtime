@@ -173,7 +173,7 @@ public:
 
     class AppEventSubscriber : public CommonEventSubscriber {
     public:
-        explicit AppEventSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp){};
+        explicit AppEventSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp) {};
         ~AppEventSubscriber() = default;
         virtual void OnReceiveEvent(const CommonEventData &data) override;
     };

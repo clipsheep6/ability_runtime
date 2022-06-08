@@ -110,7 +110,7 @@ public:
     void TestPost(const std::string funName = "");
     std::vector<std::string> vectorOperator_;
     AmsStKitDataAbilityDataA3 *mainAbility_;
-    ~KitTestDataA3EventSubscriber(){};
+    ~KitTestDataA3EventSubscriber() {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

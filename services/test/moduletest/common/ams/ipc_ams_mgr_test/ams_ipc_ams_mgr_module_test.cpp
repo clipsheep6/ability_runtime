@@ -64,11 +64,11 @@ public:
 
 protected:
     sptr<MockAbilityToken> mockToken_ = nullptr;
-    sptr<MockAbilityToken> token_{nullptr};
-    std::unique_ptr<AppMgrClient> client_{nullptr};
+    sptr<MockAbilityToken> token_ {nullptr};
+    std::unique_ptr<AppMgrClient> client_ {nullptr};
 
-    std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_{nullptr};
-    std::shared_ptr<AMSEventHandler> amsEventHandler_{nullptr};
+    std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_ {nullptr};
+    std::shared_ptr<AMSEventHandler> amsEventHandler_ {nullptr};
 };
 
 class MockMockAppMgrService : public MockAppMgrService {

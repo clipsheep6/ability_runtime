@@ -75,9 +75,9 @@ public:
 
     class AppEventSubscriber : public CommonEventSubscriber {
     public:
-        explicit AppEventSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp){};
+        explicit AppEventSubscriber(const CommonEventSubscribeInfo &sp) : CommonEventSubscriber(sp) {};
         virtual void OnReceiveEvent(const CommonEventData &data) override;
-        ~AppEventSubscriber(){};
+        ~AppEventSubscriber() {};
     };
 
     static sptr<IAbilityManager> abilityMgrService;

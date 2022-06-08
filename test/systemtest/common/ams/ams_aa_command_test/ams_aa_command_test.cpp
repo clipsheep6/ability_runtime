@@ -103,7 +103,7 @@ HWTEST_F(AmsAACommandTest, ams_aa_command_test_0100, TestSize.Level1)
     GTEST_LOG_(INFO) << "AmsAACommandTest ams_aa_command_test_0100 start";
 
     string result;
-    const string cmd{"start -h"};
+    const string cmd {"start -h"};
     const string &expectResult = HELP_MSG_START;
     ExecuteSystemForResult(cmd, result);
 
@@ -122,7 +122,7 @@ HWTEST_F(AmsAACommandTest, ams_aa_command_test_0200, TestSize.Level1)
     GTEST_LOG_(INFO) << "AmsAACommandTest ams_aa_command_test_0200 start";
 
     string result;
-    const string cmd{"dump -h"};
+    const string cmd {"dump -h"};
     const string &expectResult = HELP_MSG_DUMP;
     ExecuteSystemForResult(cmd, result);
 
@@ -141,7 +141,7 @@ HWTEST_F(AmsAACommandTest, ams_aa_command_test_0300, TestSize.Level1)
     GTEST_LOG_(INFO) << "AmsAACommandTest ams_aa_command_test_0300 start";
 
     string dumpInfo, result;
-    const string cmd{"dump -a"};
+    const string cmd {"dump -a"};
     const string &expectResult = mexpectResult;
     ExecuteSystemForResult(cmd, result);
     EXPECT_EQ(result.substr(0, expectResult.size()), expectResult);
@@ -159,7 +159,7 @@ HWTEST_F(AmsAACommandTest, ams_aa_command_test_0400, TestSize.Level1)
     GTEST_LOG_(INFO) << "AmsAACommandTest ams_aa_command_test_0400 start";
 
     string result;
-    const string cmd{"dump -s 0"};
+    const string cmd {"dump -s 0"};
     const string &expectResult = mexpectResult;
     ExecuteSystemForResult(cmd, result);
     EXPECT_EQ(result.substr(0, expectResult.size()), expectResult);
@@ -177,8 +177,8 @@ HWTEST_F(AmsAACommandTest, ams_aa_command_test_0700, TestSize.Level1)
     GTEST_LOG_(INFO) << "AmsAACommandTest ams_aa_command_test_0700 start";
 
     string result;
-    const string cmd{"start -d deviceId -a " + abilityName + " -b " + bundleName};
-    const string expectResult{"start ability successfully.\n"};
+    const string cmd {"start -d deviceId -a " + abilityName + " -b " + bundleName};
+    const string expectResult {"start ability successfully.\n"};
     ExecuteSystemForResult(cmd, result);
     EXPECT_EQ(result, expectResult);
     std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_LAUNCHER_OK));

@@ -151,7 +151,7 @@ private:
         "test_ability_name4",
         "test_ability_name5",
     };
-    sptr<MockAbilityToken> mockToken_{nullptr};
+    sptr<MockAbilityToken> mockToken_ {nullptr};
 };
 
 void AmsAppRunningRecordModuleTest::SetUpTestCase()

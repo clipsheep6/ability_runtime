@@ -501,7 +501,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
             auto context = weak.lock();
             if (argErrorCode != 0) {
                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return; 
+               return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -549,7 +549,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
             auto context = weak.lock();
             if (argErrorCode != 0) {
                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return; 
+               return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -590,7 +590,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, Nati
             auto context = weak.lock();
             if (argErrorCode != 0) {
                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return; 
+               return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -637,7 +637,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
             auto context = weak.lock();
             if (argErrorCode != 0) {
                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return; 
+               return;
             }
             if (!context) {
                 HILOG_WARN("context is released");

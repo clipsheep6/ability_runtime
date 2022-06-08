@@ -28,8 +28,8 @@ namespace Global {
 namespace Resource {
 class ResourceManagerTestInstance : public ResourceManager2 {
 public:
-    ResourceManagerTestInstance(){};
-    virtual ~ResourceManagerTestInstance(){};
+    ResourceManagerTestInstance() {};
+    virtual ~ResourceManagerTestInstance() {};
 
     virtual bool AddResource(const char *path)
     {
@@ -41,7 +41,7 @@ public:
         return ERROR;
     };
 
-    virtual void GetResConfig(ResConfig &resConfig){};
+    virtual void GetResConfig(ResConfig &resConfig) {};
 
     virtual RState GetStringById(uint32_t id, std::string &outValue)
     {
@@ -69,7 +69,7 @@ public:
     {
         return ERROR;
     };
-    virtual void SetStringFormatById(std::string &inValue, uint32_t id, ...){};
+    virtual void SetStringFormatById(std::string &inValue, uint32_t id, ...) {};
 
     virtual RState GetStringFormatByName(std::string &outValue, const char *name, ...)
     {

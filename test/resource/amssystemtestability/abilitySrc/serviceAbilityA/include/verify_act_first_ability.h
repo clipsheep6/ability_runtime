@@ -54,7 +54,7 @@ public:
 class AbilityContextStartAbilityTest : public EventFwk::CommonEventSubscriber {
 public:
     AbilityContextStartAbilityTest(const EventFwk::CommonEventSubscribeInfo &sp)
-        : EventFwk::CommonEventSubscriber(sp){};
+        : EventFwk::CommonEventSubscriber(sp) {};
     virtual ~AbilityContextStartAbilityTest() = default;
     virtual void OnReceiveEvent(const EventFwk::CommonEventData &data);
 };
@@ -75,8 +75,8 @@ public:
 };
 class AbilityConnectionActFirst : public AAFwk::AbilityConnectionStub {
 public:
-    AbilityConnectionActFirst(){};
-    virtual ~AbilityConnectionActFirst(){};
+    AbilityConnectionActFirst() {};
+    virtual ~AbilityConnectionActFirst() {};
     virtual void OnAbilityConnectDone(
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;

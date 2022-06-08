@@ -88,7 +88,7 @@ public:
     std::vector<std::string> vectorOperator_;
     AmsStDataAbilityPageA *mainAbility_;
     std::unordered_map<std::string, std::function<void()>> mapTestFunc_;
-    ~DataTestPageAEventSubscriber(){};
+    ~DataTestPageAEventSubscriber() {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -66,8 +66,8 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockIBundleMgr : public IRemoteStub<IBundleMgr> {
 public:
-    MockIBundleMgr(){};
-    virtual ~MockIBundleMgr(){};
+    MockIBundleMgr() {};
+    virtual ~MockIBundleMgr() {};
 
     virtual bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
@@ -263,8 +263,8 @@ public:
 
 class MockAbilityContextDeal : public ContextDeal {
 public:
-    MockAbilityContextDeal(){};
-    virtual ~MockAbilityContextDeal(){};
+    MockAbilityContextDeal() {};
+    virtual ~MockAbilityContextDeal() {};
 
     sptr<IBundleMgr> GetBundleManager() const override
     {

@@ -71,7 +71,7 @@ public:
     void TestPost(const std::string funName = "");
     std::vector<std::string> vectorOperator_;
     AmsStDataAbilityDataC1 *mainAbility_;
-    ~DataTestDataC1EventSubscriber(){};
+    ~DataTestDataC1EventSubscriber() {};
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

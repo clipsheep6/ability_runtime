@@ -80,7 +80,7 @@ HWTEST_F(AmsAppStateCallBackTest, OnRemoteRequest_002, TestSize.Level1)
     sptr<AppStateCallbackHost> host(new AppStateCallbackHost());
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option{MessageOption::TF_ASYNC};
+    MessageOption option {MessageOption::TF_ASYNC};
     sptr<IRemoteObject> token = new MockAbilityToken();
 
     data.WriteParcelable(token.GetRefPtr());
