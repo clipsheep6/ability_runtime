@@ -846,7 +846,7 @@ int MissionListManager::DispatchForeground(const std::shared_ptr<AbilityRecord> 
         return ERR_INVALID_VALUE;
     }
 
-    handler->RemoveEvent(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, abilityRecord->GetEventId());
+    handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetEventId());
     auto self(shared_from_this());
     if (success) {
 #ifdef SUPPORT_GRAPHICS
@@ -1386,7 +1386,7 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     UpdateMissionSnapshot(abilityRecord);
     auto task = [abilityRecord, self]() {
         HILOG_ERROR("Mission list manager move to background timeout.");
-        self->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG);
+        self->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
         self->CompleteBackground(abilityRecord);
     };
     abilityRecord->BackgroundAbility(task);
@@ -1401,25 +1401,25 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
 
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
-    std::string msgContent;
+    std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
-            msgContent = "ability load timeout";
+            msgContent += "load timeout";
             break;
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
-            msgContent = "ability active timeout";
+            msgContent += "active timeout";
             break;
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
-            msgContent = "ability inactive timeout";
+            msgContent += "inactive timeout";
             break;
-        case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG:
-            msgContent = "ability foregroundnew timeout";
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+            msgContent += "foreground timeout";
             break;
-        case AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG:
-            msgContent = "ability backgroundnew timeout";
+        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
+            msgContent += "background timeout";
             break;
         case AbilityManagerService::TERMINATE_TIMEOUT_MSG:
-            msgContent = "ability terminate timeout";
+            msgContent += "terminate timeout";
             break;
         default:
             return;
@@ -1478,8 +1478,8 @@ void MissionListManager::OnTimeOut(uint32_t msgId, int64_t eventId)
         case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
             break;
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
-        case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG:
-            HandleForgroundNewTimeout(abilityRecord);
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+            HandleForgroundTimeout(abilityRecord);
             break;
         default:
             break;
@@ -1505,7 +1505,7 @@ void MissionListManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> 
     HandleTimeoutAndResumeAbility(ability);
 }
 
-void MissionListManager::HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability)
+void MissionListManager::HandleForgroundTimeout(const std::shared_ptr<AbilityRecord> &ability)
 {
     if (ability == nullptr) {
         HILOG_ERROR("MissionListManager on time out event: ability record is nullptr.");
@@ -1548,7 +1548,7 @@ void MissionListManager::CompleteForegroundFailed(const std::shared_ptr<AbilityR
     }
 #endif
 
-    HandleForgroundNewTimeout(abilityRecord);
+    HandleForgroundTimeout(abilityRecord);
     TerminatePreviousAbility(abilityRecord);
 }
 

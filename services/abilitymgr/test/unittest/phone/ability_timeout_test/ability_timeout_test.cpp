@@ -736,7 +736,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_001, TestSize.Level1)
 
     // test root launcher foreground timeout.
     launcher->SetAbilityState(AbilityState::FOREGROUNDING);
-    abilityMs_->HandleForegroundNewTimeOut(launcher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(launcher->eventId_);
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(launcher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
     EXPECT_EQ(launcher, topAbility);
@@ -791,7 +791,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_002, TestSize.Level1)
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
 
     // test common launcher foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncher->eventId_);
 
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(commonLauncher->GetToken()) == nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -858,7 +858,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_003, TestSize.Level1)
     commonLauncher->SetAbilityState(AbilityState::FOREGROUNDING);
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     // test common launcher foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncher->eventId_);
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
     EXPECT_EQ(caller, topAbility);
@@ -923,7 +923,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_004, TestSize.Level1)
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
 
     // test common launcher foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncher->eventId_);
 
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -990,7 +990,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_005, TestSize.Level1)
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
 
     // test common launcher foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncher->eventId_);
 
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -1057,7 +1057,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_006, TestSize.Level1)
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
 
     // test common ability foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
 
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -1115,7 +1115,7 @@ HWTEST_F(AbilityTimeoutTest, HandleForgroundNewTimeout_007, TestSize.Level1)
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
 
     // test common launcher foreground timeout.
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncher->eventId_);
 
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();

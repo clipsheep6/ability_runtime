@@ -47,12 +47,12 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
             ProcessInactiveTimeOut(event->GetParam());
             break;
         }
-        case AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG: {
-            ProcessForegroundNewTimeOut(event->GetParam());
+        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG: {
+            ProcessForegroundTimeOut(event->GetParam());
             break;
         }
-        case AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG: {
-            ProcessBackgroundNewTimeOut(event->GetParam());
+        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG: {
+            ProcessBackgroundTimeOut(event->GetParam());
             break;
         }
         default: {
@@ -86,20 +86,20 @@ void AbilityEventHandler::ProcessInactiveTimeOut(int64_t eventId)
     server->HandleInactiveTimeOut(eventId);
 }
 
-void AbilityEventHandler::ProcessForegroundNewTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessForegroundTimeOut(int64_t eventId)
 {
-    HILOG_INFO("ForegroundNew timeout.");
+    HILOG_INFO("Foreground timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleForegroundNewTimeOut(eventId);
+    server->HandleForegroundTimeOut(eventId);
 }
 
-void AbilityEventHandler::ProcessBackgroundNewTimeOut(int64_t eventId)
+void AbilityEventHandler::ProcessBackgroundTimeOut(int64_t eventId)
 {
-    HILOG_INFO("BackgroundNew timeout.");
+    HILOG_INFO("Background timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleBackgroundNewTimeOut(eventId);
+    server->HandleBackgroundTimeOut(eventId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

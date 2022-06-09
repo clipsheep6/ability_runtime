@@ -418,7 +418,7 @@ private:
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void HandleForgroundNewTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void HandleForgroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminateList(const std::shared_ptr<AbilityRecord> &ability);
     void DelayedResumeTimeout(const std::shared_ptr<AbilityRecord> &callerAbility);

@@ -3170,24 +3170,24 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t eventId)
     }
 }
 
-void AbilityManagerService::HandleForegroundNewTimeOut(int64_t eventId)
+void AbilityManagerService::HandleForegroundTimeOut(int64_t eventId)
 {
-    HILOG_DEBUG("Handle ForegroundNew timeout.");
+    HILOG_DEBUG("Handle foreground timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::FOREGROUNDNEW_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, eventId);
         }
     }
 }
 
-void AbilityManagerService::HandleBackgroundNewTimeOut(int64_t eventId)
+void AbilityManagerService::HandleBackgroundTimeOut(int64_t eventId)
 {
-    HILOG_DEBUG("Handle BackgroundNew timeout.");
+    HILOG_DEBUG("Handle background timeout.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
-            item.second->OnTimeOut(AbilityManagerService::BACKGROUNDNEW_TIMEOUT_MSG, eventId);
+            item.second->OnTimeOut(AbilityManagerService::BACKGROUND_TIMEOUT_MSG, eventId);
         }
     }
 }

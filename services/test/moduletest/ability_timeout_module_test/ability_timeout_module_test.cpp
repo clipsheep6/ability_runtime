@@ -719,13 +719,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_001, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -744,20 +744,20 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_001, TestSize.Leve
     rootLauncher->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(rootLauncher->eventId_);
+    abilityMs_->HandleForegroundTimeOut(rootLauncher->eventId_);
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
     auto topAbility = curListManager->GetCurrentTopAbilityLocked();
     EXPECT_EQ(rootLauncher, topAbility);
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_002, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -781,7 +781,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_002, TestSize.Leve
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -789,13 +789,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_002, TestSize.Leve
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_003, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -826,7 +826,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_003, TestSize.Leve
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -834,13 +834,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_003, TestSize.Leve
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_004, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -871,7 +871,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_004, TestSize.Leve
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -879,13 +879,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_004, TestSize.Leve
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_005, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -914,7 +914,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_005, TestSize.Leve
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -922,13 +922,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_005, TestSize.Leve
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_006, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -957,7 +957,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_006, TestSize.Leve
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
@@ -965,13 +965,13 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_006, TestSize.Leve
 }
 
 /*
- * Function: HandleForegroundNewTimeOut
+ * Function: HandleForegroundTimeOut
  * SubFunction: NA
- * FunctionPoints: HandleForegroundNewTimeOut
+ * FunctionPoints: HandleForegroundTimeOut
  * EnvConditions: NA
- * CaseDescription: HandleForegroundNewTimeOut
+ * CaseDescription: HandleForegroundTimeOut
  */
-HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_007, TestSize.Level1)
+HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
@@ -995,7 +995,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundNewTimeOut_007, TestSize.Leve
     commonLauncherAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
     // rootlauncher load timeout
-    abilityMs_->HandleForegroundNewTimeOut(commonLauncherAbility->eventId_);
+    abilityMs_->HandleForegroundTimeOut(commonLauncherAbility->eventId_);
     WaitUntilTaskFinishedByTimer();
     EXPECT_TRUE(curListManager->GetAbilityRecordByToken(commonLauncherAbility->GetToken()) != nullptr);
     topAbility = curListManager->GetCurrentTopAbilityLocked();
