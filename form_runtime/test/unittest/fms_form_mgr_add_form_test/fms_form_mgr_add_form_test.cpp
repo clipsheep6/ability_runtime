@@ -585,6 +585,10 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_009, TestSize.Level0)
     GTEST_LOG_(INFO) << "fms_form_mgr_add_form_test_009 start";
     CreateProviderData();
 
+    std::vector<FormDBInfo> originDBInfos;
+    FormDbCache::GetInstance().GetAllFormInfo(originDBInfos);
+    size_t originDbInfoSize = originDBInfos.size();
+
     int64_t formId = 0x0abcdabc00000000;
     int callingUid {0};
     // Set cache
@@ -644,7 +648,7 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_009, TestSize.Level0)
     // database info updated.
     std::vector<FormDBInfo> formDBInfos;
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
-    EXPECT_EQ(dataCnt, formDBInfos.size());
+    EXPECT_EQ(originDbInfoSize + dataCnt, formDBInfos.size());
     FormDBInfo dbInfo {formDBInfos[0]};
     EXPECT_EQ(formId, dbInfo.formId);
     EXPECT_EQ(formUserUidCnt, dbInfo.formUserUids.size());
