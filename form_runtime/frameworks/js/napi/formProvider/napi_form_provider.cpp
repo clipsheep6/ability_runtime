@@ -1524,3 +1524,15 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
     // here should not be reached.
     return NapiGetResult(env, 1);
 }
+
+napi_value NAPI_IsRequestPublishFormSupported(napi_env env, napi_callback_info info) {
+    HILOG_INFO("%{public}s starts.", __func__);
+    // Check the number of the arguments.
+    size_t argc = ARGS_SIZE_ZERO;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, nullptr, nullptr, nullptr));
+    if (argc != ARGS_SIZE_ZERO) {
+        napi_value result;
+        return false;
+    }
+    return true;
+}
