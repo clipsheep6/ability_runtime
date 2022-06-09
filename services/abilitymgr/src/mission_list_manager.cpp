@@ -1138,11 +1138,10 @@ void MissionListManager::RemoveTerminatingAbility(const std::shared_ptr<AbilityR
 
     // 4. the ability should find the next ability to foreground
     std::shared_ptr<AbilityRecord> needTopAbility;
-    if (missionList->IsEmpty()) {
-        HILOG_DEBUG("MissionList is empty, next is launcher.");
-        needTopAbility = GetCurrentTopAbilityLocked();
-    } else {
+    if (!missionList->IsEmpty()) {
         needTopAbility = missionList->GetTopAbility();
+    } else {
+        HILOG_DEBUG("mission list is empty, no next ability.");
     }
 
     if (!needTopAbility) {
