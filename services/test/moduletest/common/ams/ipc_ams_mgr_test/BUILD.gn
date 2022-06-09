@@ -36,6 +36,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
   ]
 
   external_deps = [
+    "background_task_mgr:bgtaskmgr_innerkits",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
     "ipc:ipc_core",

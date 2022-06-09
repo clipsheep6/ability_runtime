@@ -59,6 +59,7 @@ ohos_unittest("lifecycle_deal_test") {
     "ability_base:zuri",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

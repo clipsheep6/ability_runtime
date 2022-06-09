@@ -167,9 +167,9 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_003, TestSize.Level1)
         GetAmsMgr())
         .Times(1)
         .WillOnce(Return(amsMgrScheduler));
-    EXPECT_CALL(*(static_cast<MockAmsMgrScheduler *>(amsMgrScheduler.GetRefPtr())), TerminateAbility(_)).Times(1);
+    EXPECT_CALL(*(static_cast<MockAmsMgrScheduler *>(amsMgrScheduler.GetRefPtr())), TerminateAbility(_, _)).Times(1);
 
-    EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->TerminateAbility(token_));
+    EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->TerminateAbility(token_, false));
     HILOG_INFO("ams_app_mgr_client_test_003 end");
 }
 
@@ -184,7 +184,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_003, TestSize.Level1)
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_004, TestSize.Level1)
 {
     HILOG_INFO("ams_app_mgr_client_test_004 start");
-    EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->TerminateAbility(token_));
+    EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->TerminateAbility(token_, false));
     HILOG_INFO("ams_app_mgr_client_test_004 end");
 }
 

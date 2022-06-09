@@ -61,6 +61,7 @@ ohos_moduletest("IpcAbilitySchedulerModuleTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_core",
     "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",

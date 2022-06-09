@@ -32,6 +32,7 @@ ohos_moduletest("ability_manager_client_test") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
+    "background_task_mgr:bgtaskmgr_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",

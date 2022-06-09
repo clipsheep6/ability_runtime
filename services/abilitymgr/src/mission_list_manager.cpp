@@ -1029,7 +1029,6 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &a
         return ERR_OK;
     }
 
-    abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
         abilityRecord->SaveResultToCallers(resultCode, resultWant);
@@ -1302,6 +1301,7 @@ int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Missio
     }
 
     abilityRecord->SetTerminatingState();
+    abilityRecord->SetClearMissionFlag(true);
     auto ret = TerminateAbilityLocked(abilityRecord, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("clear mission error: %{public}d.", ret);
@@ -1339,6 +1339,12 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         auto mission = (*listIter);
         listIter++;
         if (!mission || mission->IsLockedState()) {
+            continue;
+        }
+
+        auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMs_->IsBgTaskUid(mission->GetAbilityRecord()->GetUid())) {
+            HILOG_INFO("the mission is bgtask, do not need clear");
             continue;
         }
 

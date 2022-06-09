@@ -737,7 +737,7 @@ int AbilityRecord::TerminateAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
-    return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_);
+    return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
 }
 
 const AppExecFwk::AbilityInfo &AbilityRecord::GetAbilityInfo() const
@@ -1697,6 +1697,16 @@ bool AbilityRecord::IsDlp() const
 bool AbilityRecord::IsMinimizeFromUser() const
 {
     return minimizeReason_;
+}
+
+void AbilityRecord::SetClearMissionFlag(bool clearMissionFlag)
+{
+    clearMissionFlag_= clearMissionFlag;
+}
+
+bool AbilityRecord::IsClearMissionFlag()
+{
+    return clearMissionFlag_;
 }
 
 std::shared_ptr<Mission> AbilityRecord::GetMission() const

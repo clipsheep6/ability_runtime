@@ -43,6 +43,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
   }
 
   external_deps = [
+    "background_task_mgr:bgtaskmgr_innerkits",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

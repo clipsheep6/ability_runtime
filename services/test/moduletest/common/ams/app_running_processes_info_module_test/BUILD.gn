@@ -27,7 +27,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
 
   deps = [ "${services_path}/test/moduletest/common/ams:appmgr_mst_source" ]
 
-  external_deps = [ "ipc:ipc_core" ]
+  external_deps = [ "background_task_mgr:bgtaskmgr_innerkits", "ipc:ipc_core" ]
 }
 
 group("moduletest") {

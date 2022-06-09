@@ -125,7 +125,8 @@ ErrCode AmsMgrStub::HandleTerminateAbility(MessageParcel &data, MessageParcel &r
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    TerminateAbility(token);
+    bool clearMissionFlag = data.ReadBool();
+    TerminateAbility(token, clearMissionFlag);
     return NO_ERROR;
 }
 
