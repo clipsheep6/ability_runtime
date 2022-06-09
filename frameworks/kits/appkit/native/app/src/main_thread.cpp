@@ -1087,7 +1087,13 @@ void MainThread::LoadAllExtensions(const std::string &filePath)
             HILOG_ERROR("no extension type.");
             continue;
         }
-        int32_t type = std::stoi(it->second);
+        int32_t type = -1;
+        try {
+            type = static_cast<int32_t>(std::stoi(it->second));
+        } catch (...) {
+            HILOG_WARN("stoi(%{public}s) failed", it->second.c_str());
+            continue;
+        }
 
         it = params.find(EXTENSION_PARAMS_NAME);
         if (it == params.end()) {

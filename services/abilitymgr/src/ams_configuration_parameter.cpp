@@ -165,7 +165,12 @@ int AmsConfigurationParameter::GetMemThreshold(const std::string &key)
         return EXPERIENCE_MEM_THRESHOLD;
     }
 
-    return std::stoi(threshold->second);
+    try {
+        return std::stoi(threshold->second);
+    } catch (...) {
+        HILOG_WARN("stoi(%{public}s) failed", threshold->second.c_str());
+        return EXPERIENCE_MEM_THRESHOLD;
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

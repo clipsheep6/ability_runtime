@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <cstdlib>
 #include <regex>
+
 #include "system_ability_definition.h"
 #include "if_system_ability_manager.h"
 #include "ability_delegator_registry.h"
@@ -364,10 +367,6 @@ void JsAbility::DoOnForeground(const Want &want)
             return;
         }
         scene_ = std::make_shared<Rosen::WindowScene>();
-        if (scene_ == nullptr) {
-            HILOG_ERROR("%{public}s error. failed to create WindowScene instance!", __func__);
-            return;
-        }
         int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         if (setting_ != nullptr) {
             std::string strDisplayId =
@@ -376,7 +375,8 @@ void JsAbility::DoOnForeground(const Want &want)
             std::smatch sm;
             bool flag = std::regex_match(strDisplayId, sm, formatRegex);
             if (flag && !strDisplayId.empty()) {
-                displayId = std::stoi(strDisplayId);
+                int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+                displayId = strtol(strDisplayId.c_str(), nullptr, base);
                 HILOG_INFO("%{public}s success. displayId is %{public}d", __func__, displayId);
             } else {
                 HILOG_INFO("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
