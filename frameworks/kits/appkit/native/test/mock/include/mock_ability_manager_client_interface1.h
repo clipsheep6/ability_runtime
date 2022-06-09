@@ -246,15 +246,6 @@ public:
     {
         return true;
     }
-    bool GetModuleUsageRecords(const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords)
-    {
-        return true;
-    }
-    bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime)
-    {
-        return true;
-    }
     virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
     {
         return nullptr;

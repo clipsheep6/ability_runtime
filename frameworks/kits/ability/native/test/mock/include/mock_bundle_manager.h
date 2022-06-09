@@ -61,7 +61,6 @@ public:
     virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;
     virtual bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
     virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
-    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
     virtual bool QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo) override;
     virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override;
     virtual bool GetBundleArchiveInfo(
@@ -88,12 +87,7 @@ public:
     virtual bool GetFormsInfoByModule(
         const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos) override;
     virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos) override;
-    virtual bool GetModuleUsageRecords(
-        const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
 
     virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
         AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
@@ -139,7 +133,6 @@ public:
     virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;
     virtual bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo) override;
     virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
-    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override;
     virtual bool QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo) override;
     virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override;
     virtual bool GetBundleArchiveInfo(
@@ -166,12 +159,7 @@ public:
     virtual bool GetFormsInfoByModule(
         const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos) override;
     virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos) override;
-    virtual bool GetModuleUsageRecords(
-        const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override;
     virtual sptr<IBundleInstaller> GetBundleInstaller() override;
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
@@ -182,18 +170,6 @@ public:
     }
     virtual bool GetAllCommonEventInfo(const std::string &eventKey,
         std::vector<CommonEventInfo> &commonEventInfos) override
-    {
-        return true;
-    }
-    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
-    {
-        return true;
-    }
-    virtual bool BundleClone(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
     {
         return true;
     }

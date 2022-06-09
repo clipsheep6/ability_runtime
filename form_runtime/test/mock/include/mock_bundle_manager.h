@@ -338,18 +338,6 @@ public:
     {
         return true;
     }
-    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
-    {
-        return true;
-    }
-    virtual bool BundleClone(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
-    {
-        return true;
-    }
     /**
      *  @brief Obtains information about the shortcuts of the application.
      *  @param bundleName Indicates the name of the bundle to shortcut.
@@ -387,21 +375,6 @@ public:
     {
         return true;
     };
-    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
-    {
-        return true;
-    };
-    virtual bool GetModuleUsageRecords(
-        const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override
-    {
-        return true;
-    }
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName,
-        const int64_t launchTime, const int uid = 0) override
-    {
-        return true;
-    }
 
     virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
         AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override

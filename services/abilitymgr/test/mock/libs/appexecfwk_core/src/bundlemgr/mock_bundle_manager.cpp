@@ -70,13 +70,6 @@ bool BundleMgrProxy::GetApplicationInfo(
     return true;
 }
 
-bool BundleMgrProxy::NotifyAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    GTEST_LOG_(INFO) << "BundleMgrProxy::NotifyAbilityLifeStatus()";
-    return true;
-}
-
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     return 0;
@@ -216,13 +209,6 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
 int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const int userId)
 {
     return 1000;
-}
-
-bool BundleMgrService::NotifyAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    GTEST_LOG_(INFO) << "BundleMgrService::NotifyAbilityLifeStatus()";
-    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

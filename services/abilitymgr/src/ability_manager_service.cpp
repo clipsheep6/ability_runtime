@@ -3334,15 +3334,6 @@ int AbilityManagerService::GetUidByBundleName(std::string bundleName)
     return IN_PROCESS_CALL(bms->GetUidByBundleName(bundleName, GetUserId()));
 }
 
-void AbilityManagerService::NotifyBmsAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    auto bundleManager = GetBundleManager();
-    CHECK_POINTER(bundleManager);
-    HILOG_INFO("NotifyBmsAbilityLifeStatus is called, uid :%{public}d", uid);
-    IN_PROCESS_CALL_WITHOUT_RET(bundleManager->NotifyAbilityLifeStatus(bundleName, abilityName, launchTime, uid));
-}
-
 void AbilityManagerService::StartSystemApplication()
 {
     HILOG_DEBUG("%{public}s", __func__);

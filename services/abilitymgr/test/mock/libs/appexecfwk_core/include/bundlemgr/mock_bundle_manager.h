@@ -260,9 +260,6 @@ public:
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
 
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
     MOCK_METHOD3(GetApplicationInfos,
         bool(const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos));
     MOCK_METHOD3(GetBundleInfos, bool(const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId));
@@ -295,7 +292,6 @@ public:
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetFormsInfoByApp, bool(const std::string &bundleName, std::vector<FormInfo> &formInfos));
@@ -334,9 +330,6 @@ public:
 
     bool CheckWantEntity(const AAFwk::Want &, AbilityInfo &);
 
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-        override;
     MOCK_METHOD2(QueryWantAbility, int(const AAFwk::Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD3(GetApplicationInfos,
         bool(const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos));
@@ -364,9 +357,7 @@ public:
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
-    MOCK_METHOD2(GetModuleUsageRecords, bool(const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetFormsInfoByApp, bool(const std::string &bundleName, std::vector<FormInfo> &formInfos));
     MOCK_METHOD3(GetFormsInfoByModule,
@@ -386,18 +377,6 @@ public:
     }
     virtual bool GetAllCommonEventInfo(const std::string &eventKey,
         std::vector<CommonEventInfo> &commonEventInfos) override
-    {
-        return true;
-    }
-    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
-    {
-        return true;
-    }
-    virtual bool BundleClone(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
     {
         return true;
     }

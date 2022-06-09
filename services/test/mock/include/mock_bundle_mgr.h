@@ -350,7 +350,6 @@ public:
         bool(const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetShortcutInfos, bool(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD2(QueryAbilityInfosForClone, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD3(GetDistributedBundleInfo, bool(const std::string &networkId,
         const std::string &bundleName, DistributedBundleInfo &distributedBundleInfo));
 };
@@ -409,7 +408,6 @@ public:
         bool(const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetShortcutInfos, bool(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos));
     MOCK_METHOD2(GetUidByBundleName, int(const std::string &bundleName, const int userId));
-    MOCK_METHOD2(GetModuleUsageRecords, bool(const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords));
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
     bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
@@ -418,14 +416,8 @@ public:
     {
         return true;
     };
-    bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
-    {
-        return true;
-    };
     bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
-    bool NotifyAbilityLifeStatus(const std::string &bundleName, const std::string &abilityName,
-        const int64_t launchTime, const int uid) override;
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
@@ -436,18 +428,6 @@ public:
     }
     virtual bool GetAllCommonEventInfo(const std::string &eventKey,
         std::vector<CommonEventInfo> &commonEventInfos) override
-    {
-        return true;
-    }
-    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
-    {
-        return true;
-    }
-    virtual bool BundleClone(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
     {
         return true;
     }

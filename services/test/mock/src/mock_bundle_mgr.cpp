@@ -175,11 +175,5 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
 
     return false;
 }
-
-bool BundleMgrService::NotifyAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    return true;
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -248,10 +248,6 @@ public:
     {
         return true;
     };
-    virtual bool QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
-    {
-        return true;
-    };
     virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
         bundleName = "com.form.provider.service";
@@ -367,16 +363,6 @@ public:
     {
         return true;
     };
-    virtual bool GetModuleUsageRecords(
-        const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords) override
-    {
-        return true;
-    }
-    virtual bool NotifyAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid) override
-    {
-        return true;
-    }
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
@@ -387,18 +373,6 @@ public:
     }
     virtual bool GetAllCommonEventInfo(const std::string &eventKey,
         std::vector<CommonEventInfo> &commonEventInfos) override
-    {
-        return true;
-    }
-    virtual bool RemoveClonedBundle(const std::string &bundleName, const int32_t uid) override
-    {
-        return true;
-    }
-    virtual bool BundleClone(const std::string &bundleName) override
-    {
-        return true;
-    }
-    virtual bool CheckBundleNameInAllowList(const std::string &bundleName) override
     {
         return true;
     }

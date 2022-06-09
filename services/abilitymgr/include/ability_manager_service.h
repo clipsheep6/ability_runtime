@@ -542,9 +542,6 @@ public:
     void HandleForegroundTimeOut(int64_t eventId);
     void HandleBackgroundTimeOut(int64_t eventId);
 
-    void NotifyBmsAbilityLifeStatus(
-        const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid);
-
     int StartAbilityInner(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,

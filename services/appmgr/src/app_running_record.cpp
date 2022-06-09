@@ -110,7 +110,6 @@ AppRunningRecord::AppRunningRecord(
         appInfo_ = info;
         mainBundleName_ = info->bundleName;
         isLauncherApp_ = info->isLauncherApp;
-        isClonedApp_ = info->isCloned;
         mainAppName_ = info->name;
     }
 }
@@ -150,11 +149,6 @@ int32_t AppRunningRecord::GetRecordId() const
 const std::string &AppRunningRecord::GetName() const
 {
     return mainAppName_;
-}
-
-bool AppRunningRecord::GetCloneInfo() const
-{
-    return isClonedApp_;
 }
 
 const std::string &AppRunningRecord::GetSignCode() const

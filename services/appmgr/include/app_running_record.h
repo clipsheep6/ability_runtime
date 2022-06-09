@@ -119,13 +119,6 @@ public:
     const std::string &GetName() const;
 
     /**
-     * @brief Obtains the app clone info.
-     *
-     * @return Returns the app isCloned.
-     */
-    bool GetCloneInfo() const;
-
-    /**
      * @brief Obtains the process name.
      *
      * @return Returns the process name.
@@ -569,7 +562,6 @@ private:
     int32_t mainUid_;
     std::string mainBundleName_;
     bool isLauncherApp_;
-    bool isClonedApp_;
     std::string mainAppName_;
     int restartResidentProcCount_ = RESTART_RESIDENT_PROCESS_MAX_TIMES;
     bool isSpecifiedAbility_ = false;

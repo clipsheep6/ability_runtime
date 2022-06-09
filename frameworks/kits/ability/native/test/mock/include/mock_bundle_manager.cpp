@@ -84,10 +84,6 @@ bool BundleMgrProxy::QueryAbilityInfos(const Want &want, std::vector<AbilityInfo
 {
     return true;
 }
-bool BundleMgrProxy::QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos)
-{
-    return true;
-}
 bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo)
 {
     return false;
@@ -183,18 +179,9 @@ bool BundleMgrProxy::GetShortcutInfos(const std::string &bundleName, std::vector
 {
     return true;
 }
-bool BundleMgrProxy::GetModuleUsageRecords(const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords)
-{
-    return true;
-}
 sptr<IBundleInstaller> BundleMgrProxy::GetBundleInstaller()
 {
     return nullptr;
-}
-bool BundleMgrProxy::NotifyAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    return true;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -272,10 +259,6 @@ bool BundleMgrService::QueryAbilityInfo(const Want &want, AbilityInfo &abilityIn
     return true;
 }
 bool BundleMgrService::QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos)
-{
-    return true;
-}
-bool BundleMgrService::QueryAbilityInfosForClone(const Want &want, std::vector<AbilityInfo> &abilityInfos)
 {
     return true;
 }
@@ -374,18 +357,9 @@ bool BundleMgrService::GetShortcutInfos(const std::string &bundleName, std::vect
 {
     return true;
 }
-bool BundleMgrService::GetModuleUsageRecords(const int32_t number, std::vector<ModuleUsageRecord> &moduleUsageRecords)
-{
-    return true;
-}
 sptr<IBundleInstaller> BundleMgrService::GetBundleInstaller()
 {
     return nullptr;
-}
-bool BundleMgrService::NotifyAbilityLifeStatus(
-    const std::string &bundleName, const std::string &abilityName, const int64_t launchTime, const int uid)
-{
-    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
