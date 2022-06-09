@@ -292,7 +292,11 @@ ohos_shared_library("abilitykit_native") {
       "${windowmanager_path}/wm:libwm",
     ]
   }
+
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   part_name = "ability_runtime"
 }
 
