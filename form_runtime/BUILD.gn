@@ -16,6 +16,13 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 import("//foundation/ability/ability_runtime/form_runtime/form_runtime.gni")
 
 ################################### libfms ########################################
+config("formmgr_log_config") {
+  defines = [
+    "AMS_LOG_TAG = \"FormMgrService\"",
+    "AMS_LOG_DOMAIN = 0xD001120",
+  ]
+}
+
 config("formmgr_config") {
   include_dirs = [
     "services/include",
@@ -65,13 +72,9 @@ ohos_shared_library("libfms") {
     "services/src/kvstore_death_recipient_callback.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"FormMgrService\"",
-    "AMS_LOG_DOMAIN = 0xD001120",
-  ]
-
   configs = [
     ":formmgr_config",
+    ":formmgr_log_config",
     ":formmgr_sdk_config",
   ]
   cflags = []
@@ -211,10 +214,7 @@ ohos_shared_library("form_manager") {
     "interfaces/inner_api/src/provider_connect_stub.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"FormMgrService\"",
-    "AMS_LOG_DOMAIN = 0xD001120",
-  ]
+  configs = [ ":formmgr_log_config" ]
 
   public_configs = [
     ":formmgr_sdk_config",
