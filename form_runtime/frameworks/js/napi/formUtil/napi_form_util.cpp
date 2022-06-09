@@ -226,7 +226,7 @@ bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value)
  *
  * @return void
  */
-void InnerCreateCallbackRetMsg(napi_env env, int32_t code, napi_value* result)
+void InnerCreateCallbackRetMsg(napi_env env, int32_t code, napi_value (&result)[CALLBACK_RETURN_MSG_SIZE])
 {
     HILOG_DEBUG("%{public}s called. code:%{public}d", __func__, code);
     napi_value error = nullptr;

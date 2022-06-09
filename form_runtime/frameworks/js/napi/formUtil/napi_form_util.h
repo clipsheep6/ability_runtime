@@ -45,6 +45,8 @@ const int32_t ERR_SYSTEM_RESPONSES_FAILED = 30;
 const int32_t ERR_FORM_DUPLICATE_ADDED = 31;
 const int32_t ERR_IN_RECOVERY = 36;
 
+const int32_t CALLBACK_RETURN_MSG_SIZE = 2;
+
 struct AsyncErrMsgCallbackInfo {
     napi_env env;
     napi_async_work asyncWork;
@@ -59,7 +61,7 @@ std::string QueryRetMsg(int32_t errorCode);
 int32_t QueryRetCode(int32_t innerErrorCode);
 napi_value NapiGetResult(napi_env env, int iResult);
 bool ConvertStringToInt64(const std::string &strInfo, int64_t &int64Value);
-void InnerCreateCallbackRetMsg(napi_env env, int32_t code, napi_value* result);
+void InnerCreateCallbackRetMsg(napi_env env, int32_t code, napi_value (&result)[CALLBACK_RETURN_MSG_SIZE]);
 void InnerCreatePromiseRetMsg(napi_env env, int32_t code, napi_value* result);
 napi_value RetErrMsg(AsyncErrMsgCallbackInfo* asyncCallbackInfo);
 void ParseFormInfoIntoNapi(napi_env env, const OHOS::AppExecFwk::FormInfo &formInfo, napi_value &result);

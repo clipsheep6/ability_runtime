@@ -260,11 +260,17 @@ private:
         std::string fileName = npmPath + "/" + NPM_ENTRY_FILE;
 
         char path[PATH_MAX];
+        if (fileName.size() >= PATH_MAX) {
+            return std::string();
+        }
         if (realpath(fileName.c_str(), path) != nullptr) {
             return path;
         }
 
         fileName = npmPath + "/" + NPM_ENTRY_LINK;
+        if (fileName.size() >= PATH_MAX) {
+            return std::string();
+        }
         if (realpath(fileName.c_str(), path) == nullptr) {
             return std::string();
         }
@@ -274,8 +280,8 @@ private:
             return std::string();
         }
 
-        size_t fileLen = stream.tellg();
-        if (fileLen >= sizeof(path)) {
+        auto fileLen = stream.tellg();
+        if (fileLen >= PATH_MAX) {
             return std::string();
         }
 

@@ -2088,7 +2088,7 @@ napi_value DeleteInvalidFormsCallback(napi_env env, AsyncDeleteInvalidFormsCallb
             if (asyncCallbackInfo->callback != nullptr) {
                 napi_value callback;
                 napi_value callbackValues[ARGS_SIZE_TWO] = {nullptr, nullptr};
-                InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, &callbackValues[0]);
+                InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, callbackValues);
                 if (asyncCallbackInfo->result == ERR_OK) {
                     napi_create_int32(env, asyncCallbackInfo->numFormsDeleted, &callbackValues[1]);
                 }
@@ -2237,7 +2237,7 @@ void AcquireFormStateCallbackComplete(napi_env env, AsyncAcquireFormStateCallbac
     if (asyncCallbackInfo->callback != nullptr) {
         napi_value callback;
         napi_value callbackValues[ARGS_SIZE_TWO] = {nullptr, nullptr};
-        InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, &callbackValues[0]);
+        InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, callbackValues);
         if (asyncCallbackInfo->result == ERR_OK) {
             callbackValues[1] = ParseFormStateInfo(env, asyncCallbackInfo->stateInfo);
         }
