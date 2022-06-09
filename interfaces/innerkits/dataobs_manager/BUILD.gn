@@ -53,7 +53,8 @@ ohos_shared_library("dataobs_manager") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "aafwk"
   part_name = "ability_runtime"
 }

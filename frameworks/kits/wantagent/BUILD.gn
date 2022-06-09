@@ -79,7 +79,8 @@ ohos_shared_library("wantagent_innerkits") {
   if (ability_runtime_graphics) {
     external_deps += [ "multimedia_image_standard:image_native" ]
   }
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "aafwk"
   part_name = "ability_runtime"
 }
