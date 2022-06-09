@@ -353,6 +353,12 @@ public:
     int32_t GetFormsInfo(const std::string &moduleName, std::vector<FormInfo> &formInfos);
 
     /**
+     * @brief Check if the request of publishing a form is supported by the host.
+     * @return Returns true if the request is supported and false otherwise.
+     */
+    bool IsRequestPublishFormSupported();
+
+    /**
      * @brief Update action string for router event.
      * @param formId Indicates the unique id of form.
      * @param action Indicates the origin action string.

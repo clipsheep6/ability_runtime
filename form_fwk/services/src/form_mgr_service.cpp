@@ -685,6 +685,23 @@ int32_t FormMgrService::GetFormsInfo(const std::string &moduleName, std::vector<
     return FormMgrAdapter::GetInstance().GetFormsInfoByModule(callerBundleName, moduleName, formInfos);
 }
 
+bool FormMgrService::IsRequestPublishFormSupported()
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    // get IBundleMgr
+    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        HILOG_ERROR("%{public}s error, failed to get IBundleMgr.", __func__);
+        return false;
+    }
+    // check if system appint
+    auto isSystemApp = iBundleMgr->CheckIsSystemAppByUid(IPCSkeleton::GetCallingUid());
+    if (!isSystemApp) {
+        return false;
+    }
+    return FormMgrAdapter::GetInstance().IsRequestPublishFormSupported();
+}
+
 /**
  * @brief Update action string for router event.
  * @param formId Indicates the unique id of form.

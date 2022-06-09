@@ -90,6 +90,14 @@ struct AsyncGetFormsInfoCallbackInfo {
     int32_t result = OHOS::ERR_OK;
 };
 
+struct AsyncIsRequestPublishFormSupportedCallbackInfo {
+    napi_env env;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_ref callback;
+    bool result = false;
+};
+
 napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info);
 napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info);
 napi_value NAPI_RequestPublishForm(napi_env env, napi_callback_info info);
