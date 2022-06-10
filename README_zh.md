@@ -73,18 +73,18 @@ foundation/ability/ability_base     # ability_base元能力基础部件
 │   └── inner_api 				    # ability_base的系统内部件间接口 
 └── test							# 测试目录
 
-foundation/ability/form_runtime     # form_runtime卡片运行时部件
+foundation/ability/form_fwk     # form_fwk卡片运行时部件
 ├── frameworks
 │   └── js
-│       └── napi					# form_runtime的napi代码实现
+│       └── napi					# form_fwk的napi代码实现
 ├── interfaces
-│   ├── inner_api 				    # form_runtime的系统内部件间接口 
+│   ├── inner_api 				    # form_fwk的系统内部件间接口 
 │   └── kits
-│       └── native				    # form_runtime的对外接口  
+│       └── native				    # form_fwk的对外接口  
 ├── services                        # form管理服务框架代码
 └── test							# 测试目录
 
-foundation/ability/idl              # idl工具部件
+foundation/ability/idl_tool         # idl工具部件
 ├── ast                             # idl语法解析定义代码
 ├── codegen                         # 跨进程通信模板生成模块代码
 ├── metadata                        # matedata自定义数据解析模块代码
@@ -229,6 +229,6 @@ ability_base
 
 [**ability_runtime**](https://gitee.com/openharmony/ability_ability_runtime)
 
-form_runtime
+form_fwk
 
-idl
+idl_tool

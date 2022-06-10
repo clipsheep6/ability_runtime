@@ -37,6 +37,6 @@ foundation/ability/ability_base
 
 ability_runtime
 
-form_runtime
+form_fwk
 
-idl
+idl_tool

@@ -11,7 +11,7 @@
     "scripts": {},
     "component": {
         "name": "ability_runtime",
-        "subsystem": "aafwk",
+        "subsystem": "ability",
         "syscap": [],
         "features": [
           "ability_runtime_graphics",
@@ -32,7 +32,7 @@
               "common_event_service",
               "distributeddatamgr_appdatamgr",
               "dsoftbus_standard",
-              "form_runtime",
+              "form_fwk",
               "hisysevent_native",
               "hiviewdfx_hilog_native",
               "ipc",
