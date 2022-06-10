@@ -55,5 +55,8 @@ ohos_shared_library("dataobs_manager") {
   ]
 
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   part_name = "ability_runtime"
 }

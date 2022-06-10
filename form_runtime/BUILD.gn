@@ -176,6 +176,9 @@ ohos_shared_library("fmskit_native") {
   ]
 
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   part_name = "form_runtime"
 }
 

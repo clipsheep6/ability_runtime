@@ -50,6 +50,9 @@ ohos_shared_library("base") {
   external_deps = [ "utils_base:utils" ]
 
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   part_name = "ability_base"
 }
 
@@ -112,6 +115,9 @@ ohos_shared_library("zuri") {
   ]
 
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   part_name = "ability_base"
 }
 
@@ -171,7 +177,10 @@ ohos_shared_library("want") {
 
   configs = [ ":want_config" ]
   public_configs = [ ":want_public_config" ]
+
   subsystem_name = "ability"
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   part_name = "ability_base"
 }
 
