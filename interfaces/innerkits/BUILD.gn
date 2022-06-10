@@ -18,5 +18,6 @@ group("innerkits_target") {
     "app_manager:app_manager",
     "dataobs_manager:dataobs_manager",
     "uri_permission:uri_permission_mgr",
+    "my_sa:my_sa_mgr",
   ]
 }

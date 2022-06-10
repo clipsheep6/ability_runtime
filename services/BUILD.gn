@@ -19,5 +19,6 @@ group("ams_services_target") {
     "common:perm_verification",
     "dataobsmgr:dataobsms",
     "uripermmgr:libupms",
+    "mysamgr:libmysa",
   ]
 }
