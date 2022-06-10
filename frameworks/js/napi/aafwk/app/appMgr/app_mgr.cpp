@@ -61,6 +61,33 @@ static int32_t AbilityMgrKillProcess(const std::string &bundleName)
     return abilityManager->KillProcess(bundleName);
 }
 
+AsyncCallbackInfo::AsyncCallbackInfo(napi_env env)
+{
+    this->env = env;
+}
+
+AsyncCallbackInfo::~AsyncCallbackInfo()
+{
+    if (asyncWork != nullptr) {
+        HILOG_INFO("AsyncCallbackInfo::~AsyncCallbackInfo delete asyncWork.");
+        napi_delete_async_work(env, asyncWork);
+        asyncWork = nullptr;
+    }
+
+    if (callback != nullptr) {
+        HILOG_INFO("AsyncCallbackInfo::~AsyncCallbackInfo delete callback.");
+        napi_delete_reference(env, callback);
+        callback = nullptr;
+    }
+}
+
+static napi_value NapiGetNull(napi_env env)
+{
+    napi_value result = nullptr;
+    napi_get_null(env, &result);
+    return result;
+}
+
 napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("NAPI_KillProcessesByBundleName called...");
@@ -73,21 +100,25 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
     if (argc >= argcNum) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("%{public}s, Wrong argument type. Function expected.", __func__);
+            return NapiGetNull(env);
+        }
     }
 
-    AsyncCallbackInfo *async_callback_info_ptr = new AsyncCallbackInfo {
-        .env = env,
-        .asyncWork = nullptr,
-        .deferred = nullptr
-    };
-    std::unique_ptr<AsyncCallbackInfo> async_callback_info(async_callback_info_ptr);
+    AsyncCallbackInfo *asyncCallbackInfoPtr = new (std::nothrow) AsyncCallbackInfo(env);
+    if (asyncCallbackInfoPtr == nullptr) {
+        HILOG_ERROR("%{public}s, asyncCallbackInfoPtr == nullptr", __func__);
+        return NapiGetNull(env);
+    }
+
+    std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr(asyncCallbackInfoPtr);
     std::string bundleName;
     ParseBundleName(env, bundleName, argv[0]);
 
     if (argc >= argcNum) {
-        async_callback_info->bundleName = bundleName;
-        NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &async_callback_info->callback[0]));
+        asyncCallbackInfoUPtr->bundleName = bundleName;
+        NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &asyncCallbackInfoUPtr->callback));
 
         napi_value resourceName;
         NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNameCallBack",
@@ -98,36 +129,30 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
             resourceName,
             [](napi_env env, void *data) {
                 HILOG_INFO("killProcessesByBundleName called(CallBack Mode)...");
-                AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
-                async_callback_info->result = AbilityMgrKillProcess(async_callback_info->bundleName);
+                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
+                asyncCallbackInfoPtr->result = AbilityMgrKillProcess(asyncCallbackInfoPtr->bundleName);
             },
             [](napi_env env, napi_status status, void *data) {
                 HILOG_INFO("killProcessesByBundleName compeleted(CallBack Mode)...");
-                AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
+                std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr {asyncCallbackInfoPtr};
 
                 napi_value result;
                 napi_value callback;
                 napi_value undefined;
 
-                napi_create_int32(async_callback_info->env, async_callback_info->result, &result);
+                napi_create_int32(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->result, &result);
                 napi_get_undefined(env, &undefined);
 
-                napi_get_reference_value(env, async_callback_info->callback[0], &callback);
+                napi_get_reference_value(env, asyncCallbackInfoUPtr->callback, &callback);
                 napi_call_function(env, undefined, callback, 1, &result, nullptr);
-
-                if (async_callback_info->callback[0] != nullptr) {
-                    napi_delete_reference(env, async_callback_info->callback[0]);
-                }
-
-                napi_delete_async_work(env, async_callback_info->asyncWork);
-                delete async_callback_info;
             },
-            (void *)async_callback_info.get(),
-            &async_callback_info->asyncWork));
+            (void *)asyncCallbackInfoUPtr.get(),
+            &asyncCallbackInfoUPtr->asyncWork));
 
-        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info->asyncWork));
-        async_callback_info.release();
-        return NULL;
+        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfoUPtr->asyncWork));
+        asyncCallbackInfoUPtr.release();
+        return NapiGetNull(env);
     } else {
         napi_value resourceName;
         NAPI_CALL(env, napi_create_string_latin1(env, "NAPI_KillProcessesByBundleNamePromise",
@@ -136,34 +161,34 @@ napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info info)
         napi_deferred deferred;
         napi_value promise;
         NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
-        async_callback_info->deferred = deferred;
-        async_callback_info->bundleName = bundleName;
+        asyncCallbackInfoUPtr->deferred = deferred;
+        asyncCallbackInfoUPtr->bundleName = bundleName;
 
         NAPI_CALL(env, napi_create_async_work(env,
             nullptr,
             resourceName,
             [](napi_env env, void *data) {
                 HILOG_INFO("killProcessesByBundleName called(Promise Mode)...");
-                AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
-                async_callback_info->result = AbilityMgrKillProcess(async_callback_info->bundleName);
+                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
+                asyncCallbackInfoPtr->result = AbilityMgrKillProcess(asyncCallbackInfoPtr->bundleName);
             },
             [](napi_env env, napi_status status, void *data) {
                 HILOG_INFO("killProcessesByBundleName compeleted(Promise Mode)...");
-                AsyncCallbackInfo *async_callback_info = (AsyncCallbackInfo *)data;
+                AsyncCallbackInfo *asyncCallbackInfoPtr = (AsyncCallbackInfo *)data;
+                std::unique_ptr<AsyncCallbackInfo> asyncCallbackInfoUPtr {asyncCallbackInfoPtr};
+
                 napi_value result;
-                napi_create_int32(async_callback_info->env, async_callback_info->result, &result);
-                if (async_callback_info->result == ERR_OK) {
-                    napi_resolve_deferred(async_callback_info->env, async_callback_info->deferred, result);
+                napi_create_int32(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->result, &result);
+                if (asyncCallbackInfoUPtr->result == ERR_OK) {
+                    napi_resolve_deferred(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->deferred, result);
                 } else {
-                    napi_reject_deferred(async_callback_info->env, async_callback_info->deferred, result);
+                    napi_reject_deferred(asyncCallbackInfoUPtr->env, asyncCallbackInfoUPtr->deferred, result);
                 }
-                napi_delete_async_work(env, async_callback_info->asyncWork);
-                delete async_callback_info;
             },
-            (void *)async_callback_info.get(),
-            &async_callback_info->asyncWork));
-        NAPI_CALL(env, napi_queue_async_work(env, async_callback_info->asyncWork));
-        async_callback_info.release();
+            (void *)asyncCallbackInfoUPtr.get(),
+            &asyncCallbackInfoUPtr->asyncWork));
+        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfoUPtr->asyncWork));
+        asyncCallbackInfoUPtr.release();
         return promise;
     }
 }

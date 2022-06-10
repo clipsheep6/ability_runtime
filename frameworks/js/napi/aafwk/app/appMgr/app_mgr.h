@@ -24,12 +24,14 @@
 #include "napi/native_common.h"
 
 struct AsyncCallbackInfo {
-    napi_env env;
-    napi_async_work asyncWork;
-    napi_deferred deferred;
-    napi_ref callback[2] = {0};
+    explicit AsyncCallbackInfo(napi_env env);
+    ~AsyncCallbackInfo();
+    napi_env env = nullptr;
+    napi_async_work asyncWork = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_ref callback = nullptr;
     std::string bundleName;
-    int32_t result;
+    int32_t result = 0;
 };
 
 #define BUFFER_LENGTH_MAX (128)
