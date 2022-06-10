@@ -120,7 +120,8 @@ int AmsStDataAbilityDataC1::Delete(const Uri &uri, const NativeRdb::DataAbilityP
     return DEFAULT_DELETE_RESULT;
 }
 
-int AmsStDataAbilityDataC1::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+int AmsStDataAbilityDataC1::Update(
+    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_INFO("AmsStDataAbilityDataC1 <<<<Update>>>>");
     PublishEvent(abilityEventName, ABILITY_DATA_C1_CODE, "Update");
@@ -137,7 +138,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AmsStDataAbilityDataC1::Query(
     STtools::WaitCompleted(event, OPERATOR_QUERY, ABILITY_DATA_C1_CODE);
     subscriber_->TestPost();
 
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = std::make_shared<NativeRdb::AbsSharedResultSet>(OPERATOR_QUERY);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = std::make_shared<NativeRdb::AbsSharedResultSet>(
+        OPERATOR_QUERY);
     AppDataFwk::SharedBlock *pSharedBlock = resultValue->GetBlock();
     if (pSharedBlock) {
         pSharedBlock->PutString(0, 0, OPERATOR_QUERY.c_str(), OPERATOR_QUERY.size() + 1);
@@ -229,7 +231,8 @@ void DataTestDataC1EventSubscriber::GetResultBySelf(
         HILOG_INFO("---------------------Query--------------------");
         std::vector<std::string> columns = STtools::SerializationStOperatorToVector(*child);
         NativeRdb::DataAbilityPredicates predicates;
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = mainAbility->Query(dataAbilityUri, columns, predicates);
+        std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = mainAbility->Query(
+            dataAbilityUri, columns, predicates);
         result = "failed";
         if (resultValue != nullptr) {
             resultValue->GoToRow(0);

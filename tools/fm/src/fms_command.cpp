@@ -215,7 +215,8 @@ int32_t FormMgrShellCommand::HandleUnknownOption(const char optopt)
  * @param cmdFlag Command Flag.
  * @return Returns ERR_OK on success, others on failure.
  */
-int32_t FormMgrShellCommand::HandleNormalOption(const int option, std::string &bundleName, int64_t &formId, int32_t &cmdFlag)
+int32_t FormMgrShellCommand::HandleNormalOption(
+    const int option, std::string &bundleName, int64_t &formId, int32_t &cmdFlag)
 {
     HILOG_INFO("%{public}s start, option: %{public}d", __func__, option);
     int32_t result = OHOS::ERR_OK;
@@ -279,7 +280,8 @@ int32_t FormMgrShellCommand::HandleNormalOption(const int option, std::string &b
  */
 int32_t FormMgrShellCommand::ExecuteQuery(const std::string &bundleName, const int64_t formId, const int32_t cmdFlag)
 {
-    HILOG_INFO("%{public}s start, bundleName: %{public}s, formId:%{public}" PRId64 "", __func__, bundleName.c_str(), formId);
+    HILOG_INFO("%{public}s start, bundleName: %{public}s, formId:%{public}" PRId64 "", __func__,
+        bundleName.c_str(), formId);
     int32_t result = OHOS::ERR_OK;
     switch (cmdFlag) {
         case COMMAND_QUERY_STORAGE: {

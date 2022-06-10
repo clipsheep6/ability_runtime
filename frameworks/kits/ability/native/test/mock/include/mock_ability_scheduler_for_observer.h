@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,8 +44,8 @@ public:
     MOCK_METHOD2(Insert, int(const Uri &, const NativeRdb::ValuesBucket &));
     MOCK_METHOD3(Update, int(const Uri &, const NativeRdb::ValuesBucket &, const NativeRdb::DataAbilityPredicates &));
     MOCK_METHOD2(Delete, int(const Uri &, const NativeRdb::DataAbilityPredicates &));
-    MOCK_METHOD3(
-        Query, std::shared_ptr<NativeRdb::AbsSharedResultSet>(const Uri &, std::vector<std::string> &, const NativeRdb::DataAbilityPredicates &));
+    MOCK_METHOD3(Query, std::shared_ptr<NativeRdb::AbsSharedResultSet>(const Uri &,
+        std::vector<std::string> &, const NativeRdb::DataAbilityPredicates &));
     MOCK_METHOD4(Call, std::shared_ptr<PacMap>(const Uri &, const std::string &, const std::string &, const PacMap &));
     MOCK_METHOD1(GetType, std::string(const Uri &));
     MOCK_METHOD2(Reload, bool(const Uri &, const PacMap &));
@@ -55,7 +55,8 @@ public:
     MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver));
     MOCK_METHOD2(ScheduleUnregisterObserver, bool(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver));
     MOCK_METHOD1(ScheduleNotifyChange, bool(const Uri &uri));
-    MOCK_METHOD1(ExecuteBatch, std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>(const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operation));
+    MOCK_METHOD1(ExecuteBatch, std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>(
+        const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operation));
     MOCK_METHOD1(NotifyContinuationResult, void(int32_t result));
     MOCK_METHOD2(ContinueAbility, void(const std::string& deviceId, uint32_t versionCode));
     MOCK_METHOD2(DumpAbilityInfo, void(const std::vector<std::string> &params, std::vector<std::string> &info));

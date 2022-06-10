@@ -163,7 +163,8 @@ int DemoAbility::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
     return insertValue;
 }
 
-int DemoAbility::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+int DemoAbility::Update(
+    const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Update called";
     return updateValue;
@@ -198,7 +199,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DemoAbility::Query(
     const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     GTEST_LOG_(INFO) << "DemoAbility::Query called";
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = std::make_shared<NativeRdb::AbsSharedResultSet>("resultset");
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = std::make_shared<NativeRdb::AbsSharedResultSet>(
+        "resultset");
     return resultset;
 }
 

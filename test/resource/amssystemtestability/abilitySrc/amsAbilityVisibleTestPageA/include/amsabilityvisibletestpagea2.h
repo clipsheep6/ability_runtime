@@ -61,8 +61,6 @@ public:
 };
 
 class PendingWantCallback : public CompletedCallback {
-private:
-    /* data */
 public:
     PendingWantCallback() = default;
     ~PendingWantCallback() = default;

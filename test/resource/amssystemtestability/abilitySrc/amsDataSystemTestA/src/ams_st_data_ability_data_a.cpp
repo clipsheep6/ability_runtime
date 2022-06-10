@@ -126,7 +126,8 @@ int AmsStDataAbilityDataA::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     return DEFAULT_DELETE_RESULT;
 }
 
-int AmsStDataAbilityDataA::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+int AmsStDataAbilityDataA::Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
+    const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_INFO("AmsStDataAbilityDataA <<<<Update>>>>");
     PublishEvent(abilityEventName, ABILITY_DATA_A_CODE, "Update");
@@ -143,7 +144,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AmsStDataAbilityDataA::Query(
     STtools::WaitCompleted(event, OPERATOR_QUERY, ABILITY_DATA_A_CODE);
     subscriber_->TestPost();
 
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = std::make_shared<NativeRdb::AbsSharedResultSet>(OPERATOR_QUERY);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue =
+        std::make_shared<NativeRdb::AbsSharedResultSet>(OPERATOR_QUERY);
     if (resultValue == nullptr) {
         HILOG_ERROR("AmsStDataAbilityDataA <<<<Query>>>> make_shared return nullptr");
         return nullptr;

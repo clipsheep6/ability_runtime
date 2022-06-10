@@ -107,7 +107,8 @@ int AmsStDataAbilityDataB::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
     return DEFAULT_DELETE_RESULT;
 }
 
-int AmsStDataAbilityDataB::Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
+int AmsStDataAbilityDataB::Update(const Uri &uri,
+    const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_INFO("AmsStDataAbilityDataB <<<<Update>>>>");
     PublishEvent(abilityEventName, ABILITY_DATA_B_CODE, "Update");
@@ -124,7 +125,8 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AmsStDataAbilityDataB::Query(
     STtools::WaitCompleted(event, OPERATOR_QUERY, ABILITY_DATA_B_CODE);
     subscriber_->TestPost();
 
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue = std::make_shared<NativeRdb::AbsSharedResultSet>(OPERATOR_QUERY);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultValue =
+        std::make_shared<NativeRdb::AbsSharedResultSet>(OPERATOR_QUERY);
     AppDataFwk::SharedBlock *pSharedBlock = resultValue->GetBlock();
     if (pSharedBlock) {
         pSharedBlock->PutString(0, 0, OPERATOR_QUERY.c_str(), OPERATOR_QUERY.size() + 1);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -61,6 +61,9 @@ public:
         keepContext_ = context;
     }
 
+protected:
+    std::weak_ptr<Context> context_;
+
 private:
     NativeValue* OnCreateBundleContext(NativeEngine& engine, NativeCallbackInfo& info);
     NativeValue* OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info);
@@ -69,9 +72,6 @@ private:
     NativeValue* OnCreateModuleContext(NativeEngine& engine, NativeCallbackInfo& info);
 
     std::shared_ptr<Context> keepContext_;
-
-protected:
-    std::weak_ptr<Context> context_;
 };
 
 void JsBaseContext::Finalizer(NativeEngine* engine, void* data, void* hint)

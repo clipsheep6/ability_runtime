@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,12 +99,12 @@ void MockApplication::OnStart()
         EXPECT_STREQ("/hos/lib/dataDir", GetApplicationContext()->GetDir("test", 1).c_str());
         std::vector<std::string> state;
         EXPECT_NE(nullptr, GetAbilityManager());
-        if (nullptr != GetAbilityManager()) {
+        if (GetAbilityManager() != nullptr) {
             GetAbilityManager()->DumpState("test", state);
         }
 
         EXPECT_NE(nullptr, GetBundleManager());
-        if (nullptr != GetBundleManager()) {
+        if (GetBundleManager() != nullptr) {
             EXPECT_STREQ("ModuleTestType", GetBundleManager()->GetAppType("test").c_str());
         }
     } else if (INMOCKAPPLICATION_ONE == GetProcessInfo()->GetPid()) {

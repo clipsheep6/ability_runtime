@@ -58,9 +58,10 @@ protected:
         std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
     virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
     virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override;
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) override;
-    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override;
+    virtual int Update(const Uri &uri,
+        const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) override;
+    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri,
+        const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override;
     virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override;
     virtual int OpenFile(const Uri &uri, const std::string &mode) override;
 

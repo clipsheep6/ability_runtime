@@ -429,7 +429,7 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         std::make_unique<JsAppManager>(GetAppManagerInstance(), GetAbilityManagerInstance());
     object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
 
-    //make handler
+    // make handler
     handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
 
     HILOG_INFO("JsAppManagerInit BindNativeFunction called");

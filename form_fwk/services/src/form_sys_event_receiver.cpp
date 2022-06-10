@@ -524,7 +524,6 @@ void FormSysEventReceiver::HandleTimerUpdate(const int64_t formId,
             // updateat to interval
             type = TYPE_ATTIME_TO_INTERVAL;
         } else {
-            // no change;
             if (record.updateAtHour == timerCfg.updateAtHour && record.updateAtMin == timerCfg.updateAtMin) {
                 return;
             }

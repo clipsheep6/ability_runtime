@@ -500,8 +500,8 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
         [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (argErrorCode != 0) {
-               task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return;
+                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
+                return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -548,8 +548,8 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
         [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (argErrorCode != 0) {
-               task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return;
+                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
+                return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -589,8 +589,8 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, Nati
         [weak = context_, want, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (argErrorCode != 0) {
-               task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return;
+                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
+                return;
             }
             if (!context) {
                 HILOG_WARN("context is released");
@@ -636,8 +636,8 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
         [weak = context_, want, accountId, argErrorCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (argErrorCode != 0) {
-               task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
-               return;
+                task.Reject(engine, CreateJsError(engine, argErrorCode, "Invalid params."));
+                return;
             }
             if (!context) {
                 HILOG_WARN("context is released");

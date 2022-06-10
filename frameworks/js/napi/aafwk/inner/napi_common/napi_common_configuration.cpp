@@ -47,7 +47,8 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapStringToJS(env, configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE));
     SetPropertyValueByPropertyName(env, jsObject, "language", jsValue);
 
-    jsValue = WrapInt32ToJS(env, ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE)));
+    jsValue = WrapInt32ToJS(
+        env, ConvertColorMode(configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE)));
     SetPropertyValueByPropertyName(env, jsObject, "colorMode", jsValue);
 
     int32_t displayId = ConvertDisplayId(configuration.GetItem(ConfigurationInner::APPLICATION_DISPLAYID));

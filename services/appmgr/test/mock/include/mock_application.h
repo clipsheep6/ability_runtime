@@ -107,7 +107,6 @@ private:
     AppLaunchData launchData_;
     AbilityInfo abilityInfo_;
     Profile profile_;
-    //  Configuration configuration_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

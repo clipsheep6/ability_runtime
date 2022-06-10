@@ -467,7 +467,8 @@ public:
      * @param ability, ability or extension record.
      * @param state, ability or extension state.
      */
-    void StateChangedNotifyObserver(const std::shared_ptr<AbilityRunningRecord> &ability, int32_t state, bool isAbility);
+    void StateChangedNotifyObserver(
+        const std::shared_ptr<AbilityRunningRecord> &ability, int32_t state, bool isAbility);
 
     void insertAbilityStageInfo(std::vector<HapModuleInfo> moduleInfos);
 

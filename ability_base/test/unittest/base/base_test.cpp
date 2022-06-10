@@ -93,9 +93,7 @@ bool RefBaseTestClass::gDestructorCalled_ = false;
 CLASS(ObjectTestClass, 5afc4756 - 8f3c - 4d80 - a88b - 54521890beca)
 {
 public:
-    ObjectTestClass(
-        /* [in] */ int type)
-        : type_(type)
+    ObjectTestClass(int type) : type_(type)
     {
         gDestructorCalled_ = false;
     }

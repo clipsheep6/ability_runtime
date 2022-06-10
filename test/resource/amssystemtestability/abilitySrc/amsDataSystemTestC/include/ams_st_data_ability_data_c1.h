@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,9 +45,10 @@ protected:
     virtual void OnStart(const Want &want) override;
     virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value) override;
     virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates) override;
-    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates) override;
-    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
-        const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override;
+    virtual int Update(const Uri &uri, const NativeRdb::ValuesBucket &value,
+        const NativeRdb::DataAbilityPredicates &predicates) override;
+    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(const Uri &uri,
+        const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates) override;
     virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter) override;
     virtual int OpenFile(const Uri &uri, const std::string &mode) override;
     friend class DataTestDataC1EventSubscriber;
