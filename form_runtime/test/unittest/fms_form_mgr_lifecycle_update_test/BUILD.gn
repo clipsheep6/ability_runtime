@@ -54,7 +54,7 @@ ohos_unittest("FmsFormMgrLifecycleUpdateTest") {
   deps = [
     "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
 
-    #"//base/startup/appspawn_standard:appspawn_socket_client",
+    #"//base/startup/appspawn:appspawn_socket_client",
     "${ability_base_path}:base",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",

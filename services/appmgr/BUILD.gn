@@ -19,7 +19,7 @@ config("appmgr_config") {
     "include",
     "${ability_base_innerapi_path}/configuration/include",
     "${services_path}/common/include",
-    "//base/startup/appspawn_standard/interfaces/innerkits/include",
+    "//base/startup/appspawn/interfaces/innerkits/include",
     "${aafwk_path}/tools/aa/include",
   ]
 }

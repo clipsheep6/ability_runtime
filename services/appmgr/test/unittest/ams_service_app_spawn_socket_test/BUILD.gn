@@ -20,7 +20,7 @@ ohos_unittest("AmsServiceAppSpawnSocketTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "//base/startup/appspawn_standard/test/mock/include",
+    "//base/startup/appspawn/test/mock/include",
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/frameworks/common/account_error/include",
   ]
