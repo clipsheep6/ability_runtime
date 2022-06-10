@@ -36,7 +36,8 @@ class HandlerDumper : public Dumper {
 public:
     void Dump(const std::string &message) override
     {
-        handlerInfo_ += message;
+        printf("message:%s\n", message.c_str());
+        handlerInfo_ += message + "\n";
     }
 
     std::string GetTag() override
