@@ -175,6 +175,9 @@ ohos_shared_library("fmskit_native") {
     "utils_base:utils",
   ]
 
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
+
   subsystem_name = "ability"
   part_name = "form_fwk"
 }
