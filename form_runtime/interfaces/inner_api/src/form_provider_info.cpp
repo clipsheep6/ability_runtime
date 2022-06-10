@@ -70,5 +70,10 @@ void FormProviderInfo::MergeData(nlohmann::json &addJsonData)
 {
     jsBindingData_.MergeData(addJsonData);
 }
+
+bool FormProviderInfo::NeedCache() const
+{
+    return jsBindingData_.NeedCache();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

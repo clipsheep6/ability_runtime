@@ -44,7 +44,7 @@ public:
      * @param jsonData Indicates the data to be carried in the new {@code FormProviderData} instance,
      * in {@code nlohmann::json} format.
      */
-    FormProviderData(nlohmann::json &jsonData);
+    explicit FormProviderData(nlohmann::json &jsonData);
 
     /**
      * @brief A constructor used to create a {@code FormProviderData} instance with data of the {@code String} type
@@ -52,12 +52,12 @@ public:
      * @param jsonDataString Indicates the data to be carried in the new {@code FormProviderData} instance, in JSON
      * string format.
      */
-    FormProviderData(std::string jsonDataString);
+    explicit FormProviderData(std::string jsonDataString);
 
     /**
      * @brief Destructor.
      */
-    virtual ~FormProviderData() {};
+    ~FormProviderData() override = default;
 
     /**
      * @brief Updates form data in this {@code FormProviderData} object.
@@ -161,6 +161,12 @@ public:
      * @brief Clear imageDataMap, rawImageBytesMap, imageDataState and jsonFormProviderData.
      */
     void ClearData();
+
+    /**
+     * @brief Whether the form provider data needs to be cached
+     * @return Returns {@code true} if the data needs to be cached; returns {@code false} otherwise.
+     */
+    bool NeedCache() const;
 
 public:
     static constexpr int IMAGE_DATA_STATE_REMOVED = -1;

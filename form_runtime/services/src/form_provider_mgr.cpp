@@ -87,15 +87,11 @@ ErrCode FormProviderMgr::AcquireForm(const int64_t formId, const FormProviderInf
         clientHost.OnAcquire(formId, formRecord);
     }
 
-    // we do not cache when data size is over 1k
-    std::string jsonData = formProviderInfo.GetFormDataString(); // get json data
-    HILOG_DEBUG("%{public}s , jsonData is %{public}s.",  __func__, jsonData.c_str());
-
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageDataMap = formProviderInfo.GetImageDataMap();
-    if (jsonData.size() <= Constants::MAX_FORM_DATA_SIZE) {
+    if (formProviderInfo.NeedCache()) {
         HILOG_WARN("%{public}s, acquire js card, cache the card", __func__);
-        FormCacheMgr::GetInstance().AddData(formId, formProviderInfo.GetFormDataString(),
-            formProviderInfo.GetImageDataMap());
+        std::string jsonData = formProviderInfo.GetFormDataString();
+        HILOG_DEBUG("%{public}s , jsonData is %{public}s.", __func__, jsonData.c_str());
+        FormCacheMgr::GetInstance().AddData(formId, jsonData);
     }
     return ERR_OK;
 }
@@ -329,15 +325,11 @@ ErrCode FormProviderMgr::UpdateForm(const int64_t formId,
     HILOG_DEBUG("%{public}s screenOn:%{public}d.", __func__, screenOnFlag);
 #endif
 
-    // check if cache data size is less than 1k or not
-    std::string jsonData = formRecord.formProviderInfo.GetFormDataString(); // get json data
-    HILOG_DEBUG("%{public}s jsonData:%{public}s.", __func__, jsonData.c_str());
-
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageDataMap = formProviderData.GetImageDataMap();
-    // check if cache data size is less than 1k or not
-    if (jsonData.size() <= Constants::MAX_FORM_DATA_SIZE) {
+    if (formRecord.formProviderInfo.NeedCache()) {
         HILOG_INFO("%{public}s, updateJsForm, data is less than 1k, cache data.", __func__);
-        FormCacheMgr::GetInstance().AddData(formId, jsonData, formProviderData.GetImageDataMap());
+        std::string jsonData = formRecord.formProviderInfo.GetFormDataString();
+        HILOG_DEBUG("%{public}s jsonData:%{public}s.", __func__, jsonData.c_str());
+        FormCacheMgr::GetInstance().AddData(formId, jsonData);
     } else {
         FormCacheMgr::GetInstance().DeleteData(formId);
     }

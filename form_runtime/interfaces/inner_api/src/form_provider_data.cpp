@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "form_constants.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 #include "string_ex.h"
@@ -143,6 +144,7 @@ void FormProviderData::AddImageData(std::string picName, int fd)
     }
     char *data = new char[size];
     if (read(fd, data, size) < 0) {
+        delete[] data;
         HILOG_ERROR("Read failed, errno is %{public}d", errno);
         return;
     }
@@ -358,6 +360,19 @@ FormProviderData* FormProviderData::Unmarshalling(Parcel &parcel)
 void FormProviderData::ClearData()
 {
     jsonFormProviderData_.clear();
+}
+
+bool FormProviderData::NeedCache() const
+{
+    if (!imageDataMap_.empty()) {
+        return false;
+    }
+    std::string dataStr = jsonFormProviderData_.empty() ? "" : jsonFormProviderData_.dump();
+    // check if cache data size is less than 1k or not
+    if (dataStr.size() > Constants::MAX_FORM_DATA_SIZE) {
+        return false;
+    }
+    return true;
 }
 
 bool FormProviderData::WriteImageDataToParcel(Parcel &parcel, std::string picName, char *data, int32_t size) const

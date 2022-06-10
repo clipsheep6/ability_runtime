@@ -98,6 +98,12 @@ public:
      */
     void MergeData(nlohmann::json &addJsonData);
 
+    /**
+     * @brief Whether the form provider data needs to be cached
+     * @return Returns {@code true} if the data needs to be cached; returns {@code false} otherwise.
+     */
+    bool NeedCache() const;
+
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static FormProviderInfo *Unmarshalling(Parcel &parcel);

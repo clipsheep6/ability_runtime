@@ -27,19 +27,11 @@ FormCacheMgr::~FormCacheMgr()
     HILOG_INFO("destroy form cache manager instance");
 }
 
-/**
- * @brief Get form data.
- * @param formId, Form id.
- * @param data, Cache data.
- * @param imageMap Image map cache.
- * @return Returns true if this function is successfully called; returns false otherwise.
- */
-bool FormCacheMgr::GetData(const int64_t formId, std::string &data,
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap) const
+bool FormCacheMgr::GetData(const int64_t formId, std::string &data) const
 {
     HILOG_INFO("get cache data");
     std::lock_guard<std::mutex> lock(cacheMutex_);
-    if (cacheData_.empty() && cacheImageMap_.empty()) {
+    if (cacheData_.empty()) {
         HILOG_ERROR("form cache is empty");
         return false;
     }
@@ -48,12 +40,7 @@ bool FormCacheMgr::GetData(const int64_t formId, std::string &data,
         data = formData->second;
     }
 
-    auto imageMapIt = cacheImageMap_.find(formId);
-    if (imageMapIt != cacheImageMap_.end()) {
-        imageMap = imageMapIt->second;
-    }
-
-    if (data.empty() && imageMap.empty()) {
+    if (data.empty()) {
         HILOG_ERROR("form cache not find");
         return false;
     } else {
@@ -63,18 +50,25 @@ bool FormCacheMgr::GetData(const int64_t formId, std::string &data,
 
 /**
  * @brief Add form data.
- * @param formId, Form id.
- * @param data, Cache data.
- * @param imageMap Image map cache.
+ * @param formId Form id.
+ * @param data Cache data.
  * @return Returns true if this function is successfully called; returns false otherwise.
  */
-bool FormCacheMgr::AddData(const int64_t formId, const std::string &data,
-    const std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> &imageMap)
+bool FormCacheMgr::AddData(const int64_t formId, const std::string &data)
 {
-    HILOG_INFO("add new cache data");
     std::lock_guard<std::mutex> lock(cacheMutex_);
-    cacheData_[formId] = data;
-    cacheImageMap_[formId] = imageMap;
+    auto formData = cacheData_.find(formId);
+    if (formData == cacheData_.end()) {
+        HILOG_INFO("add new cache data.");
+        auto result = cacheData_.emplace(formId, data);
+        if (!result.second) {
+            HILOG_ERROR("Failed to emplace cache data.");
+            return false;
+        }
+    } else {
+        HILOG_INFO("update cache data.");
+        formData->second = data;
+    }
     return true;
 }
 
@@ -92,13 +86,6 @@ bool FormCacheMgr::DeleteData(const int64_t formId)
         cacheData_.erase(formId);
     } else {
         HILOG_WARN("cache data is not exist");
-    }
-
-    auto imageMap = cacheImageMap_.find(formId);
-    if (imageMap != cacheImageMap_.end()) {
-        cacheImageMap_.erase(formId);
-    } else {
-        HILOG_WARN("image data is not exist");
     }
     return true;
 }
@@ -122,6 +109,7 @@ bool FormCacheMgr::UpdateData(const int64_t formId, const std::string &data)
     formData->second = data;
     return true;
 }
+
 /**
  * @brief Check if form data is exist or not.
  * @param formId, Form id.
