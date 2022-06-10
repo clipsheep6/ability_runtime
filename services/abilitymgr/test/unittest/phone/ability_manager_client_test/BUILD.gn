@@ -56,7 +56,7 @@ ohos_unittest("ability_manager_client_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
-    "dsoftbus_standard:softbus_client",
+    "dsoftbus:softbus_client",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
