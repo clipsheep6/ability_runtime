@@ -90,10 +90,14 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
 
     jsAbilityObj_ =
         jsRuntime_.LoadModule(moduleName, srcPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(jsAbilityObj_->Get());
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
+        HILOG_ERROR("Failed to convert AbilityStage object");
         return;
     }
 
