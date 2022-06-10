@@ -110,7 +110,7 @@ void DataAbilityHelper::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &
 void DataAbilityHelper::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_INFO("'%{public}s start':", __func__);
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> guard(lock_);
     auto object = remote.promote();
     object = nullptr;
     dataAbilityProxy_ = nullptr;
@@ -375,7 +375,7 @@ bool DataAbilityHelper::Release()
     }
 
     HILOG_INFO("DataAbilityHelper::Release after ReleaseDataAbility.");
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> guard(lock_);
     dataAbilityProxy_ = nullptr;
     uri_.reset();
     HILOG_INFO("DataAbilityHelper::Release end.");
@@ -906,7 +906,7 @@ bool DataAbilityHelper::CheckUriParam(const Uri &uri)
     // do not directly use uri_ here, otherwise, it will probably crash.
     std::vector<std::string> segments;
     {
-        std::lock_guard<std::mutex> guard(lock_);
+        std::shared_lock<std::shared_mutex> guard(lock_);
         if (!uri_) {
             HILOG_INFO("DataAbilityHelper::CheckUriParam uri_ is nullptr, no need check");
             return true;
