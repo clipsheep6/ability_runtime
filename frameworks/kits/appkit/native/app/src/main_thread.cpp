@@ -786,6 +786,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     }
 
     std::string colormode = config.GetItem(GlobalConfigurationKey::SYSTEM_COLORMODE);
+    HILOG_INFO("colormode is %{public}s.", colormode.c_str());
     resConfig->SetColorMode(ConvertColorMode(colormode));
 #endif
     HILOG_INFO("MainThread::handleLaunchApplication. Start calling UpdateResConfig.");
