@@ -16,20 +16,43 @@
 #ifndef FOUNDATION_APPEXECFWK_WATCH_DOG_H
 #define FOUNDATION_APPEXECFWK_WATCH_DOG_H
 
-#include <string>
 #include <mutex>
+#include <string>
 #include <thread>
+
+#include "application_impl.h"
+#include "dumper.h"
 #include "event_handler.h"
 #include "inner_event.h"
-#include "application_impl.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 const uint32_t MAIN_THREAD_IS_ALIVE = 0;
 const uint32_t MAIN_THREAD_TIMEOUT_TIME = 6000;
 const uint32_t INI_TIMER_FIRST_SECOND = 10000;
-const uint32_t INI_TIMER_SECOND = 6000;
+const uint32_t INI_TIMER_SECOND = 3000;
 const std::string MAIN_THREAD_IS_ALIVE_MSG = "MAIN_THREAD_IS_ALIVE";
+class HandlerDumper : public Dumper {
+public:
+    void Dump(const std::string &message) override
+    {
+        printf("message:%s\n", message.c_str());
+        handlerInfo_ += message + "\n";
+    }
+
+    std::string GetTag() override
+    {
+        return "";
+    }
+
+    std::string GetHandlerInfo()
+    {
+        return handlerInfo_;
+    }
+private:
+    std::string handlerInfo_;
+};
+
 class WatchDog : public EventHandler {
 public:
     WatchDog(const std::shared_ptr<EventRunner> &runner);
