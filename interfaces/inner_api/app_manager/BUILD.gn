@@ -18,6 +18,7 @@ config("appmgr_sdk_config") {
   include_dirs = [
     "include/appmgr",
     "${ability_base_innerapi_path}/configuration/include",
+    "${ability_base_innerapi_path}/want/include",
     "${kits_path}/ability/native/include",
     "${innerkits_path}/ability_manager/include",
     "${innerkits_path}/log/include",
