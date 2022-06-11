@@ -31,7 +31,7 @@ ohos_unittest("start_option_display_id_test") {
     # add mock file
     "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "${aafwk_path}/services/common/src/permission_verification.cpp",
-    "//foundation/distributedhardware/devicemanager/test/unittest/mock/parameter.cpp",
+    "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
     "start_option_display_id_test.cpp",
   ]
 
