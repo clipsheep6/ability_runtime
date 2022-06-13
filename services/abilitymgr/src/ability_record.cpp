@@ -328,31 +328,12 @@ void AbilityRecord::AnimationTask(bool isRecent, const AbilityRequest &abilityRe
         return;
     }
 
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (!handler) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
-        return;
-    }
-
-    auto self(weak_from_this());
     if (isRecent) {
         auto want = GetWantFromMission();
-        auto task = [self, startOptions, want] {
-            auto ability = self.lock();
-            if (ability) {
-                ability->NotifyAnimationFromRecentTask(startOptions, want);
-            }
-        };
-        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+        NotifyAnimationFromRecentTask(startOptions, want);
     } else {
         if (!IsForeground()) {
-            auto task = [self, callerAbility, abilityRequest] {
-                auto ability = self.lock();
-                if (ability) {
-                    ability->NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
-                }
-            };
-            handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+            NotifyAnimationFromStartingAbility(callerAbility, abilityRequest);
         }
     }
 }
@@ -422,41 +403,20 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("%{public}s was called.", __func__);
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (!handler) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
-        return;
-    }
-
-    auto self(weak_from_this());
     if (isRecent) {
         auto want = GetWantFromMission();
-        auto task = [self, startOptions, want, isCold] {
-            auto ability = self.lock();
-            if (ability) {
-                AbilityRequest abilityRequest;
-                if (isCold) {
-                    ability->StartingWindowCold(startOptions, want, abilityRequest);
-                } else {
-                    ability->StartingWindowHot(startOptions, want, abilityRequest);
-                }
-            }
-        };
-        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+        if (isCold) {
+            StartingWindowCold(startOptions, want, abilityRequest);
+        } else {
+            StartingWindowHot(startOptions, want, abilityRequest);
+        }
     } else {
-        auto task = [self, abilityRequest, isCold] {
-            auto ability = self.lock();
-            if (ability) {
-                std::shared_ptr<StartOptions> startOptions = nullptr;
-                std::shared_ptr<Want> want = nullptr;
-                if (isCold) {
-                    ability->StartingWindowCold(startOptions, want, abilityRequest);
-                } else {
-                    ability->StartingWindowHot(startOptions, want, abilityRequest);
-                }
-            }
-        };
-        handler->PostTask(task, AppExecFwk::EventQueue::Priority::IMMEDIATE);
+        std::shared_ptr<Want> want = nullptr;
+        if (isCold) {
+            StartingWindowCold(startOptions, want, abilityRequest);
+        } else {
+            StartingWindowHot(startOptions, want, abilityRequest);
+        }
     }
 }
 
