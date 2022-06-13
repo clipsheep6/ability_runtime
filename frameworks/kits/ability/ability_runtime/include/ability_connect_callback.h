@@ -40,10 +40,12 @@ public:
      *
      */
     virtual ~AbilityConnectCallback() = default;
+
     /**
      * OnConnect, AbilityMs notify caller ability the result of connect.
      *
      * @param element, service ability's ElementName.
+     * @param remoteObject, ipc proxy from remote
      * @param resultCode, ERR_OK on success, others on failure.
      */
     virtual void OnAbilityConnectDone(const AppExecFwk::ElementName &element,
@@ -57,6 +59,6 @@ public:
      */
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) = 0;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_H

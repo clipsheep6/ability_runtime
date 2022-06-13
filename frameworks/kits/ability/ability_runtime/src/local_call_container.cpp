@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "local_call_container.h"
+
 #include "hilog_wrapper.h"
 #include "ability_manager_client.h"
-#include "local_call_container.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -23,7 +25,7 @@ int LocalCallContainer::StartAbilityInner(
 {
     HILOG_DEBUG("start ability by call.");
 
-    if (!callback) {
+    if (callback == nullptr) {
         HILOG_ERROR("callback is nullptr.");
         return ERR_INVALID_VALUE;
     }
@@ -42,7 +44,7 @@ int LocalCallContainer::StartAbilityInner(
 
     AppExecFwk::ElementName element = want.GetElement();
     std::shared_ptr<LocalCallRecord> localCallRecord;
-    if (!GetCallLocalreocrd(element, localCallRecord)) {
+    if (!GetCallLocalRecord(element, localCallRecord)) {
         localCallRecord = std::make_shared<LocalCallRecord>(element);
         if (!localCallRecord) {
             HILOG_ERROR("localCallRecord create fail.");
@@ -57,7 +59,7 @@ int LocalCallContainer::StartAbilityInner(
     HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) end");
 
     auto remote = localCallRecord->GetRemoteObject();
-    if (!remote) {
+    if (remote == nullptr) {
         auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
         if (abilityClient == nullptr) {
             HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
@@ -77,27 +79,26 @@ int LocalCallContainer::StartAbilityInner(
 
 int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 {
-    HILOG_DEBUG("LocalCallContainer::Release begain.");
+    HILOG_DEBUG("LocalCallContainer::Release begin.");
     auto isExist = [&callback](auto &record) {
-        HILOG_DEBUG("LocalCallContainer::Release begain1.");
         return record.second->RemoveCaller(callback);
     };
 
     auto iter = std::find_if(callProxyRecords_.begin(), callProxyRecords_.end(), isExist);
     if (iter == callProxyRecords_.end()) {
-        HILOG_ERROR("release localcallrecord failed.");
+        HILOG_ERROR("release localCallRecord failed.");
         return ERR_INVALID_VALUE;
     }
 
     std::shared_ptr<LocalCallRecord> record = iter->second;
-    if (!record) {
+    if (record == nullptr) {
         HILOG_ERROR("record is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     if (record->IsExistCallBack()) {
         // just release callback.
-        HILOG_DEBUG("LocalCallContainer::Release begain2.");
+        HILOG_DEBUG("LocalCallContainer::Release callback not exist.");
         return ERR_OK;
     }
 
@@ -130,8 +131,8 @@ void LocalCallContainer::DumpCalls(std::vector<std::string> &info) const
         tempstr += " uri[" + iter->first + "]" + "\n";
         tempstr += "              callers #" + std::to_string (iter->second->GetCallers().size());
         bool flag = true;
-        for (auto &callBack:iter->second->GetCallers()) {
-            if (callBack && !callBack->IsCallBack()) {
+        for (auto &callBack : iter->second->GetCallers()) {
+            if (callBack != nullptr && !callBack->IsCallBack()) {
                 HILOG_INFO("%{public}s call back is not called.", __func__);
                 flag = false;
                 break;
@@ -157,14 +158,14 @@ void LocalCallContainer::OnAbilityConnectDone(
         HILOG_ERROR("OnAbilityConnectDone failed.");
     }
     std::shared_ptr<LocalCallRecord> localCallRecord;
-    if (GetCallLocalreocrd(element, localCallRecord)) {
+    if (GetCallLocalRecord(element, localCallRecord)) {
         auto callRecipient = new (std::nothrow) CallRecipient(
             std::bind(&LocalCallContainer::OnCallStubDied, this, std::placeholders::_1));
         localCallRecord->SetRemoteObject(remoteObject, callRecipient);
         localCallRecord->InvokeCallBack();
     }
 
-    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone end.");
+    HILOG_DEBUG("LocalCallContainer::OnAbilityConnectDone end. resultCode:%{public}d.", resultCode);
     return;
 }
 
@@ -172,7 +173,7 @@ void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName &
 {
 }
 
-bool LocalCallContainer::GetCallLocalreocrd(
+bool LocalCallContainer::GetCallLocalRecord(
     const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord)
 {
     auto iter = callProxyRecords_.find(elementName.GetURI());
@@ -192,7 +193,7 @@ void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject> &remote)
 
     auto iter = std::find_if(callProxyRecords_.begin(), callProxyRecords_.end(), isExist);
     if (iter == callProxyRecords_.end()) {
-        HILOG_ERROR("StubDied object not found from localcallrecord.");
+        HILOG_ERROR("StubDied object not found from localCallRecord.");
         return;
     }
 
@@ -200,5 +201,5 @@ void LocalCallContainer::OnCallStubDied(const wptr<IRemoteObject> &remote)
     callProxyRecords_.erase(iter);
     HILOG_DEBUG("LocalCallContainer::OnCallStubDied end.");
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

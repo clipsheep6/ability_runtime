@@ -14,8 +14,8 @@
  */
 
 #include "mock_serviceability_manager_service.h"
-#include <gtest/gtest.h>
 
+#include <gtest/gtest.h>
 #include <functional>
 #include <memory>
 #include <string>
@@ -134,5 +134,5 @@ int MockServiceAbilityManagerService::StopServiceAbility(const Want &want, int32
 {
     return 0;
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS

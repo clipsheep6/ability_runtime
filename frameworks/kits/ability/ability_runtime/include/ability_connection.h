@@ -49,7 +49,7 @@ public:
      * OnAbilityConnectDone, AbilityMs notify caller ability the result of connect.
      *
      * @param element, service ability's ElementName.
-     * @param remoteObject,.the session proxy of service ability.
+     * @param remoteObject, the session proxy of service ability.
      * @param resultCode, ERR_OK on success, others on failure.
      */
     void OnAbilityConnectDone(
@@ -68,20 +68,20 @@ public:
      *
      * @param abilityConnectCallback is used to notify caller ability that connect or disconnect is complete
     */
-    void SetConnectCallback(sptr<AbilityConnectCallback> abilityConnectCallback);
+    void SetConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback);
 
     void SetRemoteObject(const sptr<IRemoteObject> &remoteObject);
 
     void SetResultCode(int resultCode);
 
-    sptr<IRemoteObject> GetRemoteObject();
+    sptr<IRemoteObject> GetRemoteObject() const;
 
-    int GetResultCode();
+    int GetResultCode() const;
 private:
-    sptr<AbilityConnectCallback> abilityConnectCallback_;
+    sptr<AbilityConnectCallback> abilityConnectCallback_ = nullptr;
     sptr<IRemoteObject> remoteObject_ = nullptr;
     int resultCode_ = -1;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_ABILITY_CONNECTION_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_ABILITY_CONNECTION_H

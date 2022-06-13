@@ -22,7 +22,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-const int DIED = -1;
+namespace {
+constexpr int32_t DIED = -1;
+} // namespace
+
 AbilityConnection::AbilityConnection(const sptr<AbilityConnectCallback> &abilityConnectCallback)
 {
     abilityConnectCallback_ = abilityConnectCallback;
@@ -65,7 +68,7 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &e
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
-void AbilityConnection::SetConnectCallback(sptr<AbilityConnectCallback> abilityConnectCallback)
+void AbilityConnection::SetConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
 {
     abilityConnectCallback_ = abilityConnectCallback;
 }
@@ -80,14 +83,14 @@ void AbilityConnection::SetResultCode(int resultCode)
     resultCode_ = resultCode;
 }
 
-sptr<IRemoteObject> AbilityConnection::GetRemoteObject()
+sptr<IRemoteObject> AbilityConnection::GetRemoteObject() const
 {
     return remoteObject_;
 }
 
-int AbilityConnection::GetResultCode()
+int AbilityConnection::GetResultCode() const
 {
     return resultCode_;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

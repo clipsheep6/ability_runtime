@@ -28,7 +28,7 @@ namespace AbilityRuntime {
  */
 class LocalCallRecord : public std::enable_shared_from_this<LocalCallRecord> {
 public:
-    LocalCallRecord(const AppExecFwk::ElementName &elementName);
+    explicit LocalCallRecord(const AppExecFwk::ElementName &elementName);
     virtual ~LocalCallRecord();
 
     void SetRemoteObject(const sptr<IRemoteObject> &call);
@@ -40,13 +40,13 @@ public:
     void InvokeCallBack() const;
     AppExecFwk::ElementName GetElementName() const;
     bool IsExistCallBack() const;
-    int GetRecordId();
-    std::vector<std::shared_ptr<CallerCallBack>> GetCallers();
-    bool IsSameObject(const sptr<IRemoteObject> &remote);
+    int GetRecordId() const;
+    std::vector<std::shared_ptr<CallerCallBack>> GetCallers() const;
+    bool IsSameObject(const sptr<IRemoteObject> &remote) const;
 
 private:
     static int64_t callRecordId;
-    int recordId_ = 0;                                     // record id
+    int recordId_ = 0;
     sptr<IRemoteObject> remoteObject_ = nullptr;
     sptr<IRemoteObject::DeathRecipient> callRecipient_ = nullptr;
     std::vector<std::shared_ptr<CallerCallBack>> callers_;
@@ -72,8 +72,8 @@ public:
     };
 
 private:
-    RemoteDiedHandler handler_;
+    RemoteDiedHandler handler_ = nullptr;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_LOCAL_CALL_RECORD_H

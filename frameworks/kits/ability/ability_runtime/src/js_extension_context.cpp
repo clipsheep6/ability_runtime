@@ -15,8 +15,6 @@
 
 #include "js_extension_context.h"
 
-#include <cstdint>
-
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
@@ -25,24 +23,24 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
+void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    if ((!jsContext) || (!config)) {
-        HILOG_INFO("jsContext or config is nullptr.");
+    if (engine == nullptr || jsContext == nullptr || config == nullptr) {
+        HILOG_ERROR("engine or jsContext or config is nullptr.");
         return;
     }
 
     NativeValue* value = jsContext->Get();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    if (!object) {
-        HILOG_INFO("object is nullptr.");
+    if (object == nullptr) {
+        HILOG_ERROR("object is nullptr.");
         return;
     }
 
     NativeValue* method = object->GetProperty("onUpdateConfiguration");
-    if (!method) {
+    if (method == nullptr) {
         HILOG_ERROR("Failed to get onUpdateConfiguration from object");
         return;
     }
@@ -52,18 +50,21 @@ void JsExtensionContext::ConfigurationUpdated(NativeEngine* engine, std::shared_
     engine->CallFunction(value, method, argv, 1);
 }
 
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, std::shared_ptr<ExtensionContext> context)
+NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext> &context)
 {
     HILOG_INFO("CreateJsExtensionContext begin");
     NativeValue* objValue = CreateJsBaseContext(engine, context);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
+    if (context == nullptr) {
+        HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
+        return objValue;
+    }
     auto configuration = context->GetConfiguration();
-    if (configuration) {
+    if (configuration != nullptr && object != nullptr) {
         object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
     }
 
     return objValue;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS
