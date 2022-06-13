@@ -36,7 +36,6 @@
               "hisysevent_native",
               "hiviewdfx_hilog_native",
               "ipc",
-              "dataability",
               "relational_store",
               "napi",
               "input",
