@@ -3686,17 +3686,20 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         return nullptr;
     }
 
-    HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
+    HILOG_INFO("%{public}s bundlename:%{public}s uri:%{public}s",
         __func__,
         connectAbilityCB->want.GetBundle().c_str(),
-        connectAbilityCB->want.GetElement().GetAbilityName().c_str());
+        connectAbilityCB->want.GetElement().GetURI().c_str());
 
+    std::string deviceId = connectAbilityCB->want.GetElement().GetDeviceID();
     std::string bundleName = connectAbilityCB->want.GetBundle();
     std::string abilityName = connectAbilityCB->want.GetElement().GetAbilityName();
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
-        [&bundleName, &abilityName](const std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
-            return (bundleName == obj.first.want.GetBundle()) &&
+        [&deviceId, &bundleName, &abilityName](const std::map<ConnecttionKey,
+            sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return (deviceId == obj.first.want.GetElement().GetDeviceID()) &&
+                   (bundleName == obj.first.want.GetBundle()) &&
                    (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != connects_.end()) {
@@ -4182,12 +4185,15 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
 
     // release connect
     HILOG_INFO("UvWorkOnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
+    std::string deviceId = connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID();
     std::string bundleName = connectAbilityCB->abilityConnectionCB.elementName.GetBundleName();
     std::string abilityName = connectAbilityCB->abilityConnectionCB.elementName.GetAbilityName();
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
-        [bundleName, abilityName](const std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
-            return (bundleName == obj.first.want.GetBundle()) &&
+        [deviceId, bundleName, abilityName](const std::map<ConnecttionKey,
+            sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return (deviceId == obj.first.want.GetElement().GetDeviceID()) &&
+                   (bundleName == obj.first.want.GetBundle()) &&
                    (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != connects_.end()) {
