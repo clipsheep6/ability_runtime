@@ -518,6 +518,8 @@ public:
     int VerifyAccountPermission(const std::string &permissionName, const int userId);
 
     void ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp);
+
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount);

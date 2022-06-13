@@ -24,6 +24,7 @@ abilityms_files = [
   "src/ability_scheduler_stub.cpp",
   "src/ability_scheduler_proxy.cpp",
   "src/ability_token_stub.cpp",
+  "src/app_no_response_disposer.cpp",
   "src/app_scheduler.cpp",
   "src/connection_record.cpp",
   "src/data_ability_caller_recipient.cpp",
@@ -81,3 +82,9 @@ abilityms_files = [
   "src/atomic_service_status_callback.cpp",
   "src/free_install_manager.cpp",
 ]
+
+if (ability_runtime_graphics) {
+  abilityms_files += [
+    "src/system_dialog_scheduler.cpp",
+  ]
+}

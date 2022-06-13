@@ -191,7 +191,7 @@ public:
      *
      * @param pid The process id.
      * @param tokens The token of ability records.
-     * @return Returns true on success, others on failure.
+     * @return Returns ERR_OK on success, others on failure.
      */
     virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) = 0;
     #ifdef ABILITY_COMMAND_FOR_TEST

@@ -150,6 +150,8 @@ public:
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) = 0;
 
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) = 0;
+
     enum class Message {
         LOAD_ABILITY = 0,
         TERMINATE_ABILITY,
@@ -169,6 +171,7 @@ public:
         REGISTER_START_SPECIFIED_ABILITY_RESPONSE,
         UPDATE_CONFIGURATION,
         GET_CONFIGURATION,
+        GET_APPLICATION_INFO_BY_PROCESS_ID,
     };
 };
 }  // namespace AppExecFwk

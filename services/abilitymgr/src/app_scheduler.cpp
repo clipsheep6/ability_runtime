@@ -366,6 +366,18 @@ int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
     return ERR_OK;
 }
 
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
+    auto ret = static_cast<int>(appMgrClient_->GetApplicationInfoByProcessID(pid, application));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetApplicationInfoByProcessID failed.");
+        return ret;
+    }
+
+    return ERR_OK;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppScheduler::BlockAppService()
 {
