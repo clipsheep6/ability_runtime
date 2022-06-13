@@ -44,6 +44,7 @@
 #include "resource_manager.h"
 #include "runtime.h"
 #include "service_extension.h"
+#include "signal.h"
 #include "static_subscriber_extension.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
@@ -71,8 +72,6 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
-constexpr int SIGNAL_JS_HEAP = 37;
-constexpr int SIGNAL_JS_HEAP_PRIV = 38;
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_VERSION[] = "VERSION";
@@ -1514,24 +1513,20 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
 
 void MainThread::HandleSignal(int signal)
 {
-    switch (signal) {
-        case SIGUSR1:
-            if (handleANRThread_ == nullptr) {
-                handleANRThread_ = std::make_shared<std::thread>(&MainThread::HandleScheduleANRProcess);
-            }
-            break;
-        case SIGNAL_JS_HEAP: {
-            auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
-            dfxHandler_->PostTask(heapFunc);
-            break;
-        }
-        case SIGNAL_JS_HEAP_PRIV: {
-            auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
-            dfxHandler_->PostTask(privateHeapFunc);
-            break;
-        }
-        default:
-            break;
+    if (signal == SIGUSR1 && handleANRThread_ == nullptr) {
+        handleANRThread_ = std::make_shared<std::thread>(&MainThread::HandleScheduleANRProcess);
+        return;
+    }
+
+    if (signal == MUSL_SIGNAL_JSHEAP) {
+        auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
+        dfxHandler_->PostTask(heapFunc);
+        return;
+    }
+
+    if (signal == MUSL_SIGNAL_JSHEAP_PRIV) {
+        auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
+        dfxHandler_->PostTask(privateHeapFunc);
     }
 }
 
@@ -1598,8 +1593,8 @@ void MainThread::Start()
     sigAct.sa_flags = 0;
     sigAct.sa_handler = &MainThread::HandleSignal;
     sigaction(SIGUSR1, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
+    sigaction(MUSL_SIGNAL_JSHEAP, &sigAct, NULL);
+    sigaction(MUSL_SIGNAL_JSHEAP_PRIV, &sigAct, NULL);
 
     thread->Init(runner, runnerWatchDog);
 
