@@ -88,6 +88,10 @@ ohos_moduletest("PandingWantMgrTest") {
     "relational_store:native_rdb",
   ]
 
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
   if (ability_runtime_graphics) {
     deps += [
       "${global_path}/i18n/frameworks/intl:intl_util",

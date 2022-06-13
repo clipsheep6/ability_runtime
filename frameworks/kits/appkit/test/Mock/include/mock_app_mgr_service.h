@@ -31,7 +31,7 @@ public:
         void(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
             const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
             const std::shared_ptr<AAFwk::Want> &want));
-    MOCK_METHOD1(TerminateAbility, void(const sptr<IRemoteObject> &token));
+    MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject> &token, bool isClearMissionFlag));
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject> &token, const AbilityState state));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
     MOCK_METHOD1(GetAppFreezingTime, void(int &time));

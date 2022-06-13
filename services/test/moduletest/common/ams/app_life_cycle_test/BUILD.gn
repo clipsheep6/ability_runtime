@@ -36,6 +36,10 @@ ohos_moduletest("AmsAppLifeCycleModuleTest") {
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("moduletest") {

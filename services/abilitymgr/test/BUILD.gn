@@ -34,6 +34,7 @@ ohos_source_set("abilityms_test_source") {
     "${services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
     "${services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
     "${services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
+    "${services_path}/abilitymgr/src/background_task_observer.cpp",
     "${services_path}/abilitymgr/src/call_container.cpp",
     "${services_path}/abilitymgr/src/call_record.cpp",
     "${services_path}/abilitymgr/src/caller_info.cpp",

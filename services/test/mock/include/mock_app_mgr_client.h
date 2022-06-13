@@ -27,7 +27,7 @@ public:
     ~MockAppMgrClient();
     MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject> &, const sptr<IRemoteObject> &,
                                   const AbilityInfo &, const ApplicationInfo &, const AAFwk::Want &));
-    MOCK_METHOD1(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject> &));
+    MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject> &, bool));
     MOCK_METHOD2(UpdateAbilityState, AppMgrResultCode(const sptr<IRemoteObject> &token, const AbilityState state));
     MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string &));
     MOCK_METHOD1(KillProcessByAbilityToken, AppMgrResultCode(const sptr<IRemoteObject> &token));
