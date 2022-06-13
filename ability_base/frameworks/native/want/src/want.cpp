@@ -2054,6 +2054,11 @@ Want &Want::SetDeviceId(const std::string &deviceId)
     return *this;
 }
 
+std::string Want::GetDeviceId() const
+{
+    return operation_.GetDeviceId();
+}
+
 Want& Want::SetModuleName(const std::string &moduleName)
 {
     operation_.SetModuleName(moduleName);
