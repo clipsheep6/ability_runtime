@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "ability_running_record.h"
 #include <gtest/gtest.h>
+#include "ability_running_record.h"
 #include "app_record_id.h"
 #include "app_scheduler_host.h"
 #include "ability_info.h"

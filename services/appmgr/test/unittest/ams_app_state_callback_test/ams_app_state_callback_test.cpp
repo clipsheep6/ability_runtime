@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "app_state_callback_host.h"
 #include <gtest/gtest.h>
+#include "app_state_callback_host.h"
 #include "app_mgr_constants.h"
 #include "iapp_state_callback.h"
 #include "app_process_data.h"
