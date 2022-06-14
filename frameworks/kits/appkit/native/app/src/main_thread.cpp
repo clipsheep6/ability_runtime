@@ -1561,6 +1561,7 @@ void MainThread::HandleScheduleANRProcess()
     }
     if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
         mainThreadStackInfo = applicationForAnr_->GetRuntime()->BuildJsStackTrace();
+        HILOG_INFO("Get stack success, length:%{public}zu", mainThreadStackInfo.size());
         if (write(rFD, mainThreadStackInfo.c_str(), mainThreadStackInfo.size()) !=
           (ssize_t)mainThreadStackInfo.size()) {
             HILOG_ERROR("MainThread::HandleScheduleANRProcess write main thread stack info failed");
