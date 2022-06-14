@@ -172,7 +172,7 @@ ohos_moduletest("ability_conetxt_test") {
 ohos_moduletest("ability_thread_call_request_module_test") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/frameworks/kits/appkit/native/app/src/context_container.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/context_container.cpp",
     "${aafwk_path}/frameworks/kits/test/moduletest/cpp/abilitytest/ability_thread_call_request_module_test.cpp",
   ]
 

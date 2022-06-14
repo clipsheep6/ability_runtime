@@ -55,7 +55,7 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
-  deps = [ "${kits_path}/appkit:app_context" ]
+  deps = [ "${native_path}/appkit:app_context" ]
 
   external_deps = [
     "ability_base:base",
