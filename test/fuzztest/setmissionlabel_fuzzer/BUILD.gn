@@ -26,7 +26,7 @@ ohos_fuzztest("SetMissionLabelFuzzTest") {
 
   include_dirs = [
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include/",
+    "${aafwk_path}/interfaces/kits/native/ability/native/",
   ]
 
   cflags = [

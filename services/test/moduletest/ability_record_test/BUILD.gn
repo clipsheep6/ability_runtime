@@ -21,7 +21,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
   cflags_cc = []
   include_dirs = [
     "//third_party/jsoncpp/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include/distributed_ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include/xcollie",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",

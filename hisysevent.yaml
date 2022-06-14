@@ -99,7 +99,7 @@ DISCONNECT_SERVICE_ERROR:
 # ability behavior event
 
 START_ABILITY:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: start ability}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: start ability}
   USER_ID: {type: INT32, desc: userId}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
@@ -170,7 +170,7 @@ APP_LAUNCH:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 APP_FOREGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: foreground app}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: foreground app}
   APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}
@@ -178,7 +178,7 @@ APP_FOREGROUND:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
 
 APP_BACKGROUND:
-  __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: background app}
+  __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: background app}
   APP_PID: {type: INT32, desc: app pid}
   VERSION_CODE: {type: INT32, desc: version code}
   VERSION_NAME: {type: STRING, desc: version name}

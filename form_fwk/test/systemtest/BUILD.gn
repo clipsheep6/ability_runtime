@@ -21,7 +21,7 @@ config("form_manager_test_config") {
   ]
 
   configs = [
-    "${ability_runtime_path}/frameworks/kits/ability/native:ability_config",
+    "${ability_runtime_path}/frameworks/native/ability/native:ability_config",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base_sdk_config",
   ]
 }
