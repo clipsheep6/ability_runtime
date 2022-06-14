@@ -28,8 +28,6 @@ namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
 
-namespace {
-}
 class LocalCallContainerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -178,7 +176,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_Release_0100, Function | M
 /**
  * @tc.number: Local_Call_Container_Release_0200
  * @tc.name: Release
- * @tc.desc: Local Call Container to process Release, and the result is fail bacause callProxyRecords_ is null.
+ * @tc.desc: Local Call Container to process Release, and the result is fail because callProxyRecords_ is null.
  */
 HWTEST_F(LocalCallContainerTest, Local_Call_Container_Release_0200, Function | MediumTest | Level1)
 {
@@ -377,11 +375,11 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_OnAbilityConnectDone_0300,
 }
 
 /**
- * @tc.number: Local_Call_Container_GetCallLocalreocrd_0100
- * @tc.name: GetCallLocalreocrd
- * @tc.desc: Local Call Container to process GetCallLocalreocrd, and the result is success.
+ * @tc.number: Local_Call_Container_GetCallLocalRecord_0100
+ * @tc.name: GetCallLocalRecord
+ * @tc.desc: Local Call Container to process GetCallLocalRecord, and the result is success.
  */
-HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalreocrd_0100, Function | MediumTest | Level1)
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalRecord_0100, Function | MediumTest | Level1)
 {
     LocalCallContainer localCallContainer;
 
@@ -393,25 +391,25 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalreocrd_0100, F
     std::string uri = elementName.GetURI();
     localCallContainer.callProxyRecords_.emplace(uri, localCallRecord);
 
-    bool ret = localCallContainer.GetCallLocalreocrd(elementName, localCallRecord);
+    bool ret = localCallContainer.GetCallLocalRecord(elementName, localCallRecord);
     EXPECT_TRUE(ret == true);
 }
 
 /**
- * @tc.number: Local_Call_Container_GetCallLocalreocrd_0100
- * @tc.name: GetCallLocalreocrd
- * @tc.desc: Local Call Container to process GetCallLocalreocrd, and the result is fail
+ * @tc.number: Local_Call_Container_GetCallLocalRecord_0100
+ * @tc.name: GetCallLocalRecord
+ * @tc.desc: Local Call Container to process GetCallLocalRecord, and the result is fail
  *           because call proxy records is empty.
  */
-HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalreocrd_0200, Function | MediumTest | Level1)
+HWTEST_F(LocalCallContainerTest, Local_Call_Container_GetCallLocalRecord_0200, Function | MediumTest | Level1)
 {
     LocalCallContainer localCallContainer;
 
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     std::shared_ptr<LocalCallRecord> localCallRecord = std::make_shared<LocalCallRecord>(elementName);
 
-    bool ret = localCallContainer.GetCallLocalreocrd(elementName, localCallRecord);
+    bool ret = localCallContainer.GetCallLocalRecord(elementName, localCallRecord);
     EXPECT_TRUE(ret == false);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS
