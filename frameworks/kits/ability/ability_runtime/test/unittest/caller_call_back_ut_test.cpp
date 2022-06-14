@@ -154,5 +154,5 @@ HWTEST_F(CallerCallBackTest, Caller_Call_Back_IsCallBack_0100, Function | Medium
 
     EXPECT_EQ(ret, true);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

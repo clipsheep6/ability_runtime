@@ -128,11 +128,11 @@ public:
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
     MOCK_METHOD2(MoveMissionToFront, int(int32_t missionId, const StartOptions &startOptions));
     MOCK_METHOD1(GetMissionIdByToken, int32_t(const sptr<IRemoteObject> &token));
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD0(BlockAppService, int());
     MOCK_METHOD0(BlockAmsService, int());
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
-    #endif
+#endif
 
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
 
@@ -273,17 +273,17 @@ public:
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
-    #ifdef ABILITY_COMMAND_FOR_TEST
+#ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {
         return 0;
     }
-    #endif
+#endif
 
     sptr<IAbilityScheduler> abilityScheduler_ = nullptr;  // kit interface used to schedule ability life
     Want want_;
     bool startAbility = false;
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_AAFWK_SERVICEABILITY_MOCK_MANAGER_SERVICE_H
+} // namespace AAFwk
+} // namespace OHOS
+#endif // OHOS_AAFWK_SERVICEABILITY_MOCK_MANAGER_SERVICE_H

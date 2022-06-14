@@ -28,8 +28,8 @@ ohos_unittest("FmsFormMgrLifecycleUpdateTest") {
   include_dirs = [
     "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/json/include",
-    "${ability_runtime_path}/frameworks/kits/ability/native/include",
-    "${ability_runtime_path}/frameworks/kits/appkit/native/app/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/services/formmgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
