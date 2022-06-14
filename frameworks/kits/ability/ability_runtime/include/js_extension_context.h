@@ -16,8 +16,6 @@
 #ifndef ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
 #define ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
 
-#include <memory>
-
 #include "extension_context.h"
 
 class NativeEngine;
@@ -31,14 +29,14 @@ public:
     JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
     ~JsExtensionContext() = default;
 
-    static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
+    static void ConfigurationUpdated(NativeEngine* engine, const std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
 private:
     std::weak_ptr<ExtensionContext> context_;
 };
 
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, std::shared_ptr<ExtensionContext> context);
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
+NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context);
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H

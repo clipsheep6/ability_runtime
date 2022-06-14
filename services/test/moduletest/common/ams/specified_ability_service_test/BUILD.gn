@@ -36,7 +36,7 @@ ohos_moduletest("specified_ability_service_test") {
     "${aafwk_path}/services/common/src/permission_verification.cpp",
     "${aafwk_path}/services/test/mock/src/mock_app_mgr_client.cpp",
     "${aafwk_path}/services/test/mock/src/mock_bundle_mgr.cpp",
-    "//foundation/distributedhardware/devicemanager/test/unittest/mock/parameter.cpp",
+    "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
   ]
 
   configs = [
@@ -96,6 +96,10 @@ ohos_moduletest("specified_ability_service_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libdm" ]

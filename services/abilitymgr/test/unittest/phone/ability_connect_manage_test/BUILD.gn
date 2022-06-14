@@ -56,6 +56,10 @@ ohos_unittest("ability_connect_manage_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("unittest") {

@@ -14,11 +14,11 @@
  */
 
 #pragma once
-#include "ability_scheduler_interface.h"
 #include <iremote_object.h>
 #include <iremote_stub.h>
-#include "hilog_wrapper.h"
 #include <gmock/gmock.h>
+#include "ability_scheduler_interface.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {

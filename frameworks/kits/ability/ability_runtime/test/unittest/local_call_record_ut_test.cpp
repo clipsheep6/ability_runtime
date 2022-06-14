@@ -311,5 +311,5 @@ HWTEST_F(LocalCallRecordTest, Local_Call_Record_IsExistCallBack_0100, Function |
     localCallRecord.AddCaller(callback);
     EXPECT_TRUE(localCallRecord.IsExistCallBack() == true);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

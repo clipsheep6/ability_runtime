@@ -16,17 +16,17 @@
 #ifndef ABILITY_RUNTIME_ABILITY_CONTEXT_H
 #define ABILITY_RUNTIME_ABILITY_CONTEXT_H
 
-#include "foundation/ability/ability_runtime/frameworks/kits/ability/native/include/iability_callback.h"
 #include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
 
 #include "ability_connect_callback.h"
 #include "ability_info.h"
+#include "caller_callback.h"
 #include "configuration.h"
+#include "iability_callback.h"
 #include "native_engine/native_reference.h"
 #include "native_engine/native_value.h"
 #include "start_options.h"
 #include "want.h"
-#include "caller_callback.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map.h"
@@ -114,9 +114,8 @@ public:
     virtual ErrCode StartAbilityForResult(const AAFwk::Want &Want, const AAFwk::StartOptions &startOptions,
         int requestCode, RuntimeTask &&task) = 0;
 
-    virtual ErrCode StartAbilityForResultWithAccount(
-        const AAFwk::Want &Want, int accountId, const AAFwk::StartOptions &startOptions,
-        int requestCode, RuntimeTask &&task) = 0;
+    virtual ErrCode StartAbilityForResultWithAccount(const AAFwk::Want &Want, int accountId,
+        const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task) = 0;
 
     virtual ErrCode StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId = -1) = 0;
 
@@ -135,14 +134,13 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * @return True means success and false means failure
     */
-    virtual bool ConnectAbility(const AAFwk::Want &want,
-        const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual bool ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
-     * @param accountId caller userId.
      * @param want Indicates the want containing information about the ability to connect
-     * @param conn Indicates the callback object when the target ability is connected.
+     * @param accountId caller userId.
+     * @param connectCallback Indicates the callback object when the target ability is connected.
      * @return True means success and false means failure
      */
     virtual bool ConnectAbilityWithAccount(const AAFwk::Want &want, int accountId,
@@ -155,8 +153,7 @@ public:
     * @param connectCallback Indicates the callback object when the target ability is connected.
     * is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
     */
-    virtual void DisconnectAbility(const AAFwk::Want &want,
-        const sptr<AbilityConnectCallback> &connectCallback) = 0;
+    virtual void DisconnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) = 0;
 
     /**
      * @brief get ability info of the current ability
@@ -271,6 +268,6 @@ protected:
         return contextTypeId == CONTEXT_TYPE_ID || Context::IsContext(contextTypeId);
     }
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_ABILITY_CONTEXT_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_ABILITY_CONTEXT_H

@@ -770,6 +770,8 @@ public:
     */
     Want &SetDeviceId(const std::string &deviceId);
 
+    std::string GetDeviceId() const;
+
     /**
      * @description: Sets an ModuleName object in a Want.
      * @param moduleName Indicates the ModuleName description.

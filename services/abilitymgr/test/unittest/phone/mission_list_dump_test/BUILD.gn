@@ -32,6 +32,10 @@ ohos_unittest("mission_list_dump_test") {
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("unittest") {

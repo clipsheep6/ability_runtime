@@ -1147,10 +1147,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16001() const
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability2
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "B2" state ACTIVE
@@ -1159,10 +1159,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16001() const
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_B2, AbilityState_Test::USER_DEFINE, OPERATION_START_OTHER_ABILITY);
     // page ability2 start service ability3
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 }
@@ -1185,17 +1185,17 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16002() const
     // service ability B3 start service ability A1
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_B3, AbilityState_Test::USER_DEFINE, OPERATION_START_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
     // service ability A1 connect service ability B3
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_A1, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1207,7 +1207,7 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16002() const
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_A1, AbilityState_Test::USER_DEFINE, OPERATION_DISCONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1215,10 +1215,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16002() const
     bool ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B3, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1226,10 +1226,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_A1, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1237,13 +1237,13 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest16002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B2, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 }
@@ -1281,10 +1281,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17001() const
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability2
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "B2" state ACTIVE
@@ -1293,10 +1293,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17001() const
     // start service ability3
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_B2, AbilityState_Test::USER_DEFINE, OPERATION_START_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 }
@@ -1305,19 +1305,19 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17002() const
 {
     // start service ability4
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
     // start service ability1
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1325,10 +1325,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17002() const
     bool ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B3, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1336,10 +1336,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_A1, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1347,10 +1347,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_C4, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1358,13 +1358,13 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest17002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B2, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ONINACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ONINACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 }
@@ -1402,10 +1402,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest18001() const
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability2
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "B2" state ACTIVE
@@ -1414,10 +1414,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest18001() const
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_B2, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     // connect service ability3
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1435,10 +1435,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest18002() const
 {
     // connect service ability1
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1446,24 +1446,24 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest18002() const
     bool ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B2, 0, "DisConnectOtherAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
-        0);
-
-    EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
-        0);
-    EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
 
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        0);
+
+    EXPECT_EQ(STAbilityUtil::WaitCompleted(
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        0);
+    EXPECT_EQ(STAbilityUtil::WaitCompleted(
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1471,13 +1471,13 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest18002() const
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_B2, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 }
@@ -1521,10 +1521,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_1900, Function | MediumTest 
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability1
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "D1" state ACTIVE
@@ -1534,10 +1534,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_1900, Function | MediumTest 
     // page ability1 connect service ability2
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_D1, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1545,7 +1545,7 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_1900, Function | MediumTest 
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_D1, AbilityState_Test::USER_DEFINE, OPERATION_GET_DATA_BY_DATA_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event, OPERATION_FROM_DATA_ABILITY, 1, DELAY_TIME), 0);
 
@@ -1553,13 +1553,13 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_1900, Function | MediumTest 
     bool ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_D1, 0, "DisConnectOtherAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1567,13 +1567,13 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_1900, Function | MediumTest 
     ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_D1, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1602,10 +1602,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2000, Function | MediumTest 
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability1
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "D1" state ACTIVE
@@ -1615,7 +1615,7 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2000, Function | MediumTest 
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_D1, AbilityState_Test::USER_DEFINE, OPERATION_GET_DATA_BY_DATA_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(event, OPERATION_FROM_DATA_ABILITY, 1, DELAY_TIME), 0);
     usleep(WAIT_TIME);
@@ -1624,10 +1624,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2000, Function | MediumTest 
     bool ret = STAbilityUtil::StopAbility(REQ_EVENT_NAME_APP_D1, 0, "StopSelfAbility");
     EXPECT_TRUE(ret);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_INACTIVE, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, PAGE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
             event, PAGE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
@@ -1658,10 +1658,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2100, Function | MediumTest 
     ErrCode eCode = STAbilityUtil::StartAbility(want1, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1676,10 +1676,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2100, Function | MediumTest 
     eCode = STAbilityUtil::StartAbility(want2, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1691,10 +1691,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2100, Function | MediumTest 
     eCode = STAbilityUtil::StopServiceAbility(want1);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1702,10 +1702,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2100, Function | MediumTest 
     eCode = STAbilityUtil::StopServiceAbility(want2);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1736,10 +1736,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     EXPECT_EQ(ERR_OK, eCode);
     // start page ability1
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1749,10 +1749,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     // service ability G1 connect service ability H1
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_G1, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1764,10 +1764,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     eCode = STAbilityUtil::StartAbility(want2, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         -1);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1778,10 +1778,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     // service ability H1 connect service ability G1
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_H1, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         -1);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1789,7 +1789,7 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_H1, AbilityState_Test::USER_DEFINE, OPERATION_DISCONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1797,10 +1797,10 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     eCode = STAbilityUtil::StopServiceAbility(want1);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1808,17 +1808,17 @@ HWTEST_F(AmsServiceAbilityTest, AMS_Service_Ability_2200, Function | MediumTest 
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_G1, AbilityState_Test::USER_DEFINE, OPERATION_DISCONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // stop ability H1
     eCode = STAbilityUtil::StopServiceAbility(want2);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1844,20 +1844,20 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest23001() const
     ErrCode eCode = STAbilityUtil::StartAbility(want1, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
     // service ability A1 connect service ability B3
     STAbilityUtil::PublishEvent(REQ_EVENT_NAME_APP_A1, AbilityState_Test::USER_DEFINE, OPERATION_CONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_CONNECT, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1873,10 +1873,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest23001() const
     eCode = STAbilityUtil::StartAbility(want2, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_ACTIVE, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // ability "B2" state ACTIVE
@@ -1908,10 +1908,10 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest23002() const
     ErrCode eCode = STAbilityUtil::StartAbility(want3, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, PAGE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -1940,7 +1940,7 @@ void AmsServiceAbilityTest::AmsServiceAbilityTest23002() const
     STAbilityUtil::PublishEvent(
         REQ_EVENT_NAME_APP_E2, AbilityState_Test::USER_DEFINE, OPERATION_DISCONNECT_OTHER_ABILITY);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_DISCONNECT, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
     // check B3 connect number
@@ -1997,10 +1997,10 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_TEST_0200, Function | MediumTest | Leve
     ErrCode eCode = STAbilityUtil::StartAbility(want, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -2015,10 +2015,10 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_TEST_0200, Function | MediumTest | Leve
     eCode = STAbilityUtil::StopServiceAbility(want);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -2043,10 +2043,10 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_0300, Function | MediumTest | Level1)
     ErrCode eCode = STAbilityUtil::StartAbility(want, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         0);
     usleep(WAIT_TIME);
 
@@ -2054,10 +2054,10 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_0300, Function | MediumTest | Level1)
     eCode = STAbilityUtil::StopServiceAbility(want);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
+        event, SERVICE_STATE_ON_BACKGROUND, AbilityLifecycleExecutor::LifecycleState::BACKGROUND, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
+        event, SERVICE_STATE_ON_STOP, AbilityLifecycleExecutor::LifecycleState::INITIAL, DELAY_TIME),
         0);
 
     // check app process information
@@ -2091,10 +2091,10 @@ HWTEST_F(AmsServiceAbilityTest, AppSpawn_0400, Function | MediumTest | Level1)
     ErrCode eCode = STAbilityUtil::StartAbility(want, abilityMs);
     EXPECT_EQ(ERR_OK, eCode);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_START, AbilityLifecycleExecutor::LifecycleState::INACTIVE, DELAY_TIME),
         0);
     EXPECT_EQ(STAbilityUtil::WaitCompleted(
-            event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
+        event, SERVICE_STATE_ON_COMMAND, AbilityLifecycleExecutor::LifecycleState::ACTIVE, DELAY_TIME),
         -1);
 
     usleep(WAIT_TIME * 5);

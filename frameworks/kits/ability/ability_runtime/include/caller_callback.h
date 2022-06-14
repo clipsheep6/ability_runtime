@@ -30,7 +30,7 @@ class CallerCallBack : public std::enable_shared_from_this<CallerCallBack> {
 public:
     /* Caller's callback object */
     using CallBackClosure = std::function<void(const sptr<IRemoteObject> &)>;
-    using OnReleaeClosure = std::function<void(const std::string &)>;
+    using OnReleaseClosure = std::function<void(const std::string &)>;
 
     CallerCallBack() = default;
     virtual ~CallerCallBack() = default;
@@ -39,7 +39,7 @@ public:
     {
         callback_ = callback;
     };
-    void SetOnRelease(OnReleaeClosure onRelease)
+    void SetOnRelease(OnReleaseClosure onRelease)
     {
         onRelease_ = onRelease;
     };
@@ -56,16 +56,16 @@ public:
             onRelease_(key);
         }
     };
-    bool IsCallBack()
+    bool IsCallBack() const
     {
         return isCallBack_;
     };
 
 private:
     CallBackClosure callback_ = {};
-    OnReleaeClosure onRelease_ = {};
+    OnReleaseClosure onRelease_ = {};
     bool isCallBack_ = false;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_CALLER_CALLBACK_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_CALLER_CALLBACK_H

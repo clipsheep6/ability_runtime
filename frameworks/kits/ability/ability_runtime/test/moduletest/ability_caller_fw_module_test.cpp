@@ -38,14 +38,14 @@ using namespace AAFwk;
 
 namespace {
 const std::string ACE_SERVICE_ABILITY_NAME = "AceServiceAbility";
-}
+} // namespace
 class AbilityCallerTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    static constexpr int TEST_WAIT_TIME = 500 * 1000;  // 500 ms
+    static constexpr int TEST_WAIT_TIME = 500 * 1000; // 500 ms
 public:
     std::unique_ptr<AbilityContextImpl> context_ = nullptr;
 };
@@ -190,7 +190,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0100, Function | Medium
 
     std::shared_ptr<LocalCallRecord> localCallRecord;
     AppExecFwk::ElementName elementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
-    context_->localCallContainer_->GetCallLocalreocrd(elementName, localCallRecord);
+    context_->localCallContainer_->GetCallLocalRecord(elementName, localCallRecord);
 
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
@@ -220,5 +220,5 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_OnCallStubDied_0200, Function | Medium
     localCallRecord.OnCallStubDied(callRemoteObject);
     EXPECT_FALSE(isSetOnReleaseCalled);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

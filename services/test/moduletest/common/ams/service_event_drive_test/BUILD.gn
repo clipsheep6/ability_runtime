@@ -42,6 +42,10 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
     "hicollie_native:libhicollie",
     "ipc:ipc_core",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("moduletest") {

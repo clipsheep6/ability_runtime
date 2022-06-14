@@ -150,5 +150,5 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_IsTerminating_0100, Functi
     ret = context_->IsTerminating();
     EXPECT_FALSE(ret);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+} // namespace AppExecFwk
+} // namespace OHOS

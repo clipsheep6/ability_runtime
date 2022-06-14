@@ -130,9 +130,9 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
         abilityConnection->SetConnectCallback(connectCallback);
         HILOG_INFO("%{public}s end, find abilityConnection exist, abilityConnectionsSize:%{public}d.",
             __func__, (int32_t)abilityConnections_.size());
-        if (callbacks.size() == 0) {
+        if (callbacks.empty()) {
             abilityConnections_.erase(item);
-            HILOG_DEBUG("%{public}s disconnectAbility.", __func__);
+            HILOG_DEBUG("%{public}s no callback left, so disconnectAbility.", __func__);
             return AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(abilityConnection);
         } else {
             connectCallback->OnAbilityDisconnectDone(connectReceiver, ERR_OK);
@@ -149,7 +149,7 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject> &connectCalle
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (connectCaller == nullptr) {
-        HILOG_ERROR("%{public}s end, connectCaller is nullptr.", __func__);
+        HILOG_ERROR("%{public}s failed, connectCaller is nullptr.", __func__);
         return false;
     }
 
@@ -204,9 +204,9 @@ void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)
 {
     HILOG_DEBUG("%{public}s begin, pid:%{public}d, tid:%{public}d.", __func__, pid, tid);
     if (HiChecker::Contains(Rule::RULE_CHECK_ABILITY_CONNECTION_LEAK)) {
-        DfxDumpCatcher dumplog;
+        DfxDumpCatcher dumpLog;
         std::string stackTrace;
-        bool ret = dumplog.DumpCatch(pid, tid, stackTrace);
+        bool ret = dumpLog.DumpCatch(pid, tid, stackTrace);
         if (ret) {
             std::string cautionMsg = "TriggerRule:RULE_CHECK_ABILITY_CONNECTION_LEAK-pid=" +
                 std::to_string(pid) + "-tid=" + std::to_string(tid) + ", has leaked connection" +
@@ -250,5 +250,5 @@ ErrCode ConnectionManager::HandleCallbackTimeOut(const sptr<IRemoteObject> &conn
         return AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, abilityConnection, connectCaller);
     }
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS

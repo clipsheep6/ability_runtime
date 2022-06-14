@@ -3685,18 +3685,20 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         return nullptr;
     }
 
-    HILOG_INFO("%{public}s bundlename:%{public}s abilityname:%{public}s",
-        __func__,
-        connectAbilityCB->want.GetBundle().c_str(),
-        connectAbilityCB->want.GetElement().GetAbilityName().c_str());
+    HILOG_INFO("%{public}s uri:%{public}s", __func__, connectAbilityCB->want.GetElement().GetURI().c_str());
 
+    std::string deviceId = connectAbilityCB->want.GetElement().GetDeviceID();
     std::string bundleName = connectAbilityCB->want.GetBundle();
     std::string abilityName = connectAbilityCB->want.GetElement().GetAbilityName();
+    std::string moduleName = connectAbilityCB->want.GetElement().GetModuleName();
+
     auto item = std::find_if(connects_.begin(),
-        connects_.end(),
-        [&bundleName, &abilityName](const std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
-            return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName());
+        connects_.end(), [&deviceId, &bundleName, &abilityName, &moduleName](const std::map<ConnecttionKey,
+        sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return (deviceId == obj.first.want.GetElement().GetDeviceID()) &&
+                   (bundleName == obj.first.want.GetBundle()) &&
+                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                   (moduleName == obj.first.want.GetElement().GetModuleName());
         });
     if (item != connects_.end()) {
         // match bundlename && abilityname
@@ -3705,6 +3707,7 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         HILOG_INFO("%{public}s find connection exist", __func__);
     } else {
         sptr<NAPIAbilityConnection> conn(new (std::nothrow) NAPIAbilityConnection());
+        conn->SetModuleName(moduleName);
         connectAbilityCB->id = serialNumber_;
         connectAbilityCB->abilityConnection = conn;
         ConnecttionKey key;
@@ -4057,6 +4060,16 @@ void NAPIAbilityConnection::SetDisconnectCBRef(const napi_ref &ref)
     disconnectRef_ = ref;
 }
 
+void NAPIAbilityConnection::SetModuleName(const std::string &moduleName)
+{
+    moduleName_ = moduleName;
+}
+
+std::string NAPIAbilityConnection::GetModuleName() const
+{
+    return moduleName_;
+}
+
 void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
 {
     HILOG_INFO("UvWorkOnAbilityConnectDone, uv_queue_work");
@@ -4181,16 +4194,20 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
 
     // release connect
     HILOG_INFO("UvWorkOnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
+    std::string deviceId = connectAbilityCB->abilityConnectionCB.elementName.GetDeviceID();
     std::string bundleName = connectAbilityCB->abilityConnectionCB.elementName.GetBundleName();
     std::string abilityName = connectAbilityCB->abilityConnectionCB.elementName.GetAbilityName();
+    std::string moduleName = connectAbilityCB->abilityConnection->GetModuleName();
     auto item = std::find_if(connects_.begin(),
-        connects_.end(),
-        [bundleName, abilityName](const std::map<ConnecttionKey, sptr<NAPIAbilityConnection>>::value_type &obj) {
-            return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName());
+        connects_.end(), [deviceId, bundleName, abilityName, moduleName](const std::map<ConnecttionKey,
+            sptr<NAPIAbilityConnection>>::value_type &obj) {
+            return (deviceId == obj.first.want.GetDeviceId()) &&
+                   (bundleName == obj.first.want.GetBundle()) &&
+                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                   (moduleName == obj.first.want.GetElement().GetModuleName());
         });
     if (item != connects_.end()) {
-        // match bundlename && abilityname
+        // match bundlename && abilityname && modulename
         connects_.erase(item);
         HILOG_INFO("UvWorkOnAbilityDisconnectDone erase connects_.size:%{public}zu", connects_.size());
     }
@@ -4217,10 +4234,9 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
         return;
     }
 
-    HILOG_INFO("OnAbilityDisconnectDone bundleName:%{public}s abilityName:%{public}s resultCode:%{public}d",
-        element.GetBundleName().c_str(),
-        element.GetAbilityName().c_str(),
-        resultCode);
+    HILOG_INFO("%{public}s bundleName:%{public}s abilityName:%{public}s moduleName:%{public}s, resultCode:%{public}d",
+        __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str(), moduleName_.c_str(), resultCode);
+
     uv_work_t *work = new uv_work_t;
     if (work == nullptr) {
         HILOG_ERROR("%{public}s, work == nullptr.", __func__);
@@ -4236,10 +4252,19 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
         }
         return;
     }
+
+    connectAbilityCB->abilityConnection = new (std::nothrow) NAPIAbilityConnection;
+    if (connectAbilityCB->abilityConnection == nullptr) {
+        delete connectAbilityCB;
+        delete work;
+        return;
+    }
+
     connectAbilityCB->cbBase.cbInfo.env = env_;
     connectAbilityCB->cbBase.cbInfo.callback = disconnectRef_;
     connectAbilityCB->abilityConnectionCB.elementName = element;
     connectAbilityCB->abilityConnectionCB.resultCode = resultCode;
+    connectAbilityCB->abilityConnection->SetModuleName(moduleName_);
     work->data = (void *)connectAbilityCB;
 
     int rev = uv_queue_work(

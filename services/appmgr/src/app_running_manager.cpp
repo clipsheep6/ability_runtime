@@ -15,10 +15,12 @@
 
 #include "app_running_manager.h"
 
+#include "app_mgr_service_inner.h"
 #include "datetime_ex.h"
 #include "iremote_object.h"
 
 #include "appexecfwk_errors.h"
+#include "common_event_support.h"
 #include "hilog_wrapper.h"
 #ifdef OS_ACCOUNT_PART_ENABLED
 #include "os_account_manager.h"
@@ -365,7 +367,8 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
 }
 
-void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
+void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag,
+    std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
     if (!token) {
         HILOG_ERROR("token is nullptr.");
@@ -381,6 +384,12 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token)
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
+        if (clearMissionFlag && appMgrServiceInner != nullptr) {
+            HILOG_INFO("The ability is the last, KillApplication");
+            appMgrServiceInner->KillApplicationByUid(appRecord->GetBundleName(), appRecord->GetUid());
+            appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
+                EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
+        }
     }
 
     appRecord->TerminateAbility(token, false);

@@ -33,6 +33,7 @@
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "background_task_mgr_helper.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -89,6 +90,7 @@ static void GetOsAccountIdFromUid(int uid, int &osAccountId)
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+using namespace BackgroundTaskMgr;
 const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
@@ -99,6 +101,9 @@ constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const int32_t SWITCH_ACCOUNT_TRY = 3;
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+const int32_t SUBSCRIBE_BACKGROUND_TASK_TRY = 5;
+#endif
 #ifdef ABILITY_COMMAND_FOR_TEST
 const int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
@@ -245,6 +250,23 @@ bool AbilityManagerService::Init()
 
     auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startSystemTask, "StartSystemApplication");
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
+    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
+        int attemptNums = 0;
+        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
+            *(aams->bgtaskObserver_)))) {
+            if (!(++attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
+                HILOG_ERROR("subscribeBackgroundTask fail");
+                return;
+            }
+            usleep(REPOLL_TIME_MICRO_SECONDS);
+        }
+    };
+    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+#endif
+
     HILOG_INFO("Init success.");
     return true;
 }
@@ -696,6 +718,15 @@ bool AbilityManagerService::IsStartFreeInstall(const Want &want)
         return true;
     }
     return false;
+}
+
+bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    return bgtaskObserver_->IsBackgroundTaskUid(uid);
+#else
+    return false;
+#endif
 }
 
 int AbilityManagerService::StartFreeInstall(
