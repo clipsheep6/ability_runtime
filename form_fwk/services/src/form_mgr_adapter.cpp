@@ -2371,5 +2371,28 @@ int FormMgrAdapter::UpdateRouterAction(const int64_t formId, std::string &action
     action = actionObject.dump();
     return ERR_OK;
 }
+
+bool FormMgrAdapter::IsRequestPublishFormSupported()
+{
+    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    /* Query the highest priority ability or extension ability for publishing form */
+    Want wantAction;
+    wantAction.SetAction(Constants::FORM_PUBLISH_ACTION);
+    AppExecFwk::AbilityInfo abilityInfo;
+    AppExecFwk::ExtensionAbilityInfo extensionAbilityInfo;
+    int callingUid = IPCSkeleton::GetCallingUid();
+    int32_t userId = GetCurrentUserId(callingUid);
+    if (!IN_PROCESS_CALL(iBundleMgr->ImplicitQueryInfoByPriority(wantAction,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId, abilityInfo, extensionAbilityInfo))) {
+        HILOG_ERROR("Failed to ImplicitQueryInfoByPriority for publishing form");
+        return false;
+    }
+
+    if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
+        HILOG_ERROR("Query highest priority ability failed, no form host ability found.");
+        return false;
+    }
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

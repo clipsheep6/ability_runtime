@@ -176,6 +176,12 @@ public:
                                std::unique_ptr<FormProviderData> &formBindingData, int64_t &formId);
 
     /**
+     * @brief Check if the request of publishing a form is supported by the host.
+     * @return Returns true if the request is supported and false otherwise.
+     */
+    bool IsRequestPublishFormSupported();
+
+    /**
      * @brief enable update form.
      * @param formIDs The id of the forms.
      * @param callerToken Caller ability token.

@@ -90,6 +90,14 @@ struct AsyncGetFormsInfoCallbackInfo {
     int32_t result = OHOS::ERR_OK;
 };
 
+struct AsyncIsRequestPublishFormSupportedCallbackInfo {
+    napi_env env;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_ref callback;
+    bool result = false;
+};
+
 napi_value NAPI_SetFormNextRefreshTime(napi_env env, napi_callback_info info);
 napi_value NAPI_UpdateForm(napi_env env, napi_callback_info info);
 napi_value NAPI_RequestPublishForm(napi_env env, napi_callback_info info);
@@ -104,4 +112,16 @@ napi_value NAPI_RemoveFormInfo(napi_env env, napi_callback_info info);
  * @return This is an opaque pointer that is used to represent a JavaScript value
  */
 napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info);
+
+/**
+ * @brief Request to publish a form to the form host.
+ *
+ * @param[in] env The environment that the Node-API call is invoked under
+ * @param[in] value This is an opaque pointer that is used to represent a JavaScript value
+ *
+ * @return This is an opaque pointer that is used to represent a JavaScript value
+ *         which is true if the request of pubishing form is supported and false otherwise
+ */
+napi_value NAPI_IsRequestPublishFormSupported(napi_env env, napi_callback_info info);
+
 #endif /* NAPI_FORM_PROVIDER_H_ */
