@@ -279,7 +279,7 @@ ohos_shared_library("formutil_napi") {
 
   configs = [ ":fmskit_config" ]
 
-  deps = [ "$${aafwk_path}/interfaces/kits/native/ability/nativeappkit_native" ]
+  deps = [ "${ability_runtime_path}/frameworks/native/appkit:appkit_native" ]
 
   external_deps = [
     "ability_base:base",

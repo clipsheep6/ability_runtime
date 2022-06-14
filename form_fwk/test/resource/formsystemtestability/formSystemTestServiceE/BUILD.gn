@@ -38,9 +38,9 @@ ohos_shared_library("formSystemTestServiceE") {
   sources = [ "${subdemosystem_path}/src/form_st_service_ability_E.cpp" ]
   configs = [ ":formSystemTestEConfig" ]
   deps = [
-    "$${aafwk_path}/interfaces/kits/native/ability/nativeappkit_native",
     "${ability_base_path}:want",
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
     "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_runtime_path}/services/abilitymgr:abilityms",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
