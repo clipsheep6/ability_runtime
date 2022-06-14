@@ -56,6 +56,7 @@ bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObj
     // decided to start continuation. Callback to ability.
     Want want;
     want.SetParam(VERSION_CODE_KEY, static_cast<int32_t>(versionCode));
+    want.SetParam("targetDevice", deviceId);
     WantParams wantParams = want.GetParams();
     int32_t status = continuationManagerTmp->OnContinue(wantParams);
     if (status != ERR_OK) {
