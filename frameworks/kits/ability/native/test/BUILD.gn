@@ -48,7 +48,7 @@ config("module_private_config") {
   if (ability_runtime_graphics) {
     include_dirs += [
       "${global_path}/i18n/frameworks/intl/include",
-      "${form_fwk_path}/interfaces/kits/native/include",
+      "${form_path}/interfaces/kits/native/include",
     ]
   }
 }
