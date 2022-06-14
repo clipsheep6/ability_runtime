@@ -28,6 +28,7 @@
 #include "ability_event_handler.h"
 #include "ability_manager_stub.h"
 #include "app_scheduler.h"
+#include "app_no_response_disposer.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -44,13 +45,15 @@
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
 #include "user_controller.h"
+#ifdef SUPPORT_GRAPHICS
+#include "system_dialog_scheduler.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
 enum class ServiceRunningState { STATE_NOT_START, STATE_RUNNING };
 const int32_t BASE_USER_RANGE = 200000;
 using OHOS::AppExecFwk::IAbilityController;
-
 class PendingWantManager;
 /**
  * @class AbilityManagerService
@@ -929,7 +932,6 @@ private:
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
-
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
@@ -1009,8 +1011,6 @@ private:
     void GrantUriPermission(const Want &want, int32_t validUserId);
     bool VerifyUriPermission(const AbilityRequest &abilityRequest, const Want &want);
 
-    bool SetANRMissionByProcessID(int pid);
-
     void StartMainElement(int userId, std::vector<AppExecFwk::BundleInfo> &bundleInfos);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
@@ -1068,9 +1068,10 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
-
+    std::shared_ptr<SystemDialogScheduler> sysDialogScheduler_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
+    std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

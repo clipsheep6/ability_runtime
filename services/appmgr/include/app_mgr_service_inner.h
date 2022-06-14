@@ -519,6 +519,7 @@ public:
 
     void ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp);
 
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
     /**
      * Notify application status.
      *

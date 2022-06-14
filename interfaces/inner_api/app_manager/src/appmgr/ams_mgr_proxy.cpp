@@ -556,5 +556,38 @@ void AmsMgrProxy::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifi
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
 }
+
+int AmsMgrProxy::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    data.WriteInt32(pid);
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID), data, reply, option);
+    if (ret != NO_ERROR) {
+        return ERR_NULL_OBJECT;
+    }
+    if (!reply.ReadBool()) {
+        HILOG_ERROR("reply result false");
+        return ERR_NULL_OBJECT;
+    }
+    std::unique_ptr<AppExecFwk::ApplicationInfo> info(reply.ReadParcelable<AppExecFwk::ApplicationInfo>());
+    if (!info) {
+        HILOG_ERROR("readParcelableInfo failed");
+        return ERR_NULL_OBJECT;
+    }
+    application = *info;
+    HILOG_DEBUG("get parcelable info success");
+    return 0;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

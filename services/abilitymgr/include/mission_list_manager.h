@@ -339,6 +339,8 @@ public:
     void PauseManager();
     void ResumeManager();
 
+    void SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens);
+
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
