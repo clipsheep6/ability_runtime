@@ -31,8 +31,8 @@ ohos_shared_library("wantagent") {
 
   deps = [
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
-    "${kits_path}/appkit:app_context",
-    "${kits_path}/appkit:appkit_native",
+    "${native_path}/appkit:app_context",
+    "${native_path}/appkit:appkit_native",
   ]
 
   external_deps = [
