@@ -76,8 +76,8 @@ ohos_unittest("context_deal_interface_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
@@ -114,9 +114,9 @@ ohos_unittest("application_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
@@ -127,7 +127,7 @@ ohos_unittest("application_test") {
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
 
-    #"${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    #"${aafwk_path}/frameworks/native/appkit:appkit_native",
   ]
 
   external_deps = [
@@ -152,8 +152,8 @@ ohos_unittest("context_container_test") {
   configs = [ ":module_context_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
@@ -185,8 +185,8 @@ ohos_unittest("context_deal_test") {
   configs = [ ":module_context_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
@@ -219,8 +219,8 @@ ohos_unittest("application_impl_test") {
 
   deps = [
     "${ABILITY_INNERKITS_PATH}/uri_permission:uri_permission_mgr",
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${ability_base_path}:base",
@@ -266,7 +266,7 @@ ohos_unittest("ability_start_setting_test") {
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
     "//utils/native/base:utilsbase",
@@ -294,7 +294,7 @@ ohos_unittest("watchdog_test") {
   sources = [ "unittest/watchdog_test.cpp" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
     "//utils/native/base:utilsbase",

@@ -19,7 +19,7 @@ ohos_shared_library("wantagent") {
     "//third_party/node/src",
     "${services_path}/common/include",
     "//third_party/libuv/include",
-    "${kits_path}/appkit/native/ability_runtime",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime",
     "${services_path}/abilitymgr/include",
     "./",
   ]

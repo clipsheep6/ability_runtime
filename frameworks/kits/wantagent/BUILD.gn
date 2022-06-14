@@ -32,8 +32,8 @@ config("wantagent_innerkits_public_config") {
     "${innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "${kits_path}/appkit/native/app/include",
-    "${kits_path}/appkit/native/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime",
     "//third_party/icu/icu4c/source/common",
   ]
 }

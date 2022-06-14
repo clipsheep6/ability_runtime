@@ -45,8 +45,8 @@ ohos_shared_library("fmsSystemTestHostNotSys") {
   }
   configs = [ ":fmsSystemTestHostNotSysConfig" ]
   deps = [
-    "$${aafwk_path}/interfaces/kits/native/ability/nativeappkit_native",
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
