@@ -81,6 +81,24 @@ public:
      */
     void SetProviderKey(const std::string &bundleName, const std::string &abilityName);
 
+    /**
+     * @brief Set free install true or false
+     *
+     * @param isFreeInstall Indicates the free install flag is true or false
+     */
+    void SetFreeInstall(bool isFreeInstall);
+
+    /**
+     * @brief Set form ID
+     *
+     * @param formId Indicates the form ID
+     */
+    void SetFormId(int64_t formId);
+
+    /**
+     * @brief Obtained form ID
+     */
+    int64_t GetFormId() const;
 private:
     int64_t formId_ = 0;
     std::string deviceId_ = "";

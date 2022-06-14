@@ -142,7 +142,12 @@ void FormSysEventReceiver::HandleProviderUpdated(const std::string &bundleName, 
     for (FormRecord& formRecord : formInfos) {
         HILOG_INFO("%{public}s, provider update, formName:%{public}s", __func__, formRecord.formName.c_str());
         int64_t formId = formRecord.formId;
-        if (ProviderFormUpdated(formId, formRecord, targetForms)) {
+        BundlePackInfo bundlePackInfo;
+        if (!IN_PROCESS_CALL(iBundleMgr->GetBundlePackInfo(bundleName, GET_PACK_INFO_ALL, bundlePackInfo))) {
+            HILOG_ERROR("%{public}s error, failed to get bundle pack info.", __func__);
+        }
+
+        if (ProviderFormUpdated(formId, formRecord, targetForms, bundlePackInfo)) {
             updatedForms.emplace_back(formId);
             continue;
         }
@@ -208,7 +213,7 @@ void FormSysEventReceiver::HandleProviderRemoved(const std::string &bundleName, 
 }
 
 bool FormSysEventReceiver::ProviderFormUpdated(const int64_t formId,
-    const FormRecord &formRecord, const std::vector<FormInfo> &targetForms)
+    const FormRecord &formRecord, const std::vector<FormInfo> &targetForms, BundlePackInfo bundlePackInfo)
 {
     HILOG_INFO("%{public}s start", __func__);
     if (targetForms.empty()) {
@@ -232,6 +237,18 @@ bool FormSysEventReceiver::ProviderFormUpdated(const int64_t formId,
         FormDataMgr::GetInstance().SetVersionUpgrade(formId, true);
         return true;
     }
+
+    AbilityFormInfo packForm;
+    if (FormDataMgr::GetInstance().GetPackageForm(formRecord, bundlePackInfo, packForm)) {
+        HILOG_INFO("%{public}s, form is still in package info, form:%{public}s", __func__, formRecord.formName.c_str());
+        FormDataMgr::GetInstance().SetRecordNeedFreeInstall(formId, true);
+        FormTimerCfg timerCfg;
+        GetTimerCfg(packForm.updateEnabled, packForm.updateDuration, packForm.scheduledUpdateTime, timerCfg);
+        HandleTimerUpdate(formId, formRecord, timerCfg);
+        FormDataMgr::GetInstance().SetVersionUpgrade(formId, true);
+        return true;
+    }
+
     HILOG_INFO("%{public}s, no updated form.", __func__);
     return false;
 }

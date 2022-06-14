@@ -30,10 +30,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 FormRefreshConnection::FormRefreshConnection(const int64_t formId, const Want& want,
-    const std::string &bundleName, const std::string &abilityName)
-    :formId_(formId),
-    want_(want)
+    const std::string &bundleName, const std::string &abilityName, bool isFreeInstall)
+    :want_(want)
 {
+    SetFormId(formId);
+    SetFreeInstall(isFreeInstall);
     SetProviderKey(bundleName, abilityName);
 }
 /**
@@ -47,10 +48,11 @@ FormRefreshConnection::FormRefreshConnection(const int64_t formId, const Want& w
 void FormRefreshConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
+    FormAbilityConnection::OnAbilityConnectDone(element, remoteObject, resultCode);
     HILOG_INFO("%{public}s called.", __func__);
     if (resultCode != ERR_OK) {
         HILOG_ERROR("%{public}s, abilityName:%{public}s, formId:%{public}" PRId64 ", resultCode:%{public}d",
-            __func__, element.GetAbilityName().c_str(), formId_, resultCode);
+            __func__, element.GetAbilityName().c_str(), GetFormId(), resultCode);
         return;
     }
     FormSupplyCallback::GetInstance()->AddConnection(this);
@@ -59,17 +61,17 @@ void FormRefreshConnection::OnAbilityConnectDone(
         std::string message = want_.GetStringParam(Constants::PARAM_MESSAGE_KEY);
         Want msgWant = Want(want_);
         msgWant.SetParam(Constants::FORM_CONNECT_ID, this->GetConnectId());
-        FormTaskMgr::GetInstance().PostFormEventTask(formId_, message, msgWant, remoteObject);
+        FormTaskMgr::GetInstance().PostFormEventTask(GetFormId(), message, msgWant, remoteObject);
     } else if (want_.HasParameter(Constants::RECREATE_FORM_KEY)) {
         Want cloneWant = Want(want_);
         cloneWant.RemoveParam(Constants::RECREATE_FORM_KEY);
         cloneWant.SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_RECREATE_FORM);
         cloneWant.SetParam(Constants::FORM_CONNECT_ID, this->GetConnectId());
-        FormTaskMgr::GetInstance().PostAcquireTask(formId_, cloneWant, remoteObject);
+        FormTaskMgr::GetInstance().PostAcquireTask(GetFormId(), cloneWant, remoteObject);
     } else {
         Want want;
         want.SetParam(Constants::FORM_CONNECT_ID, this->GetConnectId());
-        FormTaskMgr::GetInstance().PostRefreshTask(formId_, want, remoteObject);
+        FormTaskMgr::GetInstance().PostRefreshTask(GetFormId(), want, remoteObject);
     }
 }
 }  // namespace AppExecFwk

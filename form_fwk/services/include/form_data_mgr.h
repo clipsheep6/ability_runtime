@@ -23,6 +23,7 @@
 #include <singleton.h>
 #include <string>
 
+#include "bundle_pack_info.h"
 #include "form_constants.h"
 #include "form_host_record.h"
 #include "form_id_key.h"
@@ -472,6 +473,17 @@ public:
     ErrCode GetRequestPublishFormInfo(int64_t formId, Want &want,
                                       std::unique_ptr<FormProviderData> &formProviderData);
 
+    /**
+     * @brief Get updated form info.
+     * @param record FormRecord.
+     * @param bundlePackInfo Indicates the BundlePackInfo object.
+     * @param abilityFormInfo Indicates the obtained abilityFormInfo object.
+     * @return Returns true on success, false on failure.
+     */
+    bool GetPackageForm(const FormRecord &record, const BundlePackInfo &bundlePackInfo,
+        AbilityFormInfo &abilityFormInfo);
+
+    bool SetRecordNeedFreeInstall(int64_t formId, bool isNeedFreeInstall);
 private:
     /**
      * @brief Create form record.
@@ -521,9 +533,12 @@ private:
      * @brief Check if two forms is same or not.
      * @param record FormRecord.
      * @param formInfo FormInfo.
+     * @param abilityFormInfo AbilityFormInfo.
      * @return Returns true on success, false on failure.
      */
     bool IsSameForm(const FormRecord &record, const FormInfo &formInfo);
+    bool IsSameForm(const FormRecord &record, const AbilityFormInfo &abilityFormInfo);
+
     /**
      * @brief handle update form flag.
      * @param formIDs The id of the forms.
@@ -544,6 +559,10 @@ private:
     */
     ErrCode HandleUpdateHostFormFlag(const std::vector<int64_t> &formIds, bool flag, bool isOnlyEnableUpdate,
                                      FormHostRecord &formHostRecord, std::vector<int64_t> &refreshForms);
+
+    template<typename T>
+    bool GetAbilityFormInfo(const FormRecord &record, const std::vector<T>& abilities,
+        AbilityFormInfo &abilityFormInfo);
 private:
     mutable std::mutex formRecordMutex_;
     mutable std::mutex formHostRecordMutex_;

@@ -29,6 +29,15 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace{
+const std::map<int32_t, std::string> dimensionMap = {
+    {1, "1*2"},
+    {2, "2*2"},
+    {3, "2*4"},
+    {4, "4*4"}
+};
+} // namespace
+
 FormDataMgr::FormDataMgr()
 {
     HILOG_INFO("create form data manager instance");
@@ -1577,6 +1586,86 @@ ErrCode FormDataMgr::GetRequestPublishFormInfo(int64_t formId, Want &want,
     formProviderData = std::move(result->second.second);
     formRequestPublishForms_.erase(result);
     return ERR_OK;
+}
+
+bool FormDataMgr::GetPackageForm(const FormRecord &record, const BundlePackInfo &bundlePackInfo,
+    AbilityFormInfo &abilityFormInfo)
+{
+    HILOG_INFO("%{public}s start, moduleName is %{public}s", __func__, record.moduleName.c_str());
+    std::vector<PackageModule> modules = bundlePackInfo.summary.modules;
+    for (auto &cfg : modules) {
+        HILOG_INFO("%{public}s, try module %{public}s", __func__, cfg.distro.moduleName.c_str());
+        if (record.moduleName != cfg.distro.moduleName) {
+            continue;
+        }
+        HILOG_INFO("%{public}s, has the same module", __func__);
+        std::vector<ModuleAbilityInfo> abilities = cfg.abilities;
+        std::vector<ExtensionAbilities> extensionAbilities = cfg.extensionAbilities;
+        if (!abilities.empty()) {
+            return GetAbilityFormInfo(record, abilities, abilityFormInfo);
+        }
+        if (!extensionAbilities.empty()) {
+            return GetAbilityFormInfo(record, extensionAbilities, abilityFormInfo);
+        }
+        HILOG_WARN("%{public}s, no ability in module:%{public}s", __func__, record.moduleName.c_str());
+        return false;
+    }
+    return false;
+}
+
+template<typename T>
+bool FormDataMgr::GetAbilityFormInfo(const FormRecord &record, const std::vector<T>& abilities,
+    AbilityFormInfo &abilityFormInfo)
+{
+    for (const T& abilityInfo : abilities) {
+        if (abilityInfo.name != record.abilityName) {
+            continue;
+        }
+        std::vector<AbilityFormInfo> forms = abilityInfo.forms;
+        for (auto &item : forms) {
+            if (IsSameForm(record, item)) {
+                abilityFormInfo = item;
+                HILOG_INFO("%{public}s find matched abilityFormInfo", __func__);
+                return true;
+            }
+        }
+    }
+    HILOG_INFO("%{public}s, no matched abilityFormInfo, module is %{public}s", __func__, record.moduleName.c_str());
+    return false;
+}
+
+bool FormDataMgr::IsSameForm(const FormRecord &record, const AbilityFormInfo &abilityFormInfo)
+{
+    auto search  = dimensionMap.find(record.specification);
+    if (search == dimensionMap.end()) {
+        HILOG_ERROR("%{public}s, specification:%{public}d is invalid", __func__, record.specification);
+        return false;
+    }
+    auto dimension = search->second;
+    auto supportDimensions = abilityFormInfo.supportDimensions;
+    if (record.formName == abilityFormInfo.name &&
+        std::find(supportDimensions.begin(), supportDimensions.end(), dimension) != supportDimensions.end()) {
+        return true;
+    }
+
+    HILOG_INFO("%{public}s, no same form, record is %{public}s, dimension is %{public}s, abilityFormInfo is %{public}s",
+        __func__, record.formName.c_str(), dimension.c_str(), abilityFormInfo.name.c_str());
+
+    return false;
+}
+
+bool FormDataMgr::SetRecordNeedFreeInstall(int64_t formId, bool isNeedFreeInstall)
+{
+    HILOG_INFO("%{public}s, get form record by formId", __func__);
+    std::lock_guard<std::mutex> lock(formRecordMutex_);
+    auto item = formRecords_.find(formId);
+    if (item == formRecords_.end()) {
+        HILOG_ERROR("%{public}s, form record not find", __func__);
+        return false;
+    }
+    item->second.needFreeInstall = isNeedFreeInstall;
+    HILOG_INFO("%{public}s, set form record need free install flag successfully", __func__);
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

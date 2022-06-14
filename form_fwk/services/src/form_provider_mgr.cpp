@@ -148,8 +148,6 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want, boo
     }
 
     FormRecord refreshRecord = GetFormAbilityInfo(record);
-    refreshRecord.isInited = record.isInited;
-    refreshRecord.versionUpgrade = record.versionUpgrade;
     refreshRecord.isCountTimerRefresh = isTimerRefresh;
     return ConnectAmsForRefresh(formId, refreshRecord, newWant, isTimerRefresh);
 }
@@ -166,14 +164,18 @@ ErrCode FormProviderMgr::RefreshForm(const int64_t formId, const Want &want, boo
 ErrCode FormProviderMgr::ConnectAmsForRefresh(const int64_t formId,
     const FormRecord &record, const Want &want, const bool isTimerRefresh)
 {
-    HILOG_DEBUG("%{public}s called, bundleName:%{public}s, abilityName:%{public}s.",
-        __func__, record.bundleName.c_str(), record.abilityName.c_str());
+    HILOG_INFO("%{public}s called, bundleName:%{public}s, abilityName:%{public}s, needFreeInstall:%{public}d.",
+        __func__, record.bundleName.c_str(), record.abilityName.c_str(), record.needFreeInstall);
 
     sptr<IAbilityConnection> formRefreshConnection = new FormRefreshConnection(formId, want,
-        record.bundleName, record.abilityName);
+        record.bundleName, record.abilityName, record.needFreeInstall);
     Want connectWant;
     connectWant.AddFlags(Want::FLAG_ABILITY_FORM_ENABLED);
     connectWant.SetElementName(record.bundleName, record.abilityName);
+
+    if (record.needFreeInstall) {
+        return ReBindByFreeInstall(connectWant, record, formRefreshConnection);
+    }
 
     if (isTimerRefresh) {
         if (!FormTimerMgr::GetInstance().IsLimiterEnableRefresh(formId)) {
@@ -426,7 +428,11 @@ FormRecord FormProviderMgr::GetFormAbilityInfo(const FormRecord &record) const
 {
     FormRecord newRecord;
     newRecord.bundleName = record.bundleName;
+    newRecord.moduleName = record.moduleName;
     newRecord.abilityName = record.abilityName;
+    newRecord.isInited = record.isInited;
+    newRecord.versionUpgrade = record.versionUpgrade;
+    newRecord.needFreeInstall = record.needFreeInstall;
 
     return newRecord;
 }
@@ -437,6 +443,20 @@ bool FormProviderMgr::IsFormCached(const FormRecord &record)
         return false;
     }
     return FormCacheMgr::GetInstance().IsExist(record.formId);
+}
+
+ErrCode FormProviderMgr::ReBindByFreeInstall(Want &want, const FormRecord &record,
+    sptr<AAFwk::IAbilityConnection> formRefreshConnection)
+{
+    HILOG_INFO("%{public}s start", __func__);
+    want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND | Want::FLAG_INSTALL_WITH_BACKGROUND_MODE);
+    want.SetModuleName(record.moduleName);
+    ErrCode errorCode = FormAmsHelper::GetInstance().ConnectServiceAbility(want, formRefreshConnection);
+    if (errorCode != ERR_OK) {
+        HILOG_ERROR("%{public}s, ConnectServiceAbility failed.", __func__);
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
