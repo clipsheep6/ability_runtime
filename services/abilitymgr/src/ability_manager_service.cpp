@@ -362,8 +362,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (callerToken != nullptr) {
         if (CheckIfOperateRemote(want)) {
-            if (IsStartFreeInstall(want)) {
-                return StartFreeInstall(want, callerToken, requestCode, validUserId);
+            if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+                return freeInstallManager_->FreeInstall(
+                    want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
             }
             if (requestCode == DEFAULT_REQUEST_CODE) {
                 HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
@@ -376,10 +377,11 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return StartRemoteAbility(newWant, requestCode);
         }
     }
-    if (IsStartFreeInstall(want)) {
-        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+    if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+        int ret = freeInstallManager_->FreeInstall(
+            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -480,14 +482,15 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    if (IsStartFreeInstall(want)) {
-        if (CheckIfOperateRemote(want)) {
+    if (AbilityUtil::IsStartFreeInstall(want)) {
+        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+        int ret = freeInstallManager_->FreeInstall(
+            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -614,14 +617,15 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    if (IsStartFreeInstall(want)) {
-        if (CheckIfOperateRemote(want)) {
+    if (AbilityUtil::IsStartFreeInstall(want)) {
+        if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = StartFreeInstall(want, callerToken, requestCode, validUserId);
+        int ret = freeInstallManager_->FreeInstall(
+            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -711,15 +715,6 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     return ret;
 }
 
-bool AbilityManagerService::IsStartFreeInstall(const Want &want)
-{
-    auto flags = want.GetFlags();
-    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-        return true;
-    }
-    return false;
-}
-
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -727,13 +722,6 @@ bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 #else
     return false;
 #endif
-}
-
-int AbilityManagerService::StartFreeInstall(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
-{
-    HILOG_INFO("StartAbility with free install flags");
-    return freeInstallManager_->StartFreeInstall(want, userId, callerToken, requestCode, CheckIfOperateRemote(want));
 }
 
 int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -1293,12 +1281,14 @@ int AbilityManagerService::ConnectAbility(
         return ERR_INVALID_VALUE;
     }
 
-    int result = freeInstallManager_->IsConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
-    if (result != ERR_OK) {
-        eventInfo.errCode = result;
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return result;
+    if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
+        if (result != ERR_OK) {
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+            return result;
+        }
     }
 
     Want abilityWant = want;
@@ -4672,6 +4662,10 @@ int AbilityManagerService::FreeInstallAbilityFromRemote(const Want &want, const 
     int32_t userId, int requestCode)
 {
     int32_t validUserId = GetValidUserId(userId);
+    if (freeInstallManager_ == nullptr) {
+        HILOG_ERROR("freeInstallManager_ is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     return freeInstallManager_->FreeInstallAbilityFromRemote(want, callback, validUserId, requestCode);
 }
 

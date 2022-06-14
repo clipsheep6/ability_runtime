@@ -551,9 +551,7 @@ public:
         int requestCode,
         int callerUid = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
-        
-    bool IsStartFreeInstall(const Want &want);
-    int StartFreeInstall(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId);
+
     int CheckPermission(const std::string &bundleName, const std::string &permission);
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
@@ -1015,9 +1013,6 @@ private:
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
-    int StartFreeInstall(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken);
-    bool CheckIsFreeInstall(const Want &want);
     bool CheckTargetBundleList(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
     void HandleFreeInstallErrorCode(int &resultCode);
     int NotifyDmsCallback(const Want &want, int resultCode);

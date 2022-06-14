@@ -137,6 +137,15 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return (int64_t)(t.tv_sec);
 }
 
+[[maybe_unused]] static bool IsStartFreeInstall(const Want &want)
+{
+    auto flags = want.GetFlags();
+    if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
+        return true;
+    }
+    return false;
+}
+
 static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
 {
     auto bundleObj =
