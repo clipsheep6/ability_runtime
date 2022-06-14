@@ -1517,6 +1517,11 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
 
 void MainThread::HandleSignal(int signal)
 {
+    if (dfxHandler_ == nullptr) {
+        HILOG_ERROR("HandleSignal error, dfxHandler_ is nullptr.");
+        return;
+    }
+
     switch (signal) {
         case SIGUSR1: {
             dfxHandler_->PostTask(&MainThread::HandleScheduleANRProcess);
