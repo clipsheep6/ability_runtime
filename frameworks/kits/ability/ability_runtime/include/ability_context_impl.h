@@ -130,6 +130,7 @@ public:
     void SetConfiguration(const std::shared_ptr<AppExecFwk::Configuration> &config) override;
 
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
+
     /**
      * call function by callback object
      *
@@ -184,23 +185,25 @@ public:
     ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
     
     /**
-     * get current window mode
+     * @brief get current window mode.
+     *
+     * @return Returns the current window mode.
      */
     int GetCurrentWindowMode() override;
 #endif
 
 private:
-    sptr<IRemoteObject> token_;
+    sptr<IRemoteObject> token_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_ = nullptr;
     std::shared_ptr<AbilityRuntime::Context> stageContext_ = nullptr;
     std::map<int, RuntimeTask> resultCallbacks_;
     std::map<int, PermissionRequestTask> permissionRequestCallbacks_;
     std::unique_ptr<NativeReference> contentStorage_ = nullptr;
-    std::shared_ptr<AppExecFwk::Configuration> config_;
-    sptr<LocalCallContainer> localCallContainer_;
+    std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
+    sptr<LocalCallContainer> localCallContainer_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_ABILITY_CONTEXT_IMPL_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_ABILITY_CONTEXT_IMPL_H

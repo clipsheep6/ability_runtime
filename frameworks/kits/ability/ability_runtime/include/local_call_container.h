@@ -43,13 +43,13 @@ public:
     virtual void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
 
 private:
-    bool GetCallLocalreocrd(
+    bool GetCallLocalRecord(
         const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord);
     void OnCallStubDied(const wptr<IRemoteObject> &remote);
 
 private:
     std::map<std::string, std::shared_ptr<LocalCallRecord>> callProxyRecords_;
 };
-}  // namespace AbilityRuntime
-}  // namespace OHOS
-#endif  // ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H
+} // namespace AbilityRuntime
+} // namespace OHOS
+#endif // ABILITY_RUNTIME_LOCAL_CALL_CONTAINER_H

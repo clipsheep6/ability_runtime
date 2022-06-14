@@ -36,7 +36,6 @@ const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.Grant
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string STATE_KEY = "ohos.user.grant.permission.state";
 
-
 std::string AbilityContextImpl::GetBaseDir() const
 {
     return stageContext_ ? stageContext_->GetBaseDir() : "";
@@ -89,7 +88,7 @@ bool AbilityContextImpl::PrintDrawnCompleted()
 
 void AbilityContextImpl::SwitchArea(int mode)
 {
-    HILOG_DEBUG("AbilityContextImpl::SwitchArea.");
+    HILOG_INFO("AbilityContextImpl::SwitchArea to %{public}d.", mode);
     if (stageContext_ != nullptr) {
         stageContext_->SwitchArea(mode);
     }
@@ -135,9 +134,7 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want &want, const AAFwk::S
 ErrCode AbilityContextImpl::StartAbilityWithAccount(
     const AAFwk::Want &want, int accountId, const AAFwk::StartOptions &startOptions, int requestCode)
 {
-    HILOG_DEBUG("AbilityContextImpl::StartAbilityWithAccount. Start calling StartAbility.");
-    HILOG_INFO(
-        "%{public}s called, bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_INFO("%{public}s called, bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(
         want, startOptions, token_, requestCode, accountId);
@@ -157,11 +154,10 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, int r
 ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     const AAFwk::Want &want, const int accountId, int requestCode, RuntimeTask &&task)
 {
-    HILOG_DEBUG("%{public}s. Start calling StartAbilityForResultWithAccount. accountId:%{public}d",
-        __func__, accountId);
+    HILOG_DEBUG("%{public}s called, accountId:%{public}d", __func__, accountId);
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, accountId);
-    HILOG_INFO("%{public}s. End calling StartAbilityForResultWithAccount. ret=%{public}d", __func__, err);
+    HILOG_INFO("%{public}s end. ret=%{public}d", __func__, err);
     return err;
 }
 
@@ -189,9 +185,7 @@ ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
 
 ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want, int32_t accountId)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    HILOG_INFO(
-        "%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_INFO("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartExtensionAbility(
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
@@ -203,9 +197,7 @@ ErrCode AbilityContextImpl::StartServiceExtensionAbility(const AAFwk::Want &want
 
 ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want, int32_t accountId)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    HILOG_INFO(
-        "%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
+    HILOG_INFO("%{public}s begin. bundleName=%{public}s, abilityName=%{public}s, accountId=%{public}d",
         __func__, want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), accountId);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopExtensionAbility(
         want, token_, accountId, AppExecFwk::ExtensionAbilityType::SERVICE);
@@ -237,14 +229,11 @@ void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const 
     HILOG_INFO("%{public}s. End calling OnAbilityResult.", __func__);
 }
 
-bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want,
-                                        const sptr<AbilityConnectCallback> &connectCallback)
+bool AbilityContextImpl::ConnectAbility(const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Connect ability begin, ability:%{public}s.",
-        abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
-    ErrCode ret =
-        ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
+    HILOG_DEBUG("ConnectAbility begin, name:%{public}s.", abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
+    ErrCode ret = ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
     HILOG_INFO("AbilityContextImpl::ConnectAbility ErrorCode = %{public}d", ret);
     return ret == ERR_OK;
 }
@@ -263,7 +252,7 @@ void AbilityContextImpl::DisconnectAbility(const AAFwk::Want &want,
                                            const sptr<AbilityConnectCallback> &connectCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Disconnect ability begin, caller:%{public}s.",
+    HILOG_DEBUG("DisconnectAbility begin, caller:%{public}s.",
         abilityInfo_ == nullptr ? "" : abilityInfo_->name.c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().DisconnectAbility(token_, want.GetElement(), connectCallback);
@@ -381,13 +370,13 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
     int requestCode, PermissionRequestTask &&task)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    if (permissions.size() == 0 || requestCode < 0) {
+    if (permissions.empty() || requestCode < 0) {
         HILOG_ERROR("%{public}s. The params are invalid.", __func__);
         return;
     }
 
     std::vector<PermissionListState> permList;
-    for (auto permission : permissions) {
+    for (const auto& permission : permissions) {
         HILOG_DEBUG("%{public}s. permission: %{public}s.", __func__, permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
@@ -404,7 +393,7 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
     }
 
     std::vector<int> permissionsState;
-    for (auto permState : permList) {
+    for (const auto& permState : permList) {
         HILOG_DEBUG("%{public}s. permissions: %{public}s. permissionsState: %{public}u",
             __func__, permState.permissionName.c_str(), permState.state);
         permissionsState.emplace_back(permState.state);
@@ -420,7 +409,7 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
         permissionRequestCallbacks_.insert(make_pair(requestCode, std::move(task)));
         HILOG_DEBUG("%{public}s. Start calling StartAbility.", __func__);
         ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
-        HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
+        HILOG_INFO("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
     } else {
         HILOG_DEBUG("%{public}s. No dynamic popup required.", __func__);
         if (task) {
@@ -453,17 +442,20 @@ ErrCode AbilityContextImpl::StartAbility(
     const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
 {
     if (localCallContainer_ == nullptr) {
-        localCallContainer_ = new (std::nothrow)LocalCallContainer();
+        localCallContainer_ = new (std::nothrow) LocalCallContainer();
+        if (localCallContainer_ == nullptr) {
+            HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
+            return ERR_INVALID_VALUE;
+        }
     }
-
     return localCallContainer_->StartAbilityInner(want, callback, token_);
 }
 
 ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback)
 {
     HILOG_DEBUG("AbilityContextImpl::Release begain.");
-    if (!localCallContainer_) {
-        HILOG_ERROR("%{public}s false.", __func__);
+    if (localCallContainer_ == nullptr) {
+        HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
     HILOG_DEBUG("AbilityContextImpl::Release end.");
@@ -507,5 +499,5 @@ int AbilityContextImpl::GetCurrentWindowMode()
     return abilityCallback->GetCurrentWindowMode();
 }
 #endif
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS
