@@ -16,6 +16,7 @@
 #ifndef FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_PROVIDER_RECEIVER_H
 #define FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_PROVIDER_RECEIVER_H
 
+#include "bundle_pack_info.h"
 #include "common_event_subscriber.h"
 #include "common_event_subscribe_info.h"
 #include "event_handler.h"
@@ -51,8 +52,8 @@ public:
     }
 private:
     void HandleProviderUpdated(const std::string &bundleName, const int userId);
-    bool ProviderFormUpdated(const int64_t formId, const FormRecord &formRecord,
-    const std::vector<FormInfo> &targetForms);
+    bool ProviderFormUpdated(const int64_t formId, FormRecord &formRecord,
+        const std::vector<FormInfo> &targetForms, BundlePackInfo bundlePackInfo);
     void HandleBundleFormInfoChanged(const std::string &bundleName, int32_t userId);
     void HandleBundleFormInfoRemoved(const std::string &bundleName, int32_t userId);
     void HandleProviderRemoved(const std::string &bundleName, const int32_t userId);

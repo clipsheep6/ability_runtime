@@ -19,8 +19,14 @@
 #include <cinttypes>
 
 #include "appexecfwk_errors.h"
+#include "form_bms_helper.h"
+#include "form_data_mgr.h"
+#include "form_db_cache.h"
+#include "form_info.h"
+#include "form_info_mgr.h"
 #include "form_supply_callback.h"
 #include "form_task_mgr.h"
+#include "form_timer_mgr.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -43,10 +49,41 @@ void FormAbilityConnection::OnAbilityConnectDone(
         return;
     }
 
-    if (isFreeInstall_) {
-        // Handle free install for form provider app
-        HILOG_INFO("%{public}s current is Free Install.", __func__);
+    if (!isFreeInstall_) {
+        return;
     }
+
+    // Handle free install for form provider app
+    HILOG_INFO("%{public}s current is Free Install.", __func__);
+    std::vector<FormInfo> targetForms;
+    if (FormInfoMgr::GetInstance().GetFormsInfoByBundle(bundleName_, targetForms) != ERR_OK) {
+        HILOG_ERROR("%{public}s error, failed to get forms info.", __func__);
+        return;
+    }
+
+    FormRecord formRecord;
+    if (!FormDataMgr::GetInstance().GetFormRecord(formId_, formRecord)) {
+        HILOG_ERROR("%{public}s error, not exist such form:%{public}" PRId64 ".", __func__, formId_);
+        return;
+    }
+
+    FormInfo updatedForm;
+    if (FormDataMgr::GetInstance().GetUpdatedForm(formRecord, targetForms, updatedForm)) {
+        HILOG_INFO("%{public}s, refresh form", __func__);
+        FormDataMgr::GetInstance().SetNeedRefresh(formId_, true);
+        FormBmsHelper::GetInstance().NotifyModuleNotRemovable(formRecord.bundleName, formRecord.moduleName);
+    }
+
+    // delete form
+    if (formRecord.formTempFlg) {
+        FormDataMgr::GetInstance().DeleteTempForm(formId_);
+    } else {
+        FormDbCache::GetInstance().DeleteFormInfo(formId_);
+    }
+    FormDataMgr::GetInstance().DeleteFormRecord(formId_);
+    const std::vector<int64_t> removedForms{formId_};
+    FormDataMgr::GetInstance().CleanHostRemovedForms(removedForms);
+    FormTimerMgr::GetInstance().RemoveFormTimer(formId_);
 }
 
 /**
@@ -122,6 +159,21 @@ void FormAbilityConnection::SetProviderKey(const std::string &bundleName, const 
 {
     bundleName_ = bundleName;
     abilityName_ = abilityName;
+}
+
+void FormAbilityConnection::SetFreeInstall(bool isFreeInstall)
+{
+    isFreeInstall_ = isFreeInstall;
+}
+
+void FormAbilityConnection::SetFormId(int64_t formId)
+{
+    formId_ = formId;
+}
+
+int64_t FormAbilityConnection::GetFormId() const
+{
+    return formId_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

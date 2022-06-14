@@ -170,10 +170,14 @@ ErrCode FormProviderMgr::ConnectAmsForRefresh(const int64_t formId,
         __func__, record.bundleName.c_str(), record.abilityName.c_str());
 
     sptr<IAbilityConnection> formRefreshConnection = new FormRefreshConnection(formId, want,
-        record.bundleName, record.abilityName);
+        record.bundleName, record.abilityName, record.needFreeInstall);
     Want connectWant;
     connectWant.AddFlags(Want::FLAG_ABILITY_FORM_ENABLED);
     connectWant.SetElementName(record.bundleName, record.abilityName);
+
+    if (record.needFreeInstall) {
+        return ReBindByFreeInstall(connectWant, record, formRefreshConnection);
+    }
 
     if (isTimerRefresh) {
         if (!FormTimerMgr::GetInstance().IsLimiterEnableRefresh(formId)) {
@@ -437,6 +441,19 @@ bool FormProviderMgr::IsFormCached(const FormRecord &record)
         return false;
     }
     return FormCacheMgr::GetInstance().IsExist(record.formId);
+}
+
+ErrCode FormProviderMgr::ReBindByFreeInstall(Want &want, const FormRecord &record,
+    sptr<AAFwk::IAbilityConnection> formRefreshConnection)
+{
+    want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND | Want::FLAG_INSTALL_WITH_BACKGROUND_MODE);
+    want.SetModuleName(record.moduleName);
+    ErrCode errorCode = FormAmsHelper::GetInstance().ConnectServiceAbility(want, formRefreshConnection);
+    if (errorCode != ERR_OK) {
+        HILOG_ERROR("%{public}s, ConnectServiceAbility failed.", __func__);
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
