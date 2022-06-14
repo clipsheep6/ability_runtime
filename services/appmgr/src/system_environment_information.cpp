@@ -14,13 +14,7 @@
  */
 #include "system_environment_information.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <memory>
 #include <regex>
-#include <string>
 
 #include "hilog_wrapper.h"
 #include "kernel_system_memory_info.h"

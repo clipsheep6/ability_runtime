@@ -15,8 +15,6 @@
 
 #include "ability_connect_manager.h"
 
-#include <algorithm>
-
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"

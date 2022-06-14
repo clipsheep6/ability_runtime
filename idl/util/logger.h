@@ -16,8 +16,6 @@
 #ifndef OHOS_IDL_LOGGER_H
 #define OHOS_IDL_LOGGER_H
 
-#include <cstdarg>
-
 namespace OHOS {
 namespace Idl {
 class Logger {

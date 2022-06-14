@@ -16,8 +16,6 @@
 #ifndef OHOS_IDL_METAMETHOD_H
 #define OHOS_IDL_METAMETHOD_H
 
-#include "meta_patameter.h"
-
 namespace OHOS {
 namespace Idl {
 struct MetaMethod {

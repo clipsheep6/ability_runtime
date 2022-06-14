@@ -14,7 +14,6 @@
  */
 
 #include "app_process_manager.h"
-#include <csignal>
 
 #include "hilog_wrapper.h"
 
