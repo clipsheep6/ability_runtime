@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
 #include "app_mgr_service_inner.h"
 #include "ability_running_record.h"
-#include <gtest/gtest.h>
 #include "app_running_record.h"
 #include "app_scheduler_host.h"
 #include "hilog_wrapper.h"

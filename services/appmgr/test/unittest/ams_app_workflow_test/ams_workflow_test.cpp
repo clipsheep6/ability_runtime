@@ -326,7 +326,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
     serviceInner_->ApplicationForegrounded(appB.appRecord_->GetRecordId());
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 
@@ -368,9 +368,9 @@ HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
-    serviceInner_->TerminateAbility(tokenB);
+    serviceInner_->TerminateAbility(tokenB, false);
     serviceInner_->AbilityTerminated(tokenB);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 
@@ -418,9 +418,9 @@ HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
-    serviceInner_->TerminateAbility(tokenB);
+    serviceInner_->TerminateAbility(tokenB, false);
     serviceInner_->AbilityTerminated(tokenB);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 
@@ -531,7 +531,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 
@@ -564,9 +564,9 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
-    serviceInner_->TerminateAbility(tokenB);
+    serviceInner_->TerminateAbility(tokenB, false);
     serviceInner_->AbilityTerminated(tokenB);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 
@@ -600,9 +600,9 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->ApplicationBackgrounded(appA.appRecord_->GetRecordId());
-    serviceInner_->TerminateAbility(tokenA);
+    serviceInner_->TerminateAbility(tokenA, false);
     serviceInner_->AbilityTerminated(tokenA);
-    serviceInner_->TerminateAbility(tokenB);
+    serviceInner_->TerminateAbility(tokenB, false);
     serviceInner_->AbilityTerminated(tokenB);
     serviceInner_->ApplicationTerminated(appA.appRecord_->GetRecordId());
 

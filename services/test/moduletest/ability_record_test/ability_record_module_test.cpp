@@ -233,7 +233,7 @@ HWTEST_F(AbilityRecordModuleTest, TerminateAbility_001, TestSize.Level3)
         auto mockAppMgrClient = std::make_unique<MockAppMgrClient>();
         EXPECT_TRUE(mockAppMgrClient);
 
-        EXPECT_CALL(*mockAppMgrClient, TerminateAbility(_)).Times(1).WillOnce(Return(RESULT_OK));
+        EXPECT_CALL(*mockAppMgrClient, TerminateAbility(_, _)).Times(1).WillOnce(Return(RESULT_OK));
 
         auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
         auto backupAppMgrClient = std::move(appScheduler->appMgrClient_);

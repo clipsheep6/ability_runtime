@@ -275,7 +275,7 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateToTerminate(
     const sptr<MockAppScheduler> &mockAppScheduler, const sptr<IRemoteObject> &token) const
 {
     EXPECT_CALL(*mockAppScheduler, ScheduleCleanAbility(_)).Times(1);
-    serviceInner_->TerminateAbility(token);
+    serviceInner_->TerminateAbility(token, false);
 }
 
 void AmsAppLifeCycleModuleTest::CheckState(const std::shared_ptr<AppRunningRecord> &appRunningRecord,

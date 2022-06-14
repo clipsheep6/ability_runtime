@@ -135,7 +135,8 @@ public:
     void HandleTerminateTimeOut(int64_t eventId);
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecord(const int64_t eventId);
-    void TerminateAbility(const sptr<IRemoteObject> &token);
+    void TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag,
+        std::shared_ptr<AppMgrServiceInner> appMgrServiceInner);
     bool ProcessExitByBundleNameAndUid(const std::string &bundleName, const int uid, std::list<pid_t> &pids);
     bool GetPidsByUserId(int32_t userId, std::list<pid_t> &pids);
 

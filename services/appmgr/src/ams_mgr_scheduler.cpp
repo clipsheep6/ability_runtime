@@ -92,13 +92,13 @@ void AmsMgrScheduler::UpdateExtensionState(const sptr<IRemoteObject> &token, con
     amsHandler_->PostTask(updateExtensionStateFunc, TASK_UPDATE_EXTENSION_STATE);
 }
 
-void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
+void AmsMgrScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag)
 {
     if (!IsReady()) {
         return;
     }
     std::function<void()> terminateAbilityFunc =
-        std::bind(&AppMgrServiceInner::TerminateAbility, amsMgrServiceInner_, token);
+        std::bind(&AppMgrServiceInner::TerminateAbility, amsMgrServiceInner_, token, clearMissionFlag);
     amsHandler_->PostTask(terminateAbilityFunc, TASK_TERMINATE_ABILITY);
 }
 

@@ -202,7 +202,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_006, TestSize.Level1)
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
 
-    EXPECT_NE((int)ERR_OK, DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token));
+    EXPECT_NE((int)ERR_OK, DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token, false));
 }
 
 /*
@@ -225,7 +225,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_007, TestSize.Level1)
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
 
-    EXPECT_EQ((int)ERR_OK, DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token));
+    EXPECT_EQ((int)ERR_OK, DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token, false));
 }
 
 /*

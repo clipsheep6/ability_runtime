@@ -68,6 +68,10 @@ ohos_moduletest("IpcAbilitySchedulerModuleTest") {
     "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("moduletest") {

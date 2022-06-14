@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 
 #define PAC_MPA_TEST_INT 1000
-#define PAC_MAP_TEST_LONG -1000
+#define PAC_MAP_TEST_LONG (-1000)
 #define PAC_MAP_TEST_FLOAT 1.0f
 #define PAC_MAP_TEST_DOUBLE 3.1415926
 namespace {

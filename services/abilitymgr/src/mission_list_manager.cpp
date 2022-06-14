@@ -1296,6 +1296,7 @@ int MissionListManager::ClearMissionLocked(int missionId, std::shared_ptr<Missio
     }
 
     abilityRecord->SetTerminatingState();
+    abilityRecord->SetClearMissionFlag(true);
     auto ret = TerminateAbilityLocked(abilityRecord, false);
     if (ret != ERR_OK) {
         HILOG_ERROR("clear mission error: %{public}d.", ret);
@@ -1333,6 +1334,12 @@ void MissionListManager::ClearAllMissionsLocked(std::list<std::shared_ptr<Missio
         auto mission = (*listIter);
         listIter++;
         if (!mission || mission->IsLockedState()) {
+            continue;
+        }
+
+        auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+        if (abilityMs_->IsBackgroundTaskUid(mission->GetAbilityRecord()->GetUid())) {
+            HILOG_INFO("the mission is background task, do not need clear");
             continue;
         }
 

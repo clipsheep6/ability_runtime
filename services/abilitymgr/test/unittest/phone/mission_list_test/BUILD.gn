@@ -59,6 +59,10 @@ ohos_unittest("mission_list_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 ohos_unittest("mission_list_test_call") {
@@ -88,6 +92,10 @@ ohos_unittest("mission_list_test_call") {
     "ability_base:zuri",
     "hiviewdfx_hilog_native:libhilog",
   ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
 }
 
 group("unittest") {

@@ -53,7 +53,7 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     return ERR_OK;
 }
 
-int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token)
+int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool isClearMissionFlag)
 {
     HILOG_INFO("Test AppScheduler::TerminateAbility()");
     return ERR_OK;
