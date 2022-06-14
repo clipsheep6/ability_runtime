@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,9 +19,7 @@
 #include <list>
 #include <string>
 #include <memory>
-#include <mutex>
 #include <condition_variable>
-#include <chrono>
 
 #include "ability_record.h"
 #include "data_ability_caller_recipient.h"

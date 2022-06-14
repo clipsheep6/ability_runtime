@@ -18,11 +18,6 @@
 
 #include <cstring>
 
-#include "meta_interface.h"
-#include "meta_namespace.h"
-#include "meta_sequenceable.h"
-#include "meta_type.h"
-
 namespace OHOS {
 namespace Idl {
 static constexpr int METADATA_MAGIC_NUMBER = 0x1DF02ED1;

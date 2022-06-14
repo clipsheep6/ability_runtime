@@ -16,8 +16,6 @@
 #ifndef OHOS_IDL_METAINTERFACE_H
 #define OHOS_IDL_METAINTERFACE_H
 
-#include "meta_method.h"
-
 namespace OHOS {
 namespace Idl {
 struct MetaInterface {
