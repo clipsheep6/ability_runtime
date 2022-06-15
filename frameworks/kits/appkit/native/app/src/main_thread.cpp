@@ -71,8 +71,8 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
-constexpr int SIGNAL_JS_HEAP = 37;
-constexpr int SIGNAL_JS_HEAP_PRIV = 38;
+constexpr int SIGNAL_JS_HEAP = 39;
+constexpr int SIGNAL_JS_HEAP_PRIV = 40;
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_VERSION[] = "VERSION";
