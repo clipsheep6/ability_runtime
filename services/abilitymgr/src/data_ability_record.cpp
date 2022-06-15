@@ -179,7 +179,7 @@ int DataAbilityRecord::OnTransitionDone(int state)
     return ERR_OK;
 }
 
-int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isSystem)
+int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isSaCall)
 {
     HILOG_INFO("Adding data ability client...");
 
@@ -204,7 +204,7 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
         return ERR_NULL_OBJECT;
     }
 
-    if (isSystem) {
+    if (isSaCall) {
         HILOG_ERROR("When the caller is system,add death monitoring");
         if (client != nullptr && callerDeathRecipient_ != nullptr) {
             client->RemoveDeathRecipient(callerDeathRecipient_);
@@ -227,8 +227,8 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     auto &clientInfo = clients_.emplace_back();
     clientInfo.client = client;
     clientInfo.tryBind = tryBind;
-    clientInfo.isSystem = isSystem;
-    if (!isSystem) {
+    clientInfo.isSaCall = isSaCall;
+    if (!isSaCall) {
         auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
         appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 1);
@@ -244,7 +244,7 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     return ERR_OK;
 }
 
-int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isSystem)
+int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isSaCall)
 {
     HILOG_INFO("Removing data ability client...");
 
@@ -276,7 +276,7 @@ int DataAbilityRecord::RemoveClient(const sptr<IRemoteObject> &client, bool isSy
 
     for (auto it(clients_.begin()); it != clients_.end(); ++it) {
         if (it->client == client) {
-            if (!isSystem) {
+            if (!isSaCall) {
                 auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
                 CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
                 appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 0);
@@ -324,7 +324,7 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
         HILOG_DEBUG("Removing data ability clients with filter...");
         auto it = clients_.begin();
         while (it != clients_.end()) {
-            if (!it->isSystem) {
+            if (!it->isSaCall) {
                 auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
                 if (!clientAbilityRecord) {
                     HILOG_ERROR("clientAbilityRecord is nullptr, continue.");
@@ -351,7 +351,7 @@ int DataAbilityRecord::RemoveClients(const std::shared_ptr<AbilityRecord> &clien
         HILOG_DEBUG("Removing data ability clients...");
         auto it = clients_.begin();
         while (it != clients_.end()) {
-            if (!it->isSystem) {
+            if (!it->isSaCall) {
                 auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
                 if (!clientAbilityRecord) {
                     HILOG_DEBUG("clientAbilityRecord is null,clear record");
@@ -404,7 +404,7 @@ int DataAbilityRecord::KillBoundClientProcesses()
     }
 
     for (auto it = clients_.begin(); it != clients_.end(); ++it) {
-        if (it->tryBind && it->isSystem == false) {
+        if (it->tryBind && it->isSaCall == false) {
             auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
             CHECK_POINTER_CONTINUE(clientAbilityRecord);
             HILOG_INFO("Killing bound client '%{public}s|%{public}s' of data ability '%{public}s|%{public}s'...",
@@ -451,7 +451,7 @@ void DataAbilityRecord::Dump() const
     int i = 0;
 
     for (auto it = clients_.begin(); it != clients_.end(); ++it) {
-        if (it->isSystem == false) {
+        if (it->isSaCall == false) {
             auto clientAbilityRecord = Token::GetAbilityRecordByToken(it->client);
             CHECK_POINTER_CONTINUE(clientAbilityRecord);
             HILOG_INFO("  %{public}2d '%{public}s|%{public}s' - tryBind: %{public}s",
@@ -481,17 +481,17 @@ void DataAbilityRecord::Dump(std::vector<std::string> &info) const
     info.emplace_back("    Clients: " + std::to_string(clients_.size()));
 
     for (auto &&client : clients_) {
-        if (client.isSystem == false) {
+        if (client.isSaCall == false) {
             auto clientAbilityRecord = Token::GetAbilityRecordByToken(client.client);
             CHECK_POINTER_CONTINUE(clientAbilityRecord);
             info.emplace_back("     > " + clientAbilityRecord->GetAbilityInfo().bundleName + "/" +
                               clientAbilityRecord->GetAbilityInfo().name + "  tryBind #" +
-                              (client.tryBind ? "true" : "false") + "  isSystem  # " +
-                              (client.isSystem ? "true" : "false"));
+                              (client.tryBind ? "true" : "false") + "  isSaCall  # " +
+                              (client.isSaCall ? "true" : "false"));
         } else {
             info.emplace_back(std::string("     > Caller is System /  tryBind # ") +
-                              (client.tryBind ? "true" : "false") + "  isSystem  # " +
-                              (client.isSystem ? "true" : "false"));
+                              (client.tryBind ? "true" : "false") + "  isSaCall  # " +
+                              (client.isSaCall ? "true" : "false"));
         }
     }
 }
@@ -528,7 +528,7 @@ void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     } else {
         auto it = clients_.begin();
         while (it != clients_.end()) {
-            if (it->isSystem) {
+            if (it->isSaCall) {
                 HILOG_DEBUG("remove system caller record...");
                 it = clients_.erase(it);
                 HILOG_INFO("Data ability '%{public}s|%{public}s'.",

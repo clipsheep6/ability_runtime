@@ -35,8 +35,8 @@ public:
 
 public:
     sptr<IAbilityScheduler> Acquire(
-        const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSystem);
-    int Release(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSystem);
+        const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSaCall);
+    int Release(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSaCall);
     int AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
     int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state);
     void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state);
