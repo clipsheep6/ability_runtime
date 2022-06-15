@@ -25,7 +25,7 @@ ohos_moduletest("PandingWantMgrTest") {
     "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime",
     "${aafwk_path}/services/test/mock/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/appmg",
-    "${aafwk_path}/frameworks/kits/appkit/native/app/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "//third_party/jsoncpp/include",

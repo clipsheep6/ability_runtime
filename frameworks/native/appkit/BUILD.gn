@@ -46,7 +46,7 @@ config("appkit_config") {
   }
 
   include_dirs = [
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "//third_party/json/include",
   ]
 }
@@ -79,7 +79,7 @@ ohos_shared_library("appkit_native") {
     "native/app/include",
     "native/app/include/task",
     "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
   ]
@@ -297,7 +297,7 @@ ohos_shared_library("appkit_delegator") {
     "native/ability_runtime/context",
     "native/ability_delegator/include",
     "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
   ]
 
   configs = [ ":appkit_config" ]

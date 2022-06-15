@@ -27,7 +27,7 @@ config("module_private_config") {
 
     #"${aafwk_path}/frameworks/kits/ability/native/test/mock/include",
     "${aafwk_path}/frameworks/kits/appkit/test/Mock/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/app/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
 
     #"//foundation/communication/utils/include",
     #"//foundation/communication/ipc/ipc/native/src/core/include",

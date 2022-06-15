@@ -23,7 +23,7 @@ config("amsKitSystemTestServiceconfig") {
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
     "${bundlefwk_path}/services/bundlemgr/include",
     "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/jsoncpp/include",
