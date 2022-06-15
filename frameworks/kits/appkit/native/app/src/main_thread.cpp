@@ -65,7 +65,6 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
 std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
-std::shared_ptr<std::thread> MainThread::handleANRThread_ = nullptr;
 std::shared_ptr<EventHandler> MainThread::dfxHandler_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
@@ -604,6 +603,12 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
     applicationImpl_->PerformTerminateStrong();
+
+    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
+    if (dfxRunner) {
+        dfxRunner->Stop();
+    }
+
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::HandleTerminateApplicationLocal get manHandler error");
@@ -612,10 +617,6 @@ void MainThread::HandleTerminateApplicationLocal()
 
     if (watchDogHandler_ != nullptr) {
         watchDogHandler_->Stop();
-    }
-    if (handleANRThread_ != nullptr && handleANRThread_->joinable()) {
-        handleANRThread_->join();
-        handleANRThread_ = nullptr;
     }
 
     int ret = runner->Stop();
@@ -1383,6 +1384,12 @@ void MainThread::HandleTerminateApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
         return;
     }
+
+    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
+    if (dfxRunner) {
+        dfxRunner->Stop();
+    }
+
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
@@ -1392,10 +1399,6 @@ void MainThread::HandleTerminateApplication()
 
     if (watchDogHandler_ != nullptr) {
         watchDogHandler_->Stop();
-    }
-    if (handleANRThread_ != nullptr && handleANRThread_->joinable()) {
-        handleANRThread_->join();
-        handleANRThread_ = nullptr;
     }
 
     int ret = runner->Stop();
@@ -1514,12 +1517,15 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
 
 void MainThread::HandleSignal(int signal)
 {
+    if (dfxHandler_ == nullptr) {
+        return;
+    }
+
     switch (signal) {
-        case SIGUSR1:
-            if (handleANRThread_ == nullptr) {
-                handleANRThread_ = std::make_shared<std::thread>(&MainThread::HandleScheduleANRProcess);
-            }
+        case SIGUSR1: {
+            dfxHandler_->PostTask(&MainThread::HandleScheduleANRProcess);
             break;
+        }
         case SIGNAL_JS_HEAP: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
             dfxHandler_->PostTask(heapFunc);
@@ -1555,6 +1561,7 @@ void MainThread::HandleScheduleANRProcess()
     }
     if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
         mainThreadStackInfo = applicationForAnr_->GetRuntime()->BuildJsStackTrace();
+        HILOG_INFO("Get stack success, length:%{public}zu", mainThreadStackInfo.size());
         if (write(rFD, mainThreadStackInfo.c_str(), mainThreadStackInfo.size()) !=
           (ssize_t)mainThreadStackInfo.size()) {
             HILOG_ERROR("MainThread::HandleScheduleANRProcess write main thread stack info failed");

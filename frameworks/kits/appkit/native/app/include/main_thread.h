@@ -448,7 +448,6 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> dfxHandler_;
-    static std::shared_ptr<std::thread> handleANRThread_;
     static std::shared_ptr<OHOSApplication> applicationForAnr_;
 
 #ifdef ABILITY_LIBRARY_LOADER
