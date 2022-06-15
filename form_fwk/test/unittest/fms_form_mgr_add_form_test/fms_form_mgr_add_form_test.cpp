@@ -649,9 +649,15 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_009, TestSize.Level0)
     std::vector<FormDBInfo> formDBInfos;
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
     EXPECT_EQ(originDbInfoSize + dataCnt, formDBInfos.size());
-    FormDBInfo dbInfo {formDBInfos[0]};
-    EXPECT_EQ(formId, dbInfo.formId);
-    EXPECT_EQ(formUserUidCnt, dbInfo.formUserUids.size());
+    bool formExist = false;
+    for (size_t i = 0; i < formDBInfos.size(); i++) {
+        if (formId == formDBInfos[i].formId) {
+            EXPECT_EQ(formUserUidCnt, formDBInfos[i].formUserUids.size());
+            formExist = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(formExist);
     // Form host record not changed.
     FormDataMgr::GetInstance().ClearFormRecords();
     FormRecord formInfo2;
@@ -661,7 +667,7 @@ HWTEST_F(FmsFormMgrAddFormTest, AddForm_009, TestSize.Level0)
     formDBInfos.clear();
     FormDbCache::GetInstance().GetAllFormInfo(formDBInfos);
     EXPECT_EQ(dataCnt, formDBInfos.size());
-    dbInfo = formDBInfos[0];
+    FormDBInfo dbInfo = formDBInfos[0];
     EXPECT_EQ(formId, dbInfo.formId);
     EXPECT_EQ(formUserUidCnt, dbInfo.formUserUids.size());
     EXPECT_EQ(ERR_OK, FormMgr::GetInstance().AddForm(formId, want, token_, formJsInfo));
