@@ -96,9 +96,9 @@ bool Mission::IsMovingState() const
     return isMovingToFront_;
 }
 
-void Mission::SetANRState()
+void Mission::SetANRState(bool state)
 {
-    isANRState_ = true;
+    isANRState_ = state;
 }
 
 bool Mission::IsANRState() const
