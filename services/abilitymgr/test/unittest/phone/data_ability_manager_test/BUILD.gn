@@ -27,7 +27,7 @@ ohos_unittest("data_ability_manager_test") {
 
     # "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "${aafwk_path}/services/common/include",
   ]
 
@@ -46,7 +46,7 @@ ohos_unittest("data_ability_manager_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${innerkits_path}/ability_manager:ability_manager",
     "${services_path}/abilitymgr/test:abilityms_test_source",
     "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",

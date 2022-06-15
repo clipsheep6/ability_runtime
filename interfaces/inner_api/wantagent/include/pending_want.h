@@ -21,7 +21,7 @@
 #include <mutex>
 #include <memory>
 #include "cancel_listener.h"
-#include "context/application_context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
 #include "completed_dispatcher.h"
 #include "event_handler.h"
 #include "want.h"
