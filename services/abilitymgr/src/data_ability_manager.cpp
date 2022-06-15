@@ -43,7 +43,7 @@ DataAbilityManager::~DataAbilityManager()
 }
 
 sptr<IAbilityScheduler> DataAbilityManager::Acquire(
-    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSystem)
+    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSaCall)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
@@ -60,7 +60,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     std::shared_ptr<AbilityRecord> clientAbilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
 
-    if (client && !isSystem) {
+    if (client && !isSaCall) {
         clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         if (!clientAbilityRecord) {
             HILOG_ERROR("Data ability manager acquire: invalid client token.");
@@ -107,7 +107,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     }
 
     if (client) {
-        dataAbilityRecord->AddClient(client, tryBind, isSystem);
+        dataAbilityRecord->AddClient(client, tryBind, isSaCall);
     }
 
     if (DEBUG_ENABLED) {
@@ -118,7 +118,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
 }
 
 int DataAbilityManager::Release(
-    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSystem)
+    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSaCall)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
@@ -160,7 +160,7 @@ int DataAbilityManager::Release(
         return ERR_UNKNOWN_OBJECT;
     }
 
-    dataAbilityRecord->RemoveClient(client, isSystem);
+    dataAbilityRecord->RemoveClient(client, isSaCall);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);

@@ -46,8 +46,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
-
-    #"Mock/include/mock_ipc_object_stub.cpp",
     "Mock/include/sys_mgr_client_mock.cpp",
     "moduletest/appexecfwk_appkit_native_app_module_test_first.cpp",
   ]
@@ -87,8 +85,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
-
-    #"Mock/include/mock_ipc_object_stub.cpp",
     "Mock/include/sys_mgr_client_mock.cpp",
     "moduletest/appexecfwk_appkit_native_app_module_test_second.cpp",
   ]
@@ -128,8 +124,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
-
-    #"Mock/include/mock_ipc_object_stub.cpp",
     "Mock/include/sys_mgr_client_mock.cpp",
     "moduletest/appexecfwk_appkit_native_app_module_test_third.cpp",
   ]
@@ -169,8 +163,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/app_mgr_stub.cpp",
     "Mock/include/mock_app_thread.cpp",
     "Mock/include/mock_application.cpp",
-
-    #"Mock/include/mock_ipc_object_stub.cpp",
     "Mock/include/sys_mgr_client_mock.cpp",
     "moduletest/appexecfwk_appkit_native_app_module_test_fourth.cpp",
   ]

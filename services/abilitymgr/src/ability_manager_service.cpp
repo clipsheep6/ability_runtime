@@ -1991,10 +1991,9 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s, called. uid %{public}d", __func__, IPCSkeleton::GetCallingUid());
-    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
-    if (!isSystem) {
-        HILOG_INFO("callerToken not system %{public}s", __func__);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_INFO("callerToken not SA %{public}s", __func__);
         if (!VerificationAllToken(callerToken)) {
             HILOG_INFO("VerificationAllToken fail");
             return nullptr;
@@ -2046,7 +2045,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
-    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSystem);
+    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSaCall);
 }
 
 bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
@@ -2078,9 +2077,9 @@ int AbilityManagerService::ReleaseDataAbility(
         return ERR_INVALID_VALUE;
     }
 
-    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
-    if (!isSystem) {
-        HILOG_INFO("callerToken not system %{public}s", __func__);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_INFO("callerToken not SA %{public}s", __func__);
         if (!VerificationAllToken(callerToken)) {
             HILOG_ERROR("VerificationAllToken fail");
             return ERR_INVALID_STATE;
@@ -2093,7 +2092,7 @@ int AbilityManagerService::ReleaseDataAbility(
         return ERR_INVALID_VALUE;
     }
 
-    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSystem);
+    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSaCall);
 }
 
 int AbilityManagerService::AttachAbilityThread(
