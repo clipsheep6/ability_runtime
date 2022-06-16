@@ -61,6 +61,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandleStartSpecifiedAbility;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_START_SPECIFIED_ABILITY_RESPONSE)] =
         &AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_APPLICATION_INFO_BY_PROCESS_ID)] =
+        &AmsMgrStub::HandleGetApplicationInfoByProcessID;
 }
 
 AmsMgrStub::~AmsMgrStub()
@@ -286,6 +288,23 @@ int32_t AmsMgrStub::HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &d
     sptr<IRemoteObject> obj = data.ReadRemoteObject();
     sptr<IStartSpecifiedAbilityResponse> response = iface_cast<IStartSpecifiedAbilityResponse>(obj);
     RegisterStartSpecifiedAbilityResponse(response);
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t pid = data.ReadInt32();
+    AppExecFwk::ApplicationInfo application;
+    int32_t result = GetApplicationInfoByProcessID(pid, application);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteParcelable(&application)) {
+        HILOG_ERROR("write application info failed");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

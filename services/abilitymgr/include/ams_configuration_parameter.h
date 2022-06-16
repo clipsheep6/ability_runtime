@@ -31,6 +31,7 @@ const std::string STARTUP_SETTINGS_DATA {"startup_settings_data"};
 const std::string MISSION_SAVE_TIME {"mission_save_time"};
 const std::string APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME {"app_not_response_process_timeout_time"};
 const std::string AMS_TIMEOUT_TIME {"ams_timeout_time"};
+const std::string DEVICE_TYPE {"device_type"};
 const std::string SYSTEM_CONFIGURATION {"system_configuration"};
 const std::string SYSTEM_ORIENTATION {"system_orientation"};
 const std::string ROOT_LAUNCHER_RESTART_MAX {"root_launcher_restart_max"};
@@ -81,6 +82,10 @@ public:
      * get ability manager service not response process timeout time.
      */
     int GetAMSTimeOutTime() const;
+    /**
+     * get device type.
+     */
+    std::string GetDeviceType() const;
 
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
@@ -102,6 +107,7 @@ private:
     int missionSaveTime_ {12 * 60 * 60 * 1000};
     int anrTime_ {5000};
     int amsTime_ {5000};
+    std::string deviceType_ {""};
     std::map<std::string, std::string> memThreshold_;
 };
 }  // namespace AAFwk

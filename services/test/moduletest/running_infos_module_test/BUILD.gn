@@ -83,6 +83,7 @@ ohos_moduletest("running_infos_module_test") {
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/icu/icu4c:shared_icuuc",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
