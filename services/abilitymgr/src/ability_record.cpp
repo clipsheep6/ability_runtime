@@ -1018,6 +1018,8 @@ void AbilityRecord::SendResultToCallers()
 
 void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *resultWant)
 {
+    HILOG_INFO("Yanwenhao");
+    resultWant->DumpInfo(1);
     auto callerRecordList = GetCallerRecordList();
     if (callerRecordList.empty()) {
         HILOG_WARN("callerRecordList is empty.");
@@ -1048,7 +1050,10 @@ void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shar
         std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
         if (callerSystemAbilityRecord != nullptr) {
             HILOG_INFO("Caller is system ability.");
+            HILOG_INFO("Yanwenhao");
+            resultWant->DumpInfo(1);
             Want* newWant = const_cast<Want*>(resultWant);
+            newWant->DumpInfo(1);
             callerSystemAbilityRecord->SetResultToSystemAbility(callerSystemAbilityRecord, *newWant,
                 resultCode);
         }

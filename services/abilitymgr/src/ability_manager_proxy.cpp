@@ -41,6 +41,8 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    HILOG_INFO("Yanwenhao");
+    want.DumpInfo(1);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
