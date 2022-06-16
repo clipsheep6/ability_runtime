@@ -328,7 +328,8 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-
+    HILOG_INFO("Yanwenhao");
+    resultWant->DumpInfo(0);
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
