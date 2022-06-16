@@ -854,10 +854,8 @@ ErrCode FormMgrAdapter::AddExistFormRecord(const FormItemInfo &info, const sptr<
 
     // create form info for js
     std::string cacheData;
-    std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageMap;
-    if (FormCacheMgr::GetInstance().GetData(formId, cacheData, imageMap)) {
+    if (FormCacheMgr::GetInstance().GetData(formId, cacheData)) {
         formInfo.formData = cacheData;
-        formInfo.formProviderData.SetImageDataMap(imageMap);
     }
     FormDataMgr::GetInstance().CreateFormInfo(formId, record, formInfo);
 
@@ -1714,11 +1712,9 @@ bool FormMgrAdapter::UpdateProviderInfoToHost(const int64_t matchedFormId, const
     // If the form need refrsh flag is true and form visibleType is FORM_VISIBLE, refresh the form host.
     if (formRecord.needRefresh && formVisibleType == Constants::FORM_VISIBLE) {
         std::string cacheData;
-        std::map<std::string, std::pair<sptr<FormAshmem>, int32_t>> imageMap;
         // If the form has business cache, refresh the form host.
-        if (FormCacheMgr::GetInstance().GetData(matchedFormId, cacheData, imageMap)) {
+        if (FormCacheMgr::GetInstance().GetData(matchedFormId, cacheData)) {
             formRecord.formProviderInfo.SetFormDataString(cacheData);
-            formRecord.formProviderInfo.SetImageDataMap(imageMap);
             formHostRecord.OnUpdate(matchedFormId, formRecord);
         }
     }
