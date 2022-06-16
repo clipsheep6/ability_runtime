@@ -154,7 +154,7 @@ ErrCode AbilityContextImpl::StartAbilityForResult(const AAFwk::Want &want, int r
 ErrCode AbilityContextImpl::StartAbilityForResultWithAccount(
     const AAFwk::Want &want, const int accountId, int requestCode, RuntimeTask &&task)
 {
-    HILOG_DEBUG("%{public}s called, accountId:%{public}d", __func__, accountId);
+    HILOG_DEBUG("%{public}s called, accountId:%{private}d", __func__, accountId);
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode, accountId);
     HILOG_INFO("%{public}s end. ret=%{public}d", __func__, err);
