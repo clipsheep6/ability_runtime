@@ -48,8 +48,8 @@ public:
 
 protected:
     const string deviceId;
-    const string bundleName = "com.example.distributedcalc";
-    const string abilityName = "com.example.distributedcalc.default";
+    const string bundleName = "ohos.samples.FormApplication";
+    const string abilityName = "ohos.samples.FormApplication.MainAbility";
     const int32_t repetitions = 16;
     const int32_t iterations = 1;
 };

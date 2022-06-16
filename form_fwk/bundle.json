@@ -86,6 +86,7 @@
               }
           ],
           "test": [
+              "//foundation/ability/ability_runtime/form_fwk/test:benchmarktest",
               "//foundation/ability/ability_runtime/form_fwk/test:unittest"
           ]
         }

@@ -51,8 +51,9 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
     std::shared_ptr<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket start");
-    if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE) {
-        HILOG_ERROR("DataAbilityOperationBuilder::WithValuesBucket only inserts, updates can have values,"
+    if (type_ != DataAbilityOperation::TYPE_INSERT && type_ != DataAbilityOperation::TYPE_UPDATE &&
+        type_ != DataAbilityOperation::TYPE_ASSERT) {
+        HILOG_ERROR("DataAbilityOperationBuilder::WithValuesBucket only inserts, updates and assert can have values,"
             " type=%{public}d", type_);
         return nullptr;
     }
@@ -69,9 +70,10 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithPr
     std::shared_ptr<NativeRdb::DataAbilityPredicates> &predicates)
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithPredicates start");
-    if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE) {
+    if (type_ != DataAbilityOperation::TYPE_DELETE && type_ != DataAbilityOperation::TYPE_UPDATE &&
+        type_ != DataAbilityOperation::TYPE_ASSERT) {
         HILOG_ERROR(
-            "DataAbilityOperationBuilder::withPredicates only deletes and updates can have selections,"
+            "DataAbilityOperationBuilder::withPredicates only deletes, updates and assert can have selections,"
             " type=%{public}d", type_);
         return nullptr;
     }
@@ -83,8 +85,10 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithEx
 {
     HILOG_DEBUG("DataAbilityOperationBuilder::WithExpectedCount start");
     HILOG_INFO("DataAbilityOperationBuilder::WithExpectedCount expectedCount:%{public}d", count);
-    if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE) {
-        HILOG_ERROR("DataAbilityOperationBuilder::withExpectedCount only updates, deletes can have expected counts, "
+    if (type_ != DataAbilityOperation::TYPE_UPDATE && type_ != DataAbilityOperation::TYPE_DELETE &&
+        type_ != DataAbilityOperation::TYPE_ASSERT) {
+        HILOG_ERROR("DataAbilityOperationBuilder::withExpectedCount only updates, deletes and assert "
+            "can have expected counts, "
             "type=%{public}d", type_);
         return nullptr;
     }

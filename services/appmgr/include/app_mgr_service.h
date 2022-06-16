@@ -201,14 +201,7 @@ public:
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
-    /**
-     *  Get the token of ability records by process ID.
-     *
-     * @param pid The process id.
-     * @param tokens The token of ability records.
-     * @return Returns true on success, others on failure.
-     */
-    int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
+    virtual int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens) override;
 
     virtual int StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
         int32_t sharedFd, pid_t &renderPid) override;

@@ -65,6 +65,12 @@ group("unittest") {
   ]
 }
 
+group("benchmarktest") {
+  testonly = true
+
+  deps = [ "benchmarktest:benchmarktest" ]
+}
+
 group("systemtest") {
   testonly = true
 

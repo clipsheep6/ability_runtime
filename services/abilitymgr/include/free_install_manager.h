@@ -83,27 +83,15 @@ public:
         int32_t userId, int requestCode);
 
     /**
-     * Check if the connect request is free install.
+     * Connect if the request is free install.
      * @param want, the want of the ability to free install.
      * @param userId, designation User ID.
      * @param callerToken, caller ability token.
      * @param localDeviceId, the device id of local.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int IsConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
+    int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
         std::string& localDeviceId);
-
-    /**
-     * Check if the connect request is free install.
-     * @param want, the want of the ability to free install.
-     * @param userId, designation User ID.
-     * @param callerToken, caller ability token.
-     * @param requestCode, ability request code.
-     * @param isRemote, is remote ability to free install.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int StartFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        int requestCode, bool isRemote);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
@@ -119,7 +107,6 @@ private:
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
 
-    bool CheckIsFreeInstall(const Want &want);
     bool CheckTargetBundleList(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
     int HandleFreeInstallErrorCode(int resultCode);
     int NotifyDmsCallback(const Want &want, int resultCode);

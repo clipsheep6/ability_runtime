@@ -279,9 +279,18 @@ public:
      *
      * @param pid The process id.
      * @param tokens The token of ability records.
-     * @return Returns true on success, others on failure.
+     * @return Returns ERR_OK on success, others on failure.
      */
     int GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens);
+
+    /**
+     *  Get the application info by process ID.
+     *
+     * @param pid The process id.
+     * @param application The application info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application);
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
