@@ -23,7 +23,7 @@ config("aakit_mock_config") {
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include",
     "${aafwk_path}/interfaces/inner_api/app_manager/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include/",
+    "${aafwk_path}/interfaces/kits/native/ability/native/",
     "include/",
     "//third_party/jsoncpp/include",
     "${aafwk_path}/services/common/include/",

@@ -41,7 +41,7 @@ ohos_systemtest("FmsStressTest") {
   ]
 
   deps = [
-    "${ability_runtime_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_runtime_path}/services/abilitymgr:abilityms",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
