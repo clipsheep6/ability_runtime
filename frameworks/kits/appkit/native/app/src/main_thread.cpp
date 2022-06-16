@@ -1553,21 +1553,27 @@ void MainThread::HandleScheduleANRProcess()
         HILOG_ERROR("MainThread::HandleScheduleANRProcess request file eescriptor failed");
         return;
     }
+    HILOG_INFO("MainThread:HandleScheduleANRProcess start1.");
     if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
         mainThreadStackInfo = applicationForAnr_->GetRuntime()->BuildJsStackTrace();
+        HILOG_INFO("Get stack success, length:%{public}zu", mainThreadStackInfo.size());
         if (write(rFD, mainThreadStackInfo.c_str(), mainThreadStackInfo.size()) !=
           (ssize_t)mainThreadStackInfo.size()) {
             HILOG_ERROR("MainThread::HandleScheduleANRProcess write main thread stack info failed");
         }
+    } else {
+        HILOG_INFO("MainThread:HandleScheduleANRProcess start2.");
     }
     OHOS::HiviewDFX::DfxDumpCatcher dumplog;
     std::string proStackInfo;
+    HILOG_INFO("MainThread:HandleScheduleANRProcess start3.");
     if (dumplog.DumpCatch(getpid(), 0, proStackInfo) == false) {
         HILOG_ERROR("MainThread::HandleScheduleANRProcess get process stack info failed");
     }
     if (write(rFD, proStackInfo.c_str(), proStackInfo.size()) != (ssize_t)proStackInfo.size()) {
         HILOG_ERROR("MainThread::HandleScheduleANRProcess write process stack info failed");
     }
+    HILOG_INFO("MainThread:HandleScheduleANRProcess start4.");
     if (rFD != -1) {
         close(rFD);
     }
