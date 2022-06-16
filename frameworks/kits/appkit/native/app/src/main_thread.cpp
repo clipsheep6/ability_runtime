@@ -1744,19 +1744,25 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
         return;
     }
 
+    char resolvedPath[PATH_MAX] = {0};
     void *handleAbilityLib = nullptr;
-    for (auto fileEntry : fileEntries_) {
-        if (!fileEntry.empty()) {
-            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
-            if (handleAbilityLib == nullptr) {
-                HILOG_ERROR("MainThread::LoadAbilityLibrary Fail to dlopen %{public}s, [%{public}s]",
-                    fileEntry.c_str(),
-                    dlerror());
-                exit(-1);
-            }
-            HILOG_INFO("MainThread::LoadAbilityLibrary Success to dlopen %{public}s", fileEntry.c_str());
-            handleAbilityLib_.emplace_back(handleAbilityLib);
+    for (const auto& fileEntry : fileEntries_) {
+        if (fileEntry.empty() || fileEntry.size() >= PATH_MAX) {
+            continue;
         }
+        if (realpath(fileEntry.c_str(), resolvedPath) == nullptr) {
+            HILOG_ERROR("Failed to get realpath, errno = %{public}d", errno);
+            continue;
+        }
+
+        handleAbilityLib = dlopen(resolvedPath, RTLD_NOW | RTLD_GLOBAL);
+        if (handleAbilityLib == nullptr) {
+            HILOG_ERROR("MainThread::LoadAbilityLibrary Fail to dlopen %{public}s, [%{public}s]",
+                resolvedPath, dlerror());
+            exit(-1);
+        }
+        HILOG_INFO("MainThread::LoadAbilityLibrary Success to dlopen %{public}s", fileEntry.c_str());
+        handleAbilityLib_.emplace_back(handleAbilityLib);
     }
     HILOG_INFO("MainThread::LoadAbilityLibrary called end.");
 #endif  // ABILITY_LIBRARY_LOADER

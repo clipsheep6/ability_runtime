@@ -982,40 +982,38 @@ static void FindRegisterObsByCallBack(napi_env env, DAHelperOnOffCB *data)
         return;
     }
     // if match callback ,or match both callback and uri
-    napi_value callbackA = 0;
+    napi_value callbackA = nullptr;
     napi_get_reference_value(data->cbBase.cbInfo.env, data->cbBase.cbInfo.callback, &callbackA);
     std::string strUri = data->uri;
-    do {
-        auto helper = std::find_if(
-            registerInstances_.begin(),
-            registerInstances_.end(),
-            [callbackA, strUri](const DAHelperOnOffCB *helper) {
-                bool result = false;
-                if (helper == nullptr || helper->cbBase.cbInfo.callback == nullptr) {
-                    HILOG_ERROR("UnRegisterExecuteCB %{public}s is nullptr",
-                        ((helper == nullptr) ? "helper" : "helper->cbBase.cbInfo.callback"));
-                    return result;
-                }
-                if (helper->uri != strUri) {
-                    HILOG_ERROR("UnRegisterExecuteCB find uri inconsistent, h=[%{public}s] u=[%{public}s]",
-                        helper->uri.c_str(), strUri.c_str());
-                    return result;
-                }
-                napi_value callbackB = 0;
-                napi_get_reference_value(helper->cbBase.cbInfo.env, helper->cbBase.cbInfo.callback, &callbackB);
-                auto ret = napi_strict_equals(helper->cbBase.cbInfo.env, callbackA, callbackB, &result);
-                HILOG_INFO("NAPI_UnRegister cb equals status=%{public}d result=%{public}d.", ret, result);
-                return result;
-            });
-        if (helper != registerInstances_.end()) {
-            data->NotifyList.emplace_back(*helper);
-            registerInstances_.erase(helper);
-                HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
-        } else {
-            HILOG_INFO("NAPI_UnRegister not match any callback. %{public}zu", registerInstances_.size());
-            break;  // not match any callback
+
+    auto iter = registerInstances_.begin();
+    while (iter != registerInstances_.end()) {
+        DAHelperOnOffCB *helper = *iter;
+        if (helper == nullptr || helper->cbBase.cbInfo.callback == nullptr) {
+            HILOG_ERROR("UnRegisterExecuteCB %{public}s is nullptr",
+                ((helper == nullptr) ? "helper" : "helper->cbBase.cbInfo.callback"));
+            iter++;
+            continue;
         }
-    } while (true);
+        if (helper->uri != strUri) {
+            HILOG_ERROR("UnRegisterExecuteCB find uri inconsistent, h=[%{public}s] u=[%{public}s]",
+                helper->uri.c_str(), strUri.c_str());
+            iter++;
+            continue;
+        }
+        napi_value callbackB = nullptr;
+        bool isEqual = false;
+        napi_get_reference_value(helper->cbBase.cbInfo.env, helper->cbBase.cbInfo.callback, &callbackB);
+        auto ret = napi_strict_equals(helper->cbBase.cbInfo.env, callbackA, callbackB, &isEqual);
+        HILOG_INFO("NAPI_UnRegister cb equals status=%{public}d isEqual=%{public}d.", ret, isEqual);
+        if (!isEqual) {
+            iter++;
+            continue;
+        }
+        data->NotifyList.emplace_back(helper);
+        iter = registerInstances_.erase(iter);
+        HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
+    }
     HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB FindRegisterObsByCallBack Called End.");
 }
 
@@ -1029,29 +1027,27 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
     if (data->cbBase.cbInfo.callback != nullptr) {
         HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB callback is not null.");
         FindRegisterObsByCallBack(env, data);
-    } else {
-        HILOG_INFO("NAPI_UnRegister, uri=%{public}s.", data->uri.c_str());
-        if (data->uri != "") {
-            // if match uri, unregister all observers corresponding the uri
-            std::string strUri = data->uri;
-            do {
-                auto helper = std::find_if(registerInstances_.begin(),
-                    registerInstances_.end(),
-                    [strUri](const DAHelperOnOffCB *helper) { return helper->uri == strUri; });
-                if (helper != registerInstances_.end()) {
-                    // match uri
-                    OHOS::Uri uri((*helper)->uri);
-                    data->NotifyList.emplace_back(*helper);
-                    registerInstances_.erase(helper);
-                    HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
-                } else {
-                    HILOG_INFO("NAPI_UnRegister not match any uri.");
-                    break;  // not match any uri
-                }
-            } while (true);
-        } else {
-            HILOG_ERROR("NAPI_UnRegister, error: uri is null.");
+        HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu",
+            data->NotifyList.size());
+        return;
+    }
+    HILOG_INFO("NAPI_UnRegister, uri=%{public}s.", data->uri.c_str());
+    if (!data->uri.empty()) {
+        // if match uri, unregister all observers corresponding the uri
+        std::string strUri = data->uri;
+        auto iter = registerInstances_.begin();
+        while (iter != registerInstances_.end()) {
+            DAHelperOnOffCB *helper = *iter;
+            if (helper == nullptr || helper->uri != strUri) {
+                iter++;
+                continue;
+            }
+            data->NotifyList.emplace_back(helper);
+            iter = registerInstances_.erase(iter);
+            HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
         }
+    } else {
+        HILOG_ERROR("NAPI_UnRegister, error: uri is null.");
     }
     HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu", data->NotifyList.size());
 }
