@@ -54,7 +54,6 @@ config("abilityms_config") {
     "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",
-    "${bgtaskmgr_root_path}/utils/bgtask_observer/include",
   ]
 
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]
