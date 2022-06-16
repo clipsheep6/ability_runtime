@@ -18,7 +18,7 @@
 
 #include <string>
 #include <memory>
-#include "context/application_context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/application_context.h"
 #include "completed_callback.h"
 #include "completed_dispatcher.h"
 #include "event_handler.h"
