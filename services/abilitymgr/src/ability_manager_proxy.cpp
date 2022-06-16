@@ -352,7 +352,7 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
         HILOG_ERROR("data write flag failed.");
         return INNER_ERR;
     }
-    HILOG_INFO("Yanwenhao, %{public}lu", sizeof(data));
+    HILOG_INFO("Yanwenhao, %{public}u", sizeof(data));
     error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
