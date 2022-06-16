@@ -185,7 +185,7 @@ int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel
     int resultCode = data.ReadInt32();
     Want *resultWant = data.ReadParcelable<Want>();
     HILOG_INFO("Yanwenhao");
-    resultWant.DumpInfo(0);
+    resultWant->DumpInfo(0);
     bool flag = data.ReadBool();
     int32_t result;
     if (flag) {
