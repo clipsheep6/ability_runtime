@@ -986,6 +986,8 @@ void AbilityRecord::SendResult()
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
+    HILOG_INFO("YANWENHAO");
+    result_->resultWant_.DumpInfo(1);
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     GrantUriPermission(result_->resultWant_);
     // reset result to avoid send result next time
