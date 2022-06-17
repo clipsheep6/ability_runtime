@@ -22,10 +22,10 @@ ohos_moduletest("PandingWantMgrTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
     "${aafwk_path}/services/test/mock/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/appmg",
-    "${aafwk_path}/frameworks/kits/appkit/native/app/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "//third_party/jsoncpp/include",
@@ -47,9 +47,9 @@ ohos_moduletest("PandingWantMgrTest") {
   }
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
@@ -78,7 +78,7 @@ ohos_moduletest("PandingWantMgrTest") {
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dataability:native_dataability",
-    "dsoftbus_standard:softbus_client",
+    "dsoftbus:softbus_client",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

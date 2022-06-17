@@ -17,7 +17,7 @@
 
 #include "abs_shared_result_set.h"
 #include "data_ability_observer_interface.h"
-#include "data_ability_operation.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/native/data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "hilog_wrapper.h"
