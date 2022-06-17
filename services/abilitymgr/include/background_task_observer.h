@@ -18,6 +18,7 @@
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_subscriber.h"
+#include "bgtask_observer.h"
 
 namespace OHOS {
 namespace AAFwk {

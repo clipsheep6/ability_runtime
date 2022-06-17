@@ -71,12 +71,12 @@ namespace Constants {
     const int32_t MAX_SYSTEM_APP_UID = 10000;
 
     // share form
-    const std::string PARAM_SHARE_FORM_BUNDLENAME_KEY = "ohos.extra.param.share.key.bundleName";
-    const std::string PARAM_SHARE_FORM_MOUDLENAME_KEY = "ohos.extra.param.share.key.moudleName";
-    const std::string PARAM_SHARE_FORM_ABILITYNAME_KEY = "ohos.extra.param.share.key.abilityName";
-    const std::string PARAM_SHARE_FORM_NAME_KEY = "ohos.extra.param.share.key.name";
-    const std::string PARAM_SHARE_FORM_TEMP_FLAG_KEY = "ohos.extra.param.share.key.formTempFlag";
-    const std::string PARAM_SHARE_FORM_DIMENSION_ID_KEY = "ohos.extra.param.share.key.dimensionId";
+    const std::string PARAM_SHARE_FORM_BUNDLENAME_KEY = "ohos.extra.param.key.share.bundle_name";
+    const std::string PARAM_SHARE_FORM_MOUDLENAME_KEY = "ohos.extra.param.key.share.moudle_name";
+    const std::string PARAM_SHARE_FORM_ABILITYNAME_KEY = "ohos.extra.param.key.share.ability_name";
+    const std::string PARAM_SHARE_FORM_NAME_KEY = "ohos.extra.param.key.share.form_name";
+    const std::string PARAM_SHARE_FORM_TEMP_FLAG_KEY = "ohos.extra.param.key.share.form_temporary";
+    const std::string PARAM_SHARE_FORM_DIMENSION_ID_KEY = "ohos.extra.param.key.share.form_dimension";
 
     const int MIN_TIME_SPEED = 1;
     const int MAX_TIME_SPEED = 1000;
