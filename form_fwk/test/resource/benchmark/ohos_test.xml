@@ -20,4 +20,10 @@
             <option name="shell" value="bm install -r -p /data/test/formTestWidget1.hap"/>
         </preparer>
     </target>
+    <target name="BenchmarkTestForAbilityContext">
+    <preparer>
+        <option name="push" value="form_test_bundle/formTestWidget1.hap -> /data/test/" src="res"/>
+        <option name="shell" value="bm install -r -p /data/test/formTestWidget1.hap"/>
+    </preparer>
+</target>
 </configuration>

@@ -64,7 +64,6 @@
 #include "display_manager.h"
 #include "png.h"
 #include "ui_service_mgr_client.h"
-#include "locale_config.h"
 #endif
 
 using OHOS::AppExecFwk::ElementName;
@@ -247,6 +246,10 @@ bool AbilityManagerService::Init()
     if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, amsTimeOut) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
+#ifdef SUPPORT_GRAPHICS
+    sysDialogScheduler_ = std::make_shared<SystemDialogScheduler>(amsConfigResolver_->GetDeviceType());
+#endif
+    anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
     auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
     handler_->PostTask(startSystemTask, "StartSystemApplication");
@@ -257,7 +260,8 @@ bool AbilityManagerService::Init()
         int attemptNums = 0;
         while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
             *(aams->bgtaskObserver_)))) {
-            if (!(++attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
+            ++attemptNums;
+            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
                 HILOG_ERROR("subscribeBackgroundTask fail");
                 return;
             }
@@ -1981,10 +1985,9 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s, called. uid %{public}d", __func__, IPCSkeleton::GetCallingUid());
-    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
-    if (!isSystem) {
-        HILOG_INFO("callerToken not system %{public}s", __func__);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_INFO("callerToken not SA %{public}s", __func__);
         if (!VerificationAllToken(callerToken)) {
             HILOG_INFO("VerificationAllToken fail");
             return nullptr;
@@ -2036,7 +2039,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
-    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSystem);
+    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSaCall);
 }
 
 bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
@@ -2068,9 +2071,9 @@ int AbilityManagerService::ReleaseDataAbility(
         return ERR_INVALID_VALUE;
     }
 
-    bool isSystem = (IPCSkeleton::GetCallingUid() <= AppExecFwk::Constants::BASE_SYS_UID);
-    if (!isSystem) {
-        HILOG_INFO("callerToken not system %{public}s", __func__);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_INFO("callerToken not SA %{public}s", __func__);
         if (!VerificationAllToken(callerToken)) {
             HILOG_ERROR("VerificationAllToken fail");
             return ERR_INVALID_STATE;
@@ -2083,7 +2086,7 @@ int AbilityManagerService::ReleaseDataAbility(
         return ERR_INVALID_VALUE;
     }
 
-    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSystem);
+    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSaCall);
 }
 
 int AbilityManagerService::AttachAbilityThread(
@@ -2755,7 +2758,8 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
         abilityInfo, extensionAbilityInfo))) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
-        if (!isBoot && ++attemptNums > SWITCH_ACCOUNT_TRY) {
+        ++attemptNums;
+        if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
             return;
         }
@@ -4060,27 +4064,40 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
 
 int AbilityManagerService::SendANRProcessID(int pid)
 {
-    HILOG_INFO("AbilityManagerService::SendANRProcessID come, pid is %{public}d", pid);
+    HILOG_INFO("SendANRProcessID come, pid is %{public}d", pid);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
+    CHECK_POINTER_AND_RETURN(anrDisposer_, ERR_INVALID_VALUE);
 
-    int anrTimeOut = amsConfigResolver_->GetANRTimeOutTime();
-    auto timeoutTask = [pid]() {
-        if (kill(pid, SIGKILL) != ERR_OK) {
-            HILOG_ERROR("Kill app not response process failed");
+    auto setMissionTask = [manager = currentMissionListManager_](const std::vector<sptr<IRemoteObject>> &tokens) {
+        HILOG_WARN("set some mission anr status.");
+        if (manager) {
+            manager->SetMissionANRStateByTokens(tokens);
         }
     };
-    if (!SetANRMissionByProcessID(pid)) {
-        HILOG_ERROR("Set app not response mission record failed");
+#ifdef SUPPORT_GRAPHICS
+    auto showDialogTask = [sysDialog = sysDialogScheduler_, pid, userId = GetUserId()](int32_t labelId,
+        const std::string &bundle, const Closure &callBack) {
+        std::string appName {""};
+        if (!sysDialog) {
+            HILOG_ERROR("sysDialogScheduler_ is nullptr.");
+            return;
+        }
+        sysDialog->GetAppNameFromResource(labelId, bundle, userId, appName);
+        sysDialog->ShowANRDialog(appName, callBack);
+    };
+    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask, showDialogTask);
+#else
+    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask);
+#endif
+    if (ret != ERR_OK) {
+        HILOG_ERROR("dispose app no respose failed.");
+        return ret;
     }
-    handler_->PostTask(timeoutTask, "TIME_OUT_TASK", anrTimeOut);
-    if (kill(pid, SIGUSR1) != ERR_OK) {
-        HILOG_ERROR("Send singal SIGUSR1 error.");
-        return SEND_USR1_SIG_FAIL;
-    }
+    HILOG_INFO("AbilityManagerService::SendANRProcessID end");
     return ERR_OK;
 }
 
@@ -4424,34 +4441,6 @@ bool AbilityManagerService::VerifyUriPermission(const AbilityRequest &abilityReq
         }
     }
     return false;
-}
-
-bool AbilityManagerService::SetANRMissionByProcessID(int pid)
-{
-    HILOG_INFO("start.");
-    if (appScheduler_ == nullptr || currentMissionListManager_ == nullptr) {
-        HILOG_ERROR("null point.");
-        return false;
-    }
-    std::vector<sptr<IRemoteObject>> tokens;
-    if (appScheduler_->GetAbilityRecordsByProcessID(pid, tokens) != ERR_OK) {
-        HILOG_ERROR("Get ability record failed.");
-        return false;
-    }
-    for (auto &item : tokens) {
-        auto abilityRecord = currentMissionListManager_->GetAbilityRecordByToken(item);
-        if (abilityRecord == nullptr) {
-            HILOG_WARN("abilityRecord is nullptr.");
-            continue;
-        }
-        auto mission = abilityRecord->GetMission();
-        if (mission == nullptr) {
-            HILOG_WARN("mission is nullptr.");
-            continue;
-        }
-        mission->SetANRState();
-    }
-    return true;
 }
 
 void AbilityManagerService::StartupResidentProcess(int userId)

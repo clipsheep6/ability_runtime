@@ -224,7 +224,7 @@ public:
      */
     virtual int BlockAppService() override;
     #endif
-    
+
     virtual int32_t GetConfiguration(Configuration& config) override;
 
     virtual int32_t UpdateConfiguration(const Configuration &config) override;

@@ -60,6 +60,7 @@ ohos_moduletest("on_new_want_module_test") {
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
+    "//third_party/icu/icu4c:shared_icuuc",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
@@ -85,7 +86,7 @@ ohos_moduletest("on_new_want_module_test") {
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dataability:native_dataability",
-    "dsoftbus_standard:softbus_client",
+    "dsoftbus:softbus_client",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

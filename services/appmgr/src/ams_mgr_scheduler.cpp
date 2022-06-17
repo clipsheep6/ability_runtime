@@ -251,5 +251,13 @@ void AmsMgrScheduler::RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpe
     auto task = [=]() { amsMgrServiceInner_->RegisterStartSpecifiedAbilityResponse(response); };
     amsHandler_->PostTask(task);
 }
+
+int AmsMgrScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->GetApplicationInfoByProcessID(pid, application);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

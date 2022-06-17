@@ -134,6 +134,8 @@ public:
      */
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid) override;
 
+    virtual int GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application) override;
+
     virtual void AbilityAttachTimeOut(const sptr<IRemoteObject> &token) override;
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token) override;

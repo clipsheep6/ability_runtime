@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
 
-module_output_path = "aafwk_standard/interfaces"
+module_output_path = "ability_runtime/interfaces"
 
 ohos_benchmarktest("BenchmarkTestForAbilityManager") {
   module_out_path = module_output_path

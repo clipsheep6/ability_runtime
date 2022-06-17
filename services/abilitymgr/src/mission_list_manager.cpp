@@ -43,7 +43,8 @@ std::string GetCurrentTime()
 {
     struct timespec tn;
     clock_gettime(CLOCK_REALTIME, &tn);
-    uint64_t uTime = static_cast<uint64_t>(tn.tv_sec) * NANO_SECOND_PER_SEC + tn.tv_nsec;
+    uint64_t uTime = static_cast<uint64_t>(tn.tv_sec) * NANO_SECOND_PER_SEC +
+        static_cast<uint64_t>(tn.tv_nsec);
     return std::to_string(uTime);
 }
 } // namespace
@@ -2671,5 +2672,23 @@ int MissionListManager::BlockAbility(int32_t abilityRecordId)
     return ret;
 }
 #endif
+
+void MissionListManager::SetMissionANRStateByTokens(const std::vector<sptr<IRemoteObject>> &tokens)
+{
+    HILOG_INFO("%{public}s", __func__);
+    for (auto &item : tokens) {
+        auto abilityRecord = GetAbilityRecordByToken(item);
+        if (abilityRecord == nullptr) {
+            HILOG_WARN("abilityRecord is nullptr.");
+            continue;
+        }
+        auto mission = abilityRecord->GetMission();
+        if (mission == nullptr) {
+            HILOG_WARN("mission is nullptr.");
+            continue;
+        }
+        mission->SetANRState(true);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS
