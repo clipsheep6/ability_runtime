@@ -153,6 +153,7 @@ ohos_unittest("context_container_test") {
 
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
@@ -186,6 +187,7 @@ ohos_unittest("context_deal_test") {
 
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${ability_base_path}:want",
@@ -220,6 +222,7 @@ ohos_unittest("application_impl_test") {
   deps = [
     "${ABILITY_INNERKITS_PATH}/uri_permission:uri_permission_mgr",
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",

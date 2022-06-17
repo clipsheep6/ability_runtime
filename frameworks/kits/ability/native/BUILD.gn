@@ -127,7 +127,6 @@ ohos_shared_library("abilitykit_native") {
     "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
     "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/src/napi_result_set.cpp",
     "${innerkits_path}/app_manager/src/appmgr/process_info.cpp",
-    "${kits_path}/appkit/native/ability_runtime/context/context_impl.cpp",
     "${kits_path}/appkit/native/ability_runtime/extension_context.cpp",
     "${kits_path}/appkit/native/ability_runtime/service_extension_context.cpp",
     "${kits_path}/appkit/native/ability_runtime/static_subscriber_extension_context.cpp",
