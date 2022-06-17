@@ -31,6 +31,7 @@
 #include "form_info_mgr.h"
 #include "form_mgr_adapter.h"
 #include "form_mgr_errors.h"
+#include "form_share_mgr.h"
 #include "form_task_mgr.h"
 #include "form_timer_mgr.h"
 #include "hilog_wrapper.h"
@@ -453,13 +454,14 @@ ErrCode FormMgrService::Init()
         HILOG_ERROR("%{public}s fail, Failed to init due to create runner error", __func__);
         return ERR_INVALID_OPERATION;
     }
-    handler_ = std::make_shared<EventHandler>(runner_);
+    handler_ = std::make_shared<FormEventHandler>(runner_);
     if (!handler_) {
         HILOG_ERROR("%{public}s fail, Failed to init due to create handler error", __func__);
         return ERR_INVALID_OPERATION;
     }
     FormTaskMgr::GetInstance().SetEventHandler(handler_);
     FormAmsHelper::GetInstance().SetEventHandler(handler_);
+    FormShareMgr::GetInstance().SetEventHandler(handler_);
     /* Publish service maybe failed, so we need call this function at the last,
      * so it can't affect the TDD test program */
     bool ret = Publish(DelayedSingleton<FormMgrService>::GetInstance().get());
@@ -695,6 +697,39 @@ int FormMgrService::UpdateRouterAction(const int64_t formId, std::string &action
 {
     HILOG_INFO("%{public}s called.", __func__);
     return FormMgrAdapter::GetInstance().UpdateRouterAction(formId, action);
+}
+
+/**
+ * @brief Form share.
+ * @param formId Indicates the unique id of form.
+ * @param deviceId Indicates the device ID to share.
+ * @param callerToken Host client.
+ * @param requestCode the request code of this share form.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::ShareForm(const int64_t formId, const std::string &deviceId, const sptr<IRemoteObject> &callerToken,
+    const int64_t requestCode)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    auto ret = CheckFormPermission();
+    if (ret != ERR_OK) {
+        HILOG_ERROR("%{public}s fail, share form permission denied", __func__);
+        return ret;
+    }
+
+    return FormMgrAdapter::GetInstance().ShareForm(formId, deviceId, callerToken, requestCode);
+}
+
+/**
+ * @brief Receive form sharing information from remote.
+ * @param info Indicates form sharing information.
+ * @param deviceId Indicates the device ID to share.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrService::RecvFormShareInfoFromRemote(const FormShareInfo &info)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    return FormMgrAdapter::GetInstance().RecvFormShareInfoFromRemote(info);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

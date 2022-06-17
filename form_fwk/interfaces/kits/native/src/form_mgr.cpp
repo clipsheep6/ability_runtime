@@ -757,5 +757,25 @@ int FormMgr::UpdateRouterAction(const int64_t formId, std::string &action)
     }
     return remoteProxy_->UpdateRouterAction(formId, action);
 }
+
+/**
+ * @brief Share forms with formId and remote device id.
+ * @param formId The Id of the forms to delete.
+ * @param remoteDeviceId The Id of the remote revice to share.
+ * @param callerToken Host client.
+ * @param requestCode the request code of this share form.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgr::ShareForm(const int64_t formId, const std::string &remoteDeviceId, const sptr<IRemoteObject> &callerToken,
+    const int64_t requestCode)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    int errCode = Connect();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("%{public}s failed errCode:%{public}d.", __func__, errCode);
+        return errCode;
+    }
+    return remoteProxy_->ShareForm(formId, remoteDeviceId, callerToken, requestCode);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

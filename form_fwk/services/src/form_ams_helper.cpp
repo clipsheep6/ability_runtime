@@ -136,5 +136,21 @@ void FormAmsHelper::DisConnectAbilityTask(const sptr<AAFwk::IAbilityConnection> 
     }
     IN_PROCESS_CALL_WITHOUT_RET(ams->DisconnectAbility(connect));
 }
+
+/**
+ * @brief Start ability.
+ * @param want Special want for service type's ability.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+ErrCode FormAmsHelper::StartAbility(const Want &want)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    sptr<AAFwk::IAbilityManager> ams = GetAbilityManager();
+    if (ams == nullptr) {
+        HILOG_ERROR("%{public}s:ability service not connect", __func__);
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    return IN_PROCESS_CALL(ams->StartAbility(want));
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

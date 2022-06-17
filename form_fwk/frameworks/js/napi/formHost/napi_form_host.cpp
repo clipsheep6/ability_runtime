@@ -19,7 +19,7 @@
 #include <regex>
 #include <uv.h>
 #include <vector>
-
+#include "form_mgr.h"
 #include "form_info.h"
 #include "form_callback_interface.h"
 #include "form_host_client.h"
@@ -45,6 +45,10 @@ namespace {
     constexpr int CALLBACK_FLG = 1;
     constexpr int PROMISE_FLG = 2;
     OHOS::AppExecFwk::Ability* g_ability = nullptr;
+    // NANOSECONDS mean 10^9 nano second
+    constexpr int64_t NANOSECONDS = 1000000000;
+    // MICROSECONDS mean 10^6 millias second
+    constexpr int64_t MICROSECONDS = 1000000;
 }
 
 /**
@@ -2340,6 +2344,78 @@ private:
     napi_env env_;
 };
 
+void AcquireShareFormCallbackComplete(napi_env env, AsyncShareFormInfoCallbackInfo *const asyncCallbackInfo)
+{
+    HILOG_DEBUG("%{public}s, onAcquireShareForm back", __func__);
+    if (asyncCallbackInfo->callback == nullptr) {
+        HILOG_ERROR("callback is nullptr");
+        return;
+    }
+
+    napi_value result[ARGS_SIZE_TWO] = {0};
+    InnerCreateCallbackRetMsg(env, asyncCallbackInfo->result, result);
+    napi_value callback;
+    napi_value undefined;
+    napi_get_undefined(env, &undefined);
+    napi_get_reference_value(env, asyncCallbackInfo->callback, &callback);
+    napi_value callResult;
+    napi_call_function(env, undefined, callback, ARGS_SIZE_TWO, result, &callResult);
+    napi_delete_reference(env, asyncCallbackInfo->callback);
+
+    HILOG_DEBUG("%{public}s, onAcquireShareForm back done", __func__);
+}
+
+void AcquireShareFormPromiseComplete(napi_env env, AsyncShareFormInfoCallbackInfo *const asyncCallbackInfo)
+{
+    HILOG_INFO("%{public}s, onAcquireShareForm back", __func__);
+    napi_value result;
+    InnerCreatePromiseRetMsg(env, asyncCallbackInfo->result, &result);
+    if (asyncCallbackInfo->result == ERR_OK) {
+        napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
+    } else {
+        napi_reject_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
+    }
+    HILOG_INFO("%{public}s, onAcquireShareForm back done", __func__);
+}
+
+class ShareFormCallBackClient : public ShareFormCallBack{
+public:
+    explicit ShareFormCallBackClient(AsyncShareFormInfoCallbackInfo *const asyncCallbackInfo)
+    {
+        asyncCallbackInfo_ = asyncCallbackInfo;
+    }
+
+    virtual ~ShareFormCallBackClient()
+    {
+        if (asyncCallbackInfo_ != nullptr) {
+            delete asyncCallbackInfo_;
+            asyncCallbackInfo_ = nullptr;
+        }
+    }
+    /**
+     * @brief share form callback.
+     *
+     * @param result Indicates the result for ShareForm.
+     */
+    void ProcessShareFormResponse(const int result)
+    {
+        if (asyncCallbackInfo_ == nullptr) {
+            return;
+        }
+        asyncCallbackInfo_->result = result;
+        if (asyncCallbackInfo_->callbackType == CALLBACK_FLG) {
+            AcquireShareFormCallbackComplete(asyncCallbackInfo_->env, asyncCallbackInfo_);
+        } else {
+            AcquireShareFormPromiseComplete(asyncCallbackInfo_->env, asyncCallbackInfo_);
+        }
+        delete asyncCallbackInfo_;
+        asyncCallbackInfo_ = nullptr;
+    }
+
+private:
+    AsyncShareFormInfoCallbackInfo *asyncCallbackInfo_ = nullptr;
+};
+
 std::map<napi_ref, std::shared_ptr<FormUninstallCallbackClient>> g_formUninstallCallbackMap {};
 std::mutex formUninstallCallbackMapMutex_;
 
@@ -3308,3 +3384,201 @@ napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info)
     return NapiGetResult(env, 1);
 }
 
+int64_t SystemTimeMillis()
+{
+    struct timespec t;
+    t.tv_sec = 0;
+    t.tv_nsec = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (int64_t)((t.tv_sec) * NANOSECONDS + t.tv_nsec) / MICROSECONDS;
+}
+
+static void InnerShareForm(AsyncShareFormInfoCallbackInfo *const asyncCallbackInfo)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    std::shared_ptr<ShareFormCallBack> shareFormCallback = std::make_shared<ShareFormCallBackClient>(asyncCallbackInfo);
+    int64_t requestCode = SystemTimeMillis();
+    asyncCallbackInfo->requestCode = requestCode;
+    FormHostClient::GetInstance()->AddShareFormCallback(shareFormCallback, requestCode);
+
+    ErrCode ret = FormMgr::GetInstance().ShareForm(asyncCallbackInfo->formId, asyncCallbackInfo->remoteDeviceId,
+        FormHostClient::GetInstance(), requestCode);
+    asyncCallbackInfo->result = ret;
+    HILOG_DEBUG("%{public}s, end", __func__);
+}
+
+/**
+ * @brief  The implementation of Node-API interface: shareForm
+ *
+ * @param[in] env The environment that the Node-API call is invoked under
+ * @param[out] info An opaque datatype that is passed to a callback function
+ *
+ * @return This is an opaque pointer that is used to represent a JavaScript value
+ */
+napi_value NAPI_ShareForm(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+
+    // Check the number of the arguments
+    size_t argc = ARGS_SIZE_THREE;
+    napi_value argv[ARGS_SIZE_THREE] = {nullptr};
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    if (argc < ARGS_SIZE_TWO || argc > ARGS_SIZE_THREE) {
+        HILOG_ERROR("%{public}s, wrong number of arguments.", __func__);
+        return nullptr;
+    }
+    HILOG_INFO("%{public}s, argc = [%{public}zu]", __func__, argc);
+
+    // Check the value type of the arguments
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ZERO], &valueType));
+    if (valueType != napi_string) {
+        AsyncErrMsgCallbackInfo *asyncErrorInfo = new
+            AsyncErrMsgCallbackInfo {
+                .env = env,
+                .asyncWork = nullptr,
+                .deferred = nullptr,
+                .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
+                .code = ERR_APPEXECFWK_FORM_COMMON_CODE,
+                .type = 0
+            };
+
+        if (argc == ARGS_SIZE_THREE) {
+            asyncErrorInfo->type = CALLBACK_FLG;
+        } else {
+            asyncErrorInfo->type = PROMISE_FLG;
+        }
+        return RetErrMsg(asyncErrorInfo);
+    }
+
+    NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_ONE], &valueType));
+    if (valueType != napi_string) {
+        AsyncErrMsgCallbackInfo *asyncErrorInfo = new
+            AsyncErrMsgCallbackInfo {
+                .env = env,
+                .asyncWork = nullptr,
+                .deferred = nullptr,
+                .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
+                .code = ERR_APPEXECFWK_FORM_COMMON_CODE,
+                .type = 0
+            };
+
+        if (argc == ARGS_SIZE_THREE) {
+            asyncErrorInfo->type = CALLBACK_FLG;
+        } else {
+            asyncErrorInfo->type = PROMISE_FLG;
+        }
+        return RetErrMsg(asyncErrorInfo);
+    }
+
+
+    std::string strFormId = GetStringFromNAPI(env, argv[0]);
+    std::string remoteDeviceId = GetStringFromNAPI(env, argv[1]);
+    int64_t formId;
+    HILOG_INFO("%{public}s, strFormId : %{public}s, remoteDeviceId : %{public}s", __func__, strFormId.c_str(),
+        remoteDeviceId.c_str());
+    if (!ConvertStringToInt64(strFormId, formId)) {
+        AsyncErrMsgCallbackInfo *asyncErrorInfo = new
+            AsyncErrMsgCallbackInfo {
+                .env = env,
+                .asyncWork = nullptr,
+                .deferred = nullptr,
+                .callback = nullptr,
+                .callbackValue = argv[ARGS_SIZE_TWO],
+                .code = ERR_APPEXECFWK_FORM_FORM_ID_NUM_ERR,
+                .type = 0
+            };
+
+        if (argc == ARGS_SIZE_THREE) {
+            asyncErrorInfo->type = CALLBACK_FLG;
+        } else {
+            asyncErrorInfo->type = PROMISE_FLG;
+        }
+        return RetErrMsg(asyncErrorInfo);
+    }
+    int32_t callbackType = (argc == ARGS_SIZE_THREE) ? CALLBACK_FLG : PROMISE_FLG;
+    AsyncShareFormInfoCallbackInfo *asyncCallbackInfo = new
+        AsyncShareFormInfoCallbackInfo {
+            .env = env,
+            .ability = GetGlobalAbility(env),
+            .asyncWork = nullptr,
+            .deferred = nullptr,
+            .callback = nullptr,
+            .formId = 0,
+            .remoteDeviceId = "",
+            .requestCode = 0,
+            .callbackType = callbackType,
+            .result = 0,
+        };
+    asyncCallbackInfo->formId = formId;
+    asyncCallbackInfo->remoteDeviceId = remoteDeviceId;
+    if (argc == ARGS_SIZE_THREE) {
+        HILOG_INFO("%{public}s, asyncCallback.", __func__);
+
+        // Check the value type of the arguments
+        valueType = napi_undefined;
+        NAPI_CALL(env, napi_typeof(env, argv[ARGS_SIZE_TWO], &valueType));
+        NAPI_ASSERT(env, valueType == napi_function, "The arguments[1] type of deleteForm is incorrect, "
+            "expected type is function.");
+
+        napi_create_reference(env, argv[ARGS_SIZE_TWO], REF_COUNT, &asyncCallbackInfo->callback);
+
+        napi_value resourceName;
+        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+        napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            [](napi_env env, void *data) {
+                HILOG_INFO("%{public}s, napi_create_async_work running", __func__);
+                AsyncShareFormInfoCallbackInfo *asyncCallbackInfo = (AsyncShareFormInfoCallbackInfo *)data;
+                InnerShareForm(asyncCallbackInfo);
+            },
+            [](napi_env env, napi_status status, void *data) {
+                AsyncShareFormInfoCallbackInfo *asyncCallbackInfo = (AsyncShareFormInfoCallbackInfo *)data;
+                HILOG_INFO("%{public}s, napi_create_async_work complete", __func__);
+                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+                if (asyncCallbackInfo->result != ERR_OK) {
+                    FormHostClient::GetInstance()->OnShareFormResponse(asyncCallbackInfo->requestCode,
+                    asyncCallbackInfo->result);
+                }
+            },
+            (void *)asyncCallbackInfo,
+            &asyncCallbackInfo->asyncWork);
+        NAPI_CALL(env, napi_queue_async_work(env, asyncCallbackInfo->asyncWork));
+        return NapiGetResult(env, 1);
+    } else {
+        HILOG_INFO("%{public}s, promise.", __func__);
+        napi_deferred deferred;
+        napi_value promise;
+        NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+        asyncCallbackInfo->deferred = deferred;
+
+        napi_value resourceName;
+        napi_create_string_latin1(env, __func__, NAPI_AUTO_LENGTH, &resourceName);
+        napi_create_async_work(
+            env,
+            nullptr,
+            resourceName,
+            [](napi_env env, void *data) {
+                HILOG_INFO("%{public}s, promise running", __func__);
+                AsyncShareFormInfoCallbackInfo *asyncCallbackInfo = (AsyncShareFormInfoCallbackInfo *)data;
+                InnerShareForm(asyncCallbackInfo);
+            },
+            [](napi_env env, napi_status status, void *data) {
+                HILOG_INFO("%{public}s, promise complete", __func__);
+                AsyncShareFormInfoCallbackInfo *asyncCallbackInfo = (AsyncShareFormInfoCallbackInfo *)data;
+                napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+                if (asyncCallbackInfo->result != ERR_OK) {
+                    FormHostClient::GetInstance()->OnShareFormResponse(asyncCallbackInfo->requestCode,
+                    asyncCallbackInfo->result);
+                }
+            },
+            (void *)asyncCallbackInfo,
+            &asyncCallbackInfo->asyncWork);
+        napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
+        return promise;
+    }
+}

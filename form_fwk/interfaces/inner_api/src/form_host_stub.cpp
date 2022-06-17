@@ -36,6 +36,8 @@ FormHostStub::FormHostStub()
         &FormHostStub::HandleOnUninstall;
     memberFuncMap_[static_cast<uint32_t>(IFormHost::Message::FORM_HOST_ON_ACQUIRE_FORM_STATE)] =
         &FormHostStub::HandleOnAcquireState;
+    memberFuncMap_[static_cast<uint32_t>(IFormHost::Message::FORM_HOST_ON_SHARE_FORM_RESPONSE)] =
+        &FormHostStub::HandleOnShareFormResponse;
 }
 
 FormHostStub::~FormHostStub()
@@ -140,6 +142,22 @@ int FormHostStub::HandleOnAcquireState(MessageParcel &data, MessageParcel &reply
     }
 
     OnAcquireState(state, *want);
+    reply.WriteInt32(ERR_OK);
+    return ERR_OK;
+}
+
+/**
+ * @brief handle OnShareFormResponse message.
+ * @param data input param.
+ * @param reply output param.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormHostStub::HandleOnShareFormResponse(MessageParcel &data, MessageParcel &reply)
+{
+    auto requestCode = data.ReadInt64();
+    auto result = data.ReadInt32();
+
+    OnShareFormResponse(requestCode, result);
     reply.WriteInt32(ERR_OK);
     return ERR_OK;
 }

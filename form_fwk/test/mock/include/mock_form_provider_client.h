@@ -116,6 +116,9 @@ private:
      */
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                              const sptr<IRemoteObject> &callerToken) override;
+
+    virtual int ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode) override;
 private:
     DISALLOW_COPY_AND_MOVE(MockFormProviderClient);
 };

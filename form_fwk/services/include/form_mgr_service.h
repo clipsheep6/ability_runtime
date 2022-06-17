@@ -23,7 +23,7 @@
 #include <thread_ex.h>
 #include <unordered_map>
 
-#include "event_handler.h"
+#include "form_event_handler.h"
 #include "form_mgr_stub.h"
 #include "form_provider_data.h"
 #include "form_sys_event_receiver.h"
@@ -319,6 +319,25 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int UpdateRouterAction(const int64_t formId, std::string &action) override;
+
+    /**
+     * @brief Form share.
+     * @param formId Indicates the unique id of form.
+     * @param deviceId Indicates the device ID to share.
+     * @param callerToken Host client.
+     * @param requestCode the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ShareForm(const int64_t formId, const std::string &deviceId,
+        const sptr<IRemoteObject> &callerToken, const int64_t requestCode) override;
+
+    /**
+     * @brief Receive form sharing information from remote.
+     * @param info Indicates form sharing information.
+     * @param deviceId Indicates the device ID to share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RecvFormShareInfoFromRemote(const FormShareInfo &info) override;
 private:
     /**
      * @brief initialization of form manager service.

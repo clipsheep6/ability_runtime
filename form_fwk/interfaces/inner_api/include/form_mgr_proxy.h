@@ -293,6 +293,25 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UpdateRouterAction(const int64_t formId, std::string &action) override;
+
+    /**
+     * @brief Form share.
+     * @param formId Indicates the unique id of form.
+     * @param deviceId Indicates the device ID to share.
+     * @param callerToken Host client.
+     * @param requestCode the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ShareForm(const int64_t formId, const std::string &deviceId, const sptr<IRemoteObject> &callerToken,
+        const int64_t requestCode) override;
+
+    /**
+     * @brief Receive form sharing information from remote.
+     * @param info Indicates form sharing information.
+     * @param deviceId Indicates the device ID to share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RecvFormShareInfoFromRemote(const FormShareInfo &info) override;
 private:
     template<typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

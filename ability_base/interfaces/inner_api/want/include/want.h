@@ -789,6 +789,7 @@ public:
     // action definition
     static const std::string ACTION_PLAY;
     static const std::string ACTION_HOME;
+    static const std::string ACTION_SHARE_FORM;
 
     // entity definition
     static const std::string ENTITY_HOME;

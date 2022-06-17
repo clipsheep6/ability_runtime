@@ -34,6 +34,8 @@ FormSupplyStub::FormSupplyStub()
         &FormSupplyStub::HandleOnEventHandle;
     memberFuncMap_[static_cast<uint32_t>(IFormSupply::Message::TRANSACTION_FORM_STATE_ACQUIRED)] =
         &FormSupplyStub::HandleOnAcquireStateResult;
+    memberFuncMap_[static_cast<uint32_t>(IFormSupply::Message::TRANSACTION_FORM_SHARE_ACQUIRED)] =
+        &FormSupplyStub::HandleOnShareAcquire;
 }
 
 FormSupplyStub::~FormSupplyStub()
@@ -98,7 +100,7 @@ int FormSupplyStub::HandleOnAcquire(MessageParcel &data, MessageParcel &reply)
         int32_t result = OnAcquire(*formInfo, *want);
         reply.WriteInt32(result);
         return result;
-    } while (false);
+    } while (true);
 
     FormProviderInfo formProviderInfo;
     want->SetParam(Constants::PROVIDER_FLAG, errCode);
@@ -153,6 +155,35 @@ int FormSupplyStub::HandleOnAcquireStateResult(MessageParcel &data, MessageParce
     int32_t result = OnAcquireStateResult(state, provider, *wantArg, *want);
     reply.WriteInt32(result);
     return result;
+}
+
+int FormSupplyStub::HandleOnShareAcquire(MessageParcel &data, MessageParcel &reply)
+{
+    auto formId = data.ReadInt64();
+    if (formId <= 0) {
+        HILOG_ERROR("%{public}s, failed to ReadInt64<formId>", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    auto remoteDeviceId = data.ReadString();
+    if (remoteDeviceId.empty()) {
+        HILOG_ERROR("%{public}s, failed to ReadString<DeviceId>", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    std::shared_ptr<AAFwk::WantParams> wantParams(data.ReadParcelable<AAFwk::WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("%{public}s, failed to ReadParcelable<wantParams>", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    auto requestCode = data.ReadInt64();
+    if (requestCode <= 0) {
+        HILOG_ERROR("%{public}s, failed to ReadInt64<requestCode>", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    OnShareAcquire(formId, remoteDeviceId, *wantParams, requestCode);
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

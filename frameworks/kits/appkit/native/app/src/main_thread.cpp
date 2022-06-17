@@ -65,6 +65,7 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
 std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
+std::shared_ptr<std::thread> MainThread::handleANRThread_ = nullptr;
 std::shared_ptr<EventHandler> MainThread::dfxHandler_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
@@ -107,7 +108,6 @@ MainThread::MainThread()
 {
 #ifdef ABILITY_LIBRARY_LOADER
     fileEntries_.clear();
-    nativeFileEntries_.clear();
     handleAbilityLib_.clear();
 #endif  // ABILITY_LIBRARY_LOADER
 }
@@ -604,12 +604,6 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
     applicationImpl_->PerformTerminateStrong();
-
-    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
-    if (dfxRunner) {
-        dfxRunner->Stop();
-    }
-
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::HandleTerminateApplicationLocal get manHandler error");
@@ -618,6 +612,10 @@ void MainThread::HandleTerminateApplicationLocal()
 
     if (watchDogHandler_ != nullptr) {
         watchDogHandler_->Stop();
+    }
+    if (handleANRThread_ != nullptr && handleANRThread_->joinable()) {
+        handleANRThread_->join();
+        handleANRThread_ = nullptr;
     }
 
     int ret = runner->Stop();
@@ -815,10 +813,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     ChangeToLocalPath(appLaunchData.GetApplicationInfo().bundleName,
         appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
     LoadAbilityLibrary(localPaths);
-    ApplicationInfo appInfo = appLaunchData.GetApplicationInfo();
-    LoadNativeLiabrary(appInfo.nativeLibraryPath);
     LoadAppLibrary();
 
+    ApplicationInfo appInfo = appLaunchData.GetApplicationInfo();
     ProcessInfo processInfo = appLaunchData.GetProcessInfo();
     Profile appProfile = appLaunchData.GetProfile();
 
@@ -893,7 +890,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             }
             std::string libPath = LOCAL_CODE_PATH;
             libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-            HILOG_INFO("napi lib path = %{public}s", libPath.c_str());
+            HILOG_INFO("napi lib path = %{private}s", libPath.c_str());
             options.packagePath = libPath;
         }
         auto runtime = AbilityRuntime::Runtime::Create(options);
@@ -1013,46 +1010,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     HILOG_INFO("MainThread::handleLaunchApplication called end.");
-}
-
-void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
-{
-#ifdef ABILITY_LIBRARY_LOADER
-    if (nativeLibraryPath.empty()) {
-        HILOG_INFO("Native library path is empty.");
-        return;
-    }
-
-    if (nativeLibraryPath.back() == '/') {
-        nativeLibraryPath.pop_back();
-    }
-    std::string libPath = LOCAL_CODE_PATH;
-    libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-    HILOG_INFO("native library path = %{public}s", libPath.c_str());
-
-    if (!ScanDir(libPath, nativeFileEntries_)) {
-        HILOG_INFO("%{public}s scanDir %{public}s not exits", __func__, libPath.c_str());
-    }
-
-    if (nativeFileEntries_.empty()) {
-        HILOG_INFO("No native library");
-        return;
-    }
-
-    void *handleAbilityLib = nullptr;
-    for (auto fileEntry : nativeFileEntries_) {
-        if (!fileEntry.empty()) {
-            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
-            if (handleAbilityLib == nullptr) {
-                HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
-                    __func__, fileEntry.c_str(), dlerror());
-                exit(-1);
-            }
-            HILOG_INFO("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
-            handleAbilityLib_.emplace_back(handleAbilityLib);
-        }
-    }
-#endif
 }
 
 void MainThread::ChangeToLocalPath(const std::string &bundleName,
@@ -1426,12 +1383,6 @@ void MainThread::HandleTerminateApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
         return;
     }
-
-    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
-    if (dfxRunner) {
-        dfxRunner->Stop();
-    }
-
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
@@ -1441,6 +1392,10 @@ void MainThread::HandleTerminateApplication()
 
     if (watchDogHandler_ != nullptr) {
         watchDogHandler_->Stop();
+    }
+    if (handleANRThread_ != nullptr && handleANRThread_->joinable()) {
+        handleANRThread_->join();
+        handleANRThread_ = nullptr;
     }
 
     int ret = runner->Stop();
@@ -1560,10 +1515,11 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
 void MainThread::HandleSignal(int signal)
 {
     switch (signal) {
-        case SIGUSR1: {
-            dfxHandler_->PostTask(&MainThread::HandleScheduleANRProcess);
+        case SIGUSR1:
+            if (handleANRThread_ == nullptr) {
+                handleANRThread_ = std::make_shared<std::thread>(&MainThread::HandleScheduleANRProcess);
+            }
             break;
-        }
         case SIGNAL_JS_HEAP: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
             dfxHandler_->PostTask(heapFunc);
@@ -1744,25 +1700,19 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
         return;
     }
 
-    char resolvedPath[PATH_MAX] = {0};
     void *handleAbilityLib = nullptr;
-    for (const auto& fileEntry : fileEntries_) {
-        if (fileEntry.empty() || fileEntry.size() >= PATH_MAX) {
-            continue;
+    for (auto fileEntry : fileEntries_) {
+        if (!fileEntry.empty()) {
+            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
+            if (handleAbilityLib == nullptr) {
+                HILOG_ERROR("MainThread::LoadAbilityLibrary Fail to dlopen %{public}s, [%{public}s]",
+                    fileEntry.c_str(),
+                    dlerror());
+                exit(-1);
+            }
+            HILOG_INFO("MainThread::LoadAbilityLibrary Success to dlopen %{public}s", fileEntry.c_str());
+            handleAbilityLib_.emplace_back(handleAbilityLib);
         }
-        if (realpath(fileEntry.c_str(), resolvedPath) == nullptr) {
-            HILOG_ERROR("Failed to get realpath, errno = %{public}d", errno);
-            continue;
-        }
-
-        handleAbilityLib = dlopen(resolvedPath, RTLD_NOW | RTLD_GLOBAL);
-        if (handleAbilityLib == nullptr) {
-            HILOG_ERROR("MainThread::LoadAbilityLibrary Fail to dlopen %{public}s, [%{public}s]",
-                resolvedPath, dlerror());
-            exit(-1);
-        }
-        HILOG_INFO("MainThread::LoadAbilityLibrary Success to dlopen %{public}s", fileEntry.c_str());
-        handleAbilityLib_.emplace_back(handleAbilityLib);
     }
     HILOG_INFO("MainThread::LoadAbilityLibrary called end.");
 #endif  // ABILITY_LIBRARY_LOADER
@@ -1799,7 +1749,6 @@ void MainThread::CloseAbilityLibrary()
     }
     handleAbilityLib_.clear();
     fileEntries_.clear();
-    nativeFileEntries_.clear();
 }
 
 bool MainThread::ScanDir(const std::string &dirPath, std::vector<std::string> &files)

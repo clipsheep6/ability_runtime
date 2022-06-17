@@ -70,6 +70,14 @@ namespace Constants {
     // The max uid of system app.
     const int32_t MAX_SYSTEM_APP_UID = 10000;
 
+    // share form
+    const std::string PARAM_SHARE_FORM_BUNDLENAME_KEY = "ohos.extra.param.key.share.bundle_name";
+    const std::string PARAM_SHARE_FORM_MOUDLENAME_KEY = "ohos.extra.param.key.share.moudle_name";
+    const std::string PARAM_SHARE_FORM_ABILITYNAME_KEY = "ohos.extra.param.key.share.ability_name";
+    const std::string PARAM_SHARE_FORM_NAME_KEY = "ohos.extra.param.key.share.form_name";
+    const std::string PARAM_SHARE_FORM_TEMP_FLAG_KEY = "ohos.extra.param.key.share.form_temporary";
+    const std::string PARAM_SHARE_FORM_DIMENSION_ID_KEY = "ohos.extra.param.key.share.form_dimension";
+
     const int MIN_TIME_SPEED = 1;
     const int MAX_TIME_SPEED = 1000;
     const int MAX_HOUR = 23;
@@ -112,6 +120,7 @@ namespace Constants {
     const std::string PROVIDER_FLAG = "provider_flag";
     const std::string FORM_CONNECT_ID = "form_connect_id";
     const std::string FORM_SUPPLY_INFO = "form_supply_info";
+    const std::string FORM_SHARE_REQUEST_CODE = "form_share_request_code";
 
     // the delimiter between bundleName and abilityName
     const std::string NAME_DELIMITER = "::";

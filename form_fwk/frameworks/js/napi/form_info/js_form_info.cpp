@@ -62,6 +62,18 @@ NativeValue* CreateJsFormParam(NativeEngine &engine)
     object->SetProperty("WIDTH_KEY", CreateJsValue(engine, AppExecFwk::Constants::PARAM_FORM_WIDTH_KEY));
     object->SetProperty("HEIGHT_KEY", CreateJsValue(engine, AppExecFwk::Constants::PARAM_FORM_HEIGHT_KEY));
     object->SetProperty("TEMPORARY_KEY", CreateJsValue(engine, AppExecFwk::Constants::PARAM_FORM_TEMPORARY_KEY));
+    object->SetProperty("SHARE_BUNDLE_NAME_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_BUNDLENAME_KEY));
+    object->SetProperty("SHARE_MOUDLE_NAME_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_MOUDLENAME_KEY));
+    object->SetProperty("SHARE_ABILITY_NAME_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_ABILITYNAME_KEY));
+    object->SetProperty("SHARE_NAME_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_NAME_KEY));
+    object->SetProperty("SHARE_TEMPORARY_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_TEMP_FLAG_KEY));
+    object->SetProperty("SHARE_DIMENSION_KEY",
+        CreateJsValue(engine, AppExecFwk::Constants::PARAM_SHARE_FORM_DIMENSION_ID_KEY));
     return objValue;
 }
 

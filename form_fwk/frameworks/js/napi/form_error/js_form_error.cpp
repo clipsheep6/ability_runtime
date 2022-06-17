@@ -45,6 +45,8 @@ NativeValue* CreateJsFormError(NativeEngine &engine)
     object->SetProperty("ERR_FORM_FA_NOT_INSTALLED", CreateJsValue(engine, ERR_FORM_FA_NOT_INSTALLED));
     object->SetProperty("ERR_SYSTEM_RESPONSES_FAILED", CreateJsValue(engine, ERR_SYSTEM_RESPONSES_FAILED));
     object->SetProperty("ERR_FORM_DUPLICATE_ADDED", CreateJsValue(engine, ERR_FORM_DUPLICATE_ADDED));
+    object->SetProperty("ERR_GET_DEVICE_INFO_FAILED", CreateJsValue(engine, ERR_GET_DEVICE_INFO_FAILED));
+    object->SetProperty("ERR_DISTRIBUTED_SCHEDULE_FAILED", CreateJsValue(engine, ERR_DISTRIBUTED_SCHEDULE_FAILED));
     object->SetProperty("ERR_IN_RECOVERY", CreateJsValue(engine, ERR_IN_RECOVERY));
     return objValue;
 }

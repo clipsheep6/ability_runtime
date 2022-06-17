@@ -62,6 +62,16 @@ public:
     void PostAcquireTask(const int64_t formId, const Want &want, const sptr<IRemoteObject> &remoteObject);
 
     /**
+     * @brief Acquire share form data from form provider(task).
+     * @param formId The Id of the form.
+     * @param remoteDeviceId The device ID to share.
+     * @param want The want of the request.
+     * @param remoteObject Form provider proxy object.
+     */
+    void PostShareAcquireTask(const int64_t formId, const std::string &remoteDeviceId, const Want &want,
+        const sptr<IRemoteObject> &remoteObject);
+
+    /**
      * @brief Delete form data from form provider(task).
      * @param formId The Id of the form.
      * @param want The want of the request.
@@ -170,6 +180,13 @@ public:
     */
     void PostAcquireStateTaskToHost(AppExecFwk::FormState state, const AAFwk::Want &want,
                                     const sptr<IRemoteObject> &remoteObject);
+
+    /**
+    * @brief Post form share error code to form host(task).
+    * @param formShareRequestCode The request code for this share.
+    * @param result The error code of this share.
+    */
+    void PostFormShareSendResponse(const int64_t formShareRequestCode, const int result);
 private:
     /**
      * @brief Acquire form data from form provider.
@@ -178,6 +195,16 @@ private:
      * @param remoteObject Form provider proxy object.
      */
     void AcquireProviderFormInfo(const int64_t formId, const Want &want, const sptr<IRemoteObject> &remoteObject);
+
+    /**
+     * @brief Acquire share form data from form provider(task).
+     * @param formId The Id of the form.
+     * @param remoteDeviceId The device ID to share.
+     * @param want The want of the request.
+     * @param remoteObject Form provider proxy object.
+     */
+    void ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId, const Want &want,
+        const sptr<IRemoteObject> &remoteObject);
 
     /**
      * @brief Notify form provider for delete form.
@@ -295,6 +322,12 @@ private:
      */
     FormJsInfo CreateFormJsInfo(const int64_t formId, const FormRecord &record);
 
+    /**
+    * @brief Post form share error code to form host(task).
+    * @param formShareRequestCode The request code for this share.
+    * @param result The error code of this share.
+    */
+    void FormShareSendResponse(const int64_t formShareRequestCode, const int result);
 private:
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_ = nullptr;
 };

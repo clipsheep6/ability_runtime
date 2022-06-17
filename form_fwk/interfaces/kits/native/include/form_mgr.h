@@ -359,6 +359,18 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int UpdateRouterAction(const int64_t formId, std::string &action);
+
+    /**
+     * @brief Share forms with formId and remote device id.
+     * @param formId The Id of the forms to delete.
+     * @param remoteDeviceId The Id of the remote revice to share.
+     * @param callerToken Host client.
+     * @param requestCode the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int ShareForm(const int64_t formId, const std::string &remoteDeviceId, const sptr<IRemoteObject> &callerToken,
+        const int64_t requestCode);
+
 private:
     /**
      * @brief Connect form manager service.

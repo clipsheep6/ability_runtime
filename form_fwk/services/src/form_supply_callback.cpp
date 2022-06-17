@@ -22,6 +22,8 @@
 #include "form_constants.h"
 #include "form_mgr_errors.h"
 #include "form_provider_mgr.h"
+#include "form_supply_callback.h"
+#include "form_share_mgr.h"
 #include "form_util.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
@@ -183,6 +185,14 @@ bool FormSupplyCallback::CanDisConnect(sptr<FormAbilityConnection> &connection)
     }
     HILOG_INFO("%{public}s end, false.", __func__);
     return false;
+}
+
+void FormSupplyCallback::OnShareAcquire(const int64_t formId, const std::string &remoteDeviceId,
+    const AAFwk::WantParams &wantParams, const int64_t requestCode)
+{
+    HILOG_DEBUG("%{public}s formId %{public}d called.", __func__, static_cast<int32_t>(formId));
+    DelayedRefSingleton<FormShareMgr>::GetInstance().AcquireFormProviderInfo(
+        formId, remoteDeviceId, wantParams, requestCode);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
