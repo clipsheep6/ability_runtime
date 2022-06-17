@@ -43,7 +43,6 @@ ohos_unittest("form_mgr_proxy_test") {
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
-    "device_usage_statistics:usagestatsinner",
     "distributeddatamgr:distributeddata_inner",
     "eventhandler:libeventhandler",
     "form_fwk:form_manager",
@@ -55,6 +54,11 @@ ohos_unittest("form_mgr_proxy_test") {
     "time_native:time_service",
     "utils_base:utils",
   ]
+
+  if (device_usage_statistics) {
+    external_deps += [ "device_usage_statistics:usagestatsinner" ]
+    defines += [ "DEVICE_USAGE_STATISTICS_ENABLE" ]
+  }
 }
 
 group("unittest") {

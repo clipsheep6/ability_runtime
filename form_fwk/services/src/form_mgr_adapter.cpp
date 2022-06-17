@@ -21,7 +21,9 @@
 
 #include "ability_manager_errors.h"
 #include "appexecfwk_errors.h"
+#ifdef DEVICE_USAGE_STATISTICS_ENABLE
 #include "bundle_active_client.h"
+#endif
 #include "form_acquire_connection.h"
 #include "form_acquire_state_connection.h"
 #include "form_ams_helper.h"
@@ -251,6 +253,7 @@ ErrCode FormMgrAdapter::HandleDeleteForm(const int64_t formId, const sptr<IRemot
 
     FormRecord record;
     FormDataMgr::GetInstance().GetFormRecord(formId, record);
+#ifdef DEVICE_USAGE_STATISTICS_ENABLE
     DeviceUsageStats::BundleActiveEvent event(record.bundleName, record.moduleName, record.formName,
         record.specification, record.formId, DeviceUsageStats::BundleActiveEvent::FORM_IS_REMOVED);
 
@@ -274,6 +277,7 @@ ErrCode FormMgrAdapter::HandleDeleteForm(const int64_t formId, const sptr<IRemot
     }
 
     DeviceUsageStats::BundleActiveClient::GetInstance().ReportEvent(event, userId);
+#endif
     return ERR_OK;
 }
 
@@ -1751,6 +1755,7 @@ int FormMgrAdapter::MessageEvent(const int64_t formId, const Want &want, const s
     }
     HILOG_INFO("%{public}s, find target client.", __func__);
 
+#ifdef DEVICE_USAGE_STATISTICS_ENABLE
     if (!FormDataMgr::GetInstance().ExistTempForm(matchedFormId)) {
         int callingUid = IPCSkeleton::GetCallingUid();
         int32_t userId = GetCurrentUserId(callingUid);
@@ -1758,6 +1763,7 @@ int FormMgrAdapter::MessageEvent(const int64_t formId, const Want &want, const s
             record.specification, record.formId, DeviceUsageStats::BundleActiveEvent::FORM_IS_CLICKED);
         DeviceUsageStats::BundleActiveClient::GetInstance().ReportEvent(event, userId);
     }
+#endif
     return ERR_OK;
 }
 
@@ -1802,6 +1808,7 @@ int FormMgrAdapter::RouterEvent(const int64_t formId, Want &want)
         return result;
     }
 
+#ifdef DEVICE_USAGE_STATISTICS_ENABLE
     if (!FormDataMgr::GetInstance().ExistTempForm(matchedFormId)) {
         int32_t callingUid = IPCSkeleton::GetCallingUid();
         int32_t userId = GetCurrentUserId(callingUid);
@@ -1809,6 +1816,7 @@ int FormMgrAdapter::RouterEvent(const int64_t formId, Want &want)
             record.specification, record.formId, DeviceUsageStats::BundleActiveEvent::FORM_IS_CLICKED);
         DeviceUsageStats::BundleActiveClient::GetInstance().ReportEvent(event, userId);
     }
+#endif
     return ERR_OK;
 }
 
