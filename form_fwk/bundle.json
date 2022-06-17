@@ -69,7 +69,8 @@
                     "form_supply_stub.h",
                     "provider_connect_stub.h",
                     "form_constants.h",
-                    "form_js_info.h"
+                    "form_js_info.h",
+                    "form_share_info.h"
                   ]
                 },
                 "name": "//foundation/ability/ability_runtime/form_fwk:form_manager"

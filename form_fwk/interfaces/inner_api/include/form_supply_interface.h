@@ -63,6 +63,9 @@ public:
     virtual int OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
                                      const Want &want) = 0;
 
+    virtual void OnShareAcquire(const int64_t formId, const std::string &remoteDeviceId,
+        const AAFwk::WantParams &wantParams, const int64_t requestCode) = 0;
+
     enum class Message {
         // ipc id 1-1000 for kit
         // ipc id 1001-2000 for DMS
@@ -71,6 +74,7 @@ public:
         TRANSACTION_FORM_ACQUIRED = 3201,
         TRANSACTION_EVENT_HANDLE,
         TRANSACTION_FORM_STATE_ACQUIRED,
+        TRANSACTION_FORM_SHARE_ACQUIRED,
     };
 };
 }  // namespace AppExecFwk

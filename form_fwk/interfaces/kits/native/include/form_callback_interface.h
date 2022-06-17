@@ -52,6 +52,16 @@ public:
  */
 virtual void ProcessAcquireState(FormState state) = 0;
 };
+
+class ShareFormCallBack {
+public:
+    /**
+     * @brief share form callback.
+     *
+     * @param result Indicates the result for ShareForm.
+     */
+    virtual void ProcessShareFormResponse(const int result) = 0;
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_FORM_ABILITY_INTERFACE_H

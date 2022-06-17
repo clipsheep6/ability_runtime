@@ -268,6 +268,22 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t HandleUpdateRouterAction(MessageParcel &data, MessageParcel &reply);
+
+    /**
+     * @brief Form share.
+     * @param formId Indicates the unique id of form.
+     * @param deviceId Indicates the device ID to share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t HandleShareForm(MessageParcel &data, MessageParcel &reply);
+
+    /**
+     * @brief Receive form sharing information from remote.
+     * @param info Indicates form sharing information.
+     * @param deviceId Indicates the device ID to share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t HandleRecvFormShareInfoFromRemote(MessageParcel &data, MessageParcel &reply);
 private:
     using FormMgrFunc = int32_t (FormMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, FormMgrFunc> memberFuncMap_;

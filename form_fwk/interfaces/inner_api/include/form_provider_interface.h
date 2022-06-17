@@ -114,6 +114,17 @@ public:
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                              const sptr<IRemoteObject> &callerToken) = 0;
 
+    /**
+     * @brief Acquire to share form information data. This is sync API.
+     * @param formId form ID.
+     * @param remoteDeviceId Remote Device ID.
+     * @param formSupplyCallback lifecycle callback.
+     * @param requestCode requestCode of this form share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode) = 0;
+
     enum class Message {
         // ipc id 1-1000 for kit
         // ipc id 1001-2000 for DMS
@@ -141,6 +152,9 @@ public:
 
         // ipc id for acquiring form state (3058)
         FORM_PROVIDER_NOTIFY_STATE_ACQUIRE,
+
+        // ipc id for Acquire provider share form info (3059)
+        FORM_ACQUITE_PROVIDER_SHARE_FOMR_INFO,
     };
 };
 }  // namespace AppExecFwk

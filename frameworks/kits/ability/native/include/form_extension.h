@@ -138,6 +138,15 @@ public:
      * @return none.
      */
     virtual FormState OnAcquireFormState(const Want &want);
+
+    /**
+     * @brief Request currently shared data
+     *
+     * @param WantParams type to share information data.
+     *
+     * @return none.
+     */
+    virtual void OnShare(const int64_t formId, AAFwk::WantParams &wantParams);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

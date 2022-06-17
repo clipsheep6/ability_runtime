@@ -169,6 +169,19 @@ struct AsyncGetFormsInfoCallbackInfo {
     int result;
 };
 
+struct AsyncShareFormInfoCallbackInfo {
+    napi_env env;
+    OHOS::AppExecFwk::Ability *ability;
+    napi_async_work asyncWork;
+    napi_deferred deferred;
+    napi_ref callback;
+    int64_t formId;
+    std::string remoteDeviceId;
+    int64_t requestCode;
+    int32_t callbackType = 0;
+    int result;
+};
+
 napi_value NAPI_DeleteForm(napi_env env, napi_callback_info info);
 napi_value NAPI_ReleaseForm(napi_env env, napi_callback_info info);
 napi_value NAPI_RequestForm(napi_env env, napi_callback_info info);
@@ -186,5 +199,6 @@ napi_value NAPI_NotifyFormsVisible(napi_env env, napi_callback_info info);
 napi_value NAPI_NotifyFormsEnableUpdate(napi_env env, napi_callback_info info);
 napi_value NAPI_GetAllFormsInfo(napi_env env, napi_callback_info info);
 napi_value NAPI_GetFormsInfo(napi_env env, napi_callback_info info);
+napi_value NAPI_ShareForm(napi_env env, napi_callback_info info);
 
 #endif /* NAPI_FORM_HOST_H_ */

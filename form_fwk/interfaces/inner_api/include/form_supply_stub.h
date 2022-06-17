@@ -63,6 +63,8 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     int HandleOnAcquireStateResult(MessageParcel &data, MessageParcel &reply);
+
+    int HandleOnShareAcquire(MessageParcel &data, MessageParcel &reply);
 private:
     using FormSupplyFunc = int32_t (FormSupplyStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, FormSupplyFunc> memberFuncMap_;

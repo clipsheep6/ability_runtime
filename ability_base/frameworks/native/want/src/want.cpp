@@ -47,6 +47,7 @@ const std::regex NUMBER_REGEX("^[-+]?([0-9]+)([.]([0-9]+))?$");
 };  // namespace
 const std::string Want::ACTION_PLAY("action.system.play");
 const std::string Want::ACTION_HOME("action.system.home");
+const std::string Want::ACTION_SHARE_FORM("action.form.share");
 
 const std::string Want::ENTITY_HOME("entity.system.home");
 const std::string Want::ENTITY_VIDEO("entity.system.video");

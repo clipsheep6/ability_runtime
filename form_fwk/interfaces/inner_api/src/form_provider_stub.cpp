@@ -42,6 +42,8 @@ FormProviderStub::FormProviderStub()
         &FormProviderStub::HandleFireFormEvent;
     memberFuncMap_[static_cast<uint32_t>(IFormProvider::Message::FORM_PROVIDER_NOTIFY_STATE_ACQUIRE)] =
         &FormProviderStub::HandleAcquireState;
+    memberFuncMap_[static_cast<uint32_t>(IFormProvider::Message::FORM_ACQUITE_PROVIDER_SHARE_FOMR_INFO)] =
+        &FormProviderStub::HandleShareAcquireProviderFormInfo;
 }
 
 FormProviderStub::~FormProviderStub()
@@ -294,6 +296,46 @@ int FormProviderStub::HandleAcquireState(MessageParcel &data, MessageParcel &rep
     int32_t result = AcquireState(*wantArg, provider, *want, client);
     reply.WriteInt32(result);
     return result;
+}
+
+/**
+ * @brief handle Request Provider Share Form Info message.
+ * @param data input param.
+ * @param reply output param.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormProviderStub::HandleShareAcquireProviderFormInfo(MessageParcel &data, MessageParcel &reply)
+{
+    auto formId = data.ReadInt64();
+    if (formId <= 0) {
+        HILOG_ERROR("%{public}s, failed to get remote formId.", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    auto remoteDeviceId = data.ReadString();
+    if (remoteDeviceId.empty()) {
+        HILOG_ERROR("%{public}s, failed to get remote remoteDeviceId.", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    auto remoteObj = data.ReadRemoteObject();
+    if (remoteObj == nullptr) {
+        HILOG_ERROR("%{public}s, failed to get remote object.", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    auto requestCode = data.ReadInt64();
+    if (requestCode <= 0) {
+        HILOG_ERROR("%{public}s, failed to get remote requestCode.", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    ShareAcquireProviderFormInfo(formId, remoteDeviceId, remoteObj, requestCode);
+    if (!reply.WriteInt32(ERR_OK)) {
+        HILOG_ERROR("%{public}s, failed to WriteParcelable object.", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

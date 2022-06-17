@@ -117,13 +117,30 @@ public:
      */
     virtual void OnAcquireState(FormState state, const AAFwk::Want &want);
 
+    /**
+     * @brief Add shareForm callback.
+     *
+     * @param shareFormCallback the host's share form callback.
+     * @param requestCode the request code of this share form.
+     * @return Returns true if contains form; returns false otherwise.
+     */
+    bool AddShareFormCallback(const std::shared_ptr<ShareFormCallBack> &shareFormCallback, const int64_t requestCode);
+
+    /**
+     * @brief Form share is response
+     * @param requestCode the request code of this share form.
+     * @param result Share form result.
+     */
+    void OnShareFormResponse(const int64_t requestCode, const int result);
 private:
     static std::mutex instanceMutex_;
     static sptr<FormHostClient> instance_;
     mutable std::mutex callbackMutex_;
     mutable std::mutex formStateCallbackMutex_;
     mutable std::mutex uninstallCallbackMutex_;
+    mutable std::mutex shareFormCallbackMutex_;
     std::map<int64_t, std::set<std::shared_ptr<FormCallbackInterface>>> formCallbackMap_;
+    std::map<int64_t, std::shared_ptr<ShareFormCallBack>> shareFormCallbackMap_;
     std::map<std::string, std::set<std::shared_ptr<FormStateCallbackInterface>>> formStateCallbackMap_;
     UninstallCallback uninstallCallback_ = nullptr;
 

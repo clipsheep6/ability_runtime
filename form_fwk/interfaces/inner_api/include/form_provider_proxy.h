@@ -116,6 +116,17 @@ public:
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                              const sptr<IRemoteObject> &callerToken) override;
 
+    /**
+     * @brief Request to share form information data. This is sync API.
+     * @param formId form ID.
+     * @param remoteDeviceId Remote Device ID.
+     * @param formSupplyCallback lifecycle callback.
+     * @param requestCode requestCode of this form share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode) override;
+
 private:
     template<typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

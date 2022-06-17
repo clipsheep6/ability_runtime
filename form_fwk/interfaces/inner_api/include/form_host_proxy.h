@@ -59,6 +59,12 @@ public:
      */
     virtual void OnAcquireState(FormState state, const AAFwk::Want &want) override;
 
+    /**
+     * @brief Form share is response
+     * @param requestCode the request code of this share form.
+     * @param result Share form result.
+     */
+    virtual void OnShareFormResponse(const int64_t requestCode, const int result) override;
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

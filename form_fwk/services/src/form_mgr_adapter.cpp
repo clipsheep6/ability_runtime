@@ -41,6 +41,7 @@
 #include "form_provider_interface.h"
 #include "form_provider_mgr.h"
 #include "form_refresh_connection.h"
+#include "form_share_mgr.h"
 #include "form_supply_callback.h"
 #include "form_timer_mgr.h"
 #include "form_util.h"
@@ -1017,8 +1018,15 @@ ErrCode FormMgrAdapter::AcquireProviderFormInfoAsync(const int64_t formId,
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
+    // If add a share form, need to add provider data
+    WantParams newWantParams(wantParams);
+    if (!FormShareMgr::GetInstance().AddProviderData(info, newWantParams)) {
+        HILOG_ERROR("%{public}s add share provider data failed.", __func__);
+        return ERR_APPEXECFWK_FORM_ADD_SAHRE_PROVIDER_DATA_FAILED;
+    }
+
     sptr<IAbilityConnection> formAcquireConnection
-        = new FormAcquireConnection(formId, info, wantParams);
+        = new FormAcquireConnection(formId, info, newWantParams);
     Want want;
     want.SetElementName(info.GetProviderBundleName(), info.GetAbilityName());
     want.AddFlags(Want::FLAG_ABILITY_FORM_ENABLED);
@@ -2370,6 +2378,52 @@ int FormMgrAdapter::UpdateRouterAction(const int64_t formId, std::string &action
     actionObject["bundleName"] = record.bundleName;
     action = actionObject.dump();
     return ERR_OK;
+}
+
+/**
+ * @brief Form share.
+ * @param formId Indicates the unique id of form.
+ * @param deviceId Indicates the device ID to share.
+ * @param callerToken Host client.
+ * @param requestCode the request code of this share form.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrAdapter::ShareForm(const int64_t formId, const std::string &deviceId, const sptr<IRemoteObject> &callerToken,
+    const int64_t requestCode)
+{
+    HILOG_DEBUG("FormMgrAdapter ShareForm called deviceId : %{public}s, formId: %{public}" PRId64 "",
+        deviceId.c_str(), formId);
+    if (formId <= 0) {
+        HILOG_ERROR("%{public}s form formId  is invalid", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+
+    if (deviceId.empty()) {
+        HILOG_ERROR("%{public}s form deviceId is empty", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+
+    if (callerToken == nullptr) {
+        HILOG_ERROR("%{public}s callerToken is nullptr", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+
+    if (requestCode <= 0) {
+        HILOG_ERROR("%{public}s form requestCode  is invalid", __func__);
+        return ERR_APPEXECFWK_FORM_COMMON_CODE;
+    }
+    return FormShareMgr::GetInstance().ShareForm(formId, deviceId, callerToken, requestCode);
+}
+
+/**
+ * @brief Receive form sharing information from remote.
+ * @param info Indicates form sharing information.
+ * @param deviceId Indicates the device ID to share.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormMgrAdapter::RecvFormShareInfoFromRemote(const FormShareInfo &info)
+{
+    return FormShareMgr::GetInstance().RecvFormShareInfoFromRemote(info);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

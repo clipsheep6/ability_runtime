@@ -275,5 +275,45 @@ void FormHostClient::OnAcquireState(FormState state, const AAFwk::Want &want)
     }
     HILOG_INFO("%{public}s done", __func__);
 }
+
+
+/**
+ * @brief Add shareForm callback.
+ *
+ * @param shareFormCallback the host's share form callback.
+ * @param requestCode the request code of this share form.
+ * @return Returns true if contains form; returns false otherwise.
+ */
+bool FormHostClient::AddShareFormCallback(const std::shared_ptr<ShareFormCallBack> &shareFormCallback,
+    const int64_t requestCode)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    std::lock_guard<std::mutex> lock(shareFormCallbackMutex_);
+    auto iter = shareFormCallbackMap_.find(requestCode);
+    if (iter == shareFormCallbackMap_.end()) {
+        shareFormCallbackMap_.emplace(requestCode, shareFormCallback);
+    }
+    HILOG_DEBUG("%{public}s done.", __func__);
+    return true;
+}
+
+/**
+ * @brief Form share is response
+ * @param requestCode the request code of this share form.
+ * @param result Share form result.
+ */
+void FormHostClient::OnShareFormResponse(const int64_t requestCode, const int result)
+{
+    HILOG_DEBUG("%{public}s result:%{public}d.", __func__, result);
+    std::lock_guard<std::mutex> lock(shareFormCallbackMutex_);
+    auto iter = shareFormCallbackMap_.find(requestCode);
+    if (iter == shareFormCallbackMap_.end()) {
+        HILOG_DEBUG("share form callback not found");
+    } else {
+        iter->second->ProcessShareFormResponse(result);
+        shareFormCallbackMap_.erase(iter);
+    }
+    HILOG_DEBUG("%{public}s done", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -41,6 +41,9 @@ class FormExtension {
         console.log('FormExtension onDestroy, formId:' + formId);
     }
 
+    onShare(formId) {
+        console.log('FormExtension onShare, formId:' + formId);
+    }
 }
 
 export default FormExtension

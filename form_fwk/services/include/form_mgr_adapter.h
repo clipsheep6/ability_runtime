@@ -27,6 +27,7 @@
 #include "form_item_info.h"
 #include "form_js_info.h"
 #include "form_provider_data.h"
+#include "form_share_info.h"
 #include "form_state_info.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -320,6 +321,25 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int UpdateRouterAction(const int64_t formId, std::string &action);
+
+    /**
+     * @brief Form share.
+     * @param formId Indicates the unique id of form.
+     * @param deviceId Indicates the device ID to share.
+     * @param callerToken Host client.
+     * @param requestCode the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int ShareForm(const int64_t formId, const std::string &deviceId, const sptr<IRemoteObject> &callerToken,
+        const int64_t requestCode);
+
+    /**
+     * @brief Receive form sharing information from remote.
+     * @param info Indicates form sharing information.
+     * @param deviceId Indicates the device ID to share.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int RecvFormShareInfoFromRemote(const FormShareInfo &info);
 private:
     /**
      * @brief Get form configure info.

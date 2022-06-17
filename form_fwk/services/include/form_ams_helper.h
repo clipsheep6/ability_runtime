@@ -76,6 +76,12 @@ public:
      * @param abilityManager the ability manager ipc object.
      */
     void SetAbilityManager(const sptr<AAFwk::IAbilityManager> &abilityManager);
+    /**
+     * @brief Start ability.
+     * @param want Special want for service type's ability.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbility(const Want &want);
 private:
     /**
      * @brief Disconnect ability task, disconnect session with service ability.

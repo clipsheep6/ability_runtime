@@ -54,6 +54,7 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("notifyFormsEnableUpdate", NAPI_NotifyFormsEnableUpdate),
         DECLARE_NAPI_FUNCTION("getAllFormsInfo", NAPI_GetAllFormsInfo),
         DECLARE_NAPI_FUNCTION("getFormsInfo", NAPI_GetFormsInfo),
+        DECLARE_NAPI_FUNCTION("shareForm", NAPI_ShareForm),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties));
     HILOG_INFO("napi_moudule Init end...");
