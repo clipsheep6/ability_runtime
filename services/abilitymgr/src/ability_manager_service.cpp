@@ -366,19 +366,22 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (callerToken != nullptr) {
         if (CheckIfOperateRemote(want)) {
-            if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-                return freeInstallManager_->FreeInstall(
-                    want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
+            if (AbilityUtil::IsStartFreeInstall(want)) {
+                return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
+                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken, true);
             }
             if (requestCode == DEFAULT_REQUEST_CODE) {
-                HILOG_INFO("AbilityManagerService::StartAbility. try to StartRemoteAbility");
+                HILOG_INFO("%{public}s: try to StartAbility", __func__);
                 return StartRemoteAbility(want, requestCode);
             }
             int32_t missionId = GetMissionIdByAbilityToken(callerToken);
-            Want newWant = want;
-            newWant.SetParam(DMS_MISSION_ID, missionId);
-            HILOG_INFO("AbilityManagerService::StartAbility. try to StartAbilityForResult");
-            return StartRemoteAbility(newWant, requestCode);
+            if (missionId < 0) {
+                return ERR_INVALID_VALUE;
+            }
+            Want* newWant = const_cast<Want*>(&want);
+            newWant->SetParam(DMS_MISSION_ID, missionId);
+            HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
+            return StartRemoteAbility(*newWant, requestCode);
         }
     }
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
@@ -1086,8 +1089,7 @@ int AbilityManagerService::StartRemoteAbility(const Want &want, int requestCode)
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
-    HILOG_INFO("AbilityManagerService::Try to StartRemoteAbility, callerUid = %{public}d", callerUid);
-    HILOG_INFO("AbilityManagerService::Try to StartRemoteAbility, AccessTokenID = %{public}u", accessToken);
+    HILOG_DEBUG("get callerUid = %d, AccessTokenID = %u", callerUid, accessToken);
     int result = dmsClient.StartRemoteAbility(want, callerUid, requestCode, accessToken);
     if (result != ERR_NONE) {
         HILOG_ERROR("AbilityManagerService::StartRemoteAbility failed, result = %{public}d", result);

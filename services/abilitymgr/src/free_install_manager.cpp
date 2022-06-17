@@ -26,7 +26,9 @@
 namespace OHOS {
 namespace AAFwk {
 const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
+const std::string DMS_MISSION_ID = "dmsMissionId";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
+const int DEFAULT_REQUEST_CODE = -1;
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -161,6 +163,25 @@ int FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int reques
         return HandleFreeInstallErrorCode(FREE_INSTALL_TIMEOUT);
     }
     return HandleFreeInstallErrorCode(future.get());
+}
+
+int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
+    const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
+{
+    HILOG_INFO("%{public}s", __func__);
+    if (requestCode == DEFAULT_REQUEST_CODE) {
+        HILOG_INFO("%{public}s: StartAbility freeInstall", __func__);
+        return FreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote);
+    }
+    int32_t missionId = DelayedSingleton<AbilityManagerService>::GetInstance()->
+        GetMissionIdByAbilityToken(callerToken);
+    if (missionId < 0) {
+        return ERR_INVALID_VALUE;
+    }
+    Want* newWant = const_cast<Want*>(&want);
+    newWant->SetParam(DMS_MISSION_ID, missionId);
+    HILOG_INFO("%{public}s: StartAbilityForResult freeInstall", __func__);
+    return FreeInstall(*newWant, validUserId, requestCode, callerToken, ifOperateRemote);
 }
 
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)

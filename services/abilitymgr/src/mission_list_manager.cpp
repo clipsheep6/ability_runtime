@@ -266,9 +266,8 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
     }
 
     std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
-    HILOG_INFO("Get srcNetWorkId = %{public}s", srcDeviceId.c_str());
     int missionId = abilityRequest.want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
-    HILOG_INFO("Get missionId = %{public}d", missionId);
+    HILOG_DEBUG("Get srcNetWorkId = %s, missionId = %d", srcDeviceId.c_str(), missionId);
     if (!srcDeviceId.empty() && missionId != DEFAULT_DMS_MISSION_ID) {
         Want* newWant = const_cast<Want*>(&abilityRequest.want);
         newWant->RemoveParam(DMS_SRC_NETWORK_ID);

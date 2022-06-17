@@ -70,6 +70,18 @@ public:
         const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
 
     /**
+     * Start to remote free install.
+     *
+     * @param want, the want of the ability to free install.
+     * @param requestCode, ability request code.
+     * @param validUserId, designation User ID.
+     * @param callerToken, caller ability token.
+     * @param ifOperateRemote, is from other devices.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
+        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+    /**
      * Start to free install from another devices.
      * The request is send from DMS.
      *
