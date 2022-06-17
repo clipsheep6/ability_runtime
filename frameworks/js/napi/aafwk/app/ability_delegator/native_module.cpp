@@ -19,7 +19,7 @@ extern "C" __attribute__((constructor)) void NAPI_application_AbilityDelegatorRe
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.AbilityDelegatorRegistry",
+        .name = "application.abilityDelegatorRegistry",
         .fileName = "application/libabilitydelegator_napi.so/ability_delegator_registry.js",
         .registerCallback = OHOS::AbilityDelegatorJs::JsAbilityDelegatorRegistryInit,
     };
