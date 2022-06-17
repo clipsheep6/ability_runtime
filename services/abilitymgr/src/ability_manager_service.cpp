@@ -260,7 +260,8 @@ bool AbilityManagerService::Init()
         int attemptNums = 0;
         while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
             *(aams->bgtaskObserver_)))) {
-            if (!(++attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
+            ++attemptNums;
+            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
                 HILOG_ERROR("subscribeBackgroundTask fail");
                 return;
             }
@@ -2757,7 +2758,8 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT, userId,
         abilityInfo, extensionAbilityInfo))) {
         HILOG_INFO("Waiting query highest priority ability info completed.");
-        if (!isBoot && ++attemptNums > SWITCH_ACCOUNT_TRY) {
+        ++attemptNums;
+        if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
             return;
         }

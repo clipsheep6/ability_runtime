@@ -794,6 +794,7 @@ bool FormTimerMgr::DeleteDynamicItem(const int64_t formId)
             }
             break;
         }
+        ++itItem;
     }
     std::sort(dynamicRefreshTasks_.begin(), dynamicRefreshTasks_.end(),  CompareDynamicRefreshItem);
 

@@ -36,7 +36,7 @@ void UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned i
     const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
 {
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    HILOG_DEBUG("callerTokenId : %{pulic}u", callerTokenId);
+    HILOG_DEBUG("callerTokenId : %{public}u", callerTokenId);
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
         HILOG_DEBUG("caller tokenType is not native, verify failure.");
