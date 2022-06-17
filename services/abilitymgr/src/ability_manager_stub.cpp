@@ -179,7 +179,7 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
 int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = nullptr;
-    HILOG_INFO("Yanwenhao, %{public}u", sizeof(data));
+    HILOG_INFO("Yanwenhao, %{public}lu", sizeof(data));
     if (data.ReadBool()) {
         token = data.ReadRemoteObject();
     }
