@@ -128,7 +128,7 @@ NativeValue* JsFeatureAbility::OnStartAbility(NativeEngine &engine, NativeCallba
 
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JSFeatureAbility::OnStartAbility", nullptr, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -155,7 +155,7 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
     Want want = GetWant(requestParam);
     NativeValue* result = nullptr;
     std::unique_ptr<AsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, nullptr, &result);
+        CreateAsyncTaskWithLastParam(engine, "JSFeatureAbility::OnStartAbilityForResult", nullptr, nullptr, nullptr, &result);
 
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     FeatureAbilityTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want& want) {
@@ -235,7 +235,7 @@ NativeValue *JsFeatureAbility::OnFinishWithResult(NativeEngine &engine, NativeCa
 
     NativeValue *result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JSFeatureAbility::OnFinishWithResult", nullptr, nullptr, std::move(complete), &result));
     return result;
 }
 

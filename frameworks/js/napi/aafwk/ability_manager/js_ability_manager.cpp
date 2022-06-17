@@ -96,7 +96,7 @@ private:
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityManager::OnGetAbilityRunningInfos", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -127,7 +127,7 @@ private:
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityManager::OnGetExtensionRunningInfos", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -167,7 +167,7 @@ private:
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityManager::OnGetExtensionRunningInfos", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -183,7 +183,7 @@ private:
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityManager::OnGetTopAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };

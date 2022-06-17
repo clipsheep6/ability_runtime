@@ -167,7 +167,7 @@ private:
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStartAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -231,7 +231,7 @@ private:
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStartAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -265,7 +265,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnTerminateAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -317,7 +317,7 @@ private:
             };
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnConnectAbility", nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(connectId);
     }
 
@@ -378,7 +378,7 @@ private:
                 };
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnConnectAbilityWithAccount", nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(connectId);
     }
 
@@ -437,7 +437,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnDisconnectAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -477,7 +477,7 @@ private:
         NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStartExtensionAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -524,7 +524,7 @@ private:
         NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStartExtensionAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -565,7 +565,7 @@ private:
         NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStopExtensionAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -612,7 +612,7 @@ private:
         NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSServiceExtensionConnection::OnStopExtensionAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };

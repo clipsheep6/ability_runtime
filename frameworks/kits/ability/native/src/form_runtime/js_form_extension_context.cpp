@@ -119,7 +119,7 @@ private:
             (info.argc == UPDATE_FORM_PARAMS_SIZE) ? nullptr : info.argv[info.argc - 1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsFormExtensionContext::OnUpdateForm", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -173,7 +173,7 @@ private:
         NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsFormExtensionContext::OnStartAbility", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };

@@ -180,7 +180,7 @@ private:
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnUnregisterMissionListener", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -221,7 +221,7 @@ private:
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnGetMissionInfos", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -262,7 +262,7 @@ private:
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnGetMissionInfo", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -316,7 +316,7 @@ private:
         NativeValue* lastParam = (info.argc <= ARG_COUNT_TWO) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnGetMissionSnapShot", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -351,7 +351,7 @@ private:
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnLockMission", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -386,7 +386,7 @@ private:
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnUnlockMission", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -421,7 +421,7 @@ private:
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnClearMission", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -441,7 +441,7 @@ private:
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnMoveMissionToFront", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -485,7 +485,7 @@ private:
         NativeValue* lastParam = (info.argc <= unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "MissioManager::OnMoveMissionToFront", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 

@@ -207,7 +207,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
     NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartAbility", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -260,7 +260,7 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
     NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -359,12 +359,12 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         AsyncTask::Schedule(
             engine,
             CreateAsyncTaskWithLastParam(
-                engine, lastParam, std::move(callExecute), std::move(callComplete), &retsult));
+                engine, "JsAbilityContext::OnStartAbilityByCall", lastParam, std::move(callExecute), std::move(callComplete), &retsult));
     } else {
         HILOG_INFO("OnStartAbilityByCall promiss return result execute");
         AsyncTask::Schedule(
             engine,
-            CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(callComplete), &retsult));
+            CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartAbilityByCall", lastParam, nullptr, std::move(callComplete), &retsult));
     }
 
     HILOG_DEBUG("JsAbilityContext::%{public}s, called end", __func__);
@@ -398,7 +398,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResult(NativeEngine& engine, Nat
     NativeValue* lastParam = info.argc == unwrapArgc ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
     std::unique_ptr<AsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+        CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartAbilityForResult", lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want& want) {
         HILOG_INFO("OnStartAbilityForResult async callback is called");
@@ -455,7 +455,7 @@ NativeValue* JsAbilityContext::OnStartAbilityForResultWithAccount(NativeEngine& 
     NativeValue* lastParam = info.argc == unwrapArgc ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
     std::unique_ptr<AsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+        CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartAbilityForResultWithAccount", lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     RuntimeTask task = [&engine, asyncTask](int resultCode, const AAFwk::Want& want) {
         HILOG_INFO("OnStartAbilityForResultWithAccount async callback is called");
@@ -519,7 +519,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbility(NativeEngine& engine, Nat
     NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartExtensionAbility", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -567,7 +567,7 @@ NativeValue* JsAbilityContext::OnStartExtensionAbilityWithAccount(NativeEngine& 
     NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStartExtensionAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -608,7 +608,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbility(NativeEngine& engine, Nati
     NativeValue* lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStopExtensionAbility", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -655,7 +655,7 @@ NativeValue* JsAbilityContext::OnStopExtensionAbilityWithAccount(NativeEngine& e
     NativeValue* lastParam = (info.argc <= ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnStopExtensionAbilityWithAccount", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -696,7 +696,7 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnTerminateSelfWithResult", lastParam, nullptr, std::move(complete), &result));
     HILOG_INFO("OnTerminateSelfWithResult is called end");
     return result;
 }
@@ -749,7 +749,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
         };
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnConnectAbility", nullptr, nullptr, std::move(complete), &result));
     return engine.CreateNumber(connectId);
 }
 
@@ -810,7 +810,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
         };
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnConnectAbilityWithAccount", nullptr, nullptr, std::move(complete), &result));
     return engine.CreateNumber(connectId);
 }
 
@@ -868,7 +868,7 @@ NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeC
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnDisconnectAbility", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -906,7 +906,7 @@ NativeValue* JsAbilityContext::OnTerminateSelf(NativeEngine& engine, NativeCallb
     NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[ARGC_ZERO];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnTerminateSelf", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -932,7 +932,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
 
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[ARGC_ONE];
     NativeValue* result = nullptr;
-    auto uasyncTask = CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, nullptr, &result);
+    auto uasyncTask = CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnRequestPermissionsFromUser", lastParam, nullptr, nullptr, &result);
     std::shared_ptr<AsyncTask> asyncTask = std::move(uasyncTask);
     PermissionRequestTask task =
         [&engine, asyncTask](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
@@ -1359,7 +1359,7 @@ NativeValue* JsAbilityContext::OnSetMissionLabel(NativeEngine& engine, NativeCal
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnSetMissionLabel", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 
@@ -1404,7 +1404,7 @@ NativeValue* JsAbilityContext::OnSetMissionIcon(NativeEngine& engine, NativeCall
     NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
     NativeValue* result = nullptr;
     AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        engine, CreateAsyncTaskWithLastParam(engine, "JsAbilityContext::OnSetMissionIcon", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 #endif
