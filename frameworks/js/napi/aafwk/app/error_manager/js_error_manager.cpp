@@ -115,7 +115,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSErrorManager::OnUnregisterErrorObserver", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 

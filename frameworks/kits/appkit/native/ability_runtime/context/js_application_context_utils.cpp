@@ -453,7 +453,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
         };
     NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    AsyncTask::Schedule(engine, CreateAsyncTaskWithLastParam(engine, "JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback", lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 }  // namespace

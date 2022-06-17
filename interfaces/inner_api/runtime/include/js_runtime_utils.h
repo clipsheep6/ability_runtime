@@ -149,9 +149,9 @@ public:
 
     static void Schedule(NativeEngine& engine, std::unique_ptr<AsyncTask>&& task);
 
-    AsyncTask(NativeDeferred* deferred, std::unique_ptr<ExecuteCallback>&& execute,
+    AsyncTask(const std::string &name, NativeDeferred* deferred, std::unique_ptr<ExecuteCallback>&& execute,
         std::unique_ptr<CompleteCallback>&& complete);
-    AsyncTask(NativeReference* callbackRef, std::unique_ptr<ExecuteCallback>&& execute,
+    AsyncTask(const std::string &name, NativeReference* callbackRef, std::unique_ptr<ExecuteCallback>&& execute,
         std::unique_ptr<CompleteCallback>&& complete);
     ~AsyncTask();
 
@@ -164,6 +164,7 @@ private:
 
     bool Start(NativeEngine& engine);
 
+	const std::string name_;
     std::unique_ptr<NativeDeferred> deferred_;
     std::unique_ptr<NativeReference> callbackRef_;
     std::unique_ptr<NativeAsyncWork> work_;
@@ -171,16 +172,16 @@ private:
     std::unique_ptr<CompleteCallback> complete_;
 };
 
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, const std::string &name, NativeValue* lastParam,
     AsyncTask::ExecuteCallback&& execute, AsyncTask::CompleteCallback&& complete, NativeValue** result);
 
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, const std::string &name, NativeValue* lastParam,
     AsyncTask::ExecuteCallback&& execute, nullptr_t, NativeValue** result);
 
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, const std::string &name, NativeValue* lastParam,
     nullptr_t, AsyncTask::CompleteCallback&& complete, NativeValue** result);
 
-std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
+std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, const std::string &name, NativeValue* lastParam,
     nullptr_t, nullptr_t, NativeValue** result);
 }  // namespace AbilityRuntime
 }  // namespace OHOS

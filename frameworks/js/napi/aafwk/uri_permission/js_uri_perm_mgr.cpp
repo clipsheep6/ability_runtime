@@ -91,7 +91,7 @@ private:
         NativeValue* lastParam = (info.argc == argCountThree) ? nullptr : info.argv[argCountThree];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JsUriPermMgr::OnVerifyUriPermission", lastParam, nullptr, std::move(complete), &result));
         HILOG_DEBUG("OnVerifyUriPermission is called end");
         return result;
     }

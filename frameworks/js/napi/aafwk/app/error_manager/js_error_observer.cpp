@@ -43,7 +43,7 @@ void JsErrorObserver::OnUnhandledException(std::string errMsg)
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JsErrorObserver::OnUnhandledException", callback, std::move(execute), std::move(complete)));
 }
 
 void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
