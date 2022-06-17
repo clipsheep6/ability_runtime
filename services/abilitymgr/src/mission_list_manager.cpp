@@ -43,7 +43,8 @@ std::string GetCurrentTime()
 {
     struct timespec tn;
     clock_gettime(CLOCK_REALTIME, &tn);
-    uint64_t uTime = static_cast<uint64_t>(tn.tv_sec) * NANO_SECOND_PER_SEC + tn.tv_nsec;
+    uint64_t uTime = static_cast<uint64_t>(tn.tv_sec) * NANO_SECOND_PER_SEC +
+        static_cast<uint64_t>(tn.tv_nsec);
     return std::to_string(uTime);
 }
 } // namespace
