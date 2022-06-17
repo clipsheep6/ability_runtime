@@ -17,6 +17,7 @@
 #define FOUNDATION_APPEXECFWK_SERVICES_FORMMGR_INCLUDE_FORM_PROVIDER_MGRR_H
 #include <set>
 #include <singleton.h>
+#include "ability_connect_callback_interface.h"
 #include "form_provider_info.h"
 #include "form_record.h"
 #include "form_state_info.h"
@@ -117,6 +118,9 @@ private:
      */
     void IncreaseTimerRefreshCount(const int64_t formId);
     bool IsFormCached(const FormRecord &record);
+
+    ErrCode ReBindByFreeInstall(Want &want, const FormRecord &record,
+        sptr<AAFwk::IAbilityConnection> formRefreshConnection);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -30,7 +30,7 @@ using Want = OHOS::AAFwk::Want;
 class FormRefreshConnection : public FormAbilityConnection {
 public:
     FormRefreshConnection(const int64_t formId, const Want &want,
-        const std::string &bundleName, const std::string &abilityName);
+        const std::string &bundleName, const std::string &abilityName, bool isFreeInstall);
     virtual ~FormRefreshConnection() = default;
 
     /**
@@ -44,7 +44,6 @@ public:
         const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode) override;
 
 private:
-    int64_t formId_;
     Want want_;
     DISALLOW_COPY_AND_MOVE(FormRefreshConnection);
 };

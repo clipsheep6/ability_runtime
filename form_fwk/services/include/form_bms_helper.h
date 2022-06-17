@@ -47,7 +47,7 @@ public:
      * @param bundleName Provider ability bundleName.
      * @param moduleName Provider ability moduleName.
      */
-    void NotifyModuleNotRemovable(const std::string &bundleName, const std::string &moduleName) const;
+    void NotifyModuleNotRemovable(const std::string &bundleName, const std::string &moduleName);
 
     /**
      * @brief Acquire a bundle manager, if it not existed,

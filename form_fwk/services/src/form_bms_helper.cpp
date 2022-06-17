@@ -18,6 +18,7 @@
 #include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
+#include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -96,10 +97,21 @@ void FormBmsHelper::NotifyModuleRemovable(const std::string &bundleName, const s
  * @param bundleName Provider ability bundleName.
  * @param moduleName Provider ability moduleName.
  */
-void FormBmsHelper::NotifyModuleNotRemovable(const std::string &bundleName, const std::string &moduleName) const
+void FormBmsHelper::NotifyModuleNotRemovable(const std::string &bundleName, const std::string &moduleName)
 {
     std::string key = GenerateModuleKey(bundleName, moduleName);
     HILOG_INFO("%{public}s, begin to notify %{public}s not removable", __func__, key.c_str());
+    sptr<IBundleMgr> iBundleMgr = GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        HILOG_ERROR("%{public}s, failed to get IBundleMgr.", __func__);
+        return;
+    }
+
+    if (!IN_PROCESS_CALL(iBundleMgr->SetModuleRemovable(bundleName, moduleName, false))) {
+        HILOG_ERROR("%{public}s, set not removable failed.", __func__);
+        return;
+    }
+    return;
 }
 
 std::string FormBmsHelper::GenerateModuleKey(const std::string &bundleName, const std::string &moduleName) const
