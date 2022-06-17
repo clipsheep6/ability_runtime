@@ -50,7 +50,7 @@ config("abilityms_config") {
     "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
     "${aafwk_path}/interfaces/inner_api/wantagent/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
     "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",

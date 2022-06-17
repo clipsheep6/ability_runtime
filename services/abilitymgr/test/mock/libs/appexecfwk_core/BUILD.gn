@@ -23,7 +23,7 @@ config("appexecfwk_core_mock_config") {
     "${aafwk_path}/services/abilitymgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
-    "${aafwk_path}/frameworks/kits/ability/native/include/",
+    "${aafwk_path}/interfaces/kits/native/ability/native/",
     "//base/telephony/core_service/sim/include/",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/aakit/include/",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
