@@ -79,7 +79,6 @@ ohos_unittest("context_deal_interface_test") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
@@ -90,6 +89,7 @@ ohos_unittest("context_deal_interface_test") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -119,8 +119,6 @@ ohos_unittest("application_test") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -132,6 +130,7 @@ ohos_unittest("application_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
@@ -156,7 +155,6 @@ ohos_unittest("context_container_test") {
     "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -166,6 +164,7 @@ ohos_unittest("context_container_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ability_runtime:runtime",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -190,7 +189,6 @@ ohos_unittest("context_deal_test") {
     "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -201,6 +199,7 @@ ohos_unittest("context_deal_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ability_runtime:runtime",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -226,9 +225,6 @@ ohos_unittest("application_impl_test") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -238,6 +234,7 @@ ohos_unittest("application_impl_test") {
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",

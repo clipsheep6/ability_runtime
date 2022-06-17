@@ -39,11 +39,10 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
   ]
 
   external_deps = [
+    "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

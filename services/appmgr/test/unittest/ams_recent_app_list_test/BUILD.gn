@@ -50,8 +50,6 @@ ohos_unittest("AmsRecentAppListTest") {
 
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
@@ -66,6 +64,7 @@ ohos_unittest("AmsRecentAppListTest") {
   }
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",

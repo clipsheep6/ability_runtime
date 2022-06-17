@@ -60,9 +60,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:configuration",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -72,6 +69,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
@@ -99,9 +98,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:configuration",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -111,6 +107,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
@@ -138,9 +136,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:configuration",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -150,6 +145,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
@@ -177,9 +174,6 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:configuration",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -189,6 +183,8 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",

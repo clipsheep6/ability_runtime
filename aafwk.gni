@@ -13,8 +13,8 @@
 
 aafwk_path = "//foundation/ability/ability_runtime"
 aafwk_napi_path = "${aafwk_path}/frameworks/js/napi/aafwk"
-ability_base_path = "${aafwk_path}/ability_base"
-form_fwk_path = "${aafwk_path}/form_fwk"
+ability_base_path = "//foundation/ability/ability_base"
+form_fwk_path = "//foundation/ability/form_fwk"
 innerkits_path = "${aafwk_path}/interfaces/inner_api"
 kits_path = "${aafwk_path}/frameworks/kits"
 services_path = "${aafwk_path}/services"

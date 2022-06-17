@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/ability_base/ability_base.gni")
+import("//foundation/ability/ability_base/ability_base.gni")
 
 base_output_path = "aafwk/base_test"
 
@@ -36,7 +36,7 @@ ohos_unittest("base_test") {
 }
 
 ######################################################################
-want_output_path = "ability_runtime/want_test"
+want_output_path = "ability_base/want_test"
 
 ###############################################################################
 config("want_private_config") {
@@ -100,7 +100,6 @@ ohos_unittest("patterns_matcher_test") {
   ]
 
   deps = [
-    "${ability_base_path}:base",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
@@ -145,13 +144,12 @@ ohos_unittest("want_params_test") {
   ]
 
   deps = [
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

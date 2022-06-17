@@ -51,7 +51,6 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_path}/services/bundlemgr:libbms",
     "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/dataability:native_dataability",
@@ -59,6 +58,7 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "//utils/native/base:utilsbase",
   ]
   external_deps = [
+    "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",

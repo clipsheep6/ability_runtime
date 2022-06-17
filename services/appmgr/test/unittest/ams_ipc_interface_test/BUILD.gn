@@ -51,7 +51,6 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
   }
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:want",
     "${services_path}/appmgr/test:appmgr_test_source",
   ]
 
@@ -61,6 +60,7 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
   }
 
   external_deps = [
+    "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

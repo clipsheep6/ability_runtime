@@ -41,12 +41,11 @@ ohos_fuzztest("UpdateConfigurationFuzzTest") {
   deps = [
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
   ]
 
   external_deps = [
     "ability_base:configuration",
+    "ability_base:want",
     "ipc:ipc_core",
   ]
 }

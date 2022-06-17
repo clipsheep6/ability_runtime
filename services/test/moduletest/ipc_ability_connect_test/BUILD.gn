@@ -30,7 +30,6 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_base_path}:want",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${services_path}/common:perm_verification",
     "//third_party/googletest:gmock_main",
@@ -43,6 +42,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
   }
 
   external_deps = [
+    "ability_base:want",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

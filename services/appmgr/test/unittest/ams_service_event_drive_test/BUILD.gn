@@ -54,8 +54,6 @@ ohos_unittest("AmsServiceEventDriveTest") {
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
-    "${ability_base_path}:base",
-    "${ability_base_path}:want",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",
@@ -68,6 +66,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
   }
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
