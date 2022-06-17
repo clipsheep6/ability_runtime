@@ -48,7 +48,8 @@ ohos_shared_library("base") {
   configs = [ ":base_config" ]
   public_configs = [ ":base_public_config" ]
   external_deps = [ "utils_base:utils" ]
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "ability"
   part_name = "ability_base"
 }
@@ -110,7 +111,8 @@ ohos_shared_library("zuri") {
     "hiviewdfx_hilog_native:libhilog",
     "utils_base:utils",
   ]
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "ability"
   part_name = "ability_base"
 }
@@ -171,6 +173,8 @@ ohos_shared_library("want") {
 
   configs = [ ":want_config" ]
   public_configs = [ ":want_public_config" ]
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "ability"
   part_name = "ability_base"
 }

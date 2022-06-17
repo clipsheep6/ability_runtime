@@ -61,7 +61,8 @@ ohos_shared_library("napi_common") {
   if (ability_runtime_graphics) {
     defines = [ "SUPPORT_GRAPHICS" ]
   }
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
