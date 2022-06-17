@@ -113,10 +113,10 @@ ohos_unittest("ability_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -390,10 +390,10 @@ ohos_unittest("data_ability_helper_test") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -425,10 +425,10 @@ ohos_unittest("data_ability_operation_test") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -506,10 +506,10 @@ ohos_unittest("ability_impl_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_core",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -559,10 +559,10 @@ ohos_unittest("ability_thread_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -677,10 +677,10 @@ ohos_unittest("data_ability_impl_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -730,10 +730,10 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -783,10 +783,10 @@ ohos_unittest("data_ability_impl_file_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -838,10 +838,10 @@ ohos_unittest("ability_thread_dataability_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
@@ -1108,10 +1108,10 @@ ohos_unittest("continuation_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
-    "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
 
