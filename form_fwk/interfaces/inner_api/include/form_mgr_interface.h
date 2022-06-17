@@ -293,6 +293,12 @@ public:
     virtual int32_t GetFormsInfo(const std::string &moduleName, std::vector<FormInfo> &formInfos) = 0;
 
     /**
+     * @brief Check if the request of publishing a form is supported by the host.
+     * @return Returns true if the request is supported and false otherwise.
+     */
+    virtual bool IsRequestPublishFormSupported() = 0;
+
+    /**
      * @brief Update action string for router event.
      * @param formId Indicates the unique id of form.
      * @param action Indicates the origin action string.
@@ -339,7 +345,8 @@ public:
         FORM_MGR_UPDATE_ROUTER_ACTION,
         FORM_MGR_ADD_FORM_INFO,
         FORM_MGR_REMOVE_FORM_INFO,
-        FORM_MGR_REQUEST_PUBLISH_FORM
+        FORM_MGR_REQUEST_PUBLISH_FORM,
+        FORM_MGR_IS_REQUEST_PUBLISH_FORM_SUPPORTED,
     };
 };
 }  // namespace AppExecFwk

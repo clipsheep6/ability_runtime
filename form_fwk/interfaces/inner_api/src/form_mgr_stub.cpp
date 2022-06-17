@@ -104,6 +104,8 @@ FormMgrStub::FormMgrStub()
         &FormMgrStub::HandleRemoveFormInfo;
     memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_REQUEST_PUBLISH_FORM)] =
         &FormMgrStub::HandleRequestPublishForm;
+    memberFuncMap_[static_cast<uint32_t>(IFormMgr::Message::FORM_MGR_IS_REQUEST_PUBLISH_FORM_SUPPORTED)] =
+        &FormMgrStub::HandleIsRequestPublishFormSupported;
 }
 
 FormMgrStub::~FormMgrStub()
@@ -805,7 +807,7 @@ int32_t FormMgrStub::HandleGetFormsInfo(MessageParcel &data, MessageParcel &repl
     std::vector<FormInfo> infos;
     // call FormMgrService to get formInfos into infos.
     int32_t result = GetFormsInfo(moduleName, infos);
-    reply.WriteInt32(result);
+    reply.WriteBool(result);
     if (result == ERR_OK) {
         // write fetched formInfos into reply.
         if (!WriteParcelableVector(infos, reply)) {
@@ -833,6 +835,17 @@ int32_t FormMgrStub::HandleUpdateRouterAction(MessageParcel &data, MessageParcel
     }
 
     return result;
+}
+
+int32_t FormMgrStub::HandleIsRequestPublishFormSupported(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    bool result = IsRequestPublishFormSupported();
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("%{public}s, failed to write action", __func__);
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    return ERR_OK;
 }
 
 /**

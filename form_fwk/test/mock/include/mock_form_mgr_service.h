@@ -63,6 +63,7 @@ public:
     MOCK_METHOD3(GetFormsInfoByModule, int(std::string &bundleName, std::string &moduleName,
         std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetFormsInfo, int(const std::string &moduleName, std::vector<FormInfo> &formInfos));
+    MOCK_METHOD0(IsRequestPublishFormSupported, bool());
     MOCK_METHOD2(UpdateRouterAction, int(const int64_t formId, std::string &action));
 };
 }

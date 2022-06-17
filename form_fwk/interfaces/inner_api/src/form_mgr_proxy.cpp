@@ -1140,6 +1140,32 @@ int32_t FormMgrProxy::GetFormsInfo(const std::string &moduleName, std::vector<Fo
     return error;
 }
 
+bool FormMgrProxy::IsRequestPublishFormSupported()
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    MessageParcel data;
+    // write in token to help identify which stub to be called.
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("%{public}s, failed to write interface token", __func__);
+        return false;
+    }
+    // send request.
+    MessageParcel reply;
+    MessageOption option;
+    int error = Remote()->SendRequest(
+        static_cast<uint32_t>(
+            IFormMgr::Message::FORM_MGR_IS_REQUEST_PUBLISH_FORM_SUPPORTED),
+        data,
+        reply,
+        option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("%{public}s, failed to SendRequest: %{public}d", __func__, error);
+        return false;
+    }
+    // retrieve and return result.
+    return reply.ReadBool();
+}
+
 /**
  * @brief Update action string for router event.
  * @param formId Indicates the unique id of form.
