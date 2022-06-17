@@ -137,11 +137,6 @@ ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, const sptr<IR
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::GetMissionSnapshot(const int32_t missionId, MissionSnapshot &snapshot)
-{
-    return ERR_OK;
-}
-
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 {
     return ERR_OK;

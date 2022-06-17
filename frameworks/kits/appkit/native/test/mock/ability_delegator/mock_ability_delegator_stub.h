@@ -125,7 +125,8 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
     virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override;
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot) override;
+    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot, bool isLowResolution) override;
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     virtual int SendANRProcessID(int pid) override;
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
@@ -260,7 +261,8 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
     virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override;
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot) override;
+    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot, bool isLowResolution) override;
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     virtual int SendANRProcessID(int pid) override;
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,

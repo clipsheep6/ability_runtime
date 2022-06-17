@@ -3793,7 +3793,7 @@ int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>&
 }
 
 int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& missionSnapshot)
+    MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -3810,7 +3810,7 @@ int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, i
         return INNER_ERR;
     }
     auto token = GetAbilityTokenByMissionId(missionId);
-    bool result = currentMissionListManager_->GetMissionSnapshot(missionId, token, missionSnapshot);
+    bool result = currentMissionListManager_->GetMissionSnapshot(missionId, token, missionSnapshot, isLowResolution);
     if (!result) {
         return INNER_ERR;
     }

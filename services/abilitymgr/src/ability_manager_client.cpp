@@ -741,11 +741,11 @@ ErrCode AbilityManagerClient::RegisterSnapshotHandler(const sptr<ISnapshotHandle
 }
 
 ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot)
+    MissionSnapshot& snapshot, bool isLowResolution)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->GetMissionSnapshot(deviceId, missionId, snapshot);
+    return abms->GetMissionSnapshot(deviceId, missionId, snapshot, isLowResolution);
 }
 
 ErrCode AbilityManagerClient::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer)
