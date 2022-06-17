@@ -843,8 +843,7 @@ int AbilityManagerProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T>
     return NO_ERROR;
 }
 
-int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot, bool isLowResolution)
+int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
 {
     int error;
     MessageParcel data;
@@ -860,10 +859,6 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
     }
     if (!data.WriteInt32(missionId)) {
         HILOG_ERROR("missionId write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    if (!data.WriteBool(isLowResolution)) {
-        HILOG_ERROR("isLowResolution write failed.");
         return ERR_INVALID_VALUE;
     }
     error = Remote()->SendRequest(IAbilityManager::GET_MISSION_SNAPSHOT_INFO, data, reply, option);

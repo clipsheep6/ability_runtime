@@ -29,12 +29,8 @@ namespace AAFwk {
 const std::string TASK_DATA_FILE_BASE_PATH = "/data/service/el1/public/AbilityManagerService";
 const std::string MISSION_DATA_FILE_PATH = "MissionInfo";
 const std::string MISSION_JSON_FILE_PREFIX = "mission";
-const std::string LOW_RESOLUTION_FLAG = "little";
 const std::string JSON_FILE_SUFFIX = ".json";
 const std::string PNG_FILE_SUFFIX = ".png";
-const std::string FILE_SEPARATOR = "/";
-const std::string UNDERLINE_SEPARATOR = "_";
-const int32_t SCALE = 2;
 
 class MissionDataStorage : public std::enable_shared_from_this<MissionDataStorage> {
 public:
@@ -77,31 +73,25 @@ public:
 
     /**
      * @brief Get the Mission Snapshot object
-     * @param missionId id of mission.
-     * @param missionSnapshot snapshot of target mission id.
-     * @param isLowResolution low resolution.
+     * @param missionId
+     * @param missionSnapshot
      * @return Returns true if this function is successfully called; returns false otherwise.
      */
-    bool GetMissionSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot, bool isLowResolution);
+    bool GetMissionSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot);
 
 #ifdef SUPPORT_GRAPHICS
-    /**
-     * Get low resoultion pixelmap of source.
-     *
-     * @param source source pixelmap.
-     * @return return reduced pixel map.
-     */
-    static std::shared_ptr<OHOS::Media::PixelMap> GetReducedPixelMap(
-        const std::shared_ptr<OHOS::Media::PixelMap>& source);
-
+public:
     /**
      * @brief Get the Snapshot object
      * @param missionId Indicates this mission id.
      * @return Returns PixelMap of snapshot.
      */
-    sptr<Media::PixelMap> GetSnapshot(int missionId, bool isLowResolution = false) const;
+    sptr<Media::PixelMap> GetSnapshot(int missionId) const;
+    
+    std::unique_ptr<Media::PixelMap> GetPixelMap(int missionId) const;
 
-    std::unique_ptr<Media::PixelMap> GetPixelMap(int missionId, bool isLowResolution) const;
+private:
+    std::map<int32_t, std::shared_ptr<Media::PixelMap>> cachedPixelMap_;
 #endif
 
 private:
@@ -109,11 +99,10 @@ private:
 
     std::string GetMissionDataFilePath(int missionId);
 
-    std::string GetMissionSnapshotPath(int32_t missionId, bool isLowResolution) const;
+    std::string GetMissionSnapshotPath(int32_t missionId) const;
 
     bool CheckFileNameValid(const std::string &fileName);
 
-#ifdef SUPPORT_GRAPHICS
     bool WriteToPng(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data);
 
     bool GetCachedSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot);
@@ -121,15 +110,8 @@ private:
     bool SaveCachedSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot);
 
     bool DeleteCachedSnapshot(int32_t missionId);
-    void DeleteMissionSnapshot(int32_t missionId, bool isLowResolution);
 
     void SaveSnapshotFile(int32_t missionId, const MissionSnapshot& missionSnapshot);
-
-    void SaveSnapshotFile(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap>& snapshot,
-        bool isPrivate, bool isLowResolution);
-
-    std::map<int32_t, std::shared_ptr<Media::PixelMap>> cachedPixelMap_;
-#endif
 
     int userId_ = 0;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;

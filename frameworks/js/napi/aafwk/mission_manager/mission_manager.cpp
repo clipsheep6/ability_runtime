@@ -79,13 +79,7 @@ public:
     static NativeValue* GetMissionSnapShot(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
-        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info, false) : nullptr;
-    }
-
-    static NativeValue* GetLowResolutionMissionSnapShot(NativeEngine* engine, NativeCallbackInfo* info)
-    {
-        JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
-        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info, true) : nullptr;
+        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info) : nullptr;
     }
 
     static NativeValue* LockMission(NativeEngine* engine, NativeCallbackInfo* info)
@@ -272,7 +266,7 @@ private:
         return result;
     }
 
-    NativeValue* OnGetMissionSnapShot(NativeEngine &engine, NativeCallbackInfo &info, bool isLowResolution)
+    NativeValue* OnGetMissionSnapShot(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -291,14 +285,14 @@ private:
             errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
-            [deviceId, missionId, errCode, isLowResolution](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            [deviceId, missionId, errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 if (errCode != 0) {
                     task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
                     return;
                 }
                 AAFwk::MissionSnapshot missionSnapshot;
                 auto ret = AbilityManagerClient::GetInstance()->GetMissionSnapshot(
-                    deviceId, missionId, missionSnapshot, isLowResolution);
+                    deviceId, missionId, missionSnapshot);
                 if (ret == 0) {
                     NativeValue* objValue = engine.CreateObject();
                     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
@@ -521,8 +515,6 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "getMissionInfos", JsMissionManager::GetMissionInfos);
     BindNativeFunction(*engine, *object, "getMissionInfo", JsMissionManager::GetMissionInfo);
     BindNativeFunction(*engine, *object, "getMissionSnapShot", JsMissionManager::GetMissionSnapShot);
-    BindNativeFunction(*engine, *object, "getLowResolutionMissionSnapShot",
-        JsMissionManager::GetLowResolutionMissionSnapShot);
     BindNativeFunction(*engine, *object, "lockMission", JsMissionManager::LockMission);
     BindNativeFunction(*engine, *object, "unlockMission", JsMissionManager::UnlockMission);
     BindNativeFunction(*engine, *object, "clearMission", JsMissionManager::ClearMission);

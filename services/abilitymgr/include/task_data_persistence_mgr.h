@@ -88,11 +88,10 @@ public:
     /**
      * @brief Get the mission snapshot object
      * @param missionId id of mission
-     * @param missionSnapshot output snapshot of mission.
-     * @param isLowResolution low resolution.
+     * @param missionSnapshot
      * @return return true if update mission snapshot success, else false
      */
-    bool GetMissionSnapshot(int missionId, MissionSnapshot& missionSnapshot, bool isLowResolution);
+    bool GetMissionSnapshot(int missionId, MissionSnapshot& missionSnapshot);
 
 private:
     std::unordered_map<int, std::shared_ptr<MissionDataStorage>> missionDataStorageMgr_;
