@@ -57,13 +57,26 @@ const std::string RELEASE_FORM = "RELEASE_FORM";
 const std::string DELETE_INVALID_FORM = "DELETE_INVALID_FORM";
 const std::string SET_NEXT_REFRESH_TIME_FORM = "SET_NEXT_REFRESH_TIME_FORM";
 // app behavior event
-const std::string APP_ATTACH = "APP_ATTACH";
-const std::string APP_LAUNCH = "APP_LAUNCH";
-const std::string APP_FOREGROUND = "APP_FOREGROUND";
-const std::string APP_BACKGROUND = "APP_BACKGROUND";
-const std::string APP_TERMINATE = "APP_TERMINATE";
+// const std::string APP_ATTACH = "APP_ATTACH";
+// const std::string APP_LAUNCH = "APP_LAUNCH";
+// const std::string APP_FOREGROUND = "APP_FOREGROUND";
+// const std::string APP_BACKGROUND = "APP_BACKGROUND";
+// const std::string APP_TERMINATE = "APP_TERMINATE";
 }
 
+// 定义一个宏来包含需要用到的枚举值
+#define MY_ENUM_VALUES \
+    X(APP_ATTACH) \
+    X(APP_LAUNCH) \
+    X(APP_FOREGROUND) \
+    X(APP_BACKGROUND) \
+    X(APP_TERMINATE)
+// 利用宏展开获取并定义枚举
+#undef X
+#define X(x) x,
+enum EventName {
+    MY_ENUM_VALUES
+};
 struct EventInfo {
     int32_t pid = -1;
     int32_t userId = -1;
@@ -80,7 +93,7 @@ struct EventInfo {
 
 class EventReport {
 public:
-    static void SendAppEvent(const std::string &eventName, HiSysEventType type,
+    static void SendAppEvent(EventName eventName, HiSysEventType type,
         const EventInfo& eventInfo);
     static void SendAbilityEvent(const std::string &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
@@ -88,6 +101,19 @@ public:
         const EventInfo& eventInfo);
     static void SendFormEvent(const std::string &eventName, HiSysEventType type,
         const EventInfo& eventInfo);
+private:
+    // 重新定义宏函数并获取新的展开形式，以获取枚举值对应的字符串；
+    static const char *eventNameToString(EventName eventName) {
+    #undef X
+    #define X(x) case (x): { return #x; }
+    #define MAKE_ENUM_CASES \
+        MY_ENUM_VALUES \
+        default: { return "unknown enum string."; }
+
+        switch (eventName) {
+            MAKE_ENUM_CASES
+        }
+    }
 };
 }  // namespace AAFWK
 }  // namespace OHOS
