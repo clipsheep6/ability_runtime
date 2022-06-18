@@ -143,7 +143,7 @@ private:
 
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, nullptr, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnRegisterApplicationStateObserver", nullptr, nullptr, std::move(complete), &result));
         return engine.CreateNumber(observerId);
     }
 
@@ -196,7 +196,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnUnregisterApplicationStateObserver", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -230,7 +230,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnGetForegroundApplications", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -251,7 +251,7 @@ private:
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnGetProcessRunningInfos", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -278,7 +278,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnIsRunningInStabilityTest", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -315,7 +315,7 @@ private:
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnkillProcess", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -352,7 +352,7 @@ private:
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnClearUpApplicationData", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -387,7 +387,7 @@ private:
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+            engine, CreateAsyncTaskWithLastParam(engine, "JSAppManager::OnKillProcessWithAccount", lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };
@@ -474,7 +474,7 @@ void JSApplicationStateObserver::OnForegroundApplicationChanged(const AppStateDa
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JSApplicationStateObserver::OnForegroundApplicationChanged", callback, std::move(execute), std::move(complete)));
 }
 
 void JSApplicationStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
@@ -501,7 +501,7 @@ void JSApplicationStateObserver::OnAbilityStateChanged(const AbilityStateData &a
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JSApplicationStateObserver::OnAbilityStateChanged", callback, std::move(execute), std::move(complete)));
 }
 
 void JSApplicationStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
@@ -527,7 +527,7 @@ void JSApplicationStateObserver::OnExtensionStateChanged(const AbilityStateData 
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JSApplicationStateObserver::OnExtensionStateChanged", callback, std::move(execute), std::move(complete)));
 }
 
 void JSApplicationStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
@@ -553,7 +553,7 @@ void JSApplicationStateObserver::OnProcessCreated(const ProcessData &processData
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JSApplicationStateObserver::OnProcessCreated", callback, std::move(execute), std::move(complete)));
 }
 
 void JSApplicationStateObserver::HandleOnProcessCreated(const ProcessData &processData)
@@ -579,7 +579,7 @@ void JSApplicationStateObserver::OnProcessDied(const ProcessData &processData)
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule(
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+        engine_, std::make_unique<AsyncTask>("JSApplicationStateObserver::OnProcessCreated", callback, std::move(execute), std::move(complete)));
 }
 
 void JSApplicationStateObserver::HandleOnProcessDied(const ProcessData &processData)
