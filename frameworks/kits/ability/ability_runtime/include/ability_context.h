@@ -216,7 +216,7 @@ public:
      *
      * @return Returns zero on success, others on failure.
      */
-    virtual ErrCode StartAbility(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) = 0;
+    virtual ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
      * caller release by callback object

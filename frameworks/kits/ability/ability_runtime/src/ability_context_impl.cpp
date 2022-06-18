@@ -438,7 +438,7 @@ ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue
     return ERR_OK;
 }
 
-ErrCode AbilityContextImpl::StartAbility(
+ErrCode AbilityContextImpl::StartAbilityByCall(
     const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
 {
     if (localCallContainer_ == nullptr) {
@@ -448,7 +448,7 @@ ErrCode AbilityContextImpl::StartAbility(
             return ERR_INVALID_VALUE;
         }
     }
-    return localCallContainer_->StartAbilityInner(want, callback, token_);
+    return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
 }
 
 ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback)

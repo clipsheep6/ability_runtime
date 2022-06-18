@@ -349,7 +349,7 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
         return engine.CreateUndefined();
     }
 
-    if (context->StartAbility(want, calls->callerCallBack) != 0) {
+    if (context->StartAbilityByCall(want, calls->callerCallBack) != 0) {
         HILOG_ERROR("OnStartAbilityByCall StartAbility is failed");
         return engine.CreateUndefined();
     }

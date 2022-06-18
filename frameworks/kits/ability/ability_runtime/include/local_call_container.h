@@ -30,7 +30,7 @@ public:
     LocalCallContainer() = default;
     virtual ~LocalCallContainer() = default;
 
-    int StartAbilityInner(
+    int StartAbilityByCallInner(
         const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken);
 
     int Release(const std::shared_ptr<CallerCallBack> &callback);
