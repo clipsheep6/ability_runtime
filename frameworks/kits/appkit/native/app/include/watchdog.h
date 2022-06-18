@@ -28,7 +28,7 @@ namespace AppExecFwk {
 const uint32_t MAIN_THREAD_IS_ALIVE = 0;
 const uint32_t MAIN_THREAD_TIMEOUT_TIME = 6000;
 const uint32_t INI_TIMER_FIRST_SECOND = 10000;
-const uint32_t INI_TIMER_SECOND = 6000;
+const uint32_t INI_TIMER_SECOND = 3000;
 const std::string MAIN_THREAD_IS_ALIVE_MSG = "MAIN_THREAD_IS_ALIVE";
 class WatchDog : public EventHandler {
 public:
@@ -95,6 +95,15 @@ private:
     static bool appMainThreadIsAlive_;
     static std::shared_ptr<EventHandler> appMainHandler_;
     static std::shared_ptr<WatchDog> currentHandler_;
+};
+
+class MainHandlerDumper : public Dumper {
+public:
+    virtual void Dump(const std::string &message) override;
+    virtual std::string GetTag() override;
+    std::string GetDumpInfo();
+private:
+    std::string dumpInfo;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
