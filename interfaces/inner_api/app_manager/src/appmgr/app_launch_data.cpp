@@ -78,6 +78,11 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
             return false;
         }
     }
+
+    if (!parcel.WriteBool(isNativeApplication_)) {
+        HILOG_ERROR("Failed to write isNativeApplication_");
+        return false;
+    }
     return true;
 }
 
@@ -115,12 +120,14 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
             return false;
         }
     }
+
+    isNativeApplication_ = parcel.ReadBool();
     return true;
 }
 
 AppLaunchData *AppLaunchData::Unmarshalling(Parcel &parcel)
 {
-    AppLaunchData *appLaunchData = new (std::nothrow) AppLaunchData();
+    AppLaunchData *appLaunchData = new AppLaunchData();
     if (appLaunchData && !appLaunchData->ReadFromParcel(parcel)) {
         HILOG_WARN("failed, because ReadFromParcel failed");
         delete appLaunchData;

@@ -493,6 +493,18 @@ public:
 
     void SetKilling();
     bool IsKilling() const;
+
+    /**
+     * Set whether the application is a native application. Determine whether the application is a native application
+     * by whether the first ability is a native ability. Apps that are packaged with native ability and
+     * non-native ability are not supported.
+     *
+     * @param isNativeApplication Indicates whether it is a native application.
+     */
+    inline void SetNativeApplicatonTag(bool isNativeApplication)
+    {
+        isNativeApplication_ = isNativeApplication;
+    }
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
@@ -573,6 +585,7 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
     bool isKilling_ = false;
+    bool isNativeApplication_ = false;
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;

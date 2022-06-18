@@ -328,6 +328,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetRecordId(appRecordId_);
     launchData.SetUId(mainUid_);
     launchData.SetUserTestInfo(userTestRecord_);
+    launchData.SetNativeApplicatonTag(isNativeApplication_);
     HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
