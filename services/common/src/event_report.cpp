@@ -35,18 +35,30 @@ const std::string EVENT_KEY_PROCESS_NAME = "PROCESS_NAME";
 const std::string EVENT_KEY_EXTENSION_TYPE = "EXTENSION_TYPE";
 }
 
-void EventReport::SendAppEvent(const std::string &eventName, HiSysEventType type,
+void EventReport::SendAppEvent(EventName eventName, HiSysEventType type,
     const EventInfo& eventInfo)
 {
-    HiSysEvent::Write(
-        HiSysEvent::Domain::AAFWK,
-        eventName,
-        type,
-        EVENT_KEY_APP_PID, eventInfo.pid,
-        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-        EVENT_KEY_VERSION_NAME, eventInfo.versionName,
-        EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-        EVENT_KEY_PROCESS_NAME, eventInfo.processName);
+    switch (eventName) {
+        case APP_ATTACH:
+        case APP_LAUNCH:
+        case APP_FOREGROUND:
+        case APP_BACKGROUND:
+        case APP_TERMINATE:
+            HiSysEvent::Write(
+                HiSysEvent::Domain::AAFWK,
+                eventNameToString(eventName),
+                type,
+                EVENT_KEY_APP_PID, eventInfo.pid,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+                EVENT_KEY_PROCESS_NAME, eventInfo.processName);    
+            break;
+        
+        default:
+            break;
+    }
+    
 }
 
 void EventReport::SendAbilityEvent(const std::string &eventName, HiSysEventType type,
