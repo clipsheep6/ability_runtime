@@ -58,6 +58,7 @@ constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
 constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
 constexpr static char ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
 constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
+constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -138,6 +139,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::WALLPAPER) {
             abilityName = WALLPAPER_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::ENTERPRISE_ADMIN) {
+            abilityName = ENTERPRISE_ADMIN_EXTENSION;
         }
         HILOG_INFO("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {
