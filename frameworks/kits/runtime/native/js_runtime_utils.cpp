@@ -139,9 +139,9 @@ AsyncTask::AsyncTask(NativeReference* callbackRef, std::unique_ptr<AsyncTask::Ex
 
 AsyncTask::~AsyncTask() = default;
 
-void AsyncTask::Schedule(NativeEngine& engine, std::unique_ptr<AsyncTask>&& task)
+void AsyncTask::Schedule(const std::string &name, NativeEngine& engine, std::unique_ptr<AsyncTask>&& task)
 {
-    if (task && task->Start(engine)) {
+    if (task && task->Start(name, engine)) {
         task.release();
     }
 }
@@ -203,9 +203,11 @@ void AsyncTask::Complete(NativeEngine* engine, int32_t status, void* data)
     }
 }
 
-bool AsyncTask::Start(NativeEngine& engine)
+bool AsyncTask::Start(const std::string &name, NativeEngine& engine)
 {
-    work_.reset(engine.CreateAsyncWork(Execute, Complete, this));
+    napi_value napiName = nullptr;
+    napi_create_string_utf8(reinterpret_cast<napi_env>(&engine), name.c_str(), NAPI_AUTO_LENGTH, &napiName);
+    work_.reset(engine.CreateAsyncWork(reinterpret_cast<NativeValue*>(napiName), Execute, Complete, this));
     return work_->Queue();
 }
 
