@@ -312,14 +312,6 @@ public:
     ErrCode StopServiceAbility(const Want &want);
 
     /**
-     * Get mission snapshot by mission id
-     *
-     * @param missionId the id of the mission to retrieve the sAutoapshots
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode GetMissionSnapshot(const int32_t missionId, MissionSnapshot &missionSnapshot);
-
-    /**
      * Kill the process immediately.
      *
      * @param bundleName.
@@ -376,7 +368,7 @@ public:
      * @param SystemMemoryAttr, memory information.
      */
     void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
-    
+
     ErrCode GetAppMemorySize();
 
     bool IsRamConstrainedDevice();
@@ -502,10 +494,12 @@ public:
      * @brief Get the Mission Snapshot Info object
      * @param deviceId local or remote deviceid.
      * @param missionId Id of target mission.
-     * @param snapshot snapshot of target mission
+     * @param snapshot snapshot of target mission.
+     * @param isLowResolution get low resolution snapshot.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot);
+    ErrCode GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot, bool isLowResolution = false);
 
     /**
      * @brief Clean mission by id.

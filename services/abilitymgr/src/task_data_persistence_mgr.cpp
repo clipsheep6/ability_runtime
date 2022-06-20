@@ -150,14 +150,14 @@ sptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int missionId) const
 }
 #endif
 
-bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot)
+bool TaskDataPersistenceMgr::GetMissionSnapshot(int missionId, MissionSnapshot& snapshot, bool isLowResolution)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (!currentMissionDataStorage_) {
         HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");
         return false;
     }
-    return currentMissionDataStorage_->GetMissionSnapshot(missionId, snapshot);
+    return currentMissionDataStorage_->GetMissionSnapshot(missionId, snapshot, isLowResolution);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -149,7 +149,7 @@ public:
     }
 
     int GetMissionSnapshot(
-        const std::string& deviceId, const int32_t missionId, MissionSnapshot& snapshot) override
+        const std::string& deviceId, const int32_t missionId, MissionSnapshot& snapshot, bool isLowResolution) override
     {
         return 0;
     }
