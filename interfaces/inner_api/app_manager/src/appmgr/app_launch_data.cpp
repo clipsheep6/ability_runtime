@@ -78,11 +78,6 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
             return false;
         }
     }
-
-    if (!parcel.WriteBool(isNativeApplication_)) {
-        HILOG_ERROR("Failed to write isNativeApplication_");
-        return false;
-    }
     return true;
 }
 
@@ -120,8 +115,6 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
             return false;
         }
     }
-
-    isNativeApplication_ = parcel.ReadBool();
     return true;
 }
 
