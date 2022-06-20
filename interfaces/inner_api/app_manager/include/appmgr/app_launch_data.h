@@ -146,26 +146,6 @@ public:
     }
 
     /**
-     * Save native application tag.
-     *
-     * @param isNativeApplication Indicates whether it is a native application.
-     */
-    inline void SetNativeApplicatonTag(bool isNativeApplication)
-    {
-        isNativeApplication_ = isNativeApplication;
-    }
-
-    /**
-     * Get native application tag.
-     *
-     * @return native application tag.
-     */
-    inline bool IsNativeApplication() const
-    {
-        return isNativeApplication_;
-    }
-
-    /**
      * @brief read this Sequenceable object from a Parcel.
      *
      * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
@@ -194,7 +174,6 @@ private:
     int32_t recordId_ = 0;
     int32_t uId_ = 0;
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
-    bool isNativeApplication_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
