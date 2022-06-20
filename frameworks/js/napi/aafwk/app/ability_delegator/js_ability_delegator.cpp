@@ -180,7 +180,7 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -209,8 +209,9 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
-        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityMonitor",
+        engine, CreateAsyncTaskWithLastParam(engine,
+        lastParam, nullptr, std::move(complete), &result));
 
     if (AbilityDelegatorRegistry::GetAbilityDelegator()) {
         for (auto iter = monitorRecord_.begin(); iter != monitorRecord_.end(); ++iter) {
@@ -283,7 +284,7 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
     }
 
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
@@ -311,7 +312,7 @@ NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInf
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnPrint",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -387,7 +388,7 @@ NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, Nat
     }
 
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnExecuteShellCommand:" + cmd,
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
@@ -470,7 +471,7 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
 
     NativeValue *lastParam = (info.argc >= ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnGetCurrentTopAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -502,7 +503,7 @@ NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCall
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -530,7 +531,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityForeground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -558,7 +559,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
 
     NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnDoAbilityBackground",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
@@ -586,7 +587,7 @@ NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallba
     };
     NativeValue *lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
     NativeValue *result = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JSAbilityDelegator::OnFinishTest",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

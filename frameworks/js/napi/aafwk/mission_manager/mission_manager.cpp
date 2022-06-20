@@ -185,7 +185,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnUnregisterMissionListener",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -226,7 +226,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionInfos",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -267,7 +267,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionInfo",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -321,7 +321,7 @@ private:
             };
         NativeValue* lastParam = (info.argc <= ARG_COUNT_TWO) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionSnapShot",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -356,7 +356,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnLockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -391,7 +391,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnUnlockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -426,7 +426,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnClearMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -446,7 +446,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -490,7 +490,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
