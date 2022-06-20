@@ -88,15 +88,6 @@ public:
     static NativeValue *Print(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
-     * Prints log information to the console.
-     *
-     * @param engine Indicates the native engine.
-     * @param info Indicates the parameters from js.
-     * @return exec result.
-     */
-    static NativeValue *PrintSync(NativeEngine *engine, NativeCallbackInfo *info);
-
-    /**
      * Execute the specified shell command.
      *
      * @param engine Indicates the native engine.
@@ -173,7 +164,6 @@ private:
     NativeValue *OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnPrint(NativeEngine &engine, NativeCallbackInfo &info);
-    NativeValue *OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnGetAppContext(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnGetAbilityState(NativeEngine &engine, NativeCallbackInfo &info);

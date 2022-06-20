@@ -139,12 +139,6 @@ NativeValue *JSAbilityDelegator::Print(NativeEngine *engine, NativeCallbackInfo 
     return (me != nullptr) ? me->OnPrint(*engine, *info) : nullptr;
 }
 
-NativeValue *JSAbilityDelegator::PrintSync(NativeEngine *engine, NativeCallbackInfo *info)
-{
-    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
-    return (me != nullptr) ? me->OnPrintSync(*engine, *info) : nullptr;
-}
-
 NativeValue *JSAbilityDelegator::ExecuteShellCommand(NativeEngine *engine, NativeCallbackInfo *info)
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
@@ -159,7 +153,7 @@ NativeValue *JSAbilityDelegator::FinishTest(NativeEngine *engine, NativeCallback
 
 NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(engine, info, monitor)) {
@@ -187,7 +181,7 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
 
 NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     if (!ParseAbilityMonitorPara(engine, info, monitor)) {
@@ -226,7 +220,7 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
 
 NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::shared_ptr<AbilityMonitor> monitor = nullptr;
     TimeoutCallback opt {false, false};
@@ -290,7 +284,7 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
 
 NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::string msg;
     if (!ParsePrintPara(engine, info, msg)) {
@@ -316,29 +310,9 @@ NativeValue *JSAbilityDelegator::OnPrint(NativeEngine &engine, NativeCallbackInf
     return result;
 }
 
-NativeValue *JSAbilityDelegator::OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info)
-{
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
-
-    std::string msg;
-    if (!ParsePrintPara(engine, info, msg)) {
-        HILOG_ERROR("Parse print parameters failed");
-        return engine.CreateUndefined();
-    }
-
-    auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
-    if (!delegator) {
-        HILOG_ERROR("Invalid delegator");
-        return engine.CreateUndefined();
-    }
-
-    delegator->Print(msg);
-    return engine.CreateNull();
-}
-
 NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::string cmd;
     TimeoutCallback opt {false, false};
@@ -394,7 +368,7 @@ NativeValue *JSAbilityDelegator::OnExecuteShellCommand(NativeEngine &engine, Nat
 
 NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
     if (!delegator) {
@@ -411,7 +385,7 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
 
 NativeValue *JSAbilityDelegator::OnGetAbilityState(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Incorrect number of parameters");
@@ -437,7 +411,7 @@ NativeValue *JSAbilityDelegator::OnGetAbilityState(NativeEngine &engine, NativeC
 
 NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     if (info.argc >= ARGC_ONE) {
         if (info.argv[INDEX_ZERO]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
@@ -477,7 +451,7 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
 
 NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     AAFwk::Want want;
     if (!ParseStartAbilityPara(engine, info, want)) {
@@ -509,7 +483,7 @@ NativeValue *JSAbilityDelegator::OnStartAbility(NativeEngine &engine, NativeCall
 
 NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(engine, info, remoteObject)) {
@@ -537,7 +511,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityForeground(NativeEngine &engine, Nat
 
 NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     sptr<OHOS::IRemoteObject> remoteObject = nullptr;
     if (!ParseAbilityCommonPara(engine, info, remoteObject)) {
@@ -565,7 +539,7 @@ NativeValue *JSAbilityDelegator::OnDoAbilityBackground(NativeEngine &engine, Nat
 
 NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallbackInfo &info)
 {
-    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int>(info.argc));
 
     std::string msg;
     int64_t code = 0;
