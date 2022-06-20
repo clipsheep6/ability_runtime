@@ -25,15 +25,15 @@ config("wantagent_innerkits_public_config") {
     "//base/notification/eventhandler/interfaces/inner_api",
     "${ability_base_innerapi_path}/configuration/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
-    "${kits_path}/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "${innerkits_path}/ability_manager/include",
     "${innerkits_path}/wantagent/include",
     "${services_path}/abilitymgr/include",
     "${innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "${kits_path}/appkit/native/app/include",
-    "${kits_path}/appkit/native/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
     "//third_party/icu/icu4c/source/common",
   ]
 }
@@ -55,7 +55,7 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
-  deps = [ "${kits_path}/appkit:app_context" ]
+  deps = [ "${native_path}/appkit:app_context" ]
 
   external_deps = [
     "ability_base:base",
