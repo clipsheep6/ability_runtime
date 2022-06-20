@@ -16,7 +16,7 @@
 #ifndef ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H
 #define ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H
 
-#include "foundation/ability/ability_runtime/frameworks/kits/appkit/native/ability_runtime/context/context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 #include "configuration.h"
 
 class NativeEngine;

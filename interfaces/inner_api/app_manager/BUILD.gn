@@ -19,7 +19,7 @@ config("appmgr_sdk_config") {
     "include/appmgr",
     "${ability_base_innerapi_path}/configuration/include",
     "${ability_base_innerapi_path}/want/include",
-    "${kits_path}/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "${innerkits_path}/ability_manager/include",
     "${innerkits_path}/log/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",

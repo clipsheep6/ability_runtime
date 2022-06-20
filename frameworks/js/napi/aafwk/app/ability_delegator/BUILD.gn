@@ -17,7 +17,7 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 ohos_shared_library("abilitydelegatorregistry") {
   include_dirs = [
     "./",
-    "${kits_path}/appkit/native/ability_delegator/include/",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_delegator/",
   ]
 
   sources = [
@@ -33,9 +33,9 @@ ohos_shared_library("abilitydelegatorregistry") {
 
   deps = [
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
-    "${kits_path}/appkit:app_context",
-    "${kits_path}/appkit:app_context_utils",
-    "${kits_path}/appkit:appkit_delegator",
+    "${native_path}/appkit:app_context",
+    "${native_path}/appkit:app_context_utils",
+    "${native_path}/appkit:appkit_delegator",
   ]
 
   external_deps = [
