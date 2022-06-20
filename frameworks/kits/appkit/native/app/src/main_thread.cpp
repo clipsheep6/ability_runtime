@@ -811,16 +811,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         HILOG_ERROR("MainThread::handleLaunchApplication CheckForHandleLaunchApplication failed");
         return;
     }
-
+    std::vector<std::string> localPaths;
+    ChangeToLocalPath(appLaunchData.GetApplicationInfo().bundleName,
+        appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
+    LoadAbilityLibrary(localPaths);
     ApplicationInfo appInfo = appLaunchData.GetApplicationInfo();
-    if (appLaunchData.IsNativeApplication()) {
-        HILOG_INFO("%{public}s load native application so.", __func__);
-        std::vector<std::string> localPaths;
-        ChangeToLocalPath(appLaunchData.GetApplicationInfo().bundleName,
-            appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
-        LoadAbilityLibrary(localPaths);
-        LoadNativeLiabrary(appInfo.nativeLibraryPath);
-    }
+    LoadNativeLiabrary(appInfo.nativeLibraryPath);
     LoadAppLibrary();
 
     ProcessInfo processInfo = appLaunchData.GetProcessInfo();
