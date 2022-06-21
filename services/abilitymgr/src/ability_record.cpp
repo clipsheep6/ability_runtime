@@ -986,6 +986,8 @@ void AbilityRecord::SendResult()
     std::lock_guard<std::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
     CHECK_POINTER(result_);
+    HILOG_INFO("YANWENHAO");
+    result_->resultWant_.DumpInfo(1);
     scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
     GrantUriPermission(result_->resultWant_);
     // reset result to avoid send result next time
@@ -1016,6 +1018,8 @@ void AbilityRecord::SendResultToCallers()
 
 void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *resultWant)
 {
+    HILOG_INFO("Yanwenhao");
+    resultWant->DumpInfo(1);
     auto callerRecordList = GetCallerRecordList();
     if (callerRecordList.empty()) {
         HILOG_WARN("callerRecordList is empty.");
@@ -1046,7 +1050,10 @@ void AbilityRecord::SaveResult(int resultCode, const Want *resultWant, std::shar
         std::shared_ptr<SystemAbilityCallerRecord> callerSystemAbilityRecord = caller->GetSaCaller();
         if (callerSystemAbilityRecord != nullptr) {
             HILOG_INFO("Caller is system ability.");
+            HILOG_INFO("Yanwenhao");
+            resultWant->DumpInfo(1);
             Want* newWant = const_cast<Want*>(resultWant);
+            newWant->DumpInfo(1);
             callerSystemAbilityRecord->SetResultToSystemAbility(callerSystemAbilityRecord, *newWant,
                 resultCode);
         }

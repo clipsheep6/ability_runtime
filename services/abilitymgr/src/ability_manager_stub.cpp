@@ -179,11 +179,14 @@ int AbilityManagerStub::GetTopAbilityInner(MessageParcel &data, MessageParcel &r
 int AbilityManagerStub::TerminateAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token = nullptr;
+    HILOG_INFO("Yanwenhao, %{public}lu", sizeof(data));
     if (data.ReadBool()) {
         token = data.ReadRemoteObject();
     }
     int resultCode = data.ReadInt32();
     Want *resultWant = data.ReadParcelable<Want>();
+    HILOG_INFO("Yanwenhao");
+    resultWant->DumpInfo(0);
     bool flag = data.ReadBool();
     int32_t result;
     if (flag) {

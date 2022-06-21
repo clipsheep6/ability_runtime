@@ -41,6 +41,8 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
+    HILOG_INFO("Yanwenhao");
+    want.DumpInfo(1);
 
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
@@ -326,7 +328,8 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-
+    HILOG_INFO("Yanwenhao");
+    resultWant->DumpInfo(0);
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -349,6 +352,7 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
         HILOG_ERROR("data write flag failed.");
         return INNER_ERR;
     }
+    HILOG_INFO("Yanwenhao, %{public}lu", sizeof(data));
     error = Remote()->SendRequest(IAbilityManager::TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);

@@ -673,6 +673,8 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
         HILOG_ERROR("%s Failed to parse ability result!", __func__);
         return engine.CreateUndefined();
     }
+    HILOG_INFO("Yanwenhao");
+    want.DumpInfo(1);
 
     auto abilityContext = context_.lock();
     if (abilityContext != nullptr) {
