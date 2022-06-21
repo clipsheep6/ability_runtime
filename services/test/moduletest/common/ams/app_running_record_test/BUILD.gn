@@ -19,10 +19,7 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsAppRunningRecordModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog/",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-  ]
+  include_dirs = []
   sources = [ "ams_app_running_record_module_test.cpp" ]
 
   deps = [
@@ -32,6 +29,7 @@ ohos_moduletest("AmsAppRunningRecordModuleTest") {
 
   external_deps = [
     "hicollie_native:libhicollie",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 

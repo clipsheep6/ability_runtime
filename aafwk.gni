@@ -22,7 +22,6 @@ system_test_app_path =
     "${aafwk_path}/test/resource/amssystemtestability/abilitySrc"
 
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
-bundlefwk_innerkits_path = "${bundlefwk_path}/interfaces/innerkits"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
 
 multimedia_path = "//foundation/multimedia/image_standard"
@@ -38,12 +37,17 @@ distributeddatamgr_path = "//foundation/distributeddatamgr"
 form_fwk_napi_path = "${form_fwk_path}/frameworks/js/napi"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_base_native_path = "${ability_base_path}/frameworks/native"
+appspawn_path = "//base/startup/appspawn"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
   distributed_data_object_enable = true
   ability_runtime_graphics = true
   ability_runtime_power = true
+  ability_runtime_relational = true
+  ability_runtime_ces = true
+  ability_runtime_resource = true
+  ability_runtime_appspawn = true
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {
@@ -51,6 +55,7 @@ declare_args() {
   } else {
     os_account_part_enabled = false
   }
+
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_background_task_mgr)) {
     background_task_mgr_continuous_task_enable = false
@@ -59,5 +64,25 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.distributeddatamgr_distributeddataobject)) {
     distributed_data_object_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.distributeddatamgr_relational_store)) {
+    ability_runtime_relational = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.notification_common_event_service)) {
+    ability_runtime_ces = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.global_resource_management)) {
+    ability_runtime_resource = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.startup_appspawn)) {
+    ability_runtime_appspawn = false
   }
 }

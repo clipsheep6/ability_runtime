@@ -18,13 +18,11 @@ module_output_path = "appexecfwk_standard/ams/"
 config("ams_check_service_config") {
   include_dirs = [
     "${aafwk_path}/frameworks/kits/appkit/native/app/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${ability_base_innerapi_path}/want/include",
     "//third_party/json/include",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -51,9 +49,6 @@ ohos_systemtest("ams_check_service") {
   configs = [
     "${aafwk_path}/services/abilitymgr:abilityms_config",
     "${aafwk_path}/services/appmgr:appmgr_config",
-
-    # "${aafwk_path}/frameworks/kits/appkit:appkit_config",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler_config",
     ":ams_check_service_config",
     "test/systemtest/common/ams/tool/:system_test_ability_util_config",
   ]
@@ -65,9 +60,7 @@ ohos_systemtest("ams_check_service") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
   ]
@@ -77,6 +70,7 @@ ohos_systemtest("ams_check_service") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

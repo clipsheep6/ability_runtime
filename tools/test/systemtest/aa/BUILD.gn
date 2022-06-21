@@ -17,11 +17,7 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 module_output_path = "ability_tools/tools"
 
 config("tools_aa_test_config") {
-  include_dirs = [
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "//base/security/appverify/interfaces/innerkits/appverify/include",
-  ]
+  include_dirs = []
 }
 
 ohos_systemtest("aa_command_start_system_test") {

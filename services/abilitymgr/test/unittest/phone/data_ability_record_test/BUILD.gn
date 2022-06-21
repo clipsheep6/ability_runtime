@@ -23,7 +23,6 @@ ohos_unittest("data_ability_record_test") {
     "${services_path}/abilitymgr/test/mock/libs/system_ability_mock",
     "${services_path}/abilitymgr/test/mock/libs/ability_scheduler_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${aafwk_path}/services/common/include",
@@ -51,9 +50,6 @@ ohos_unittest("data_ability_record_test") {
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
     "${services_path}/common:perm_verification",
-
-    #"${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
@@ -64,6 +60,8 @@ ohos_unittest("data_ability_record_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

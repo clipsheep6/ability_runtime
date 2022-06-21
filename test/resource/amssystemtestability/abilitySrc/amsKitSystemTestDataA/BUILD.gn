@@ -27,7 +27,6 @@ config("amsKitSystemTestDataAConfig") {
     "${aafwk_path}/services/abilitymgr/include",
     "${common_path}/log/include",
     "${SUBST_TOOLS_DIR}/include",
-    "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/jsoncpp/include",
   ]
   defines = [
@@ -67,6 +66,7 @@ ohos_shared_library("amsKitSystemTestDataA") {
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dataability:native_dataability",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",

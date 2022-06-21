@@ -23,9 +23,6 @@
 #include "ability_post_event_timeout.h"
 #include "ability_runtime/js_ability.h"
 #include "abs_shared_result_set.h"
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-#include "background_task_mgr_helper.h"
-#endif
 #include "hitrace_meter.h"
 #include "configuration_convertor.h"
 #include "connection_manager.h"
@@ -33,14 +30,10 @@
 #include "continuation_manager.h"
 #include "continuation_register_manager.h"
 #include "continuation_register_manager_proxy.h"
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-#include "continuous_task_param.h"
-#endif
 #include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "data_ability_result.h"
 #include "data_uri_utils.h"
-#include "distributed_objectstore.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -54,6 +47,15 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+#include "background_task_mgr_helper.h"
+#include "continuous_task_param.h"
+#endif
+
+#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
+#include "distributed_objectstore.h"
+#endif
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_type.h"

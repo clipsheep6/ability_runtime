@@ -22,13 +22,9 @@ ohos_unittest("AmsServiceEventDriveTest") {
   include_dirs = [
     "${aafwk_path}/services/appmgr/test/mock/include",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
-    "//utils/native/base/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/services/appmgr/src",
-    "//base/account/os_account/frameworks/common/database/include",
-    "//base/account/os_account/frameworks/common/account_error/include",
   ]
 
   sources = [
@@ -60,15 +56,11 @@ ohos_unittest("AmsServiceEventDriveTest") {
     "${services_path}/common:perm_verification",
   ]
 
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
-
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",

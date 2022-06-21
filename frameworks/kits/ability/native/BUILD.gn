@@ -30,7 +30,6 @@ config("ability_config") {
     "${kits_path}/appkit/native/app/include",
     "${form_fwk_path}/interfaces/kits/native/include",
     "${kits_path}/app/native/app/include",
-    "${services_path}/common/include",
     "//third_party/node/src",
     "${innerkits_path}/ability_manager/include/continuation",
     "${kits_path}/appkit/native/app/include/task",
@@ -71,7 +70,7 @@ config("ability_public_config") {
     "//third_party/libuv/include",
     "${kits_path}/appkit/native/ability_runtime/context",
     "${innerkits_path}/ability_manager/include/continuation",
-    "${global_path}/resource_management/interfaces/inner_api/include",
+    "${services_path}/common/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
@@ -114,7 +113,6 @@ ohos_shared_library("abilitykit_native") {
     "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/include",
     "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi//common/include",
     "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/include",
-    "${distributeddatamgr_path}/objectstore/interfaces/innerkits/",
   ]
 
   sources = [
@@ -223,12 +221,11 @@ ohos_shared_library("abilitykit_native") {
     "dataability:native_dataability",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
-    "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
-    "resource_management:global_resmgr",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
@@ -250,8 +247,6 @@ ohos_shared_library("abilitykit_native") {
   }
 
   public_deps = [
-    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits:libhilog",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//foundation/arkui/napi:ace_napi",
   ]
@@ -278,7 +273,6 @@ ohos_shared_library("abilitykit_native") {
     external_deps += [
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
-      "input:libmmi-client",
       "multimedia_image_standard:image",
     ]
 

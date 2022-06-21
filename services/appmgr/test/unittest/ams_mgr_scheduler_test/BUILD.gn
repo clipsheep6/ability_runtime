@@ -24,9 +24,6 @@ ohos_unittest("AmsMgrSchedulerTest") {
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/services/appmgr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
-    "//base/account/os_account/frameworks/common/database/include",
-    "//base/account/os_account/frameworks/common/account_error/include",
     "${ability_base_innerapi_path}/want/include",
   ]
 
@@ -44,11 +41,6 @@ ohos_unittest("AmsMgrSchedulerTest") {
     "${aafwk_path}/services/appmgr:libappms",
     "${services_path}/appmgr/test:appmgr_test_source",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
 
   external_deps = [
     "bundle_framework:appexecfwk_core",

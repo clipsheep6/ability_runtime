@@ -29,6 +29,7 @@ ohos_moduletest("AmsIpcAppmgrModuleTest") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "hicollie_native:libhicollie",
     "ipc:ipc_core",
   ]

@@ -24,8 +24,6 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/services/appmgr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
   ]
   sources = [ "ams_ipc_ams_mgr_module_test.cpp" ]
 
@@ -36,8 +34,10 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 

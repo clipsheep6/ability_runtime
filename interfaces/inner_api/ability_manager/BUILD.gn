@@ -23,15 +23,11 @@ config("ability_manager_public_config") {
     "${ability_base_innerapi_path}/uri/include",
     "//third_party/jsoncpp/include",
     "${ability_base_innerapi_path}/want/include",
-    "//utils/native/base/include",
     "${kits_path}/ability/native/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${innerkits_path}/app_manager/include/appmgr",
     "${kits_path}/appkit/native/app/include",
-    "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/appdatafwk/include",
-    "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/dataability/include",
     "${innerkits_path}/dataobs_manager/include",
   ]
 
@@ -109,7 +105,6 @@ ohos_shared_library("ability_manager") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
