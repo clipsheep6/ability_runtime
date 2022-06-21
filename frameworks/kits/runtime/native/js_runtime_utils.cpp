@@ -205,9 +205,7 @@ void AsyncTask::Complete(NativeEngine* engine, int32_t status, void* data)
 
 bool AsyncTask::Start(const std::string &name, NativeEngine& engine)
 {
-    napi_value napiName = nullptr;
-    napi_create_string_utf8(reinterpret_cast<napi_env>(&engine), name.c_str(), NAPI_AUTO_LENGTH, &napiName);
-    work_.reset(engine.CreateAsyncWork(reinterpret_cast<NativeValue*>(napiName), Execute, Complete, this));
+    work_.reset(engine.CreateAsyncWork(name, Execute, Complete, this));
     return work_->Queue();
 }
 
