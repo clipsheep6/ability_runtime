@@ -279,7 +279,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
                 bundleName = optarg;
                 break;
             case 'o':
-                if (optind + 1 >= argc_) {
+                if (optind + 1 >= argc_ || optind + 1 < 0) {
                     HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
                         ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
@@ -428,7 +428,7 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
                 params["-b"] = optarg;
                 break;
             case 'o':
-                if (optind + 1 >= argc_) {
+                if (optind + 1 >= argc_ || optind + 1 < 0) {
                     HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
                         ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
