@@ -59,6 +59,9 @@
 #include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
+#ifdef SUSPEND_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif // SUSPEND_MANAGER_ENABLE
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
@@ -455,6 +458,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+#ifdef SUSPEND_MANAGER_ENABLE
+    auto bms = AbilityUtil::GetBundleManager();
+    if (bms) {
+        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+            bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
+            abilityInfo.bundleName, SuspendManager::THAW_BY_START_ABILITY);
+    }
+#endif // SUSPEND_MANAGER_ENABLE
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
