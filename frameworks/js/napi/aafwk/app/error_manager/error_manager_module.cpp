@@ -20,7 +20,7 @@ extern "C" __attribute__((constructor)) void NAPI_application_ErrorManager_AutoR
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.ErrorManager",
+        .name = "application.errorManager",
         .fileName = "application/errormanager_napi.so/error_manager.js",
         .registerCallback = OHOS::AbilityRuntime::JsErrorManagerInit,
     };

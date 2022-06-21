@@ -21,7 +21,7 @@ void NAPI_application_AbilityManager_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.AbilityManager",
+        .name = "application.abilityManager",
         .fileName = "application/abilitymanager_napi.so/ability_manager.js",
         .registerCallback = OHOS::AbilityRuntime::JsAbilityManagerInit,
     };

@@ -21,7 +21,7 @@ void NAPI_application_AppManager_AutoRegister()
 {
     auto moduleManager = NativeModuleManager::GetInstance();
     NativeModule newModuleInfo = {
-        .name = "application.AppManager",
+        .name = "application.appManager",
         .fileName = "application/appmanager_napi.so/app_manager.js",
         .registerCallback = OHOS::AbilityRuntime::JsAppManagerInit,
     };
