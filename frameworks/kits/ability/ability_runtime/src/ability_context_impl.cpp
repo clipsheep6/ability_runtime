@@ -453,7 +453,7 @@ ErrCode AbilityContextImpl::StartAbilityByCall(
 
 ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback)
 {
-    HILOG_DEBUG("AbilityContextImpl::Release begain.");
+    HILOG_DEBUG("AbilityContextImpl::Release begin.");
     if (localCallContainer_ == nullptr) {
         HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
         return ERR_INVALID_VALUE;

@@ -59,9 +59,9 @@ int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool isClea
     return ERR_OK;
 }
 
-void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
+void AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Test AppScheduler::MoveToForground()");
+    HILOG_INFO("Test AppScheduler::MoveToForeground()");
 }
 
 void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)

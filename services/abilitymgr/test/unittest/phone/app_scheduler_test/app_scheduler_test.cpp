@@ -230,9 +230,9 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_007, TestSize.Level1)
 
 /*
  * Feature: AppScheduler
- * Function: MoveToForground
+ * Function: MoveToForeground
  * SubFunction: NA
- * FunctionPoints: AppScheduler MoveToForground
+ * FunctionPoints: AppScheduler MoveToForeground
  * EnvConditions:NA
  * CaseDescription: Verify appmgrclient_ Is null causes movetoforground to be invalid
  */
@@ -248,14 +248,14 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_008, TestSize.Level1)
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
 
-    DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token);
+    DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 }
 
 /*
  * Feature: AppScheduler
- * Function: MoveToForground
+ * Function: MoveToForeground
  * SubFunction: NA
- * FunctionPoints: AppScheduler MoveToForground
+ * FunctionPoints: AppScheduler MoveToForeground
  * EnvConditions:NA
  * CaseDescription: Verify the normal process of movetoforground
  */
@@ -271,7 +271,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_009, TestSize.Level1)
     auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
     auto token = record->GetToken();
 
-    DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token);
+    DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
 }
 
 /*

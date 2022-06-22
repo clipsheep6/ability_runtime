@@ -902,7 +902,7 @@ private:
     bool clearMissionFlag_ = false;
 
     int32_t restartCount_ = -1;
-    int32_t restratMax_ = -1;
+    int32_t restartMax_ = -1;
     std::string specifiedFlag_;
     std::mutex lock_;
     mutable std::mutex dumpInfoLock_;

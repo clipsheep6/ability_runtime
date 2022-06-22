@@ -185,7 +185,7 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Connect_Service_001, TestSize.Level1)
     service->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVATING);
     auto result2 = ConnectManager()->StartAbility(abilityRequest_);
     WaitUntilTaskDone(handler);
-    EXPECT_EQ(OHOS::AAFwk::START_SERVICE_ABILITY_ACTIVING, result2);
+    EXPECT_EQ(OHOS::AAFwk::START_SERVICE_ABILITY_ACTIVATING, result2);
     EXPECT_EQ(static_cast<int>(ConnectManager()->GetServiceMap().size()), 1);
 }
 

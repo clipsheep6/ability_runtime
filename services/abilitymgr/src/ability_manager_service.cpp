@@ -131,7 +131,7 @@ const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerServic
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-m", KEY_DUMP_MISSION),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--top", KEY_DUMP_TOP_ABILITY),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-t", KEY_DUMP_TOP_ABILITY),
-    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--waitting-queue", KEY_DUMP_WAIT_QUEUE),
+    std::map<std::string, AbilityManagerService::DumpKey>::value_type("--waiting-queue", KEY_DUMP_WAIT_QUEUE),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-w", KEY_DUMP_WAIT_QUEUE),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--serv", KEY_DUMP_SERVICE),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-e", KEY_DUMP_SERVICE),
@@ -2750,7 +2750,7 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
     auto userId = GetUserId();
     HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
 
-    /* Query the highest priority abiltiy or extension ability, and start it. usually, it is OOBE or launcher */
+    /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
     want.AddEntity(HIGHEST_PRIORITY_ABILITY_ENTITY);
     AppExecFwk::AbilityInfo abilityInfo;
@@ -2775,13 +2775,13 @@ void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
     if (!abilityInfo.name.empty()) {
-        /* highest priority abiltiy */
+        /* highest priority ability */
         HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
             abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
         abilityWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
     } else {
-        /* highest priority extension abiltiy */
-        HILOG_INFO("Start the highest priority entension ability. bundleName: %{public}s, ability:%{public}s",
+        /* highest priority extension ability */
+        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
             extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
         abilityWant.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
     }
@@ -4623,10 +4623,10 @@ int AbilityManagerService::BlockAmsService()
 {
     HILOG_DEBUG("%{public}s", __func__);
     if (handler_) {
-        HILOG_DEBUG("%{public}s begain post block ams service task", __func__);
+        HILOG_DEBUG("%{public}s begin post block ams service task", __func__);
         auto BlockAmsServiceTask = [aams = shared_from_this()]() {
             while (1) {
-                HILOG_DEBUG("%{public}s begain waiting", __func__);
+                HILOG_DEBUG("%{public}s begin waiting", __func__);
                 std::this_thread::sleep_for(BLOCK_AMS_SERVICE_TIME*1s);
             }
         };
@@ -4709,7 +4709,7 @@ int AbilityManagerService::Dump(int fd, const std::vector<std::u16string> &args)
     } else {
         errCode = ProcessMultiParam(argsStr, result);
         if (errCode == ERR_AAFWK_HIDUMP_INVALID_ARGS) {
-            ShowIllealInfomation(result);
+            ShowIllegalInfomation(result);
         }
     }
 
@@ -4791,7 +4791,7 @@ void AbilityManagerService::ShowHelp(std::string &result)
         .append("dump all data ability infomation in the system");
 }
 
-void AbilityManagerService::ShowIllealInfomation(std::string &result)
+void AbilityManagerService::ShowIllegalInfomation(std::string &result)
 {
     result.append(ILLEGAL_INFOMATION);
 }

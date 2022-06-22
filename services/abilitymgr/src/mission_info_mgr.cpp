@@ -32,15 +32,15 @@ MissionInfoMgr::~MissionInfoMgr()
 bool MissionInfoMgr::GenerateMissionId(int32_t &missionId)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (currentMisionId_ == MAX_MISSION_ID) {
-        currentMisionId_ = MIN_MISSION_ID;
+    if (currentMissionId_ == MAX_MISSION_ID) {
+        currentMissionId_ = MIN_MISSION_ID;
     }
 
-    for (int32_t index = currentMisionId_; index < MAX_MISSION_ID; index++) {
+    for (int32_t index = currentMissionId_; index < MAX_MISSION_ID; index++) {
         if (missionIdMap_.find(index) == missionIdMap_.end()) {
             missionId = index;
             missionIdMap_[missionId] = false;
-            currentMisionId_ = missionId + 1;
+            currentMissionId_ = missionId + 1;
             return true;
         }
     }
@@ -144,7 +144,7 @@ bool MissionInfoMgr::DeleteMissionInfo(int missionId)
     }
 
     if (!missionIdMap_[missionId]) {
-        HILOG_WARN("missionId %{public}d distriubted but not saved, no need delete", missionId);
+        HILOG_WARN("missionId %{public}d distributed but not saved, no need delete", missionId);
         missionIdMap_.erase(missionId);
         return true;
     }

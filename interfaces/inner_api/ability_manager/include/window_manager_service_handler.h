@@ -55,7 +55,7 @@ public:
         ON_HOT_STARTING_WINDOW,
 
         // ipc id for CancelStartingWindow
-        ON_CANCLE_STARTING_WINDOW,
+        ON_CANCEL_STARTING_WINDOW,
     };
 };
 }  // namespace AAFwk

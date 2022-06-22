@@ -410,11 +410,11 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.bundleNames.emplace_back(appRecord->GetBundleName());
 }
 
-void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &sorce, std::string &afferCutStr)
+void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
 {
     std::smatch basket;
-    if (std::regex_search(sorce, basket, re)) {
-        afferCutStr = basket.prefix().str() + basket.suffix().str();
+    if (std::regex_search(source, basket, re)) {
+        afterCutStr = basket.prefix().str() + basket.suffix().str();
     }
 }
 

@@ -88,7 +88,7 @@ struct MissionRegistrationCB {
     int resultCode = 0;
 };
 
-struct RegisterMissonCB {
+struct RegisterMissionCB {
     CBBase cbBase;
     std::string deviceId;
     sptr<NAPIRemoteMissionListener> missionRegistration;

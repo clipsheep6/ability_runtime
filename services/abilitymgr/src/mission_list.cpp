@@ -314,7 +314,7 @@ void MissionList::DumpStateByRecordId(
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begain to call DumpAbilityState %{public}s", __func__);
+                    HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
                     abilityRecord->DumpAbilityState(info, isClient, params);
                     return;
                 }
@@ -336,7 +336,7 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
 
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
-                HILOG_INFO("record begain to call DumpAbilityState %{public}s", __func__);
+                HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
                 std::vector<std::string> params;
                 abilityRecord->DumpAbilityState(info, isClient, params);
             }
@@ -353,7 +353,7 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begain to call BlockAbilityByRecordId %{public}s", __func__);
+                    HILOG_INFO("record begin to call BlockAbilityByRecordId %{public}s", __func__);
                     return abilityRecord->BlockAbility();
                 }
             }
