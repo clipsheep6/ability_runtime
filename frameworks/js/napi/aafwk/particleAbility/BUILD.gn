@@ -39,7 +39,7 @@ ohos_shared_library("particleability") {
   deps = [
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
     "${innerkits_path}/dataobs_manager:dataobs_manager",
-    "${kits_path}/appkit:appkit_native",
+    "${native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
     "//third_party/libuv:uv_static",
   ]

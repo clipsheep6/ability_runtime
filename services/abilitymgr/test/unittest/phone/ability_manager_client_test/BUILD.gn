@@ -36,7 +36,7 @@ ohos_unittest("ability_manager_client_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${services_path}/abilitymgr/test:abilityms_test_source",

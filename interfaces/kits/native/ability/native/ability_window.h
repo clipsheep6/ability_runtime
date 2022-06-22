@@ -22,7 +22,7 @@
 #include "window.h"
 #include "window_option.h"
 #include "window_scene.h"
-#include "../../ability_runtime/include/ability_context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
 namespace OHOS {
 namespace AppExecFwk {
