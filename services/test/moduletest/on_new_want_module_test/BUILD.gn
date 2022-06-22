@@ -22,7 +22,7 @@ ohos_moduletest("on_new_want_module_test") {
   include_dirs = [
     "${services_path}/test/mock/include",
     "//third_party/jsoncpp/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include/distributed_ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
   ]
 
@@ -47,7 +47,7 @@ ohos_moduletest("on_new_want_module_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",

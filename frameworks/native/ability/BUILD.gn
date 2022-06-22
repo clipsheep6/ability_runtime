@@ -17,9 +17,10 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 config("ability_context_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "include",
-    "${kits_path}/appkit/native/ability_runtime",
-    "${kits_path}/appkit/native/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/ability/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/ability/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
   ]
 
   cflags = []
@@ -35,17 +36,17 @@ ohos_shared_library("ability_context_native") {
   public_configs = [ ":ability_context_public_config" ]
 
   sources = [
-    "src/ability_connection.cpp",
-    "src/ability_context_impl.cpp",
-    "src/connection_manager.cpp",
-    "src/js_extension_context.cpp",
-    "src/local_call_container.cpp",
-    "src/local_call_record.cpp",
+    "ability_runtime/ability_connection.cpp",
+    "ability_runtime/ability_context_impl.cpp",
+    "ability_runtime/connection_manager.cpp",
+    "ability_runtime/js_extension_context.cpp",
+    "ability_runtime/local_call_container.cpp",
+    "ability_runtime/local_call_record.cpp",
   ]
 
   deps = [
-    "${kits_path}/appkit:app_context",
-    "${kits_path}/appkit:app_context_utils",
+    "${native_path}/appkit:app_context",
+    "${native_path}/appkit:app_context_utils",
   ]
 
   external_deps = [

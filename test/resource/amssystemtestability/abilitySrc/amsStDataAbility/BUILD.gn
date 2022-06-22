@@ -45,8 +45,8 @@ ohos_shared_library("amsStDataAbility") {
   configs = [ ":verify_act_ability_config" ]
   public_configs = [ ":verify_act_ability_public_config" ]
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "//utils/native/base:utilsbase",
