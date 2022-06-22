@@ -112,12 +112,33 @@ int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &curre
 int MissionListManager::MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
 {
     HILOG_INFO("Minimize ability, fromUser:%{public}d.", fromUser);
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+
+    auto self(shared_from_this());
+    auto task = [self, token, fromUser]() {
+        if (self) {
+            self->HandleMinimizeAbility(token, fromUser);
+        }
+    };
+    handler->PostTask(task);
+    return ERR_OK;
+}
+
+void MissionListManager::HandleMinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser)
+{
+    HILOG_INFO("HandleMinimizeAbility ability, fromUser:%{public}d.", fromUser);
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     // check if ability is in list to avoid user create fake token.
-    CHECK_POINTER_AND_RETURN_LOG(
-        GetAbilityRecordByToken(token), INNER_ERR, "Minimize ability fail, ability is not in mission list.");
-    auto abilityRecord = Token::GetAbilityRecordByToken(token);
-    return MinimizeAbilityLocked(abilityRecord, fromUser);
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("HandleMinimizeAbility ability fail, ability is not in mission list.");
+        return;
+    }
+
+    if (MinimizeAbilityLocked(abilityRecord, fromUser) != 0) {
+        HILOG_ERROR("minimize ability failed.");
+    }
 }
 
 int MissionListManager::RegisterMissionListener(const sptr<IMissionListener> &listener)
