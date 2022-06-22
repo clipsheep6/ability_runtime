@@ -140,7 +140,9 @@ public:
         AbilityManagerClient::GetInstance()->StartAbility(want);
         std::vector<MissionInfo> info {};
         AbilityManagerClient::GetInstance()->GetMissionInfos("", upperLimit, info);
-        missionId = info.front().id;
+        if (!info.empty()) {
+            missionId = info.front().id;
+        }
     }
 
     void TearDown(const ::benchmark::State &state) override
@@ -151,8 +153,8 @@ public:
 
 protected:
     const string deviceId;
-    const string bundleName = "com.example.distributedcalc";
-    const string abilityName = "com.example.distributedcalc.default";
+    const string bundleName = "ohos.samples.FormApplication";
+    const string abilityName = "ohos.samples.FormApplication.MainAbility";
     int32_t missionId = 0;
 };
 
