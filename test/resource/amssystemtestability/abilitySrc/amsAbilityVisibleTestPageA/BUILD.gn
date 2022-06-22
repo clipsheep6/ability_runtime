@@ -48,8 +48,8 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/dataability:native_dataability",
-    "${distributeddatamgr_path}/appdatamgr/interfaces/inner_api/native/rdb:native_rdb",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//utils/native/base:utilsbase",
   ]
   external_deps = [
@@ -58,10 +58,10 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
-    "dataability:native_dataability",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
   subsystem_name = "amssystemtestability"
