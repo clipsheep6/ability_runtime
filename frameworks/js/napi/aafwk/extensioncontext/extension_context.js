@@ -19,6 +19,7 @@ class ExtensionContext extends Context {
         super(obj);
         this.currentHapModuleInfo = obj.currentHapModuleInfo
         this.config = obj.config
+        this.extensionAbilityInfo = obj.extensionAbilityInfo
     }
 
     onUpdateConfiguration(config) {

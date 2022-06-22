@@ -36,7 +36,8 @@ private:
     std::weak_ptr<ExtensionContext> context_;
 };
 
-NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context);
+NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H

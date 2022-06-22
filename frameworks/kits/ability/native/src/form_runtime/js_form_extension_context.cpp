@@ -182,7 +182,11 @@ private:
 NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    NativeValue* objValue = CreateJsExtensionContext(engine, context);
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
+    if (context) {
+        abilityInfo = context->GetAbilityInfo();
+    }
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);
