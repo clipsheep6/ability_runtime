@@ -111,8 +111,11 @@ bool WatchDog::Timer()
             auto timeoutTask = [&]() {
                 timeOut_.store(true);
                 appMainThreadIsAlive_ = false;
-                std::string eventType = "THREAD_BLOCK_6S";
-                std::string msgContent = "app main thread is not response!";
+                std::string eventType = "THREAD_BLOCK_3S";
+                std::string msgContent = "App main thread is not response!";
+                MainHandlerDumper handlerDumper;
+                appMainHandler_->Dump(handlerDumper);
+                msgContent += handlerDumper.GetDumpInfo();
                 if (applicationInfo_ != nullptr) {
                     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
                         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
@@ -122,7 +125,7 @@ bool WatchDog::Timer()
                         EVENT_KEY_PROCESS_NAME, applicationInfo_->process,
                         EVENT_KEY_MESSAGE, msgContent);
                 }
-                HILOG_INFO("Warning : main thread is not response!");
+                HILOG_INFO("%{public}zu %{public}s", msgContent.size(), msgContent.c_str());
             };
             if (timeOut_) {
                 HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
@@ -137,6 +140,22 @@ bool WatchDog::Timer()
         }
     }
     return true;
+}
+
+void MainHandlerDumper::Dump(const std::string &message)
+{
+    HILOG_INFO("message is %{public}s", message.c_str());
+    dumpInfo += message;
+}
+
+std::string MainHandlerDumper::GetTag()
+{
+    return "";
+}
+
+std::string MainHandlerDumper::GetDumpInfo()
+{
+    return dumpInfo;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

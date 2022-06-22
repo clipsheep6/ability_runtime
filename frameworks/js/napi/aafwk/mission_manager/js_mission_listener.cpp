@@ -81,7 +81,7 @@ void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t miss
         });
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule(
+    AsyncTask::Schedule("JsMissionListener::CallJsMethod:" + methodName,
         *engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
@@ -129,7 +129,8 @@ void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::share
         });
     NativeReference* callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule(*engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+    AsyncTask::Schedule("JsMissionListener::OnMissionIconUpdated", *engine_,
+        std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
 }
 
 void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)

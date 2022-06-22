@@ -20,8 +20,6 @@ config("aakit_mock_config") {
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
     "${aafwk_path}/services/abilitymgr/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
     "${aafwk_path}/interfaces/inner_api/app_manager/include",
     "${aafwk_path}/frameworks/kits/ability/native/include/",
     "include/",
@@ -43,17 +41,17 @@ ohos_source_set("aakit_mock") {
   }
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
-    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

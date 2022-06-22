@@ -79,7 +79,13 @@ public:
     static NativeValue* GetMissionSnapShot(NativeEngine* engine, NativeCallbackInfo* info)
     {
         JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
-        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info) : nullptr;
+        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info, false) : nullptr;
+    }
+
+    static NativeValue* GetLowResolutionMissionSnapShot(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsMissionManager* me = CheckParamsAndGetThis<JsMissionManager>(engine, info);
+        return (me != nullptr) ? me->OnGetMissionSnapShot(*engine, *info, true) : nullptr;
     }
 
     static NativeValue* LockMission(NativeEngine* engine, NativeCallbackInfo* info)
@@ -179,7 +185,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnUnregisterMissionListener",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -220,7 +226,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionInfos",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -261,12 +267,12 @@ private:
 
         NativeValue* lastParam = (info.argc <= 2) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionInfo",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
-    NativeValue* OnGetMissionSnapShot(NativeEngine &engine, NativeCallbackInfo &info)
+    NativeValue* OnGetMissionSnapShot(NativeEngine &engine, NativeCallbackInfo &info, bool isLowResolution)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
@@ -285,14 +291,14 @@ private:
             errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
-            [deviceId, missionId, errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            [deviceId, missionId, errCode, isLowResolution](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 if (errCode != 0) {
                     task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
                     return;
                 }
                 AAFwk::MissionSnapshot missionSnapshot;
                 auto ret = AbilityManagerClient::GetInstance()->GetMissionSnapshot(
-                    deviceId, missionId, missionSnapshot);
+                    deviceId, missionId, missionSnapshot, isLowResolution);
                 if (ret == 0) {
                     NativeValue* objValue = engine.CreateObject();
                     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
@@ -315,7 +321,7 @@ private:
             };
         NativeValue* lastParam = (info.argc <= ARG_COUNT_TWO) ? nullptr : info.argv[2];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnGetMissionSnapShot",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -350,7 +356,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnLockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -385,7 +391,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnUnlockMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -420,7 +426,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnClearMission",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -440,7 +446,7 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -484,7 +490,7 @@ private:
 
         NativeValue* lastParam = (info.argc <= unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
+        AsyncTask::Schedule("MissioManager::OnMoveMissionToFront",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -515,6 +521,8 @@ NativeValue* JsMissionManagerInit(NativeEngine* engine, NativeValue* exportObj)
     BindNativeFunction(*engine, *object, "getMissionInfos", JsMissionManager::GetMissionInfos);
     BindNativeFunction(*engine, *object, "getMissionInfo", JsMissionManager::GetMissionInfo);
     BindNativeFunction(*engine, *object, "getMissionSnapShot", JsMissionManager::GetMissionSnapShot);
+    BindNativeFunction(*engine, *object, "getLowResolutionMissionSnapShot",
+        JsMissionManager::GetLowResolutionMissionSnapShot);
     BindNativeFunction(*engine, *object, "lockMission", JsMissionManager::LockMission);
     BindNativeFunction(*engine, *object, "unlockMission", JsMissionManager::UnlockMission);
     BindNativeFunction(*engine, *object, "clearMission", JsMissionManager::ClearMission);

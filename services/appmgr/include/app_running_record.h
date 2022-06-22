@@ -493,6 +493,7 @@ public:
 
     void SetKilling();
     bool IsKilling() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.

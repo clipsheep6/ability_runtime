@@ -120,7 +120,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
 
 AppLaunchData *AppLaunchData::Unmarshalling(Parcel &parcel)
 {
-    AppLaunchData *appLaunchData = new (std::nothrow) AppLaunchData();
+    AppLaunchData *appLaunchData = new AppLaunchData();
     if (appLaunchData && !appLaunchData->ReadFromParcel(parcel)) {
         HILOG_WARN("failed, because ReadFromParcel failed");
         delete appLaunchData;

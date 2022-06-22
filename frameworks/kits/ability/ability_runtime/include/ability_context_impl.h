@@ -139,7 +139,7 @@ public:
      *
      * @return Returns zero on success, others on failure.
      */
-    ErrCode StartAbility(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) override;
+    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback) override;
 
     /**
      * caller release by callback object

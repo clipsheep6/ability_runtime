@@ -97,7 +97,7 @@ int MockAbilityDelegatorStub::ReleaseAbility(const sptr<IAbilityConnection> &con
 }
 
 int MockAbilityDelegatorStub::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot)
+    MissionSnapshot& snapshot, bool isLowResolution)
 {
     return 0;
 }
@@ -279,7 +279,7 @@ int MockAbilityDelegatorStub2::ReleaseAbility(const sptr<IAbilityConnection> &co
 }
 
 int MockAbilityDelegatorStub2::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-    MissionSnapshot& snapshot)
+    MissionSnapshot& snapshot, bool isLowResolution)
 {
     return 0;
 }

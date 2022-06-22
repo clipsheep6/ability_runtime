@@ -211,7 +211,8 @@ public:
     {
         return 0;
     }
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId, MissionSnapshot& snapshot)
+    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+        MissionSnapshot& snapshot, bool isLowResolution)
     {
         return 0;
     }

@@ -317,10 +317,11 @@ public:
      * @param missionId mission id
      * @param abilityToken abilityToken to get current mission snapshot
      * @param missionSnapshot result of snapshot
+     * @param isLowResolution low resolution.
      * @return Returns true on success, false on failure.
      */
     bool GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-        MissionSnapshot& missionSnapshot);
+        MissionSnapshot& missionSnapshot, bool isLowResolution);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm);
 
     #ifdef ABILITY_COMMAND_FOR_TEST

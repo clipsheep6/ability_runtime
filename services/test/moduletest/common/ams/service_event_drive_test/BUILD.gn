@@ -19,10 +19,7 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsServiceEventDriveModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog/",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-  ]
+  include_dirs = []
 
   sources = [
     "${services_path}/appmgr/src/system_environment_information.cpp",
@@ -39,7 +36,9 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
   }
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "hicollie_native:libhicollie",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 

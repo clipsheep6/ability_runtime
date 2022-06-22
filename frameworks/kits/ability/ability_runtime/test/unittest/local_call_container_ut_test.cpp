@@ -81,7 +81,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0100, Fu
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
     GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
         "Local_Call_Container_StartAbilityInner_0100 begain1";
-    ErrCode ret = localCallContainer->StartAbilityInner(want, callback, nullptr);
+    ErrCode ret = localCallContainer->StartAbilityByCallInner(want, callback, nullptr);
     GTEST_LOG_(INFO) << "Local_Call_Container_StartAbilityInner_0100::" <<
         "Local_Call_Container_StartAbilityInner_0100 begain2";
     EXPECT_TRUE(ret == ERR_OK);
@@ -104,7 +104,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0200, Fu
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
 
-    ErrCode ret = localCallContainer.StartAbilityInner(want, nullptr, callRemoteObject);
+    ErrCode ret = localCallContainer.StartAbilityByCallInner(want, nullptr, callRemoteObject);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
 
@@ -123,7 +123,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0300, Fu
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
 
-    ErrCode ret = localCallContainer.StartAbilityInner(want, nullptr, callRemoteObject);
+    ErrCode ret = localCallContainer.StartAbilityByCallInner(want, nullptr, callRemoteObject);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
 
@@ -142,7 +142,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_StartAbilityInner_0400, Fu
     sptr<IRemoteObject> callRemoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
 
-    ErrCode ret = localCallContainer.StartAbilityInner(want, nullptr, callRemoteObject);
+    ErrCode ret = localCallContainer.StartAbilityByCallInner(want, nullptr, callRemoteObject);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
 

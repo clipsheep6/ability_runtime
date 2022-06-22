@@ -95,8 +95,9 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        AsyncTask::Schedule("JsAbilityManager::OnGetAbilityRunningInfos",
+            engine, CreateAsyncTaskWithLastParam(engine,
+            lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -126,8 +127,9 @@ private:
 
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        AsyncTask::Schedule("JsAbilityManager::OnGetExtensionRunningInfos",
+            engine, CreateAsyncTaskWithLastParam(engine,
+            lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -166,8 +168,9 @@ private:
 
         NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        AsyncTask::Schedule("JsAbilityManager::OnGetExtensionRunningInfos",
+            engine, CreateAsyncTaskWithLastParam(engine,
+            lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 
@@ -182,8 +185,9 @@ private:
 
         NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
         NativeValue* result = nullptr;
-        AsyncTask::Schedule(
-            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        AsyncTask::Schedule("JsAbilityManager::OnGetTopAbility",
+            engine, CreateAsyncTaskWithLastParam(engine,
+            lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };

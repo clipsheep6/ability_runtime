@@ -14,14 +14,6 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
 
-config("appmgr_test_config") {
-  include_dirs = [
-    "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
-    "${global_path}/i18n/frameworks/intl/include",
-    "//base/hiviewdfx/hicollie/interfaces/native/innerkits/include",
-  ]
-}
-
 ohos_source_set("appmgr_mst_source") {
   testonly = true
   cflags_cc = []
@@ -51,23 +43,14 @@ ohos_source_set("appmgr_mst_source") {
   include_dirs = [
     "//third_party/json/include",
     "${services_path}/appmgr/test/mock/include",
-    "//base/account/os_account/frameworks/common/database/include",
-    "//base/account/os_account/frameworks/common/account_error/include",
   ]
 
   public_configs = [
-    ":appmgr_test_config",
     "${services_path}/test:services_module_test_config",
     "${services_path}/appmgr:appmgr_config",
     "${services_path}/test:services_mock_ams_config",
     "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
-    "${bundlefwk_inner_api_path}/appexecfwk_core:bundlemgr_sdk_config",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base_sdk_config",
-    "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core_config",
-    "${ability_base_path}:want_public_config",
-    "${ability_base_path}:base_public_config",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy_config",
-    "//base/notification/eventhandler/frameworks/eventhandler:public_libeventhandler_config",
     "//utils/native/base:utils_config",
     "//third_party/googletest:gtest_config",
     "//third_party/googletest:gmock_config",
@@ -80,7 +63,9 @@ ohos_source_set("appmgr_mst_source") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${appspawn_path}/interfaces/innerkits:appspawn_socket_client",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
+    "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/common:perm_verification",
@@ -90,16 +75,11 @@ ohos_source_set("appmgr_mst_source") {
     "//utils/native/base:utils",
   ]
 
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
-
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
-    "appspawn:appspawn_socket_client",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",

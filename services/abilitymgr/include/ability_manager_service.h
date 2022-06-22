@@ -628,7 +628,7 @@ public:
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
 
     virtual int32_t GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot) override;
+        MissionSnapshot& snapshot, bool isLowResolution) override;
 
     /**
      * Set ability controller.

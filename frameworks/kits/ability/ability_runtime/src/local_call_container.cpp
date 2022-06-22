@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-int LocalCallContainer::StartAbilityInner(
+int LocalCallContainer::StartAbilityByCallInner(
     const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("start ability by call.");
@@ -32,8 +32,7 @@ int LocalCallContainer::StartAbilityInner(
 
     if (want.GetElement().GetBundleName().empty() ||
         want.GetElement().GetAbilityName().empty()) {
-        HILOG_ERROR("the element of want is empty.");
-        return ERR_INVALID_VALUE;
+        HILOG_DEBUG("the element of want is empty.");
     }
 
     if (want.GetElement().GetDeviceID().empty()) {

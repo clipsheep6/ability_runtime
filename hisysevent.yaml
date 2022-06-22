@@ -38,7 +38,7 @@ JS_ERROR:
   HAPPEN_TIME: {type: INT64, desc: fault trigger time}
   LIFETIME: {type: INT64, desc: elapse time since process start}
 
-THREAD_BLOCK_6S:
+THREAD_BLOCK_3S:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}
   PID: {type: INT32, desc: pid}
   UID: {type: INT32, desc: uid}

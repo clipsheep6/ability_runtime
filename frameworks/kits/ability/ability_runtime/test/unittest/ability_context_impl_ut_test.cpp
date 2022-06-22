@@ -73,7 +73,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0100, Functio
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
 
-    ErrCode ret = context_->StartAbility(want, callback);
+    ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == ERR_OK);
 }
 
@@ -93,7 +93,7 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
     context_->localCallContainer_ = new (std::nothrow)LocalCallContainer();
     EXPECT_NE(context_->localCallContainer_, nullptr);
 
-    ErrCode ret = context_->StartAbility(want, callback);
+    ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == ERR_OK);
 }
 

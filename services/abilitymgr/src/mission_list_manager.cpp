@@ -1429,8 +1429,8 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
     std::string eventType = "LIFECYCLE_TIMEOUT";
     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, std::to_string(processInfo.uid_),
-        EVENT_KEY_PID, std::to_string(processInfo.pid_),
+        EVENT_KEY_UID, processInfo.uid_,
+        EVENT_KEY_PID, processInfo.pid_,
         EVENT_KEY_PACKAGE_NAME, processInfo.bundleNames,
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);
@@ -2443,7 +2443,7 @@ void MissionListManager::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& h
 }
 
 bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObject>& abilityToken,
-    MissionSnapshot& missionSnapshot)
+    MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
     HILOG_INFO("snapshot: Start get mission snapshot.");
     bool forceSnapshot = false;
@@ -2455,7 +2455,7 @@ bool MissionListManager::GetMissionSnapshot(int32_t missionId, const sptr<IRemot
         }
     }
     return DelayedSingleton<MissionInfoMgr>::GetInstance()->GetMissionSnapshot(
-        missionId, abilityToken, missionSnapshot, forceSnapshot);
+        missionId, abilityToken, missionSnapshot, isLowResolution, forceSnapshot);
 }
 
 void MissionListManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
