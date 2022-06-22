@@ -110,9 +110,9 @@ ohos_shared_library("static_subscriber_ipc") {
 
 ohos_shared_library("abilitykit_native") {
   include_dirs = [
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi//common/include",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/include",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi//common/include",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
   ]
 
   sources = [
@@ -121,9 +121,9 @@ ohos_shared_library("abilitykit_native") {
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_start_options.cpp",
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_util.cpp",
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_want.cpp",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/common/src/js_utils.cpp",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
-    "${distributeddatamgr_path}/appdatamgr/frameworks/js/napi/rdb/src/napi_result_set.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
     "${innerkits_path}/app_manager/src/appmgr/process_info.cpp",
     "${kits_path}/appkit/native/ability_runtime/extension_context.cpp",
     "${kits_path}/appkit/native/ability_runtime/service_extension_context.cpp",
@@ -218,12 +218,12 @@ ohos_shared_library("abilitykit_native") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
-    "dataability:native_dataability",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
+    "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
     "samgr_standard:samgr_proxy",
