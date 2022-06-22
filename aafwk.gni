@@ -63,7 +63,7 @@ declare_args() {
   }
 
   if (defined(global_parts_info) &&
-      !defined(global_parts_info.suspend_manager)) {
+      !defined(global_parts_info.resourceschedule_suspend_manager)) {
     suspend_manager = false
   }
 }
