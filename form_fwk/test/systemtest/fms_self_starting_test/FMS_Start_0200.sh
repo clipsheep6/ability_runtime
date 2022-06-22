@@ -11,7 +11,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-sleepSeconds=10
+sleep_seconds=10
 loop=1
 
 echo "loop times: ${loop}"
@@ -21,16 +21,16 @@ do
     echo "kill foundation"
     pgrep foundation | xargs kill -9
 
-    echo "sleep ${sleepSeconds} seconds"
-    sleep ${sleepSeconds}
+    echo "sleep ${sleep_seconds} seconds"
+    sleep ${sleep_seconds}
     ps -e|grep FormMgrService
 
     if [ $? -eq 0 ]; then
         echo "loop ${i}: FMS restart succeed"
     else
         echo "loop ${i}: FMS restart failed"
-        exit
+        return 1
     fi
 done
 
-exit
+return 0

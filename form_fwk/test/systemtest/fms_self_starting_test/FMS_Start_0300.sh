@@ -10,14 +10,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-testfile="/data/formmgr/fms_self_starting_test_config.json"
-sleepSeconds=10
+testfile="./formmgr/fms_self_starting_test_config.json"
+sleep_seconds=10
 
-rm -rf /data/formmgr
-mkdir /data/formmgr
+rm -rf ./formmgr
+mkdir ./formmgr
 
-chown system /data/formmgr
-chgrp system /data/formmgr
+chown system ./formmgr
+chgrp system ./formmgr
 
 touch ${testfile}
 echo \{\"AddForm\":true,\"DeleteForm\":false,\"Compare\":false\} > ${testfile};
@@ -32,21 +32,21 @@ sleep 2
 echo "kill foundation"
 pgrep foundation | xargs kill -9
 
-echo "sleep ${sleepSeconds} seconds"
-sleep ${sleepSeconds}
+echo "sleep ${sleep_seconds} seconds"
+sleep ${sleep_seconds}
 
 sleep 2
-beforeKill=`pgrep foundation`
-echo ${beforeKill} > "/data/formmgr/beforeKill.txt"
+before_kill=$(pgrep foundation)
+echo ${before_kill} > "./formmgr/before_kill.txt"
 echo "kill foundation"
 pgrep foundation | xargs kill -9
 
-echo "sleep ${sleepSeconds} seconds"
-sleep ${sleepSeconds}
+echo "sleep ${sleep_seconds} seconds"
+sleep ${sleep_seconds}
 
-afterKill=`pgrep foundation`
-echo ${afterKill} > "/data/formmgr/afterKill.txt"
-if [ "${beforeKill}" == "${afterKill}" ]; then
+after_kill=$(pgrep foundation)
+echo ${after_kill} > "./formmgr/after_kill.txt"
+if [ "${before_kill}" == "${after_kill}" ]; then
     echo "process has not changed"
 else
     echo "process has changed"
@@ -70,6 +70,6 @@ sleep 2
 echo "delete forms"
 ./FmsSelfStartingTest
 
-rm -rf /data/formmgr
+rm -rf ./formmgr
 
-exit
+return 0

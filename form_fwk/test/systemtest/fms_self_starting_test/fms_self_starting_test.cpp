@@ -273,8 +273,8 @@ HWTEST_F(FmsSelfStartingTest, FMS_Start_0300_03, Function | MediumTest | Level1)
     std::cout << "START FMS_Start_0300_03" << std::endl;
 
     if (selfStarting.compareStatus) {
-        std::ifstream opbefore("/data/formmgr/beforeKill.txt");
-        std::ifstream opafter("/data/formmgr/afterKill.txt");
+        std::ifstream opbefore("./formmgr/beforeKill.txt");
+        std::ifstream opafter("./formmgr/afterKill.txt");
         std::string beforeKill;
         std::string afterKill;
         while (!opbefore.eof()) {

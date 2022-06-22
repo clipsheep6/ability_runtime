@@ -19,3 +19,4 @@ else
     echo "FMS restart failed"
 fi
 
+return 0

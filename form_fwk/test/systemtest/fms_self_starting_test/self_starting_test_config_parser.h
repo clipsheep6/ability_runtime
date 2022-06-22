@@ -23,7 +23,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string FMS_TEST_CONFIG_FILE_PATH {"/data/formmgr/fms_self_starting_test_config.json"};
+const std::string FMS_TEST_CONFIG_FILE_PATH {"./formmgr/fms_self_starting_test_config.json"};
 const std::string STRESS_TEST_EXECUTION_TIMES_KEY {"AddForm"};
 const std::string STRESS_TEST_SLEEP_TIME_KEY {"DeleteForm"};
 const std::string STRESS_TEST_COMPARE_TIME_KEY {"Compare"};
