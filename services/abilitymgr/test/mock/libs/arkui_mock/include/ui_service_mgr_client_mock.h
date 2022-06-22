@@ -28,11 +28,11 @@
 
 namespace OHOS {
 namespace Ace {
-class UIServiceMgrClientMock {
+class UIServiceMgrClient {
 public:
-    UIServiceMgrClientMock();
-    virtual ~UIServiceMgrClientMock();
-    static std::shared_ptr<UIServiceMgrClientMock> GetInstance();
+    UIServiceMgrClient();
+    virtual ~UIServiceMgrClient();
+    static std::shared_ptr<UIServiceMgrClient> GetInstance();
 
     ErrCode RegisterCallBack(const AAFwk::Want& want, const sptr<IUIService>& uiService);
 
@@ -62,11 +62,16 @@ public:
 
     ErrCode ShowAppPickerDialog(
         const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, int32_t userId);
-    
+
     void static SetDialogCheckState(int pid, const std::string& code)
     {
         pid_ = pid;
         code_ = code;
+    }
+
+    bool static GetAppRunningState(void)
+    {
+        return appRunning_;
     }
 
 private:
@@ -78,10 +83,11 @@ private:
         int32_t& offsetX, int32_t& offsetY, int32_t& width, int32_t& height, bool& wideScreen);
 
     static std::mutex mutex_;
-    static std::shared_ptr<UIServiceMgrClientMock> instance_;
+    static std::shared_ptr<UIServiceMgrClient> instance_;
     sptr<IRemoteObject> remoteObject_;
     static int pid_;
     static std::string code_;
+    static bool appRunning_;
 };
 }  // namespace Ace
 }  // namespace OHOS

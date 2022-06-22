@@ -31,99 +31,104 @@
 
 namespace OHOS {
 namespace Ace {
-std::shared_ptr<UIServiceMgrClientMock> UIServiceMgrClientMock::instance_ = nullptr;
-int UIServiceMgrClientMock::pid_ = 0;
-std::string UIServiceMgrClientMock::code_ = "0";
-std::mutex UIServiceMgrClientMock::mutex_;
+std::shared_ptr<UIServiceMgrClient> UIServiceMgrClient::instance_ = nullptr;
+int UIServiceMgrClient::pid_ = 0;
+std::string UIServiceMgrClient::code_ = "0";
+std::mutex UIServiceMgrClient::mutex_;
+bool UIServiceMgrClient::appRunning_ = true;
 namespace {
 const std::string EVENT_WAITING_CODE = "0";
 const std::string EVENT_CLOSE_CODE = "1";
 }
 
-std::shared_ptr<UIServiceMgrClientMock> UIServiceMgrClientMock::GetInstance()
+std::shared_ptr<UIServiceMgrClient> UIServiceMgrClient::GetInstance()
 {
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> lock_l(mutex_);
         if (instance_ == nullptr) {
-            instance_ = std::make_shared<UIServiceMgrClientMock>();
+            instance_ = std::make_shared<UIServiceMgrClient>();
         }
     }
     return instance_;
 }
 
-UIServiceMgrClientMock::UIServiceMgrClientMock()
+UIServiceMgrClient::UIServiceMgrClient()
 {}
 
-UIServiceMgrClientMock::~UIServiceMgrClientMock()
+UIServiceMgrClient::~UIServiceMgrClient()
 {}
 
-ErrCode UIServiceMgrClientMock::RegisterCallBack(const AAFwk::Want& want, const sptr<IUIService>& uiService)
+ErrCode UIServiceMgrClient::RegisterCallBack(const AAFwk::Want& want, const sptr<IUIService>& uiService)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::UnregisterCallBack(const AAFwk::Want& want)
+ErrCode UIServiceMgrClient::UnregisterCallBack(const AAFwk::Want& want)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::Push(const AAFwk::Want& want, const std::string& name, const std::string& jsonPath,
+ErrCode UIServiceMgrClient::Push(const AAFwk::Want& want, const std::string& name, const std::string& jsonPath,
     const std::string& data, const std::string& extraData)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::Request(const AAFwk::Want& want, const std::string& name, const std::string& data)
+ErrCode UIServiceMgrClient::Request(const AAFwk::Want& want, const std::string& name, const std::string& data)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::ReturnRequest(const AAFwk::Want& want, const std::string& source,
+ErrCode UIServiceMgrClient::ReturnRequest(const AAFwk::Want& want, const std::string& source,
     const std::string& data, const std::string& extraData)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::ShowDialog(const std::string& name, const std::string& params,
+ErrCode UIServiceMgrClient::ShowDialog(const std::string& name, const std::string& params,
     OHOS::Rosen::WindowType windowType, int x, int y, int width, int height, DialogCallback callback, int* id)
 {
     if (code_ == EVENT_WAITING_CODE) {
+        appRunning_ = true;
+        HILOG_INFO("Waiting caller kill the process");
         return 0;
     }
     if (code_ == EVENT_CLOSE_CODE) {
+        HILOG_INFO("kill the process");
         kill(pid_, SIGKILL);
+        appRunning_ = false;
     }
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::CancelDialog(int32_t id)
+ErrCode UIServiceMgrClient::CancelDialog(int32_t id)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::UpdateDialog(int32_t id, const std::string& data)
+ErrCode UIServiceMgrClient::UpdateDialog(int32_t id, const std::string& data)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::ShowAppPickerDialog(
+ErrCode UIServiceMgrClient::ShowAppPickerDialog(
     const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, int32_t userId)
 {
     return 0;
 }
 
-ErrCode UIServiceMgrClientMock::Connect()
+ErrCode UIServiceMgrClient::Connect()
 {
     return 0;
 }
 
-const std::string UIServiceMgrClientMock::GetPickerDialogParam(
+const std::string UIServiceMgrClient::GetPickerDialogParam(
     const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, bool wideScreen) const
 {
     return "";
 }
 
-void UIServiceMgrClientMock::GetDisplayPosition(
+void UIServiceMgrClient::GetDisplayPosition(
     int32_t& offsetX, int32_t& offsetY, int32_t& width, int32_t& height, bool& wideScreen)
 {
     return;

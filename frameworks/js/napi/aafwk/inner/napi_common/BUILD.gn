@@ -52,6 +52,7 @@ ohos_shared_library("napi_common") {
     "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
+    "relational_store:native_dataability",
     "utils_base:utils",
   ]
 
