@@ -179,5 +179,15 @@ int AppScheduler::StartUserTest(
 {
     return 0;
 }
+
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    return 0;
+}
+
+int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
+{
+    return 0;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
