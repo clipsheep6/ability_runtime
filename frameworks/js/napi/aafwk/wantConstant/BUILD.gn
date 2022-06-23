@@ -25,7 +25,7 @@ ohos_shared_library("wantconstant") {
   ]
 
   deps = [
-    "${kits_path}/appkit:appkit_native",
+    "${native_path}/appkit:appkit_native",
     "//third_party/libuv:uv_static",
   ]
 
