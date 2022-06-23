@@ -41,7 +41,7 @@ ohos_unittest("app_scheduler_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${innerkits_path}/ability_manager:ability_manager",
     "${services_path}/abilitymgr/test:abilityms_test_source",
     "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
