@@ -282,7 +282,7 @@ void JsFormExtension::GetSrcPath(std::string &srcPath)
 {
     if (!Extension::abilityInfo_->isModuleJson) {
         /* temporary compatibility api8 + config.json */
-        srcPath.append(Extension::abilityInfo_->package);
+        srcPath.append(Extension::abilityInfo_->moduleName);
         srcPath.append("/assets/js/");
         if (!Extension::abilityInfo_->srcPath.empty()) {
             srcPath.append(Extension::abilityInfo_->srcPath);
