@@ -48,8 +48,8 @@ ohos_shared_library("amsKitSystemTestDataB") {
   ]
   configs = [ ":amsKitSystemTestDataBConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
