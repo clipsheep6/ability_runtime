@@ -36,6 +36,8 @@ ohos_unittest("pending_want_manager_dump_test") {
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

@@ -45,7 +45,10 @@ ohos_fuzztest("StopServiceAbilityFuzzTest") {
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
   ]
 
-  external_deps = [ "ability_base:want" ]
+  external_deps = [
+    "ability_base:want",
+    "utils_base:utils",
+  ]
 }
 
 ###############################################################################

@@ -130,6 +130,7 @@ ohos_moduletest("ability_delegator_registry_moduletest") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
   ]
 }
 
@@ -154,6 +155,7 @@ ohos_moduletest("iability_monitor_moduletest") {
     "ability_runtime:ability_manager",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "utils_base:utils",
   ]
 }
 
@@ -181,6 +183,7 @@ ohos_moduletest("ability_delegator_moduletest") {
     "ability_runtime:ability_manager",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "utils_base:utils",
   ]
 }
 
@@ -217,6 +220,7 @@ ohos_moduletest("js_test_runner_moduletest") {
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
   ]
 }
 

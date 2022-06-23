@@ -36,13 +36,11 @@ ohos_shared_library("uripermissionmanager_napi") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
   ]
 
   if (!ability_runtime_graphics) {
-    external_deps += [
-      "ipc:ipc_core",
-      "utils_base:utils",
-    ]
+    external_deps += [ "ipc:ipc_core" ]
   }
 
   relative_install_dir = "module/application"

@@ -278,7 +278,6 @@ ohos_shared_library("abilitykit_native") {
 
     public_deps += [
       "${global_path}/i18n/frameworks/intl:intl_util",
-      "${graphic_path}:libwmclient",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "${windowmanager_path}/dm:libdm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",

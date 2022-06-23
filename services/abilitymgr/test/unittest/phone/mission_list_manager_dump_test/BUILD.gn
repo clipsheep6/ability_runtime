@@ -36,6 +36,7 @@ ohos_unittest("mission_list_manager_dump_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "utils_base:utils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

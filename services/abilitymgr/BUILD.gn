@@ -133,10 +133,8 @@ ohos_shared_library("abilityms") {
       "//third_party/icu/icu4c:shared_icuuc",
       "//third_party/libpng:libpng",
     ]
-    public_deps = [
-      "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
-      "${graphic_path}:libwmservice",
-    ]
+    public_deps =
+        [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
     external_deps += [
       "i18n:intl_util",
       "multimedia_image_standard:image_native",

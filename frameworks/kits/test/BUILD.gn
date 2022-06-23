@@ -190,6 +190,8 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
   ]
 }
 
@@ -300,6 +302,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {

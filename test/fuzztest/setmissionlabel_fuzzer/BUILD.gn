@@ -50,6 +50,7 @@ ohos_fuzztest("SetMissionLabelFuzzTest") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "utils_base:utils",
   ]
 }
 

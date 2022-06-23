@@ -48,7 +48,6 @@ ohos_source_set("appmgr_test_service") {
   ]
 
   if (ability_runtime_graphics) {
-    public_deps = [ "${graphic_path}:libwmservice" ]
   }
 
   external_deps = [
