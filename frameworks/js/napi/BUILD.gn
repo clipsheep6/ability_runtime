@@ -17,7 +17,6 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 group("napi_packages") {
   deps = [
     "${aafwk_napi_path}/ability:ability_napi",
-    "${aafwk_napi_path}/abilityManager:abilitymanager",
     "${aafwk_napi_path}/ability_constant:abilityconstant_napi",
     "${aafwk_napi_path}/ability_context:abilitycontext_napi",
     "${aafwk_napi_path}/ability_manager:abilitymanager_napi",
