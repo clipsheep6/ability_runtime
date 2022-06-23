@@ -38,7 +38,7 @@
 #include "pac_map.h"
 #include "want.h"
 #include "want_agent.h"
-#include "../../ability_runtime/include/ability_context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "ability_window.h"

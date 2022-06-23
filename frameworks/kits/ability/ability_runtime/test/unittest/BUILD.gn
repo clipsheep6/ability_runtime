@@ -36,8 +36,8 @@ ohos_unittest("ability_context_impl_ut_test") {
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/ability_runtime:ability_context_native",
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability:ability_context_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
@@ -58,8 +58,8 @@ ohos_unittest("caller_call_back_ut_test") {
   sources = [ "caller_call_back_ut_test.cpp" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/ability_runtime:ability_context_native",
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability:ability_context_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -80,8 +80,8 @@ ohos_unittest("local_call_container_ut_test") {
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/ability_runtime:ability_context_native",
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability:ability_context_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
@@ -111,8 +111,8 @@ ohos_unittest("local_call_record_ut_test") {
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/ability_runtime:ability_context_native",
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability:ability_context_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
