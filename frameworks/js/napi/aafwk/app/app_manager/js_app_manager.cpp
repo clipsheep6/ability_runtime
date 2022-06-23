@@ -39,6 +39,7 @@ constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+constexpr int32_t ERR_NOT_OK = -1;
 
 class JsAppManager final {
 public:
@@ -101,17 +102,29 @@ public:
         return (me != nullptr) ? me->OnClearUpApplicationData(*engine, *info) : nullptr;
     }
 
+    static NativeValue* GetAppMemorySize(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnGetAppMemorySize(*engine, *info) : nullptr;
+    }
+
+    static NativeValue* IsRamConstrainedDevice(NativeEngine* engine, NativeCallbackInfo* info)
+    {
+        JsAppManager* me = CheckParamsAndGetThis<JsAppManager>(engine, info);
+        return (me != nullptr) ? me->OnIsRamConstrainedDevice(*engine, *info) : nullptr;
+    }
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
 
     NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnRegisterApplicationStateObserver is called");
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
         // only support one or two params
+        int32_t errCode = 0;
         if (info.argc != ARGC_ONE) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         // unwarp observer
@@ -124,20 +137,22 @@ private:
         } else {
             serialNumber_ = 0;
         }
-        HILOG_INFO("%{public}s create observer", __func__);
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer](NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("RegisterApplicationStateObserver callback begin");
+            [appManager = appManager_, observer, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
                 if (appManager == nullptr) {
                     HILOG_ERROR("appManager nullptr");
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "appManager nullptr"));
                     return;
                 }
-                int32_t err = appManager->RegisterApplicationStateObserver(observer);
-                if (err == 0) {
-                    HILOG_INFO("RegisterApplicationStateObserver success err 0");
+                int32_t ret = appManager->RegisterApplicationStateObserver(observer);
+                if (ret == 0) {
+                    HILOG_INFO("RegisterApplicationStateObserver success.");
                 } else {
-                    HILOG_ERROR("RegisterApplicationStateObserver failed error:%{public}d", err);
+                    HILOG_ERROR("RegisterApplicationStateObserver failed error:%{public}d.", ret);
                 }
             };
 
@@ -149,11 +164,12 @@ private:
 
     NativeValue* OnUnregisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnUnregisterApplicationStateObserver is called");
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
         // only support one or two params
+        int32_t errCode = 0;
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         // unwrap connectId
@@ -172,24 +188,27 @@ private:
         }
 
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer, observerId](
+            [appManager = appManager_, observer, observerId, errCode](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnUnregisterApplicationStateObserver begin");
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
                 if (observer == nullptr || appManager == nullptr) {
                     HILOG_ERROR("observer or appManager nullptr");
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "observer or appManager nullptr"));
                     return;
                 }
                 HILOG_INFO("observer->UnregisterApplicationStateObserver");
-                int32_t err = appManager->UnregisterApplicationStateObserver(observer);
-                if (err == 0) {
-                    HILOG_INFO("UnregisterApplicationStateObserver success err 0");
+                int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
+                if (ret == 0) {
+                    HILOG_INFO("UnregisterApplicationStateObserver success.");
                     task.Resolve(engine, engine.CreateUndefined());
                     observerIds_.erase(observerId);
                     HILOG_INFO("UnregisterApplicationStateObserver erase size:%{public}zu", observerIds_.size());
                 } else {
-                    HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", err);
-                    task.Reject(engine, CreateJsError(engine, err, "UnregisterApplicationStateObserver failed"));
+                    HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
+                    task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));
                 }
             };
 
@@ -202,28 +221,32 @@ private:
 
     NativeValue* OnGetForegroundApplications(NativeEngine& engine, NativeCallbackInfo& info)
     {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
         // only support 0 or 1 params
+        int32_t errCode = 0;
         if (info.argc != ARGC_ONE && info.argc != ARGC_ZERO) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_](
-                NativeEngine& engine, AsyncTask& task, int32_t status) {
-                HILOG_INFO("OnGetForegroundApplications begin");
+            [appManager = appManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
                 if (appManager == nullptr) {
                     HILOG_ERROR("appManager nullptr");
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "appManager nullptr"));
                     return;
                 }
                 std::vector<AppExecFwk::AppStateData> list;
-                int32_t err = appManager->GetForegroundApplications(list);
-                if (err == 0) {
-                    HILOG_INFO("OnGetForegroundApplications success err 0");
+                int32_t ret = appManager->GetForegroundApplications(list);
+                if (ret == 0) {
+                    HILOG_INFO("OnGetForegroundApplications success.");
                     task.Resolve(engine, CreateJsAppStateDataArray(engine, list));
                 } else {
-                    HILOG_ERROR("OnGetForegroundApplications failed error:%{public}d", err);
-                    task.Reject(engine, CreateJsError(engine, err, "OnGetForegroundApplications failed"));
+                    HILOG_ERROR("OnGetForegroundApplications failed error:%{public}d", ret);
+                    task.Reject(engine, CreateJsError(engine, ret, "OnGetForegroundApplications failed"));
                 }
             };
 
@@ -236,19 +259,29 @@ private:
 
     NativeValue* OnGetProcessRunningInfos(NativeEngine &engine, NativeCallbackInfo &info)
     {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        // only support 0 or 1 params
+        int32_t errCode = 0;
+        if (info.argc != ARGC_ONE && info.argc != ARGC_ZERO) {
+            HILOG_ERROR("Not enough params");
+            errCode = ERR_NOT_OK;
+        }
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_](
-                NativeEngine &engine, AsyncTask &task, int32_t status) {
+            [appManager = appManager_, errCode](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
                 std::vector<AppExecFwk::RunningProcessInfo> infos;
-                auto errcode = appManager->GetAllRunningProcesses(infos);
-                if (errcode == 0) {
+                auto ret = appManager->GetAllRunningProcesses(infos);
+                if (ret == 0) {
                     task.Resolve(engine, CreateJsProcessRunningInfoArray(engine, infos));
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Get mission infos failed."));
+                    task.Reject(engine, CreateJsError(engine, ret, "Get mission infos failed."));
                 }
             };
 
-        NativeValue* lastParam = (info.argc == 0) ? nullptr : info.argv[0];
+        NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnGetProcessRunningInfos",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -257,13 +290,19 @@ private:
 
     NativeValue* OnIsRunningInStabilityTest(NativeEngine& engine, NativeCallbackInfo& info)
     {
+        HILOG_INFO("%{public}s is called", __FUNCTION__);
         // only support 0 or 1 params
+        int32_t errCode = 0;
         if (info.argc != ARGC_ONE && info.argc != ARGC_ZERO) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
         AsyncTask::CompleteCallback complete =
-            [abilityManager = abilityManager_](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            [abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
                 if (abilityManager == nullptr) {
                     HILOG_WARN("abilityManager nullptr");
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
@@ -285,34 +324,40 @@ private:
     NativeValue* OnkillProcess(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int32_t errCode = 0;
         if (info.argc == 0) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("get bundleName failed!");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
-        AsyncTask::CompleteCallback complete = [bundleName, abilityManager = abilityManager_](NativeEngine& engine,
-            AsyncTask& task, int32_t status) {
+        AsyncTask::CompleteCallback complete =
+            [bundleName, abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task,
+                int32_t status) {
+            if (errCode != 0) {
+                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                return;
+            }
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
-            auto errcode = abilityManager->KillProcess(bundleName);
-            if (errcode == 0) {
-                task.Resolve(engine, CreateJsValue(engine, errcode));
+            auto ret = abilityManager->KillProcess(bundleName);
+            if (ret == 0) {
+                task.Resolve(engine, CreateJsValue(engine, ret));
             } else {
-                task.Reject(engine, CreateJsError(engine, errcode, "kill process failed."));
+                task.Reject(engine, CreateJsError(engine, ret, "kill process failed."));
             }
         };
 
-        NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnkillProcess",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -322,34 +367,40 @@ private:
     NativeValue* OnClearUpApplicationData(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int32_t errCode = 0;
         if (info.argc == 0) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("get bundleName failed!");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
-        AsyncTask::CompleteCallback complete = [bundleName, abilityManager = abilityManager_](NativeEngine& engine,
-            AsyncTask& task, int32_t status) {
+        AsyncTask::CompleteCallback complete =
+            [bundleName, abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task,
+                int32_t status) {
+            if (errCode != 0) {
+                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                return;
+            }
             if (abilityManager == nullptr) {
                 HILOG_WARN("abilityManager nullptr");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
-            auto errcode = abilityManager->ClearUpApplicationData(bundleName);
-            if (errcode == 0) {
-                task.Resolve(engine, CreateJsValue(engine, errcode));
+            auto ret = abilityManager->ClearUpApplicationData(bundleName);
+            if (ret == 0) {
+                task.Resolve(engine, CreateJsValue(engine, ret));
             } else {
-                task.Reject(engine, CreateJsError(engine, errcode, "clear up application failed."));
+                task.Reject(engine, CreateJsError(engine, ret, "clear up application failed."));
             }
         };
 
-        NativeValue* lastParam = (info.argc == 1) ? nullptr : info.argv[1];
+        NativeValue* lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnClearUpApplicationData",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
@@ -359,34 +410,104 @@ private:
     NativeValue* OnKillProcessWithAccount(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
+        int32_t errCode = 0;
         if (info.argc == 0) {
             HILOG_ERROR("Not enough params");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
         std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
             HILOG_ERROR("Parse bundleName failed");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
         int accountId = -1;
         if (!ConvertFromJsValue(engine, info.argv[1], accountId)) {
             HILOG_ERROR("Parse userId failed");
-            return engine.CreateUndefined();
+            errCode = ERR_NOT_OK;
         }
 
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, bundleName, accountId](NativeEngine &engine, AsyncTask &task, int32_t status) {
-                auto errcode = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
-                if (errcode == 0) {
+            [appManager = appManager_, bundleName, accountId, errCode](NativeEngine &engine, AsyncTask &task,
+                int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
+                auto ret = appManager->GetAmsMgr()->KillProcessWithAccount(bundleName, accountId);
+                if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "Kill processes failed."));
+                    task.Reject(engine, CreateJsError(engine, ret, "Kill processes failed."));
                 }
             };
 
         NativeValue* lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[INDEX_TWO];
         NativeValue* result = nullptr;
         AsyncTask::Schedule("JSAppManager::OnKillProcessWithAccount",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+    
+    NativeValue* OnGetAppMemorySize(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        int32_t errCode = 0;
+        // only support 0 or 1 params
+        if (info.argc != ARGC_ONE && info.argc != ARGC_ZERO) {
+            HILOG_ERROR("Not enough params");
+            errCode = ERR_NOT_OK;
+        }
+        AsyncTask::CompleteCallback complete =
+            [abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
+                if (abilityManager == nullptr) {
+                    HILOG_WARN("abilityManager nullptr");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                    return;
+                }
+                HILOG_INFO("GetAppMemorySize begin");
+                int memorySize = abilityManager->GetAppMemorySize();
+                HILOG_INFO("GetAppMemorySize memorySize:%{public}d", memorySize);
+                task.Resolve(engine, CreateJsValue(engine, memorySize));
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnGetAppMemorySize",
+            engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    NativeValue* OnIsRamConstrainedDevice(NativeEngine& engine, NativeCallbackInfo& info)
+    {
+        int32_t errCode = 0;
+        // only support 0 or 1 params
+        if (info.argc != ARGC_ONE && info.argc != ARGC_ZERO) {
+            HILOG_ERROR("Not enough params");
+            errCode = ERR_NOT_OK;
+        }
+        AsyncTask::CompleteCallback complete =
+            [abilityManager = abilityManager_, errCode](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
+                    return;
+                }
+                if (abilityManager == nullptr) {
+                    HILOG_WARN("abilityManager nullptr");
+                    task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
+                    return;
+                }
+                HILOG_INFO("IsRamConstrainedDevice begin");
+                bool ret = abilityManager->IsRamConstrainedDevice();
+                HILOG_INFO("IsRamConstrainedDevice result:%{public}d", ret);
+                task.Resolve(engine, CreateJsValue(engine, ret));
+            };
+
+        NativeValue* lastParam = (info.argc == ARGC_ZERO) ? nullptr : info.argv[INDEX_ZERO];
+        NativeValue* result = nullptr;
+        AsyncTask::Schedule("JSAppManager::OnIsRamConstrainedDevice",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
@@ -449,6 +570,10 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::KillProcessesByBundleName);
     BindNativeFunction(*engine, *object, "clearUpApplicationData",
         JsAppManager::ClearUpApplicationData);
+    BindNativeFunction(*engine, *object, "getAppMemorySize",
+        JsAppManager::GetAppMemorySize);
+    BindNativeFunction(*engine, *object, "isRamConstrainedDevice",
+        JsAppManager::IsRamConstrainedDevice);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
 }
