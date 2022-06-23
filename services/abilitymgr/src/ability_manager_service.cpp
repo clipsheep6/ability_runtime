@@ -1288,7 +1288,8 @@ int AbilityManagerService::ConnectAbility(
     }
 
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
+        pid_t pid = getpid();
+        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId, pid)
         if (result != ERR_OK) {
             eventInfo.errCode = result;
             AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
