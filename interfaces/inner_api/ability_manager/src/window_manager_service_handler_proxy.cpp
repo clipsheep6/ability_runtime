@@ -151,7 +151,7 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    int error = Remote()->SendRequest(WMSCmd::ON_CANCLE_STARTING_WINDOW, data, reply, option);
+    int error = Remote()->SendRequest(WMSCmd::ON_CANCEL_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
     }

@@ -47,7 +47,11 @@ NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
     std::shared_ptr<StaticSubscriberExtensionContext> context)
 {
     HILOG_INFO("CreateJsStaticSubscriberExtensionContext begin");
-    NativeValue *objValue = CreateJsExtensionContext(engine, context);
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
+    if (context) {
+        abilityInfo = context->GetAbilityInfo();
+    }
+    NativeValue *objValue = CreateJsExtensionContext(engine, context, abilityInfo);
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsStaticSubscriberExtensionContext> jsContext =

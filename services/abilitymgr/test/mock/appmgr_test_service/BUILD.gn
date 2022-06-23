@@ -23,7 +23,6 @@ config("appmgr_test_service_config") {
     "${aafwk_path}/interfaces/inner_api/app_manager/include",
     "${aafwk_path}/frameworks/kits/ability/native/include",
     "${aafwk_path}/services/common/include",
-    "//foundation/windowmanager/utils/include",
   ]
 }
 
@@ -44,8 +43,6 @@ ohos_source_set("appmgr_test_service") {
   }
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]
@@ -58,6 +55,7 @@ ohos_source_set("appmgr_test_service") {
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

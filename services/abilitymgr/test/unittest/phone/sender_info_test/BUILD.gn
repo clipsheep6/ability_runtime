@@ -38,13 +38,11 @@ ohos_unittest("sender_info_test") {
   deps = [
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/services/abilitymgr:abilityms",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${services_path}/abilitymgr/test:abilityms_test_source",
     "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
     "${services_path}/common:perm_verification",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
@@ -55,6 +53,7 @@ ohos_unittest("sender_info_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

@@ -45,9 +45,9 @@ constexpr struct option LONG_OPTIONS[] = {
     {"debug", no_argument, nullptr, 'D'},
     {nullptr, 0, nullptr, 0},
 };
-const std::string SHORT_OPTIONS_ApplicationNotRespondin = "hp:";
+const std::string SHORT_OPTIONS_ApplicationNotResponding = "hp:";
 #ifdef ABILITY_COMMAND_FOR_TEST
-constexpr struct option LONG_OPTIONS_ApplicationNotRespondin[] = {
+constexpr struct option LONG_OPTIONS_ApplicationNotResponding[] = {
     {"help", no_argument, nullptr, 'h'},
     {"pid", required_argument, nullptr, 'p'},
     {nullptr, 0, nullptr, 0},
@@ -88,7 +88,7 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"test", std::bind(&AbilityManagerShellCommand::RunAsTestCommand, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
-        {"ApplicationNotRespondin", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID, this)},
+        {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
@@ -183,8 +183,8 @@ ErrCode AbilityManagerShellCommand::CreateMessageMap()
             "error: terminate service is connected.",
         },
         {
-            START_SERVICE_ABILITY_ACTIVING,
-            "error: start service ability activing.",
+            START_SERVICE_ABILITY_ACTIVATING,
+            "error: start service ability activating.",
         },
         {
             KILL_PROCESS_FAILED,
@@ -1065,21 +1065,21 @@ sptr<IAbilityManager> AbilityManagerShellCommand::GetAbilityManagerService()
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
-ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
+ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
 {
     static sptr<IAbilityManager> abilityMs_;
     std::string pid = "";
     int option = -1;
     ErrCode result = OHOS::ERR_OK;
-    option = getopt_long(argc_, argv_, SHORT_OPTIONS_ApplicationNotRespondin.c_str(),
-        LONG_OPTIONS_ApplicationNotRespondin, nullptr);
+    option = getopt_long(argc_, argv_, SHORT_OPTIONS_ApplicationNotResponding.c_str(),
+        LONG_OPTIONS_ApplicationNotResponding, nullptr);
     HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
     if (optind < 0 || optind > argc_) {
         return OHOS::ERR_INVALID_VALUE;
     }
     if (option == -1) {
         if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
-            HILOG_INFO("'aa %{public}s' %{public}s", HELP_ApplicationNotRespondin.c_str(), cmd_.c_str());
+            HILOG_INFO("'aa %{public}s' %{public}s", HELP_ApplicationNotResponding.c_str(), cmd_.c_str());
             result = OHOS::ERR_INVALID_VALUE;
         }
     } else if (option == '?') {
@@ -1089,7 +1089,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
                 break;
             }
             case 'p': {
-                HILOG_INFO("'aa ApplicationNotRespondin -p' with no argument.");
+                HILOG_INFO("'aa ApplicationNotResponding -p' with no argument.");
                 resultReceiver_.append("error: option -p ");
                 resultReceiver_.append("' requires a value.\n");
                 result = OHOS::ERR_INVALID_VALUE;
@@ -1099,7 +1099,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
                 std::string unknownOption = "";
                 std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
 
-                HILOG_INFO("'aa ApplicationNotRespondin' with an unknown option.");
+                HILOG_INFO("'aa ApplicationNotResponding' with an unknown option.");
 
                 resultReceiver_.append(unknownOptionMsg);
                 result = OHOS::ERR_INVALID_VALUE;
@@ -1109,7 +1109,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
                 std::string unknownOption = "";
                 std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
 
-                HILOG_INFO("'aa ApplicationNotRespondin' with an unknown option.");
+                HILOG_INFO("'aa ApplicationNotResponding' with an unknown option.");
 
                 resultReceiver_.append(unknownOptionMsg);
                 result = OHOS::ERR_INVALID_VALUE;
@@ -1123,10 +1123,10 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
                 break;
             }
             case 'p': {
-                HILOG_INFO("aa ApplicationNotRespondin 'aa %{public}s'  -p process.", cmd_.c_str());
-                HILOG_INFO("aa ApplicationNotRespondin 'aa optarg =  %{public}s'.", optarg);
+                HILOG_INFO("aa ApplicationNotResponding 'aa %{public}s'  -p process.", cmd_.c_str());
+                HILOG_INFO("aa ApplicationNotResponding 'aa optarg =  %{public}s'.", optarg);
                 pid = optarg;
-                HILOG_INFO("aa ApplicationNotRespondinr 'aa pid =  %{public}s'.", pid.c_str());
+                HILOG_INFO("aa ApplicationNotResponding 'aa pid =  %{public}s'.", pid.c_str());
                 break;
             }
             case 0: {
@@ -1151,7 +1151,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondinProcessID()
             abilityMs_->SendANRProcessID(atoi(pid.c_str()));
         }
     } else {
-        resultReceiver_.append(HELP_ApplicationNotRespondin+ "\n");
+        resultReceiver_.append(HELP_ApplicationNotResponding+ "\n");
         result = OHOS::ERR_INVALID_VALUE;
     }
     return result;

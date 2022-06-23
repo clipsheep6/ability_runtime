@@ -119,7 +119,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0200, Function | MediumTe
 /**
  * @tc.number: AaFwk_Ability_StartAbility_0300
  * @tc.name: AbilityFwk
- * @tc.desc: Ability caller to process StartAbility, and the result is fail because the element of want is empty.
+ * @tc.desc: Ability caller to process StartAbility, and the result is success because support empty want.
  */
 HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTest | Level1)
 {
@@ -129,7 +129,7 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTe
     EXPECT_FALSE(callback->IsCallBack());
 
     ErrCode ret = context_->StartAbilityByCall(want, callback);
-    EXPECT_FALSE(ret == 0);
+    EXPECT_TRUE(ret == 0);
 }
 
 /**

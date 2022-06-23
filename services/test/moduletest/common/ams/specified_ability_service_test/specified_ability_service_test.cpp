@@ -65,7 +65,7 @@ public:
     Want CreateWant(const std::string &entity);
     AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName);
     ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
-    bool MockAppClent();
+    bool MockAppClient();
     void WaitAMS();
 
     inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_ {nullptr};
@@ -109,15 +109,15 @@ ApplicationInfo SpecifiedAbilityServiceTest::CreateAppInfo(const std::string &ap
     return appInfo;
 }
 
-bool SpecifiedAbilityServiceTest::MockAppClent()
+bool SpecifiedAbilityServiceTest::MockAppClient()
 {
     if (!mockAppMgrClient_) {
-        GTEST_LOG_(INFO) << "MockAppClent::1";
+        GTEST_LOG_(INFO) << "MockAppClient::1";
         return false;
     }
 
     if (!abilityMgrServ_->appScheduler_) {
-        GTEST_LOG_(INFO) << "MockAppClent::2";
+        GTEST_LOG_(INFO) << "MockAppClient::2";
         return false;
     }
 
@@ -169,7 +169,7 @@ void SpecifiedAbilityServiceTest::SetUp(void)
     scheduler_ = new MockAbilityScheduler();
     if (!doOnce_) {
         doOnce_ = true;
-        MockAppClent();
+        MockAppClient();
     }
     WaitAMS();
 }
@@ -201,7 +201,7 @@ HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     EXPECT_TRUE(abilityMgrServ_->currentMissionListManager_);
-    abilityMgrServ_->currentMissionListManager_->EnqueueWaittingAbility(abilityRequest);
+    abilityMgrServ_->currentMissionListManager_->EnqueueWaitingAbility(abilityRequest);
     abilityMgrServ_->OnAcceptWantResponse(want, "flag");
 
     EXPECT_EQ(false, abilityRecord->IsNewWant());

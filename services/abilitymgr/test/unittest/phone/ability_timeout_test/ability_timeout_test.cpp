@@ -279,7 +279,7 @@ HWTEST_F(AbilityTimeoutTest, OnAbilityDied_002, TestSize.Level1)
 
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     EXPECT_TRUE(abilityRecord->IsRestarting());
-    EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restratMax_);
+    EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restartMax_);
 }
 
 /*
@@ -320,7 +320,7 @@ HWTEST_F(AbilityTimeoutTest, HandleLoadTimeOut_001, TestSize.Level1)
 
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(abilityRecord->GetToken()) != nullptr);
     EXPECT_TRUE(abilityRecord->IsRestarting());
-    EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restratMax_);
+    EXPECT_TRUE(abilityRecord->restartCount_ < abilityRecord->restartMax_);
 }
 
 /*

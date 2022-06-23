@@ -36,10 +36,10 @@ class MissionInfoMgr : public std::enable_shared_from_this<MissionInfoMgr> {
 public:
     /**
      * @brief generate mission id of mission info object.
-     * @param misisonId Indicates the missionInfo object of user to operate.
+     * @param missionId Indicates the missionInfo object of user to operate.
      * @return Returns true if the missionId is successfully generated; returns false otherwise.
      */
-    bool GenerateMissionId(int32_t &misisonId);
+    bool GenerateMissionId(int32_t &missionId);
 
     /**
      * @brief initialization of mission info manager.
@@ -181,8 +181,8 @@ private:
     void GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
 
 private:
-    int32_t currentMisionId_ = MIN_MISSION_ID;
-    std::unordered_map<int32_t, bool> missionIdMap_; // key:distributed misisonid, vaule: has been saved
+    int32_t currentMissionId_ = MIN_MISSION_ID;
+    std::unordered_map<int32_t, bool> missionIdMap_; // key:distributed missionid, vaule: has been saved
     std::list<InnerMissionInfo> missionInfoList_;
     std::shared_ptr<TaskDataPersistenceMgr> taskDataPersistenceMgr_;
     sptr<ISnapshotHandler> snapshotHandler_;

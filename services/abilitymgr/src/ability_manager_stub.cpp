@@ -1340,8 +1340,8 @@ int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessagePar
 
 int AbilityManagerStub::BlockAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t abilityReocrdId = data.ReadInt32();
-    int32_t result = BlockAbility(abilityReocrdId);
+    int32_t abilityRecordId = data.ReadInt32();
+    int32_t result = BlockAbility(abilityRecordId);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;

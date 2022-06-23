@@ -78,7 +78,7 @@ public:
      * TerminateAbility, terminate the token ability.
      *
      * @param token, he unique identification to terminate the ability.
-     * @param clearMissionFlag, indicates whether terminate the ability when clearMision.
+     * @param clearMissionFlag, indicates whether terminate the ability when clearMission.
      * @return
      */
     virtual void TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag);
@@ -271,30 +271,30 @@ public:
     void OnStop();
 
     /**
-     * OpenAppSpawnConnection, Open connection with appspwan.
+     * OpenAppSpawnConnection, Open connection with appspawn.
      *
      * @return ERR_OK ,return back success，others fail.
      */
     virtual ErrCode OpenAppSpawnConnection();
 
     /**
-     * CloseAppSpawnConnection, Close connection with appspwan.
+     * CloseAppSpawnConnection, Close connection with appspawn.
      *
      * @return
      */
     virtual void CloseAppSpawnConnection() const;
 
     /**
-     * QueryAppSpawnConnectionState, Query the connection status with appspwan.
+     * QueryAppSpawnConnectionState, Query the connection status with appspawn.
      *
-     * @return Returns the connection status with appspwan.
+     * @return Returns the connection status with appspawn.
      */
     virtual SpawnConnectionState QueryAppSpawnConnectionState() const;
 
     /**
-     * SetAppSpawnClient, Setting the client to connect with appspwan.
+     * SetAppSpawnClient, Setting the client to connect with appspawn.
      *
-     * @param spawnClient, the client to connect with appspwan.
+     * @param spawnClient, the client to connect with appspawn.
      *
      * @return
      */
@@ -538,7 +538,7 @@ private:
     bool CheckLoadabilityConditions(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo);
 
-    bool GetBundleInfo(const std::string &bundelName, BundleInfo &bundleInfo);
+    bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
 
     void MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
@@ -682,7 +682,7 @@ private:
 
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
 
-    void ClipStringContent(const std::regex &re, const std::string &sorce, std::string &afferCutStr);
+    void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
     bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
         BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo);

@@ -348,7 +348,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
 
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
     EXPECT_TRUE(rootLauncher->IsRestarting());
-    EXPECT_TRUE(rootLauncher->restartCount_ < rootLauncher->restratMax_);
+    EXPECT_TRUE(rootLauncher->restartCount_ < rootLauncher->restartMax_);
     GTEST_LOG_(INFO) << "restart count:" << rootLauncher->restartCount_;
 }
 
@@ -395,7 +395,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
     EXPECT_EQ(topAbility, rootLauncher);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
     EXPECT_TRUE(rootLauncher->IsRestarting());
-    EXPECT_TRUE(rootLauncher->restartCount_ < rootLauncher->restratMax_);
+    EXPECT_TRUE(rootLauncher->restartCount_ < rootLauncher->restartMax_);
     GTEST_LOG_(INFO) << "restart count:" << rootLauncher->restartCount_;
 }
 
@@ -429,7 +429,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
     rootLauncher->SetAbilityState(AbilityState::FOREGROUND);
     rootLauncher->SetOwnerMissionUserId(MOCK_MAIN_USER_ID);
     int i = 0;
-    while (i < rootLauncher->restratMax_) {
+    while (i < rootLauncher->restartMax_) {
         abilityMs_->OnAbilityDied(rootLauncher);
         usleep(100);
         i++;

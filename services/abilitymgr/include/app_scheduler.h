@@ -124,17 +124,17 @@ public:
      * terminate ability with token.
      *
      * @param token, the token of ability.
-     * @param clearMissionFlag, indicates whether terminate the ability when clearMision.
+     * @param clearMissionFlag, indicates whether terminate the ability when clearMission.
      * @return true on success ,false on failure.
      */
     int TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag);
 
     /**
-     * move ability to forground.
+     * move ability to foreground.
      *
      * @param token, the token of ability.
      */
-    void MoveToForground(const sptr<IRemoteObject> &token);
+    void MoveToForeground(const sptr<IRemoteObject> &token);
 
     /**
      * move ability to background.

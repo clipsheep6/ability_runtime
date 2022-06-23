@@ -21,12 +21,9 @@ config("appexecfwk_core_mock_config") {
     "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/bundlemgr",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${aafwk_path}/services/abilitymgr/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
     "${aafwk_path}/frameworks/kits/ability/native/include/",
-    "//base/telephony/core_service/sim/include/",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/aakit/include/",
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${aafwk_path}/services/common/include",
   ]
 }
@@ -41,16 +38,15 @@ ohos_source_set("appexecfwk_appmgr_mock") {
   }
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -68,10 +64,8 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -79,7 +73,9 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
 
   external_deps = [
     "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

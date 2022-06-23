@@ -19,15 +19,16 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AppRunningProcessesInfoModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include/hilog/",
-    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
-  ]
+  include_dirs = []
   sources = [ "app_running_processes_info_module_test.cpp" ]
 
   deps = [ "${services_path}/test/moduletest/common/ams:appmgr_mst_source" ]
 
-  external_deps = [ "ipc:ipc_core" ]
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+  ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

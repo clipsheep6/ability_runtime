@@ -93,23 +93,23 @@ public:
     int AttachAbilityThread(const sptr<AAFwk::IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
 
     /**
-     * push waitting ability to queue.
+     * push waiting ability to queue.
      *
      * @param abilityRequest, the request of ability.
      */
-    void EnqueueWaittingAbility(const AbilityRequest &abilityRequest);
+    void EnqueueWaitingAbility(const AbilityRequest &abilityRequest);
 
     /**
-     * push front waitting ability to queue.
+     * push front waiting ability to queue.
      *
      * @param abilityRequest, the request of ability.
      */
-    void EnqueueWaittingAbilityToFront(const AbilityRequest &abilityRequest);
+    void EnqueueWaitingAbilityToFront(const AbilityRequest &abilityRequest);
 
     /**
-     * start waitting ability.
+     * start waiting ability.
      */
-    void StartWaittingAbility();
+    void StartWaitingAbility();
 
     /**
      * @brief Get the Ability Record By Token object
@@ -230,9 +230,9 @@ public:
     void OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord, int32_t currentUserId);
 
     /**
-     * @brief handle when call contection died
+     * @brief handle when call connection died
      *
-     * @param callRecord the died call contection
+     * @param callRecord the died call connection
      */
     void OnCallConnectDied(const std::shared_ptr<CallRecord> &callRecord);
 
@@ -293,7 +293,7 @@ public:
 
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
     /**
-     * resolve the call ipc of ability for schudeling oncall.
+     * resolve the call ipc of ability for scheduling oncall.
      *
      * @param abilityRequest, target ability request.
      */
@@ -331,7 +331,7 @@ public:
      * @param abilityRecordId The Ability Record Id.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int BlockAbility(int abilityReocrdId);
+    int BlockAbility(int abilityRecordId);
     #endif
 
     void UninstallApp(const std::string &bundleName, int32_t uid);
@@ -349,7 +349,7 @@ public:
      *
      * @param abilityToken target ability token.
      * @param label target label.
-     * @return Retun 0 if success.
+     * @return Return 0 if success.
      */
     int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label);
 
@@ -358,7 +358,7 @@ public:
      *
      * @param token target ability token.
      * @param icon target label.
-     * @return Retun 0 if success.
+     * @return Return 0 if success.
      */
     int SetMissionIcon(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &icon);
 
@@ -408,7 +408,7 @@ private:
         const std::shared_ptr<AbilityRecord> &caller, int requestCode);
     std::shared_ptr<MissionList> GetTargetMissionList(int missionId, std::shared_ptr<Mission> &mission);
     void UpdateMissionTimeStamp(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void PostStartWaittingAbility();
+    void PostStartWaitingAbility();
     void HandleAbilityDied(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleLauncherDied(std::shared_ptr<AbilityRecord> ability);
     void HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecord> abilityRecord);
@@ -421,7 +421,7 @@ private:
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void HandleForgroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
+    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminateList(const std::shared_ptr<AbilityRecord> &ability);
     void DelayedResumeTimeout(const std::shared_ptr<AbilityRecord> &callerAbility);
@@ -434,7 +434,7 @@ private:
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
-    void EraseWaittingAbility(const std::string &bundleName, int32_t uid);
+    void EraseWaitingAbility(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId);
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
@@ -449,7 +449,7 @@ private:
     std::shared_ptr<MissionList> launcherList_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
 
-    std::queue<AbilityRequest> waittingAbilityQueue_;
+    std::queue<AbilityRequest> waitingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
 
     class MissionDmInitCallback : public DistributedHardware::DmInitCallback {

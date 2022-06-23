@@ -18,8 +18,6 @@ config("dataobs_manager_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "include/",
-    "//base/notification/eventhandler/interfaces/inner_api",
-    "//utils/native/base/include",
     "//utils/system/safwk/native/include",
     "${kits_path}/ability/native/include",
     "${services_path}/dataobsmgr/include",

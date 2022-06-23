@@ -38,6 +38,8 @@ ohos_benchmarktest("BenchmarkTestForMissionManager") {
     "ipc:ipc_core",
     "utils_base:utils",
   ]
+  resource_config_file =
+      "${form_fwk_path}/test/resource/benchmark/ohos_test.xml"
 }
 
 group("benchmarktest") {

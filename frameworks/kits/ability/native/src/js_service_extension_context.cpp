@@ -642,40 +642,14 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
     return arrayValue;
 }
 
-NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info)
-{
-    HILOG_INFO("CreateJsExtensionAbilityInfo");
-    NativeValue* objValue = engine.CreateObject();
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-    object->SetProperty("bundleName", CreateJsValue(engine, info.bundleName));
-    object->SetProperty("moduleName", CreateJsValue(engine, info.moduleName));
-    object->SetProperty("name", CreateJsValue(engine, info.name));
-    object->SetProperty("labelId", CreateJsValue(engine, info.labelId));
-    object->SetProperty("descriptionId", CreateJsValue(engine, info.descriptionId));
-    object->SetProperty("iconId", CreateJsValue(engine, info.iconId));
-    object->SetProperty("isVisible", CreateJsValue(engine, info.visible));
-    object->SetProperty("extensionAbilityType", CreateJsValue(engine, info.type));
-    NativeValue *permissionArrayValue = engine.CreateArray(info.permissions.size());
-    NativeArray *permissionArray = ConvertNativeValueTo<NativeArray>(permissionArrayValue);
-    if (permissionArray != nullptr) {
-        int index = 0;
-        for (auto permission : info.permissions) {
-            permissionArray->SetElement(index++, CreateJsValue(engine, permission));
-        }
-    }
-    object->SetProperty("permissions", permissionArrayValue);
-    object->SetProperty("applicationInfo", CreateJsApplicationInfo(engine, info.applicationInfo));
-    object->SetProperty("metadata", CreateJsMetadataArray(engine, info.metadata));
-    object->SetProperty("enabled", CreateJsValue(engine, info.enabled));
-    object->SetProperty("readPermission", CreateJsValue(engine, info.readPermission));
-    object->SetProperty("writePermission", CreateJsValue(engine, info.writePermission));
-    return objValue;
-}
-
 NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
 {
     HILOG_INFO("CreateJsServiceExtensionContext begin");
-    NativeValue* objValue = CreateJsExtensionContext(engine, context);
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
+    if (context) {
+        abilityInfo = context->GetAbilityInfo();
+    }
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsServiceExtensionContext> jsContext = std::make_unique<JsServiceExtensionContext>(context);
@@ -699,25 +673,6 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
         JsServiceExtensionContext::StopServiceExtensionAbility);
     BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount",
         JsServiceExtensionContext::StopServiceExtensionAbilityWithAccount);
-
-    if (context) {
-        HILOG_INFO("Set ExtensionAbilityInfo Property");
-        auto abilityInfo = context->GetAbilityInfo();
-        auto hapModuleInfo = context->GetHapModuleInfo();
-        if (abilityInfo && hapModuleInfo) {
-            auto isExist = [&abilityInfo](const AppExecFwk::ExtensionAbilityInfo &info) {
-                HILOG_INFO("%{public}s, %{public}s", info.bundleName.c_str(), info.name.c_str());
-                return info.bundleName == abilityInfo->bundleName && info.name == abilityInfo->name;
-            };
-            auto infoIter = std::find_if(
-                hapModuleInfo->extensionInfos.begin(), hapModuleInfo->extensionInfos.end(), isExist);
-            if (infoIter == hapModuleInfo->extensionInfos.end()) {
-                HILOG_INFO("Get target fail.");
-                return objValue;
-            }
-            object->SetProperty("extensionAbilityInfo", CreateJsExtensionAbilityInfo(engine, *infoIter));
-        }
-    }
 
     return objValue;
 }

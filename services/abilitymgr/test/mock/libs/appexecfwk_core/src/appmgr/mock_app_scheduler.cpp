@@ -59,9 +59,9 @@ int AppScheduler::TerminateAbility(const sptr<IRemoteObject> &token, bool isClea
     return ERR_OK;
 }
 
-void AppScheduler::MoveToForground(const sptr<IRemoteObject> &token)
+void AppScheduler::MoveToForeground(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Test AppScheduler::MoveToForground()");
+    HILOG_INFO("Test AppScheduler::MoveToForeground()");
 }
 
 void AppScheduler::MoveToBackground(const sptr<IRemoteObject> &token)
@@ -176,6 +176,16 @@ void AppScheduler::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
 
 int AppScheduler::StartUserTest(
     const Want &want, const sptr<IRemoteObject> &observer, const AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
+{
+    return 0;
+}
+
+int AppScheduler::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
+{
+    return 0;
+}
+
+int AppScheduler::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     return 0;
 }

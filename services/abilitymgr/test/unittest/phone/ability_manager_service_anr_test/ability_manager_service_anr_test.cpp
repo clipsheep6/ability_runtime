@@ -66,12 +66,9 @@ static void WaitUntilTaskFinished()
     }
 }
 
-namespace {
-const std::string WaitUntilTaskFinishedByTimer = "BundleMgrService";
-}  // namespace
-
 class AbilityManagerServiceAnrTest : public testing::Test {
 public:
+    static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
@@ -80,8 +77,6 @@ public:
     static constexpr int TEST_WAIT_TIME = 100000;
 
 public:
-    AbilityRequest abilityRequest_;
-    std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
@@ -110,6 +105,15 @@ void AbilityManagerServiceAnrTest::OnStartAms()
         abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
         EXPECT_TRUE(abilityMs_->pendingWantManager_);
 
+#ifdef SUPPORT_GRAPHICS
+        auto deviceType = abilityMs_->amsConfigResolver_->GetDeviceType();
+        abilityMs_->sysDialogScheduler_ = std::make_shared<SystemDialogScheduler>(deviceType);
+#endif
+
+        auto timeout = abilityMs_->amsConfigResolver_->GetANRTimeOutTime();
+        abilityMs_->anrDisposer_ = std::make_shared<AppNoResponseDisposer>(timeout);
+        EXPECT_TRUE(abilityMs_->anrDisposer_);
+
         abilityMs_->eventLoop_->Run();
         return;
     }
@@ -122,9 +126,16 @@ void AbilityManagerServiceAnrTest::OnStopAms()
     abilityMs_->OnStop();
 }
 
+void AbilityManagerServiceAnrTest::SetUpTestCase()
+{
+    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
+        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+}
+
 void AbilityManagerServiceAnrTest::TearDownTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
+    OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
 }
 
 void AbilityManagerServiceAnrTest::SetUp()
@@ -155,9 +166,10 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
         }
     }
     else {
-        Ace::UIServiceMgrClientMock::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
+        Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
         sleep(6);
+        EXPECT_FALSE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
         result = kill(pid, SIGKILL);
         EXPECT_EQ(result, -1);
     }
@@ -177,14 +189,18 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
     pid_t pid;
     if ((pid=fork()) == 0) {
         for (;;) {
+            GTEST_LOG_(INFO) << "sub process";
+            usleep(500);
         }
     }
     else {
-        Ace::UIServiceMgrClientMock::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
+        Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_WAITING_CODE);
         auto result = abilityMs_->SendANRProcessID(pid);
-        sleep(6);
-        result = kill(pid, SIGKILL);
         EXPECT_EQ(result, 0);
+        sleep(6);
+        EXPECT_TRUE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
+        (void)kill(pid, SIGKILL);
+        GTEST_LOG_(INFO) << "process kill result " << errno;
     }
 }
 }

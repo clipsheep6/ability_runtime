@@ -37,10 +37,7 @@ ohos_unittest("AppDeathRecipientTest") {
     "${services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
   ]
 
-  include_dirs = [
-    "//base/account/os_account/frameworks/common/database/include",
-    "//base/account/os_account/frameworks/common/account_error/include",
-  ]
+  include_dirs = []
 
   sources += [ "ams_app_death_recipient_test.cpp" ]
 
@@ -51,20 +48,13 @@ ohos_unittest("AppDeathRecipientTest") {
   }
   deps = [
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",
     "${services_path}/common:perm_verification",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
 
   external_deps = [
     "ability_base:configuration",
@@ -73,6 +63,7 @@ ohos_unittest("AppDeathRecipientTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",

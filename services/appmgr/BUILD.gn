@@ -18,8 +18,8 @@ config("appmgr_config") {
   include_dirs = [
     "include",
     "${ability_base_innerapi_path}/configuration/include",
+    "${appspawn_path}/interfaces/innerkits/include",
     "${services_path}/common/include",
-    "//base/startup/appspawn/interfaces/innerkits/include",
     "${aafwk_path}/tools/aa/include",
   ]
 }
@@ -76,7 +76,6 @@ ohos_shared_library("libappms") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
