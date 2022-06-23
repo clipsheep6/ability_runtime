@@ -103,7 +103,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        std::string& localDeviceId);
+        std::string& localDeviceId, pid_t pid);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
