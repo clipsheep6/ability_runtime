@@ -2837,6 +2837,11 @@ FormProviderInfo Ability::OnCreate(const Want &want)
     return formProviderInfo;
 }
 
+void Ability::OnShare(const int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+}
+
 /**
  * @brief Called to notify the form provider that a specified form has been deleted. Override this method if
  * you want your application, as the form provider, to be notified of form deletion.
