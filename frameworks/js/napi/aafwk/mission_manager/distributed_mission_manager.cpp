@@ -399,11 +399,11 @@ void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-napi_value RegisterMissionAsync(napi_env env, napi_value *args, RegisterMissionCB *registerMissionCB)
+napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMissionCB)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
-    if (args == nullptr || registerMissionCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+    if (registerMissionCB == nullptr) {
+        HILOG_ERROR("%{public}s, registerMissionCB == nullptr.", __func__);
         return nullptr;
     }
     napi_value result = nullptr;
@@ -556,7 +556,7 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
         napi_create_reference(env, args[ARGS_TWO], 1, &registerMissionCB->callbackRef);
     }
 
-    ret = RegisterMissionAsync(env, args, registerMissionCB);
+    ret = RegisterMissionAsync(env, registerMissionCB);
     HILOG_INFO("%{public}s called end.", __func__);
     return ret;
 }
@@ -1125,10 +1125,10 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-napi_value ContinueAbilityAsync(napi_env env, napi_value *args, ContinueAbilityCB *continueAbilityCB)
+napi_value ContinueAbilityAsync(napi_env env, ContinueAbilityCB *continueAbilityCB)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
-    if (args == nullptr || continueAbilityCB == nullptr) {
+    if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
@@ -1292,7 +1292,7 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
         napi_create_reference(env, args[ARGS_TWO], 1, &continueAbilityCB->callbackRef);
     }
 
-    ret = ContinueAbilityAsync(env, args, continueAbilityCB);
+    ret = ContinueAbilityAsync(env, continueAbilityCB);
     HILOG_INFO("%{public}s called end.", __func__);
     return ret;
 }
