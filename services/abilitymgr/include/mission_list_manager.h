@@ -401,7 +401,7 @@ private:
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
         const std::shared_ptr<MissionList> &list);
-    int ClearMissionLocked(int missionId, std::shared_ptr<Mission> mission);
+    int ClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
     int TerminateAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool flag);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByEventId(int64_t eventId) const;
     std::shared_ptr<AbilityRecord> GetAbilityRecordByCaller(
@@ -435,9 +435,10 @@ private:
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void EraseWaitingAbility(const std::string &bundleName, int32_t uid);
-    void RemoveMissionLocked(int32_t missionId);
+    void RemoveMissionLocked(int32_t missionId, bool excludeFromMissions);
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
+    bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
