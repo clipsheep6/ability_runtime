@@ -24,7 +24,7 @@
 
 #include "ability_delegator_infos.h"
 #include "ability_delegator_registry.h"
-#include "ability_runtime/context/context_impl.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context_impl.h"
 #include "app_loader.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_delegator_stub.h"

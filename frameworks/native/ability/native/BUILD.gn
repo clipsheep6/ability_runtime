@@ -1,0 +1,312 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/aafwk.gni")
+
+config("ability_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "${aafwk_path}/interfaces/kits/native/ability/native",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/distributed",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/kits",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
+    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${innerkits_path}/app_manager/include/appmgr",
+    "${innerkits_path}/uri/include",
+    "${services_path}/abilitymgr/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${form_fwk_path}/interfaces/kits/native/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "//third_party/node/src",
+    "${innerkits_path}/ability_manager/include/continuation",
+    "${aafwk_path}/interfaces/kits/native/appkit/app/task",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
+    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility",
+  ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  defines = [
+    "AMS_LOG_TAG = \"Ability\"",
+    "AMS_LOG_DOMAIN = 0xD002200",
+  ]
+  if (target_cpu == "arm64") {
+    defines += [ "_ARM64_" ]
+  }
+
+  if (ability_runtime_graphics) {
+    include_dirs += [ "${form_fwk_path}/interfaces/inner_api/include" ]
+    defines += [ "SUPPORT_GRAPHICS" ]
+  }
+}
+
+config("ability_public_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "${aafwk_path}/interfaces/kits/native/ability/native",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/distributed",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/kits",
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
+    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
+    "//third_party/libuv/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${innerkits_path}/ability_manager/include/continuation",
+    "${services_path}/common/include",
+    "//third_party/jsoncpp/include",
+    "//third_party/json/include",
+  ]
+
+  if (ability_runtime_graphics) {
+    include_dirs += [
+      "${form_fwk_path}/interfaces/kits/native/include",
+      "${form_fwk_path}/interfaces/inner_api/include",
+      "${windowmanager_path}/interfaces/innerkits/wm",
+      "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
+    ]
+    defines = [ "SUPPORT_GRAPHICS" ]
+  }
+}
+
+ohos_shared_library("static_subscriber_ipc") {
+  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [
+    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_stub.cpp",
+  ]
+
+  deps = []
+
+  external_deps = [
+    "ability_base:want",
+    "common_event_service:cesfwk_innerkits",
+    "ipc:ipc_core",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("abilitykit_native") {
+  include_dirs = [
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi//common/include",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
+  ]
+
+  sources = [
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_ability.cpp",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_configuration.cpp",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_start_options.cpp",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_util.cpp",
+    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_want.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_context.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_handler.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_impl.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_impl_factory.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_lifecycle.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_lifecycle_executor.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_loader.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_local_record.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_post_event_timeout.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_process.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_ability.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_ability_context.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_caller_complex.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/ability_thread.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/continuation_handler.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/continuation_manager.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_stub.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_recipient.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_stub.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_stub.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_connector.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_device_callback_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_proxy.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_stub.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_impl.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_result.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_uri_utils.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/distributed_ability_runtime/distributed_client.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/extension.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/extension_impl.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/extension_module_loader.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/js_service_extension.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/js_service_extension_context.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/js_static_subscriber_extension.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/js_static_subscriber_extension_context.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/mission_information.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/new_ability_impl.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/service_ability_impl.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/service_extension.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_extension.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_stub_imp.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/extension_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/service_extension_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/static_subscriber_extension_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/app_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/context_container.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/context_deal.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
+    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
+    "${innerkits_path}/app_manager/src/appmgr/process_info.cpp",
+    "${services_path}/abilitymgr/src/ability_start_setting.cpp",
+    "${services_path}/abilitymgr/src/launch_param.cpp",
+    "${services_path}/common/src/event_report.cpp",
+  ]
+  configs = [ ":ability_config" ]
+  public_configs = [
+    ":ability_public_config",
+    "${aafwk_path}/frameworks/native/ability:ability_context_public_config",
+    "${kits_path}/wantagent:wantagent_innerkits_public_config",
+  ]
+
+  deps = [
+    ":static_subscriber_ipc",
+    "${innerkits_path}/dataobs_manager:dataobs_manager",
+    "${native_path}/appkit:app_context",
+    "${native_path}/appkit:app_context_utils",
+    "${native_path}/appkit:appkit_delegator",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:app_manager",
+    "ability_runtime:napi_base_context",
+    "ability_runtime:runtime",
+    "ability_runtime:wantagent_innerkits",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "hisysevent_native:libhisysevent",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "ipc_js:rpc",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "relational_store:rdb_data_share_adapter",
+    "samgr_standard:samgr_proxy",
+    "utils_base:utils",
+  ]
+
+  defines = []
+  if (os_account_part_enabled) {
+    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
+  if (distributed_data_object_enable) {
+    external_deps += [ "distributeddataobject:distributeddataobject_impl" ]
+    defines += [ "DISTRIBUTED_DATA_OBJECT_ENABLE" ]
+  }
+
+  public_deps = [
+    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
+    "//foundation/arkui/napi:ace_napi",
+  ]
+
+  if (ability_runtime_graphics) {
+    include_dirs += []
+    sources += [
+      "${aafwk_path}/frameworks/native/ability/native/ability_window.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_extension.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_js_event_handler.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_provider_client.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_runtime/form_extension_provider_client.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension_context.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension_util.cpp",
+      "${aafwk_path}/frameworks/native/ability/native/page_ability_impl.cpp",
+      "${aafwk_path}/frameworks/native/appkit/ability_runtime/form_extension_context.cpp",
+    ]
+    deps += [
+      "${multimodalinput_path}/frameworks/proxy:libmmi-common",
+      "//third_party/icu/icu4c:shared_icuuc",
+    ]
+
+    external_deps += [
+      "form_fwk:fmskit_native",
+      "form_fwk:form_manager",
+      "multimedia_image_standard:image",
+    ]
+
+    public_deps += [
+      "${global_path}/i18n/frameworks/intl:intl_util",
+      "${multimedia_path}/interfaces/innerkits:image_native",
+      "${windowmanager_path}/dm:libdm",
+      "${windowmanager_path}/interfaces/kits/napi/window_runtime:windowstage_kit",
+      "${windowmanager_path}/wm:libwm",
+    ]
+  }
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("service_extension_module") {
+  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [ "${aafwk_path}/frameworks/native/ability/native/service_extension_module_loader.cpp" ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":abilitykit_native" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:runtime",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
