@@ -460,6 +460,8 @@ private:
      */
     void LoadAbilityLibrary(const std::vector<std::string> &libraryPaths);
 
+    void LoadNativeLiabrary(std::string &nativeLibraryPath);
+
     void LoadAppLibrary();
 
     void ChangeToLocalPath(const std::string &bundleName,
@@ -493,6 +495,7 @@ private:
         std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, BundleInfo& bundleInfo,
         const Configuration &config);
     std::vector<std::string> fileEntries_;
+    std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER

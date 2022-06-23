@@ -107,6 +107,7 @@ MainThread::MainThread()
 {
 #ifdef ABILITY_LIBRARY_LOADER
     fileEntries_.clear();
+    nativeFileEntries_.clear();
     handleAbilityLib_.clear();
 #endif  // ABILITY_LIBRARY_LOADER
 }
@@ -811,13 +812,19 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         return;
     }
 
-    std::vector<std::string> localPaths;
-    ChangeToLocalPath(appLaunchData.GetApplicationInfo().bundleName,
-        appLaunchData.GetApplicationInfo().moduleSourceDirs, localPaths);
-    LoadAbilityLibrary(localPaths);
+    std::string contactsDataAbility("com.ohos.contactsdataability");
+    std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
+    std::string telephonyDataAbility("com.ohos.telephonydataability");
+    auto appInfo = appLaunchData.GetApplicationInfo();
+    auto bundleName = appInfo.bundleName;
+    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility) {
+        std::vector<std::string> localPaths;
+        ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
+        LoadAbilityLibrary(localPaths);
+        LoadNativeLiabrary(appInfo.nativeLibraryPath);
+    }
     LoadAppLibrary();
 
-    ApplicationInfo appInfo = appLaunchData.GetApplicationInfo();
     ProcessInfo processInfo = appLaunchData.GetProcessInfo();
     Profile appProfile = appLaunchData.GetProfile();
 
@@ -1012,6 +1019,46 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     HILOG_INFO("MainThread::handleLaunchApplication called end.");
+}
+
+void MainThread::LoadNativeLiabrary(std::string &nativeLibraryPath)
+{
+#ifdef ABILITY_LIBRARY_LOADER
+    if (nativeLibraryPath.empty()) {
+        HILOG_INFO("Native library path is empty.");
+        return;
+    }
+
+    if (nativeLibraryPath.back() == '/') {
+        nativeLibraryPath.pop_back();
+    }
+    std::string libPath = LOCAL_CODE_PATH;
+    libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
+    HILOG_INFO("native library path = %{public}s", libPath.c_str());
+
+    if (!ScanDir(libPath, nativeFileEntries_)) {
+        HILOG_INFO("%{public}s scanDir %{public}s not exits", __func__, libPath.c_str());
+    }
+
+    if (nativeFileEntries_.empty()) {
+        HILOG_INFO("No native library");
+        return;
+    }
+
+    void *handleAbilityLib = nullptr;
+    for (auto fileEntry : nativeFileEntries_) {
+        if (!fileEntry.empty()) {
+            handleAbilityLib = dlopen(fileEntry.c_str(), RTLD_NOW | RTLD_GLOBAL);
+            if (handleAbilityLib == nullptr) {
+                HILOG_ERROR("%{public}s Fail to dlopen %{public}s, [%{public}s]",
+                    __func__, fileEntry.c_str(), dlerror());
+                exit(-1);
+            }
+            HILOG_INFO("%{public}s Success to dlopen %{public}s", __func__, fileEntry.c_str());
+            handleAbilityLib_.emplace_back(handleAbilityLib);
+        }
+    }
+#endif
 }
 
 void MainThread::ChangeToLocalPath(const std::string &bundleName,
@@ -1758,6 +1805,7 @@ void MainThread::CloseAbilityLibrary()
     }
     handleAbilityLib_.clear();
     fileEntries_.clear();
+    nativeFileEntries_.clear();
 }
 
 bool MainThread::ScanDir(const std::string &dirPath, std::vector<std::string> &files)
