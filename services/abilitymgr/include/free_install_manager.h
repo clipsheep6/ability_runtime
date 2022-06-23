@@ -67,7 +67,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int FreeInstall(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote, pid_t pid);
 
     /**
      * Start to remote free install.
@@ -80,7 +80,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote, pid_t pid);
     /**
      * Start to free install from another devices.
      * The request is send from DMS.
@@ -92,7 +92,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-        int32_t userId, int requestCode);
+        int32_t userId, int requestCode, pid_t pid);
 
     /**
      * Connect if the request is free install.
@@ -103,7 +103,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        std::string& localDeviceId);
+        std::string& localDeviceId, pid_t pid);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
