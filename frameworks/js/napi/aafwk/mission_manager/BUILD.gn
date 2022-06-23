@@ -24,7 +24,9 @@ ohos_shared_library("missionmanager_napi") {
 
   configs = [ "${services_path}/common:common_config" ]
 
-  include_dirs = [ "${kits_path}/ability/native/include/continuation/kits" ]
+  include_dirs = [
+    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/kits",
+  ]
 
   deps = [
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
