@@ -137,6 +137,26 @@ public:
      */
     bool UpdateMissionId(int32_t id, int32_t method);
 
+    /**
+     * Set whether to notify Launcher that the mission has been created.
+     *
+     * @param needNotify Indicates whether the Launcher needs to be notified.
+     */
+    inline void SetNotifyLabel(bool needNotify)
+    {
+        needNotify_ = needNotify;
+    }
+
+    /**
+     * Get whether to notify Launcher that the mission has been created.
+     *
+     * @param return Whether the Launcher needs to be notified.
+     */
+    inline bool NeedNotify() const
+    {
+        return needNotify_;
+    }
+
 private:
     int32_t missionId_;
     int32_t startMethod_;
@@ -146,6 +166,7 @@ private:
     bool lockedState_ = false;
     bool isMovingToFront_ = false;
     bool isANRState_ = false;
+    bool needNotify_ = true;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -410,9 +410,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->AddMissionInfo(info);
-        if (listenerController_) {
-            listenerController_->NotifyMissionCreated(info.missionInfo.id);
-        }
     }
 }
 
@@ -1384,14 +1381,26 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     }
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
-    auto self(shared_from_this());
+    NotifyMissionCreated(abilityRecord);
     UpdateMissionSnapshot(abilityRecord);
+
+    auto self(shared_from_this());
     auto task = [abilityRecord, self]() {
         HILOG_ERROR("Mission list manager move to background timeout.");
         self->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
         self->CompleteBackground(abilityRecord);
     };
     abilityRecord->BackgroundAbility(task);
+}
+
+void  MissionListManager::NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const
+{
+    CHECK_POINTER(abilityRecord);
+    auto mission = abilityRecord->GetMission();
+    if (mission && mission->NeedNotify() && listenerController_) {
+        listenerController_->NotifyMissionCreated(abilityRecord->GetMissionId());
+        mission->SetNotifyLabel(false);
+    }
 }
 
 void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
@@ -1787,7 +1796,6 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
     abilityRecord->SetMission(mission);
     abilityRecord->SetOwnerMissionUserId(userId_);
     std::shared_ptr<MissionList> newMissionList = std::make_shared<MissionList>();
-    listenerController_->NotifyMissionCreated(innerMissionInfo.missionInfo.id);
     return newMissionList;
 }
 
@@ -2034,9 +2042,7 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         HILOG_WARN("%{public}s get AbilityRecord by token failed.", __func__);
         return;
     }
-    if (listenerController_) {
-        listenerController_->NotifyMissionCreated(abilityRecord->GetMissionId());
-    }
+    NotifyMissionCreated(abilityRecord);
 }
 
 Closure MissionListManager::GetCancelStartingWindow(const std::shared_ptr<AbilityRecord> &abilityRecord) const

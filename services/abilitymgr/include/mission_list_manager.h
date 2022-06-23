@@ -437,6 +437,7 @@ private:
     void EraseWaitingAbility(const std::string &bundleName, int32_t uid);
     void RemoveMissionLocked(int32_t missionId);
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
 
     int userId_;
     mutable std::recursive_mutex managerLock_;
