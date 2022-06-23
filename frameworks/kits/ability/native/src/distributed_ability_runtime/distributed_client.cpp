@@ -25,6 +25,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::u16string DMS_PROXY_INTERFACE_TOKEN = u"ohos.distributedschedule.accessToken";
+constexpr int32_t VALUE_NULL = -1; // no object in parcel
+constexpr int32_t VALUE_OBJECT = 1; // object exist in parcel
 }
 sptr<IRemoteObject> DistributedClient::GetDmsProxy()
 {
@@ -435,6 +437,199 @@ int32_t DistributedClient::StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
     PARCEL_WRITE_HELPER(data, RemoteObject, callback);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_FREE_INSTALL, data, reply);
+}
+
+int32_t DistributedClient::Register(int32_t& token)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, VALUE_NULL);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = remote->SendRequest(REGISTER, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOG_ERROR("[%{public}s] SendRequest error = %{public}d", __FUNCTION__, error);
+        return error;
+    }
+    int32_t result = reply.ReadInt32();
+    if (result != ERR_NONE) {
+        HILOG_ERROR("[%{public}s] result = %{public}d", __FUNCTION__, result);
+        return result;
+    }
+    PARCEL_READ_HELPER(reply, Int32, token);
+    return ERR_NONE;
+}
+
+int32_t DistributedClient::Register(const ContinuationExtraParams& continuationExtraParams, int32_t& token)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, VALUE_OBJECT);
+    PARCEL_WRITE_HELPER(data, Parcelable, &continuationExtraParams);
+    MessageParcel reply;
+    MessageOption option;
+    int32_t error = remote->SendRequest(REGISTER, data, reply, option);
+    if (error != ERR_NONE) {
+        HILOG_ERROR("[%{public}s] SendRequest error = %{public}d", __FUNCTION__, error);
+        return error;
+    }
+    int32_t result = reply.ReadInt32();
+    if (result != ERR_NONE) {
+        HILOG_ERROR("[%{public}s] result = %{public}d", __FUNCTION__, result);
+        return result;
+    }
+    PARCEL_READ_HELPER(reply, Int32, token);
+    return ERR_NONE;
+}
+
+int32_t DistributedClient::Unregister(int32_t token)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, UNREGISTER, data, reply);
+}
+
+int32_t DistributedClient::RegisterDeviceSelectionCallback(int32_t token, const std::string& cbType,
+    const sptr<DeviceSelectionNotifierStub>& notifier)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    if (cbType.empty()) {
+        HILOG_ERROR("[%{public}s] cbType is empty", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    if (notifier == nullptr) {
+        HILOG_ERROR("[%{public}s] notifier is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    PARCEL_WRITE_HELPER(data, String, cbType);
+    PARCEL_WRITE_HELPER(data, RemoteObject, notifier);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, REGISTER_DEVICE_SELECTION_CALLBACK, data, reply);
+}
+
+int32_t DistributedClient::UnregisterDeviceSelectionCallback(int32_t token, const std::string& cbType)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    if (cbType.empty()) {
+        HILOG_ERROR("[%{public}s] cbType is empty", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    PARCEL_WRITE_HELPER(data, String, cbType);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, UNREGISTER_DEVICE_SELECTION_CALLBACK, data, reply);
+}
+
+int32_t DistributedClient::UpdateConnectStatus(int32_t token, const std::string& deviceId,
+    const DeviceConnectStatus& deviceConnectStatus)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    PARCEL_WRITE_HELPER(data, String, deviceId);
+    PARCEL_WRITE_HELPER(data, Int32, static_cast<int32_t>(deviceConnectStatus));
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, UPDATE_CONNECT_STATUS, data, reply);
+}
+
+int32_t DistributedClient::StartDeviceManager(int32_t token)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    PARCEL_WRITE_HELPER(data, Int32, VALUE_NULL);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_DEVICE_MANAGER, data, reply);
+}
+
+int32_t DistributedClient::StartDeviceManager(int32_t token, const ContinuationExtraParams& continuationExtraParams)
+{
+    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    sptr<IRemoteObject> remote = GetDmsProxy();
+    if (remote == nullptr) {
+        HILOG_ERROR("[%{public}s] remote is nullptr", __FUNCTION__);
+        return ERR_NULL_OBJECT;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        return ERR_FLATTEN_OBJECT;
+    }
+    PARCEL_WRITE_HELPER(data, Int32, token);
+    PARCEL_WRITE_HELPER(data, Int32, VALUE_OBJECT);
+    PARCEL_WRITE_HELPER(data, Parcelable, &continuationExtraParams);
+    MessageParcel reply;
+    PARCEL_TRANSACT_SYNC_RET_INT(remote, START_DEVICE_MANAGER, data, reply);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

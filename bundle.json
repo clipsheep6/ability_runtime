@@ -171,6 +171,20 @@
                 ]
               },
               "name": "//foundation/ability/ability_runtime/frameworks/kits/ability/native:abilitykit_native"
+            },
+            {
+              "header": {
+                "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/continuation_manager/include",
+                "header_files": [
+                  "continuation_extra_params.h",
+                  "continuation_mode.h",
+                  "continuation_result.h",
+                  "device_connect_status.h",
+                  "device_selection_notifier_stub.h",
+                  "idevice_selection_notifier.h"
+                ]
+              },
+              "name": "//foundation/ability/ability_runtime/interfaces/inner_api/continuation_manager:continuation_manager"
             }
           ],
           "test": [

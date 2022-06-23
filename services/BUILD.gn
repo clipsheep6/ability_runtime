@@ -17,6 +17,7 @@ group("ams_services_target") {
     "abilitymgr:abilityms_target",
     "appmgr:appms_target",
     "common:ams_common_target",
+    "continuationmgr:continuationmgr_target",
     "dataobsmgr:dataobsms",
     "uripermmgr:libupms",
   ]

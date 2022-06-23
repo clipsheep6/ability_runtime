@@ -19,6 +19,9 @@
 
 #include <string>
 
+#include "continuation_extra_params.h"
+#include "device_connect_status.h"
+#include "device_selection_notifier_stub.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
 #include "want_params.h"
@@ -54,6 +57,16 @@ public:
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
     int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
         int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback);
+    int32_t Register(int32_t& token);
+    int32_t Register(const ContinuationExtraParams& continuationExtraParams, int32_t& token);
+    int32_t Unregister(int32_t token);
+    int32_t RegisterDeviceSelectionCallback(
+        int32_t token, const std::string& cbType, const sptr<DeviceSelectionNotifierStub>& notifier);
+    int32_t UnregisterDeviceSelectionCallback(int32_t token, const std::string& cbType);
+    int32_t UpdateConnectStatus(int32_t token, const std::string& deviceId,
+        const DeviceConnectStatus& deviceConnectStatus);
+    int32_t StartDeviceManager(int32_t token);
+    int32_t StartDeviceManager(int32_t token, const ContinuationExtraParams& continuationExtraParams);
     enum {
         START_REMOTE_ABILITY = 1,
         CONNECT_REMOTE_ABILITY = 6,
@@ -70,6 +83,14 @@ public:
         START_REMOTE_ABILITY_BY_CALL = 150,
         RELEASE_REMOTE_ABILITY = 151,
         START_REMOTE_FREE_INSTALL = 200,
+
+        // request code for continuation manager
+        REGISTER = 250,
+        UNREGISTER = 251,
+        REGISTER_DEVICE_SELECTION_CALLBACK = 252,
+        UNREGISTER_DEVICE_SELECTION_CALLBACK = 253,
+        UPDATE_CONNECT_STATUS = 254,
+        START_DEVICE_MANAGER = 255,
     };
 private:
     sptr<IRemoteObject> GetDmsProxy();
