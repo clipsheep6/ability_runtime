@@ -34,7 +34,7 @@ ohos_unittest("ability_connect_manage_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",

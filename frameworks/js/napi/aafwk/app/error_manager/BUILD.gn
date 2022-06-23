@@ -29,7 +29,7 @@ ohos_shared_library("errormanager_napi") {
 
   configs = [ "${aafwk_path}/services/common:common_config" ]
 
-  deps = [ "${aafwk_path}/frameworks/kits/appkit:appkit_native" ]
+  deps = [ "${aafwk_path}/frameworks/native/appkit:appkit_native" ]
 
   external_deps = [
     "ability_base:base",
