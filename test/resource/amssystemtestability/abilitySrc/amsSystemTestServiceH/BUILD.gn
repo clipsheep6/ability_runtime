@@ -35,8 +35,8 @@ ohos_shared_library("amsSystemTestServiceH") {
   sources = [ "${subdemosystem_path}/src/ams_st_service_ability_h1.cpp" ]
   configs = [ ":amsSystemTestCConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
     "//third_party/jsoncpp:jsoncpp",

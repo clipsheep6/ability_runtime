@@ -18,7 +18,7 @@ config("amsAbilityVisibleTestPageAConfig") {
   visibility = [ ":*" ]
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/ability_runtime",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
     "${aafwk_path}/frameworks/kits/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
@@ -42,10 +42,10 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
   ]
   configs = [ ":amsAbilityVisibleTestPageAConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
+    "${aafwk_path}/frameworks/native/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
