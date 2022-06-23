@@ -21,7 +21,7 @@
 #include <string>
 
 #include "ability_local_record.h"
-#include "ability_runtime/context/context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 #include "configuration.h"
 #include "want.h"
 

@@ -17,15 +17,15 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 
 ts2abc_gen_abc("gen_delegator_mgmt_abc") {
   src_js = rebase_path(
-          "native/ability_delegator/src/runner_runtime/delegator_mgmt.js")
+          "${aafwk_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js")
   dst_file = rebase_path(target_out_dir + "/delegator_mgmt.abc")
-  in_puts = [ "native/ability_delegator/src/runner_runtime/delegator_mgmt.js" ]
+  in_puts = [ "${aafwk_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js" ]
   out_puts = [ target_out_dir + "/delegator_mgmt.abc" ]
   extra_args = [ "--module" ]
 }
 
 gen_js_obj("delegator_mgmt_js") {
-  input = "native/ability_delegator/src/runner_runtime/delegator_mgmt.js"
+  input = "${aafwk_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js"
   output = target_out_dir + "/delegator_mgmt.o"
 }
 
@@ -46,7 +46,7 @@ config("appkit_config") {
   }
 
   include_dirs = [
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "//third_party/json/include",
   ]
 }
@@ -55,7 +55,7 @@ config("appkit_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_base_innerapi_path}/configuration/include",
-    "native/ability_delegator/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_delegator",
     "${global_path}/resource_management/interfaces/inner_api/include",
   ]
 
@@ -74,12 +74,12 @@ ohos_shared_library("appkit_native") {
   cflags_cc = []
   include_dirs = [
     "native",
-    "native/ability_runtime/app",
-    "native/ability_runtime/context",
-    "native/app/include",
-    "native/app/include/task",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/app/task",
     "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
     "${aafwk_path}/services/abilitymgr/include",
     "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
   ]
@@ -89,24 +89,24 @@ ohos_shared_library("appkit_native") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "native/ability_runtime/app/ability_stage.cpp",
-    "native/ability_runtime/app/js_ability_stage.cpp",
-    "native/ability_runtime/app/js_ability_stage_context.cpp",
-    "native/app/src/ability_manager.cpp",
-    "native/app/src/ability_record_mgr.cpp",
-    "native/app/src/app_context.cpp",
-    "native/app/src/app_loader.cpp",
-    "native/app/src/application_data_manager.cpp",
-    "native/app/src/application_env.cpp",
-    "native/app/src/application_env_impl.cpp",
-    "native/app/src/application_impl.cpp",
-    "native/app/src/context_container.cpp",
-    "native/app/src/context_deal.cpp",
-    "native/app/src/hdc_register.cpp",
-    "native/app/src/main_thread.cpp",
-    "native/app/src/ohos_application.cpp",
-    "native/app/src/sys_mgr_client.cpp",
-    "native/app/src/watchdog.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/app/ability_stage.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/app/js_ability_stage.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/app/js_ability_stage_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/ability_manager.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/ability_record_mgr.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/app_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/app_loader.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/application_data_manager.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/application_env.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/application_env_impl.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/application_impl.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/context_container.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/context_deal.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/hdc_register.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/main_thread.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/ohos_application.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/watchdog.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -114,8 +114,8 @@ ohos_shared_library("appkit_native") {
   }
   deps = [
     ":appkit_delegator",
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
-    "${aafwk_path}/frameworks/kits/appkit:app_context_utils",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
+    "${aafwk_path}/frameworks/native/appkit:app_context_utils",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
   ]
 
@@ -165,8 +165,8 @@ ohos_shared_library("appkit_native") {
 ohos_shared_library("app_context") {
   cflags_cc = []
   include_dirs = [
-    "native/ability_runtime/context",
-    "native/app/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/appkit//app",
   ]
 
   configs = [ ":appkit_config" ]
@@ -174,10 +174,10 @@ ohos_shared_library("app_context") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "native/ability_runtime/context/ability_lifecycle_callback.cpp",
-    "native/ability_runtime/context/application_context.cpp",
-    "native/ability_runtime/context/context_impl.cpp",
-    "native/app/src/sys_mgr_client.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/context/application_context.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_runtime/context/context_impl.cpp",
+    "${aafwk_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -227,8 +227,8 @@ ohos_shared_library("app_context") {
 ohos_shared_library("app_context_utils") {
   cflags_cc = []
   include_dirs = [
-    "native/ability_runtime/context",
-    "native/app/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
   ]
 
   configs = [ ":appkit_config" ]
@@ -236,17 +236,17 @@ ohos_shared_library("app_context_utils") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "native/ability_runtime/context/js_application_context_utils.cpp",
-    "native/ability_runtime/context/js_context_utils.cpp",
-    "native/ability_runtime/context/js_hap_module_info_utils.cpp",
-    "native/ability_runtime/context/js_resource_manager_utils.cpp",
+    "ability_runtime/context/js_application_context_utils.cpp",
+    "ability_runtime/context/js_context_utils.cpp",
+    "ability_runtime/context/js_hap_module_info_utils.cpp",
+    "ability_runtime/context/js_resource_manager_utils.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]
 
@@ -293,11 +293,11 @@ ohos_shared_library("app_context_utils") {
 ohos_shared_library("appkit_delegator") {
   include_dirs = [
     "native",
-    "native/ability_runtime/app",
-    "native/ability_runtime/context",
-    "native/ability_delegator/include",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/ability_delegator/include",
     "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include",
+    "${aafwk_path}/interfaces/kits/native/ability/native",
   ]
 
   configs = [ ":appkit_config" ]
@@ -305,16 +305,16 @@ ohos_shared_library("appkit_delegator") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/ability_delegator.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/ability_delegator_args.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/ability_delegator_registry.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/delegator_thread.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/iability_monitor.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/runner_runtime/js_test_runner.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/shell_cmd_result.cpp",
+    "${aafwk_path}/frameworks/native/appkit/ability_delegator/test_runner.cpp",
     "${aafwk_path}/tools/aa/src/shell_command_result.cpp",
     "${aafwk_path}/tools/aa/src/test_observer_proxy.cpp",
-    "native/ability_delegator/src/ability_delegator.cpp",
-    "native/ability_delegator/src/ability_delegator_args.cpp",
-    "native/ability_delegator/src/ability_delegator_registry.cpp",
-    "native/ability_delegator/src/delegator_thread.cpp",
-    "native/ability_delegator/src/iability_monitor.cpp",
-    "native/ability_delegator/src/runner_runtime/js_test_runner.cpp",
-    "native/ability_delegator/src/shell_cmd_result.cpp",
-    "native/ability_delegator/src/test_runner.cpp",
   ]
 
   cflags = []
@@ -325,7 +325,7 @@ ohos_shared_library("appkit_delegator") {
   deps = [
     ":delegator_mgmt_abc",
     ":delegator_mgmt_js",
-    "${aafwk_path}/frameworks/kits/appkit:app_context",
+    "${aafwk_path}/frameworks/native/appkit:app_context",
   ]
 
   external_deps = [

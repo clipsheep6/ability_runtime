@@ -26,7 +26,7 @@ ohos_fuzztest("FinishUserTestFuzzTest") {
 
   include_dirs = [
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
-    "${aafwk_path}/frameworks/kits/ability/native/include/",
+    "${aafwk_path}/interfaces/kits/native/ability/native/",
   ]
 
   cflags = [
@@ -41,8 +41,8 @@ ohos_fuzztest("FinishUserTestFuzzTest") {
   configs = [ "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager_public_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/kits/appkit:appkit_delegator",
+    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/appkit:appkit_delegator",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
   ]
 

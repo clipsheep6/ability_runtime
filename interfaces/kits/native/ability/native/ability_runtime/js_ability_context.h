@@ -21,7 +21,7 @@
 #include <native_engine/native_value.h>
 
 #include "ability_connect_callback.h"
-#include "foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/include/ability_context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 #include "js_runtime.h"
 #include "event_handler.h"
 
