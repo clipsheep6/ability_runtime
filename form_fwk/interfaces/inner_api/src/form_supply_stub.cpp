@@ -98,7 +98,7 @@ int FormSupplyStub::HandleOnAcquire(MessageParcel &data, MessageParcel &reply)
         int32_t result = OnAcquire(*formInfo, *want);
         reply.WriteInt32(result);
         return result;
-    } while (true);
+    } while (false);
 
     FormProviderInfo formProviderInfo;
     want->SetParam(Constants::PROVIDER_FLAG, errCode);
