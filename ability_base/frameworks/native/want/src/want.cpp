@@ -1820,7 +1820,7 @@ std::string Want::Decode(const std::string &str)
         if (str[i] != '\\') {
             decode += str[i];
             i++;
-            break;
+            continue;
         }
         if (++i >= str.length()) {
             decode += "\\";
