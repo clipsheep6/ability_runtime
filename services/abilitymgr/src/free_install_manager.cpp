@@ -113,13 +113,13 @@ bool FreeInstallManager::CheckTargetBundleList(const Want &want, int32_t userId,
 }
 
 int FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int requestCode,
-    const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
+    const sptr<IRemoteObject> &callerToken, bool ifOperateRemote, pid_t pid)
 {
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
-    if (!isFromRemote && !IsTopAbility(callerToken)) {
+    if (IPCSkeleton::GetCallingPid() != pid && !isFromRemote && !IsTopAbility(callerToken)) {
         return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
     }
-    if (!isFromRemote && !CheckTargetBundleList(want, userId, callerToken)) {
+    if (IPCSkeleton::GetCallingPid() != pid && !isFromRemote && !CheckTargetBundleList(want, userId, callerToken)) {
         return HandleFreeInstallErrorCode(TARGET_BUNDLE_NOT_EXIST);
     }
     auto promise = std::make_shared<std::promise<int32_t>>();
@@ -166,12 +166,12 @@ int FreeInstallManager::FreeInstall(const Want &want, int32_t userId, int reques
 }
 
 int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
-    const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
+    const sptr<IRemoteObject> &callerToken, bool ifOperateRemote, pid_t pid)
 {
     HILOG_INFO("%{public}s", __func__);
     if (requestCode == DEFAULT_REQUEST_CODE) {
         HILOG_INFO("%{public}s: StartAbility freeInstall", __func__);
-        return FreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote);
+        return FreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote, pid);
     }
     int32_t missionId = DelayedSingleton<AbilityManagerService>::GetInstance()->
         GetMissionIdByAbilityToken(callerToken);
@@ -181,7 +181,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
     Want* newWant = const_cast<Want*>(&want);
     newWant->SetParam(DMS_MISSION_ID, missionId);
     HILOG_INFO("%{public}s: StartAbilityForResult freeInstall", __func__);
-    return FreeInstall(*newWant, validUserId, requestCode, callerToken, ifOperateRemote);
+    return FreeInstall(*newWant, validUserId, requestCode, callerToken, ifOperateRemote, pid);
 }
 
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
@@ -265,7 +265,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
 }
 
 int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-    int32_t userId, int requestCode)
+    int32_t userId, int requestCode, pid_t pid)
 {
     HILOG_INFO("%{public}s", __func__);
     if (callback == nullptr) {
@@ -281,8 +281,8 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
     };
     dmsFreeInstallCbs_.push_back(info);
 
-    auto freeInstallTask = [manager = shared_from_this(), info]() {
-        auto result = manager->FreeInstall(info.want, info.userId, info.requestCode, nullptr, false);
+    auto freeInstallTask = [manager = shared_from_this(), info, pid]() {
+        auto result = manager->FreeInstall(info.want, info.userId, info.requestCode, nullptr, false, pid);
         if (result != ERR_OK) {
             manager->NotifyDmsCallback(info.want, result);
         }
@@ -312,45 +312,38 @@ int FreeInstallManager::HandleFreeInstallErrorCode(int resultCode)
 }
 
 int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
-    const sptr<IRemoteObject> &callerToken, std::string& localDeviceId)
+    const sptr<IRemoteObject> &callerToken, std::string& localDeviceId, pid_t pid)
 {
-    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord == nullptr) {
-        return ERR_INVALID_VALUE;
-    }
-    AppExecFwk::AbilityType type = abilityRecord->GetAbilityInfo().type;
-    if (type == AppExecFwk::AbilityType::PAGE) {
-        if (!IsTopAbility(callerToken)) {
-            return NOT_TOP_ABILITY;
-        }
-    }
-    std::string wantBundleName = want.GetElement().GetBundleName();
-    std::string wantAbilityName = want.GetElement().GetAbilityName();
-    std::string wantDeviceId = want.GetElement().GetDeviceID();
-    std::string wantModuleName = want.GetStringParam("moduleName");
-    if (!(localDeviceId == wantDeviceId || wantDeviceId.empty())) {
-        HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantDeviceId error");
-        return ERR_INVALID_VALUE;
-    }
-
-    if (wantBundleName.empty() || wantAbilityName.empty()) {
-        HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName or wantAbilityName is empty");
-        return ERR_INVALID_VALUE;
-    }
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    int callerUid = IPCSkeleton::GetCallingUid();
-    std::string localBundleName;
-    bms->GetBundleNameForUid(callerUid, localBundleName);
-    if (localBundleName != wantBundleName) {
-        HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName is not local BundleName");
-        return ERR_INVALID_VALUE;
+    if (callingPid != pid) {
+        std::string wantBundleName = want.GetElement().GetBundleName();
+        std::string wantAbilityName = want.GetElement().GetAbilityName();
+        std::string wantDeviceId = want.GetElement().GetDeviceID();
+        std::string wantModuleName = want.GetStringParam("moduleName");
+        if (!(localDeviceId == wantDeviceId || wantDeviceId.empty())) {
+            HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantDeviceId error");
+            return ERR_INVALID_VALUE;
+        }
+
+        if (wantBundleName.empty() || wantAbilityName.empty()) {
+            HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName or wantAbilityName is empty");
+            return ERR_INVALID_VALUE;
+        }
+        int callerUid = IPCSkeleton::GetCallingUid();
+        std::string localBundleName;
+        bms->GetBundleNameForUid(callerUid, localBundleName);
+        if (localBundleName != wantBundleName) {
+            HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. wantBundleName is not local BundleName");
+            return ERR_INVALID_VALUE;
+        }
     }
     AppExecFwk::AbilityInfo abilityInfo;
     if (!(bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId,
         abilityInfo))) {
         HILOG_INFO("AbilityManagerService::ConnectFreeInstall. try to FreeInstall");
-        int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false);
+        int result = FreeInstall(want, userId, DEFAULT_INVAL_VALUE, callerToken, false, pid);
         if (result) {
             HILOG_ERROR("AbilityManagerService::ConnectFreeInstall. FreeInstall error");
             return result;
