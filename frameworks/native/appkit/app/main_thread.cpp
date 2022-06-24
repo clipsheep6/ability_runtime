@@ -90,6 +90,11 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
 
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
+#ifdef _ARM64_
+    const std::string acelibdir("/system/lib64/libace.z.so");
+#else
+    const std::string acelibdir("/system/lib/libace.z.so");
+#endif
 #endif
 
 /**
@@ -1718,11 +1723,6 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
 #ifdef ABILITY_LIBRARY_LOADER
     HILOG_INFO("MainThread load ability library start.");
 #ifdef ACEABILITY_LIBRARY_LOADER
-#ifdef _ARM64_
-    std::string acelibdir("/system/lib64/libace.z.so");
-#else
-    std::string acelibdir("/system/lib/libace.z.so");
-#endif
     void *AceAbilityLib = nullptr;
     AceAbilityLib = dlopen(acelibdir.c_str(), RTLD_NOW | RTLD_GLOBAL);
     if (AceAbilityLib == nullptr) {
