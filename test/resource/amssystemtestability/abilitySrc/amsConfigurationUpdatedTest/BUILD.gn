@@ -17,7 +17,6 @@ SUBST_TOOLS_DIR = "test/resource/amssystemtestability/abilitySrc/tools"
 config("amsConfigurationUpdatedTestConfig") {
   visibility = [ ":*" ]
   include_dirs = [
-    "//base/notification/eventhandler/interfaces/inner_api",
     "${SUBDEMOSYSTEM_DIR}/include",
     "${aafwk_path}/frameworks/kits/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
@@ -58,6 +57,7 @@ ohos_shared_library("amsConfigurationUpdatedTest") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

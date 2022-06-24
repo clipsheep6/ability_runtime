@@ -24,8 +24,6 @@ ohos_unittest("AmsServiceStartupTest") {
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "//base/account/os_account/frameworks/common/database/include",
-    "//base/account/os_account/frameworks/common/account_error/include",
   ]
 
   sources = [
@@ -43,7 +41,7 @@ ohos_unittest("AmsServiceStartupTest") {
 
   sources += [ "ams_service_startup_test.cpp" ]
 
-  configs = [ "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler_config" ]
+  configs = []
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -55,14 +53,8 @@ ohos_unittest("AmsServiceStartupTest") {
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/appmgr/test:appmgr_test_source",
     "${services_path}/common:perm_verification",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//utils/native/base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
 
   external_deps = [
     "ability_base:want",
@@ -70,6 +62,7 @@ ohos_unittest("AmsServiceStartupTest") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",

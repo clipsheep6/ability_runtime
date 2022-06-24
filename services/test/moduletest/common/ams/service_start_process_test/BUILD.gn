@@ -19,8 +19,7 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsServiceStartModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "//base/hiviewdfx/hilog/interfaces/native/innerkits/include" ]
+  include_dirs = []
   sources = [
     "${services_path}/appmgr/src/system_environment_information.cpp",
     "ams_service_start_process_module_test.cpp",
@@ -36,7 +35,9 @@ ohos_moduletest("AmsServiceStartModuleTest") {
   }
 
   external_deps = [
+    "bundle_framework:appexecfwk_base",
     "hicollie_native:libhicollie",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 

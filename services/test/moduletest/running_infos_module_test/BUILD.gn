@@ -63,7 +63,6 @@ ohos_moduletest("running_infos_module_test") {
     "${services_path}/test:aafwk_module_test_config",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager_public_config",
     "${aafwk_path}/services/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock_config",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base_sdk_config",
     "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
   ]
   cflags = []
@@ -74,13 +73,10 @@ ohos_moduletest("running_infos_module_test") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/abilitymgr:abilityms",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${innerkits_path}/uri_permission:uri_permission_mgr",
     "${services_path}/common:perm_verification",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",
@@ -108,6 +104,8 @@ ohos_moduletest("running_infos_module_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dataability:native_dataability",
@@ -119,6 +117,7 @@ ohos_moduletest("running_infos_module_test") {
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_rdb",
+    "startup_l2:syspara",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

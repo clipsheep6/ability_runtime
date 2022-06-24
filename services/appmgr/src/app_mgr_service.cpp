@@ -498,7 +498,7 @@ int AppMgrService::BlockAppService()
     }
     auto task = [=]() {
         while (1) {
-            HILOG_DEBUG("%{public}s begain block app service", __func__);
+            HILOG_DEBUG("%{public}s begin block app service", __func__);
             std::this_thread::sleep_for(APP_MS_BLOCK*1s);
         }
     };

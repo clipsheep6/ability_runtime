@@ -4128,7 +4128,7 @@ void NAPIAbilityConnection::OnAbilityConnectDone(
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
         HILOG_ERROR("%{public}s, work==nullptr.", __func__);
         return;
@@ -4237,7 +4237,7 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
     HILOG_INFO("%{public}s bundleName:%{public}s abilityName:%{public}s moduleName:%{public}s, resultCode:%{public}d",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str(), moduleName_.c_str(), resultCode);
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
         HILOG_ERROR("%{public}s, work == nullptr.", __func__);
         return;

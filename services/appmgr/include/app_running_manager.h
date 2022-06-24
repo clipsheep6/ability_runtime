@@ -146,7 +146,7 @@ public:
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
-    void ClipStringContent(const std::regex &re, const std::string &sorce, std::string &afferCutStr);
+    void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);

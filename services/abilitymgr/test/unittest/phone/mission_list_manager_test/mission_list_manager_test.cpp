@@ -210,7 +210,7 @@ HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_001, TestSize.Level1)
 
     AbilityRequest abilityRequest;
     abilityRequest.callerToken = ability->GetToken();
-    missionListManager->EnqueueWaittingAbility(abilityRequest);
+    missionListManager->EnqueueWaitingAbility(abilityRequest);
     missionListManager->defaultStandardList_->AddMissionToTop(mission);
 
     missionListManager->OnAcceptWantResponse(want, "flag");

@@ -25,7 +25,7 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
-const int USleepTime = 16000;
+const int USleepTime = 13000; // Corresponding to INI_TIMER_FIRST_SECOND and INI_TIMER_SECOND
 class WatchDogTest : public testing::Test {
 public:
     WatchDogTest()

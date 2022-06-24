@@ -32,7 +32,7 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
                              "  dump                        dump the ability info\n"
                              "  force-stop <bundle-name>    force stop the process with bundle name\n"
                              "  test                        start the test framework with options\n"
-                             "  ApplicationNotRespondin     Pass in pid with options\n"
+                             "  ApplicationNotResponding     Pass in pid with options\n"
                              "  block-ability <ability-record-id>       block ability with ability record id\n"
                              "  block-ams-service                       block ams service\n"
                              "  block-app-service                       block app service\n";
@@ -43,8 +43,8 @@ const std::string HELP_MSG_SCREEN =
     "  -h, --help                                                   list available commands\n"
     "  -p, --power <state>                                          power on or off with a state name\n";
 
-const std::string HELP_ApplicationNotRespondin =
-    "usage: aa ApplicationNotRespondin <options>\n"
+const std::string HELP_ApplicationNotResponding =
+    "usage: aa ApplicationNotResponding <options>\n"
     "options list:\n"
     "  -h, --help                   list available commands\n"
     "  -p, --pid                    Pass in pid with option\n";
@@ -166,7 +166,7 @@ private:
     ErrCode RunAsForceStop();
     #ifdef ABILITY_COMMAND_FOR_TEST
     ErrCode RunForceTimeoutForTest();
-    ErrCode RunAsSendAppNotRespondinProcessID();
+    ErrCode RunAsSendAppNotRespondingProcessID();
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
     ErrCode RunAsBlockAppServiceCommand();

@@ -17,11 +17,7 @@ import("//foundation/ability/ability_runtime/aafwk.gni")
 module_output_path = "ability_tools/tools"
 
 config("tools_aa_test_config") {
-  include_dirs = [
-    "${bundlefwk_inner_api_path}/appexecfwk_base/include",
-    "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "//base/security/appverify/interfaces/innerkits/appverify/include",
-  ]
+  include_dirs = []
 }
 
 ohos_systemtest("aa_command_start_system_test") {
@@ -54,6 +50,8 @@ ohos_systemtest("aa_command_start_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_stop_service_system_test") {
@@ -84,6 +82,8 @@ ohos_systemtest("aa_command_stop_service_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_dump_system_test") {
@@ -116,6 +116,8 @@ ohos_systemtest("aa_command_dump_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
 }
 
 group("systemtest") {

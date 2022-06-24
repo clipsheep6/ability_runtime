@@ -115,9 +115,9 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     recordId_ = abilityRecordId++;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
-        abilityMgr->GetMaxRestartNum(restratMax_);
+        abilityMgr->GetMaxRestartNum(restartMax_);
     }
-    restartCount_ = restratMax_;
+    restartCount_ = restartMax_;
 }
 
 AbilityRecord::~AbilityRecord()
@@ -259,8 +259,8 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
 
     if (isReady_) {
         if (IsAbilityState(AbilityState::BACKGROUND)) {
-            // background to activte state
-            HILOG_DEBUG("MoveToForground, %{public}s", element.c_str());
+            // background to active state
+            HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
 #ifdef SUSPEND_MANAGER_ENABLE
             std::string bundleName = GetAbilityInfo().bundleName;
@@ -291,15 +291,15 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
 
     if (isReady_) {
         if (IsAbilityState(AbilityState::BACKGROUND)) {
-            // background to activte state
-            HILOG_DEBUG("MoveToForground, %{public}s", element.c_str());
+            // background to active state
+            HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
 
             StartingWindowTask(isRecent, false, abilityRequest, startOptions);
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
             CancelStartingWindowHotTask();
 
-            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
             ForegroundAbility(nullptr, sceneFlag);
@@ -1030,13 +1030,13 @@ void AbilityRecord::SaveResultToCallers(const int resultCode, const Want *result
         HILOG_WARN("callerRecordList is empty.");
         return;
     }
-    auto lastestCaller = callerRecordList.back();
+    auto latestCaller = callerRecordList.back();
     for (auto caller : callerRecordList) {
         if (caller == nullptr) {
             HILOG_WARN("Caller record is nullptr.");
             continue;
         }
-        if (caller == lastestCaller) {
+        if (caller == latestCaller) {
             HILOG_INFO("Caller record is the latest.");
             SaveResult(resultCode, resultWant, caller);
             continue;
@@ -1575,7 +1575,7 @@ void AbilityRecord::SetRestarting(const bool isRestart)
     HILOG_DEBUG("SetRestarting: %{public}d", isRestarting_);
 
     if (isLauncherRoot_ && IsLauncherAbility()) {
-        restartCount_ = isRestart ? (--restartCount_) : restratMax_;
+        restartCount_ = isRestart ? (--restartCount_) : restartMax_;
         HILOG_INFO("root launcher restart count: %{public}d", restartCount_);
     }
 }
@@ -1586,7 +1586,7 @@ void AbilityRecord::SetRestarting(const bool isRestart, int32_t canReStartCount)
     HILOG_DEBUG("SetRestarting: %{public}d, restart count: %{public}d", isRestarting_, canReStartCount);
 
     if (isLauncherRoot_ && IsLauncherAbility()) {
-        restartCount_ = isRestart ? canReStartCount : restratMax_;
+        restartCount_ = isRestart ? canReStartCount : restartMax_;
         HILOG_INFO("root launcher restart count: %{public}d", restartCount_);
     }
 }
@@ -1740,7 +1740,7 @@ ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
 {
     auto callback = abilityRequest.connect;
     if (abilityRequest.callType != AbilityCallType::CALL_REQUEST_TYPE || !callback) {
-        HILOG_ERROR("only startd by call type can create a call record.");
+        HILOG_ERROR("only start by call type can create a call record.");
         return ResolveResultType::NG_INNER_ERROR;
     }
     if (!callContainer_) {
@@ -1979,7 +1979,7 @@ int AbilityRecord::BlockAbility()
 {
     HILOG_INFO("BlockAbility.");
     if (scheduler_) {
-        HILOG_INFO("scheduler_ begain to call BlockAbility %{public}s", __func__);
+        HILOG_INFO("scheduler_ begin to call BlockAbility %{public}s", __func__);
         return scheduler_->BlockAbility();
     }
     return ERR_NO_INIT;

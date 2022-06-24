@@ -31,8 +31,6 @@ ohos_unittest("dataobs_mgr_proxy_test") {
   deps = [
     "${aafwk_path}/interfaces/inner_api/dataobs_manager:dataobs_manager",
     "${aafwk_path}/services/dataobsmgr:dataobsms",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -41,6 +39,7 @@ ohos_unittest("dataobs_mgr_proxy_test") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

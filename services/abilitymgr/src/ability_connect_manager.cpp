@@ -113,8 +113,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         CommandAbility(targetService);
     } else {
-        HILOG_ERROR("Target service is already activing.");
-        return START_SERVICE_ABILITY_ACTIVING;
+        HILOG_ERROR("Target service is already activating.");
+        return START_SERVICE_ABILITY_ACTIVATING;
     }
 
     sptr<Token> token = targetService->GetToken();
@@ -285,7 +285,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
             ConnectAbility(targetService);
         }
     } else {
-        HILOG_ERROR("Target service is already activing.");
+        HILOG_ERROR("Target service is already activating.");
     }
 
     auto token = targetService->GetToken();
@@ -327,7 +327,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
         }
     }
 
-    // 3. target servie has another connection, this record callback disconnected directly.
+    // 3. target service has another connection, this record callback disconnected directly.
     if (eventHandler_ != nullptr) {
         auto task = [connectRecordList, connectManager = shared_from_this()]() {
             connectManager->HandleDisconnectTask(connectRecordList);
@@ -363,15 +363,15 @@ void AbilityConnectManager::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(Lock_);
-    auto abilitState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
+    auto abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     auto abilityRecord = GetServiceRecordByToken(token);
     CHECK_POINTER(abilityRecord);
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
     HILOG_INFO("Ability: %{public}s", element.c_str());
 
-    if (abilitState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
+    if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         abilityRecord->Inactivate();
-    } else if (abilitState == AppAbilityState::ABILITY_STATE_BACKGROUND) {
+    } else if (abilityState == AppAbilityState::ABILITY_STATE_BACKGROUND) {
         DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token, false);
         RemoveServiceAbility(abilityRecord);
     }
@@ -1049,8 +1049,8 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
         }
     };
 
-    auto findKeepAliveAbility = [abilityRecord](const std::string &mainElemen) {
-        return (abilityRecord->GetAbilityInfo().name == mainElemen ||
+    auto findKeepAliveAbility = [abilityRecord](const std::string &mainElement) {
+        return (abilityRecord->GetAbilityInfo().name == mainElement ||
                 abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME ||
                 abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME);
     };

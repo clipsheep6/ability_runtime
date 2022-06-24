@@ -37,7 +37,7 @@ void WindowManagerServiceHandlerStub::Init()
     requestFuncMap_[ON_GET_FOCUS_ABILITY] = &WindowManagerServiceHandlerStub::GetFocusWindowInner;
     requestFuncMap_[ON_COLD_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowCold;
     requestFuncMap_[ON_HOT_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::StartingWindowHot;
-    requestFuncMap_[ON_CANCLE_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
+    requestFuncMap_[ON_CANCEL_STARTING_WINDOW] = &WindowManagerServiceHandlerStub::CancelStartingWindowInner;
 }
 
 int WindowManagerServiceHandlerStub::OnRemoteRequest(

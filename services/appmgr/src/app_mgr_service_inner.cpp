@@ -2175,8 +2175,8 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
     }
 
     std::string eventName = EVENT_NAME_LIFECYCLE_TIMEOUT;
-    std::string pidStr = std::to_string(appRecord->GetPriorityObject()->GetPid());
-    std::string uidStr = std::to_string(appRecord->GetUid());
+    int32_t pid = appRecord->GetPriorityObject()->GetPid();
+    int32_t uid = appRecord->GetUid();
     std::string packageName = appRecord->GetBundleName();
     std::string processName = appRecord->GetProcessName();
     std::string msg;
@@ -2201,11 +2201,11 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
             break;
     }
 
-    HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, uidStr = %{public}s, pidStr = %{public}s, \
+    HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
         eventName.c_str(),
-        uidStr.c_str(),
-        pidStr.c_str(),
+        uid,
+        pid,
         packageName.c_str(),
         processName.c_str(),
         msg.c_str());
@@ -2214,8 +2214,8 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
         OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
         eventName,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_PID, pidStr,
-        EVENT_KEY_UID, uidStr,
+        EVENT_KEY_PID, pid,
+        EVENT_KEY_UID, uid,
         EVENT_KEY_PACKAGE_NAME, packageName,
         EVENT_KEY_PROCESS_NAME, processName,
         EVENT_KEY_MESSAGE, msg);

@@ -14,7 +14,7 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/aafwk.gni")
 
-module_output_path = "ability_runtime/aafwk_L2"
+module_output_path = "ability_runtime/test"
 
 ###############################################################################
 config("module_private_config") {
@@ -24,10 +24,7 @@ config("module_private_config") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   include_dirs = [
-    "//base/notification/eventhandler/interfaces/inner_api",
     "//third_party/json/include",
-    "//utils/native/base/include",
-    "//sdk/appexecfwk_L2/appexecfwk_base/include",
     "${aafwk_path}/interfaces/inner_api/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
@@ -84,7 +81,6 @@ ohos_moduletest("ability_moduletest") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
@@ -98,6 +94,7 @@ ohos_moduletest("ability_moduletest") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
@@ -143,7 +140,6 @@ ohos_moduletest("ability_conetxt_test") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -157,6 +153,7 @@ ohos_moduletest("ability_conetxt_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "dataability:native_dataability",
     "hiviewdfx_hilog_native:libhilog",
@@ -182,9 +179,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:app_context",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -193,6 +188,8 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
   ]
 }
 
@@ -237,7 +234,6 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -275,7 +271,6 @@ ohos_moduletest("data_ability_helper_module_test") {
     "${aafwk_path}/services/dataobsmgr/include",
     "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
     "${distributedschedule_path}/samgr/services/samgr/native/include",
-    "//foundation/communication/ipc/interfaces/innerkits/libdbinder/include",
   ]
 
   sources = [ "${aafwk_path}/frameworks/kits/test/moduletest/cpp/abilitytest/data_ability_helper_module_test.cpp" ]
@@ -290,8 +285,6 @@ ohos_moduletest("data_ability_helper_module_test") {
     "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -300,7 +293,9 @@ ohos_moduletest("data_ability_helper_module_test") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
     "dataability:native_dataability",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",

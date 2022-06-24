@@ -120,9 +120,9 @@ enum {
      */
     TERMINATE_SERVICE_IS_CONNECTED,
     /**
-     * Result(2097172) for StartAbility:The ability to start is already activing..
+     * Result(2097172) for StartAbility:The ability to start is already activating..
      */
-    START_SERVICE_ABILITY_ACTIVING,
+    START_SERVICE_ABILITY_ACTIVATING,
     /**
      * Result(2097173) for move mission to top: An error of moving stack.
      */
@@ -165,7 +165,7 @@ enum {
     GET_BUNDLENAME_BY_UID_FAIL,
 
     /**
-     * Result(2097182) for misson not found.
+     * Result(2097182) for mission not found.
      */
     MISSION_NOT_FOUND,
 

@@ -292,7 +292,7 @@ private:
 
         std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
-            HILOG_ERROR("get bundelName failed!");
+            HILOG_ERROR("get bundleName failed!");
             return engine.CreateUndefined();
         }
 
@@ -329,7 +329,7 @@ private:
 
         std::string bundleName;
         if (!ConvertFromJsValue(engine, info.argv[0], bundleName)) {
-            HILOG_ERROR("get bundelName failed!");
+            HILOG_ERROR("get bundleName failed!");
             return engine.CreateUndefined();
         }
 
