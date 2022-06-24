@@ -55,7 +55,7 @@ using AbilityStartSetting = AAFwk::AbilityStartSetting;
 constexpr int INVALID_RESOURCE_VALUE = -1;  // GetColor() Failed return Value
 constexpr int DEFAULT_ACCOUNT_ID = -1;
 
-class DataAbilityHelper;
+class DataAbilityHelperImpl;
 class ContinuationConnector;
 class IAbilityManager;
 class EventRunner;
@@ -606,7 +606,7 @@ public:
      */
     virtual bool PrintDrawnCompleted() = 0;
 
-    friend DataAbilityHelper;
+    friend DataAbilityHelperImpl;
     friend OHOS::DataShare::DataShareHelper;
     friend ContinuationConnector;
 

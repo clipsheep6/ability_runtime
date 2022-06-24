@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,97 +13,95 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
-#define FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
+#ifndef OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_IMPL_H
+#define OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_IMPL_H
 
-#include "data_ability_helper_impl.h"
+#include <mutex>
+#include <map>
+#include <string>
+
+#include "context.h"
+#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
+#include "uri.h"
+
+using Uri = OHOS::Uri;
+
 namespace OHOS {
+namespace NativeRdb {
+class AbsSharedResultSet;
+class DataAbilityPredicates;
+class ValuesBucket;
+}  // namespace NativeRdb
 namespace AppExecFwk {
-class DataAbilityHelper final : public std::enable_shared_from_this<DataAbilityHelper> {
+using string = std::string;
+class DataAbilityResult;
+class DataAbilityOperation;
+class PacMap;
+class IDataAbilityObserver;
+class DataAbilityHelperImpl final : public std::enable_shared_from_this<DataAbilityHelperImpl> {
 public:
-    ~DataAbilityHelper() = default;
+    ~DataAbilityHelperImpl() = default;
 
     /**
-     * @brief Creates a DataAbilityHelper instance without specifying the Uri based on the given Context.
+     * @brief Creates a DataAbilityHelperImpl instance without specifying the Uri based on the given Context.
      *
      * @param context Indicates the Context object on OHOS.
      *
-     * @return Returns the created DataAbilityHelper instance where Uri is not specified.
+     * @return Returns the created DataAbilityHelperImpl instance where Uri is not specified.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<Context> &context);
-
-    /**
-     * @brief Creates a DataAbilityHelper instance with the Uri specified based on the given Context.
-     *
-     * @param context Indicates the Context object on OHOS.
-     * @param uri Indicates the database table or disk file to operate.
-     *
-     * @return Returns the created DataAbilityHelper instance with a specified Uri.
-     */
-    static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri);
-
-    /**
-     * @brief Creates a DataAbilityHelper instance with the Uri specified based on the given Context.
-     *
-     * @param context Indicates the Context object on OHOS.
-     * @param uri Indicates the database table or disk file to operate.
-     *
-     * @return Returns the created DataAbilityHelper instance with a specified Uri.
-     */
-    static std::shared_ptr<DataAbilityHelper> Creator(
-        const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri);
+    static std::shared_ptr<DataAbilityHelperImpl> Creator(const std::shared_ptr<Context> &context);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
      * between the ability using the Data template (Data ability for short) and the associated client process in
-     * a DataAbilityHelper instance.
+     * a DataAbilityHelperImpl instance.
      *
      * @param context Indicates the Context object on OHOS.
      * @param uri Indicates the database table or disk file to operate.
      * @param tryBind Specifies whether the exit of the corresponding Data ability process causes the exit of the
      * client process.
      *
-     * @return Returns the created DataAbilityHelper instance.
+     * @return Returns the created DataAbilityHelperImpl instance.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(
+    static std::shared_ptr<DataAbilityHelperImpl> Creator(
         const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
      * between the ability using the Data template (Data ability for short) and the associated client process in
-     * a DataAbilityHelper instance.
+     * a DataAbilityHelperImpl instance.
      *
      * @param context Indicates the Context object on OHOS.
      * @param uri Indicates the database table or disk file to operate.
      * @param tryBind Specifies whether the exit of the corresponding Data ability process causes the exit of the
      * client process.
      *
-     * @return Returns the created DataAbilityHelper instance.
+     * @return Returns the created DataAbilityHelperImpl instance.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+    static std::shared_ptr<DataAbilityHelperImpl> Creator(
+        const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
         const std::shared_ptr<Uri> &uri, const bool tryBind);
 
     /**
-     * @brief Creates a DataAbilityHelper instance without specifying the Uri based.
+     * @brief Creates a DataAbilityHelperImpl instance without specifying the Uri based.
      *
      * @param token Indicates the System token.
      *
-     * @return Returns the created DataAbilityHelper instance where Uri is not specified.
+     * @return Returns the created DataAbilityHelperImpl instance where Uri is not specified.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(const sptr<IRemoteObject> &token);
+    static std::shared_ptr<DataAbilityHelperImpl> Creator(const sptr<IRemoteObject> &token);
 
     /**
      * @brief You can use this method to specify the Uri of the data to operate and set the binding relationship
      * between the ability using the Data template (Data ability for short) and the associated client process in
-     * a DataAbilityHelper instance.
+     * a DataAbilityHelperImpl instance.
      *
      * @param token Indicates the System token.
      * @param uri Indicates the database table or disk file to operate.
      *
-     * @return Returns the created DataAbilityHelper instance.
+     * @return Returns the created DataAbilityHelperImpl instance.
      */
-    static std::shared_ptr<DataAbilityHelper> Creator(
+    static std::shared_ptr<DataAbilityHelperImpl> Creator(
         const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri);
 
     /**
@@ -289,11 +287,52 @@ public:
         const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
 private:
-    DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
+    DataAbilityHelperImpl(const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri,
+        const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
+    DataAbilityHelperImpl(const std::shared_ptr<OHOS::AbilityRuntime::Context> &context,
+        const std::shared_ptr<Uri> &uri, const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy, bool tryBind = false);
+    DataAbilityHelperImpl(const std::shared_ptr<Context> &context);
+    DataAbilityHelperImpl(const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri,
+        const sptr<AAFwk::IAbilityScheduler> &dataAbilityProxy);
+    DataAbilityHelperImpl(const sptr<IRemoteObject> &token);
 
-    std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_;
+    void AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &token);
+    void OnSchedulerDied(const wptr<IRemoteObject> &remote);
+
+    bool CheckUriParam(const Uri &uri);
+    bool CheckOhosUri(const Uri &uri);
+
+    sptr<AAFwk::IAbilityScheduler> GetDataAbilityProxy(const Uri &uri, bool addDeathRecipient = true);
+
+    void ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> dataAbilityProxy);
+
+    sptr<IRemoteObject> token_;
+    std::weak_ptr<Context> context_;
+    std::shared_ptr<Uri> uri_ = nullptr;
+    bool tryBind_ = false;
+    bool isSystemCaller_ = false;
+    sptr<AAFwk::IAbilityScheduler> dataAbilityProxy_ = nullptr;
+    std::mutex lock_;
+    static std::mutex oplock_;
+
+    sptr<IRemoteObject::DeathRecipient> callerDeathRecipient_ = nullptr;  // caller binderDied Recipient
+    std::map<sptr<AAFwk::IDataAbilityObserver>, sptr<AAFwk::IAbilityScheduler>> registerMap_;
+    std::map<sptr<AAFwk::IDataAbilityObserver>, std::string> uriMap_;
+};
+
+class DataAbilityDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
+
+    explicit DataAbilityDeathRecipient(RemoteDiedHandler handler);
+
+    virtual ~DataAbilityDeathRecipient();
+
+    virtual void OnRemoteDied(const wptr<IRemoteObject> &remote);
+
+private:
+    RemoteDiedHandler handler_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
-
+#endif  // OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_IMPL_H

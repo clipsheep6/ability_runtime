@@ -153,7 +153,7 @@ ohos_shared_library("abilitykit_native") {
     "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager_proxy.cpp",
     "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_proxy.cpp",
     "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_stub.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper.cpp",
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper_impl.cpp",
     "${aafwk_path}/frameworks/native/ability/native/data_ability_impl.cpp",
     "${aafwk_path}/frameworks/native/ability/native/data_ability_operation.cpp",
     "${aafwk_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
@@ -284,6 +284,33 @@ ohos_shared_library("abilitykit_native") {
       "${windowmanager_path}/wm:libwm",
     ]
   }
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("data_ability_helper") {
+  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+
+  sources = [
+    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper.cpp",
+  ]
+
+  configs = [ ":ability_config" ]
+  public_configs = [ ":ability_public_config" ]
+
+  deps = [ ":abilitykit_native" ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

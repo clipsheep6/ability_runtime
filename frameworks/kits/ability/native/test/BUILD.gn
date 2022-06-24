@@ -366,6 +366,7 @@ ohos_unittest("data_ability_helper_test") {
 
   deps = [
     "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
+    "${aafwk_path}/frameworks/native/ability/native:data_ability_helper",
     "${aafwk_path}/frameworks/native/appkit:app_context",
     "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
     "//third_party/googletest:gmock_main",
