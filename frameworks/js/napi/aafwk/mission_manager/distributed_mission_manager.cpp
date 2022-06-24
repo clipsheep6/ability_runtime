@@ -399,10 +399,10 @@ void RegisterMissonCallbackCompletedCB(napi_env env, napi_status status, void *d
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-napi_value RegisterMissonAsync(napi_env env, napi_value *args, RegisterMissonCB *registerMissonCB)
+napi_value RegisterMissonAsync(napi_env env, RegisterMissonCB *registerMissonCB)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
-    if (args == nullptr || registerMissonCB == nullptr) {
+    if (registerMissonCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
@@ -556,7 +556,7 @@ napi_value RegisterMissonWrap(napi_env env, napi_callback_info info, RegisterMis
         napi_create_reference(env, args[ARGS_TWO], 1, &registerMissonCB->callbackRef);
     }
 
-    ret = RegisterMissonAsync(env, args, registerMissonCB);
+    ret = RegisterMissonAsync(env, registerMissonCB);
     HILOG_INFO("%{public}s called end.", __func__);
     return ret;
 }
@@ -1122,10 +1122,10 @@ void ContinueAbilityCallbackCompletedCB(napi_env env, napi_status status, void *
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-napi_value ContinueAbilityAsync(napi_env env, napi_value *args, ContinueAbilityCB *continueAbilityCB)
+napi_value ContinueAbilityAsync(napi_env env, ContinueAbilityCB *continueAbilityCB)
 {
     HILOG_INFO("%{public}s asyncCallback.", __func__);
-    if (args == nullptr || continueAbilityCB == nullptr) {
+    if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s, param == nullptr.", __func__);
         return nullptr;
     }
@@ -1289,7 +1289,7 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
         napi_create_reference(env, args[ARGS_TWO], 1, &continueAbilityCB->callbackRef);
     }
 
-    ret = ContinueAbilityAsync(env, args, continueAbilityCB);
+    ret = ContinueAbilityAsync(env, continueAbilityCB);
     HILOG_INFO("%{public}s called end.", __func__);
     return ret;
 }
