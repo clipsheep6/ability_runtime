@@ -463,7 +463,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (bms) {
         SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
             bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
-            abilityInfo.bundleName, SuspendManager::THAW_BY_START_ABILITY);
+            abilityInfo.bundleName, "THAW_BY_START_ABILITY");
     }
 #endif // SUSPEND_MANAGER_ENABLE
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());

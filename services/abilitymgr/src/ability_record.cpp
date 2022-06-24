@@ -266,7 +266,7 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             std::string bundleName = GetAbilityInfo().bundleName;
             int32_t uid = GetUid();
             SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-                uid, bundleName, SuspendManager::THAW_BY_FOREGROUND_ABILITY);
+                uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
 #endif // SUSPEND_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForground(token_);
         } else {
