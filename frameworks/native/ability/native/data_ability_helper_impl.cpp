@@ -335,9 +335,7 @@ std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri &uri, const std
     }
 
     matchedMIMEs = dataAbilityProxy->GetFileTypes(uri, mimeTypeFilter);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return matchedMIMEs size: %{public}zu.", matchedMIMEs.size());
     return matchedMIMEs;
 }
 
@@ -368,9 +366,7 @@ int DataAbilityHelperImpl::OpenFile(Uri &uri, const std::string &mode)
     }
 
     fd = dataAbilityProxy->OpenFile(uri, mode);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return fd: %{public}d.", fd);
     return fd;
 }
 
@@ -401,9 +397,7 @@ int DataAbilityHelperImpl::OpenRawFile(Uri &uri, const std::string &mode)
     }
 
     fd = dataAbilityProxy->OpenRawFile(uri, mode);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return fd: %{public}d.", fd);
     return fd;
 }
 
@@ -430,9 +424,7 @@ int DataAbilityHelperImpl::Insert(Uri &uri, const NativeRdb::ValuesBucket &value
     }
 
     index = dataAbilityProxy->Insert(uri, value);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -453,7 +445,6 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelperImpl::Call(
 
     result = dataAbilityProxy->Call(uri, method, arg, pacMap);
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return result is or not nullptr: %{public}d.", result == nullptr);
     return result;
 }
 
@@ -482,9 +473,7 @@ int DataAbilityHelperImpl::Update(
     }
 
     index = dataAbilityProxy->Update(uri, value, predicates);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -511,9 +500,7 @@ int DataAbilityHelperImpl::Delete(Uri &uri, const NativeRdb::DataAbilityPredicat
     }
 
     index = dataAbilityProxy->Delete(uri, predicates);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -542,9 +529,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelperImpl::Query(
     }
 
     resultset = dataAbilityProxy->Query(uri, columns, predicates);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
     return resultset;
 }
 
@@ -571,9 +556,7 @@ std::string DataAbilityHelperImpl::GetType(Uri &uri)
     }
 
     type = dataAbilityProxy->GetType(uri);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return type: %{public}s.", type.c_str());
     return type;
 }
 
@@ -602,9 +585,7 @@ bool DataAbilityHelperImpl::Reload(Uri &uri, const PacMap &extras)
     }
 
     ret = dataAbilityProxy->Reload(uri, extras);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return ret: %{public}d.", ret);
     return ret;
 }
 
@@ -631,9 +612,7 @@ int DataAbilityHelperImpl::BatchInsert(Uri &uri, const std::vector<NativeRdb::Va
     }
 
     ret = dataAbilityProxy->BatchInsert(uri, values);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return ret: %{public}d.", ret);
     return ret;
 }
 
@@ -843,9 +822,7 @@ Uri DataAbilityHelperImpl::NormalizeUri(Uri &uri)
     }
 
     urivalue = dataAbilityProxy->NormalizeUri(uri);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return uri: %{public}s.", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -874,9 +851,7 @@ Uri DataAbilityHelperImpl::DenormalizeUri(Uri &uri)
     }
 
     urivalue = dataAbilityProxy->DenormalizeUri(uri);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return uri: %{public}s.", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -896,9 +871,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelperImpl::ExecuteBa
     }
 
     results = dataAbilityProxy->ExecuteBatch(operations);
-
     ReleaseDataAbility(dataAbilityProxy);
-    HILOG_INFO("Return results size: %{public}zu.", results.size());
     return results;
 }
 
