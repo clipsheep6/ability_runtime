@@ -34,8 +34,8 @@ public:
     void SetUp();
     void TearDown();
 
-    static AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    static std::shared_ptr<AbilityRequest> GenerateAbilityRequest(const std::string &deviceName,
+        const std::string &abilityName, const std::string &appName, const std::string &bundleName);
 
     Want want_ {};
     AbilityInfo abilityInfo_ {};
@@ -51,8 +51,8 @@ void MissionListTest::SetUp(void)
 void MissionListTest::TearDown(void)
 {}
 
-AbilityRequest MissionListTest::GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-    const std::string &appName, const std::string &bundleName)
+std::shared_ptr<AbilityRequest> MissionListTest::GenerateAbilityRequest(const std::string &deviceName,
+    const std::string &abilityName, const std::string &appName, const std::string &bundleName)
 {
     ElementName element(deviceName, abilityName, bundleName);
     Want want;
@@ -64,10 +64,10 @@ AbilityRequest MissionListTest::GenerateAbilityRequest(const std::string &device
     ApplicationInfo appinfo;
     appinfo.name = appName;
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = abilityInfo;
-    abilityRequest.appInfo = appinfo;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = abilityInfo;
+    abilityRequest->appInfo = appinfo;
 
     return abilityRequest;
 }

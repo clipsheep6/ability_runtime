@@ -557,7 +557,7 @@ public:
     int GenerateAbilityRequest(
         const Want &want,
         int requestCode,
-        AbilityRequest &request,
+        std::shared_ptr<AbilityRequest> request,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId);
 
@@ -907,7 +907,7 @@ private:
     bool CheckCallerIsSystemAppByIpc();
     bool IsExistFile(const std::string &path);
 
-    int CheckCallPermissions(const AbilityRequest &abilityRequest);
+    int CheckCallPermissions(const std::shared_ptr<AbilityRequest>& abilityRequest);
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
@@ -960,7 +960,7 @@ private:
 
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManager(const sptr<IAbilityScheduler> &scheduler);
-    bool CheckDataAbilityRequest(AbilityRequest &abilityRequest);
+    bool CheckDataAbilityRequest(std::shared_ptr<AbilityRequest> abilityRequest);
     std::shared_ptr<MissionListManager> GetListManagerByUserId(int32_t userId);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByUserId(int32_t userId);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
@@ -989,7 +989,7 @@ private:
 
     int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
     void GrantUriPermission(const Want &want, int32_t validUserId);
-    bool VerifyUriPermission(const AbilityRequest &abilityRequest, const Want &want);
+    bool VerifyUriPermission(const std::shared_ptr<AbilityRequest>& abilityRequest, const Want &want);
 
     bool SetANRMissionByProcessID(int pid);
 
@@ -1005,9 +1005,9 @@ private:
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);
-    int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
+    int GenerateExtensionAbilityRequest(const Want &want, std::shared_ptr<AbilityRequest> request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
-    int CheckStartExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
+    int CheckStartExtensionAbility(const Want &want, std::shared_ptr<AbilityRequest> abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;

@@ -75,7 +75,6 @@ public:
     void TearDown();
 public:
     inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
-    AbilityRequest abilityRequest_ {};
 };
 #ifdef OS_ACCOUNT_PART_ENABLED
 static OsAccountInfo osAccountInfo_ = OsAccountInfo();

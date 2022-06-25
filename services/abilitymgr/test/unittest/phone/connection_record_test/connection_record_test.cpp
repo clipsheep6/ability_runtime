@@ -52,15 +52,15 @@ public:
     void SetUp();
     void TearDown();
 
-    AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    std::shared_ptr<AbilityRequest> GenerateAbilityRequest(const std::string &deviceName,
+        const std::string &abilityName, const std::string &appName, const std::string &bundleName);
 
     std::shared_ptr<ConnectionRecord> connectionRecord_ {nullptr};
     OHOS::sptr<AbilityConnectCallbackMock> callback_ {nullptr};
     std::shared_ptr<AbilityRecord> service_ {nullptr};
 };
 
-AbilityRequest ConnectionRecordTest::GenerateAbilityRequest(const std::string &deviceName,
+std::shared_ptr<AbilityRequest> ConnectionRecordTest::GenerateAbilityRequest(const std::string &deviceName,
     const std::string &abilityName, const std::string &appName, const std::string &bundleName)
 {
     ElementName element(deviceName, bundleName, abilityName);
@@ -74,10 +74,10 @@ AbilityRequest ConnectionRecordTest::GenerateAbilityRequest(const std::string &d
     ApplicationInfo appinfo;
     appinfo.name = appName;
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = abilityInfo;
-    abilityRequest.appInfo = appinfo;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = abilityInfo;
+    abilityRequest->appInfo = appinfo;
 
     return abilityRequest;
 }
@@ -95,7 +95,7 @@ void ConnectionRecordTest::SetUp(void)
     std::string abilityName = "ServiceAbility";
     std::string appName = "hiservcie";
     std::string bundleName = "com.ix.hiservcie";
-    AbilityRequest abilityRequest = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto abilityRequest = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
     service_ = AbilityRecord::CreateAbilityRecord(abilityRequest);
     connectionRecord_ = std::make_shared<ConnectionRecord>(service_->GetToken(), service_, callback_);
 }

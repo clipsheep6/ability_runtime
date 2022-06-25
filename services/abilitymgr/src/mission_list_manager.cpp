@@ -69,7 +69,7 @@ void MissionListManager::Init()
     DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId_);
 }
 
-int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
+int MissionListManager::StartAbility(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
     auto currentTopAbility = GetCurrentTopAbilityLocked();
@@ -85,7 +85,7 @@ int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
         }
     }
 
-    auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
+    auto callerAbility = GetAbilityRecordByToken(abilityRequest->callerToken);
     if (callerAbility) {
         std::string element = callerAbility->GetWant().GetElement().GetURI();
         auto state = callerAbility->GetAbilityState();
@@ -97,13 +97,13 @@ int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
 }
 
 int MissionListManager::StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
-    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    auto isSpecified = (abilityRequest->abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueWaittingAbilityToFront(abilityRequest);
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
-            abilityRequest.want, abilityRequest.abilityInfo);
+            abilityRequest->want, abilityRequest->abilityInfo);
         return 0;
     }
 
@@ -202,20 +202,21 @@ int MissionListManager::MoveMissionToFront(int32_t missionId, bool isCallerFromL
     return ERR_OK;
 }
 
-void MissionListManager::EnqueueWaittingAbility(const AbilityRequest &abilityRequest)
+void MissionListManager::EnqueueWaittingAbility(const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
+    HILOG_INFO("ZZZ 111 %{public}s %{public}p.", abilityRequest->abilityInfo.name.c_str(), &abilityRequest);
     waittingAbilityQueue_.push(abilityRequest);
     return;
 }
 
-void MissionListManager::EnqueueWaittingAbilityToFront(const AbilityRequest &abilityRequest)
+void MissionListManager::EnqueueWaittingAbilityToFront(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
-    std::queue<AbilityRequest> abilityQueue;
+    std::queue<std::shared_ptr<AbilityRequest>> abilityQueue;
     abilityQueue.push(abilityRequest);
     waittingAbilityQueue_.swap(abilityQueue);
     while (!abilityQueue.empty()) {
-        AbilityRequest tempAbilityRequest = abilityQueue.front();
+        auto tempAbilityRequest = abilityQueue.front();
         abilityQueue.pop();
         waittingAbilityQueue_.push(tempAbilityRequest);
     }
@@ -233,16 +234,17 @@ void MissionListManager::StartWaittingAbility()
     }
 
     if (!waittingAbilityQueue_.empty()) {
-        AbilityRequest abilityRequest = waittingAbilityQueue_.front();
+        HILOG_INFO("waittingAbilityQueue_:%{public}d.", (int32_t)waittingAbilityQueue_.size());
+        auto abilityRequest = waittingAbilityQueue_.front();
         waittingAbilityQueue_.pop();
-        auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
+        auto callerAbility = GetAbilityRecordByToken(abilityRequest->callerToken);
         StartAbility(topAbility, callerAbility, abilityRequest);
         return;
     }
 }
 
 int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HILOG_DEBUG("Start ability locked.");
     // 1. choose target mission list
@@ -259,12 +261,12 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         return ERR_INVALID_VALUE;
     }
 
-    if (abilityRequest.IsContinuation()) {
+    if (abilityRequest->IsContinuation()) {
         targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
     } else {
         targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     }
-    targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+    targetAbilityRecord->AddCallerRecord(abilityRequest->callerToken, abilityRequest->requestCode);
 
     // 3. move mission to target list
     bool isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
@@ -315,10 +317,10 @@ static bool CallTypeFilter(int32_t callType)
     return false;
 }
 
-void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilityRequest,
+void MissionListManager::GetTargetMissionAndAbility(const std::shared_ptr<AbilityRequest> &abilityRequest,
     std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isCold)
 {
-    auto startMethod = CallType2StartMethod(abilityRequest.callType);
+    auto startMethod = CallType2StartMethod(abilityRequest->callType);
     HILOG_DEBUG("GetTargetMissionAndAbility called startMethod is %{public}d.", startMethod);
     auto reUsedMission = GetReusedMission(abilityRequest);
     if (reUsedMission) {
@@ -326,7 +328,7 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         targetMission = reUsedMission;
         targetRecord = targetMission->GetAbilityRecord();
         if (targetRecord) {
-            targetRecord->SetWant(abilityRequest.want);
+            targetRecord->SetWant(abilityRequest->want);
             targetRecord->SetIsNewWant(true);
         }
 
@@ -339,14 +341,15 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     }
 
     // no reused mission, create a new one.
-    bool isSingleton = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON;
+    bool isSingleton = abilityRequest->abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON;
     std::string missionName = isSingleton ? AbilityUtil::ConvertBundleNameSingleton(
-        abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name) : abilityRequest.abilityInfo.bundleName;
+        abilityRequest->abilityInfo.bundleName, abilityRequest->abilityInfo.name) :
+        abilityRequest->abilityInfo.bundleName;
 
     // try reuse mission info
     InnerMissionInfo info;
     bool findReusedMissionInfo = false;
-    if (isSingleton && !abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+    if (isSingleton && !abilityRequest->abilityInfo.applicationInfo.isLauncherApp) {
         findReusedMissionInfo =
             DelayedSingleton<MissionInfoMgr>::GetInstance()->FindReusedSingletonMission(missionName, info);
     }
@@ -356,16 +359,16 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     info.missionName = missionName;
     info.isSingletonMode = isSingleton;
     info.startMethod = startMethod;
-    info.bundleName = abilityRequest.abilityInfo.bundleName;
-    info.uid = abilityRequest.uid;
+    info.bundleName = abilityRequest->abilityInfo.bundleName;
+    info.uid = abilityRequest->uid;
     info.missionInfo.runningState = 0;
-    info.missionInfo.continuable = abilityRequest.abilityInfo.continuable;
+    info.missionInfo.continuable = abilityRequest->abilityInfo.continuable;
     info.missionInfo.time = GetCurrentTime();
-    info.missionInfo.iconPath = abilityRequest.appInfo.iconPath;
-    info.missionInfo.want = abilityRequest.want;
+    info.missionInfo.iconPath = abilityRequest->appInfo.iconPath;
+    info.missionInfo.want = abilityRequest->want;
 
     if (!findReusedMissionInfo) {
-        info.missionInfo.label = abilityRequest.appInfo.label;
+        info.missionInfo.label = abilityRequest->appInfo.label;
         if (!DelayedSingleton<MissionInfoMgr>::GetInstance()->GenerateMissionId(info.missionInfo.id)) {
             HILOG_DEBUG("failed to generate mission id.");
             return;
@@ -388,11 +391,11 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         HILOG_DEBUG("Update MissionId UpdateMissionId(%{public}d, %{public}d) end", info.missionInfo.id, startMethod);
     }
 
-    if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
-        targetRecord->SetSpecifiedFlag(abilityRequest.specifiedFlag);
+    if (abilityRequest->abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
+        targetRecord->SetSpecifiedFlag(abilityRequest->specifiedFlag);
     }
 
-    if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+    if (abilityRequest->abilityInfo.applicationInfo.isLauncherApp) {
         return;
     }
 
@@ -407,10 +410,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
 }
 
 std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     // priority : starting launcher ability.
-    if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+    if (abilityRequest->abilityInfo.applicationInfo.isLauncherApp) {
         HILOG_DEBUG("ability reques is launcher app.");
         return launcherList_;
     }
@@ -432,7 +435,8 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(
     return GetTargetMissionListByDefault(callerAbility, abilityRequest);
 }
 
-std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByLauncher(const AbilityRequest &abilityRequest)
+std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByLauncher(
+    const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     auto reUsedMission = GetReusedMission(abilityRequest);
     if (reUsedMission) {
@@ -449,7 +453,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByLauncher(
 }
 
 std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByDefault(
-    const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     if (!callerAbility) {
         return nullptr;
@@ -476,18 +480,18 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionListByDefault(
     return targetMissionList;
 }
 
-std::shared_ptr<Mission> MissionListManager::GetReusedMission(const AbilityRequest &abilityRequest)
+std::shared_ptr<Mission> MissionListManager::GetReusedMission(const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
-    if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
+    if (abilityRequest->abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON) {
         return nullptr;
     }
 
     std::shared_ptr<Mission> reUsedMission = nullptr;
-    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name);
+    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest->abilityInfo.bundleName,
+        abilityRequest->abilityInfo.name);
 
     // find launcher first.
-    if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {
+    if (abilityRequest->abilityInfo.applicationInfo.isLauncherApp) {
         if ((reUsedMission = launcherList_->GetSingletonMissionByName(missionName)) != nullptr) {
             return reUsedMission;
         }
@@ -1743,7 +1747,7 @@ std::shared_ptr<MissionList> MissionListManager::GetTargetMissionList(int missio
     }
 
     // generate a new mission and missionList
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     int generateAbility = DelayedSingleton<AbilityManagerService>::GetInstance()->GenerateAbilityRequest(
         innerMissionInfo.missionInfo.want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, userId_);
     if (generateAbility != ERR_OK) {
@@ -1951,7 +1955,7 @@ void MissionListManager::BackToLauncher()
         return;
     }
 
-    std::queue<AbilityRequest> emptyQueue;
+    std::queue<std::shared_ptr<AbilityRequest>> emptyQueue;
     std::swap(waittingAbilityQueue_, emptyQueue);
 
     launcherList_->AddMissionToTop(launcherRootMission);
@@ -2065,10 +2069,12 @@ void MissionListManager::NotifyAnimationFromRecentTask(const std::shared_ptr<Abi
     windowHandler->NotifyWindowTransition(fromInfo, toInfo);
 }
 
-void MissionListManager::NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
-    const AbilityRequest &abilityRequest, const std::shared_ptr<AbilityRecord> &targetAbilityRecord) const
+void MissionListManager::NotifyAnimationFromStartingAbility(
+    const std::shared_ptr<AbilityRecord> &callerAbility,
+    const std::shared_ptr<AbilityRequest> &abilityRequest,
+    const std::shared_ptr<AbilityRecord> &targetAbilityRecord) const
 {
-    auto abilityInfo = abilityRequest.abilityInfo;
+    auto abilityInfo = abilityRequest->abilityInfo;
     if (abilityInfo.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
         abilityInfo.bundleName == AbilityConfig::GRANT_ABILITY_BUNDLE_NAME) {
         HILOG_INFO("%{public}s, ignore GrantAbility.", __func__);
@@ -2087,7 +2093,7 @@ void MissionListManager::NotifyAnimationFromStartingAbility(const std::shared_pt
         SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
         fromInfo->abilityToken_ = callerAbility->GetToken();
     } else {
-        fromInfo->abilityToken_ = abilityRequest.callerToken;
+        fromInfo->abilityToken_ = abilityRequest->callerToken;
     }
 
     auto toInfo = CreateAbilityTransitionInfo(abilityRequest, targetAbilityRecord);
@@ -2154,11 +2160,11 @@ sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(
     return info;
 }
 
-sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-    const std::shared_ptr<AbilityRecord> &abilityRecord) const
+sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(
+    const std::shared_ptr<AbilityRequest> &abilityRequest, const std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
     sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
-    auto abilityStartSetting = abilityRequest.startSetting;
+    auto abilityStartSetting = abilityRequest->startSetting;
     if (abilityStartSetting) {
         int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
         auto mode =
@@ -2168,7 +2174,7 @@ sptr<AbilityTransitionInfo> MissionListManager::CreateAbilityTransitionInfo(cons
             strtol(abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str(), nullptr, base);
         info->displayId_ = static_cast<uint64_t>(displayId);
     } else {
-        SetWindowModeAndDisplayId(info, abilityRequest.want);
+        SetWindowModeAndDisplayId(info, abilityRequest->want);
     }
     info->abilityToken_ = abilityRecord->GetToken();
     return info;
@@ -2197,7 +2203,7 @@ void MissionListManager::NotifyStartingWindow(bool isCold, const std::shared_ptr
         auto task = [self, targetAbilityRecord, startOptions, want] {
             auto mgr = self.lock();
             if (mgr) {
-                AbilityRequest abilityRequest;
+                std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
                 mgr->StartingWindowCold(targetAbilityRecord, startOptions, want, abilityRequest);
                 mgr->NotifyAnimationFromRecentTask(targetAbilityRecord, startOptions, want);
             }
@@ -2207,7 +2213,7 @@ void MissionListManager::NotifyStartingWindow(bool isCold, const std::shared_ptr
         auto task = [self, targetAbilityRecord, startOptions, want, missionId] {
             auto mgr = self.lock();
             if (mgr) {
-                AbilityRequest abilityRequest;
+                std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
                 mgr->StartingWindowHot(targetAbilityRecord, startOptions, want, abilityRequest, missionId);
                 mgr->NotifyAnimationFromRecentTask(targetAbilityRecord, startOptions, want);
             }
@@ -2217,7 +2223,7 @@ void MissionListManager::NotifyStartingWindow(bool isCold, const std::shared_ptr
 }
 
 void MissionListManager::NotifyStartingWindow(bool isCold, const std::shared_ptr<Mission> &targetMission,
-    const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const AbilityRequest &abilityRequest,
+    const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const std::shared_ptr<AbilityRequest> &abilityRequest,
     const std::shared_ptr<AbilityRecord> &callerAbility)
 {
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -2264,7 +2270,8 @@ void MissionListManager::NotifyStartingWindow(bool isCold, const std::shared_ptr
 }
 
 void MissionListManager::StartingWindowCold(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    const std::shared_ptr<StartOptions> &startOptions, const Want &want, const AbilityRequest &abilityRequest) const
+    const std::shared_ptr<StartOptions> &startOptions, const Want &want,
+    const std::shared_ptr<AbilityRequest> &abilityRequest) const
 {
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
@@ -2308,8 +2315,8 @@ void MissionListManager::StartingWindowCold(const std::shared_ptr<AbilityRecord>
 }
 
 void MissionListManager::StartingWindowHot(const std::shared_ptr<AbilityRecord> &abilityRecord,
-    const std::shared_ptr<StartOptions> &startOptions, const Want &want, const AbilityRequest &abilityRequest,
-    int32_t missionId) const
+    const std::shared_ptr<StartOptions> &startOptions, const Want &want,
+    const std::shared_ptr<AbilityRequest> &abilityRequest, int32_t missionId) const
 {
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo.name == AbilityConfig::GRANT_ABILITY_ABILITY_NAME &&
@@ -2516,13 +2523,13 @@ void MissionListManager::DumpMission(int missionId, std::vector<std::string> &in
     innerMissionInfo.Dump(info);
 }
 
-int MissionListManager::ResolveLocked(const AbilityRequest &abilityRequest)
+int MissionListManager::ResolveLocked(const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
     HILOG_INFO("%{public}s, resolve ability_name:%{public}s",
         __func__,
-        abilityRequest.want.GetElement().GetURI().c_str());
+        abilityRequest->want.GetElement().GetURI().c_str());
 
-    if (!abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
+    if (!abilityRequest->IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
         HILOG_ERROR("%{public}s, resolve ability_name:", __func__);
         return RESOLVE_CALL_ABILITY_INNER_ERR;
     }
@@ -2530,13 +2537,13 @@ int MissionListManager::ResolveLocked(const AbilityRequest &abilityRequest)
     return CallAbilityLocked(abilityRequest);
 }
 
-int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
+int MissionListManager::CallAbilityLocked(const std::shared_ptr<AbilityRequest>& abilityRequest)
 {
     HILOG_INFO("call ability.");
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
 
     // allow to start ability by called type without loading ui.
-    if (!abilityRequest.IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
+    if (!abilityRequest->IsCallType(AbilityCallType::CALL_REQUEST_TYPE)) {
         HILOG_ERROR("start ability not by call.");
         return ERR_INVALID_VALUE;
     }
@@ -2551,7 +2558,7 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
         return ERR_INVALID_VALUE;
     }
 
-    targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+    targetAbilityRecord->AddCallerRecord(abilityRequest->callerToken, abilityRequest->requestCode);
     targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
 
     // mission is first created, add mission to default call mission list.
@@ -2605,7 +2612,7 @@ int MissionListManager::ReleaseLocked(const sptr<IAbilityConnection> &connect, c
 }
 
 int MissionListManager::ResolveAbility(
-    const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest)
+    const std::shared_ptr<AbilityRecord> &targetAbility, const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HILOG_DEBUG("targetAbilityRecord resolve call record.");
     CHECK_POINTER_AND_RETURN(targetAbility, ResolveResultType::NG_INNER_ERROR);
@@ -2670,11 +2677,11 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
         return;
     }
 
-    AbilityRequest abilityRequest = waittingAbilityQueue_.front();
+    auto abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
-    auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
+    auto callerAbility = GetAbilityRecordByToken(abilityRequest->callerToken);
 
     if (!flag.empty()) {
         auto mission = GetMissionBySpecifiedFlag(want, flag);
@@ -2683,7 +2690,7 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
             if (!ability) {
                 return;
             }
-            ability->SetWant(abilityRequest.want);
+            ability->SetWant(abilityRequest->want);
             ability->SetIsNewWant(true);
 
             auto isCallerFromLauncher = (callerAbility && callerAbility->IsLauncherAbility());
@@ -2692,7 +2699,7 @@ void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std
         }
     }
 
-    abilityRequest.specifiedFlag = flag;
+    abilityRequest->specifiedFlag = flag;
     StartAbilityLocked(currentTopAbility, callerAbility, abilityRequest);
 }
 
@@ -2708,11 +2715,11 @@ void MissionListManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Wan
     if (waittingAbilityQueue_.empty()) {
         return;
     }
-    AbilityRequest abilityRequest = waittingAbilityQueue_.front();
+    auto abilityRequest = waittingAbilityQueue_.front();
     waittingAbilityQueue_.pop();
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
-    auto callerAbility = GetAbilityRecordByToken(abilityRequest.callerToken);
+    auto callerAbility = GetAbilityRecordByToken(abilityRequest->callerToken);
     StartAbility(currentTopAbility, callerAbility, abilityRequest);
 }
 

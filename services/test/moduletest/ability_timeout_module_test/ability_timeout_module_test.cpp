@@ -207,14 +207,14 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateRootLauncher()
         return nullptr;
     }
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest.abilityInfo.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
-    abilityRequest.abilityInfo.bundleName = AbilityConfig::LAUNCHER_BUNDLE_NAME;
-    abilityRequest.appInfo.isLauncherApp = true;
-    abilityRequest.appInfo.name = AbilityConfig::LAUNCHER_BUNDLE_NAME;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.type = AbilityType::PAGE;
+    abilityRequest->abilityInfo.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
+    abilityRequest->abilityInfo.bundleName = AbilityConfig::LAUNCHER_BUNDLE_NAME;
+    abilityRequest->appInfo.isLauncherApp = true;
+    abilityRequest->appInfo.name = AbilityConfig::LAUNCHER_BUNDLE_NAME;
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
+    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest->abilityInfo.bundleName);
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(lauList);
     abilityRecord->SetLauncherRoot();
@@ -231,14 +231,14 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateLauncherAbility()
         return nullptr;
     }
     auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest.abilityInfo.name = "com.ix.hiworld.SecAbility";
-    abilityRequest.abilityInfo.bundleName = "com.ix.hiworld";
-    abilityRequest.appInfo.isLauncherApp = true;
-    abilityRequest.appInfo.name = "com.ix.hiworld";
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.type = AbilityType::PAGE;
+    abilityRequest->abilityInfo.name = "com.ix.hiworld.SecAbility";
+    abilityRequest->abilityInfo.bundleName = "com.ix.hiworld";
+    abilityRequest->appInfo.isLauncherApp = true;
+    abilityRequest->appInfo.name = "com.ix.hiworld";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
+    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest->abilityInfo.bundleName);
     abilityRecord->SetMission(mission);
     abilityRecord->SetMissionList(lauList);
     abilityRecord->eventId_ = (AbilityRecord::g_abilityRecordEventId_++);
@@ -255,12 +255,12 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateServiceAbility()
         return nullptr;
     }
 
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.type = AbilityType::SERVICE;
-    abilityRequest.abilityInfo.name = "om.ix.Common.ServiceAbility";
-    abilityRequest.abilityInfo.bundleName = "com.ix.Common";
-    abilityRequest.appInfo.isLauncherApp = false;
-    abilityRequest.appInfo.name = "com.ix.Common";
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.type = AbilityType::SERVICE;
+    abilityRequest->abilityInfo.name = "om.ix.Common.ServiceAbility";
+    abilityRequest->abilityInfo.bundleName = "com.ix.Common";
+    abilityRequest->appInfo.isLauncherApp = false;
+    abilityRequest->appInfo.name = "com.ix.Common";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     return abilityRecord;
 }
@@ -272,12 +272,12 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateExtensionAbility(
         return nullptr;
     }
 
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.type = AbilityType::EXTENSION;
-    abilityRequest.abilityInfo.name = "om.ix.Common.ExtensionAbility";
-    abilityRequest.abilityInfo.bundleName = "com.ix.Common";
-    abilityRequest.appInfo.isLauncherApp = false;
-    abilityRequest.appInfo.name = "com.ix.Common";
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.type = AbilityType::EXTENSION;
+    abilityRequest->abilityInfo.name = "om.ix.Common.ExtensionAbility";
+    abilityRequest->abilityInfo.bundleName = "com.ix.Common";
+    abilityRequest->appInfo.isLauncherApp = false;
+    abilityRequest->appInfo.name = "com.ix.Common";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
 
     return abilityRecord;
@@ -290,14 +290,14 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateCommonAbility()
         return nullptr;
     }
 
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.type = AbilityType::PAGE;
-    abilityRequest.abilityInfo.name = "om.ix.Common.MainAbility";
-    abilityRequest.abilityInfo.bundleName = "com.ix.Common";
-    abilityRequest.appInfo.isLauncherApp = false;
-    abilityRequest.appInfo.name = "com.ix.Common";
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.type = AbilityType::PAGE;
+    abilityRequest->abilityInfo.name = "om.ix.Common.MainAbility";
+    abilityRequest->abilityInfo.bundleName = "com.ix.Common";
+    abilityRequest->appInfo.isLauncherApp = false;
+    abilityRequest->appInfo.name = "com.ix.Common";
     auto abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest.abilityInfo.bundleName);
+    auto mission = std::make_shared<Mission>(MOCK_MISSION_ID++, abilityRecord, abilityRequest->abilityInfo.bundleName);
     EXPECT_TRUE(abilityRecord != nullptr);
     EXPECT_TRUE(mission != nullptr);
     abilityRecord->SetMission(mission);

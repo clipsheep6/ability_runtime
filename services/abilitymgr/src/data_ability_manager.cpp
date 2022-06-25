@@ -42,23 +42,23 @@ DataAbilityManager::~DataAbilityManager()
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 }
 
-sptr<IAbilityScheduler> DataAbilityManager::Acquire(
-    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSystem)
+sptr<IAbilityScheduler> DataAbilityManager::Acquire(const std::shared_ptr<AbilityRequest> &abilityRequest,
+    bool tryBind, const sptr<IRemoteObject> &client, bool isSystem)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+    if (abilityRequest->abilityInfo.type != AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Data ability manager acquire: not a data ability.");
         return nullptr;
     }
 
-    if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
+    if (abilityRequest->abilityInfo.bundleName.empty() || abilityRequest->abilityInfo.name.empty()) {
         HILOG_ERROR("Data ability manager acquire: invalid name.");
         return nullptr;
     }
 
     std::shared_ptr<AbilityRecord> clientAbilityRecord;
-    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    const std::string dataAbilityName(abilityRequest->abilityInfo.bundleName + '.' + abilityRequest->abilityInfo.name);
 
     if (client && !isSystem) {
         clientAbilityRecord = Token::GetAbilityRecordByToken(client);
@@ -438,7 +438,7 @@ void DataAbilityManager::Dump(const char *func, int line)
 }
 
 DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
-    const std::string &name, const AbilityRequest &req)
+    const std::string &name, const std::shared_ptr<AbilityRequest> &req)
 {
     HILOG_DEBUG("%{public}s(%{public}d) name '%{public}s'", __PRETTY_FUNCTION__, __LINE__, name.c_str());
 

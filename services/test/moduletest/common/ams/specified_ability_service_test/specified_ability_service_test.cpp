@@ -189,10 +189,10 @@ HWTEST_F(SpecifiedAbilityServiceTest, OnAcceptWantResponse_001, TestSize.Level1)
     std::string appName = "test_app";
     std::string bundleName = "com.ix.hiMusic";
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = CreateWant("");
-    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName + "1", appName, bundleName);
-    abilityRequest.appInfo = CreateAppInfo(appName, bundleName);
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = CreateWant("");
+    abilityRequest->abilityInfo = CreateAbilityInfo(abilityName + "1", appName, bundleName);
+    abilityRequest->appInfo = CreateAppInfo(appName, bundleName);
 
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::FOREGROUND);

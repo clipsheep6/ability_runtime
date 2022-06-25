@@ -33,7 +33,7 @@ AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
 AbilityConnectManager::~AbilityConnectManager()
 {}
 
-int AbilityConnectManager::StartAbility(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StartAbility(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<std::recursive_mutex> guard(Lock_);
@@ -80,7 +80,7 @@ int AbilityConnectManager::TerminateAbility(const std::shared_ptr<AbilityRecord>
     return TerminateAbilityLocked(targetAbility->GetToken());
 }
 
-int AbilityConnectManager::StopServiceAbility(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StopServiceAbility(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HILOG_INFO("Stop Service ability.");
     std::lock_guard<std::recursive_mutex> guard(Lock_);
@@ -94,17 +94,17 @@ int AbilityConnectManager::TerminateAbilityResult(const sptr<IRemoteObject> &tok
     return TerminateAbilityResultLocked(token, startId);
 }
 
-int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StartAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Start ability locked, ability_name: %{public}s", abilityRequest.want.GetElement().GetURI().c_str());
+    HILOG_INFO("Start ability locked, ability_name: %{public}s", abilityRequest->want.GetElement().GetURI().c_str());
 
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
     GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
 
-    targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+    targetService->AddCallerRecord(abilityRequest->callerToken, abilityRequest->requestCode);
 
     if (!isLoadedAbility) {
         LoadAbility(targetService);
@@ -169,12 +169,12 @@ int AbilityConnectManager::TerminateAbilityResultLocked(const sptr<IRemoteObject
     return TerminateAbilityLocked(token);
 }
 
-int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilityRequest)
+int AbilityConnectManager::StopServiceAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Stop service ability locked.");
     AppExecFwk::ElementName element(
-        abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+        abilityRequest->abilityInfo.deviceId, abilityRequest->abilityInfo.bundleName, abilityRequest->abilityInfo.name);
     auto abilityRecord = GetServiceRecordByElementName(element.GetURI());
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
@@ -198,21 +198,21 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     return ERR_OK;
 }
 
-void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abilityRequest,
+void AbilityConnectManager::GetOrCreateServiceRecord(const std::shared_ptr<AbilityRequest> &abilityRequest,
     const bool isCreatedByConnect, std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AppExecFwk::ElementName element(
-        abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+        abilityRequest->abilityInfo.deviceId, abilityRequest->abilityInfo.bundleName, abilityRequest->abilityInfo.name);
     auto serviceMapIter = serviceMap_.find(element.GetURI());
     if (serviceMapIter == serviceMap_.end()) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (isCreatedByConnect && targetService != nullptr) {
             targetService->SetCreateByConnectMode();
         }
-        if (targetService && abilityRequest.abilityInfo.name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
+        if (targetService && abilityRequest->abilityInfo.name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
             targetService->SetLauncherRoot();
-            targetService->SetRestarting(abilityRequest.restart, abilityRequest.restartCount);
+            targetService->SetRestarting(abilityRequest->restart, abilityRequest->restartCount);
         }
         serviceMap_.emplace(element.GetURI(), targetService);
         isLoadedAbility = false;
@@ -220,7 +220,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
         targetService = serviceMapIter->second;
         if (targetService != nullptr) {
             // want may be changed for the same ability.
-            targetService->SetWant(abilityRequest.want);
+            targetService->SetWant(abilityRequest->want);
         }
         isLoadedAbility = true;
     }
@@ -235,11 +235,11 @@ void AbilityConnectManager::GetConnectRecordListFromMap(
     }
 }
 
-int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
+int AbilityConnectManager::ConnectAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest,
     const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called, callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
+    HILOG_INFO("Connect ability called, callee:%{public}s.", abilityRequest->want.GetElement().GetURI().c_str());
     std::lock_guard<std::recursive_mutex> guard(Lock_);
 
     // 1. get target service ability record, and check whether it has been loaded.
@@ -723,14 +723,14 @@ void AbilityConnectManager::HandleCommandTimeoutTask(const std::shared_ptr<Abili
 void AbilityConnectManager::StartRootLauncher(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
-    AbilityRequest requestInfo;
-    requestInfo.want = abilityRecord->GetWant();
-    requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
-    requestInfo.appInfo = abilityRecord->GetApplicationInfo();
-    requestInfo.restart = true;
-    requestInfo.restartCount = abilityRecord->GetRestartCount() - 1;
+    std::shared_ptr<AbilityRequest> requestInfo = std::make_shared<AbilityRequest>();
+    requestInfo->want = abilityRecord->GetWant();
+    requestInfo->abilityInfo = abilityRecord->GetAbilityInfo();
+    requestInfo->appInfo = abilityRecord->GetApplicationInfo();
+    requestInfo->restart = true;
+    requestInfo->restartCount = abilityRecord->GetRestartCount() - 1;
 
-    HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
+    HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo->restartCount);
     StartAbilityLocked(requestInfo);
 }
 
@@ -1072,11 +1072,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
 
     if (IsAbilityNeedRestart(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
-        AbilityRequest requestInfo;
-        requestInfo.want = abilityRecord->GetWant();
-        requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();
-        requestInfo.appInfo = abilityRecord->GetApplicationInfo();
-        requestInfo.restart = true;
+        std::shared_ptr<AbilityRequest> requestInfo = std::make_shared<AbilityRequest>();
+        requestInfo->want = abilityRecord->GetWant();
+        requestInfo->abilityInfo = abilityRecord->GetAbilityInfo();
+        requestInfo->appInfo = abilityRecord->GetApplicationInfo();
+        requestInfo->restart = true;
 
         RemoveServiceAbility(abilityRecord);
         if (currentUserId != userId_ &&
@@ -1086,8 +1086,8 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         }
 
         if (abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
-            requestInfo.restartCount = abilityRecord->GetRestartCount() - 1;
-            HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
+            requestInfo->restartCount = abilityRecord->GetRestartCount() - 1;
+            HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo->restartCount);
         }
 
         StartAbilityLocked(requestInfo);

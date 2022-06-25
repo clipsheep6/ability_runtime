@@ -81,7 +81,7 @@ public:
     static constexpr int TEST_WAIT_TIME = 100000;
 
 public:
-    AbilityRequest abilityRequest_;
+    std::shared_ptr<AbilityRequest> abilityRequest_ = std::make_shared<AbilityRequest>();
     std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
@@ -151,9 +151,9 @@ void AbilityManagerServiceTest::SetUp()
     OnStartAms();
     WaitUntilTaskFinished();
     if (abilityRecord_ == nullptr) {
-        abilityRequest_.appInfo.bundleName = "data.client.bundle";
-        abilityRequest_.abilityInfo.name = "ClientAbility";
-        abilityRequest_.abilityInfo.type = AbilityType::DATA;
+        abilityRequest_->appInfo.bundleName = "data.client.bundle";
+        abilityRequest_->abilityInfo.name = "ClientAbility";
+        abilityRequest_->abilityInfo.type = AbilityType::DATA;
         abilityRecord_ = AbilityRecord::CreateAbilityRecord(abilityRequest_);
     }
 }
@@ -171,7 +171,7 @@ void AbilityManagerServiceTest::TearDown()
  */
 HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_001, TestSize.Level1)
 {
-    abilityRequest_.callerUid = 0;
+    abilityRequest_->callerUid = 0;
     EXPECT_EQ(RESOLVE_CALL_ABILITY_TYPE_ERR, abilityMs_->CheckCallPermissions(abilityRequest_));
 }
 
@@ -183,9 +183,9 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_001, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_002, TestSize.Level1)
 {
-    abilityRequest_.callerUid = 1000;
-    abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
-    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    abilityRequest_->callerUid = 1000;
+    abilityRequest_->abilityInfo.type = AppExecFwk::AbilityType::PAGE;
+    abilityRequest_->abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     EXPECT_EQ(ERR_OK, abilityMs_->CheckCallPermissions(abilityRequest_));
 }
 }

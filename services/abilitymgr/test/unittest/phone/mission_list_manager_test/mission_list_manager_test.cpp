@@ -59,8 +59,8 @@ HWTEST_F(MissionListManagerTest, StartAbility_001, TestSize.Level1)
 
     std::shared_ptr<AbilityRecord> currentTopAbility;
     std::shared_ptr<AbilityRecord> callerAbility;
-    AbilityRequest abilityRequest;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
 
     auto result = missionListManager->StartAbility(currentTopAbility, callerAbility, abilityRequest);
 
@@ -208,8 +208,8 @@ HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_001, TestSize.Level1)
     ability->SetSpecifiedFlag("flag");
     ability->SetIsNewWant(false);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.callerToken = ability->GetToken();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerToken = ability->GetToken();
     missionListManager->EnqueueWaittingAbility(abilityRequest);
     missionListManager->defaultStandardList_->AddMissionToTop(mission);
 

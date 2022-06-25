@@ -117,16 +117,16 @@ HWTEST_F(OnNewWantModuleTest, Startability_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, true);
-    abilityRequest.appInfo = CreateAppInfo(appName, bundleName);
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, true);
+    abilityRequest->appInfo = CreateAppInfo(appName, bundleName);
 
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::FOREGROUND);
 
     std::string missionName =
-        AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+        AbilityUtil::ConvertBundleNameSingleton(abilityRequest->abilityInfo.bundleName, abilityRequest->abilityInfo.name);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, missionName);
 
     missionListManager->Init();
@@ -157,16 +157,16 @@ HWTEST_F(OnNewWantModuleTest, Startability_002, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, false);
-    abilityRequest.appInfo = CreateAppInfo(appName, bundleName);
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = CreateAbilityInfo(abilityName, appName, bundleName, false);
+    abilityRequest->appInfo = CreateAppInfo(appName, bundleName);
 
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::FOREGROUND);
 
-    std::string missionName =
-        AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+    std::string missionName = AbilityUtil::ConvertBundleNameSingleton(
+        abilityRequest->abilityInfo.bundleName, abilityRequest->abilityInfo.name);
     std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, missionName);
 
     missionListManager->Init();

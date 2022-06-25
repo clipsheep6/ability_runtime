@@ -34,8 +34,8 @@ public:
     virtual ~DataAbilityManager();
 
 public:
-    sptr<IAbilityScheduler> Acquire(
-        const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSystem);
+    sptr<IAbilityScheduler> Acquire(const std::shared_ptr<AbilityRequest> &abilityRequest,
+        bool tryBind, const sptr<IRemoteObject> &client, bool isSystem);
     int Release(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSystem);
     int AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token);
     int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state);
@@ -56,7 +56,7 @@ private:
     using DataAbilityRecordPtrMap = std::map<std::string, DataAbilityRecordPtr>;
 
 private:
-    DataAbilityRecordPtr LoadLocked(const std::string &name, const AbilityRequest &req);
+    DataAbilityRecordPtr LoadLocked(const std::string &name, const std::shared_ptr<AbilityRequest> &req);
     void DumpLocked(const char *func, int line);
     void RestartDataAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 

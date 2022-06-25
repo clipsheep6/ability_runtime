@@ -41,7 +41,8 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    AbilityRequest CreateAbilityRequest(const std::string &abilityName, const std::string &bundleName);
+    std::shared_ptr<AbilityRequest> CreateAbilityRequest(const std::string &abilityName,
+        const std::string &bundleName);
 
     static constexpr int COUNT = 5;
 };
@@ -58,10 +59,10 @@ void IpcAbilityMgrModuleTest::SetUp()
 void IpcAbilityMgrModuleTest::TearDown()
 {}
 
-AbilityRequest IpcAbilityMgrModuleTest::CreateAbilityRequest(
+std::shared_ptr<AbilityRequest> IpcAbilityMgrModuleTest::CreateAbilityRequest(
     const std::string &abilityName, const std::string &bundleName)
 {
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
 
     ElementName element("device", bundleName, abilityName);
     Want want;
@@ -77,9 +78,9 @@ AbilityRequest IpcAbilityMgrModuleTest::CreateAbilityRequest(
     appInfo.name = bundleName;
     appInfo.bundleName = bundleName;
 
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = abilityInfo;
-    abilityRequest.appInfo = appInfo;
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = abilityInfo;
+    abilityRequest->appInfo = appInfo;
     return abilityRequest;
 }
 
@@ -316,7 +317,7 @@ HWTEST_F(IpcAbilityMgrModuleTest, AbilityMgrService_IPC_010, TestSize.Level1)
     std::string abilityName = "ability_name";
     std::string bundleName = "com.ix.aafwk.moduletest";
 
-    AbilityRequest abilityRequest = CreateAbilityRequest(abilityName, bundleName);
+    auto abilityRequest = CreateAbilityRequest(abilityName, bundleName);
     std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     abilityRecord->SetAbilityState(OHOS::AAFwk::AbilityState::ACTIVE);
 
@@ -397,7 +398,7 @@ HWTEST_F(IpcAbilityMgrModuleTest, AbilityMgrService_IPC_019, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "IpcAbilityMgrModuleTest AbilityMgrService_IPC_019 start";
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
 
     auto clientAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
     Uri testUri("testuri");

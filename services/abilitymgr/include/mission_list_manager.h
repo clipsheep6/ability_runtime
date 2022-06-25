@@ -53,7 +53,7 @@ public:
      * @param abilityRequest, the request of the service ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartAbility(const AbilityRequest &abilityRequest);
+    int StartAbility(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * MinimizeAbility, minimize the special ability.
@@ -101,14 +101,14 @@ public:
      *
      * @param abilityRequest, the request of ability.
      */
-    void EnqueueWaittingAbility(const AbilityRequest &abilityRequest);
+    void EnqueueWaittingAbility(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * push front waitting ability to queue.
      *
      * @param abilityRequest, the request of ability.
      */
-    void EnqueueWaittingAbilityToFront(const AbilityRequest &abilityRequest);
+    void EnqueueWaittingAbilityToFront(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * start waitting ability.
@@ -323,7 +323,7 @@ public:
      *
      * @param abilityRequest, target ability request.
      */
-    int ResolveLocked(const AbilityRequest &abilityRequest);
+    int ResolveLocked(const std::shared_ptr<AbilityRequest> &abilityRequest);
 
     /**
      * release the connection of this call.
@@ -373,19 +373,19 @@ public:
     void ResumeManager();
 private:
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest);
     int MinimizeAbilityLocked(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser);
     std::shared_ptr<AbilityRecord> GetCurrentTopAbilityLocked() const;
     std::shared_ptr<MissionList> GetTargetMissionList(
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
-    std::shared_ptr<MissionList> GetTargetMissionListByLauncher(const AbilityRequest &abilityRequest);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest);
+    std::shared_ptr<MissionList> GetTargetMissionListByLauncher(const std::shared_ptr<AbilityRequest> &abilityRequest);
     std::shared_ptr<MissionList> GetTargetMissionListByDefault(
-        const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
-    std::shared_ptr<Mission> GetReusedMission(const AbilityRequest &abilityRequest);
-    void GetTargetMissionAndAbility(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
-        std::shared_ptr<AbilityRecord> &targetRecord, bool &isCold);
+        const std::shared_ptr<AbilityRecord> &callerAbility, const std::shared_ptr<AbilityRequest> &abilityRequest);
+    std::shared_ptr<Mission> GetReusedMission(const std::shared_ptr<AbilityRequest> &abilityRequest);
+    void GetTargetMissionAndAbility(const std::shared_ptr<AbilityRequest> &abilityRequest,
+        std::shared_ptr<Mission> &targetMission, std::shared_ptr<AbilityRecord> &targetRecord, bool &isCold);
     void MoveMissionToTargetList(bool isCallFromLauncher,
         const std::shared_ptr<MissionList> &targetMissionList,
         const std::shared_ptr<Mission> &mission);
@@ -430,9 +430,10 @@ private:
     void BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility);
 
     // new version for call inner function.
-    int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
+    int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility,
+        const std::shared_ptr<AbilityRequest> &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
-    int CallAbilityLocked(const AbilityRequest &abilityRequest);
+    int CallAbilityLocked(const std::shared_ptr<AbilityRequest> &abilityRequest);
     void UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void AddUninstallTags(const std::string &bundleName, int32_t uid);
     void EraseWaittingAbility(const std::string &bundleName, int32_t uid);
@@ -441,7 +442,8 @@ private:
     void NotifyAnimationFromRecentTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const std::shared_ptr<StartOptions> &startOptions, const Want &want) const;
     void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
-        const AbilityRequest &abilityRequest, const std::shared_ptr<AbilityRecord> &targetAbilityRecord) const;
+        const std::shared_ptr<AbilityRequest> &abilityRequest,
+        const std::shared_ptr<AbilityRecord> &targetAbilityRecord) const;
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const Want &want) const;
@@ -450,21 +452,22 @@ private:
 
     void StartingWindowCold(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const std::shared_ptr<StartOptions> &startOptions, const Want &want,
-        const AbilityRequest &abilityRequest) const;
+        const std::shared_ptr<AbilityRequest> &abilityRequest) const;
     void StartingWindowHot(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        const std::shared_ptr<StartOptions> &startOptions, const Want &want, const AbilityRequest &abilityRequest,
-        int32_t missionId) const;
+        const std::shared_ptr<StartOptions> &startOptions, const Want &want,
+        const std::shared_ptr<AbilityRequest> &abilityRequest, int32_t missionId) const;
     std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
         const AppExecFwk::AbilityInfo &abilityInfo) const;
     sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const std::shared_ptr<StartOptions> &startOptions, const Want &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<AbilityRequest> &abilityRequest,
         const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void CancelStartingWindow(sptr<IRemoteObject> abilityToken) const;
     void NotifyStartingWindow(bool isCold, const std::shared_ptr<Mission> &targetMission,
-        const std::shared_ptr<AbilityRecord> &targetAbilityRecord, const AbilityRequest &abilityRequest,
+        const std::shared_ptr<AbilityRecord> &targetAbilityRecord,
+        const std::shared_ptr<AbilityRequest> &abilityRequest,
         const std::shared_ptr<AbilityRecord> &callerAbility);
     void NotifyStartingWindow(bool isCold, const std::shared_ptr<AbilityRecord> &targetAbilityRecord,
         std::shared_ptr<StartOptions> &startOptions, int32_t missionId);
@@ -482,7 +485,7 @@ private:
     std::shared_ptr<MissionList> launcherList_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
 
-    std::queue<AbilityRequest> waittingAbilityQueue_;
+    std::queue<std::shared_ptr<AbilityRequest>> waittingAbilityQueue_;
     std::shared_ptr<MissionListenerController> listenerController_;
     bool isPC_ = false;
 

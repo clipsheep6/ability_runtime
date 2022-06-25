@@ -32,10 +32,10 @@ namespace OHOS {
     {
         sptr<Token> token = nullptr;
 
-        AbilityRequest abilityRequest;
-        abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
-        abilityRequest.abilityInfo.name = "MainAbility";
-        abilityRequest.abilityInfo.type = AbilityType::DATA;
+        std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+        abilityRequest->appInfo.bundleName = "com.example.fuzzTest";
+        abilityRequest->abilityInfo.name = "MainAbility";
+        abilityRequest->abilityInfo.type = AbilityType::DATA;
         std::shared_ptr<AbilityRecord> abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
         if (abilityRecord) {
             token = abilityRecord->GetToken();

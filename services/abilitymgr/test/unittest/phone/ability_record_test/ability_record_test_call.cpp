@@ -125,7 +125,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsCallType_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_001, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::NG_INNER_ERROR);
 }
 
@@ -140,8 +140,8 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_001, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_002, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::NG_INNER_ERROR);
 }
 
@@ -156,8 +156,8 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_002, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_003, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::NG_INNER_ERROR);
 }
 
@@ -172,16 +172,16 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_003, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::REQUESTING);
     abilityRecord_->callContainer_ = std::make_shared<CallContainer>();
-    abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
+    abilityRecord_->callContainer_->AddCallRecord(abilityRequest->connect, callRecord);
     class AbilitySchedulerMockFunction : public AbilitySchedulerMock
     {
         public:
@@ -209,9 +209,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_004, TestSize.Level1)
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_005, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
 }
 
@@ -240,15 +240,15 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Release_001, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Release_002, TestSize.Level1)
 {
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = connect;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = connect;
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     abilityRecord_->callContainer_ = std::make_shared<CallContainer>();
-    abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
+    abilityRecord_->callContainer_->AddCallRecord(abilityRequest->connect, callRecord);
     EXPECT_EQ(abilityRecord_->Release(connect), true);
 }
 
@@ -302,9 +302,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_001, TestSize.Level1)
     EXPECT_EQ(false, abilityRecord_->IsReady());
     abilityRecord_->SetScheduler(scheduler);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
     EXPECT_EQ(abilityRecord_->CallRequest(), true);
 }
@@ -324,9 +324,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_CallRequest_002, TestSize.Level1)
     EXPECT_EQ(false, abilityRecord_->IsReady());
     abilityRecord_->SetScheduler(scheduler);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     EXPECT_EQ(abilityRecord_->Resolve(abilityRequest), ResolveResultType::OK_NO_REMOTE_OBJ);
     EXPECT_EQ(abilityRecord_->CallRequest(), false);
 }
@@ -411,17 +411,17 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsNeedToCallRequest_001, TestSize.Le
  */
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsNeedToCallRequest_002, TestSize.Level1)
 {
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::INIT);
 
     abilityRecord_->callContainer_ = std::make_shared<CallContainer>();
-    abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
+    abilityRecord_->callContainer_->AddCallRecord(abilityRequest->connect, callRecord);
 
     EXPECT_EQ(true, abilityRecord_->IsNeedToCallRequest());
 }

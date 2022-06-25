@@ -612,17 +612,17 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     int userId = 100;
     abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
-        abilityRequest.abilityInfo,
-        abilityRequest.appInfo,
-        abilityRequest.requestCode);
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest->want,
+        abilityRequest->abilityInfo,
+        abilityRequest->appInfo,
+        abilityRequest->requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
-    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    const std::string dataAbilityName(abilityRequest->abilityInfo.bundleName + '.' + abilityRequest->abilityInfo.name);
     abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
@@ -650,17 +650,17 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     int userId = 100;
     abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
-        abilityRequest.abilityInfo,
-        abilityRequest.appInfo,
-        abilityRequest.requestCode);
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest->want,
+        abilityRequest->abilityInfo,
+        abilityRequest->appInfo,
+        abilityRequest->requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
-    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    const std::string dataAbilityName(abilityRequest->abilityInfo.bundleName + '.' + abilityRequest->abilityInfo.name);
     abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
@@ -688,32 +688,33 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     int userId = 100;
     abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord;
     dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
-    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest.want,
-        abilityRequest.abilityInfo,
-        abilityRequest.appInfo,
-        abilityRequest.requestCode);
+    std::shared_ptr<AbilityRecord> abilityRecord = std::make_shared<AbilityRecord>(abilityRequest->want,
+        abilityRequest->abilityInfo,
+        abilityRequest->appInfo,
+        abilityRequest->requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
-    const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
+    const std::string dataAbilityName(abilityRequest->abilityInfo.bundleName + '.' + abilityRequest->abilityInfo.name);
     abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     ElementName element2("device", "com.ix.hiMusic", "MusicAbilityOther");
     want.SetElement(element2);
-    AbilityRequest abilityRequest2;
+    std::shared_ptr<AbilityRequest> abilityRequest2 = std::make_shared<AbilityRequest>();
     abilityMs_->GenerateAbilityRequest(want, -1, abilityRequest2, nullptr, userId);
     DataAbilityManager::DataAbilityRecordPtr dataAbilityRecord2;
     dataAbilityRecord2 = std::make_shared<DataAbilityRecord>(abilityRequest2);
-    std::shared_ptr<AbilityRecord> abilityRecord2 = std::make_shared<AbilityRecord>(abilityRequest2.want,
-        abilityRequest2.abilityInfo,
-        abilityRequest2.appInfo,
-        abilityRequest2.requestCode);
+    std::shared_ptr<AbilityRecord> abilityRecord2 = std::make_shared<AbilityRecord>(abilityRequest2->want,
+        abilityRequest2->abilityInfo,
+        abilityRequest2->appInfo,
+        abilityRequest2->requestCode);
     dataAbilityRecord2->ability_ = abilityRecord2;
-    const std::string dataAbilityName2(abilityRequest2.abilityInfo.bundleName + '.' + abilityRequest2.abilityInfo.name);
+    const std::string dataAbilityName2(abilityRequest2->abilityInfo.bundleName
+        + '.' + abilityRequest2->abilityInfo.name);
     abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName2, dataAbilityRecord2));
 

@@ -150,16 +150,16 @@ std::shared_ptr<CallContainer> CallContainerTest::get() const
 HWTEST_F(CallContainerTest, Call_Container_Add_Call_Record_001, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
 
-    std::shared_ptr<CallRecord> getCallRecord = callContainer->GetCallRecord(abilityRequest.connect);
+    std::shared_ptr<CallRecord> getCallRecord = callContainer->GetCallRecord(abilityRequest->connect);
     EXPECT_EQ(callRecord, getCallRecord);
 }
 
@@ -206,16 +206,16 @@ HWTEST_F(CallContainerTest, Call_Container_Remove_Call_Record_001, TestSize.Leve
 HWTEST_F(CallContainerTest, Call_Container_Remove_Call_Record_002, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
 
-    bool result = callContainer->RemoveCallRecord(abilityRequest.connect);
+    bool result = callContainer->RemoveCallRecord(abilityRequest->connect);
     EXPECT_EQ(result, true);
 }
 
@@ -285,14 +285,14 @@ HWTEST_F(CallContainerTest, Call_Container_Dump_001, TestSize.Level1)
 HWTEST_F(CallContainerTest, Call_Container_Dump_002, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
 
     std::vector<std::string> dumpInfo;
     callContainer->Dump(dumpInfo);
@@ -324,15 +324,15 @@ HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_001, TestSize
 HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_002, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::INIT);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
     EXPECT_EQ(callContainer->IsNeedToCallRequest(), true);
 }
 
@@ -347,15 +347,15 @@ HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_002, TestSize
 HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_003, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::REQUESTING);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
     EXPECT_EQ(callContainer->IsNeedToCallRequest(), true);
 }
 
@@ -370,15 +370,15 @@ HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_003, TestSize
 HWTEST_F(CallContainerTest, Call_Container_Is_Need_To_Call_Request_004, TestSize.Level1)
 {
     std::shared_ptr<CallContainer> callContainer = get();
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::REQUESTED);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
     EXPECT_EQ(callContainer->IsNeedToCallRequest(), false);
 }
 
@@ -428,15 +428,15 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     std::shared_ptr<CallContainer> callContainer = get();
     EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
 
-    AbilityRequest abilityRequest;
-    abilityRequest.callerUid = 1;
-    abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
-    abilityRequest.connect = new AbilityConnectCallback();
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->callerUid = 1;
+    abilityRequest->callType = AbilityCallType::CALL_REQUEST_TYPE;
+    abilityRequest->connect = new AbilityConnectCallback();
     std::shared_ptr<CallRecord> callRecord = CallRecord::CreateCallRecord(
-        abilityRequest.callerUid, abilityRecord_->shared_from_this(),
-        abilityRequest.connect, abilityRequest.callerToken);
+        abilityRequest->callerUid, abilityRecord_->shared_from_this(),
+        abilityRequest->connect, abilityRequest->callerToken);
     callRecord->SetCallState(CallState::REQUESTED);
-    callContainer->AddCallRecord(abilityRequest.connect, callRecord);
+    callContainer->AddCallRecord(abilityRequest->connect, callRecord);
     EXPECT_EQ(callContainer->callRecordMap_.size(), 1);
 
     auto mission = std::make_shared<Mission>(0, abilityRecord_, "launcher");
@@ -447,7 +447,7 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
     missionListMgr->currentMissionLists_.push_front(missionList);
     DelayedSingleton<AbilityManagerService>::GetInstance()->currentMissionListManager_ = missionListMgr;
-    callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
+    callContainer->OnConnectionDied(abilityRequest->connect->AsObject());
     WaitUntilTaskFinished();
 
     EXPECT_EQ(callContainer->callRecordMap_.size(), 0);

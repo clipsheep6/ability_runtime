@@ -44,8 +44,8 @@ public:
     void SetUp();
     void TearDown();
 
-    static AbilityRequest GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-        const std::string &appName, const std::string &bundleName);
+    static std::shared_ptr<AbilityRequest> GenerateAbilityRequest(const std::string &deviceName,
+        const std::string &abilityName, const std::string &appName, const std::string &bundleName);
 
     std::shared_ptr<AppStateCallbackMock> appStateMock_ = std::make_shared<AppStateCallbackMock>();
 };
@@ -59,8 +59,8 @@ void AppSchedulerTest::SetUp()
 void AppSchedulerTest::TearDown()
 {}
 
-AbilityRequest AppSchedulerTest::GenerateAbilityRequest(const std::string &deviceName, const std::string &abilityName,
-    const std::string &appName, const std::string &bundleName)
+std::shared_ptr<AbilityRequest> AppSchedulerTest::GenerateAbilityRequest(const std::string &deviceName,
+    const std::string &abilityName, const std::string &appName, const std::string &bundleName)
 {
     ElementName element(deviceName, abilityName, bundleName);
     Want want;
@@ -71,10 +71,10 @@ AbilityRequest AppSchedulerTest::GenerateAbilityRequest(const std::string &devic
     ApplicationInfo appinfo;
     appinfo.name = appName;
 
-    AbilityRequest abilityRequest;
-    abilityRequest.want = want;
-    abilityRequest.abilityInfo = abilityInfo;
-    abilityRequest.appInfo = appinfo;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
+    abilityRequest->want = want;
+    abilityRequest->abilityInfo = abilityInfo;
+    abilityRequest->appInfo = appinfo;
 
     return abilityRequest;
 }

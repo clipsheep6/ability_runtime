@@ -47,7 +47,7 @@ public:
 
 protected:
     sptr<AbilitySchedulerMock> abilitySchedulerMock_ {nullptr};
-    AbilityRequest abilityRequest_ {};
+    std::shared_ptr<AbilityRequest> abilityRequest_ = std::make_shared<AbilityRequest>();
     std::shared_ptr<AbilityRecord> abilityRecordClient_ {nullptr};
     OHOS::AAFwk::AbilityState abilityState_ {};
 };
@@ -63,12 +63,12 @@ void DataAbilityManagerTest::SetUp(void)
         abilitySchedulerMock_ = new AbilitySchedulerMock();
     }
 
-    abilityRequest_.appInfo.bundleName = "com.test.data_ability";
-    abilityRequest_.appInfo.name = "com.test.data_ability";
-    abilityRequest_.abilityInfo.name = "DataAbilityHiworld";
-    abilityRequest_.abilityInfo.type = AbilityType::DATA;
-    abilityRequest_.abilityInfo.bundleName = "com.test.data_ability";
-    abilityRequest_.abilityInfo.deviceId = "device";
+    abilityRequest_->appInfo.bundleName = "com.test.data_ability";
+    abilityRequest_->appInfo.name = "com.test.data_ability";
+    abilityRequest_->abilityInfo.name = "DataAbilityHiworld";
+    abilityRequest_->abilityInfo.type = AbilityType::DATA;
+    abilityRequest_->abilityInfo.bundleName = "com.test.data_ability";
+    abilityRequest_->abilityInfo.deviceId = "device";
 
     if (abilityRecordClient_ == nullptr) {
         OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -101,7 +101,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_0100, Tes
 {
     HILOG_INFO("AaFwk_DataAbilityManager_DumpSysState_0100 start");
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
 
     Want want;
@@ -137,7 +137,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_DumpSysState_0200, Tes
 {
     HILOG_INFO("AaFwk_DataAbilityManager_DumpSysState_0200 start");
 
-    AbilityRequest abilityRequest;
+    std::shared_ptr<AbilityRequest> abilityRequest = std::make_shared<AbilityRequest>();
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest);
 
     Want want;
@@ -250,7 +250,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Acquire_002, TestSize.
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
 
     // page ability type
-    abilityRequest_.abilityInfo.type = AbilityType::PAGE;
+    abilityRequest_->abilityInfo.type = AbilityType::PAGE;
     EXPECT_EQ(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
 
     HILOG_INFO("AaFwk_DataAbilityManager_Acquire_002 end.");
@@ -271,7 +271,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Acquire_003, TestSize.
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
 
     // appinfo bundle name empty
-    abilityRequest_.appInfo.bundleName = "";
+    abilityRequest_->appInfo.bundleName = "";
     EXPECT_EQ(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
 
     HILOG_INFO("AaFwk_DataAbilityManager_Acquire_003 end.");
@@ -292,7 +292,7 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Acquire_004, TestSize.
     std::unique_ptr<DataAbilityManager> dataAbilityManager = std::make_unique<DataAbilityManager>();
 
     // ability name empty
-    abilityRequest_.abilityInfo.name = "";
+    abilityRequest_->abilityInfo.name = "";
     EXPECT_EQ(dataAbilityManager->Acquire(abilityRequest_, true, abilityRecordClient_->GetToken(), false), nullptr);
 
     HILOG_INFO("AaFwk_DataAbilityManager_Acquire_004 end.");
@@ -314,11 +314,11 @@ HWTEST_F(DataAbilityManagerTest, AaFwk_DataAbilityManager_Acquire_005, TestSize.
 
     // same bundle name and ability name
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
-    abilityInfo.name = abilityRequest_.abilityInfo.name;
+    abilityInfo.name = abilityRequest_->abilityInfo.name;
     abilityInfo.type = AbilityType::PAGE;
     OHOS::AppExecFwk::ApplicationInfo applicationInfo;
-    applicationInfo.bundleName = abilityRequest_.appInfo.bundleName;
-    applicationInfo.name = abilityRequest_.appInfo.name;
+    applicationInfo.bundleName = abilityRequest_->appInfo.bundleName;
+    applicationInfo.name = abilityRequest_->appInfo.name;
     const Want want;
     std::shared_ptr abilityRecordClient = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
     abilityRecordClient->Init();
