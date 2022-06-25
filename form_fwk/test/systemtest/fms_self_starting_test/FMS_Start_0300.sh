@@ -10,6 +10,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+set -e
 testfile="./formmgr/fms_self_starting_test_config.json"
 sleep_seconds=10
 
