@@ -929,5 +929,16 @@ ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &info
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DumpAbilityInfoDone(infos, callerToken);
 }
+
+sptr<IRemoteObject> AbilityManagerClient::GetCallerToken(const sptr<IRemoteObject> &token)
+{
+    HILOG_INFO("GetCallerToken begin.");
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        HILOG_INFO("GetCallerToken:fail to get ability manager.");
+        return nullptr;
+    }
+    return abms->GetCallerToken(token);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

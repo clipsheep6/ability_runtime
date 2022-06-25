@@ -540,6 +540,8 @@ public:
      */
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.

@@ -138,6 +138,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[DUMP_ABILITY_INFO_DONE] = &AbilityManagerStub::DumpAbilityInfoDoneInner;
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
     requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
+    requestFuncMap_[GET_CALLER_TOKEN] = &AbilityManagerStub::GetCallerTokenInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
@@ -1319,6 +1320,17 @@ int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel
     int32_t pid = data.ReadInt32();
     int32_t result = SendANRProcessID(pid);
     if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetCallerTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    auto callerToken = GetCallerToken(token);
+    if (!reply.WriteRemoteObject(callerToken)) {
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
