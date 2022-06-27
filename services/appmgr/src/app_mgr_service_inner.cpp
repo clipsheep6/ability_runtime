@@ -29,6 +29,7 @@
 #include "app_process_data.h"
 #include "app_state_observer_manager.h"
 #include "bundle_constants.h"
+#include "bundle_manager_utils.h"
 #include "hitrace_meter.h"
 #include "common_event.h"
 #include "common_event_manager.h"
@@ -96,6 +97,7 @@ const std::string EVENT_MESSAGE_DEFAULT = "AppMgrServiceInner HandleTimeOut!";
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -143,13 +145,14 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo)) {
+    int32_t appIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_INDEX, 0);
+    if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         HILOG_ERROR("GetBundleAndHapInfo failed");
         return;
     }
 
     std::string processName;
-    MakeProcessName(processName, abilityInfo, appInfo, hapModuleInfo);
+    MakeProcessName(processName, abilityInfo, appInfo, hapModuleInfo, appIndex);
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -192,7 +195,7 @@ bool AppMgrServiceInner::CheckLoadabilityConditions(const sptr<IRemoteObject> &t
 }
 
 void AppMgrServiceInner::MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo)
+    const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex)
 {
     if (!abilityInfo || !appInfo) {
         return;
@@ -202,6 +205,9 @@ void AppMgrServiceInner::MakeProcessName(std::string &processName, const std::sh
         return;
     }
     MakeProcessName(processName, appInfo, hapModuleInfo);
+    if (appIndex != 0) {
+        processName += std::to_string(appIndex);
+    }
 }
 
 void AppMgrServiceInner::MakeProcessName(
@@ -224,8 +230,14 @@ void AppMgrServiceInner::MakeProcessName(
 }
 
 bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo)
+    const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
+    int32_t appIndex)
 {
+    if (appIndex != 0) {
+        return DelayedSingleton<AAFwk::BundleManagerUtils>::GetInstance()->GetBundleAndHapInfo(
+            abilityInfo, *appInfo, appIndex, bundleInfo, hapModuleInfo);
+    }
+
     auto bundleMgr_ = remoteClientManager_->GetBundleManager();
     if (bundleMgr_ == nullptr) {
         HILOG_ERROR("GetBundleManager fail");
@@ -802,6 +814,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         if (want->GetBoolParam(COLD_START, false)) {
             appRecord->SetDebugApp(true);
         }
+        appRecord->SetAppIndex(want->GetIntParam(DLP_INDEX, 0));
     }
 
     if (preToken) {
@@ -1208,8 +1221,15 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     AppSpawnStartMsg startMsg;
     BundleInfo bundleInfo;
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfos(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-        bundleInfos, userId));
+    bool bundleMgrResult;
+    if (appRecord->GetAppIndex() == 0) {
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgr_->GetBundleInfos(AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES,
+            bundleInfos, userId));
+    } else {
+        bundleMgrResult = DelayedSingleton<AAFwk::BundleManagerUtils>::GetInstance()->GetBundleInfos(bundleName,
+            appRecord->GetAppIndex(), userId, bundleInfos);
+    }
+    
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
         return;
@@ -1933,7 +1953,8 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         return;
     }
 
-    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo)) {
+    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
 
@@ -1943,7 +1964,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         HILOG_ERROR("abilityInfoPtr is nullptr.");
         return;
     }
-    MakeProcessName(processName, abilityInfoPtr, appInfo, hapModuleInfo);
+    MakeProcessName(processName, abilityInfoPtr, appInfo, hapModuleInfo, appIndex);
 
     std::vector<HapModuleInfo> hapModules;
     hapModules.emplace_back(hapModuleInfo);
