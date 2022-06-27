@@ -370,7 +370,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
                 return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
                     freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken, true);
             }
-            if (requestCode == DEFAULT_REQUEST_CODE) {
+            if (requestCode <= DEFAULT_REQUEST_CODE) {
                 HILOG_INFO("%{public}s: try to StartAbility", __func__);
                 return StartRemoteAbility(want, requestCode);
             }

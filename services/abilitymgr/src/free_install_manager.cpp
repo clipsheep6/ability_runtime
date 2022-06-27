@@ -169,7 +169,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
     const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
 {
     HILOG_INFO("%{public}s", __func__);
-    if (requestCode == DEFAULT_REQUEST_CODE) {
+    if (requestCode <= DEFAULT_REQUEST_CODE) {
         HILOG_INFO("%{public}s: StartAbility freeInstall", __func__);
         return FreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote);
     }
