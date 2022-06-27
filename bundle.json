@@ -29,7 +29,7 @@
         "components": [
             "ability_base",
             "access_token",
-            "ace_engine_standard",
+            "ace_engine",
             "appspawn",
             "ark_js_runtime",
             "background_task_mgr",
