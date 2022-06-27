@@ -29,6 +29,17 @@ namespace AAFwk {
 const std::string FREE_INSTALL_TYPE = "freeInstallType";
 const std::string FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
+
+struct FreeInstallInfo {
+    Want want;
+    int32_t userId = -1;
+    int32_t requestCode = -1;
+    std::shared_ptr<std::promise<int32_t>> promise;
+    bool isInstalled = false;
+    sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> dmsCallback = nullptr;
+};
+
 /**
  * @class FreeInstallManager
  * FreeInstallManager.
@@ -39,7 +50,7 @@ public:
     virtual ~FreeInstallManager() = default;
 
     /**
-     * OnInstallFinished, FreeInstall is complete.
+     * OnInstallFinished, StartFreeInstall is complete.
      *
      * @param resultCode, ERR_OK on success, others on failure.
      * @param want, installed ability.
@@ -59,28 +70,23 @@ public:
     /**
      * Start to free install.
      *
-     * @param want, the want of the ability to free install.
-     * @param userId, designation User ID.
-     * @param requestCode, ability request code.
-     * @param callerToken, caller ability token.
+     * @param info, param for StartFreeInstall
      * @param ifOperateRemote, is from other devices.
+     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int FreeInstall(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+    int StartFreeInstall(FreeInstallInfo info, bool ifOperateRemote, pid_t pid);
 
     /**
      * Start to remote free install.
      *
-     * @param want, the want of the ability to free install.
-     * @param requestCode, ability request code.
-     * @param validUserId, designation User ID.
-     * @param callerToken, caller ability token.
+     * @param info, param for StartRemoteFreeInstall
      * @param ifOperateRemote, is from other devices.
+     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+    int StartRemoteFreeInstall(FreeInstallInfo info, bool ifOperateRemote, pid_t pid);
+
     /**
      * Start to free install from another devices.
      * The request is send from DMS.
@@ -89,10 +95,11 @@ public:
      * @param callback, used to notify caller the result of free install.
      * @param userId, designation User ID.
      * @param requestCode, ability request code.
+     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-        int32_t userId, int requestCode);
+        int32_t userId, int requestCode, pid_t pid);
 
     /**
      * Connect if the request is free install.
@@ -100,22 +107,14 @@ public:
      * @param userId, designation User ID.
      * @param callerToken, caller ability token.
      * @param localDeviceId, the device id of local.
+     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        std::string& localDeviceId);
+        std::string& localDeviceId, pid_t pid);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
-    struct FreeInstallInfo {
-        Want want;
-        int32_t userId = -1;
-        int32_t requestCode = -1;
-        std::shared_ptr<std::promise<int32_t>> promise;
-        bool isInstalled = false;
-        sptr<IRemoteObject> callerToken = nullptr;
-        sptr<IRemoteObject> dmsCallback = nullptr;
-    };
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
 
