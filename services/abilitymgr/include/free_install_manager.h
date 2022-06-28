@@ -70,22 +70,28 @@ public:
     /**
      * Start to free install.
      *
-     * @param info, param for StartFreeInstall
+     * @param want, the want of the ability to free install.
+     * @param userId, designation User ID.
+     * @param requestCode, ability request code.
+     * @param callerToken, caller ability token.
      * @param ifOperateRemote, is from other devices.
-     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartFreeInstall(FreeInstallInfo info, bool ifOperateRemote, pid_t pid);
+    int StartFreeInstall(const Want &want, int32_t userId, int requestCode,
+        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
 
     /**
      * Start to remote free install.
      *
-     * @param info, param for StartRemoteFreeInstall
+     * @param want, the want of the ability to free install.
+     * @param requestCode, ability request code.
+     * @param validUserId, designation User ID.
+     * @param callerToken, caller ability token.
      * @param ifOperateRemote, is from other devices.
-     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartRemoteFreeInstall(FreeInstallInfo info, bool ifOperateRemote, pid_t pid);
+    int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
+        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
 
     /**
      * Start to free install from another devices.
@@ -95,11 +101,10 @@ public:
      * @param callback, used to notify caller the result of free install.
      * @param userId, designation User ID.
      * @param requestCode, ability request code.
-     * @param pid, ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,
-        int32_t userId, int requestCode, pid_t pid);
+        int32_t userId, int requestCode);
 
     /**
      * Connect if the request is free install.
@@ -107,7 +112,7 @@ public:
      * @param userId, designation User ID.
      * @param callerToken, caller ability token.
      * @param localDeviceId, the device id of local.
-     * @param pid, ability pid.
+     * @param pid, the ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
