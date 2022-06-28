@@ -397,7 +397,7 @@ void MainThread::ScheduleProcessSecurityExit()
         }
         appThread->HandleProcessSecurityExit();
     };
-    if (!mainHandler_->PostTask(task)) {
+    if (!mainHandler_->PostTask(task, 1000)) {
         HILOG_ERROR("MainThread::ScheduleProcessSecurityExit PostTask task failed");
     }
     HILOG_INFO("MainThread::ScheduleProcessSecurityExit called end");

@@ -38,6 +38,8 @@ void JsErrorObserver::OnUnhandledException(std::string errMsg)
             std::shared_ptr<JsErrorObserver> jsObserver = thisWeakPtr.lock();
             if (jsObserver) {
                 jsObserver->HandleOnUnhandledException(errMsg);
+            } else {
+                HILOG_ERROR("JsErrorObserver come.");
             }
         });
     NativeReference* callback = nullptr;
