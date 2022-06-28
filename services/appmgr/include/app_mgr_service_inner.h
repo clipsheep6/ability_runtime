@@ -570,7 +570,8 @@ private:
      * @return
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-        const std::shared_ptr<AppRunningRecord> &appRecord, const int uid, const std::string &bundleName);
+                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
+                      const std::string &bundleName, const int32_t bundleIndex);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
