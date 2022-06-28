@@ -94,6 +94,11 @@ ohos_source_set("appmgr_mst_source") {
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
+
+  if (os_account_part_enabled) {
+    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
+    public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
+  }
 }
 
 group("moduletest") {
