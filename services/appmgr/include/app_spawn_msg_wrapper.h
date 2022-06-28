@@ -46,6 +46,7 @@ constexpr auto LEN_PID = sizeof(pid_t);
 struct StartFlags {
     static const int COLD_START = 0;
     static const int BACKUP_EXTENSION = 1;
+    static const int DLP_MANAGER = 2;
 };
 
 union AppSpawnPidMsg {
