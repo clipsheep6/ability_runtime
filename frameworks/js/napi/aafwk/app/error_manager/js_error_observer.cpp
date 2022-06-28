@@ -31,13 +31,15 @@ JsErrorObserver::~JsErrorObserver() = default;
 
 void JsErrorObserver::OnUnhandledException(std::string errMsg)
 {
-    HILOG_DEBUG("OnUnhandledException come.");
+    HILOG_ERROR("OnUnhandledException come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
         ([thisWeakPtr, errMsg](NativeEngine &engine, AsyncTask &task, int32_t status) {
             std::shared_ptr<JsErrorObserver> jsObserver = thisWeakPtr.lock();
             if (jsObserver) {
                 jsObserver->HandleOnUnhandledException(errMsg);
+            } else {
+                HILOG_ERROR("JsErrorObserver come.");
             }
         });
     NativeReference* callback = nullptr;
@@ -48,7 +50,7 @@ void JsErrorObserver::OnUnhandledException(std::string errMsg)
 
 void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
 {
-    HILOG_DEBUG("HandleOnUnhandledException come.");
+    HILOG_ERROR("HandleOnUnhandledException come.");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         NativeValue* value = (item.second)->Get();
@@ -59,7 +61,7 @@ void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
 
 void JsErrorObserver::CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    HILOG_ERROR("CallJsFunction begin, method:%{public}s", methodName);
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");

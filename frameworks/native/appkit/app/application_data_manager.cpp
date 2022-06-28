@@ -24,13 +24,13 @@ ApplicationDataManager::~ApplicationDataManager() {}
 
 void ApplicationDataManager::AddErrorObserver(const std::shared_ptr<IErrorObserver> &observer)
 {
-    HILOG_DEBUG("Add error observer come.");
+    HILOG_ERROR("Add error observer come.");
     errorObserver_ = observer;
 }
 
 void ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
 {
-    HILOG_DEBUG("Notify error observer come.");
+    HILOG_ERROR("Notify error observer come.");
     std::shared_ptr<IErrorObserver> observer = errorObserver_.lock();
     if (observer) {
         observer->OnUnhandledException(errMsg);
