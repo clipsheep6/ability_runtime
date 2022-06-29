@@ -70,6 +70,7 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
+constexpr int32_t JS_CRASH_DELAY_TIME = 3000;
 constexpr int SIGNAL_JS_HEAP = 39;
 constexpr int SIGNAL_JS_HEAP_PRIV = 40;
 
@@ -387,20 +388,31 @@ void MainThread::ScheduleShrinkMemory(const int level)
  */
 void MainThread::ScheduleProcessSecurityExit()
 {
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called start");
+    PostProcessSecurityExitTask(false);
+}
+
+void MainThread::PostProcessSecurityExitTask(bool delay)
+{
+    HILOG_INFO("PostProcessSecurityExitTask called start");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, HandleShrinkMemory failed.");
+            HILOG_ERROR("appThread is nullptr, PostProcessSecurityExitTask failed.");
             return;
         }
         appThread->HandleProcessSecurityExit();
     };
-    if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("MainThread::ScheduleProcessSecurityExit PostTask task failed");
+    bool result;
+    if (delay) {
+        result = mainHandler_->PostTask(task, JS_CRASH_DELAY_TIME);
+    } else {
+        result = mainHandler_->PostTask(task);
     }
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called end");
+    if (!result) {
+        HILOG_ERROR("PostProcessSecurityExitTask post task failed");
+    }
+    HILOG_INFO("PostProcessSecurityExitTask called end");
 }
 
 /**
@@ -953,7 +965,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorName.c_str(), summary.c_str());
-            appThread->ScheduleProcessSecurityExit();
+            appThread->PostProcessSecurityExitTask(true);
         };
         jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
         application_->SetRuntime(std::move(runtime));
