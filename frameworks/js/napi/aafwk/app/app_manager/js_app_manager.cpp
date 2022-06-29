@@ -194,8 +194,7 @@ private:
                 if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                     observerIds_.erase(observerId);
-                    HILOG_INFO("UnregisterApplicationStateObserver success "
-                    "erase size:%{public}zu", observerIds_.size());
+                    HILOG_INFO("UnregisterApplicationStateObserver success erase size:%{public}d", observerIds_.size());
                 } else {
                     HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
                     task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));
