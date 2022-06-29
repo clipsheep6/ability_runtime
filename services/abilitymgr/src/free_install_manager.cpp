@@ -341,7 +341,7 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
             return ERR_INVALID_VALUE;
         }
     }
-    
+
     AppExecFwk::AbilityInfo abilityInfo;
     if (!(bms->QueryAbilityInfo(want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId,
         abilityInfo))) {

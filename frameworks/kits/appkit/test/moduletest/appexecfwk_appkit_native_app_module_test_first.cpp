@@ -318,7 +318,7 @@ HWTEST_F(AppkitNativeModuleTestFirst, App_ApplicationLifeCycle_0700, Function | 
     OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->RegisterSystemAbility(APP_MGR_SERVICE_ID, AppMgrObject_);
     runner_->Run();
     usleep(USleepTime);
-    
+
     AppLaunchData lanchdate;
     ApplicationInfo appinf;
     ProcessInfo processing("TestProcess", TestProcessInfo);

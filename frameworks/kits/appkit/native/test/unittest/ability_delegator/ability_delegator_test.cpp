@@ -161,7 +161,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0100, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
@@ -236,7 +236,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0300, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -266,7 +266,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0400, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -298,7 +298,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0500, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -336,7 +336,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0600, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -369,7 +369,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_070, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -400,7 +400,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0800, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -432,7 +432,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_0900, Function | MediumTe
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -464,7 +464,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1000, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -494,7 +494,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1100, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -526,7 +526,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_1200, Function | MediumTe
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -558,7 +558,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1300, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -588,7 +588,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1400, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -618,7 +618,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1500, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -649,7 +649,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1600, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -681,7 +681,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1700, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -714,7 +714,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1800, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -747,7 +747,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1900, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -786,7 +786,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2000, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -824,7 +824,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2100, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -857,7 +857,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2200, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -897,7 +897,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_23400, Function | MediumTe
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -930,7 +930,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -970,7 +970,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2500, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1003,7 +1003,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1043,7 +1043,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2700, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1076,7 +1076,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1116,7 +1116,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2900, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1149,7 +1149,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3000, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1189,7 +1189,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3100, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1228,7 +1228,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3200, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1268,7 +1268,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3300, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1307,7 +1307,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3400, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1348,7 +1348,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3500, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -1393,7 +1393,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3600, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -1438,7 +1438,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3700, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1469,7 +1469,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3800, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1500,7 +1500,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3900, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1531,7 +1531,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4000, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1562,7 +1562,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4100, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1594,7 +1594,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4200, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1627,7 +1627,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4300, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1661,7 +1661,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4400, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
@@ -1694,7 +1694,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4500, Function | MediumTes
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
     std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
         std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),

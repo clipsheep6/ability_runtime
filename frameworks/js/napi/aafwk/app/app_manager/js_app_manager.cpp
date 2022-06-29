@@ -448,7 +448,7 @@ private:
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
-    
+
     NativeValue* OnGetAppMemorySize(NativeEngine& engine, NativeCallbackInfo& info)
     {
         int32_t errCode = 0;

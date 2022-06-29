@@ -40,7 +40,7 @@ int AppNoResponseDisposer::DisposeAppNoRespose(int pid,
         HILOG_ERROR("Get application info failed.");
         return ERR_INVALID_VALUE;
     }
-    
+
     auto ret = ExcuteANRSaveStackInfoTask(pid, task);
     if (ret != ERR_OK) {
         HILOG_ERROR("excute anr save stack info task failed.");

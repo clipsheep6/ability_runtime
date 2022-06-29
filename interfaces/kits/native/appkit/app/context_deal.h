@@ -655,7 +655,7 @@ private:
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void CreateDirIfNotExist(const std::string& dirPath) const;
-    
+
     std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;

@@ -20,7 +20,7 @@ namespace OHOS {
 namespace AAFwk {
 MockTestObserverStub::~MockTestObserverStub()
 {}
-    
+
 int MockTestObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {

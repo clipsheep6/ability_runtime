@@ -144,7 +144,7 @@ public:
         if (curJsModulePath.empty() || newJsModuleUri.empty()) {
             return newJsModulePath;
         }
-    
+
         switch (newJsModuleUri[0]) {
             case '.': {
                 newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);

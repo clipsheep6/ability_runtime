@@ -56,7 +56,7 @@ void MockIabilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &ab
     HILOG_INFO("MockIabilityMonitor::OnAbilityStop is called");
     stop_ = true;
 }
-  
+
 void MockIabilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
     HILOG_INFO("MockIabilityMonitor::OnWindowStageCreate is called");

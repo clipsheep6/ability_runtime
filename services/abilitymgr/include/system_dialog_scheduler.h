@@ -69,7 +69,7 @@ public:
 private:
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;
-    
+
     void ScheduleShowDialog(const std::string &name, const DialogPosition &position,
         const std::string &params, DialogCallback callback) const;
 

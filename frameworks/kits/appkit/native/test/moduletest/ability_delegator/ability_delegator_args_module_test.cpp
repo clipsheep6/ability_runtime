@@ -84,7 +84,7 @@ HWTEST_F(AbilityDelegatorArgsModuleTest, Ability_Delegator_Args_Module_Test_0100
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     AbilityDelegatorArgs delegatorArgs(want);
     std::map<std::string, std::string>::iterator iter = delegatorArgs.params_.find(KEY_TEST_WAIT_TIMEOUT);
     std::string value_timeout = iter->second;

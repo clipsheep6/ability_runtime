@@ -100,7 +100,7 @@ NativeValue *CreateJsShellCmdResult(NativeEngine &engine, std::unique_ptr<ShellC
         HILOG_ERROR("shellResult is null");
         return nullptr;
     }
-    
+
     NativeValue *objValue = engine.CreateObject();
     NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {

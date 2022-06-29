@@ -183,7 +183,7 @@ public:
      * @return Returns ERR_OK if success.
      */
     ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-    
+
     /**
      * @brief get current window mode.
      *
