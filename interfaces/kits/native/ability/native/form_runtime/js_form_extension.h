@@ -59,6 +59,8 @@ public:
 
     FormState OnAcquireFormState(const Want &want) override;
 
+    void OnShare(const int64_t formId, AAFwk::WantParams &wantParams) override;
+
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
 
