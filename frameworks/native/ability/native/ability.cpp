@@ -1632,9 +1632,25 @@ std::shared_ptr<AbilityPostEventTimeout> Ability::CreatePostEventTimeouter(std::
 int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &wantAgent)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    auto bundleMgr = GetBundleMgr();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Ability::GetBundleMgr failed");
+        return ERR_NULL_OBJECT;
+    }
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("ability info is null");
+        return ERR_INVALID_VALUE;
+    }
+    Want want;
+    want.SetAction("action.system.home");
+    want.AddEntity("entity.system.home");
+    want.SetElementName("", abilityInfo_->bundleName, "", "");
+    AppExecFwk::AbilityInfo abilityInfo;
+    bundleMgr->QueryAbilityInfo(want, abilityInfo);
+    std::string appName = bundleMgr->GetAbilityLabel(abilityInfo_->bundleName, abilityInfo.name);
     uint32_t defaultBgMode = 0;
     BackgroundTaskMgr::ContinuousTaskParam taskParam = BackgroundTaskMgr::ContinuousTaskParam(false, defaultBgMode,
-        std::make_shared<AbilityRuntime::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken());
+        std::make_shared<AbilityRuntime::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken(), appName);
     return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStartBackgroundRunning(taskParam);
 #else
     return ERR_INVALID_OPERATION;
