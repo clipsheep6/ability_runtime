@@ -782,14 +782,12 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     HILOG_INFO("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
-    std::string moduleName = element.GetModuleName();
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
-        [bundleName, abilityName, moduleName](
+        [bundleName, abilityName](
             const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
             return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
-                   (moduleName == obj.first.want.GetElement().GetModuleName());
+                   (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != connects_.end()) {
         // match bundlename && abilityname

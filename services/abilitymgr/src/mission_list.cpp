@@ -217,7 +217,10 @@ std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByName(const AppExec
             const AppExecFwk::AbilityInfo &abilityInfo = mission->GetAbilityRecord()->GetAbilityInfo();
             AppExecFwk::ElementName localElement(abilityInfo.deviceId, abilityInfo.bundleName,
                 abilityInfo.name, abilityInfo.moduleName);
-            if (localElement == element) {
+            AppExecFwk::ElementName localElementNoModuleName(abilityInfo.deviceId,
+                abilityInfo.bundleName, abilityInfo.name); // note: moduleName of input param element maybe empty
+
+            if (localElement == element || localElementNoModuleName == element) {
                 return mission->GetAbilityRecord();
             }
         }
