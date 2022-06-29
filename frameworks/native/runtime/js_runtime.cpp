@@ -872,8 +872,11 @@ bool JsRuntime::Initialize(const Options& options)
 
     auto moduleManager = NativeModuleManager::GetInstance();
     std::string packagePath = options.packagePath;
-    if (moduleManager && !packagePath.empty()) {
-        moduleManager->SetAppLibPath(packagePath.c_str());
+    if (moduleManager) {
+        moduleManager->SetTargetVersion(options.targetVersion);
+        if (!packagePath.empty()) {
+            moduleManager->SetAppLibPath(packagePath.c_str());
+        }
     }
 
     RegisterWorker(*nativeEngine_, options.codePath);
