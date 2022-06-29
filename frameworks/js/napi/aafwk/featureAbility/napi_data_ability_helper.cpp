@@ -470,11 +470,7 @@ napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args)
 napi_value NAPI_NotifyChange(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperNotifyChangeCB *notifyChangeCB = new (std::nothrow) DAHelperNotifyChangeCB;
-    if (notifyChangeCB == nullptr) {
-        HILOG_ERROR("%{public}s, notifyChangeCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperNotifyChangeCB *notifyChangeCB = new DAHelperNotifyChangeCB;
     notifyChangeCB->cbBase.cbInfo.env = env;
     notifyChangeCB->cbBase.asyncWork = nullptr;
     notifyChangeCB->cbBase.deferred = nullptr;
@@ -510,7 +506,7 @@ napi_value NotifyChangeWrap(napi_env env, napi_callback_info info, DAHelperNotif
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+    if (argcAsync > argCountWithAsync) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;
     }
@@ -662,11 +658,7 @@ void NotifyChangePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Register(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
-    if (onCB == nullptr) {
-        HILOG_ERROR("%{public}s, onCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
     onCB->cbBase.cbInfo.env = env;
     onCB->cbBase.asyncWork = nullptr;
     onCB->cbBase.deferred = nullptr;
@@ -702,7 +694,7 @@ napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+    if (argcAsync > argCountWithAsync) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;
     }
@@ -713,7 +705,7 @@ napi_value RegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB *
     if (valuetype == napi_string) {
         std::string type = NapiValueToStringUtf8(env, args[PARAM0]);
         if (type == "dataChange") {
-            HILOG_INFO("%{public}s, Wrong type=%{public}s", __func__, type.c_str());
+            HILOG_INFO("%{public}s, Right type=%{public}s", __func__, type.c_str());
         } else {
             HILOG_ERROR("%{public}s, Wrong argument type is %{public}s.", __func__, type.c_str());
             onCB->result = INVALID_PARAMETER;
@@ -762,7 +754,7 @@ napi_value RegisterAsync(
         onCB->result = INVALID_PARAMETER;
     }
 
-    sptr<NAPIDataAbilityObserver> observer(new (std::nothrow) NAPIDataAbilityObserver());
+    sptr<NAPIDataAbilityObserver> observer(new NAPIDataAbilityObserver());
     observer->SetEnv(env);
     observer->SetCallbackRef(onCB->cbBase.cbInfo.callback);
     onCB->observer = observer;
@@ -842,11 +834,7 @@ void RegisterCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_UnRegister(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperOnOffCB *offCB = new (std::nothrow) DAHelperOnOffCB;
-    if (offCB == nullptr) {
-        HILOG_ERROR("%{public}s, offCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperOnOffCB *offCB = new DAHelperOnOffCB;
     offCB->cbBase.cbInfo.env = env;
     offCB->cbBase.asyncWork = nullptr;
     offCB->cbBase.deferred = nullptr;
@@ -974,49 +962,6 @@ napi_value UnRegisterAsync(
     return result;
 }
 
-static void FindRegisterObsByCallBack(napi_env env, DAHelperOnOffCB *data)
-{
-    HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB callback is not null.");
-    if (data == nullptr || data->dataAbilityHelper == nullptr) {
-        HILOG_ERROR("NAPI_UnRegister, param is null.");
-        return;
-    }
-    // if match callback ,or match both callback and uri
-    napi_value callbackA = nullptr;
-    napi_get_reference_value(data->cbBase.cbInfo.env, data->cbBase.cbInfo.callback, &callbackA);
-    std::string strUri = data->uri;
-
-    auto iter = registerInstances_.begin();
-    while (iter != registerInstances_.end()) {
-        DAHelperOnOffCB *helper = *iter;
-        if (helper == nullptr || helper->cbBase.cbInfo.callback == nullptr) {
-            HILOG_ERROR("UnRegisterExecuteCB %{public}s is nullptr",
-                ((helper == nullptr) ? "helper" : "helper->cbBase.cbInfo.callback"));
-            iter++;
-            continue;
-        }
-        if (helper->uri != strUri) {
-            HILOG_ERROR("UnRegisterExecuteCB find uri inconsistent, h=[%{public}s] u=[%{public}s]",
-                helper->uri.c_str(), strUri.c_str());
-            iter++;
-            continue;
-        }
-        napi_value callbackB = nullptr;
-        bool isEqual = false;
-        napi_get_reference_value(helper->cbBase.cbInfo.env, helper->cbBase.cbInfo.callback, &callbackB);
-        auto ret = napi_strict_equals(helper->cbBase.cbInfo.env, callbackA, callbackB, &isEqual);
-        HILOG_INFO("NAPI_UnRegister cb equals status=%{public}d isEqual=%{public}d.", ret, isEqual);
-        if (!isEqual) {
-            iter++;
-            continue;
-        }
-        data->NotifyList.emplace_back(helper);
-        iter = registerInstances_.erase(iter);
-        HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
-    }
-    HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB FindRegisterObsByCallBack Called End.");
-}
-
 void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
 {
     HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.");
@@ -1024,13 +969,7 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
         HILOG_ERROR("NAPI_UnRegister, param is null.");
         return;
     }
-    if (data->cbBase.cbInfo.callback != nullptr) {
-        HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB callback is not null.");
-        FindRegisterObsByCallBack(env, data);
-        HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu",
-            data->NotifyList.size());
-        return;
-    }
+
     HILOG_INFO("NAPI_UnRegister, uri=%{public}s.", data->uri.c_str());
     if (!data->uri.empty()) {
         // if match uri, unregister all observers corresponding the uri
@@ -1064,12 +1003,12 @@ void UnRegisterExecuteCB(napi_env env, void *data)
         }
         return;
     }
-    HILOG_INFO("NAPI_UnRegister, offCB->DestoryList size is %{public}zu", offCB->NotifyList.size());
+    HILOG_INFO("NAPI_UnRegister, offCB->NotifyList size is %{public}zu", offCB->NotifyList.size());
     for (auto &iter : offCB->NotifyList) {
         if (iter != nullptr && iter->observer != nullptr) {
             OHOS::Uri uri(iter->uri);
             iter->dataAbilityHelper->UnregisterObserver(uri, iter->observer);
-            offCB->DestoryList.emplace_back(iter);
+            offCB->DestroyList.emplace_back(iter);
         }
     }
     offCB->NotifyList.clear();
@@ -1089,8 +1028,8 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
         }
         return;
     }
-    HILOG_INFO("NAPI_UnRegister, offCB->DestoryList size is %{public}zu", offCB->DestoryList.size());
-    for (auto &iter : offCB->DestoryList) {
+    HILOG_INFO("NAPI_UnRegister, offCB->DestroyList size is %{public}zu", offCB->DestroyList.size());
+    for (auto &iter : offCB->DestroyList) {
         HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 1 ---");
         if (iter->observer != nullptr) {
             if (iter->observer->GetWorkPre() == 1 && iter->observer->GetWorkRun() == 0) {
@@ -1106,7 +1045,7 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
         }
     }
 
-    offCB->DestoryList.clear();
+    offCB->DestroyList.clear();
     delete offCB;
     offCB = nullptr;
 
@@ -1267,14 +1206,7 @@ void NAPIDataAbilityObserver::OnChange()
         ChangeWorkPreDone();
         return;
     }
-    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
-    if (onCB == nullptr) {
-        HILOG_ERROR("%{public}s, onCB == nullptr.", __func__);
-        delete work;
-        work = nullptr;
-        ChangeWorkPreDone();
-        return;
-    }
+    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
     onCB->cbBase.cbInfo.env = env_;
     onCB->cbBase.cbInfo.callback = ref_;
     onCB->observer = this;
@@ -2061,11 +1993,7 @@ void UnwrapDataAbilityPredicates(NativeRdb::DataAbilityPredicates &predicates, n
 napi_value NAPI_Delete(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperDeleteCB *deleteCB = new (std::nothrow) DAHelperDeleteCB;
-    if (deleteCB == nullptr) {
-        HILOG_ERROR("%{public}s, deleteCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperDeleteCB *deleteCB = new DAHelperDeleteCB;
     deleteCB->cbBase.cbInfo.env = env;
     deleteCB->cbBase.asyncWork = nullptr;
     deleteCB->cbBase.deferred = nullptr;
@@ -2101,7 +2029,7 @@ napi_value DeleteWrap(napi_env env, napi_callback_info info, DAHelperDeleteCB *d
     napi_value thisVar = nullptr;
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, &thisVar, nullptr));
-    if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
+    if (argcAsync > argCountWithAsync) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;
     }
@@ -2253,11 +2181,7 @@ void DeletePromiseCompleteCB(napi_env env, napi_status status, void *data)
 napi_value NAPI_Update(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DAHelperUpdateCB *updateCB = new (std::nothrow) DAHelperUpdateCB;
-    if (updateCB == nullptr) {
-        HILOG_ERROR("%{public}s, updateCB == nullptr.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperUpdateCB *updateCB = new DAHelperUpdateCB;
     updateCB->cbBase.cbInfo.env = env;
     updateCB->cbBase.asyncWork = nullptr;
     updateCB->cbBase.deferred = nullptr;
@@ -2537,11 +2461,7 @@ napi_value CallErrorPromise(napi_env env, DAHelperErrorCB *errorCB)
 napi_value CallErrorWrap(napi_env env, napi_value thisVar, napi_callback_info info, napi_value *args, bool isPromise)
 {
     HILOG_INFO("%{public}s, called", __func__);
-    DAHelperErrorCB *errorCB = new (std::nothrow) DAHelperErrorCB;
-    if (errorCB == nullptr) {
-        HILOG_ERROR("%{public}s, errorCB is null.", __func__);
-        return WrapVoidToJS(env);
-    }
+    DAHelperErrorCB *errorCB = new DAHelperErrorCB;
     errorCB->cbBase.cbInfo.env = env;
     errorCB->cbBase.asyncWork = nullptr;
     errorCB->cbBase.deferred = nullptr;

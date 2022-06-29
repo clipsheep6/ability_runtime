@@ -4293,12 +4293,7 @@ void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementNam
 napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    DataAbilityHelperCB *dataAbilityHelperCB = new (std::nothrow) DataAbilityHelperCB;
-    if (dataAbilityHelperCB == nullptr) {
-        HILOG_ERROR("%{public}s, dataAbilityHelperCB == nullptr", __func__);
-        return WrapVoidToJS(env);
-    }
-
+    DataAbilityHelperCB *dataAbilityHelperCB = new DataAbilityHelperCB;
     dataAbilityHelperCB->cbBase.cbInfo.env = env;
     dataAbilityHelperCB->cbBase.ability = nullptr; // temporary value assignment
     dataAbilityHelperCB->cbBase.errCode = NAPI_ERR_NO_ERROR;

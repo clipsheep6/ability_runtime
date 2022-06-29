@@ -269,7 +269,7 @@ struct DAHelperOnOffCB {
     std::string uri;
     int result = 0;
     std::vector<DAHelperOnOffCB *> NotifyList;
-    std::vector<DAHelperOnOffCB *> DestoryList;
+    std::vector<DAHelperOnOffCB *> DestroyList;
 };
 
 struct ShowOnLockScreenCB {
