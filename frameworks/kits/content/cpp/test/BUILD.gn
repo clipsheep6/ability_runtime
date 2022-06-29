@@ -278,6 +278,7 @@ ohos_unittest("want_params_test") {
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
@@ -303,6 +304,7 @@ ohos_unittest("want_params_wrapper_test") {
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
@@ -327,6 +329,7 @@ ohos_unittest("want_test") {
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 

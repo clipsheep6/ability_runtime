@@ -22,9 +22,14 @@
 #include "ohos/aafwk/base/base_interfaces.h"
 #include "refbase.h"
 #include "parcel.h"
+#include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/message_parcel.h"
 
 namespace OHOS {
 namespace AAFwk {
+const std::string FD = "FD";
+const std::string REMOTE_OBJECT = "RemoteObject";
+const std::string TYPE_PROPERTY = "type";
+const std::string VALUE_PROPERTY = "value";
 class UnsupportedData {
 public:
     std::u16string key;
@@ -113,6 +118,8 @@ private:
 
         VALUE_TYPE_WANTPARAMS = 101,
         VALUE_TYPE_ARRAY = 102,
+        VALUE_TYPE_FD = 103,
+        VALUE_TYPE_REMOTE_OBJECT = 104
     };
 
     bool WriteArrayToParcel(Parcel &parcel, IArray *ao) const;
@@ -139,7 +146,9 @@ private:
     bool ReadFromParcelArrayLong(Parcel &parcel, sptr<IArray> &ao);
     bool ReadFromParcelArrayFloat(Parcel &parcel, sptr<IArray> &ao);
     bool ReadFromParcelArrayDouble(Parcel &parcel, sptr<IArray> &ao);
-    bool ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key);
+    bool ReadFromParcelWantParamWrapper(Parcel &parcel, const std::string &key, int type);
+    bool ReadFromParcelFD(Parcel &parcel, const std::string &key);
+    bool ReadFromParcelRemoteObject(Parcel &parcel, const std::string &key);
 
     bool WriteArrayToParcelString(Parcel &parcel, IArray *ao) const;
     bool WriteArrayToParcelBool(Parcel &parcel, IArray *ao) const;
@@ -162,6 +171,8 @@ private:
     bool WriteToParcelFloat(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelDouble(Parcel &parcel, sptr<IInterface> &o) const;
     bool WriteToParcelWantParams(Parcel &parcel, sptr<IInterface> &o) const;
+    bool WriteToParcelFD(Parcel &parcel, const WantParams &value) const;
+    bool WriteToParcelRemoteObject(Parcel &parcel, const WantParams &value) const;
 
     bool DoMarshalling(Parcel &parcel) const;
     bool ReadUnsupportedData(Parcel &parcel, const std::string &key, int type);

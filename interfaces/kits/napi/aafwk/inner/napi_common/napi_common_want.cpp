@@ -27,10 +27,13 @@
 #include "ohos/aafwk/base/short_wrapper.h"
 #include "ohos/aafwk/base/string_wrapper.h"
 #include "ohos/aafwk/base/zchar_wrapper.h"
+#include "ohos/aafwk/base/remote_object_wrapper.h"
 #include "ohos/aafwk/content/want_params_wrapper.h"
+#include "napi_remote_object.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+const int PROPERTIES_SIZE = 2;
 EXTERN_C_START
 /**
  * @brief Init param of wantOptions.
@@ -262,6 +265,25 @@ bool InnerWrapWantParamsWantParams(
     }
     return false;
 }
+
+bool InnerWrapWantParamsRemoteObject(
+    napi_env env, napi_value jsObject, const std::string &key, const AAFwk::WantParams &wantParams)
+{
+    HILOG_INFO("%{public}s called. key=%{public}s", __func__, key.c_str());
+    auto value = wantParams.GetParam(key);
+    AAFwk::IRemoteObjectWrap *remoteObjectIWrap = AAFwk::IRemoteObjectWrap::Query(value);
+    if (remoteObjectIWrap != nullptr) {
+        auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
+        auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
+        HILOG_INFO("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
+        if (jsValue != nullptr) {
+            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool InnerWrapWantParamsArrayChar(napi_env env, napi_value jsObject, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -560,6 +582,8 @@ napi_value WrapWantParams(napi_env env, const AAFwk::WantParams &wantParams)
             }
         } else if (AAFwk::IWantParams::Query(iter->second) != nullptr) {
             InnerWrapWantParamsWantParams(env, jsObject, iter->first, wantParams);
+        } else if (AAFwk::IRemoteObjectWrap::Query(iter->second) != nullptr) {
+            InnerWrapWantParamsRemoteObject(env, jsObject, iter->first, wantParams);
         }
     }
     return jsObject;
@@ -770,16 +794,7 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
                 break;
             }
             case napi_object: {
-                bool isArray = false;
-                if (napi_is_array(env, jsProValue, &isArray) == napi_ok) {
-                    if (isArray) {
-                        HILOG_INFO("%{public}s called. %{public}s is array.", __func__, strProName.c_str());
-                        InnerUnwrapWantParamsArray(env, strProName, jsProValue, wantParams);
-                    } else {
-                        HILOG_INFO("%{public}s called. %{public}s is wantparams.", __func__, strProName.c_str());
-                        InnerUnwrapWantParams(env, strProName, jsProValue, wantParams);
-                    }
-                }
+                HandleNapiObject(env, param, jsProValue, strProName, wantParams);
                 break;
             }
             default:
@@ -787,6 +802,111 @@ bool UnwrapWantParams(napi_env env, napi_value param, AAFwk::WantParams &wantPar
         }
     }
 
+    return true;
+}
+
+void HandleNapiObject(napi_env env, napi_value param, napi_value jsProValue, std::string strProName,
+    AAFwk::WantParams &wantParams)
+{
+    HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+    if (IsSpecialObject(env, param, strProName, FD, napi_number)) {
+        HandleFdObject(env, param, strProName, wantParams);
+    } else if (IsSpecialObject(env, param, strProName, REMOTE_OBJECT, napi_object)) {
+        HandleRemoteObject(env, param, strProName, wantParams);
+    } else {
+        bool isArray = false;
+        if (napi_is_array(env, jsProValue, &isArray) == napi_ok) {
+            if (isArray) {
+                InnerUnwrapWantParamsArray(env, strProName, jsProValue, wantParams);
+            } else {
+                InnerUnwrapWantParams(env, strProName, jsProValue, wantParams);
+            }
+        }
+    }
+}
+
+bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std::string type,
+    napi_valuetype jsValueProType)
+{
+    HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+    napi_value jsWantParamProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
+    napi_valuetype jsValueType = napi_undefined;
+    napi_value jsProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, TYPE_PROPERTY.c_str(), &jsProValue), false);
+    NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
+    if (jsValueType != napi_string) {
+        return false;
+    }
+
+    std::string natValue = UnwrapStringFromJS(env, jsProValue);
+    if (natValue != type) {
+        return false;
+    }
+    napi_value jsProNameList = nullptr;
+    uint32_t jsProCount = 0;
+
+    NAPI_CALL_BASE(env, napi_get_property_names(env, jsWantParamProValue, &jsProNameList), false);
+    NAPI_CALL_BASE(env, napi_get_array_length(env, jsProNameList, &jsProCount), false);
+
+    if (jsProCount != PROPERTIES_SIZE) {
+        HILOG_ERROR("%{public}s called, size is invalid, this object is not fd object.", __func__);
+        return false;
+    }
+
+    jsValueType = napi_undefined;
+    jsProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+        false);
+    NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
+    if (jsValueType != jsValueProType) {
+        HILOG_ERROR("%{public}s called, value property is invalid, this object is not fd object.", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams)
+{
+    HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+    napi_value jsWantParamProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
+    napi_value jsProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+        false);
+
+    int32_t natValue32 = 0;
+    napi_get_value_int32(env, jsProValue, &natValue32);
+    HILOG_INFO("%{public}s called, fd:%{public}d.", __func__, natValue32);
+    WantParams wp;
+    wp.SetParam(TYPE_PROPERTY, String::Box(FD));
+    wp.SetParam(VALUE_PROPERTY, Integer::Box(natValue32));
+    sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
+    wantParams.SetParam(strProName, pWantParams);
+    return true;
+}
+
+bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, AAFwk::WantParams &wantParams)
+{
+    HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+    napi_value jsWantParamProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
+    napi_value jsProValue = nullptr;
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+        false);
+
+    sptr<IRemoteObject> remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, jsProValue);
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("%{public}s called, transfer to remoteObject fail", __func__);
+        return false;
+    }
+
+    WantParams wp;
+    wp.SetParam(TYPE_PROPERTY, String::Box(REMOTE_OBJECT));
+    wp.SetParam(VALUE_PROPERTY, AAFwk::RemoteObjectWrap::Box(remoteObject));
+    sptr<AAFwk::IWantParams> pWantParams = AAFwk::WantParamWrapper::Box(wp);
+    wantParams.SetParam(strProName, pWantParams);
     return true;
 }
 
