@@ -32,7 +32,9 @@ namespace OHOS {
 namespace AAFwk {
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
 std::recursive_mutex AbilityManagerClient::mutex_;
+#ifdef DWITH_DLP
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
+#endif // DWITH_DLP
 
 #define CHECK_POINTER_RETURN(object)     \
     if (!object) {                       \
