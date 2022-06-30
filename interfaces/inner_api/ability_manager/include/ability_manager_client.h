@@ -779,6 +779,7 @@ private:
 
     sptr<IAbilityManager> GetAbilityManager();
     void ResetProxy(const wptr<IRemoteObject>& remote);
+    void HandleDlpApp(Want &want);
 
     static std::recursive_mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;

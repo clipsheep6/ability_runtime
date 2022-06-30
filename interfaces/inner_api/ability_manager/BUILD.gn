@@ -19,6 +19,7 @@ config("ability_manager_public_config") {
   include_dirs = [
     "include/",
     "//base/notification/eventhandler/interfaces/inner_api",
+    "//base/security/dlp_permission_service/interfaces/inner_api/dlp_parse/include",
     "${ability_base_innerapi_path}/configuration/include",
     "${ability_base_innerapi_path}/uri/include",
     "//third_party/jsoncpp/include",
@@ -34,9 +35,13 @@ config("ability_manager_public_config") {
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]
 
   if (ability_runtime_graphics) {
-    include_dirs += [ "${multimedia_path}/interfaces/innerkits/include" ]
+    include_dirs += [ "${multimedia_path}/interfaces/innerkits/include", ]
 
     defines += [ "SUPPORT_GRAPHICS" ]
+  }
+
+  if (os_dlp_part_enabled) {
+    include_dirs += [ "//base/security/dlp_permission_service/interfaces/inner_api/dlp_parse/include", ]
   }
 
   cflags = []
@@ -90,7 +95,7 @@ ohos_shared_library("ability_manager") {
     "${services_path}/abilitymgr:abilityms_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = [ "//third_party/jsoncpp:jsoncpp", ]
 
   external_deps = [
     "ability_base:base",
@@ -113,6 +118,12 @@ ohos_shared_library("ability_manager") {
   if (ability_runtime_graphics) {
     deps += []
     external_deps += [ "multimedia_image_standard:image_native" ]
+  }
+
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    deps += ["//base/security/dlp_permission_service/interfaces/inner_api/dlp_parse:libdlpparse"]
   }
 
   subsystem_name = "ability"
