@@ -90,7 +90,7 @@ ohos_shared_library("ability_manager") {
     "${services_path}/abilitymgr:abilityms_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp", ]
+  deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
     "ability_base:base",
@@ -112,13 +112,13 @@ ohos_shared_library("ability_manager") {
 
   if (ability_runtime_graphics) {
     deps += []
-    external_deps += [ "multimedia_image_standard:image_native", ]
+    external_deps += [ "multimedia_image_standard:image_native" ]
   }
 
   cflags_cc = []
   if (os_dlp_part_enabled) {
     cflags_cc += [ "-DWITH_DLP" ]
-    external_deps += [ "dlp_permission_service:libdlpparse", ]
+    external_deps += [ "dlp_permission_service:libdlpparse" ]
   }
 
   subsystem_name = "ability"
