@@ -219,14 +219,11 @@ public:
     void SetEnv(const napi_env &env);
     void SetConnectCBRef(const napi_ref &ref);
     void SetDisconnectCBRef(const napi_ref &ref);
-    void SetModuleName(const std::string &moduleName);
-    std::string GetModuleName() const;
 
 private:
     napi_env env_;
     napi_ref connectRef_;
     napi_ref disconnectRef_;
-    std::string moduleName_;
 };
 
 /**

@@ -32,7 +32,8 @@ int LocalCallContainer::StartAbilityByCallInner(
 
     if (want.GetElement().GetBundleName().empty() ||
         want.GetElement().GetAbilityName().empty()) {
-        HILOG_DEBUG("the element of want is empty.");
+        HILOG_ERROR("the element of want is empty.");
+        return ERR_INVALID_VALUE;
     }
 
     if (want.GetElement().GetDeviceID().empty()) {
@@ -179,7 +180,7 @@ bool LocalCallContainer::GetCallLocalRecord(
         AppExecFwk::ElementName callElement;
         if (!callElement.ParseURI(pair.first)) {
             HILOG_ERROR("Parse uri to elementName failed, elementName uri: %{public}s", pair.first.c_str());
-            return false;
+            continue;
         }
         // elementName in callProxyRecords_ has moduleName (sometimes not empty),
         // but the moduleName of input param elementName is usually empty.
