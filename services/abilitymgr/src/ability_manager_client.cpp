@@ -32,6 +32,7 @@ namespace OHOS {
 namespace AAFwk {
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
 std::recursive_mutex AbilityManagerClient::mutex_;
+const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 
 #define CHECK_POINTER_RETURN(object)     \
     if (!object) {                       \
@@ -941,7 +942,7 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
 {
 #ifdef DWITH_DLP
     bool sandboxFlag = DlpFileKits::GetSandboxFlag(want);
-    want.SetBoolParam("ohos.dlp.params.sandbox", sandboxFlag);
+    want.SetBoolParam(DLP_PARAMS_SANDBOX, sandboxFlag);
 #endif // DWITH_DLP
 }
 }  // namespace AAFwk
