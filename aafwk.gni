@@ -86,4 +86,11 @@ declare_args() {
       !defined(global_parts_info.startup_appspawn)) {
     ability_runtime_appspawn = false
   }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.security_dlp_permission_service)) {
+    os_dlp_part_enabled = true
+  } else {
+    os_dlp_part_enabled = false
+  }
 }
