@@ -22,6 +22,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 std::vector<std::shared_ptr<AbilityLifecycleCallback>> ApplicationContext::callbacks_;
+std::vector<std::shared_ptr<EnvironmentCallback>> ApplicationContext::envCallbacks_;
 
 void ApplicationContext::InitApplicationContext()
 {
@@ -37,17 +38,34 @@ void ApplicationContext::AttachContextImpl(const std::shared_ptr<ContextImpl> &c
 void ApplicationContext::RegisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
-    HILOG_INFO("ApplicationContext RegisterAbilityLifecycleCallback");
+    HILOG_DEBUG("ApplicationContext RegisterAbilityLifecycleCallback");
     callbacks_.push_back(abilityLifecycleCallback);
 }
 
 void ApplicationContext::UnregisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
-    HILOG_INFO("ApplicationContext UnregisterAbilityLifecycleCallback");
+    HILOG_DEBUG("ApplicationContext UnregisterAbilityLifecycleCallback");
     auto it = std::find(callbacks_.begin(), callbacks_.end(), abilityLifecycleCallback);
     if (it != callbacks_.end()) {
         callbacks_.erase(it);
+    }
+}
+
+void ApplicationContext::RegisterEnvironmentCallback(
+    const std::shared_ptr<EnvironmentCallback> &environmentCallback)
+{
+    HILOG_DEBUG("ApplicationContext RegisterEnvironmentCallback");
+    envCallbacks_.push_back(environmentCallback);
+}
+
+void ApplicationContext::UnregisterEnvironmentCallback(
+    const std::shared_ptr<EnvironmentCallback> &environmentCallback)
+{
+    HILOG_DEBUG("ApplicationContext UnregisterEnvironmentCallback");
+    auto it = std::find(envCallbacks_.begin(), envCallbacks_.end(), environmentCallback);
+    if (it != envCallbacks_.end()) {
+        envCallbacks_.erase(it);
     }
 }
 
@@ -116,6 +134,7 @@ void ApplicationContext::DispatchOnAbilityBackground(const std::weak_ptr<NativeR
         callback->OnAbilityBackground(abilityObj);
     }
 }
+
 void ApplicationContext::DispatchOnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj)
 {
     if (abilityObj.expired()) {
@@ -124,6 +143,13 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::weak_ptr<NativeRef
     }
     for (auto callback : callbacks_) {
         callback->OnAbilityContinue(abilityObj);
+    }
+}
+
+void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration &config)
+{
+    for (auto envCallback : envCallbacks_) {
+        envCallback->OnConfigurationUpdated(config);
     }
 }
 

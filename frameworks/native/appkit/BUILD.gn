@@ -166,7 +166,7 @@ ohos_shared_library("app_context") {
   cflags_cc = []
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${ability_runtime_path}/interfaces/kits/native/appkit//app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
   ]
 
   configs = [ ":appkit_config" ]
@@ -177,6 +177,7 @@ ohos_shared_library("app_context") {
     "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
     "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/application_context.cpp",
     "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/context_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/environment_callback.cpp",
     "${ability_runtime_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
   ]
   cflags = []

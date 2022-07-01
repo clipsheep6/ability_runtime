@@ -71,6 +71,14 @@ class ApplicationContext {
         return this.__context_impl__.unregisterAbilityLifecycleCallback(callbackId, callback)
     }
 
+    registerEnvironmentCallback(environmentCallback) {
+        return this.__context_impl__.registerEnvironmentCallback(environmentCallback)
+    }
+
+    unregisterEnvironmentCallback(callbackId, envcallback) {
+        return this.__context_impl__.unregisterEnvironmentCallback(callbackId, envcallback)
+    }
+
     createBundleContext(bundleName) {
         return this.__context_impl__.createBundleContext(bundleName)
     }

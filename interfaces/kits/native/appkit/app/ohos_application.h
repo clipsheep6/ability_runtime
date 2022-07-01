@@ -61,7 +61,7 @@ public:
      *
      * @param context ApplicationContext instance.
      */
-    void SetApplicationContext(const std::shared_ptr<AbilityRuntime::Context> &abilityRuntimeContext);
+    void SetApplicationContext(const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext);
 
     /**
      *
@@ -284,7 +284,7 @@ private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
-    std::shared_ptr<AbilityRuntime::Context> abilityRuntimeContext_ = nullptr;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> abilityRuntimeContext_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<AbilityRuntime::AbilityStage>> abilityStages_;
     std::unique_ptr<AbilityRuntime::Runtime> runtime_;
     std::shared_ptr<Configuration> configuration_ = nullptr;

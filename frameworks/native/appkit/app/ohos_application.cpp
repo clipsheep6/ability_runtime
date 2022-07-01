@@ -152,7 +152,8 @@ void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runt
  *
  * @param abilityRuntimeContext ApplicationContext instance.
  */
-void OHOSApplication::SetApplicationContext(const std::shared_ptr<AbilityRuntime::Context> &abilityRuntimeContext)
+void OHOSApplication::SetApplicationContext(
+    const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext)
 {
     HILOG_INFO("OHOSApplication::SetApplicationContext");
     if (abilityRuntimeContext == nullptr) {
@@ -419,6 +420,8 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
             callback->OnConfigurationUpdated(nullptr, config);
         }
     }
+
+    abilityRuntimeContext_->DispatchConfigurationUpdated(config);
 }
 
 /**
