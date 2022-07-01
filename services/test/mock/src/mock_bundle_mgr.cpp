@@ -175,5 +175,27 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
 
     return false;
 }
+
+bool BundleMgrService::ImplicitQueryInfos(const Want &want, int32_t flags, int32_t userId,
+    std::vector<AbilityInfo> &abilityInfos, std::vector<ExtensionAbilityInfo> &extensionInfos)
+{
+    if (want.GetAction() == "ohos.want.action.viewData") {
+        auto num = want.GetIntParam("numMock", 0);
+        if (num == 0) {
+            return true;
+        }
+        for (auto i = 0 ; i < num; i++) {
+            AbilityInfo info;
+            int labelId = 1;
+            int iconId = 1;
+            info.name = "abilitySelector" + std::to_string(i);
+            info.bundleName = "com.test.selector";
+            info.labelId = labelId++;
+            info.iconId = iconId++;
+            abilityInfos.push_back(info);
+        }
+    }
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

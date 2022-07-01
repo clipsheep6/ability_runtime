@@ -65,7 +65,10 @@ ohos_source_set("abilityms_test_source") {
   ]
 
   if (ability_runtime_graphics) {
-    sources += [ "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp" ]
+    sources += [
+      "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp",
+    ]
   }
 
   include_dirs = [

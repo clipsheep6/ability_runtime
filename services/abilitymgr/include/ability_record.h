@@ -31,6 +31,7 @@
 #include "application_info.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "call_container.h"
+#include "ipc_skeleton.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
 #include "uri.h"
@@ -183,6 +184,10 @@ private:
 enum AbilityCallType {
     INVALID_TYPE = 0,
     CALL_REQUEST_TYPE,
+    START_OPTIONS_TYPE,
+    START_SETTINGS_TYPE,
+    START_EXTENSION_TYPE,
+    CONNECT_ABILITY_TYPE,
 };
 struct AbilityRequest {
     Want want;
@@ -201,6 +206,8 @@ struct AbilityRequest {
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::string specifiedFlag;
+
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
     bool IsContinuation() const
     {
@@ -226,6 +233,17 @@ struct AbilityRequest {
         state.push_back(dumpInfo);
         dumpInfo = "      request code [" + std::to_string(requestCode) + "]";
         state.push_back(dumpInfo);
+    }
+
+    void Voluation(const Want &srcWant, int srcRequestCode,
+        const sptr<IRemoteObject> &srcCallerToken, const std::shared_ptr<AbilityStartSetting> srcStartSetting = nullptr,
+        int srcCallerUid = -1)
+    {
+        want = srcWant;
+        requestCode = srcRequestCode;
+        callerToken = srcCallerToken;
+        startSetting = srcStartSetting;
+        callerUid = srcCallerUid == -1 ? IPCSkeleton::GetCallingUid() : srcCallerUid;
     }
 };
 

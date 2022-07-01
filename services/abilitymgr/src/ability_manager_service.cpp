@@ -247,7 +247,8 @@ bool AbilityManagerService::Init()
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
 #ifdef SUPPORT_GRAPHICS
-    sysDialogScheduler_ = std::make_shared<SystemDialogScheduler>(amsConfigResolver_->GetDeviceType());
+    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
+    implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
@@ -408,6 +409,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, requestCode, callerToken);
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -520,6 +528,22 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(
+            want, requestCode, callerToken, std::make_shared<AbilityStartSetting>(abilityStartSetting));
+        abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -654,6 +678,23 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, requestCode, callerToken);
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+        abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -811,6 +852,21 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+        abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
+        abilityRequest.extensionType = extensionType;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -1382,6 +1438,16 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+        abilityRequest.callType = AbilityCallType::CONNECT_ABILITY_TYPE;
+        abilityRequest.connect = connect;
+        abilityRequest.extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, userId);
+    }
+#endif
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
@@ -2861,6 +2927,42 @@ int AbilityManagerService::GenerateAbilityRequest(
     return ERR_OK;
 }
 
+#ifdef SUPPORT_GRAPHICS
+int32_t AbilityManagerService::ImplicitStartAbilityInner(const Want &targetWant,
+    const AbilityRequest &request, int32_t userId)
+{
+    int32_t result = ERR_OK;
+    switch (request.callType) {
+        case AbilityCallType::START_OPTIONS_TYPE: {
+            StartOptions startOptions;
+            auto displayId = targetWant.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, 0);
+            auto windowMode = targetWant.GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+            startOptions.SetDisplayID(static_cast<int32_t>(displayId));
+            startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
+            result = StartAbility(targetWant, startOptions, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_SETTINGS_TYPE: {
+            CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
+            result = StartAbility(
+                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_EXTENSION_TYPE:
+            result = StartExtensionAbility(targetWant, request.callerToken, userId, request.extensionType);
+            break;
+        case AbilityCallType::CONNECT_ABILITY_TYPE:
+            result = ConnectLocalAbility(targetWant, userId, request.connect, request.callerToken);
+            break;
+        default:
+            result = StartAbilityInner(targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
+            break;
+    }
+
+    return result;
+}
+#endif
+
 int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
@@ -4090,19 +4192,20 @@ int AbilityManagerService::SendANRProcessID(int pid)
         }
     };
 #ifdef SUPPORT_GRAPHICS
-    auto showDialogTask = [sysDialog = sysDialogScheduler_, pid, userId = GetUserId()](int32_t labelId,
+    auto showDialogTask = [pid, userId = GetUserId()](int32_t labelId,
         const std::string &bundle, const Closure &callBack) {
         std::string appName {""};
+        auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
         if (!sysDialog) {
-            HILOG_ERROR("sysDialogScheduler_ is nullptr.");
+            HILOG_ERROR("SystemDialogScheduler is nullptr.");
             return;
         }
         sysDialog->GetAppNameFromResource(labelId, bundle, userId, appName);
         sysDialog->ShowANRDialog(appName, callBack);
     };
-    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask, showDialogTask);
+    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask, showDialogTask);
 #else
-    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask);
+    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask);
 #endif
     if (ret != ERR_OK) {
         HILOG_ERROR("dispose app no respose failed.");

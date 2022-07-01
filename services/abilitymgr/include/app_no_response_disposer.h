@@ -36,10 +36,10 @@ public:
     virtual ~AppNoResponseDisposer() = default;
 
 #ifdef SUPPORT_GRAPHICS
-    int DisposeAppNoRespose(int pid,
+    int DisposeAppNoResponse(int pid,
         const SetMissionClosure &task, const ShowDialogClosure &showDialogTask) const;
 #else
-    int DisposeAppNoRespose(int pid, const SetMissionClosure &task) const;
+    int DisposeAppNoResponse(int pid, const SetMissionClosure &task) const;
 #endif
 
 private:

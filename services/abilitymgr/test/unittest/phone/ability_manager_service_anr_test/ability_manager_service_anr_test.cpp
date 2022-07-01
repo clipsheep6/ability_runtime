@@ -107,7 +107,7 @@ void AbilityManagerServiceAnrTest::OnStartAms()
 
 #ifdef SUPPORT_GRAPHICS
         auto deviceType = abilityMs_->amsConfigResolver_->GetDeviceType();
-        abilityMs_->sysDialogScheduler_ = std::make_shared<SystemDialogScheduler>(deviceType);
+        DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
 #endif
 
         auto timeout = abilityMs_->amsConfigResolver_->GetANRTimeOutTime();
