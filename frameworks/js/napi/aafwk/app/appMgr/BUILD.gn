@@ -12,12 +12,12 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("napi_app_mgr") {
   include_dirs = [
     "//third_party/node/src",
-    "${services_path}/common/include",
+    "${ability_runtime_services_path}/common/include",
     "./",
   ]
 

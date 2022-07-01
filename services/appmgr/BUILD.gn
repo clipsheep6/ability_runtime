@@ -12,15 +12,15 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("appmgr_config") {
   include_dirs = [
     "include",
     "${ability_base_innerapi_path}/configuration/include",
+    "${ability_runtime_services_path}/common/include",
     "${appspawn_path}/interfaces/innerkits/include",
-    "${services_path}/common/include",
-    "${aafwk_path}/tools/aa/include",
+    "${ability_runtime_path}/tools/aa/include",
   ]
 }
 
@@ -62,9 +62,9 @@ ohos_shared_library("libappms") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/common:event_report",
-    "${services_path}/common:perm_verification",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:event_report",
+    "${ability_runtime_services_path}/common:perm_verification",
   ]
 
   external_deps = [

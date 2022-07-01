@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/test"
 
@@ -25,62 +25,62 @@ config("module_private_config") {
   }
   include_dirs = [
     "//third_party/json/include",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS",
-    "${aafwk_path}/services/common/include",
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility",
-    "${aafwk_path}/services/abilitymgr/include",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_kits_path}/test/mock/AMS",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility",
+    "${ability_runtime_services_path}/abilitymgr/include",
     "//third_party/jsoncpp/include",
-    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
   ]
 }
 
 ohos_moduletest("ability_moduletest") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_service.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/caller_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/image_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/launch_param.cpp",
-    "${aafwk_path}/services/abilitymgr/src/lifecycle_state_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_listener_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_listener_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_snapshot.cpp",
-    "${aafwk_path}/services/abilitymgr/src/remote_mission_listener_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/remote_mission_listener_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/sender_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/want_sender_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/wants_info.cpp",
     "${ability_base_path}/frameworks/native/configuration/src/configuration.cpp",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include/mock_bundle_manager.cpp",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "moduletest/cpp/abilitytest/ability_test.cpp",
   ]
 
   configs = [
     ":module_private_config",
     "${ability_base_path}:want_public_config",
-    "${aafwk_path}/frameworks/native/ability/native:ability_config",
+    "${ability_runtime_path}/frameworks/native/ability/native:ability_config",
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
@@ -112,34 +112,34 @@ ohos_moduletest("ability_moduletest") {
 ohos_moduletest("ability_conetxt_test") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_serviceability_manager_service.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/caller_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/launch_param.cpp",
-    "${aafwk_path}/services/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include/mock_bundle_manager.cpp",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_kits_path}/test/mock/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "moduletest/cpp/abilitytest/ability_context_test.cpp",
   ]
 
   configs = [
     ":module_private_config",
     "${ability_base_path}:want_public_config",
-    "${aafwk_path}/frameworks/native/ability/native:ability_config",
+    "${ability_runtime_path}/frameworks/native/ability/native:ability_config",
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -169,16 +169,16 @@ ohos_moduletest("ability_conetxt_test") {
 ohos_moduletest("ability_thread_call_request_module_test") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/frameworks/kits/test/moduletest/cpp/abilitytest/ability_thread_call_request_module_test.cpp",
-    "${aafwk_path}/frameworks/native/appkit/app/context_container.cpp",
+    "${ability_runtime_path}/frameworks/kits/test/moduletest/cpp/abilitytest/ability_thread_call_request_module_test.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/app/context_container.cpp",
   ]
 
   configs = [ ":module_private_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:app_context",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
   ]
@@ -198,44 +198,44 @@ ohos_moduletest("ability_thread_call_request_module_test") {
 ohos_moduletest("data_ability_operation_moduletest") {
   module_out_path = module_output_path
   sources = [
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_service.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/caller_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/lifecycle_state_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_listener_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_listener_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_snapshot.cpp",
-    "${aafwk_path}/services/abilitymgr/src/remote_mission_listener_proxy.cpp",
-    "${aafwk_path}/services/abilitymgr/src/remote_mission_listener_stub.cpp",
-    "${aafwk_path}/services/abilitymgr/src/sender_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/want_sender_info.cpp",
-    "${aafwk_path}/services/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_path}/frameworks/kits/ability/native/test/mock/include/mock_bundle_manager.cpp",
+    "${ability_runtime_path}/frameworks/kits/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_path}/frameworks/kits/test/mock/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_path}/frameworks/kits/test/mock/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_path}/frameworks/kits/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_operation.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/mission_info.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/mission_listener_proxy.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/mission_snapshot.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/remote_mission_listener_proxy.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/remote_mission_listener_stub.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/wants_info.cpp",
     "moduletest/cpp/abilitytest/data_ability_operation_module_test.cpp",
   ]
 
   configs = [
     ":module_private_config",
     "${ability_base_path}:want_public_config",
-    "${aafwk_path}/frameworks/native/ability/native:ability_config",
+    "${ability_runtime_path}/frameworks/native/ability/native:ability_config",
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -267,27 +267,27 @@ ohos_moduletest("data_ability_helper_module_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${aafwk_path}/frameworks/kits/test/mock/DemoAbility",
-    "${aafwk_path}/frameworks/kits/test/mock/DemoObServer",
-    "${aafwk_path}/frameworks/kits/ability/native/test/mock/include",
-    "${aafwk_path}/services/dataobsmgr/include",
-    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
+    "${ability_runtime_kits_path}/test/mock/DemoAbility",
+    "${ability_runtime_kits_path}/test/mock/DemoObServer",
+    "${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_services_path}/dataobsmgr/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${distributedschedule_path}/samgr/services/samgr/native/include",
   ]
 
-  sources = [ "${aafwk_path}/frameworks/kits/test/moduletest/cpp/abilitytest/data_ability_helper_module_test.cpp" ]
+  sources = [ "${ability_runtime_kits_path}/test/moduletest/cpp/abilitytest/data_ability_helper_module_test.cpp" ]
 
   configs = [
     ":module_private_config",
     "${ability_base_path}:want_public_config",
-    "${aafwk_path}/frameworks/native/ability/native:ability_config",
+    "${ability_runtime_path}/frameworks/native/ability/native:ability_config",
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/ability/native:data_ability_helper",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/ability/native:data_ability_helper",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

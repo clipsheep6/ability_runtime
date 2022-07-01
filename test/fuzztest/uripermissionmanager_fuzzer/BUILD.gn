@@ -15,15 +15,16 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/uripermmgr"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("UriPermissionManagerFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "${aafwk_path}/test/fuzztest/uripermissionmanager_fuzzer"
-  include_dirs = [ "${aafwk_path}/services/uripermmgr/include" ]
+  fuzz_config_file =
+      "${ability_runtime_path}/test/fuzztest/uripermissionmanager_fuzzer"
+  include_dirs = [ "${ability_runtime_services_path}/uripermmgr/include" ]
   cflags = [
     "-g",
     "-O0",
@@ -32,12 +33,12 @@ ohos_fuzztest("UriPermissionManagerFuzzTest") {
   ]
   sources = [ "uripermissionmanager_fuzzer.cpp" ]
 
-  configs = [ "${services_path}/common:common_config" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/uripermmgr:libupms",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/uripermmgr:libupms",
   ]
 
   external_deps = [

@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/interfaces"
 
@@ -26,8 +26,8 @@ ohos_benchmarktest("BenchmarkTestForMissionManager") {
   }
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
     "//third_party/benchmark:benchmark",
     "//third_party/googletest:gtest_main",
   ]

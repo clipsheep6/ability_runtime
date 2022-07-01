@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/mstappmgrservice"
 
@@ -22,7 +22,7 @@ ohos_moduletest("AppRunningProcessesInfoModuleTest") {
   include_dirs = []
   sources = [ "app_running_processes_info_module_test.cpp" ]
 
-  deps = [ "${services_path}/test/moduletest/common/ams:appmgr_mst_source" ]
+  deps = [ "${ability_runtime_services_path}/test/moduletest/common/ams:appmgr_mst_source" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",

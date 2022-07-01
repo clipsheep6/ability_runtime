@@ -12,12 +12,12 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 ohos_shared_library("particleability") {
   include_dirs = [
     "//third_party/node/src",
-    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility",
-    "${services_path}/common/include",
+    "${ability_runtime_napi_path}/featureAbility",
+    "${ability_runtime_services_path}/common/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
@@ -26,9 +26,9 @@ ohos_shared_library("particleability") {
   ]
 
   sources = [
-    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility/napi_context.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility/napi_data_ability_helper.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility/napi_data_ability_operation.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
@@ -37,9 +37,9 @@ ohos_shared_library("particleability") {
   ]
 
   deps = [
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
-    "${innerkits_path}/dataobs_manager:dataobs_manager",
-    "${native_path}/appkit:appkit_native",
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
     "//third_party/jsoncpp:jsoncpp",
     "//third_party/libuv:uv_static",
   ]

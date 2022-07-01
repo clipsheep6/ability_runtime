@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -20,25 +20,25 @@ ohos_unittest("AmsServiceEventDriveTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${aafwk_path}/services/appmgr/test/mock/include",
+    "${ability_runtime_services_path}/appmgr/test/mock/include",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
-    "${aafwk_path}/services/appmgr/src",
+    "${ability_runtime_services_path}/appmgr/src",
   ]
 
   sources = [
-    "${aafwk_path}/interfaces/inner_api/app_manager/src/appmgr/system_memory_attr.cpp",
-    "${services_path}/appmgr/src/ability_running_record.cpp",
-    "${services_path}/appmgr/src/app_death_recipient.cpp",
-    "${services_path}/appmgr/src/app_mgr_service.cpp",
-    "${services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
-    "${services_path}/appmgr/src/app_mgr_service_inner.cpp",
-    "${services_path}/appmgr/src/app_running_record.cpp",
-    "${services_path}/appmgr/src/app_spawn_client.cpp",
-    "${services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${services_path}/appmgr/src/app_spawn_socket.cpp",
-    "${services_path}/appmgr/src/app_state_observer_manager.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/system_memory_attr.cpp",
+    "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
   ]
 
   sources += [ "ams_service_event_drive_test.cpp" ]
@@ -48,12 +48,13 @@ ohos_unittest("AmsServiceEventDriveTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/appmgr:libappms",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/appmgr/test:appmgr_test_source",
+    "${ability_runtime_services_path}/common:event_report",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/appmgr/test:appmgr_test_source",
-    "${services_path}/common:perm_verification",
   ]
 
   external_deps = [

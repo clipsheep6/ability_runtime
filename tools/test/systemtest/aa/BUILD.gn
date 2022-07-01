@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_tools/tools"
 
@@ -38,7 +38,7 @@ ohos_systemtest("aa_command_start_system_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -51,7 +51,8 @@ ohos_systemtest("aa_command_start_system_test") {
     "ipc:ipc_core",
   ]
 
-  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
+  resource_config_file =
+      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_stop_service_system_test") {
@@ -70,7 +71,7 @@ ohos_systemtest("aa_command_stop_service_system_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -83,7 +84,8 @@ ohos_systemtest("aa_command_stop_service_system_test") {
     "ipc:ipc_core",
   ]
 
-  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
+  resource_config_file =
+      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_dump_system_test") {
@@ -104,7 +106,7 @@ ohos_systemtest("aa_command_dump_system_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -117,7 +119,8 @@ ohos_systemtest("aa_command_dump_system_test") {
     "ipc:ipc_core",
   ]
 
-  resource_config_file = "${aafwk_path}/tools/test/resource/ohos_test.xml"
+  resource_config_file =
+      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 group("systemtest") {

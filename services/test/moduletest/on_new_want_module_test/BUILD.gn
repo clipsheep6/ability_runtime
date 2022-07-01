@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/mstabilitymgrservice"
 
@@ -20,39 +20,39 @@ ohos_moduletest("on_new_want_module_test") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${services_path}/test/mock/include",
+    "${ability_runtime_services_path}/test/mock/include",
     "//third_party/jsoncpp/include",
-    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
-    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_path}/interfaces/inner_api/dataobs_manager/include",
   ]
 
   sources = [ "on_new_want_module_test.cpp" ]
   sources += [
-    "${aafwk_path}/services/abilitymgr/src/ability_manager_service.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_list.cpp",
-    "${aafwk_path}/services/abilitymgr/src/mission_list_manager.cpp",
-    "${aafwk_path}/services/common/src/event_report.cpp",
-    "${aafwk_path}/services/common/src/permission_verification.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_list.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_list_manager.cpp",
+    "${ability_runtime_services_path}/common/src/event_report.cpp",
+    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
     "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
   ]
 
   configs = [
-    "${services_path}/test:aafwk_module_test_config",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager_public_config",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock_config",
-    "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
+    "${ability_runtime_services_path}/test:aafwk_module_test_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/services/abilitymgr:abilityms",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",

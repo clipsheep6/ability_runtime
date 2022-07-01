@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("native_wantagent") {
   deps = [ ":wantagent_innerkits" ]
@@ -25,21 +25,21 @@ config("wantagent_innerkits_public_config") {
     "//base/notification/eventhandler/interfaces/inner_api",
     "${ability_base_innerapi_path}/configuration/include",
     "${global_path}/resource_management/interfaces/inner_api/include",
-    "${aafwk_path}/interfaces/kits/native/ability/native",
-    "${innerkits_path}/ability_manager/include",
-    "${innerkits_path}/wantagent/include",
-    "${services_path}/abilitymgr/include",
-    "${innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_innerkits_path}/wantagent/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "//third_party/icu/icu4c/source/common",
   ]
 }
 
 ohos_shared_library("wantagent_innerkits") {
-  include_dirs = [ "${services_path}/common/include" ]
+  include_dirs = [ "${ability_runtime_services_path}/common/include" ]
 
   sources = [
     "src/completed_dispatcher.cpp",
@@ -55,7 +55,7 @@ ohos_shared_library("wantagent_innerkits") {
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 
-  deps = [ "${native_path}/appkit:app_context" ]
+  deps = [ "${ability_runtime_native_path}/appkit:app_context" ]
 
   external_deps = [
     "ability_base:base",

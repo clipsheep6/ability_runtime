@@ -12,19 +12,19 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_tools/tools"
 
 config("test_ability_tool_config") {
   include_dirs = [
-    "${aafwk_path}/tools/test/mock",
+    "${ability_runtime_path}/tools/test/mock",
     "//third_party/googletest/googlemock/include",
   ]
 }
 
 test_ability_tool_mock_sources =
-    [ "${aafwk_path}/tools/test/mock/mock_ability_manager_stub.cpp" ]
+    [ "${ability_runtime_path}/tools/test/mock/mock_ability_manager_stub.cpp" ]
 
 ohos_unittest("ability_tool_test") {
   module_out_path = module_output_path
@@ -40,7 +40,7 @@ ohos_unittest("ability_tool_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

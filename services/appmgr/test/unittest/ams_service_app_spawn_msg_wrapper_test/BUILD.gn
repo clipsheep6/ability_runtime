@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -24,8 +24,8 @@ ohos_unittest("AmsServiceAppSpawnMsgWrapperTest") {
   defines = [ "usleep(time) = MockSleep(time)" ]
 
   sources = [
-    "${services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${services_path}/appmgr/src/app_spawn_socket.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
   ]
 
   sources += [ "ams_service_app_spawn_msg_wrapper_test.cpp" ]
@@ -35,7 +35,7 @@ ohos_unittest("AmsServiceAppSpawnMsgWrapperTest") {
   }
   configs = []
 
-  deps = [ "${services_path}/appmgr/test:appmgr_test_source" ]
+  deps = [ "${ability_runtime_services_path}/appmgr/test:appmgr_test_source" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

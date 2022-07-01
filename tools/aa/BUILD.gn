@@ -12,14 +12,14 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("ability_command_config") {
   include_dirs = [
     "include",
-    "${innerkits_path}/app_manager/include/appmgr",
-    "${innerkits_path}/uri/include",
-    "${services_path}/abilitymgr/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_innerkits_path}/uri/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/jsoncpp/include",
@@ -41,8 +41,8 @@ ohos_source_set("tools_aa_source_set") {
 
   public_configs = [
     ":ability_command_config",
-    "${services_path}/abilitymgr:abilityms_config",
-    "${services_path}/common:common_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/common:common_config",
   ]
 
   cflags = []
@@ -51,9 +51,9 @@ ohos_source_set("tools_aa_source_set") {
   }
 
   deps = [
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${services_path}/abilitymgr:abilityms",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
   ]
 
   external_deps = [

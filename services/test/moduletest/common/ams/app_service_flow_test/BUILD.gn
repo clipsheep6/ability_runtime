@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/mstappmgrservice"
 
@@ -23,9 +23,9 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
   sources = [ "ams_app_service_flow_module_test.cpp" ]
 
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${services_path}/common:perm_verification",
-    "${services_path}/test/moduletest/common/ams:appmgr_mst_source",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/test/moduletest/common/ams:appmgr_mst_source",
   ]
 
   external_deps = [

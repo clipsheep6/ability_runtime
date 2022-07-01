@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -23,7 +23,8 @@ ohos_unittest("AmsServiceAppSpawnSocketTest") {
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
-  sources = [ "${services_path}/appmgr/src/app_spawn_socket.cpp" ]
+  sources =
+      [ "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp" ]
 
   sources += [ "ams_service_app_spawn_socket_test.cpp" ]
 
@@ -31,7 +32,7 @@ ohos_unittest("AmsServiceAppSpawnSocketTest") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "${services_path}/appmgr/test:appmgr_test_source" ]
+  deps = [ "${ability_runtime_services_path}/appmgr/test:appmgr_test_source" ]
 
   external_deps = [
     "appspawn:appspawn_socket_client",

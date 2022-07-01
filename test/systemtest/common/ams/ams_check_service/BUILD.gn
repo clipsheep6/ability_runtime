@@ -17,10 +17,10 @@ module_output_path = "appexecfwk_standard/ams/"
 
 config("ams_check_service_config") {
   include_dirs = [
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_base_innerapi_path}/want/include",
-    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
-    "${aafwk_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_base_innerapi_path}/want/include",
     "//third_party/json/include",
   ]
@@ -47,8 +47,8 @@ ohos_systemtest("ams_check_service") {
   ]
 
   configs = [
-    "${aafwk_path}/services/abilitymgr:abilityms_config",
-    "${aafwk_path}/services/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
     ":ams_check_service_config",
     "test/systemtest/common/ams/tool/:system_test_ability_util_config",
   ]
@@ -57,9 +57,9 @@ ohos_systemtest("ams_check_service") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/services/abilitymgr:abilityms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

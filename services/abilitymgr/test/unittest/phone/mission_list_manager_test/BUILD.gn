@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
@@ -20,31 +20,31 @@ ohos_unittest("mission_list_manager_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${services_path}/abilitymgr/test/mock/libs/system_ability_mock",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/system_ability_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   sources = [
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
-    "${aafwk_path}/services/common/src/permission_verification.cpp",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
+    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
     "mission_list_manager_test.cpp",  # add mock file
   ]
 
   configs = [
-    "${services_path}/abilitymgr:abilityms_config",
-    "${services_path}/abilitymgr/test/mock:aafwk_mock_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/abilitymgr/test/mock:aafwk_mock_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/services/abilitymgr:abilityms",
-    "${services_path}/abilitymgr/test:abilityms_test_source",
-    "${services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
-    "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
-    "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr/test:abilityms_test_source",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/aakit:aakit_mock",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_appmgr_mock",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
     "//utils/native/base:utils",

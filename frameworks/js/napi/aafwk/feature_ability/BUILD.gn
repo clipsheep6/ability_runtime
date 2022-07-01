@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("featureability_napi") {
   include_dirs = []
@@ -23,10 +23,9 @@ ohos_shared_library("featureability_napi") {
     "js_feature_ability.cpp",
   ]
 
-  configs = [ "${services_path}/common:common_config" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps =
-      [ "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common" ]
+  deps = [ "${ability_runtime_napi_path}/inner/napi_common:napi_common" ]
 
   external_deps = [
     "ability_base:want",

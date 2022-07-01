@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("errormanager_napi") {
   include_dirs = []
@@ -27,9 +27,9 @@ ohos_shared_library("errormanager_napi") {
     "js_error_observer.cpp",
   ]
 
-  configs = [ "${aafwk_path}/services/common:common_config" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [ "${aafwk_path}/frameworks/native/appkit:appkit_native" ]
+  deps = [ "${ability_runtime_path}/frameworks/native/appkit:appkit_native" ]
 
   external_deps = [
     "ability_base:base",

@@ -12,19 +12,19 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("appexecfwk_core_mock_config") {
   include_dirs = [
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/appmgr",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/bundlemgr",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
-    "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
-    "${aafwk_path}/interfaces/kits/native/ability/native/",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/aakit/include/",
-    "${aafwk_path}/services/common/include",
+    "${ability_runtime_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/",
+    "${ability_runtime_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/appmgr",
+    "${ability_runtime_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/include/bundlemgr",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_path}/services/abilitymgr/include",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/",
+    "${ability_runtime_path}/services/abilitymgr/test/mock/libs/aakit/include/",
+    "${ability_runtime_path}/services/common/include",
   ]
 }
 
@@ -37,7 +37,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
@@ -57,7 +57,7 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
   testonly = true
   configs = [
     ":appexecfwk_core_mock_config",
-    "${services_path}/common:common_config",
+    "${ability_runtime_services_path}/common:common_config",
   ]
   cflags = []
   if (target_cpu == "arm") {

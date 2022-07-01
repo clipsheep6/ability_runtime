@@ -12,91 +12,91 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
 
 ohos_source_set("abilityms_test_source") {
   cflags_cc = []
   sources = [
-    "${services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${services_path}/abilitymgr/src/ability_connect_manager.cpp",
-    "${services_path}/abilitymgr/src/ability_event_handler.cpp",
-    "${services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${services_path}/abilitymgr/src/ability_manager_service.cpp",
-    "${services_path}/abilitymgr/src/ability_manager_stub.cpp",
-    "${services_path}/abilitymgr/src/ability_record.cpp",
-    "${services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${services_path}/abilitymgr/src/ability_start_setting.cpp",
-    "${services_path}/abilitymgr/src/ability_token_stub.cpp",
-    "${services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
-    "${services_path}/abilitymgr/src/app_no_response_disposer.cpp",
-    "${services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
-    "${services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
-    "${services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
-    "${services_path}/abilitymgr/src/background_task_observer.cpp",
-    "${services_path}/abilitymgr/src/call_container.cpp",
-    "${services_path}/abilitymgr/src/call_record.cpp",
-    "${services_path}/abilitymgr/src/caller_info.cpp",
-    "${services_path}/abilitymgr/src/connection_record.cpp",
-    "${services_path}/abilitymgr/src/data_ability_caller_recipient.cpp",
-    "${services_path}/abilitymgr/src/data_ability_manager.cpp",
-    "${services_path}/abilitymgr/src/data_ability_record.cpp",
-    "${services_path}/abilitymgr/src/free_install_manager.cpp",
-    "${services_path}/abilitymgr/src/launch_param.cpp",
-    "${services_path}/abilitymgr/src/lifecycle_deal.cpp",
-    "${services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "${services_path}/abilitymgr/src/pending_want_common_event.cpp",
-    "${services_path}/abilitymgr/src/pending_want_key.cpp",
-    "${services_path}/abilitymgr/src/pending_want_manager.cpp",
-    "${services_path}/abilitymgr/src/pending_want_record.cpp",
-    "${services_path}/abilitymgr/src/sender_info.cpp",
-    "${services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
-    "${services_path}/abilitymgr/src/user_controller.cpp",
-    "${services_path}/abilitymgr/src/user_event_handler.cpp",
-    "${services_path}/abilitymgr/src/want_receiver_proxy.cpp",
-    "${services_path}/abilitymgr/src/want_receiver_stub.cpp",
-    "${services_path}/abilitymgr/src/want_sender_info.cpp",
-    "${services_path}/abilitymgr/src/want_sender_proxy.cpp",
-    "${services_path}/abilitymgr/src/want_sender_stub.cpp",
-    "${services_path}/abilitymgr/src/wants_info.cpp",
-    "${services_path}/common/src/event_report.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/app_no_response_disposer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/background_task_observer.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/call_container.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/call_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_caller_recipient.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/free_install_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_common_event.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_key.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/user_controller.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/user_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_services_path}/common/src/event_report.cpp",
   ]
 
   if (ability_runtime_graphics) {
-    sources += [ "${services_path}/abilitymgr/src/system_dialog_scheduler.cpp" ]
+    sources += [ "${ability_runtime_services_path}/abilitymgr/src/system_dialog_scheduler.cpp" ]
   }
 
   include_dirs = [
-    "${services_path}/abilitymgr/test/mock/libs/system_ability_mock",
-    "${services_path}/abilitymgr/test/mock/libs/appexecfwk_core",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/system_ability_mock",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
-    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
-    "${aafwk_path}/interfaces/inner_api/dataobs_manager/include",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager/include/appmgr",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_path}/interfaces/inner_api/dataobs_manager/include",
   ]
 
   external_dependent_files = [
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_state_callback_host.cpp",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_mgr_client.cpp",
-    "${aafwk_path}/services/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_state_callback_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_state_callback_host.cpp",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_mgr_client.cpp",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/appexecfwk_core/src/appmgr/app_state_callback_proxy.cpp",
   ]
 
   sources += external_dependent_files
 
   public_configs = [
-    "${services_path}/abilitymgr:abilityms_config",
-    "${services_path}/abilitymgr/test/mock:aafwk_mock_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/abilitymgr/test/mock:aafwk_mock_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/abilitymgr/test/mock/libs/sa_mgr:sa_mgr_mock",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
     "//utils/native/base:utils",
   ]
@@ -108,20 +108,20 @@ ohos_source_set("abilityms_test_source") {
 
   if (ability_runtime_graphics) {
     sources += [
-      "${services_path}/abilitymgr/src/image_info.cpp",
-      "${services_path}/abilitymgr/src/inner_mission_info.cpp",
-      "${services_path}/abilitymgr/src/mission.cpp",
-      "${services_path}/abilitymgr/src/mission_data_storage.cpp",
-      "${services_path}/abilitymgr/src/mission_info.cpp",
-      "${services_path}/abilitymgr/src/mission_info_mgr.cpp",
-      "${services_path}/abilitymgr/src/mission_list.cpp",
-      "${services_path}/abilitymgr/src/mission_list_manager.cpp",
-      "${services_path}/abilitymgr/src/mission_listener_controller.cpp",
-      "${services_path}/abilitymgr/src/mission_listener_proxy.cpp",
-      "${services_path}/abilitymgr/src/mission_listener_stub.cpp",
-      "${services_path}/abilitymgr/src/mission_snapshot.cpp",
-      "${services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
-      "${services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_data_storage.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_info_mgr.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_list.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_list_manager.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_controller.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+      "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
     ]
     deps += [
       "${global_path}/i18n/frameworks/intl:intl_util",

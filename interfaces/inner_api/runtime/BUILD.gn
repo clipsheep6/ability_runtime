@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("runtime_config") {
   visibility = [ ":*" ]
@@ -36,16 +36,16 @@ config("runtime_public_config") {
 
 ohos_shared_library("runtime") {
   sources = [
-    "${aafwk_path}/frameworks/native/runtime/js_data_struct_converter.cpp",
-    "${aafwk_path}/frameworks/native/runtime/js_runtime.cpp",
-    "${aafwk_path}/frameworks/native/runtime/js_runtime_utils.cpp",
-    "${aafwk_path}/frameworks/native/runtime/runtime.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/js_data_struct_converter.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/js_runtime.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/js_runtime_utils.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/runtime.cpp",
   ]
 
   configs = [
     ":runtime_config",
     "//ark/js_runtime:ark_jsruntime_public_config",
-    "${services_path}/common:common_config",
+    "${ability_runtime_services_path}/common:common_config",
   ]
 
   public_configs = [ ":runtime_public_config" ]

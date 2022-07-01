@@ -18,12 +18,12 @@ config("amsSystemTestBConfig") {
   visibility = [ ":*" ]
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/app",
+    "${ability_runtime_kits_path}/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
-    "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/services/common/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_services_path}/common/include",
     "${SUBST_TOOLS_DIR}/include",
     "//third_party/jsoncpp/include",
   ]
@@ -39,9 +39,9 @@ ohos_shared_library("amsSystemTestB") {
   ]
   configs = [ ":amsSystemTestBConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utilsbase",
   ]

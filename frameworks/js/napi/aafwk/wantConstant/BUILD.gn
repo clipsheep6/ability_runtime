@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 ohos_shared_library("wantconstant") {
   include_dirs = [
     "//third_party/node/src",
@@ -25,7 +25,7 @@ ohos_shared_library("wantconstant") {
   ]
 
   deps = [
-    "${native_path}/appkit:appkit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/libuv:uv_static",
   ]
 

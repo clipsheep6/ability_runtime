@@ -12,29 +12,29 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("ability_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${aafwk_path}/interfaces/kits/native/ability/native",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/distributed",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/kits",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
-    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
-    "${innerkits_path}/app_manager/include/appmgr",
-    "${innerkits_path}/uri/include",
-    "${services_path}/abilitymgr/include",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_innerkits_path}/uri/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${form_fwk_path}/interfaces/kits/native/include",
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "//third_party/node/src",
-    "${innerkits_path}/ability_manager/include/continuation",
-    "${aafwk_path}/interfaces/kits/native/appkit/app/task",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common",
-    "${aafwk_path}/frameworks/js/napi/aafwk/featureAbility",
+    "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/featureAbility",
   ]
 
   cflags = []
@@ -58,19 +58,19 @@ config("ability_config") {
 config("ability_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${aafwk_path}/interfaces/kits/native/ability/native",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/distributed",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/kits",
-    "${aafwk_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
-    "${aafwk_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
-    "${aafwk_path}/interfaces/kits/native/appkit",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/app",
-    "${aafwk_path}/interfaces/kits/native/appkit/app",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/distributed",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/remote_register_service",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "//third_party/libuv/include",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${innerkits_path}/ability_manager/include/continuation",
-    "${services_path}/common/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
+    "${ability_runtime_services_path}/common/include",
     "//third_party/jsoncpp/include",
     "//third_party/json/include",
   ]
@@ -87,11 +87,12 @@ config("ability_public_config") {
 }
 
 ohos_shared_library("static_subscriber_ipc") {
-  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
   sources = [
-    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_stub.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/static_subscriber_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/static_subscriber_stub.cpp",
   ]
 
   deps = []
@@ -116,91 +117,91 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   sources = [
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_ability.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_configuration.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_start_options.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_util.cpp",
-    "${aafwk_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_want.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_context.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_handler.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_impl_factory.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_lifecycle.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_lifecycle_executor.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_loader.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_local_record.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_post_event_timeout.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_process.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_ability.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_ability_context.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_runtime/js_caller_complex.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/ability_thread.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/continuation_handler.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/continuation_manager.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_stub.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_recipient.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_stub.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_stub.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_connector.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_device_callback_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_proxy.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_stub.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_result.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/data_uri_utils.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/distributed_ability_runtime/distributed_client.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/extension.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/extension_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/extension_module_loader.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/js_service_extension.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/js_service_extension_context.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/js_static_subscriber_extension.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/js_static_subscriber_extension_context.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/mission_information.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/new_ability_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/service_ability_impl.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/service_extension.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_extension.cpp",
-    "${aafwk_path}/frameworks/native/ability/native/static_subscriber_stub_imp.cpp",
-    "${aafwk_path}/frameworks/native/appkit/ability_runtime/extension_context.cpp",
-    "${aafwk_path}/frameworks/native/appkit/ability_runtime/service_extension_context.cpp",
-    "${aafwk_path}/frameworks/native/appkit/ability_runtime/static_subscriber_extension_context.cpp",
-    "${aafwk_path}/frameworks/native/appkit/app/app_context.cpp",
-    "${aafwk_path}/frameworks/native/appkit/app/context_container.cpp",
-    "${aafwk_path}/frameworks/native/appkit/app/context_deal.cpp",
-    "${aafwk_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
+    "${ability_runtime_innerkits_path}/app_manager/src/appmgr/process_info.cpp",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_ability.cpp",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_configuration.cpp",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_start_options.cpp",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_util.cpp",
+    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common/napi_common_want.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_context.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_handler.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_impl_factory.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_lifecycle.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_lifecycle_executor.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_loader.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_local_record.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_post_event_timeout.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_process.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_runtime/js_ability.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_runtime/js_ability_context.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_runtime/js_caller_complex.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/ability_thread.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/continuation_handler.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/continuation_manager.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_primary_stub.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_recipient.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/distributed/reverse_continuation_scheduler_replica_stub.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/connect_callback_stub.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_connector.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_device_callback_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/continuation_register_manager_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_proxy.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/continuation/remote_register_service/remote_register_service_stub.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_helper_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_operation.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_operation_builder.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_ability_result.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/data_uri_utils.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/distributed_ability_runtime/distributed_client.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/extension.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/extension_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/extension_module_loader.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/js_service_extension.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/js_service_extension_context.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/js_static_subscriber_extension.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/js_static_subscriber_extension_context.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/mission_information.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/new_ability_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/service_ability_impl.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/service_extension.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/static_subscriber_extension.cpp",
+    "${ability_runtime_path}/frameworks/native/ability/native/static_subscriber_stub_imp.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/extension_context.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/service_extension_context.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/static_subscriber_extension_context.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/app/app_context.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/app/context_container.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/app/context_deal.cpp",
+    "${ability_runtime_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/common/src/event_report.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
-    "${innerkits_path}/app_manager/src/appmgr/process_info.cpp",
-    "${services_path}/abilitymgr/src/ability_start_setting.cpp",
-    "${services_path}/abilitymgr/src/launch_param.cpp",
-    "${services_path}/common/src/event_report.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
     ":ability_public_config",
-    "${aafwk_path}/frameworks/native/ability:ability_context_public_config",
-    "${kits_path}/wantagent:wantagent_innerkits_public_config",
+    "${ability_runtime_path}/frameworks/native/ability:ability_context_public_config",
+    "${ability_runtime_kits_path}/wantagent:wantagent_innerkits_public_config",
   ]
 
   deps = [
     ":static_subscriber_ipc",
-    "${innerkits_path}/dataobs_manager:dataobs_manager",
-    "${native_path}/appkit:app_context",
-    "${native_path}/appkit:app_context_utils",
-    "${native_path}/appkit:appkit_delegator",
+    "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context_utils",
+    "${ability_runtime_native_path}/appkit:appkit_delegator",
   ]
 
   external_deps = [
@@ -254,16 +255,16 @@ ohos_shared_library("abilitykit_native") {
   if (ability_runtime_graphics) {
     include_dirs += []
     sources += [
-      "${aafwk_path}/frameworks/native/ability/native/ability_window.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_extension.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_js_event_handler.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_provider_client.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_runtime/form_extension_provider_client.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension_context.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/form_runtime/js_form_extension_util.cpp",
-      "${aafwk_path}/frameworks/native/ability/native/page_ability_impl.cpp",
-      "${aafwk_path}/frameworks/native/appkit/ability_runtime/form_extension_context.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/ability_window.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_extension.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_js_event_handler.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_provider_client.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_runtime/form_extension_provider_client.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_runtime/js_form_extension.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_runtime/js_form_extension_context.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/form_runtime/js_form_extension_util.cpp",
+      "${ability_runtime_path}/frameworks/native/ability/native/page_ability_impl.cpp",
+      "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/form_extension_context.cpp",
     ]
     deps += [
       "${multimodalinput_path}/frameworks/proxy:libmmi-common",
@@ -289,11 +290,10 @@ ohos_shared_library("abilitykit_native") {
 }
 
 ohos_shared_library("data_ability_helper") {
-  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
-  sources = [
-    "${aafwk_path}/frameworks/native/ability/native/data_ability_helper.cpp",
-  ]
+  sources = [ "${ability_runtime_path}/frameworks/native/ability/native/data_ability_helper.cpp" ]
 
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]
@@ -316,9 +316,10 @@ ohos_shared_library("data_ability_helper") {
 }
 
 ohos_shared_library("service_extension_module") {
-  include_dirs = [ "${aafwk_path}/interfaces/kits/native/ability/native" ]
+  include_dirs =
+      [ "${ability_runtime_path}/interfaces/kits/native/ability/native" ]
 
-  sources = [ "${aafwk_path}/frameworks/native/ability/native/service_extension_module_loader.cpp" ]
+  sources = [ "${ability_runtime_path}/frameworks/native/ability/native/service_extension_module_loader.cpp" ]
 
   configs = [ ":ability_config" ]
   public_configs = [ ":ability_public_config" ]

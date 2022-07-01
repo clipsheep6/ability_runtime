@@ -12,44 +12,44 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_source_set("appmgr_mst_source") {
   testonly = true
   cflags_cc = []
   sources = [
-    "${services_path}/appmgr/src/ability_running_record.cpp",
-    "${services_path}/appmgr/src/ams_mgr_scheduler.cpp",
-    "${services_path}/appmgr/src/app_death_recipient.cpp",
-    "${services_path}/appmgr/src/app_lifecycle_deal.cpp",
-    "${services_path}/appmgr/src/app_mgr_service.cpp",
-    "${services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
-    "${services_path}/appmgr/src/app_mgr_service_inner.cpp",
-    "${services_path}/appmgr/src/app_process_manager.cpp",
-    "${services_path}/appmgr/src/app_running_manager.cpp",
-    "${services_path}/appmgr/src/app_running_record.cpp",
-    "${services_path}/appmgr/src/app_spawn_client.cpp",
-    "${services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${services_path}/appmgr/src/app_spawn_socket.cpp",
-    "${services_path}/appmgr/src/app_state_observer_manager.cpp",
-    "${services_path}/appmgr/src/module_running_record.cpp",
-    "${services_path}/appmgr/src/remote_client_manager.cpp",
-    "${services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
-    "${services_path}/common/src/event_report.cpp",
+    "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/ams_mgr_scheduler.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_lifecycle_deal.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_event_handler.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_process_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_running_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
+    "${ability_runtime_services_path}/common/src/event_report.cpp",
   ]
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
     "//third_party/json/include",
-    "${services_path}/appmgr/test/mock/include",
+    "${ability_runtime_services_path}/appmgr/test/mock/include",
   ]
 
   public_configs = [
-    "${services_path}/test:services_module_test_config",
-    "${services_path}/appmgr:appmgr_config",
-    "${services_path}/test:services_mock_ams_config",
-    "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config",
+    "${ability_runtime_services_path}/test:services_module_test_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/test:services_mock_ams_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy_config",
     "//utils/native/base:utils_config",
     "//third_party/googletest:gtest_config",
@@ -60,15 +60,15 @@ ohos_source_set("appmgr_mst_source") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   public_deps = [
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${appspawn_path}/interfaces/innerkits:appspawn_socket_client",
     "${bundlefwk_inner_api_path}/appexecfwk_base:appexecfwk_base",
     "${bundlefwk_inner_api_path}/appexecfwk_core:appexecfwk_core",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/common:perm_verification",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",

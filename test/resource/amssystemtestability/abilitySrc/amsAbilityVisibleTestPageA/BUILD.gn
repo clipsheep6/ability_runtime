@@ -18,13 +18,13 @@ config("amsAbilityVisibleTestPageAConfig") {
   visibility = [ ":*" ]
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
-    "${aafwk_path}/frameworks/kits/appkit/native/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/frameworks/kits/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
-    "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/services/common/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_services_path}/common/include",
     "${SUBST_TOOLS_DIR}/include",
   ]
   defines = [
@@ -42,12 +42,12 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
   ]
   configs = [ ":amsAbilityVisibleTestPageAConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:app_context",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/kits/wantagent:wantagent_innerkits",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//utils/native/base:utilsbase",

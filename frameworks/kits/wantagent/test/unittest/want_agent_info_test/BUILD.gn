@@ -13,13 +13,13 @@
 
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ans_standard/wantagent"
 
 ohos_unittest("want_agent_info_test") {
   module_out_path = module_output_path
-  include_dirs = [ "${aafwk_path}/services/abilitymgr/include" ]
+  include_dirs = [ "${ability_runtime_services_path}/abilitymgr/include" ]
 
   sources = [ "want_agent_info_test.cpp" ]
 
@@ -29,9 +29,9 @@ ohos_unittest("want_agent_info_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_path}/frameworks/kits/wantagent:wantagent_innerkits",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/services/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -20,8 +20,8 @@ ohos_unittest("AmsAppMgrClientTest") {
   module_out_path = module_output_path
   cflags_cc = []
   sources = [
-    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_mgr_client.cpp",
-    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_service_manager.cpp",
+    "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_mgr_client.cpp",
+    "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_service_manager.cpp",
   ]
 
   sources += [ "ams_app_mgr_client_test.cpp" ]
@@ -35,16 +35,16 @@ ohos_unittest("AmsAppMgrClientTest") {
   ]
 
   configs =
-      [ "${aafwk_path}/interfaces/inner_api/app_manager:appmgr_sdk_config" ]
+      [ "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/appmgr/test:appmgr_test_source",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${services_path}/appmgr/test:appmgr_test_source",
-    "${services_path}/common:perm_verification",
     "//utils/native/base:utils",
   ]
 

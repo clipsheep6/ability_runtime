@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("napi_common_public_config") {
   include_dirs = [ "./" ]
@@ -32,7 +32,7 @@ ohos_shared_library("napi_common") {
   ]
 
   deps = [
-    "${native_path}/appkit:appkit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/libuv:uv_static",
   ]
 

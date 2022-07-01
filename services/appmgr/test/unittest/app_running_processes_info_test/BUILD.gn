@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -27,14 +27,14 @@ ohos_unittest("AppRunningProcessesInfoTest") {
   ]
 
   sources = [
-    "${services_path}/appmgr/src/ability_running_record.cpp",
-    "${services_path}/appmgr/src/app_mgr_service_inner.cpp",
-    "${services_path}/appmgr/src/app_running_record.cpp",
-    "${services_path}/appmgr/src/app_spawn_client.cpp",
-    "${services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${services_path}/appmgr/src/app_spawn_socket.cpp",
-    "${services_path}/appmgr/src/app_state_observer_manager.cpp",
-    "${services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_mgr_service_inner.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
   ]
 
   sources += [ "app_running_processes_info_test.cpp" ]
@@ -44,11 +44,13 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/appmgr:libappms",
-    "${innerkits_path}/uri_permission:uri_permission_mgr",
-    "${services_path}/appmgr/test:appmgr_test_source",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/appmgr/test:appmgr_test_source",
+    "${ability_runtime_services_path}/common:event_report",
+    "${ability_runtime_services_path}/common:perm_verification",
   ]
 
   if (os_account_part_enabled) {

@@ -12,21 +12,21 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/mstabilitymgrservice"
 
 ohos_moduletest("app_mgr_client_test") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${aafwk_path}/services/test/mock/include" ]
+  include_dirs = [ "${ability_runtime_services_path}/test/mock/include" ]
 
   sources = [ "app_mgr_client_test.cpp" ]
 
-  configs = [ "${aafwk_path}/services/abilitymgr:abilityms_config" ]
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
   deps = [
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gtest_main",
   ]
 

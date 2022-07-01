@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("aafwk_module_test_config") {
   defines = [
@@ -19,10 +19,10 @@ config("aafwk_module_test_config") {
     # "AMS_LOG_DOMAIN = 0xD00111F",
   ]
 
-  configs = [ "${services_path}/abilitymgr:abilityms_config" ]
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
   include_dirs = [
-    "${services_path}/test/mock/include",
+    "${ability_runtime_services_path}/test/mock/include",
     "//third_party/jsoncpp/include",
   ]
 }

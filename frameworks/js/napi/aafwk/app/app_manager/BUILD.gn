@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("appmanager_napi") {
   include_dirs = []
@@ -27,9 +27,9 @@ ohos_shared_library("appmanager_napi") {
     "js_app_manager_utils.cpp",
   ]
 
-  configs = [ "${aafwk_path}/services/common:common_config" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  deps = [ "${aafwk_path}/services/abilitymgr:abilityms" ]
+  deps = [ "${ability_runtime_services_path}/abilitymgr:abilityms" ]
 
   external_deps = [
     "ability_base:base",

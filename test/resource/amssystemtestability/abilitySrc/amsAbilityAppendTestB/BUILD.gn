@@ -18,12 +18,12 @@ config("amsAbilityAppendTestBConfig") {
   visibility = [ ":*" ]
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/app",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_kits_path}/appkit/native/app",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
     "${ability_base_innerapi_path}/want/include",
-    "${services_path}/bundlemgr/include",
-    "${aafwk_path}/services/abilitymgr/include",
+    "${ability_runtime_services_path}/bundlemgr/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
     "${common_path}/log/include",
     "${SUBST_TOOLS_DIR}/include",
     "//third_party/jsoncpp/include",
@@ -44,13 +44,12 @@ ohos_shared_library("amsAbilityAppendTestB") {
   ]
   configs = [ ":amsAbilityAppendTestBConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "${inner_api_path}/appexecfwk_base:appexecfwk_base",
-    "${services_path}/bundlemgr:libbms",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utilsbase",
   ]

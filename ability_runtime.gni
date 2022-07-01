@@ -11,16 +11,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-aafwk_path = "//foundation/ability/ability_runtime"
-aafwk_napi_path = "${aafwk_path}/frameworks/js/napi/aafwk"
+ability_runtime_path = "//foundation/ability/ability_runtime"
+ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi/aafwk"
 ability_base_path = "//foundation/ability/ability_base"
 form_fwk_path = "//foundation/ability/form_fwk"
-innerkits_path = "${aafwk_path}/interfaces/inner_api"
-kits_path = "${aafwk_path}/frameworks/kits"
-native_path = "${aafwk_path}/frameworks/native"
-services_path = "${aafwk_path}/services"
-system_test_app_path =
-    "${aafwk_path}/test/resource/amssystemtestability/abilitySrc"
+ability_runtime_innerkits_path = "${ability_runtime_path}/interfaces/inner_api"
+ability_runtime_kits_path = "${ability_runtime_path}/frameworks/kits"
+ability_runtime_native_path = "${ability_runtime_path}/frameworks/native"
+ability_runtime_services_path = "${ability_runtime_path}/services"
+ability_runtime_system_test_app_path =
+    "${ability_runtime_path}/test/resource/amssystemtestability/abilitySrc"
 
 bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
 bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"

@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -22,22 +22,22 @@ ohos_unittest("AmsAppStateCallbackTest") {
   include_dirs = [ "//third_party/json/include" ]
 
   sources = [
-    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_process_data.cpp",
-    "${aafwk_path}/interfaces/inner_api//app_manager/src/appmgr/app_state_callback_host.cpp",
+    "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_process_data.cpp",
+    "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_state_callback_host.cpp",
   ]
 
   sources += [ "ams_app_state_callback_test.cpp" ]
 
   configs = [
     "//utils/native/base:utils_config",
-    "${services_path}/appmgr/test:appmgr_test_config",
+    "${ability_runtime_services_path}/appmgr/test:appmgr_test_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "//third_party/googletest:gmock_main",
     "//utils/native/base:utils",
   ]

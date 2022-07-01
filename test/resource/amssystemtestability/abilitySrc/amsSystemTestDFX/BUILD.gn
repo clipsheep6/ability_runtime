@@ -12,19 +12,19 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
-subdemosystem_path = "${system_test_app_path}/amsSystemTestDFX"
-SUBST_TOOLS_DIR = "${system_test_app_path}/tools"
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+subdemosystem_path = "${ability_runtime_system_test_app_path}/amsSystemTestDFX"
+SUBST_TOOLS_DIR = "${ability_runtime_system_test_app_path}/tools"
 config("amsSystemTestCConfig") {
   visibility = [ ":*" ]
   include_dirs = [
     "${subdemosystem_path}/include",
-    "${aafwk_path}/frameworks/kits/appkit/native/app",
+    "${ability_runtime_kits_path}/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
-    "${aafwk_path}/interfaces/inner_api/ability_manager/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
-    "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/services/common/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_services_path}/common/include",
     "${SUBST_TOOLS_DIR}/include",
     "//third_party/jsoncpp/include",
   ]
@@ -41,10 +41,10 @@ ohos_shared_library("amsSystemTestDFX") {
   ]
   configs = [ ":amsSystemTestCConfig" ]
   deps = [
-    "${aafwk_path}/frameworks/native/ability/native:abilitykit_native",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
+    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
+    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_path}/services/abilitymgr:abilityms",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utilsbase",
   ]
