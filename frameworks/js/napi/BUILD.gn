@@ -47,5 +47,6 @@ group("napi_packages") {
     "${aafwk_napi_path}/uri_permission:uripermissionmanager_napi",
     "${aafwk_napi_path}/wantConstant:wantconstant",
     "${aafwk_napi_path}/wantagent:wantagent",
+    "${aafwk_napi_path}/my_sa:mysamanager_napi",
   ]
 }
