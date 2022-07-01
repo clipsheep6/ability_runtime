@@ -17,6 +17,7 @@
 #define OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
 #include "ability_connect_callback_stub.h"
 #include "ability_info.h"
+#include "ability_manager_errors.h"
 #include "feature_ability_common.h"
 
 namespace OHOS {
@@ -31,6 +32,7 @@ bool& GetDataAbilityHelperStatus();
 
 void SaveAppInfo(AppInfo_ &appInfo, const ApplicationInfo &appInfoOrg);
 napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo);
+int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
  * @brief Get Files Dir.
