@@ -45,6 +45,7 @@ declare_args() {
   distributed_data_object_enable = true
   ability_runtime_graphics = true
   ability_runtime_power = true
+  suspend_manager = true
   ability_runtime_relational = true
   ability_runtime_ces = true
   ability_runtime_resource = true
@@ -80,6 +81,11 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.global_resource_management)) {
     ability_runtime_resource = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_suspend_manager)) {
+    suspend_manager = false
   }
 
   if (defined(global_parts_info) &&
