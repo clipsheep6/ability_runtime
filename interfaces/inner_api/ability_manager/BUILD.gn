@@ -115,6 +115,12 @@ ohos_shared_library("ability_manager") {
     external_deps += [ "multimedia_image_standard:image_native" ]
   }
 
+  cflags_cc = []
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlpparse" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
