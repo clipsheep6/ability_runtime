@@ -1055,6 +1055,16 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
     isDebugApp_ = isDebugApp;
 }
 
+void AppRunningRecord::SetAppIndex(int32_t appIndex)
+{
+    appIndex_ = appIndex;
+}
+
+int32_t AppRunningRecord::GetAppIndex()
+{
+    return appIndex_;
+}
+
 void AppRunningRecord::SetKilling()
 {
     isKilling_ = true;

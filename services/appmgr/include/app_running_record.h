@@ -493,6 +493,8 @@ public:
 
     void SetKilling();
     bool IsKilling() const;
+    void SetAppIndex(int32_t appIndex);
+    int32_t GetAppIndex();
 
 private:
     /**
@@ -578,6 +580,7 @@ private:
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
     AppSpawnStartMsg startMsg_;
+    int32_t appIndex_ = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
