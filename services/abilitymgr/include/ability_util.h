@@ -21,6 +21,7 @@
 #include "ability_config.h"
 #include "ability_manager_errors.h"
 #include "bundlemgr/bundle_mgr_interface.h"
+#include "element_name.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "permission_verification.h"
@@ -32,6 +33,12 @@ namespace AAFwk {
 namespace AbilityUtil {
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
+const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+const std::string DLP_ABILITY_NAME = "ViewAbility";
+const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
+const std::string DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
+const std::string DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
+const std::string DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
 static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
@@ -189,6 +196,25 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
     }
     HILOG_DEBUG("Judge ability visible success.");
     return ERR_OK;
+}
+
+[[maybe_unused]] static bool HandleDlpApp(Want &want)
+{
+    AppExecFwk::ElementName element = want.GetElement();
+    HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}d", want.GetBoolParam(DLP_PARAMS_SANDBOX, false));
+    HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}s", element.GetAbilityName().c_str());
+    if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetAbilityName().empty()) {
+        want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
+        want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
+        want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
+        want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
+        want.RemoveParam(DLP_PARAMS_SANDBOX);
+        return true;
+    } else {
+        HILOG_ERROR("DLP_PARAMS_SANDBOX error");
+    }
+
+    return false;
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk
