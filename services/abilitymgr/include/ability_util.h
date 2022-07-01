@@ -37,7 +37,7 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 const std::string DLP_ABILITY_NAME = "ViewAbility";
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 const std::string DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
-const std::string DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.bundleName";
+const std::string DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 const std::string DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
@@ -202,12 +202,19 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
 {
     Want want = const_cast<Want &>(inputWant);
     AppExecFwk::ElementName element = want.GetElement();
+    if (element.GetAbilityName() == DLP_ABILITY_NAME && element.GetBundleName() == DLP_BUNDLE_NAME) {
+        return true;
+    }
+    HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}d", want.GetBoolParam(DLP_PARAMS_SANDBOX, false));
+    HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}s", element.GetAbilityName().c_str());
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetAbilityName().empty()) {
         want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
         want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
         return true;
+    } else {
+        HILOG_ERROR("DLP_PARAMS_SANDBOX error");
     }
 
     return false;
