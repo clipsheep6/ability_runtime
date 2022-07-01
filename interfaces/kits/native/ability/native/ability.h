@@ -361,7 +361,7 @@ public:
         const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates);
 
     /**
-     * @brief get application witch the ability belong
+     * @brief get application witch the ability belong.
      *
      * @return Returns the application ptr
      */
