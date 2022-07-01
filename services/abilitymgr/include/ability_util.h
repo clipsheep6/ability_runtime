@@ -198,13 +198,9 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
     return ERR_OK;
 }
 
-[[maybe_unused]] static bool HandleDlpApp(const Want &inputWant)
+[[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
-    Want want = const_cast<Want &>(inputWant);
     AppExecFwk::ElementName element = want.GetElement();
-    if (element.GetAbilityName() == DLP_ABILITY_NAME && element.GetBundleName() == DLP_BUNDLE_NAME) {
-        return true;
-    }
     HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}d", want.GetBoolParam(DLP_PARAMS_SANDBOX, false));
     HILOG_ERROR("DLP_PARAMS_SANDBOX: %{public}s", element.GetAbilityName().c_str());
     if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetAbilityName().empty()) {
@@ -212,6 +208,7 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
         want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
         want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
         want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
+        want.RemoveParam(DLP_PARAMS_SANDBOX);
         return true;
     } else {
         HILOG_ERROR("DLP_PARAMS_SANDBOX error");

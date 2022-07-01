@@ -349,7 +349,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
-    if (AbilityUtil::HandleDlpApp(want)) {
+    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
         return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
     }
 
@@ -782,7 +782,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
-    AbilityUtil::HandleDlpApp(want);
+    AbilityUtil::HandleDlpApp(const_cast<Want &>(want));
     HILOG_INFO("Start extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo;
