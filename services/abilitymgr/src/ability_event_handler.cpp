@@ -15,6 +15,7 @@
 
 #include "ability_event_handler.h"
 
+#include <parameter.h>
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "hilog_wrapper.h"
@@ -67,7 +68,14 @@ void AbilityEventHandler::ProcessLoadTimeOut(int64_t eventId)
     HILOG_INFO("Attach timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
-    server->HandleLoadTimeOut(eventId);
+    // check libc.hook_mode
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+    if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
+        server->HandleLoadTimeOut(eventId);
+    }
 }
 
 void AbilityEventHandler::ProcessActiveTimeOut(int64_t eventId)

@@ -24,6 +24,7 @@
 #include "application_state_observer_stub.h"
 #include "datetime_ex.h"
 #include "hilog_wrapper.h"
+#include "parameter.h"
 #include "perf_profile.h"
 
 #include "app_process_data.h"
@@ -1408,22 +1409,30 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         return;
     }
     SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
-    switch (event->GetInnerEventId()) {
-        case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
-            appRunningManager_->HandleTerminateTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
-            HandleTerminateApplicationTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
-        case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
-            HandleAddAbilityStageTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            HandleStartSpecifiedAbilityTimeOut(event->GetParam());
-            break;
-        default:
-            break;
+
+    // check libc.hook_mode
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+    if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
+        switch (event->GetInnerEventId()) {
+            case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
+                appRunningManager_->HandleTerminateTimeOut(event->GetParam());
+                break;
+            case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
+                HandleTerminateApplicationTimeOut(event->GetParam());
+                break;
+            case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
+                HandleAddAbilityStageTimeOut(event->GetParam());
+                break;
+            case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
+                HandleStartSpecifiedAbilityTimeOut(event->GetParam());
+                break;
+            default:
+                break;
+        }
     }
 }
 
