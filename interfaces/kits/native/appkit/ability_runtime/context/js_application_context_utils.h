@@ -22,15 +22,12 @@
 #include "native_engine/native_engine.h"
 #include "event_handler.h"
 #include "ability_lifecycle_callback.h"
-
-class NativeEngine;
-class NativeValue;
-struct NativeCallbackInfo;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue *CreateJsApplicationContext(
-    NativeEngine &engine, std::shared_ptr<ApplicationContext> applicationContext, bool keepApplicationContext = false);
+NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<ApplicationContext> applicationContext,
+    DetachCallback detach, AttachCallback attach, bool keepApplicationContext = false);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H

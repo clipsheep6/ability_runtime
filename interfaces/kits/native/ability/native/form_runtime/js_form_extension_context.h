@@ -20,14 +20,12 @@
 
 #include "form_extension_context.h"
 #include "ability_connect_callback_stub.h"
-
-class NativeEngine;
-class NativeValue;
-class NativeReference;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context);
+NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
+                                          DetachCallback detach, AttachCallback attach);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // FOUNDATION_APPEXECFWK_OHOS_JS_FORM_EXTENSION_CONTEXT_H

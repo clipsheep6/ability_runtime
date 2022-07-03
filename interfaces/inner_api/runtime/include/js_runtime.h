@@ -37,6 +37,9 @@ class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<Runtime> Create(const Options& options);
 
+    static std::unique_ptr<NativeReference> LoadSystemModuleByEngine(NativeEngine* engine,
+        const std::string& moduleName, NativeValue* const* argv, size_t argc);
+
     ~JsRuntime() override = default;
 
     NativeEngine& GetNativeEngine() const

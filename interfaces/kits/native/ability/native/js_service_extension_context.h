@@ -21,14 +21,12 @@
 #include "ability_connect_callback.h"
 #include "service_extension_context.h"
 #include "event_handler.h"
-
-class NativeEngine;
-class NativeValue;
-class NativeReference;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context);
+NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context,
+                                             DetachCallback detach, AttachCallback attach);
 
 class JSServiceExtensionConnection : public AbilityConnectCallback {
 public:
