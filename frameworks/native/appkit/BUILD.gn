@@ -141,6 +141,7 @@ ohos_shared_library("appkit_native") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara",
     "utils_base:utils",
   ]
 

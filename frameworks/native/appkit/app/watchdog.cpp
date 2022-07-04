@@ -15,6 +15,7 @@
 
 #include "watchdog.h"
 
+#include <parameter.h>
 #include <unistd.h>
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
@@ -131,7 +132,14 @@ bool WatchDog::Timer()
                 HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
             } else {
                 if (currentHandler_ != nullptr) {
-                    currentHandler_->PostTask(timeoutTask, MAIN_THREAD_IS_ALIVE_MSG, MAIN_THREAD_TIMEOUT_TIME);
+                    // check libc.hook_mode
+                    const int bufferLen = 128;
+                    char paramOutBuf[bufferLen] = {0};
+                    const char *hook_mode = "startup:";
+                    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+                    if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
+                        currentHandler_->PostTask(timeoutTask, MAIN_THREAD_IS_ALIVE_MSG, MAIN_THREAD_TIMEOUT_TIME);
+                    }
                 }
                 if (appMainHandler_ != nullptr) {
                     appMainHandler_->SendEvent(MAIN_THREAD_IS_ALIVE);

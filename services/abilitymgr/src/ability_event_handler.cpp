@@ -15,6 +15,7 @@
 
 #include "ability_event_handler.h"
 
+#include <parameter.h>
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "hilog_wrapper.h"
@@ -32,6 +33,15 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
 {
     CHECK_POINTER(event);
     HILOG_DEBUG("Event id obtained: %{public}u.", event->GetInnerEventId());
+    // check libc.hook_mode
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+    if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
+        HILOG_DEBUG("Hook_mode: no process time out");
+        return;
+    }
     switch (event->GetInnerEventId()) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG: {
             ProcessLoadTimeOut(event->GetParam());

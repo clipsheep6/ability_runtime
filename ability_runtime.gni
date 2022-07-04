@@ -39,6 +39,7 @@ form_fwk_napi_path = "${form_fwk_path}/frameworks/js/napi"
 ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
 ability_base_native_path = "${ability_base_path}/frameworks/native"
 appspawn_path = "//base/startup/appspawn"
+init_path = "//base/startup/init_lite"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
