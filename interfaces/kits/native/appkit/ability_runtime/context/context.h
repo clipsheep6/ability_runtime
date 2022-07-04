@@ -179,7 +179,7 @@ public:
     virtual void SwitchArea(int mode) = 0;
 
     /**
-     * @brief Creates a Context object for a hap with the given hap name and app name.
+     * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.
      *

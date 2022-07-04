@@ -110,7 +110,7 @@ public:
     void SwitchArea(int mode) override;
 
     /**
-     * @brief Creates a Context object for a hap with the given hap name and app name.
+     * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.
      *
