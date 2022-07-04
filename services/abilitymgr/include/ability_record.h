@@ -848,6 +848,8 @@ private:
         const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
         const sptr<IRemoteObject> abilityToken) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
     std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
         const AppExecFwk::AbilityInfo &abilityInfo) const;
     sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,

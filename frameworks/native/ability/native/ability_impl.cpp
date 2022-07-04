@@ -47,7 +47,7 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
 #ifdef SUPPORT_GRAPHICS
     if (info && info->type == AbilityType::PAGE) {
         ability_->SetSceneListener(
-            sptr<WindowLifeCycleImpl>(new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
+            sptr<WindowLifeCycleImpl>(new WindowLifeCycleImpl(token_, shared_from_this())));
     }
 #endif
     ability_->Init(record->GetAbilityInfo(), application, handler, token);
@@ -823,6 +823,20 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed()
     PacMap restoreData;
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);
+}
+
+void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    auto owner = owner_.lock();
+    if (owner && !owner->IsStageBasedModel()) {
+        return;
+    }
+
+    HILOG_INFO("The ability is stage mode, schedule foreground invalid mode.");
+    PacMap restoreData;
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
+        AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
 }
 
 /**

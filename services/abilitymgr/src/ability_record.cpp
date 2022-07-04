@@ -66,6 +66,7 @@ const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(FOREGROUNDING, "FOREGROUNDING"),
     std::map<AbilityState, std::string>::value_type(BACKGROUNDING, "BACKGROUNDING"),
     std::map<AbilityState, std::string>::value_type(FOREGROUND_FAILED, "FOREGROUND_FAILED"),
+    std::map<AbilityState, std::string>::value_type(FOREGROUND_INVALID_MODE, "FOREGROUND_INVALID_MODE"),
 };
 const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
@@ -83,6 +84,8 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_NEW, FOREGROUND),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_BACKGROUND_NEW, BACKGROUND),
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_FOREGROUND_FAILED, FOREGROUND_FAILED),
+    std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INVALID_WINDOW_MODE,
+        FOREGROUND_INVALID_MODE),
 };
 #ifndef OS_ACCOUNT_PART_ENABLED
 const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
@@ -355,6 +358,7 @@ void AbilityRecord::SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abil
 {
     info->abilityName_ = abilityInfo.name;
     info->bundleName_ = abilityInfo.bundleName;
+    info->windowModes_ = abilityInfo.windowModes;
     SetShowWhenLocked(abilityInfo, info);
 }
 
@@ -581,6 +585,22 @@ sptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
     return sptr<Media::PixelMap>(pixelMapPtr.release());
 }
 
+sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
+    const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
+    const AbilityRequest &abilityRequest)
+{
+    sptr<AbilityTransitionInfo> info;
+    if (startOptions) {
+        info = CreateAbilityTransitionInfo(token_, startOptions, want);
+    } else {
+        info = CreateAbilityTransitionInfo(abilityRequest, token_);
+    }
+    info->windowModes_ = abilityInfo_.windowModes;
+
+    SetStartingWindow(true);
+    return info;
+}
+
 void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions,
     const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest)
 {
@@ -604,14 +624,7 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
         return;
     }
 
-    sptr<AbilityTransitionInfo> info;
-    if (startOptions) {
-        info = CreateAbilityTransitionInfo(token_, startOptions, want);
-    } else {
-        info = CreateAbilityTransitionInfo(abilityRequest, token_);
-    }
-
-    SetStartingWindow(true);
+    auto info = CreateAbilityTransitionInfo(startOptions, want, abilityRequest);
     windowHandler->StartingWindow(info, pixelMap);
 }
 
@@ -650,14 +663,7 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
     }
     HILOG_DEBUG("%{public}s colorId is %{public}u, bgColor is %{public}u.", __func__, colorId, bgColor);
 
-    sptr<AbilityTransitionInfo> info;
-    if (startOptions) {
-        info = CreateAbilityTransitionInfo(token_, startOptions, want);
-    } else {
-        info = CreateAbilityTransitionInfo(abilityRequest, token_);
-    }
-
-    SetStartingWindow(true);
+    auto info = CreateAbilityTransitionInfo(startOptions, want, abilityRequest);
     windowHandler->StartingWindow(info, pixelMap, bgColor);
 }
 #endif

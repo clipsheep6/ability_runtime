@@ -392,7 +392,8 @@ private:
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
-    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success);
+    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
+        bool isInvalidMode = false);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -428,7 +429,7 @@ private:
     void BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility);
 
     // new version for call inner function.
-    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isInvalidMode);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);
