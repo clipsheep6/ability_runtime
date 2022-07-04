@@ -380,6 +380,14 @@ void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *
         napi_create_error(env, nullptr, message, &result[0]);
     }
 
+    ReturnValueToApplication(env, &result[0], registerMissionCB);
+    delete registerMissionCB;
+    registerMissionCB = nullptr;
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+void ReturnValueToApplication(napi_env env, napi_value *result, RegisterMissionCB *registerMissionCB)
+{
     if (registerMissionCB->callbackRef == nullptr) { // promise
         if (registerMissionCB->result == 0) {
             napi_resolve_deferred(env, registerMissionCB->cbBase.deferred, result[1]);
@@ -394,9 +402,6 @@ void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *
         napi_delete_reference(env, registerMissionCB->callbackRef);
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, registerMissionCB->cbBase.asyncWork));
-    delete registerMissionCB;
-    registerMissionCB = nullptr;
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 napi_value RegisterMissionAsync(napi_env env, RegisterMissionCB *registerMissionCB)
@@ -505,9 +510,7 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
     HILOG_INFO("%{public}s called.", __func__);
     size_t argcAsync = 3;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
-    napi_value ret = nullptr;
     napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr);
-    HILOG_INFO("argcAsync is %{public}zu", argcAsync);
     if (argcAsync != ARGS_TWO && argcAsync != ARGS_THREE) {
         HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
         return nullptr;
@@ -524,7 +527,6 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
         return nullptr;
     }
     if (firstNApi == nullptr) {
-        HILOG_ERROR("%{public}s, not find deviceId.", __func__);
         return nullptr;
     }
 
@@ -556,7 +558,7 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
         napi_create_reference(env, args[ARGS_TWO], 1, &registerMissionCB->callbackRef);
     }
 
-    ret = RegisterMissionAsync(env, registerMissionCB);
+    napi_value ret = RegisterMissionAsync(env, registerMissionCB);
     HILOG_INFO("%{public}s called end.", __func__);
     return ret;
 }
@@ -712,7 +714,15 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
     result[1] =
         WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->missionId, "missionId");
+    CallbackReturn(&result[0], registerMissionCB);
+    delete registerMissionCB;
+    registerMissionCB = nullptr;
+    delete work;
+    HILOG_INFO("UvWorkNotifySnapshot, uv_queue_work end");
+}
 
+void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB)
+{
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
     napi_get_undefined(registerMissionCB->cbBase.cbInfo.env, &undefined);
@@ -721,10 +731,6 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
         registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
 
     napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[0], &callResult);
-    delete registerMissionCB;
-    registerMissionCB = nullptr;
-    delete work;
-    HILOG_INFO("UvWorkNotifySnapshot, uv_queue_work end");
 }
 
 void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int32_t missionId)
@@ -785,14 +791,7 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
     result[1] =
         WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->state, "state");
 
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_get_undefined(registerMissionCB->cbBase.cbInfo.env, &undefined);
-    napi_value callResult = nullptr;
-    napi_get_reference_value(
-        registerMissionCB->cbBase.cbInfo.env, registerMissionCB->cbBase.cbInfo.callback, &callback);
-
-    napi_call_function(registerMissionCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[0], &callResult);
+    CallbackReturn(&result[0], registerMissionCB);
     delete registerMissionCB;
     registerMissionCB = nullptr;
     delete work;
@@ -883,20 +882,7 @@ void UnRegisterMissionPromiseCompletedCB(napi_env env, napi_status status, void 
         napi_create_error(env, nullptr, message, &result[0]);
     }
 
-    if (registerMissionCB->callbackRef == nullptr) { // promise
-        if (registerMissionCB->result == 0) {
-            napi_resolve_deferred(env, registerMissionCB->cbBase.deferred, result[1]);
-        } else {
-            napi_reject_deferred(env, registerMissionCB->cbBase.deferred, result[0]);
-        }
-    } else { // AsyncCallback
-        napi_value callback = nullptr;
-        napi_get_reference_value(env, registerMissionCB->callbackRef, &callback);
-        napi_value callResult;
-        napi_call_function(env, nullptr, callback, ARGS_TWO, &result[0], &callResult);
-        napi_delete_reference(env, registerMissionCB->callbackRef);
-    }
-    napi_delete_async_work(env, registerMissionCB->cbBase.asyncWork);
+    ReturnValueToApplication(env, &result[0], registerMissionCB);
     delete registerMissionCB;
     registerMissionCB = nullptr;
     HILOG_INFO("%{public}s end.", __func__);

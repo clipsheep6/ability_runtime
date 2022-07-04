@@ -135,6 +135,8 @@ bool SetSyncRemoteMissionsContext(
     const napi_env &env, const napi_value &value, SyncRemoteMissionsContext* context);
 bool ProcessSyncInput(napi_env env, napi_callback_info info, bool isStart,
     SyncRemoteMissionsContext* syncContext);
+void ReturnValueToApplication(napi_env env, napi_value *result, RegisterMissionCB *registerMissionCB);
+void CallbackReturn(napi_value *result, RegisterMissionCB *registerMissionCB);
 mutex registrationLock_;
 map<std::string, sptr<NAPIRemoteMissionListener>> registration_;
 
