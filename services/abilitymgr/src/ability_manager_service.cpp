@@ -1665,8 +1665,20 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int userId = wantSenderInfo.userId;
+    bool remote = false;
+    if (!wantSenderInfo.allWants.empty()) {
+        std::string deviceId = wantSenderInfo.allWants[0].want.GetDeviceId();
+        std::string localDeviceId;
+        if (GetLocalDeviceId(localDeviceId) &&
+            (!deviceId.empty() && localDeviceId != deviceId)) {
+            remote = true;
+        }
+        HILOG_INFO("remote = %{public}d, localDeviceId = %{private}s, deviceId = %{private}s",
+            remote, localDeviceId.c_str(), deviceId.c_str());
+    }
+
     AppExecFwk::BundleInfo bundleInfo;
-    if (!wantSenderInfo.bundleName.empty()) {
+    if (!wantSenderInfo.bundleName.empty() && !remote) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
 #ifdef OS_ACCOUNT_PART_ENABLED
