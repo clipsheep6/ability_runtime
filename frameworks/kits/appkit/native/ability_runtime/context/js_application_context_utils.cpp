@@ -398,6 +398,7 @@ NativeValue *JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
         return engine.CreateUndefined();
     }
     if (callback_ != nullptr) {
+        HILOG_DEBUG("callback_ is not nullptr.");
         return engine.CreateNumber(callback_->Register(info.argv[0]));
     }
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
@@ -416,42 +417,43 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
         HILOG_ERROR("ApplicationContext is nullptr.");
         errCode = ERROR_CODE_ONE;
     }
+    int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params");
         errCode = ERROR_CODE_ONE;
+    } else {
+        napi_get_value_int32(
+            reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
+        HILOG_INFO("callbackId is %{public}d.", callbackId);
     }
-    int64_t callbackId = -1;
-    if (!errCode && !ConvertFromJsValue(engine, info.argv[0], callbackId)) {
-        HILOG_ERROR("Parse callbackId failed");
-        errCode = ERROR_CODE_ONE;
-    }
-    HILOG_INFO("callbackId is %{public}d.", (int32_t)callbackId);
+    std::weak_ptr<JsAbilityLifecycleCallback> callbackWptr(callback_);
     AsyncTask::CompleteCallback complete =
-        [&applicationContext = keepApplicationContext_, &callback = callback_, callbackId, errCode](
+        [&applicationContext = keepApplicationContext_, callbackWptr, callbackId, errCode](
             NativeEngine &engine, AsyncTask &task, int32_t status) {
-            HILOG_INFO("OnUnregisterAbilityLifecycleCallback begin");
             if (errCode != 0) {
                 task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
                 return;
             }
-            if (applicationContext == nullptr) {
-                HILOG_ERROR("applicationContext is nullptr");
-                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "applicationContext is nullptr"));
+            auto callback = callbackWptr.lock();
+            if (applicationContext == nullptr || callback == nullptr) {
+                HILOG_ERROR("applicationContext or callback nullptr");
+                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "applicationContext or callback nullptr"));
                 return;
             }
 
-            if (callback != nullptr) {
-                callback->UnRegister(callbackId);
-                if (callback->IsEmpty()) {
-                    applicationContext->UnregisterAbilityLifecycleCallback(callback);
-                }
-            } else {
-                HILOG_INFO("nothing is registered.");
+            HILOG_INFO("OnUnregisterAbilityLifecycleCallback begin");
+            if (!callback->UnRegister(callbackId)) {
+                HILOG_ERROR("call UnRegister failed!");
+                task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));
+                return;
+            }
+            if (callback->IsEmpty()) {
+                applicationContext->UnregisterAbilityLifecycleCallback(callback);
             }
 
             task.Resolve(engine, engine.CreateUndefined());
         };
-    NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
+    NativeValue *lastParam = (info.argc <= ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
     NativeValue *result = nullptr;
     AsyncTask::Schedule(engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
     return result;

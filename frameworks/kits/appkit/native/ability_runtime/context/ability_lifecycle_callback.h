@@ -101,7 +101,7 @@ public:
 };
 
 class JsAbilityLifecycleCallback : public AbilityLifecycleCallback,
-                                   public std::enable_shared_from_this<AbilityLifecycleCallback> {
+                                   public std::enable_shared_from_this<JsAbilityLifecycleCallback> {
 public:
     explicit JsAbilityLifecycleCallback(NativeEngine* engine);
     void OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj) override;
@@ -112,7 +112,7 @@ public:
     void OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj) override;
     void OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj) override;
     int32_t Register(NativeValue *jsCallback);
-    void UnRegister(int32_t callbackId);
+    bool UnRegister(int32_t callbackId);
     bool IsEmpty();
     static int32_t serialNumber_;
 
