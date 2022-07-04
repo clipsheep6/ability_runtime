@@ -36,7 +36,9 @@ config("runtime_public_config") {
 
 ohos_shared_library("runtime") {
   sources = [
+    "${ability_runtime_path}/frameworks/native/runtime/js_console_log.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/js_data_struct_converter.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/js_module_searcher.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/js_runtime.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/js_runtime_utils.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/runtime.cpp",
