@@ -118,6 +118,7 @@ const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.syste
 const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const int DEFAULT_REQUEST_CODE = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
@@ -347,6 +348,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int requestCode, int callerUid, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+
+    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+        return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
+    }
 
     if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
@@ -817,6 +822,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
+    AbilityUtil::HandleDlpApp(const_cast<Want &>(want));
     HILOG_INFO("Start extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     AAFWK::EventInfo eventInfo;
@@ -2897,11 +2903,22 @@ int AbilityManagerService::GenerateAbilityRequest(
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
     HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
+    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    if (appIndex == 0) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxAbilityInfo(want, appIndex,
+            abilityInfoFlag, userId, request.abilityInfo));
+    }
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+        if (appIndex == 0) {
+            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+        } else {
+            IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
+                abilityInfoFlag, userId, extensionInfos));
+        }
         if (extensionInfos.size() <= 0) {
             HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
             return RESOLVE_ABILITY_ERR;
@@ -2991,7 +3008,13 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     HILOG_DEBUG("QueryExtensionAbilityInfo from bms, userId is %{public}d.", userId);
     // try to find extension
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    if (appIndex == 0) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
+            abilityInfoFlag, userId, extensionInfos));
+    }
     if (extensionInfos.size() <= 0) {
         HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
         return RESOLVE_ABILITY_ERR;

@@ -479,13 +479,6 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
 
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
-    if (bundleMgr) {
-        BundleInfo bundleInfo;
-        bundleMgr->GetBundleInfo(abilityInfo->bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
-    }
-
     wptr<MainThread> weak = this;
     auto task = [weak, abilityRecord]() {
         auto appThread = weak.promote();
@@ -873,8 +866,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, UNSPECIFIED_USERID)) {
-        HILOG_DEBUG("MainThread::handleLaunchApplication GetBundleInfo fail.");
+    bool queryResult;
+    if (appLaunchData.GetAppIndex() != 0) {
+        queryResult = (bundleMgr->GetSandboxBundleInfo(appInfo.bundleName,
+            appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
+    } else {
+        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT,
+            bundleInfo, UNSPECIFIED_USERID);
+    }
+
+    if (!queryResult) {
+        HILOG_ERROR("HandleLaunchApplication GetBundleInfo failed!");
+        return;
     }
 
     bool moduelJson = false;
