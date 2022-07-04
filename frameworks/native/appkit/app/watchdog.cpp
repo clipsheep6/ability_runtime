@@ -109,23 +109,6 @@ bool WatchDog::Timer()
         std::this_thread::sleep_for(std::chrono::milliseconds(INI_TIMER_SECOND));
         if (!stopWatchDog_) {
             auto timeoutTask = [&]() {
-                timeOut_.store(true);
-                appMainThreadIsAlive_ = false;
-                std::string eventType = "THREAD_BLOCK_3S";
-                std::string msgContent = "App main thread is not response!";
-                MainHandlerDumper handlerDumper;
-                appMainHandler_->Dump(handlerDumper);
-                msgContent += handlerDumper.GetDumpInfo();
-                if (applicationInfo_ != nullptr) {
-                    OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
-                        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-                        EVENT_KEY_UID, std::to_string(applicationInfo_->uid),
-                        EVENT_KEY_PID, std::to_string(getpid()),
-                        EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
-                        EVENT_KEY_PROCESS_NAME, applicationInfo_->process,
-                        EVENT_KEY_MESSAGE, msgContent);
-                }
-                HILOG_INFO("%{public}zu %{public}s", msgContent.size(), msgContent.c_str());
             };
             if (timeOut_) {
                 HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
