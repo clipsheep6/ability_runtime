@@ -68,7 +68,8 @@ WantAgentInfo::WantAgentInfo(const std::shared_ptr<WantAgentInfo> &paramInfo)
     if (paramInfo != nullptr) {
         requestCode_ = paramInfo->GetRequestCode();
         operationType_ = paramInfo->GetOperationType();
-        flags_.insert(flags_.end(), paramInfo->GetFlags().begin(), paramInfo->GetFlags().end());
+        std::vector<WantAgentConstant::Flags> tempFlags = paramInfo->GetFlags();
+        flags_.insert(flags_.end(), tempFlags.begin(), tempFlags.end());
         if (!paramInfo->GetWants().empty()) {
             for (auto want : paramInfo->GetWants()) {
                 wants_.push_back(std::make_shared<Want>(*want));
