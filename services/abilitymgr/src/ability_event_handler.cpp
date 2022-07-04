@@ -32,34 +32,6 @@ void AbilityEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &ev
 {
     CHECK_POINTER(event);
     HILOG_DEBUG("Event id obtained: %{public}u.", event->GetInnerEventId());
-    switch (event->GetInnerEventId()) {
-        case AbilityManagerService::LOAD_TIMEOUT_MSG: {
-            ProcessLoadTimeOut(event->GetParam());
-            break;
-        }
-        case AbilityManagerService::ACTIVE_TIMEOUT_MSG: {
-            ProcessActiveTimeOut(event->GetParam());
-            break;
-        }
-        case AbilityManagerService::INACTIVE_TIMEOUT_MSG: {
-            HILOG_INFO("Inactive timeout.");
-            // inactivate pre ability immediately in case blocking next ability start
-            ProcessInactiveTimeOut(event->GetParam());
-            break;
-        }
-        case AbilityManagerService::FOREGROUND_TIMEOUT_MSG: {
-            ProcessForegroundTimeOut(event->GetParam());
-            break;
-        }
-        case AbilityManagerService::BACKGROUND_TIMEOUT_MSG: {
-            ProcessBackgroundTimeOut(event->GetParam());
-            break;
-        }
-        default: {
-            HILOG_WARN("Unsupported timeout message.");
-            break;
-        }
-    }
 }
 
 void AbilityEventHandler::ProcessLoadTimeOut(int64_t eventId)
