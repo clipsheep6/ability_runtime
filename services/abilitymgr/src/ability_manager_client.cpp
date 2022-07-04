@@ -17,9 +17,9 @@
 
 #include "string_ex.h"
 #include "ability_manager_interface.h"
-#ifdef DWITH_DLP
+#ifdef WITH_DLP
 #include "dlp_file_kits.h"
-#endif // DWITH_DLP
+#endif // WITH_DLP
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -32,9 +32,9 @@ namespace OHOS {
 namespace AAFwk {
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
 std::recursive_mutex AbilityManagerClient::mutex_;
-#ifdef DWITH_DLP
+#ifdef WITH_DLP
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
-#endif // DWITH_DLP
+#endif // WITH_DLP
 
 #define CHECK_POINTER_RETURN(object)     \
     if (!object) {                       \
@@ -942,10 +942,10 @@ ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &info
 
 void AbilityManagerClient::HandleDlpApp(Want &want)
 {
-#ifdef DWITH_DLP
-    bool sandboxFlag = DlpFileKits::GetSandboxFlag(want);
-    want.SetBoolParam(DLP_PARAMS_SANDBOX, sandboxFlag);
-#endif // DWITH_DLP
+#ifdef WITH_DLP
+    bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(want);
+    want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+#endif // WITH_DLP
 }
 }  // namespace AAFwk
 }  // namespace OHOS
