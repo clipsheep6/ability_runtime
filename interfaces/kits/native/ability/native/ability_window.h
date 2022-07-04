@@ -41,17 +41,10 @@ public:
      */
     void Init(std::shared_ptr<AbilityHandler> &handler, std::shared_ptr<Ability> ability);
 
-    /**
-     * @brief Sets the window config for the host ability to create window.
-     *
-     * @param winType Indicates window config.
-     * @param abilityContext Indicates runtime ability context.
-     * @param listener Indicates window lifecycle listener.
-     * @return true if init window success.
-     */
     bool InitWindow(Rosen::WindowType winType,
         std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option);
+        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option,
+        bool isPrivacy);
 
     /**
      * @brief Called when this ability is started.
