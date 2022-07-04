@@ -1407,24 +1407,6 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         HILOG_ERROR("appRunningManager or event is nullptr");
         return;
     }
-    SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
-    switch (event->GetInnerEventId()) {
-        case AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG:
-            appRunningManager_->HandleTerminateTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
-            HandleTerminateApplicationTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
-        case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
-            HandleAddAbilityStageTimeOut(event->GetParam());
-            break;
-        case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
-            HandleStartSpecifiedAbilityTimeOut(event->GetParam());
-            break;
-        default:
-            break;
-    }
 }
 
 void AppMgrServiceInner::SetEventHandler(const std::shared_ptr<AMSEventHandler> &handler)
