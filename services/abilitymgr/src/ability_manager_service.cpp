@@ -165,6 +165,17 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
 };
 
+const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
+        AppExecFwk::SupportWindowMode::FULLSCREEN),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
+        AppExecFwk::SupportWindowMode::FLOATING),
+};
+
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
@@ -480,6 +491,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo.isStageBasedModel &&
+        CheckWindowMode(MULTI_WINDOW_DISPLAY_FULLSCREEN, abilityInfo.windowModes) == ERR_AAFWK_INVALID_WINDOW_MODE) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -771,6 +790,13 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes) == ERR_AAFWK_INVALID_WINDOW_MODE) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -5050,6 +5076,28 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
             want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos)
     );
     return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+}
+
+int AbilityManagerService::CheckWindowMode(int32_t windowMode,
+    std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
+{
+    bool isSupportedWindowMode = false;
+    auto it = windowModeMap.find(windowMode);
+    if (it != windowModeMap.end()) {
+        auto bmsWindowMode = it->second;
+        for (auto mode : windowModes) {
+            if (mode == bmsWindowMode) {
+                HILOG_INFO("Window mode is %{public}d.", mode);
+                isSupportedWindowMode = true;
+                break;
+            }
+        }
+    }
+    if (!isSupportedWindowMode) {
+        HILOG_ERROR("Not support %{public}d window mode.", windowMode);
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+    return ERR_OK;
 }
 #endif
 }  // namespace AAFwk
