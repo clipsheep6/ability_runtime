@@ -31,7 +31,7 @@ namespace {
 struct AbilityTransitionInfo : public Parcelable {
     std::string bundleName_;
     std::string abilityName_;
-    uint32_t mode_ = 1;
+    uint32_t mode_ = 0;
     std::vector<AppExecFwk::SupportWindowMode> windowModes_;
     sptr<IRemoteObject> abilityToken_ = nullptr;
     uint64_t displayId_ = 0;
