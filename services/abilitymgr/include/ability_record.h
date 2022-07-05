@@ -746,8 +746,8 @@ public:
     void SetRestarting(const bool isRestart);
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
-    void SetDlp(bool isDlp);
-    bool IsDlp() const;
+    void SetAppIndex(const int32_t appIndex);
+    int32_t GetAppIndex() const;
     bool IsRestarting() const;
     void SetAppState(const AppState &state);
     AppState GetAppState() const;
@@ -916,7 +916,7 @@ private:
     std::shared_ptr<CallContainer> callContainer_ = nullptr;
     bool isStartedByCall_ = false;
     bool isStartToBackground_ = false;
-    bool isDlp_ = false;
+    int32_t appIndex_ = 0;
     bool minimizeReason_ = false;
 
     bool clearMissionFlag_ = false;

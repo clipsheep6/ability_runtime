@@ -1231,7 +1231,7 @@ void MissionListManager::CompleteTerminateAndUpdateMission(const std::shared_ptr
             terminateAbilityList_.remove(it);
             // update inner mission info time
             bool excludeFromMissions = abilityRecord->GetAbilityInfo().excludeFromMissions;
-            if (abilityRecord->IsDlp() || abilityRecord->GetAbilityInfo().removeMissionAfterTerminate ||
+            if ((abilityRecord->GetAppIndex() != 0) || abilityRecord->GetAbilityInfo().removeMissionAfterTerminate ||
                 excludeFromMissions) {
                 RemoveMissionLocked(abilityRecord->GetMissionId(), excludeFromMissions);
                 return;
@@ -1488,7 +1488,7 @@ void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityReco
     }
     int32_t missionId = abilityRecord->GetMissionId();
     MissionSnapshot snapshot;
-    snapshot.isPrivate = abilityRecord->IsDlp();
+    snapshot.isPrivate = (abilityRecord->GetAppIndex() != 0);
     DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionSnapshot(missionId, abilityRecord->GetToken(),
         snapshot);
     if (listenerController_) {
@@ -1960,7 +1960,7 @@ void MissionListManager::HandleAbilityDiedByDefault(std::shared_ptr<AbilityRecor
 
     // update running state.
     if (!ability->IsUninstallAbility()) {
-        if (ability->IsDlp() || ability->GetAbilityInfo().removeMissionAfterTerminate ||
+        if ((ability->GetAppIndex() != 0) || ability->GetAbilityInfo().removeMissionAfterTerminate ||
             ability->GetAbilityInfo().excludeFromMissions) {
             RemoveMissionLocked(mission->GetMissionId(), ability->GetAbilityInfo().excludeFromMissions);
         } else {
