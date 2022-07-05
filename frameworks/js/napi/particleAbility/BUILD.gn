@@ -13,30 +13,34 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-ohos_shared_library("featureability") {
+ohos_shared_library("particleability") {
   include_dirs = [
-    "./",
+    "//third_party/node/src",
+    "${ability_runtime_napi_path}/featureAbility",
+    "${ability_runtime_services_path}/common/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/include",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
+    "//third_party/jsoncpp",
+    "//third_party/jsoncpp/include/json",
   ]
 
   sources = [
+    "${ability_runtime_napi_path}/featureAbility/napi_context.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_helper.cpp",
+    "${ability_runtime_napi_path}/featureAbility/napi_data_ability_operation.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
     "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
-    "feature_ability.cpp",
-    "feature_ability_constant.cpp",
-    "napi_context.cpp",
-    "napi_data_ability_helper.cpp",
-    "napi_data_ability_operation.cpp",
     "native_module.cpp",
+    "particle_ability.cpp",
   ]
 
   deps = [
     "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common:napi_common",
+    "//third_party/jsoncpp:jsoncpp",
     "//third_party/libuv:uv_static",
   ]
 
@@ -52,7 +56,6 @@ ohos_shared_library("featureability") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",
-    "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -60,13 +63,7 @@ ohos_shared_library("featureability") {
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
     "utils_base:utils",
-
-    #"appdatamgr_jskits:rdb",
   ]
-
-  if (ability_runtime_graphics) {
-    defines = [ "SUPPORT_GRAPHICS" ]
-  }
 
   relative_install_dir = "module/ability"
 

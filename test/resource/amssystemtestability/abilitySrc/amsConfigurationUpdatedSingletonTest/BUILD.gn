@@ -42,10 +42,10 @@ ohos_shared_library("amsConfigurationUpdatedSingletonTest") {
   ]
   configs = [ ":amsConfigurationUpdatedSingletonTestConfig" ]
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_runtime_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${inner_api_path}/appexecfwk_base:appexecfwk_base",
     "//utils/native/base:utilsbase",
   ]

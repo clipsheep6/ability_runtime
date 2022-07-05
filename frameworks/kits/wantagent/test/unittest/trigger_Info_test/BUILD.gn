@@ -29,8 +29,8 @@ ohos_unittest("trigger_Info_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

@@ -23,7 +23,7 @@ ohos_moduletest("running_infos_module_test") {
     "${ability_runtime_services_path}/test/mock/include",
     "//third_party/jsoncpp/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
-    "${ability_runtime_path}/interfaces/inner_api/dataobs_manager/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
   ]
 
   sources = [ "running_infos_module_test.cpp" ]
@@ -70,10 +70,10 @@ ohos_moduletest("running_infos_module_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
-    "${ability_runtime_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",

@@ -24,8 +24,8 @@ config("module_private_config") {
     "${ability_base_innerapi_path}/uri/include",
     "${ability_runtime_kits_path}/appkit/native/test/mock/include",
 
-    #"${ability_runtime_path}/frameworks/kits/ability/native/test/mock/include",
-    "${ability_runtime_path}/frameworks/kits/appkit/test/Mock/include",
+    #"${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_kits_path}/appkit/test/Mock/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
   ]
 
@@ -51,10 +51,10 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -89,10 +89,10 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -127,10 +127,10 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -165,10 +165,10 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

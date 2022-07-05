@@ -22,7 +22,7 @@ ohos_unittest("want_agent_helper_test") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
-    "${ability_runtime_path}/services/abilitymgr/include",
+    "${ability_runtime_services_path}/abilitymgr/include",
   ]
 
   sources = [ "want_agent_helper_test.cpp" ]
@@ -33,9 +33,9 @@ ohos_unittest("want_agent_helper_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

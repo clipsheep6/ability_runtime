@@ -50,9 +50,9 @@ ohos_shared_library("amsKitSystemTestDataA") {
   ]
   configs = [ ":amsKitSystemTestDataAConfig" ]
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
     "${distributeddatamgr_path}/appdatamgr/relational_store/nterfaces/inner_api/rdb:native_rdb",
     "${inner_api_path}/appexecfwk_base:appexecfwk_base",

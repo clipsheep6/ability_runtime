@@ -47,7 +47,7 @@ config("abilityms_config") {
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
     "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
-    "${ability_runtime_path}/interfaces/inner_api/wantagent/include",
+    "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",

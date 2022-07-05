@@ -17,15 +17,15 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ts2abc_gen_abc("gen_delegator_mgmt_abc") {
   src_js = rebase_path(
-          "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js")
+          "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js")
   dst_file = rebase_path(target_out_dir + "/delegator_mgmt.abc")
-  in_puts = [ "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js" ]
+  in_puts = [ "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js" ]
   out_puts = [ target_out_dir + "/delegator_mgmt.abc" ]
   extra_args = [ "--module" ]
 }
 
 gen_js_obj("delegator_mgmt_js") {
-  input = "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/runner_runtime/delegator_mgmt.js"
+  input = "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js"
   output = target_out_dir + "/delegator_mgmt.o"
 }
 
@@ -78,10 +78,10 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
-    "${ability_runtime_path}/services/common/include",
+    "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${ability_runtime_path}/services/abilitymgr/include",
-    "${ability_runtime_path}/frameworks/js/napi/aafwk/inner/napi_common",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_napi_path}/inner/napi_common",
   ]
 
   configs = [ ":appkit_config" ]
@@ -89,24 +89,24 @@ ohos_shared_library("appkit_native") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/app/ability_stage.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/app/js_ability_stage.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/app/js_ability_stage_context.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/ability_manager.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/ability_record_mgr.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/app_context.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/app_loader.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/application_data_manager.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/application_env.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/application_env_impl.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/application_impl.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/context_container.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/context_deal.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/hdc_register.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/main_thread.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/ohos_application.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/watchdog.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/app/ability_stage.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/app/js_ability_stage.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/app/js_ability_stage_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/ability_manager.cpp",
+    "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
+    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_data_manager.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_env.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
+    "${ability_runtime_native_path}/appkit/app/context_container.cpp",
+    "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
+    "${ability_runtime_native_path}/appkit/app/hdc_register.cpp",
+    "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
+    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
+    "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
+    "${ability_runtime_native_path}/appkit/app/watchdog.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -115,8 +115,8 @@ ohos_shared_library("appkit_native") {
   deps = [
     ":appkit_delegator",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context_utils",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context_utils",
   ]
 
   public_deps =
@@ -175,11 +175,11 @@ ohos_shared_library("app_context") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/application_context.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/context_impl.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_runtime/context/environment_callback.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/app/sys_mgr_client.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/ability_lifecycle_callback.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/application_context.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/context_impl.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/environment_callback.cpp",
+    "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -248,7 +248,7 @@ ohos_shared_library("app_context_utils") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
   ]
 
@@ -298,7 +298,7 @@ ohos_shared_library("appkit_delegator") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/ability_delegator/include",
-    "${ability_runtime_path}/services/common/include",
+    "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
   ]
 
@@ -307,14 +307,14 @@ ohos_shared_library("appkit_delegator") {
   public_configs = [ ":appkit_public_config" ]
 
   sources = [
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/ability_delegator.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/ability_delegator_args.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/ability_delegator_registry.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/delegator_thread.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/iability_monitor.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/runner_runtime/js_test_runner.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/shell_cmd_result.cpp",
-    "${ability_runtime_path}/frameworks/native/appkit/ability_delegator/test_runner.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator_args.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/ability_delegator_registry.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/delegator_thread.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/iability_monitor.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/js_test_runner.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/shell_cmd_result.cpp",
+    "${ability_runtime_native_path}/appkit/ability_delegator/test_runner.cpp",
     "${ability_runtime_path}/tools/aa/src/shell_command_result.cpp",
     "${ability_runtime_path}/tools/aa/src/test_observer_proxy.cpp",
   ]
@@ -327,7 +327,7 @@ ohos_shared_library("appkit_delegator") {
   deps = [
     ":delegator_mgmt_abc",
     ":delegator_mgmt_js",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context",
   ]
 
   external_deps = [

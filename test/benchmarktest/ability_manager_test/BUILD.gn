@@ -26,8 +26,8 @@ ohos_benchmarktest("BenchmarkTestForAbilityManager") {
   }
 
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "//third_party/benchmark:benchmark",
     "//third_party/googletest:gtest_main",
   ]

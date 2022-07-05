@@ -42,9 +42,9 @@ ohos_shared_library("amsSystemTestI") {
   ]
   configs = [ ":amsSystemTestIConfig" ]
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utilsbase",
   ]

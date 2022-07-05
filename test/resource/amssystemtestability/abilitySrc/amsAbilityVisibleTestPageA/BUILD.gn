@@ -19,7 +19,7 @@ config("amsAbilityVisibleTestPageAConfig") {
   include_dirs = [
     "${SUBDEMOSYSTEM_DIR}/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
-    "${ability_runtime_path}/frameworks/kits/appkit/native/app",
+    "${ability_runtime_kits_path}/appkit/native/app",
     "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_base_innerapi_path}/uri/include",
@@ -42,11 +42,11 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
   ]
   configs = [ ":amsAbilityVisibleTestPageAConfig" ]
   deps = [
-    "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
-    "${ability_runtime_path}/frameworks/native/appkit:app_context",
-    "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
-    "${ability_runtime_path}/interfaces/inner_api/ability_manager:ability_manager",
-    "${ability_runtime_path}/interfaces/inner_api/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
     "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//utils/native/base:utilsbase",
