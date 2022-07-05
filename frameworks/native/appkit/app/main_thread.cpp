@@ -825,9 +825,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::string contactsDataAbility("com.ohos.contactsdataability");
     std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
     std::string telephonyDataAbility("com.ohos.telephonydataability");
+    std::string fusionSearchAbility("com.ohos.FusionSearch");
     auto appInfo = appLaunchData.GetApplicationInfo();
     auto bundleName = appInfo.bundleName;
-    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility) {
+    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility
+        || bundleName == fusionSearchAbility) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
