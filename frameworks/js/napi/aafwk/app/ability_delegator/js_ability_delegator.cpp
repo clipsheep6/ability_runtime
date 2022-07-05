@@ -58,9 +58,10 @@ NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *hint)
 {
     HILOG_INFO("AttachAppContext");
     std::shared_ptr<AbilityRuntime::Context> context(reinterpret_cast<AbilityRuntime::Context *>(value));
-    NativeValue *object = CreateJsBaseContext(*engine, context, DetachAppContext, AttachAppContext, true);
+    NativeValue *object = CreateJsBaseContext(*engine, context, nullptr, nullptr, true);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext,
+        context.get(), nullptr);
     return object;
 }
 
@@ -423,9 +424,10 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
         HILOG_ERROR("context is null");
         return engine.CreateNull();
     }
-    NativeValue *value = CreateJsBaseContext(engine, context, DetachAppContext, AttachAppContext, false);
+    NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(value);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    nObject->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext,
+        context.get(), nullptr);
     return value;
 }
 

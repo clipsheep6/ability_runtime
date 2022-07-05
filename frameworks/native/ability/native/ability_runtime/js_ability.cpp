@@ -52,10 +52,12 @@ NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *hin
 {
     HILOG_INFO("AttachJsAbilityContext");
     std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
-    NativeValue *object = CreateJsAbilityContext(*engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
+    NativeValue *object = CreateJsAbilityContext(*engine, context, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachJsAbilityContext, AttachJsAbilityContext,
+        context.get(), nullptr);
+    return contextObj;
 }
 
 Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
@@ -118,13 +120,13 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     }
 
     auto context = GetAbilityContext();
-    NativeValue *contextObj = CreateJsAbilityContext(engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(contextObj);
-    object->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue *contextObj = CreateJsAbilityContext(engine, context, nullptr, nullptr);
     shellContextRef_ = std::shared_ptr<NativeReference>(
         jsRuntime_.LoadSystemModule("application.AbilityContext", &contextObj, 1).release());
     contextObj = shellContextRef_->Get();
-
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(contextObj);
+    object->ConvertToNativeBindingObject(&engine, DetachJsAbilityContext, AttachJsAbilityContext,
+        context.get(), nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
 

@@ -38,10 +38,11 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachBaseContext");
     std::shared_ptr<Context> context(reinterpret_cast<Context *>(value));
-    NativeValue* object = CreateJsBaseContext(*engine, context, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
+    NativeValue* object = CreateJsBaseContext(*engine, context, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachBaseContext, AttachBaseContext, context.get(), nullptr);
+    return contextObj;
 }
 
 void* DetachApplicationContext(NativeEngine* engine, void* value, void* hint)
@@ -54,11 +55,12 @@ NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* h
 {
     HILOG_INFO("AttachApplicationContext");
     std::shared_ptr<ApplicationContext> context(reinterpret_cast<ApplicationContext *>(value));
-    NativeValue* object = CreateJsApplicationContext(*engine, context,
-                                                     DetachApplicationContext, AttachApplicationContext, true);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1)->Get();
+    NativeValue* object = CreateJsApplicationContext(*engine, context, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachApplicationContext, AttachApplicationContext,
+        context.get(), nullptr);
+    return contextObj;
 }
 
 class JsBaseContext {
@@ -206,10 +208,11 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
     }
 
     JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, moduleContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    auto contextObj = jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext, moduleContext.get(), nullptr);
+    return contextObj;
 }
 
 NativeValue* JsBaseContext::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
@@ -382,10 +385,11 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
     }
 
     JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, bundleContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    auto contextObj = jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext, bundleContext.get(), nullptr);
+    return contextObj;
 }
 
 NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
@@ -403,11 +407,13 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         return engine.CreateUndefined();
     }
     JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsApplicationContext(engine, applicatioContext, DetachApplicationContext,
-                                                    AttachApplicationContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, applicatioContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.ApplicationContext", &value, 1)->Get();
+    NativeValue* value = CreateJsApplicationContext(engine, applicatioContext, nullptr,
+                                                    nullptr, true);
+    auto contextObj = jsRuntime.LoadSystemModule("application.ApplicationContext", &value, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachApplicationContext, AttachApplicationContext,
+        applicatioContext.get(), nullptr);
+    return contextObj;
 }
 } // namespace
 
