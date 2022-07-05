@@ -68,7 +68,11 @@ public:
     {
         if (!debugMode_) {
             HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-            panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId);
+            auto&& debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
+                eventHandler->PostTask(task);
+            };
+            panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId,
+                std::move(debuggerPostTask));
             debugMode_ = true;
         }
     }
