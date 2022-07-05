@@ -33,7 +33,6 @@ ohos_unittest("want_agent_helper_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${ability_runtime_path}/frameworks/kits/wantagent:wantagent_innerkits",
     "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
     "${ability_runtime_path}/services/abilitymgr:abilityms",
@@ -48,6 +47,7 @@ ohos_unittest("want_agent_helper_test") {
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",

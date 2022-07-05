@@ -82,7 +82,7 @@
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
-          "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+          "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent:wantagent_innerkits"
         ],
         "inner_kits": [
           {
@@ -101,7 +101,7 @@
                 "want_agent.h"
               ]
             },
-            "name": "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent:wantagent_innerkits"
           },
           {
             "header": {

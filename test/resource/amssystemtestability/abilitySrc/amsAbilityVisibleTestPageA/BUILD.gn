@@ -42,7 +42,6 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
   ]
   configs = [ ":amsAbilityVisibleTestPageAConfig" ]
   deps = [
-    "${ability_runtime_path}/frameworks/kits/wantagent:wantagent_innerkits",
     "${ability_runtime_path}/frameworks/native/ability/native:abilitykit_native",
     "${ability_runtime_path}/frameworks/native/appkit:app_context",
     "${ability_runtime_path}/frameworks/native/appkit:appkit_native",
@@ -55,6 +54,7 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",

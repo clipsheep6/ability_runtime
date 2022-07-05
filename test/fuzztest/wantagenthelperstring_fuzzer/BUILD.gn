@@ -36,11 +36,10 @@ ohos_fuzztest("WantAgentHelperStringFuzzTest") {
 
   sources = [ "wantagenthelperstring_fuzzer.cpp" ]
 
-  deps = [ "${ability_runtime_kits_path}/wantagent:wantagent_innerkits" ]
-
   external_deps = [
     "ability_base:base",
     "ability_base:want",
+    "ability_runtime:wantagent_innerkits",
     "ipc:ipc_core",
     "utils_base:utils",
   ]
