@@ -53,10 +53,8 @@ public:
         const std::string& moduleName, const std::string& modulePath, bool esmodule = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
-    void PostTask(const TimerTask& task, const std::string& name, int64_t delayTime);
+    void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
     void RemoveTask(const std::string& name);
-    NativeValue* SetCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info, bool isInterval);
-    NativeValue* ClearCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info);
     void DumpHeapSnapshot(bool isPrivate) override;
     std::string BuildJsStackTrace() override;
     void NotifyApplicationState(bool isBackground) override;
@@ -78,10 +76,7 @@ protected:
     std::unique_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
-
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
-    uint32_t callbackId_ = 0;
-
     std::unordered_map<std::string, NativeReference*> modules_;
 };
 }  // namespace AbilityRuntime

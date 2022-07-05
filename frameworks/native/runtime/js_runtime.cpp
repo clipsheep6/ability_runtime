@@ -22,21 +22,18 @@
 #include <sys/epoll.h>
 
 #include "native_engine/impl/ark/ark_native_engine.h"
-#ifdef SUPPORT_GRAPHICS
-#include "core/common/container_scope.h"
-#include "declarative_module_preloader.h"
-#endif
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_module_searcher.h"
 #include "js_runtime_utils.h"
-
-#ifdef ENABLE_HITRACE
-#include "hitrace/trace.h"
-#endif
-#include "systemcapability.h"
+#include "js_timer.h"
 #include "parameters.h"
+#include "systemcapability.h"
+
+#ifdef SUPPORT_GRAPHICS
+#include "declarative_module_preloader.h"
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -135,17 +132,6 @@ private:
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 
-NativeValue* SetTimeout(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Set timeout failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.SetCallbackTimer(*engine, *info, false);
-}
-
 NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 {
     if (engine == nullptr || info == nullptr) {
@@ -171,36 +157,6 @@ NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 
     bool ret = HasSystemCapability(syscap);
     return engine->CreateBoolean(ret);
-}
-
-NativeValue* SetInterval(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Set interval failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.SetCallbackTimer(*engine, *info, true);
-}
-
-NativeValue* ClearTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Clear timer failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.ClearCallbackTimer(*engine, *info);
-}
-
-void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
-{
-    BindNativeFunction(engine, globalObject, "setTimeout", SetTimeout);
-    BindNativeFunction(engine, globalObject, "setInterval", SetInterval);
-    BindNativeFunction(engine, globalObject, "clearTimeout", ClearTimeoutOrInterval);
-    BindNativeFunction(engine, globalObject, "clearInterval", ClearTimeoutOrInterval);
 }
 
 void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
@@ -582,76 +538,7 @@ bool JsRuntime::RunSandboxScript(const std::string& path)
     return true;
 }
 
-#ifdef SUPPORT_GRAPHICS
-using OHOS::Ace::ContainerScope;
-#endif
-class TimerTask final {
-public:
-    TimerTask(
-        JsRuntime& jsRuntime, std::shared_ptr<NativeReference> jsFunction, const std::string &name, int64_t interval)
-        : jsRuntime_(jsRuntime), jsFunction_(jsFunction), name_(name), interval_(interval)
-    {
-#ifdef SUPPORT_GRAPHICS
-        containerScopeId_ = ContainerScope::CurrentId();
-#endif
-#ifdef ENABLE_HITRACE
-        traceId_ = new OHOS::HiviewDFX::HiTraceId(OHOS::HiviewDFX::HiTrace::GetId());
-#endif
-    }
-
-    ~TimerTask() = default;
-
-    void operator()()
-    {
-        if (interval_ > 0) {
-            jsRuntime_.PostTask(*this, name_, interval_);
-        }
-#ifdef SUPPORT_GRAPHICS
-        // call js function
-        ContainerScope containerScope(containerScopeId_);
-#endif
-        HandleScope handleScope(jsRuntime_);
-
-        std::vector<NativeValue*> args_;
-        args_.reserve(jsArgs_.size());
-        for (auto arg : jsArgs_) {
-            args_.emplace_back(arg->Get());
-        }
-
-        NativeEngine& engine = jsRuntime_.GetNativeEngine();
-#ifdef ENABLE_HITRACE
-        if (traceId_ && traceId_->IsValid()) {
-            OHOS::HiviewDFX::HiTrace::SetId(*traceId_);
-            engine.CallFunction(engine.CreateUndefined(), jsFunction_->Get(), args_.data(), args_.size());
-            OHOS::HiviewDFX::HiTrace::ClearId();
-            delete traceId_;
-            traceId_ = nullptr;
-            return;
-        }
-#endif
-        engine.CallFunction(engine.CreateUndefined(), jsFunction_->Get(), args_.data(), args_.size());
-    }
-
-    void PushArgs(std::shared_ptr<NativeReference> ref)
-    {
-        jsArgs_.emplace_back(ref);
-    }
-
-private:
-    JsRuntime& jsRuntime_;
-    std::shared_ptr<NativeReference> jsFunction_;
-    std::vector<std::shared_ptr<NativeReference>> jsArgs_;
-    std::string name_;
-    int64_t interval_ = 0;
-#ifdef SUPPORT_GRAPHICS
-    int32_t containerScopeId_ = 0;
-#endif
-#ifdef ENABLE_HITRACE
-    OHOS::HiviewDFX::HiTraceId* traceId_ = nullptr;
-#endif
-};
-
-void JsRuntime::PostTask(const TimerTask& task, const std::string& name, int64_t delayTime)
+void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
     eventHandler_->PostTask(task, name, delayTime);
 }
@@ -659,48 +546,6 @@ void JsRuntime::PostTask(const TimerTask& task, const std::string& name, int64_t
 void JsRuntime::RemoveTask(const std::string& name)
 {
     eventHandler_->RemoveTask(name);
-}
-
-NativeValue* JsRuntime::SetCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info, bool isInterval)
-{
-    // parameter check, must have at least 2 params
-    if (info.argc < 2 || info.argv[0]->TypeOf() != NATIVE_FUNCTION || info.argv[1]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Set callback timer failed with invalid parameter.");
-        return engine.CreateUndefined();
-    }
-
-    // parse parameter
-    std::shared_ptr<NativeReference> jsFunction(engine.CreateReference(info.argv[0], 1));
-    int64_t delayTime = *ConvertNativeValueTo<NativeNumber>(info.argv[1]);
-    uint32_t callbackId = callbackId_++;
-    std::string name = "JsRuntimeTimer_";
-    name.append(std::to_string(callbackId));
-
-    // create timer task
-    TimerTask task(*this, jsFunction, name, isInterval ? delayTime : 0);
-    for (size_t index = 2; index < info.argc; ++index) {
-        task.PushArgs(std::shared_ptr<NativeReference>(engine.CreateReference(info.argv[index], 1)));
-    }
-
-    JsRuntime::PostTask(task, name, delayTime);
-    return engine.CreateNumber(callbackId);
-}
-
-NativeValue* JsRuntime::ClearCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    // parameter check, must have at least 1 param
-    if (info.argc < 1 || info.argv[0]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Clear callback timer failed with invalid parameter.");
-        return engine.CreateUndefined();
-    }
-
-    uint32_t callbackId = *ConvertNativeValueTo<NativeNumber>(info.argv[0]);
-    std::string name = "JsRuntimeTimer_";
-    name.append(std::to_string(callbackId));
-
-    // event should be cancelable before executed
-    JsRuntime::RemoveTask(name);
-    return engine.CreateUndefined();
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
