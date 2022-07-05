@@ -478,7 +478,6 @@ bool SetCallbackReference(napi_env env, const napi_value& value, RegisterMission
     }
     napi_typeof(env, jsMethod, &valuetype);
     if (valuetype != napi_function) {
-        HILOG_ERROR("%{public}s, notifyNetDisconnect callback error type.", __func__);
         return false;
     }
     napi_create_reference(env, jsMethod, 1,
@@ -520,12 +519,11 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
     bool isDeviceId = false;
     napi_has_named_property(env, args[0], "deviceId", &isDeviceId);
     napi_typeof(env, args[0], &valueType);
-    if (isDeviceId && valueType == napi_object) {
-        napi_get_named_property(env, args[0], "deviceId", &firstNApi);
-    } else {
+    if (!isDeviceId || valueType != napi_object) {
         HILOG_ERROR("%{public}s, Wrong argument name for deviceId.", __func__);
         return nullptr;
     }
+    napi_get_named_property(env, args[0], "deviceId", &firstNApi);
     if (firstNApi == nullptr) {
         return nullptr;
     }
@@ -545,7 +543,6 @@ napi_value RegisterMissionWrap(napi_env env, napi_callback_info info, RegisterMi
     registerMissionCB->deviceId = deviceId;
 
     if (argcAsync > 1 && !CreateCallbackReference(env, args[1], registerMissionCB)) {
-        HILOG_ERROR("%{public}s, Wrong arguments.", __func__);
         return nullptr;
     }
 
