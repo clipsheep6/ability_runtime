@@ -42,6 +42,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_path}/frameworks/native/runtime/js_runtime.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/js_runtime_utils.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/js_timer.cpp",
+    "${ability_runtime_path}/frameworks/native/runtime/js_worker.cpp",
     "${ability_runtime_path}/frameworks/native/runtime/runtime.cpp",
   ]
 
