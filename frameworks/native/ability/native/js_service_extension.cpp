@@ -36,6 +36,24 @@ constexpr size_t ARGC_TWO = 2;
 }
 
 using namespace OHOS::AppExecFwk;
+
+void* DetachServiceExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("DetachServiceExtensionContext");
+    return value;
+}
+
+NativeValue* AttachServiceExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("AttachServiceExtensionContext");
+    std::shared_ptr<ServiceExtensionContext> context(reinterpret_cast<ServiceExtensionContext *>(value));
+    NativeValue* object = CreateJsServiceExtensionContext(*engine, context,
+        DetachServiceExtensionContext, AttachServiceExtensionContext);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
+    nObject->SetNativeBindingPointer(&engine, value, nullptr);
+    return JsRuntime::LoadSystemModuleByEngine(engine, "application.ServiceExtensionContext", &object, 1)->Get();
+}
+
 JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     return new JsServiceExtension(static_cast<JsRuntime&>(*runtime));
@@ -67,6 +85,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         HILOG_ERROR("Failed to get jsObj_");
         return;
     }
+
     HILOG_INFO("JsServiceExtension::Init ConvertNativeValueTo.");
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
@@ -74,13 +93,21 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
+    BindContext(engine, obj);
+}
+
+void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
+{
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_ERROR("Failed to get context");
         return;
     }
     HILOG_INFO("JsServiceExtension::Init CreateJsServiceExtensionContext.");
-    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context);
+    NativeValue* contextObj = CreateJsServiceExtensionContext(engine, context,
+        DetachServiceExtensionContext, AttachServiceExtensionContext);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
     shellContextRef_ = jsRuntime_.LoadSystemModule("application.ServiceExtensionContext", &contextObj, ARGC_ONE);
     contextObj = shellContextRef_->Get();
     HILOG_INFO("JsServiceExtension::Init Bind.");

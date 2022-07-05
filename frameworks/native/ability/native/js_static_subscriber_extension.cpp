@@ -34,6 +34,26 @@ constexpr size_t ARGC_ONE = 1;
 }
 
 using namespace OHOS::AppExecFwk;
+
+void* DetachStaticSubscriberExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("DetachStaticSubscriberExtensionContext");
+    return value;
+}
+
+NativeValue* AttachStaticSubscriberExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("AttachStaticSubscriberExtensionContext");
+    auto sp = reinterpret_cast<StaticSubscriberExtensionContext *>(value);
+    std::shared_ptr<StaticSubscriberExtensionContext> context(sp);
+    NativeValue* object = CreateJsStaticSubscriberExtensionContext(*engine, context,
+        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
+    nObject->SetNativeBindingPointer(&engine, value, nullptr);
+    return JsRuntime::LoadSystemModuleByEngine(engine, "application.StaticSubscriberExtensionContext",
+                                               &object, 1)->Get();
+}
+
 JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     return new JsStaticSubscriberExtension(static_cast<JsRuntime&>(*runtime));
@@ -82,7 +102,10 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         return;
     }
     HILOG_INFO("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
-    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context);
+    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context,
+        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext);
+    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
     auto shellContextRef = jsRuntime_.LoadSystemModule("application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();

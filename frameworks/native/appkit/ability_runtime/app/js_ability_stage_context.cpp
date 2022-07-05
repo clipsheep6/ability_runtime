@@ -50,10 +50,11 @@ void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shar
     engine->CallFunction(value, method, argv, 1);
 }
 
-NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context)
+NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context,
+                                         DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    NativeValue* objValue = CreateJsBaseContext(engine, context);
+    NativeValue* objValue = CreateJsBaseContext(engine, context, nullptr, nullptr);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     auto configuration = context->GetConfiguration();

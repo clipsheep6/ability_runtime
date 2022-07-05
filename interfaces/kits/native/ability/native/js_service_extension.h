@@ -21,6 +21,7 @@
 
 class NativeReference;
 class NativeValue;
+class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -123,6 +124,8 @@ public:
 
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
+
+    void BindContext(NativeEngine& engine, NativeObject* obj);
 
     void GetSrcPath(std::string &srcPath);
 

@@ -44,15 +44,16 @@ private:
 } // namespace
 
 NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
-    std::shared_ptr<StaticSubscriberExtensionContext> context)
+    std::shared_ptr<StaticSubscriberExtensionContext> context,
+    DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("CreateJsStaticSubscriberExtensionContext begin");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue *objValue = CreateJsExtensionContext(engine, context, abilityInfo);
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo, detach, attach);
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsStaticSubscriberExtensionContext> jsContext =
         std::make_unique<JsStaticSubscriberExtensionContext>(context);

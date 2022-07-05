@@ -18,10 +18,7 @@
 
 #include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 #include "configuration.h"
-
-class NativeEngine;
-class NativeReference;
-class NativeValue;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -42,7 +39,8 @@ private:
     std::weak_ptr<AbilityRuntime::Context> context_;
 };
 
-NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context);
+NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context,
+                                         DetachCallback detach, AttachCallback attach);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H
