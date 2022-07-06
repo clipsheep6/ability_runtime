@@ -32,6 +32,12 @@ namespace AAFwk {
 namespace AbilityUtil {
 const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
+const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+const std::string DLP_ABILITY_NAME = "ViewAbility";
+const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
+const std::string DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
+const std::string DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
+const std::string DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
 static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
@@ -189,6 +195,22 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
     }
     HILOG_DEBUG("Judge ability visible success.");
     return ERR_OK;
+}
+
+[[maybe_unused]] static bool HandleDlpApp(Want &want)
+{
+    AppExecFwk::ElementName element = want.GetElement();
+    if (want.GetBoolParam(DLP_PARAMS_SANDBOX, false) && !element.GetBundleName().empty()
+        && !element.GetAbilityName().empty()) {
+        want.SetElementName(DLP_BUNDLE_NAME, DLP_ABILITY_NAME);
+        want.SetParam(DLP_PARAMS_BUNDLE_NAME, element.GetBundleName());
+        want.SetParam(DLP_PARAMS_MODULE_NAME, element.GetModuleName());
+        want.SetParam(DLP_PARAMS_ABILITY_NAME, element.GetAbilityName());
+        want.RemoveParam(DLP_PARAMS_SANDBOX);
+        return true;
+    }
+
+    return false;
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk

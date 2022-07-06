@@ -41,7 +41,7 @@ public:
      */
     void GrantUriPermission(const Uri &uri, unsigned int flag, const Security::AccessToken::AccessTokenID fromTokenId,
         const Security::AccessToken::AccessTokenID targetTokenId);
-    
+
     /**
      * @brief Check whether the tokenId has URI permissions.
      *

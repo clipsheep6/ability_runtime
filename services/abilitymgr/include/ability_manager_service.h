@@ -46,6 +46,7 @@
 #include "ams_configuration_parameter.h"
 #include "user_controller.h"
 #ifdef SUPPORT_GRAPHICS
+#include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
 
@@ -780,6 +781,11 @@ public:
      */
     bool IsBackgroundTaskUid(const int uid);
 
+    bool GetLocalDeviceId(std::string& localDeviceId);
+
+#ifdef SUPPORT_GRAPHICS
+    int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
+#endif
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -905,7 +911,6 @@ private:
     void UpdateCallerInfo(Want& want);
 
     bool CheckIfOperateRemote(const Want &want);
-    bool GetLocalDeviceId(std::string& localDeviceId);
     std::string AnonymizeDeviceId(const std::string& deviceId);
     bool VerificationToken(const sptr<IRemoteObject> &token);
     void RequestPermission(const Want *resultWant);
@@ -960,7 +965,7 @@ private:
 
     int32_t InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
         AppExecFwk::AbilityInfo &abilityInfo);
-
+    
     // multi user
     void StartFreezingScreen();
     void StopFreezingScreen();
@@ -1041,12 +1046,13 @@ private:
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
+    const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
 
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
-
+    
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
@@ -1063,7 +1069,8 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
-    std::shared_ptr<SystemDialogScheduler> sysDialogScheduler_;
+    int CheckWindowMode(int32_t windowMode, std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
+    std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;

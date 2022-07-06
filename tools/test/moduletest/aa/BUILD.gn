@@ -12,19 +12,19 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_tools/tools"
 
 config("tools_aa_config_mock") {
   include_dirs = [
-    "${aafwk_path}/tools/test/mock",
+    "${ability_runtime_path}/tools/test/mock",
     "//third_party/googletest/googlemock/include",
   ]
 }
 
 tools_aa_mock_sources =
-    [ "${aafwk_path}/tools/test/mock/mock_ability_manager_stub.cpp" ]
+    [ "${ability_runtime_path}/tools/test/mock/mock_ability_manager_stub.cpp" ]
 
 ohos_moduletest("aa_command_dumpsys_module_test") {
   module_out_path = module_output_path
@@ -40,7 +40,7 @@ ohos_moduletest("aa_command_dumpsys_module_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -68,7 +68,7 @@ ohos_moduletest("aa_command_start_module_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -95,7 +95,7 @@ ohos_moduletest("aa_command_stop_service_module_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -122,7 +122,7 @@ ohos_moduletest("aa_command_dump_module_test") {
   }
 
   deps = [
-    "${aafwk_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

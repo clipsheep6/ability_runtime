@@ -29,7 +29,7 @@ const std::string TASK_NAME_ANR = "ANR_TIME_OUT_TASK";
 AppNoResponseDisposer::AppNoResponseDisposer(const int timeout): timeout_(timeout) {}
 
 #ifdef SUPPORT_GRAPHICS
-int AppNoResponseDisposer::DisposeAppNoRespose(int pid,
+int AppNoResponseDisposer::DisposeAppNoResponse(int pid,
     const SetMissionClosure &task, const ShowDialogClosure &showDialogTask) const
  {
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
@@ -40,7 +40,7 @@ int AppNoResponseDisposer::DisposeAppNoRespose(int pid,
         HILOG_ERROR("Get application info failed.");
         return ERR_INVALID_VALUE;
     }
-    
+
     auto ret = ExcuteANRSaveStackInfoTask(pid, task);
     if (ret != ERR_OK) {
         HILOG_ERROR("excute anr save stack info task failed.");
@@ -55,13 +55,13 @@ int AppNoResponseDisposer::DisposeAppNoRespose(int pid,
 
     showDialogTask(appInfo.labelId, appInfo.bundleName, callback);
 
-    HILOG_INFO("DisposeAppNoRespose success.");
+    HILOG_INFO("DisposeAppNoResponse success.");
     return ERR_OK;
 }
 #else
-int AppNoResponseDisposer::DisposeAppNoRespose(int pid, const SetMissionClosure &task) const
+int AppNoResponseDisposer::DisposeAppNoResponse(int pid, const SetMissionClosure &task) const
  {
-    HILOG_INFO("DisposeAppNoRespose start.");
+    HILOG_INFO("DisposeAppNoResponse start.");
     auto ret = PostTimeoutTask(pid);
     if (ret != ERR_OK) {
         HILOG_ERROR("post anr timeout task failed.");
@@ -74,7 +74,7 @@ int AppNoResponseDisposer::DisposeAppNoRespose(int pid, const SetMissionClosure 
         return ret;
     }
 
-    HILOG_INFO("DisposeAppNoRespose success.");
+    HILOG_INFO("DisposeAppNoResponse success.");
     return ERR_OK;
 }
 #endif

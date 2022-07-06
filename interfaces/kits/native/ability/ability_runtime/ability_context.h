@@ -254,7 +254,7 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
-    
+
     virtual int GetCurrentWindowMode() = 0;
 #endif
     virtual bool IsTerminating() = 0;

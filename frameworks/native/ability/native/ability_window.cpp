@@ -39,17 +39,10 @@ void AbilityWindow::Init(std::shared_ptr<AbilityHandler>& handler, std::shared_p
     windowScene_ = std::make_shared<Rosen::WindowScene>();
 }
 
-/**
- * @brief Sets the window config for the host ability to create window.
- *
- * @param winType Indicates window config.
- * @param abilityContext Indicates runtime ability context.
- * @param listener Indicates window lifecycle listener.
- * @return true if init window success.
- */
 bool AbilityWindow::InitWindow(Rosen::WindowType winType,
     std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-    sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option)
+    sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option,
+    bool isPrivacy)
 {
     HILOG_INFO("%{public}s begin.", __func__);
     auto ret = windowScene_->Init(displayId, abilityContext, listener, option);
@@ -70,6 +63,8 @@ bool AbilityWindow::InitWindow(Rosen::WindowType winType,
         return false;
     }
     winType_ = winType;
+
+    window->SetPrivacyMode(isPrivacy);
 
     isWindowAttached = true;
     HILOG_INFO("%{public}s end.", __func__);

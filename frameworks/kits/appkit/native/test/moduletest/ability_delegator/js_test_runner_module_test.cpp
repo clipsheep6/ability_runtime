@@ -113,7 +113,7 @@ HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0100, Function | Med
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -128,7 +128,7 @@ HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0100, Function | Med
 
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportFinished(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(MockAbilityDelegatorStub::finishFlag_);
 }
 
@@ -152,7 +152,7 @@ HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0200, Function | Med
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -170,6 +170,6 @@ HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0200, Function | Med
 
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportStatus(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);
 }

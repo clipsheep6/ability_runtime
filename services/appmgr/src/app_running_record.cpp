@@ -328,6 +328,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetRecordId(appRecordId_);
     launchData.SetUId(mainUid_);
     launchData.SetUserTestInfo(userTestRecord_);
+    launchData.SetAppIndex(appIndex_);
     HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -1053,6 +1054,16 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
 {
     HILOG_INFO("SetDebugApp come, value is %{public}d", isDebugApp);
     isDebugApp_ = isDebugApp;
+}
+
+void AppRunningRecord::SetAppIndex(const int32_t appIndex)
+{
+    appIndex_ = appIndex;
+}
+
+int32_t AppRunningRecord::GetAppIndex() const
+{
+    return appIndex_;
 }
 
 void AppRunningRecord::SetKilling()

@@ -116,7 +116,7 @@ HWTEST_F(AmsAppStateCallBackTest, AppProcessData_001, TestSize.Level1)
     sptr<AppProcessData> newProcessData = AppProcessData::Unmarshalling(data);
     EXPECT_NE(nullptr, newProcessData);
 
-    for (auto i = 0; i < processData.appDatas.size(); i++) {
+    for (size_t i = 0; i < processData.appDatas.size(); i++) {
         EXPECT_EQ(processData.appDatas[i].appName, newProcessData->appDatas[i].appName);
         EXPECT_EQ(processData.appDatas[i].uid, newProcessData->appDatas[i].uid);
     }

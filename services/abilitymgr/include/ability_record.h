@@ -31,6 +31,7 @@
 #include "application_info.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "call_container.h"
+#include "ipc_skeleton.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
 #include "uri.h"
@@ -183,6 +184,10 @@ private:
 enum AbilityCallType {
     INVALID_TYPE = 0,
     CALL_REQUEST_TYPE,
+    START_OPTIONS_TYPE,
+    START_SETTINGS_TYPE,
+    START_EXTENSION_TYPE,
+    CONNECT_ABILITY_TYPE,
 };
 struct AbilityRequest {
     Want want;
@@ -201,6 +206,8 @@ struct AbilityRequest {
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
     std::string specifiedFlag;
+
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
     bool IsContinuation() const
     {
@@ -226,6 +233,17 @@ struct AbilityRequest {
         state.push_back(dumpInfo);
         dumpInfo = "      request code [" + std::to_string(requestCode) + "]";
         state.push_back(dumpInfo);
+    }
+
+    void Voluation(const Want &srcWant, int srcRequestCode,
+        const sptr<IRemoteObject> &srcCallerToken, const std::shared_ptr<AbilityStartSetting> srcStartSetting = nullptr,
+        int srcCallerUid = -1)
+    {
+        want = srcWant;
+        requestCode = srcRequestCode;
+        callerToken = srcCallerToken;
+        startSetting = srcStartSetting;
+        callerUid = srcCallerUid == -1 ? IPCSkeleton::GetCallingUid() : srcCallerUid;
     }
 };
 
@@ -728,8 +746,8 @@ public:
     void SetRestarting(const bool isRestart);
     void SetRestarting(const bool isRestart, int32_t canReStartCount);
     int32_t GetRestartCount() const;
-    void SetDlp(bool isDlp);
-    bool IsDlp() const;
+    void SetAppIndex(const int32_t appIndex);
+    int32_t GetAppIndex() const;
     bool IsRestarting() const;
     void SetAppState(const AppState &state);
     AppState GetAppState() const;
@@ -803,7 +821,7 @@ private:
      */
     void AddSystemAbilityCallerRecord(const sptr<IRemoteObject> &callerToken, int requestCode,
         std::string srcAbilityId);
-    
+
     bool IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken);
 
 #ifdef SUPPORT_GRAPHICS
@@ -830,6 +848,8 @@ private:
         const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
         const sptr<IRemoteObject> abilityToken) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
     std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
         const AppExecFwk::AbilityInfo &abilityInfo) const;
     sptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
@@ -896,7 +916,7 @@ private:
     std::shared_ptr<CallContainer> callContainer_ = nullptr;
     bool isStartedByCall_ = false;
     bool isStartToBackground_ = false;
-    bool isDlp_ = false;
+    int32_t appIndex_ = 0;
     bool minimizeReason_ = false;
 
     bool clearMissionFlag_ = false;

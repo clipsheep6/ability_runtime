@@ -1,0 +1,51 @@
+<!--
+    Copyright (c) 2022 Huawei Device Co., Ltd.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<div class="container">
+    <div class="selector">
+        <div class="div-title">
+            <text class="title">
+                {{$t('message.title')}}
+            </text>
+        </div>
+    </div>
+    <swiper class="swiper" index="0" indicator="{{selector.swiper.indicator}}" style="height:{{selector.swiper.height}}; display: {{phoneDisplay}};">
+        <div class="swiperContent" for="selectorHapList" style="height:{{selector.swiper.contentHeight}}; grid-template-columns:{{selector.swiper.gridColumns}}; grid-template-rows:{{selector.swiper.gridRows}};">
+            <div class="selectorApp" for="{{$item}}">
+                <div class ="AppItem" onClick="onSelector({{$item}})">
+                    <image class="AppIcon" src="{{$item.icon}}"></image>
+                    <text class="AppName">{{$item.name}}</text>
+                </div>
+            </div>
+        </div>
+    </swiper>
+    <div class="but" style="display: {{phoneDisplay}};">
+        <div class="but-cancel" onclick="onCancel"  style="margin-top: {{selector.btn.marginTop}};">
+            <text class="text-cancel">{{$t('message.cancel')}}</text>
+        </div>
+    </div>
+    <div class="selector-listback" style="width: {{pcSelectorlist.width}}; height: {{pcSelectorlist.height}}; display: {{pcDisplay}};">
+        <list ref="selector-list" class="selector-list" scrollbar="{{pcSelectorlist.scrollbar}}">
+            <list-item class="selector-listItem" onClick="onSelector({{$item}})" for="{{selectorHapList}}">
+                <div class="selector-listItemNode">
+                    <image class="selector-listItemAppIcon" src="{{$item.icon}}"></image>
+                    <text class="selector-listItemText">{{$item.name}}</text>
+                </div>
+            </list-item>
+        </list>
+    </div>
+    <div class="selector-btnCancelback" style="display: {{pcDisplay}};">
+        <input class="selector-btnCancel" type="button" value="{{ $t('message.cancel') }}" onClick="onCancel"></input>
+    </div>
+</div>

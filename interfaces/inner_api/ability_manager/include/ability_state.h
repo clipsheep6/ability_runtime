@@ -42,6 +42,7 @@ enum AbilityState {
     FOREGROUNDING,
     BACKGROUNDING,
     FOREGROUND_FAILED,
+    FOREGROUND_INVALID_MODE,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

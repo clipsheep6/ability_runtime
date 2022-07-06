@@ -58,7 +58,7 @@ HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0100, Function | MediumTest |
 {
     HILOG_INFO("Shell_Cmd_Result_Test_0100 is called");
     ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
-    
+
     EXPECT_EQ(shellCmd.GetExitCode(), EXITCODE);
     EXPECT_EQ(shellCmd.GetStdResult(), SHELLCOMMANDDRESULT);
 }

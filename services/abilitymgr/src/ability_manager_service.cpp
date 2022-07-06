@@ -118,6 +118,7 @@ const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.syste
 const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const int DEFAULT_REQUEST_CODE = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
@@ -162,6 +163,17 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
+};
+
+const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
+        AppExecFwk::SupportWindowMode::FULLSCREEN),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
+        AppExecFwk::SupportWindowMode::FLOATING),
 };
 
 const bool REGISTER_RESULT =
@@ -247,7 +259,8 @@ bool AbilityManagerService::Init()
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
 #ifdef SUPPORT_GRAPHICS
-    sysDialogScheduler_ = std::make_shared<SystemDialogScheduler>(amsConfigResolver_->GetDeviceType());
+    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
+    implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
@@ -328,8 +341,6 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_INFO("%{public}s", __func__);
-
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
 
@@ -347,12 +358,21 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
+    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+        return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
+    }
+
     if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
         return CHECK_PERMISSION_FAILED;
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+            abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
+            (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+        }
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission();
         if (!isSpecificSA) {
@@ -363,12 +383,21 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
+    auto promise = std::make_shared<std::promise<int32_t>>();
+    FreeInstallInfo info = {
+        .want = want,
+        .userId = validUserId,
+        .requestCode = requestCode,
+        .callerToken = callerToken,
+        .promise = promise
+    };
 
     if (callerToken != nullptr) {
         if (CheckIfOperateRemote(want)) {
             if (AbilityUtil::IsStartFreeInstall(want)) {
                 return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
-                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken, true);
+                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode,
+                        validUserId, callerToken, true);
             }
             if (requestCode == DEFAULT_REQUEST_CODE) {
                 HILOG_INFO("%{public}s: try to StartAbility", __func__);
@@ -385,10 +414,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-        int ret = freeInstallManager_->FreeInstall(
+        int ret = freeInstallManager_->StartFreeInstall(
             want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -399,6 +428,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, requestCode, callerToken);
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -455,6 +491,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (abilityInfo.isStageBasedModel &&
+        CheckWindowMode(MULTI_WINDOW_DISPLAY_FULLSCREEN, abilityInfo.windowModes) == ERR_AAFWK_INVALID_WINDOW_MODE) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -494,10 +538,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = freeInstallManager_->FreeInstall(
+        int ret = freeInstallManager_->StartFreeInstall(
             want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -511,6 +555,22 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(
+            want, requestCode, callerToken, std::make_shared<AbilityStartSetting>(abilityStartSetting));
+        abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -629,10 +689,10 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = freeInstallManager_->FreeInstall(
+        int ret = freeInstallManager_->StartFreeInstall(
             want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
         if (ret != ERR_OK) {
-            HILOG_DEBUG("FreeInstall ret : %{public}d", ret);
+            HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
@@ -645,6 +705,23 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, requestCode, callerToken);
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+        abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+                HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -713,6 +790,13 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes) == ERR_AAFWK_INVALID_WINDOW_MODE) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -802,6 +886,21 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+        abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
+        abilityRequest.extensionType = extensionType;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        auto result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        if (result != ERR_OK) {
+            HILOG_ERROR("implicit start ability error.");
+            eventInfo.errCode = result;
+            AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
+        }
+        return result;
+    }
+#endif
     auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
@@ -1288,7 +1387,7 @@ int AbilityManagerService::ConnectAbility(
     }
 
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
+        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId, getpid());
         if (result != ERR_OK) {
             eventInfo.errCode = result;
             AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
@@ -1373,6 +1472,16 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     AbilityRequest abilityRequest;
+#ifdef SUPPORT_GRAPHICS
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
+        abilityRequest.callType = AbilityCallType::CONNECT_ABILITY_TYPE;
+        abilityRequest.connect = connect;
+        abilityRequest.extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, userId);
+    }
+#endif
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
@@ -1590,8 +1699,20 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int userId = wantSenderInfo.userId;
+    bool remote = false;
+    if (!wantSenderInfo.allWants.empty()) {
+        std::string deviceId = wantSenderInfo.allWants[0].want.GetDeviceId();
+        std::string localDeviceId;
+        if (GetLocalDeviceId(localDeviceId) &&
+            (!deviceId.empty() && localDeviceId != deviceId)) {
+            remote = true;
+        }
+        HILOG_INFO("remote = %{public}d, localDeviceId = %{private}s, deviceId = %{private}s",
+            remote, localDeviceId.c_str(), deviceId.c_str());
+    }
+
     AppExecFwk::BundleInfo bundleInfo;
-    if (!wantSenderInfo.bundleName.empty()) {
+    if (!wantSenderInfo.bundleName.empty() && !remote) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
 #ifdef OS_ACCOUNT_PART_ENABLED
@@ -2810,11 +2931,22 @@ int AbilityManagerService::GenerateAbilityRequest(
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
     HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
+    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    if (appIndex == 0) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxAbilityInfo(want, appIndex,
+            abilityInfoFlag, userId, request.abilityInfo));
+    }
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+        if (appIndex == 0) {
+            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+        } else {
+            IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
+                abilityInfoFlag, userId, extensionInfos));
+        }
         if (extensionInfos.size() <= 0) {
             HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
             return RESOLVE_ABILITY_ERR;
@@ -2852,6 +2984,42 @@ int AbilityManagerService::GenerateAbilityRequest(
     return ERR_OK;
 }
 
+#ifdef SUPPORT_GRAPHICS
+int32_t AbilityManagerService::ImplicitStartAbilityInner(const Want &targetWant,
+    const AbilityRequest &request, int32_t userId)
+{
+    int32_t result = ERR_OK;
+    switch (request.callType) {
+        case AbilityCallType::START_OPTIONS_TYPE: {
+            StartOptions startOptions;
+            auto displayId = targetWant.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, 0);
+            auto windowMode = targetWant.GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+            startOptions.SetDisplayID(static_cast<int32_t>(displayId));
+            startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
+            result = StartAbility(targetWant, startOptions, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_SETTINGS_TYPE: {
+            CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
+            result = StartAbility(
+                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_EXTENSION_TYPE:
+            result = StartExtensionAbility(targetWant, request.callerToken, userId, request.extensionType);
+            break;
+        case AbilityCallType::CONNECT_ABILITY_TYPE:
+            result = ConnectLocalAbility(targetWant, userId, request.connect, request.callerToken);
+            break;
+        default:
+            result = StartAbilityInner(targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
+            break;
+    }
+
+    return result;
+}
+#endif
+
 int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
@@ -2868,7 +3036,13 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     HILOG_DEBUG("QueryExtensionAbilityInfo from bms, userId is %{public}d.", userId);
     // try to find extension
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    if (appIndex == 0) {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag, userId, extensionInfos));
+    } else {
+        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
+            abilityInfoFlag, userId, extensionInfos));
+    }
     if (extensionInfos.size() <= 0) {
         HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
         return RESOLVE_ABILITY_ERR;
@@ -4081,19 +4255,20 @@ int AbilityManagerService::SendANRProcessID(int pid)
         }
     };
 #ifdef SUPPORT_GRAPHICS
-    auto showDialogTask = [sysDialog = sysDialogScheduler_, pid, userId = GetUserId()](int32_t labelId,
+    auto showDialogTask = [pid, userId = GetUserId()](int32_t labelId,
         const std::string &bundle, const Closure &callBack) {
         std::string appName {""};
+        auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
         if (!sysDialog) {
-            HILOG_ERROR("sysDialogScheduler_ is nullptr.");
+            HILOG_ERROR("SystemDialogScheduler is nullptr.");
             return;
         }
         sysDialog->GetAppNameFromResource(labelId, bundle, userId, appName);
         sysDialog->ShowANRDialog(appName, callBack);
     };
-    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask, showDialogTask);
+    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask, showDialogTask);
 #else
-    auto ret = anrDisposer_->DisposeAppNoRespose(pid, setMissionTask);
+    auto ret = anrDisposer_->DisposeAppNoResponse(pid, setMissionTask);
 #endif
     if (ret != ERR_OK) {
         HILOG_ERROR("dispose app no respose failed.");
@@ -4818,10 +4993,10 @@ int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, con
         return -1;
     }
 
-    auto callingUid = IPCSkeleton::GetCallingUid();
-    auto recordUid = abilityRecord->GetUid();
-    if (callingUid != recordUid) {
-        HILOG_ERROR("SetMissionLabel not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("SetMissionLabel not self, not enabled");
         return -1;
     }
 
@@ -4845,10 +5020,10 @@ int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
         return -1;
     }
 
-    auto callingUid = IPCSkeleton::GetCallingUid();
-    auto recordUid = abilityRecord->GetUid();
-    if (callingUid != recordUid) {
-        HILOG_ERROR("not self, callingUid:%{public}d, recordUid:%{public}d", callingUid, recordUid);
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("not self, not enable to set mission icon");
         return -1;
     }
 
@@ -4901,6 +5076,28 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
             want, AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, abilityInfos)
     );
     return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
+}
+
+int AbilityManagerService::CheckWindowMode(int32_t windowMode,
+    std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
+{
+    bool isSupportedWindowMode = false;
+    auto it = windowModeMap.find(windowMode);
+    if (it != windowModeMap.end()) {
+        auto bmsWindowMode = it->second;
+        for (auto mode : windowModes) {
+            if (mode == bmsWindowMode) {
+                HILOG_INFO("Window mode is %{public}d.", mode);
+                isSupportedWindowMode = true;
+                break;
+            }
+        }
+    }
+    if (!isSupportedWindowMode) {
+        HILOG_ERROR("Not support %{public}d window mode.", windowMode);
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+    return ERR_OK;
 }
 #endif
 }  // namespace AAFwk

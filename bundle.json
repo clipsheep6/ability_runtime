@@ -29,7 +29,7 @@
         "components": [
             "ability_base",
             "access_token",
-            "ace_engine_standard",
+            "ace_engine",
             "appspawn",
             "ark_js_runtime",
             "background_task_mgr",
@@ -82,7 +82,7 @@
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
-          "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+          "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent:wantagent_innerkits"
         ],
         "inner_kits": [
           {
@@ -101,7 +101,7 @@
                 "want_agent.h"
               ]
             },
-            "name": "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent:wantagent_innerkits"
           },
           {
             "header": {
@@ -186,7 +186,7 @@
           "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/unittest:unittest",
           "//foundation/ability/ability_runtime/frameworks/kits/test:moduletest",
-          "//foundation/ability/ability_runtime/services/test:moduletest",
+          "//foundation/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/services/abilitymgr/test:unittest",
           "//foundation/ability/ability_runtime/services/dataobsmgr/test:unittest",
           "//foundation/ability/ability_runtime/services/appmgr/test:unittest",

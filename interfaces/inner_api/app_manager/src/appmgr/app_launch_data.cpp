@@ -44,6 +44,11 @@ void AppLaunchData::SetUId(const int32_t uId)
     uId_ = uId;
 }
 
+void AppLaunchData::SetAppIndex(const int32_t appIndex)
+{
+    appIndex_ = appIndex;
+}
+
 void AppLaunchData::SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record)
 {
     userTestRecord_ = record;
@@ -64,6 +69,9 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         return false;
     }
     if (!parcel.WriteInt32(uId_)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(appIndex_)) {
         return false;
     }
 
@@ -106,6 +114,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
 
     recordId_ = parcel.ReadInt32();
     uId_ = parcel.ReadInt32();
+    appIndex_ = parcel.ReadInt32();
 
     bool valid = parcel.ReadBool();
     if (valid) {

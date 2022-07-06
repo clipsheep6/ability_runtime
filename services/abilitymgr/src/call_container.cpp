@@ -45,7 +45,7 @@ void CallContainer::AddCallRecord(const sptr<IAbilityConnection> & connect,
     CHECK_POINTER(callRecord);
     CHECK_POINTER(connect);
     CHECK_POINTER(connect->AsObject());
-    
+
     auto iter = callRecordMap_.find(connect->AsObject());
     if (iter != callRecordMap_.end()) {
         RemoveConnectDeathRecipient(connect);

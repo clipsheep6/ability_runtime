@@ -223,7 +223,9 @@ int32_t PendingWantManager::DeviceIdDetermine(
     const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid)
 {
     int32_t result = ERR_OK;
-    if (want.GetElement().GetDeviceID() == "") {
+    std::string localDeviceId;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
+    if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
         result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
             want, callerToken, requestCode, callerUid);
         if (result != ERR_OK && result != START_ABILITY_WAITING) {

@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+#include <map>
+
+#include "ierror_observer.h"
+#include "native_engine/native_engine.h"
+
+#ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H
+
+namespace OHOS {
+namespace AbilityRuntime {
+class JsErrorObserver : public AppExecFwk::IErrorObserver,
+                        public std::enable_shared_from_this<JsErrorObserver> {
+public:
+    explicit JsErrorObserver(NativeEngine& engine);
+    ~JsErrorObserver();
+    void OnUnhandledException(std::string errMsg) override;
+    void AddJsObserverObject(int32_t observerId, NativeValue* jsObserverObject);
+    bool RemoveJsObserverObject(int32_t observerId);
+
+private:
+    void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);
+    void HandleOnUnhandledException(const std::string &errMsg);
+
+private:
+    NativeEngine& engine_;
+    std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMap_;
+};
+}  // namespace AbilityRuntime
+}  // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_JS_ERROR_OBSERVER_H

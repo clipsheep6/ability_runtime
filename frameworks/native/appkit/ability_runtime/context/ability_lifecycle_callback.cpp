@@ -68,11 +68,12 @@ void JsAbilityLifecycleCallback::CallJsMethod(
     if (!ability) {
         return;
     }
+    std::weak_ptr<JsAbilityLifecycleCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>(
-        [JsAbilityLifecycleCallback = this, methodName, ability](
-            NativeEngine &engine, AsyncTask &task, int32_t status) {
-            if (JsAbilityLifecycleCallback) {
-                JsAbilityLifecycleCallback->CallJsMethodInner(methodName, ability);
+        [thisWeakPtr, methodName, ability](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            std::shared_ptr<JsAbilityLifecycleCallback> jsCallback = thisWeakPtr.lock();
+            if (jsCallback) {
+                jsCallback->CallJsMethodInner(methodName, ability);
             }
         });
     NativeReference *callback = nullptr;
@@ -122,18 +123,25 @@ int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback)
         return -1;
     }
     int32_t callbackId = serialNumber_;
-    if (callbackId < INT32_MAX) {
-        callbackId++;
+    if (serialNumber_ < INT32_MAX) {
+        serialNumber_++;
     } else {
-        callbackId = -1;
+        serialNumber_ = 0;
+        return -1;
     }
     callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
     return callbackId;
 }
 
-void JsAbilityLifecycleCallback::UnRegister(int32_t callbackId)
+bool JsAbilityLifecycleCallback::UnRegister(int32_t callbackId)
 {
-    callbacks_.erase(callbackId);
+    HILOG_INFO("UnRegister called, callbackId : %{public}d", callbackId);
+    auto it = callbacks_.find(callbackId);
+    if (it == callbacks_.end()) {
+        HILOG_ERROR("UnRegister callbackId: %{publid}d is not in callbacks_", callbackId);
+        return false;
+    }
+    return callbacks_.erase(callbackId) == 1;
 }
 
 bool JsAbilityLifecycleCallback::IsEmpty()

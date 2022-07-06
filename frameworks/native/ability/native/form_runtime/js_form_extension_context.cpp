@@ -32,11 +32,9 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
-constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t ERROR_CODE_ONE = 1;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
-constexpr size_t ARGC_THREE = 3;
 const int UPDATE_FORM_PARAMS_SIZE = 2;
 class JsFormExtensionContext final {
 public:
@@ -126,8 +124,8 @@ private:
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("OnStartAbility is called");
-        // only support one or two or three params
-        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO && info.argc != ARGC_THREE) {
+        // only support one or two params
+        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
             return engine.CreateUndefined();
         }
@@ -142,16 +140,8 @@ private:
             want.GetElement().GetAbilityName().c_str());
         unwrapArgc++;
 
-        AAFwk::StartOptions startOptions;
-        if (info.argc > ARGC_ONE && info.argv[INDEX_ONE]->TypeOf() == NATIVE_OBJECT) {
-            HILOG_INFO("OnStartAbility start options is used.");
-            AppExecFwk::UnwrapStartOptions(reinterpret_cast<napi_env>(&engine),
-                reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), startOptions);
-            unwrapArgc++;
-        }
-
         AsyncTask::CompleteCallback complete =
-            [weak = context_, want, startOptions, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
+            [weak = context_, want, unwrapArgc](NativeEngine& engine, AsyncTask& task, int32_t status) {
                 HILOG_INFO("startAbility begin");
                 auto context = weak.lock();
                 if (!context) {
@@ -161,8 +151,8 @@ private:
                 }
 
                 ErrCode errcode = ERR_OK;
-                (unwrapArgc == 1) ? errcode = context->StartAbility(want) :
-                    errcode = context->StartAbility(want, startOptions);
+                // entry to the core functionality.
+                errcode = context->StartAbility(want);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
@@ -179,14 +169,15 @@ private:
 };
 } // namespace
 
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context)
+NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
+                                          DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo, detach, attach);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);

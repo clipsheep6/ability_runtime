@@ -85,6 +85,8 @@ public:
      */
     void SetUserTestInfo(const std::shared_ptr<UserTestRecord> &record);
 
+    void SetAppIndex(const int32_t appIndex);
+
     /**
      * @brief Obtains the info of the application.
      *
@@ -145,6 +147,11 @@ public:
         return userTestRecord_;
     }
 
+    inline int32_t GetAppIndex() const
+    {
+        return appIndex_;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -173,6 +180,7 @@ private:
     ProcessInfo processInfo_;
     int32_t recordId_ = 0;
     int32_t uId_ = 0;
+    int32_t appIndex_ = 0;
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 };
 }  // namespace AppExecFwk

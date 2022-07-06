@@ -37,6 +37,10 @@ JS_ERROR:
   FG: {type: INT32, desc: whether current app is in foreground}
   HAPPEN_TIME: {type: INT64, desc: fault trigger time}
   LIFETIME: {type: INT64, desc: elapse time since process start}
+  PANME: {type: STRING, desc: process name}
+  FIRST_FRAME: {type: STRING, desc: first stack info}
+  SECOND_FRAME: {type: STRING, desc: second stack info}
+  LAST_FRAME: {type: STRING, desc: last stack info}
 
 THREAD_BLOCK_3S:
   __BASE: {type: FAULT, level: CRITICAL, tag: STABILITY, desc: application freeze}

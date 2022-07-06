@@ -55,7 +55,6 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode StartAbility(const AAFwk::Want &want) const;
-    ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
 
     /**
      * @brief Obtains information about the current ability.

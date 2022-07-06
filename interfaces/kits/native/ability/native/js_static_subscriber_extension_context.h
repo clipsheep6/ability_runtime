@@ -19,14 +19,13 @@
 #include <memory>
 
 #include "static_subscriber_extension_context.h"
-
-class NativeEngine;
-class NativeValue;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
-    std::shared_ptr<StaticSubscriberExtensionContext> context);
+    std::shared_ptr<StaticSubscriberExtensionContext> context,
+    DetachCallback detach = nullptr, AttachCallback attach = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H

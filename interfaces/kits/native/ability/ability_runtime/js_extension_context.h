@@ -17,10 +17,7 @@
 #define ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
 
 #include "extension_context.h"
-
-class NativeEngine;
-class NativeReference;
-class NativeValue;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -37,7 +34,8 @@ private:
 };
 
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext>& context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr);
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr,
+    DetachCallback detach = nullptr, AttachCallback attach = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H

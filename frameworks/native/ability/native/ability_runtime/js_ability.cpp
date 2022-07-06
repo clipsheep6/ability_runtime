@@ -42,6 +42,22 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+void *DetachJsAbilityContext(NativeEngine * engine, void *value, void *hint)
+{
+    HILOG_INFO("DetachJsAbilityContext");
+    return value;
+}
+
+NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *hint)
+{
+    HILOG_INFO("AttachJsAbilityContext");
+    std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
+    NativeValue *object = CreateJsAbilityContext(*engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
+    nObject->SetNativeBindingPointer(&engine, value, nullptr);
+    return JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
+}
+
 Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
 {
     return new JsAbility(static_cast<JsRuntime &>(*runtime));
@@ -102,7 +118,9 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     }
 
     auto context = GetAbilityContext();
-    NativeValue *contextObj = CreateJsAbilityContext(engine, context);
+    NativeValue *contextObj = CreateJsAbilityContext(engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(contextObj);
+    object->SetNativeBindingPointer(&engine, context.get(), nullptr);
     shellContextRef_ = std::shared_ptr<NativeReference>(
         jsRuntime_.LoadSystemModule("application.AbilityContext", &contextObj, 1).release());
     contextObj = shellContextRef_->Get();
@@ -427,6 +445,7 @@ void JsAbility::DoOnForeground(const Want &want)
         std::weak_ptr<Ability> weakAbility = shared_from_this();
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+        window->SetPrivacyMode(appIndex_ != 0);
     }
 
     HILOG_INFO("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);

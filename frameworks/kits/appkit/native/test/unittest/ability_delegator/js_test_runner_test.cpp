@@ -109,13 +109,13 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0100, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
     AbilityDelegatorRegistry::RegisterInstance(nullptr, abilityArgs);
-    
+
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportFinished(REPORT_FINISH_MSG);
-    
+
     EXPECT_FALSE(MockAbilityDelegatorStub::finishFlag_);
 }
 
@@ -139,7 +139,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0200, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -154,7 +154,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0200, Function | MediumTest | Lev
 
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportFinished(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(MockAbilityDelegatorStub::finishFlag_);
 }
 
@@ -178,7 +178,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0300, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
     AbilityDelegatorRegistry::RegisterInstance(nullptr, abilityArgs);
 
@@ -191,10 +191,10 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0300, Function | MediumTest | Lev
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
     sptr<IRemoteObject> shobserver = sptr<IRemoteObject>(new MockTestObserverStub);
     abilityDelegator.observer_ = shobserver;
-    
+
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportStatus(REPORT_FINISH_MSG);
-    
+
     EXPECT_FALSE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);
 }
 
@@ -218,7 +218,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0400, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -236,7 +236,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0400, Function | MediumTest | Lev
 
     JsTestRunner* jsRunnerdrive = nullptr;
     jsRunnerdrive->ReportStatus(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);
 }
 
@@ -260,7 +260,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -275,7 +275,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0500, Function | MediumTest | Lev
 
     JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
     pTestRunner->ReportFinished(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(MockAbilityDelegatorStub::finishFlag_);
 }
 
@@ -299,7 +299,7 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0600, Function | MediumTest | Lev
     for (auto para : paras) {
         want.SetParam(para.first, para.second);
     }
-    
+
     std::shared_ptr<AbilityDelegatorArgs> abilityArgs = std::make_shared<AbilityDelegatorArgs>(want);
 
     std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
@@ -314,9 +314,9 @@ HWTEST_F(JsTestRunnerTest, Js_Test_Runner_Test_0600, Function | MediumTest | Lev
 
     sptr<IRemoteObject> shobserver = sptr<IRemoteObject>(new MockTestObserverStub);
     abilityDelegator->observer_ = shobserver;
-    
+
     JsTestRunner* pTestRunner = (JsTestRunner*)(void*)(testRunner.get());
     pTestRunner->ReportStatus(REPORT_FINISH_MSG);
-    
+
     EXPECT_TRUE(iface_cast<MockTestObserverStub>(shobserver)->testStatusFlag);
 }

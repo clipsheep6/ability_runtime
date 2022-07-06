@@ -70,6 +70,7 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
+constexpr int32_t JS_CRASH_DELAY_TIME = 3000;
 constexpr int SIGNAL_JS_HEAP = 39;
 constexpr int SIGNAL_JS_HEAP_PRIV = 40;
 
@@ -90,6 +91,11 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
 
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
+#ifdef _ARM64_
+    const std::string acelibdir("/system/lib64/libace.z.so");
+#else
+    const std::string acelibdir("/system/lib/libace.z.so");
+#endif
 #endif
 
 /**
@@ -382,20 +388,31 @@ void MainThread::ScheduleShrinkMemory(const int level)
  */
 void MainThread::ScheduleProcessSecurityExit()
 {
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called start");
+    PostProcessSecurityExitTask(false);
+}
+
+void MainThread::PostProcessSecurityExitTask(bool delay)
+{
+    HILOG_INFO("PostProcessSecurityExitTask called start");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, HandleShrinkMemory failed.");
+            HILOG_ERROR("appThread is nullptr, PostProcessSecurityExitTask failed.");
             return;
         }
         appThread->HandleProcessSecurityExit();
     };
-    if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("MainThread::ScheduleProcessSecurityExit PostTask task failed");
+    bool result;
+    if (delay) {
+        result = mainHandler_->PostTask(task, JS_CRASH_DELAY_TIME);
+    } else {
+        result = mainHandler_->PostTask(task);
     }
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called end");
+    if (!result) {
+        HILOG_ERROR("PostProcessSecurityExitTask post task failed");
+    }
+    HILOG_INFO("PostProcessSecurityExitTask called end");
 }
 
 /**
@@ -461,13 +478,6 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
-    if (bundleMgr) {
-        BundleInfo bundleInfo;
-        bundleMgr->GetBundleInfo(abilityInfo->bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
-    }
 
     wptr<MainThread> weak = this;
     auto task = [weak, abilityRecord]() {
@@ -815,9 +825,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::string contactsDataAbility("com.ohos.contactsdataability");
     std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
     std::string telephonyDataAbility("com.ohos.telephonydataability");
+    std::string fusionSearchAbility("com.ohos.FusionSearch");
     auto appInfo = appLaunchData.GetApplicationInfo();
     auto bundleName = appInfo.bundleName;
-    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility) {
+    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility
+        || bundleName == fusionSearchAbility) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
@@ -856,8 +868,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, UNSPECIFIED_USERID)) {
-        HILOG_DEBUG("MainThread::handleLaunchApplication GetBundleInfo fail.");
+    bool queryResult;
+    if (appLaunchData.GetAppIndex() != 0) {
+        queryResult = (bundleMgr->GetSandboxBundleInfo(appInfo.bundleName,
+            appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
+    } else {
+        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT,
+            bundleInfo, UNSPECIFIED_USERID);
+    }
+
+    if (!queryResult) {
+        HILOG_ERROR("HandleLaunchApplication GetBundleInfo failed!");
+        return;
     }
 
     bool moduelJson = false;
@@ -948,7 +970,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorName.c_str(), summary.c_str());
-            appThread->ScheduleProcessSecurityExit();
+            appThread->PostProcessSecurityExitTask(true);
         };
         jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
         application_->SetRuntime(std::move(runtime));
@@ -1718,11 +1740,6 @@ void MainThread::LoadAbilityLibrary(const std::vector<std::string> &libraryPaths
 #ifdef ABILITY_LIBRARY_LOADER
     HILOG_INFO("MainThread load ability library start.");
 #ifdef ACEABILITY_LIBRARY_LOADER
-#ifdef _ARM64_
-    std::string acelibdir("/system/lib64/libace.z.so");
-#else
-    std::string acelibdir("/system/lib/libace.z.so");
-#endif
     void *AceAbilityLib = nullptr;
     AceAbilityLib = dlopen(acelibdir.c_str(), RTLD_NOW | RTLD_GLOBAL);
     if (AceAbilityLib == nullptr) {

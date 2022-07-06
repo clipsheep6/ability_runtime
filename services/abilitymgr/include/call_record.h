@@ -79,7 +79,7 @@ public:
     int32_t GetCallRecordId() const;
     AppExecFwk::ElementName GetTargetServiceName() const;
     sptr<IRemoteObject> GetCallerToken() const;
-    
+
 private:
     static int64_t callRecordId;
     int recordId_;                                  // record id

@@ -13,16 +13,16 @@
 
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ans_standard/wantagent"
 
 ohos_unittest("pending_want_test") {
   module_out_path = module_output_path
   include_dirs = [
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context/",
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime",
-    "${aafwk_path}/services/abilitymgr/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context/",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_services_path}/abilitymgr/include",
   ]
 
   sources = [ "pending_want_test.cpp" ]
@@ -33,10 +33,9 @@ ohos_unittest("pending_want_test") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits",
-    "${aafwk_path}/frameworks/native/appkit:app_context",
-    "${aafwk_path}/frameworks/native/appkit:appkit_native",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
@@ -48,6 +47,7 @@ ohos_unittest("pending_want_test") {
     "ability_base:zuri",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_core",

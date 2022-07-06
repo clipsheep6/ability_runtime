@@ -12,14 +12,14 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
 ohos_unittest("AppMgrStubTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${aafwk_path}/services/appmgr/test/mock/include" ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/test/mock/include" ]
 
   sources = [ "app_mgr_stub_test.cpp" ]
 

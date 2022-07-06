@@ -1,0 +1,98 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ability_runtime_path = "//foundation/ability/ability_runtime"
+ability_runtime_napi_path = "${ability_runtime_path}/frameworks/js/napi"
+ability_base_path = "//foundation/ability/ability_base"
+form_fwk_path = "//foundation/ability/form_fwk"
+ability_runtime_innerkits_path = "${ability_runtime_path}/interfaces/inner_api"
+ability_runtime_kits_path = "${ability_runtime_path}/frameworks/kits"
+ability_runtime_native_path = "${ability_runtime_path}/frameworks/native"
+ability_runtime_services_path = "${ability_runtime_path}/services"
+ability_runtime_test_path = "${ability_runtime_path}/test"
+ability_runtime_system_test_app_path =
+    "${ability_runtime_path}/test/resource/amssystemtestability/abilitySrc"
+
+bundlefwk_path = "//foundation/bundlemanager/bundle_framework"
+bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
+
+multimedia_path = "//foundation/multimedia/image_standard"
+multimodalinput_path = "//foundation/multimodalinput/input"
+windowmanager_path = "//foundation/windowmanager"
+graphic_path = "//foundation/graphic/graphic_2d"
+global_path = "//base/global"
+distributedschedule_path = "//foundation/distributedschedule"
+notification_path = "//base/notification"
+ans_core_path =
+    "${notification_path}/distributed_notification_service/frameworks/core"
+distributeddatamgr_path = "//foundation/distributeddatamgr"
+form_fwk_napi_path = "${form_fwk_path}/frameworks/js/napi"
+ability_base_innerapi_path = "${ability_base_path}/interfaces/inner_api"
+ability_base_native_path = "${ability_base_path}/frameworks/native"
+appspawn_path = "//base/startup/appspawn"
+init_path = "//base/startup/init_lite"
+
+declare_args() {
+  background_task_mgr_continuous_task_enable = true
+  distributed_data_object_enable = true
+  ability_runtime_graphics = true
+  ability_runtime_power = true
+  ability_runtime_relational = true
+  ability_runtime_ces = true
+  ability_runtime_resource = true
+  ability_runtime_appspawn = true
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.account_os_account)) {
+    os_account_part_enabled = true
+  } else {
+    os_account_part_enabled = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_background_task_mgr)) {
+    background_task_mgr_continuous_task_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.distributeddatamgr_distributeddataobject)) {
+    distributed_data_object_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.distributeddatamgr_relational_store)) {
+    ability_runtime_relational = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.notification_common_event_service)) {
+    ability_runtime_ces = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.global_resource_management)) {
+    ability_runtime_resource = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.startup_appspawn)) {
+    ability_runtime_appspawn = false
+  }
+
+  if (!defined(global_parts_info) ||
+      defined(global_parts_info.security_dlp_permission_service)) {
+    os_dlp_part_enabled = true
+  } else {
+    os_dlp_part_enabled = false
+  }
+}

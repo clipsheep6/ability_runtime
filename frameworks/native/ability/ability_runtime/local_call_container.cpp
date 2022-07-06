@@ -32,7 +32,8 @@ int LocalCallContainer::StartAbilityByCallInner(
 
     if (want.GetElement().GetBundleName().empty() ||
         want.GetElement().GetAbilityName().empty()) {
-        HILOG_DEBUG("the element of want is empty.");
+        HILOG_ERROR("the element of want is empty.");
+        return ERR_INVALID_VALUE;
     }
 
     if (want.GetElement().GetDeviceID().empty()) {
@@ -175,10 +176,19 @@ void LocalCallContainer::OnAbilityDisconnectDone(const AppExecFwk::ElementName &
 bool LocalCallContainer::GetCallLocalRecord(
     const AppExecFwk::ElementName &elementName, std::shared_ptr<LocalCallRecord> &localCallRecord)
 {
-    auto iter = callProxyRecords_.find(elementName.GetURI());
-    if (iter != callProxyRecords_.end() && iter->second != nullptr) {
-        localCallRecord = iter->second;
-        return true;
+    for (auto pair : callProxyRecords_) {
+        AppExecFwk::ElementName callElement;
+        if (!callElement.ParseURI(pair.first)) {
+            HILOG_ERROR("Parse uri to elementName failed, elementName uri: %{public}s", pair.first.c_str());
+            continue;
+        }
+        // elementName in callProxyRecords_ has moduleName (sometimes not empty),
+        // but the moduleName of input param elementName is usually empty.
+        callElement.SetModuleName("");
+        if ((pair.first == elementName.GetURI() || callElement.GetURI() == elementName.GetURI()) && pair.second) {
+            localCallRecord = pair.second;
+            return true;
+        }
     }
     return false;
 }

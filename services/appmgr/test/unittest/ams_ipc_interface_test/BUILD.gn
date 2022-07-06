@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -28,7 +28,7 @@ ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "${services_path}/appmgr/test:appmgr_test_source" ]
+  deps = [ "${ability_runtime_services_path}/appmgr/test:appmgr_test_source" ]
 
   external_deps = [
     "ability_base:configuration",
@@ -46,8 +46,8 @@ ohos_unittest("AmsIpcAppMgrInterfaceTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${services_path}/appmgr/test:appmgr_test_source",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/appmgr/test:appmgr_test_source",
   ]
 
   external_deps = [

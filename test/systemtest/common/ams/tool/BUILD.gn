@@ -35,15 +35,15 @@ ohos_shared_library("system_test_ability_util_lib") {
 
   configs = [
     ":system_test_ability_util_config",
-    "${aafwk_path}/services/abilitymgr:abilityms_config",
-    "${aafwk_path}/services/test/moduletest/module_test_dump_util:module_test_dump_util_config",
-    "${aafwk_path}/services/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/test/moduletest/module_test_dump_util:module_test_dump_util_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
   ]
 
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/abilitymgr:abilityms",
-    "${aafwk_path}/services/test/moduletest/module_test_dump_util:module_test_dump_util_lib",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/test/moduletest/module_test_dump_util:module_test_dump_util_lib",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",

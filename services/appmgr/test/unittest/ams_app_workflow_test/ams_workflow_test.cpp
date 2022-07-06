@@ -146,7 +146,7 @@ TestApplicationPreRecord AmsWorkFlowTest::CreateTestApplicationRecord(const std:
             appInfo->name,
             false, appRecord,
             abilityInfo->applicationInfo.uid,
-            abilityInfo->applicationInfo.bundleName);
+            abilityInfo->applicationInfo.bundleName, 0);
     } else {
         appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
     }

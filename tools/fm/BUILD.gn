@@ -12,14 +12,14 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("tools_fm_config") {
   include_dirs = [
     "${ability_base_innerapi_path}/want/include",
-    "${aafwk_path}/services/common/include",
-    "${aafwk_path}/tools/aa/include",
-    "${aafwk_path}/services/common/include",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_path}/tools/aa/include",
+    "${ability_runtime_services_path}/common/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "include",
   ]
@@ -27,7 +27,7 @@ config("tools_fm_config") {
 
 ohos_source_set("tools_fm_source_set") {
   sources = [
-    "${aafwk_path}/tools/aa/src/shell_command.cpp",
+    "${ability_runtime_path}/tools/aa/src/shell_command.cpp",
     "src/fms_command.cpp",
     "src/main.cpp",
   ]

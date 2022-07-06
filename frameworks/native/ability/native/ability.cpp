@@ -82,6 +82,7 @@ const std::string PERMISSION_REQUIRE_FORM = "ohos.permission.REQUIRE_FORM";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 
 #ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
 constexpr int32_t DISTRIBUTED_OBJECT_TIMEOUT = 10000;
@@ -192,6 +193,9 @@ void Ability::OnStart(const Want &want)
         HILOG_ERROR("Ability::OnStart failed abilityInfo_ is nullptr.");
         return;
     }
+
+    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
+    (const_cast<Want &>(want)).RemoveParam(DLP_INDEX);
 
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
@@ -1632,9 +1636,25 @@ std::shared_ptr<AbilityPostEventTimeout> Ability::CreatePostEventTimeouter(std::
 int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &wantAgent)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    auto bundleMgr = GetBundleMgr();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Ability::GetBundleMgr failed");
+        return ERR_NULL_OBJECT;
+    }
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("ability info is null");
+        return ERR_INVALID_VALUE;
+    }
+    Want want;
+    want.SetAction("action.system.home");
+    want.AddEntity("entity.system.home");
+    want.SetElementName("", abilityInfo_->bundleName, "", "");
+    AppExecFwk::AbilityInfo abilityInfo;
+    bundleMgr->QueryAbilityInfo(want, abilityInfo);
+    std::string appName = bundleMgr->GetAbilityLabel(abilityInfo_->bundleName, abilityInfo.name);
     uint32_t defaultBgMode = 0;
     BackgroundTaskMgr::ContinuousTaskParam taskParam = BackgroundTaskMgr::ContinuousTaskParam(false, defaultBgMode,
-        std::make_shared<AbilityRuntime::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken());
+        std::make_shared<AbilityRuntime::WantAgent::WantAgent>(wantAgent), abilityInfo_->name, GetToken(), appName);
     return BackgroundTaskMgr::BackgroundTaskMgrHelper::RequestStartBackgroundRunning(taskParam);
 #else
     return ERR_INVALID_OPERATION;
@@ -2311,7 +2331,7 @@ void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rose
         HILOG_ERROR("Ability::InitWindow abilityWindow_ is nullptr");
         return;
     }
-    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option);
+    abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option, appIndex_ != 0);
 }
 
 /**

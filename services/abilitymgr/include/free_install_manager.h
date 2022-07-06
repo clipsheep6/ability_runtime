@@ -29,6 +29,17 @@ namespace AAFwk {
 const std::string FREE_INSTALL_TYPE = "freeInstallType";
 const std::string FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
+
+struct FreeInstallInfo {
+    Want want;
+    int32_t userId = -1;
+    int32_t requestCode = -1;
+    std::shared_ptr<std::promise<int32_t>> promise;
+    bool isInstalled = false;
+    sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> dmsCallback = nullptr;
+};
+
 /**
  * @class FreeInstallManager
  * FreeInstallManager.
@@ -39,7 +50,7 @@ public:
     virtual ~FreeInstallManager() = default;
 
     /**
-     * OnInstallFinished, FreeInstall is complete.
+     * OnInstallFinished, StartFreeInstall is complete.
      *
      * @param resultCode, ERR_OK on success, others on failure.
      * @param want, installed ability.
@@ -66,7 +77,7 @@ public:
      * @param ifOperateRemote, is from other devices.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int FreeInstall(const Want &want, int32_t userId, int requestCode,
+    int StartFreeInstall(const Want &want, int32_t userId, int requestCode,
         const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
 
     /**
@@ -81,6 +92,7 @@ public:
      */
     int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
         const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+
     /**
      * Start to free install from another devices.
      * The request is send from DMS.
@@ -100,22 +112,14 @@ public:
      * @param userId, designation User ID.
      * @param callerToken, caller ability token.
      * @param localDeviceId, the device id of local.
+     * @param pid, the ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        std::string& localDeviceId);
+        std::string& localDeviceId, pid_t pid);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
-    struct FreeInstallInfo {
-        Want want;
-        int32_t userId = -1;
-        int32_t requestCode = -1;
-        std::shared_ptr<std::promise<int32_t>> promise;
-        bool isInstalled = false;
-        sptr<IRemoteObject> callerToken = nullptr;
-        sptr<IRemoteObject> dmsCallback = nullptr;
-    };
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
 

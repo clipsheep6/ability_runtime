@@ -38,6 +38,7 @@ struct AppSpawnStartMsg {
     int32_t pid;
     int32_t code = 0; // 0: DEFAULT; 1: GET_RENDER_TERMINATION_STATUS
     uint32_t flags;
+    int32_t bundleIndex;   // when dlp launch another app used, default is 0
 };
 
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;
@@ -46,6 +47,7 @@ constexpr auto LEN_PID = sizeof(pid_t);
 struct StartFlags {
     static const int COLD_START = 0;
     static const int BACKUP_EXTENSION = 1;
+    static const int DLP_MANAGER = 2;
 };
 
 union AppSpawnPidMsg {

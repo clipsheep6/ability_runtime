@@ -642,14 +642,15 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
     return arrayValue;
 }
 
-NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context)
+NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_ptr<ServiceExtensionContext> context,
+                                             DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("CreateJsServiceExtensionContext begin");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
     }
-    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo);
+    NativeValue* objValue = CreateJsExtensionContext(engine, context, abilityInfo, detach, attach);
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
     std::unique_ptr<JsServiceExtensionContext> jsContext = std::make_unique<JsServiceExtensionContext>(context);
@@ -782,14 +783,12 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     HILOG_INFO("OnAbilityDisconnectDone connects_.size:%{public}zu", connects_.size());
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
-    std::string moduleName = element.GetModuleName();
     auto item = std::find_if(connects_.begin(),
         connects_.end(),
-        [bundleName, abilityName, moduleName](
+        [bundleName, abilityName](
             const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {
             return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
-                   (moduleName == obj.first.want.GetElement().GetModuleName());
+                   (abilityName == obj.first.want.GetElement().GetAbilityName());
         });
     if (item != connects_.end()) {
         // match bundlename && abilityname

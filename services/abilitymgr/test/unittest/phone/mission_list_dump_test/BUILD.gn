@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
@@ -21,9 +21,9 @@ ohos_unittest("mission_list_dump_test") {
 
   sources = [ "mission_list_dump_test.cpp" ]
 
-  configs = [ "${aafwk_path}/services/abilitymgr:abilityms_config" ]
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
-  deps = [ "${aafwk_path}/services/abilitymgr:abilityms" ]
+  deps = [ "${ability_runtime_services_path}/abilitymgr:abilityms" ]
 
   external_deps = [
     "ability_base:want",

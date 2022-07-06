@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
@@ -20,15 +20,15 @@ ohos_unittest("AmsMgrProxyTest") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${aafwk_path}/interfaces/inner_api/app_manager/include/appmgr",
-    "${aafwk_path}/services/appmgr/include",
-    "${aafwk_path}/services/appmgr/test/mock/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_services_path}/appmgr/include",
+    "${ability_runtime_services_path}/appmgr/test/mock/include",
   ]
 
   sources = [ "ams_mgr_proxy_test.cpp" ]
 
   deps = [
-    "${aafwk_path}/services/appmgr:libappms",
+    "${ability_runtime_services_path}/appmgr:libappms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

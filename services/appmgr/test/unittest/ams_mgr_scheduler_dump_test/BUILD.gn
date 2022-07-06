@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
@@ -21,10 +21,10 @@ ohos_unittest("ams_mgr_scheduler_dump_test") {
 
   sources = [ "ams_mgr_scheduler_dump_test.cpp" ]
 
-  configs = [ "${aafwk_path}/services/appmgr:appmgr_config" ]
+  configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
   deps = [
-    "${aafwk_path}/services/appmgr:libappms",
+    "${ability_runtime_services_path}/appmgr:libappms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

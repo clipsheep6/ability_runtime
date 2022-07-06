@@ -541,7 +541,7 @@ private:
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
 
     void MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
+        const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex);
     void MakeProcessName(
         std::string &processName, const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
     /**
@@ -570,7 +570,8 @@ private:
      * @return
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-        const std::shared_ptr<AppRunningRecord> &appRecord, const int uid, const std::string &bundleName);
+                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
+                      const std::string &bundleName, const int32_t bundleIndex);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -685,7 +686,7 @@ private:
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
     bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo);
+        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0);
     AppProcessData WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
         const ApplicationState state);
 

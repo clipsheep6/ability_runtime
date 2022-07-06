@@ -1,0 +1,155 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    border-radius: 24vp;
+    border-width: 1vp;
+    border-color: #e9e9e9;
+    background-color: #ffffff;
+}
+.selector {
+    flex-direction: column;
+}
+.div-title {
+    text-align: left;
+}
+.title {
+    font-size: 20vp;
+    font-weight: medium;
+    text-align: left;
+    margin-top: 8vp;
+    margin-left: 15vp;
+}
+
+.swiper {
+    margin-top: 8vp;
+    indicator-color: #bebdc0;
+    indicator-selected-color: rgb(50, 108, 233);
+    indicator-size: 4vp;
+    indicator-bottom: -20vp;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.swiperContent {
+    margin-left: 15vp;
+    margin-right: 15vp;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 4vp;
+}
+
+/* icon + name */
+.selectorApp {
+    height: 76vp;
+    width: 68vp;
+    margin: 2vp;
+}
+
+.AppItem {
+    height: 76vp;
+    width: 68vp;
+    display: flex;
+    flex-direction: column;
+}
+
+.AppIcon {
+    height: 48vp;
+    width: 48vp;
+    margin: 8vp;
+    border-radius: 8vp;
+    align-self: center;
+}
+.AppName {
+    width: 58vp;
+    font-size: 12vp;
+    text-align: center;
+    color:rgba(0, 0, 0, 1);
+    align-self: center;
+    text-overflow: ellipsis;
+}
+.but {
+    text-align: center;
+    justify-content: center;
+}
+.but-cancel {
+    width: 144vp;
+    height: 40vp;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 20vp;
+    margin-bottom: 20vp;
+}
+.text-cancel {
+    font-size: 16fp;
+    color: #0A59F7;
+    font-weight: regular;
+}
+
+.selector-listback {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.selector-list {
+    scrollbar-width: 2vp;
+    margin-left: 10vp;
+    margin-right: 10vp;
+    background-color: #ffffff;
+}
+
+.selector-listItem {
+    width: 90%;
+    height: 68vp;
+    margin-top: 1vp;
+    margin-bottom: 1vp;
+    background-color: #ffffff;
+}
+
+.selector-listItemNode {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    border-bottom: 1vp;
+    border-bottom-color: #fafafa;
+}
+
+.selector-listItemAppIcon {
+    height: 48vp;
+    width: 48vp;
+    margin: 8vp;
+    border-radius: 8vp;
+    align-self: center;
+}
+
+.selector-listItemText {
+    height: 100%;
+    font-size: 16fp;
+    text-align: left;
+    margin-left: 5vp;
+    color: #1c1c1c;
+    justify-content: center;
+    text-overflow: ellipsis;
+}
+
+.selector-btnCancelback {
+    width: 100%;
+    height: 50vp;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.selector-btnCancel {
+    width: 80%;
+    height: 40vp;
+    font-size: 16fp;
+    margin-bottom: 10vp;
+    margin-top: 10vp;
+    background-color: #f2f2f2;
+    color: #2168f7;
+}

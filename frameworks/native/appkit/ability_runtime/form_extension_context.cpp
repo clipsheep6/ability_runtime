@@ -53,18 +53,8 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
 ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
-    HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
-    if (err != ERR_OK) {
-        HILOG_ERROR("FormExtensionContext::StartAbility is failed %{public}d", err);
-    }
-    return err;
-}
-
-ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const
-{
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, -1);
+    // route to FMS
+    ErrCode err = AppExecFwk::FormMgr::GetInstance().StartAbility(want, token_);
     HILOG_DEBUG("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
     if (err != ERR_OK) {
         HILOG_ERROR("FormExtensionContext::StartAbility is failed %{public}d", err);
