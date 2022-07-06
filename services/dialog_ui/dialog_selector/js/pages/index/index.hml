@@ -35,15 +35,13 @@
             <text class="text-cancel">{{$t('message.cancel')}}</text>
         </div>
     </div>
-    <div class="selector-listback" style="width: {{pcSelectorlist.width}}; height: {{pcSelectorlist.height}}; display: {{pcDisplay}};">
-        <list ref="selector-list" class="selector-list" scrollbar="{{pcSelectorlist.scrollbar}}">
-            <list-item class="selector-listItem" onClick="onSelector({{$item}})" for="{{selectorHapList}}">
-                <div class="selector-listItemNode">
-                    <image class="selector-listItemAppIcon" src="{{$item.icon}}"></image>
-                    <text class="selector-listItemText">{{$item.name}}</text>
-                </div>
-            </list-item>
-        </list>
+    <div class = "selector-list" style="width: {{pcSelectorlist.width}}; height: {{pcSelectorlist.height}};">
+        <div class="selector-listback" for="{{selectorHapList}}">
+            <div class ="selector-listItem" onClick="onSelector({{$item}})">
+                <image class="selector-listItemAppIcon" src="{{$item.icon}}"></image>
+                <text class="selector-listItemText">{{$item.name}}</text>
+            </div>
+        </div>
     </div>
     <div class="selector-btnCancelback" style="display: {{pcDisplay}};">
         <input class="selector-btnCancel" type="button" value="{{ $t('message.cancel') }}" onClick="onCancel"></input>
