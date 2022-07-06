@@ -906,12 +906,16 @@ bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
         return false;
     }
 
+    int32_t pageAbilitySize = 0;
     auto moduleRecordList = GetAllModuleRecord();
-    if (moduleRecordList.size() == 1) {
-        return moduleRecord->IsLastPageAbilityRecord(token);
+    for (auto moduleRecord : moduleRecordList) {
+        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
+        if (pageAbilitySize > 1) {
+            return false;
+        }
     }
 
-    return false;
+    return pageAbilitySize == 1;
 }
 
 void AppRunningRecord::SetTerminating()
