@@ -186,7 +186,7 @@ int32_t SystemDialogScheduler::ShowSelectorDialog(
                     bundleName.c_str(), abilityName.c_str());
             }
             if (!bundleName.empty() && !abilityName.empty()) {
-                startAbilityCallBack(bundleName, abilityName);
+                IN_PROCESS_CALL_WITHOUT_RET(startAbilityCallBack(bundleName, abilityName));
             }
         }
     };

@@ -61,9 +61,14 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return ret;
     }
 
-    auto startAbilityTask = [imp = shared_from_this(), request, userId](const std::string& bundle,
-            const std::string& abilityName) {
+    auto startAbilityTask = [imp = shared_from_this(), request, userId,
+        identity = IPCSkeleton::ResetCallingIdentity()](const std::string& bundle, const std::string& abilityName) {
         HILOG_INFO("implicit start ability call back.");
+
+        auto oldIdentity = identity;
+        // reset calling indentity
+        IPCSkeleton::SetCallingIdentity(oldIdentity);
+
         AAFwk::Want targetWant = request.want;
         targetWant.SetAction("");
         targetWant.SetElementName(bundle, abilityName);
@@ -83,7 +88,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (dialogAppInfos.size() == 1) {
         auto info = dialogAppInfos.front();
         HILOG_INFO("ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
-        return startAbilityTask(info.bundleName, info.abilityName);
+        return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
