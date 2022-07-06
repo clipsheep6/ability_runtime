@@ -109,6 +109,9 @@ bool ModuleRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &tok
         std::shared_ptr<AbilityInfo> abilityInfo = abilityRunningRecord->GetAbilityInfo();
         if (abilityInfo->type == AbilityType::PAGE) {
             pageAbilitySize++;
+            if (pageAbilitySize > 1) {
+                return false;
+            }
         }
     }
 
