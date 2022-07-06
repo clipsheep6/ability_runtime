@@ -114,10 +114,11 @@ static constexpr unsigned int CHANGE_CONFIG_DENSITY = 0x00000010;
     return false;
 }
 
-[[maybe_unused]] static std::string ConvertBundleNameSingleton(const std::string &bundleName, const std::string &name,
-    const std::string &moduleName)
+[[maybe_unused]] static std::string ConvertBundleNameSingleton(const std::string &bundleName, const int32_t appIndex,
+    const std::string &name, const std::string &moduleName)
 {
     std::string strName = AbilityConfig::MISSION_NAME_MARK_HEAD + bundleName +
+        AbilityConfig::MISSION_NAME_SEPARATOR + std::to_string(appIndex) +
         AbilityConfig::MISSION_NAME_SEPARATOR + moduleName +
         AbilityConfig::MISSION_NAME_SEPARATOR + name;
     return strName;
