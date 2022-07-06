@@ -368,11 +368,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
-        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-        if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
-            abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
-            (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
-        }
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission();
         if (!isSpecificSA) {
@@ -2915,6 +2910,11 @@ int AbilityManagerService::GenerateAbilityRequest(
     const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+        abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
+        (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+    }
     request.want = want;
     request.requestCode = requestCode;
     request.callerToken = callerToken;
@@ -3023,6 +3023,11 @@ int32_t AbilityManagerService::ImplicitStartAbilityInner(const Want &targetWant,
 int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
+        abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
+        (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+    }
     request.want = want;
     request.callerToken = callerToken;
     request.startSetting = nullptr;
