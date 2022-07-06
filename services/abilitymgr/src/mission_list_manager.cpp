@@ -39,6 +39,7 @@ constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
+const std::string DLP_INDEX = "ohos.dlp.params.index";
 std::string GetCurrentTime()
 {
     struct timespec tn;
@@ -349,8 +350,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
 
     // no reused mission, create a new one.
     bool isSingleton = abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON;
+    int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
     std::string missionName = isSingleton ? AbilityUtil::ConvertBundleNameSingleton(
-        abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName) :
+        abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name,
+        abilityRequest.abilityInfo.moduleName, appIndex) :
         abilityRequest.abilityInfo.bundleName;
 
     // try reuse mission info
@@ -490,8 +493,9 @@ std::shared_ptr<Mission> MissionListManager::GetReusedMission(const AbilityReque
     }
 
     std::shared_ptr<Mission> reUsedMission = nullptr;
+    int32_t appIndex = abilityRequest.want.GetIntParam(DLP_INDEX, 0);
     std::string missionName = AbilityUtil::ConvertBundleNameSingleton(abilityRequest.abilityInfo.bundleName,
-        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName, appIndex);
 
     // find launcher first.
     if (abilityRequest.abilityInfo.applicationInfo.isLauncherApp) {

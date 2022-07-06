@@ -119,6 +119,7 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
         abilityMgr->GetMaxRestartNum(restartMax_);
     }
     restartCount_ = restartMax_;
+    appIndex_ = want.GetIntParam(DLP_INDEX, 0);
 }
 
 AbilityRecord::~AbilityRecord()
