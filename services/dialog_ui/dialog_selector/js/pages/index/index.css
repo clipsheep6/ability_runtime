@@ -139,6 +139,7 @@
     height: 50vp;
     justify-content: center;
     background-color: white;
+    border-radius: 24vp;
 }
 
 .selector-btnCancel {
