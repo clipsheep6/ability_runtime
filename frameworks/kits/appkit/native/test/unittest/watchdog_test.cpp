@@ -25,7 +25,7 @@ using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AppExecFwk {
-const int USleepTime = 13000; // Corresponding to INI_TIMER_FIRST_SECOND and INI_TIMER_SECOND
+const int U_SLEEP_TIME = 13000; // Corresponding to INI_TIMER_FIRST_SECOND and INI_TIMER_SECOND
 class WatchDogTest : public testing::Test {
 public:
     WatchDogTest()
@@ -72,7 +72,7 @@ HWTEST_F(WatchDogTest, AppExecFwk_WatchDog_GetAppMainThreadState_0200, Function 
         MainThread::Start();
     });
     mainthread.detach();
-    std::this_thread::sleep_for(std::chrono::milliseconds(USleepTime));
+    std::this_thread::sleep_for(std::chrono::milliseconds(U_SLEEP_TIME));
     bool ret = WatchDog::GetAppMainThreadState();
     EXPECT_FALSE(ret);
 }

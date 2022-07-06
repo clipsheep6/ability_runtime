@@ -65,7 +65,7 @@ public:
     Want CreateWant(const std::string &entity);
     AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName);
     ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
-    bool MockAppClient();
+    bool MockAppClient() const;
     void WaitAMS();
 
     inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_ {nullptr};
@@ -109,7 +109,7 @@ ApplicationInfo SpecifiedAbilityServiceTest::CreateAppInfo(const std::string &ap
     return appInfo;
 }
 
-bool SpecifiedAbilityServiceTest::MockAppClient()
+bool SpecifiedAbilityServiceTest::MockAppClient() const
 {
     if (!mockAppMgrClient_) {
         GTEST_LOG_(INFO) << "MockAppClient::1";

@@ -147,7 +147,7 @@ public:
     using ExecuteCallback = std::function<void()>;
     using CompleteCallback = std::function<void(NativeEngine&, AsyncTask&, int32_t)>;
 
-    static void Schedule(const std::string &name, NativeEngine& engine, std::unique_ptr<AsyncTask>&& task);
+    static void Schedule(const std::string& name, NativeEngine& engine, std::unique_ptr<AsyncTask>&& task);
 
     AsyncTask(NativeDeferred* deferred, std::unique_ptr<ExecuteCallback>&& execute,
         std::unique_ptr<CompleteCallback>&& complete);
