@@ -2169,10 +2169,9 @@ void GetAppVersionInfoExecuteCB(napi_env env, void *data)
         return;
     }
 
-    std::shared_ptr<AbilityInfo> abilityInfoPtr = appVersionInfoCB->cbBase.ability->GetAbilityInfo();
     std::shared_ptr<ApplicationInfo> appInfoPtr = appVersionInfoCB->cbBase.ability->GetApplicationInfo();
-    if (abilityInfoPtr != nullptr && appInfoPtr != nullptr) {
-        SaveAppVersionInfo(appVersionInfoCB->appVersionInfo, abilityInfoPtr->appName, appInfoPtr->versionName,
+    if (appInfoPtr != nullptr) {
+        SaveAppVersionInfo(appVersionInfoCB->appVersionInfo, appInfoPtr->name, appInfoPtr->versionName,
             appInfoPtr->versionCode);
     } else {
         appVersionInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;
