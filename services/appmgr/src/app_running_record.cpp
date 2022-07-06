@@ -893,6 +893,27 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     return false;
 }
 
+bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
+{
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return false;
+    }
+
+    auto moduleRecord = GetModuleRunningRecordByToken(token);
+    if (!moduleRecord) {
+        HILOG_ERROR("can not find module record");
+        return false;
+    }
+
+    auto moduleRecordList = GetAllModuleRecord();
+    if (moduleRecordList.size() == 1) {
+        return moduleRecord->IsLastPageAbilityRecord(token);
+    }
+
+    return false;
+}
+
 void AppRunningRecord::SetTerminating()
 {
     isTerminating = true;

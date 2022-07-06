@@ -96,6 +96,25 @@ bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     return ((abilities_.size() == 1) && (abilities_.find(token) != abilities_.end()));
 }
 
+bool ModuleRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
+{
+    if (!token) {
+        HILOG_ERROR("token is nullptr");
+        return false;
+    }
+
+    int pageAbilitySize = 0;
+    for (auto it : abilities_) {
+        std::shared_ptr<AbilityRunningRecord> abilityRunningRecord = it.second;
+        std::shared_ptr<AbilityInfo> abilityInfo = abilityRunningRecord->GetAbilityInfo();
+        if (abilityInfo->type == AbilityType::PAGE) {
+            pageAbilitySize++;
+        }
+    }
+
+    return (pageAbilitySize == 1) && (abilities_.find(token) != abilities_.end());
+}
+
 const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> &ModuleRunningRecord::GetAbilities()
     const
 {

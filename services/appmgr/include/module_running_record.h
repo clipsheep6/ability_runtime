@@ -77,6 +77,8 @@ public:
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
+
     // Get abilities_ for this process
     /**
      * @brief Obtains the abilitys info for the application record.
