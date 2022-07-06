@@ -92,9 +92,9 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
 #define ACEABILITY_LIBRARY_LOADER
 #ifdef ABILITY_LIBRARY_LOADER
 #ifdef _ARM64_
-    const std::string acelibdir("/system/lib64/libace.z.so");
+    const std::string acelibdir("/system/lib64/platformsdk/libace.z.so");
 #else
-    const std::string acelibdir("/system/lib/libace.z.so");
+    const std::string acelibdir("/system/lib/platformsdk/libace.z.so");
 #endif
 #endif
 
