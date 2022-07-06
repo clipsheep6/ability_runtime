@@ -21,9 +21,8 @@ group("module_test_dump_util") {
 }
 
 config("module_test_dump_util_config") {
-  include_dirs = [
-    "${ability_runtime_test_path}/moduletest/module_test_dump_util/",
-  ]
+  include_dirs =
+      [ "${ability_runtime_test_path}/moduletest/module_test_dump_util/" ]
 }
 
 ohos_shared_library("module_test_dump_util_lib") {

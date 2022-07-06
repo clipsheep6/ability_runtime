@@ -29,10 +29,10 @@ config("module_private_config") {
     "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_runtime_kits_path}/test/mock/AMS",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS",
     "${ability_runtime_services_path}/common/include",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility",
     "${ability_runtime_services_path}/abilitymgr/include",
     "//third_party/jsoncpp/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
@@ -43,12 +43,6 @@ ohos_moduletest("ability_moduletest") {
   module_out_path = module_output_path
   sources = [
     "${ability_base_path}/frameworks/native/configuration/src/configuration.cpp",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_service.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
@@ -67,7 +61,13 @@ ohos_moduletest("ability_moduletest") {
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
-    "moduletest/cpp/abilitytest/ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "ability_test.cpp",
   ]
 
   configs = [
@@ -112,12 +112,6 @@ ohos_moduletest("ability_moduletest") {
 ohos_moduletest("ability_conetxt_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_serviceability_manager_service.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
@@ -126,7 +120,13 @@ ohos_moduletest("ability_conetxt_test") {
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "moduletest/cpp/abilitytest/ability_context_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "ability_context_test.cpp",
   ]
 
   configs = [
@@ -169,8 +169,8 @@ ohos_moduletest("ability_conetxt_test") {
 ohos_moduletest("ability_thread_call_request_module_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_kits_path}/test/moduletest/cpp/abilitytest/ability_thread_call_request_module_test.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
+    "ability_thread_call_request_module_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -198,12 +198,6 @@ ohos_moduletest("ability_thread_call_request_module_test") {
 ohos_moduletest("data_ability_operation_moduletest") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/mock_bundle_manager.cpp",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include/sys_mgr_client_mock.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_client.cpp",
-    "${ability_runtime_kits_path}/test/mock/AMS/mock_ability_manager_service.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/demo_ability_test.cpp",
-    "${ability_runtime_kits_path}/test/mock/DemoAbility/mock_lifecycle_observer.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
     "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
@@ -222,7 +216,13 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
-    "moduletest/cpp/abilitytest/data_ability_operation_module_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "data_ability_operation_module_test.cpp",
   ]
 
   configs = [
@@ -267,15 +267,15 @@ ohos_moduletest("data_ability_helper_module_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_kits_path}/test/mock/DemoAbility",
-    "${ability_runtime_kits_path}/test/mock/DemoObServer",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoObServer",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_services_path}/dataobsmgr/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${distributedschedule_path}/samgr/services/samgr/native/include",
   ]
 
-  sources = [ "${ability_runtime_kits_path}/test/moduletest/cpp/abilitytest/data_ability_helper_module_test.cpp" ]
+  sources = [ "data_ability_helper_module_test.cpp" ]
 
   configs = [
     ":module_private_config",

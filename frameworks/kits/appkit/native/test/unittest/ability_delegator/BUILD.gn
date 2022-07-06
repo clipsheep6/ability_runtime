@@ -16,12 +16,12 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_delegator/"
 
 ability_delegator_mock_sources = [
-  "${ability_runtime_kits_path}/appkit/native/test/mock/ability_delegator/mock_ability_delegator_stub.cpp",
-  "${ability_runtime_kits_path}/appkit/native/test/mock/ability_delegator/mock_iability_monitor.cpp",
-  "${ability_runtime_kits_path}/appkit/native/test/mock/ability_delegator/mock_test_observer_stub.cpp",
-  "${ability_runtime_kits_path}/appkit/native/test/mock/ability_delegator/mock_test_runner.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer_stub.cpp",
+  "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator/mock_ability_delegator_stub.cpp",
+  "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator/mock_iability_monitor.cpp",
+  "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator/mock_test_observer_stub.cpp",
+  "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator/mock_test_runner.cpp",
 ]
 
 ###############################################################################
@@ -31,7 +31,7 @@ config("unittest_include_dir") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/runner_runtime/",
     "${ability_runtime_path}/tools/aa/include",
-    "${ability_runtime_kits_path}/appkit/native/test/mock/ability_delegator",
+    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "//third_party/googletest/googlemock/include",
     "${ability_runtime_services_path}/abilitymgr/include",

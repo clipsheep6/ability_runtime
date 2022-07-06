@@ -24,7 +24,7 @@ ohos_moduletest("start_option_module_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]
 
   sources = [ "start_option_display_id_test.cpp" ]

@@ -25,7 +25,7 @@ ohos_unittest("ability_manager_service_anr_test") {
     "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/distributedschedule/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_runtime_kits_path}/ability/native/test/mock/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "//base/notification/common_event_service/frameworks/core/include",
     "//base/notification/common_event_service/interfaces/inner_api",
   ]

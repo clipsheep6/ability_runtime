@@ -18,9 +18,7 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsAppRecentListModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "${ability_runtime_services_path}/appmgr/test/mock/include",
-  ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/test/mock/include" ]
   sources = [ "ams_app_recent_list_module_test.cpp" ]
 
   deps = [

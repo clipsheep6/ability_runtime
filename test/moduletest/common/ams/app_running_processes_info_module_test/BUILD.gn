@@ -19,13 +19,12 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AppRunningProcessesInfoModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "${ability_runtime_services_path}/appmgr/test/mock/include",
-  ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/test/mock/include" ]
 
   sources = [ "app_running_processes_info_module_test.cpp" ]
 
-  deps = [ "${ability_runtime_test_path}/moduletest/common/ams:appmgr_mst_source" ]
+  deps =
+      [ "${ability_runtime_test_path}/moduletest/common/ams:appmgr_mst_source" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
