@@ -35,7 +35,7 @@
             <text class="text-cancel">{{$t('message.cancel')}}</text>
         </div>
     </div>
-    <div class = "selector-list" style="width: {{pcSelectorlist.width}}; height: {{pcSelectorlist.height}};">
+    <div class = "selector-list" style="width: {{pcSelectorlist.width}}; height: {{pcSelectorlist.height}}; display: {{pcDisplay}};">
         <div class="selector-listback" for="{{selectorHapList}}">
             <div class ="selector-listItem" onClick="onSelector({{$item}})">
                 <image class="selector-listItemAppIcon" src="{{$item.icon}}"></image>
