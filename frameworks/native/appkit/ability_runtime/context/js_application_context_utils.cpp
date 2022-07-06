@@ -566,9 +566,6 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));
                 return;
             }
-            if (env_callback->IsEmpty()) {
-                applicationContext->UnregisterEnvironmentCallback(env_callback);
-            }
 
             task.Resolve(engine, engine.CreateUndefined());
         };
