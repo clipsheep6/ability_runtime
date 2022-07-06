@@ -18,7 +18,7 @@ config("appmgr_test_config") {
   configs = [
     "${ability_runtime_services_path}/appmgr:appmgr_config",
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
-    "${ability_runtime_services_path}/test:services_mock_ams_config",
+    "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
   ]
 
   defines = [
