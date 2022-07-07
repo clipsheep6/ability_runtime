@@ -35,12 +35,11 @@ void* DetachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
 NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachAbilityStageContext");
-    std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
-    NativeValue* object = CreateJsAbilityStageContext(*engine, context, nullptr, nullptr);
+    auto weak = reinterpret_cast<std::weak_ptr<AbilityContext>*>(value);
+    NativeValue* object = CreateJsAbilityStageContext(*engine, weak->lock(), nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext,
-        context.get(), nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext, value, nullptr);
     return contextObj;
 }
 
@@ -114,7 +113,7 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
     contextObj = shellContextRef_->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
-        context.get(), nullptr);
+        new std::weak_ptr<Context>(context), nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
 

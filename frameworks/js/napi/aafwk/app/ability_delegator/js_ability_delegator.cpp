@@ -57,11 +57,10 @@ void *DetachAppContext(NativeEngine *engine, void *value, void *hint)
 NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *hint)
 {
     HILOG_INFO("AttachAppContext");
-    std::shared_ptr<AbilityRuntime::Context> context(reinterpret_cast<AbilityRuntime::Context *>(value));
-    NativeValue *object = CreateJsBaseContext(*engine, context, nullptr, nullptr, true);
+    auto weak = reinterpret_cast<std::weak_ptr<AbilityRuntime::Context>*>(value);
+    NativeValue *object = CreateJsBaseContext(*engine, weak->lock(), nullptr, nullptr, true);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext,
-        context.get(), nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext, value, nullptr);
     return object;
 }
 
@@ -427,7 +426,7 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
     NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(value);
     nObject->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext,
-        context.get(), nullptr);
+        new std::weak_ptr<AbilityRuntime::Context>(context), nullptr);
     return value;
 }
 

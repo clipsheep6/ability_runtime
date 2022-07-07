@@ -44,13 +44,13 @@ void* DetachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
 NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachFormExtensionContext");
-    std::shared_ptr<FormExtensionContext> context(reinterpret_cast<FormExtensionContext *>(value));
-    NativeValue* object = CreateJsFormExtensionContext(*engine, context, nullptr, nullptr);
+    auto weak = reinterpret_cast<std::weak_ptr<FormExtensionContext>*>(value);
+    NativeValue* object = CreateJsFormExtensionContext(*engine, weak->lock(), nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.FormExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine, DetachFormExtensionContext, AttachFormExtensionContext,
-        context.get(), nullptr);
+        value, nullptr);
     return contextObj;
 }
 
@@ -113,7 +113,7 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
     contextObj = shellContextRef_->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(&engine, DetachFormExtensionContext, AttachFormExtensionContext,
-        context.get(), nullptr);
+        new std::weak_ptr<FormExtensionContext>(context), nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsFormExtension::SetProperty.");

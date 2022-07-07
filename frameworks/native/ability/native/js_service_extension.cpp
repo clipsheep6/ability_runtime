@@ -46,13 +46,13 @@ void* DetachServiceExtensionContext(NativeEngine* engine, void* value, void* hin
 NativeValue* AttachServiceExtensionContext(NativeEngine* engine, void* value, void* hint)
 {
     HILOG_INFO("AttachServiceExtensionContext");
-    std::shared_ptr<ServiceExtensionContext> context(reinterpret_cast<ServiceExtensionContext *>(value));
-    NativeValue* object = CreateJsServiceExtensionContext(*engine, context, nullptr, nullptr);
+    auto weak = reinterpret_cast<std::weak_ptr<ServiceExtensionContext>*>(value);
+    NativeValue* object = CreateJsServiceExtensionContext(*engine, weak->lock(), nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.ServiceExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(engine, DetachServiceExtensionContext, AttachServiceExtensionContext,
-        context.get(), nullptr);
+        value, nullptr);
     return contextObj;
 }
 
@@ -111,7 +111,7 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
     contextObj = shellContextRef_->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     nObject->ConvertToNativeBindingObject(&engine, DetachServiceExtensionContext, AttachServiceExtensionContext,
-        context.get(), nullptr);
+        new std::weak_ptr<ServiceExtensionContext>(context), nullptr);
     HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsServiceExtension::SetProperty.");
