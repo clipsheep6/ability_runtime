@@ -1668,20 +1668,9 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     int userId = wantSenderInfo.userId;
-    bool remote = false;
-    if (!wantSenderInfo.allWants.empty()) {
-        std::string deviceId = wantSenderInfo.allWants[0].want.GetDeviceId();
-        std::string localDeviceId;
-        if (GetLocalDeviceId(localDeviceId) &&
-            (!deviceId.empty() && localDeviceId != deviceId)) {
-            remote = true;
-        }
-        HILOG_INFO("remote = %{public}d, localDeviceId = %{private}s, deviceId = %{private}s",
-            remote, localDeviceId.c_str(), deviceId.c_str());
-    }
-
+    std::string apl;
     AppExecFwk::BundleInfo bundleInfo;
-    if (!wantSenderInfo.bundleName.empty() && !remote) {
+    if (!wantSenderInfo.bundleName.empty()) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
 #ifdef OS_ACCOUNT_PART_ENABLED
@@ -1695,14 +1684,12 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         }
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
-        if (!bundleMgrResult) {
-            HILOG_ERROR("GetBundleInfo is fail.");
-            return nullptr;
+        if (bundleMgrResult) {
+            apl = bundleInfo.applicationInfo.appPrivilegeLevel;
         }
     }
 
     HILOG_INFO("AbilityManagerService::GetWantSender: bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    auto apl = bundleInfo.applicationInfo.appPrivilegeLevel;
     return pendingWantManager_->GetWantSender(callerUid, bundleInfo.uid, apl, wantSenderInfo, callerToken);
 }
 
