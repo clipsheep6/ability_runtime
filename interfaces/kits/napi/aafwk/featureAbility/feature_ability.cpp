@@ -853,7 +853,8 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
             // JS Thread
             OnAbilityCallback *onAbilityCB = static_cast<OnAbilityCallback *>(work->data);
             napi_value result[ARGS_TWO] = {0};
-            result[PARAM0] = GetCallbackErrorValue(onAbilityCB->cb.env, onAbilityCB->cb.errCode);
+            int32_t errCode = GetStartAbilityErrorCode(onAbilityCB->cb.errCode);
+            result[PARAM0] = GetCallbackErrorValue(onAbilityCB->cb.env, errCode);
 
             napi_create_object(onAbilityCB->cb.env, &result[PARAM1]);
             // create resultCode
@@ -881,7 +882,11 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
             } else {
                 // promise
                 HILOG_INFO("CallOnAbilityResult, promise");
-                napi_resolve_deferred(onAbilityCB->cb.env, onAbilityCB->cb.deferred, result[PARAM1]);
+                if (onAbilityCB->cb.errCode != ERR_OK) {
+                    napi_reject_deferred(onAbilityCB->cb.env, onAbilityCB->cb.deferred, result[PARAM0]);
+                } else {
+                    napi_resolve_deferred(onAbilityCB->cb.env, onAbilityCB->cb.deferred, result[PARAM1]);
+                }
                 HILOG_INFO("CallOnAbilityResult, promise end");
             }
 
