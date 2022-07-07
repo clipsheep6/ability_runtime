@@ -34,15 +34,15 @@ ohos_source_set("appmgr_mst_source") {
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
-    "${ability_runtime_services_path}/appmgr/test/mock/src/mock_bundle_manager.cpp",
     "${ability_runtime_services_path}/common/src/event_report.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
   ]
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
     "//third_party/json/include",
-    "${ability_runtime_services_path}/appmgr/test/mock/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
 
   public_configs = [

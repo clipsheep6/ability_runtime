@@ -19,7 +19,8 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${ability_runtime_services_path}/appmgr/test/mock/include" ]
+  include_dirs =
+      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
