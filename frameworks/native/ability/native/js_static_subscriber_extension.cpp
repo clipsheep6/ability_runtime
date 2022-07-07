@@ -34,6 +34,26 @@ constexpr size_t ARGC_ONE = 1;
 }
 
 using namespace OHOS::AppExecFwk;
+
+void* DetachStaticSubscriberExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("DetachStaticSubscriberExtensionContext");
+    return value;
+}
+
+NativeValue* AttachStaticSubscriberExtensionContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("AttachStaticSubscriberExtensionContext");
+    auto weak = reinterpret_cast<std::weak_ptr<StaticSubscriberExtensionContext>*>(value);
+    NativeValue* object = CreateJsStaticSubscriberExtensionContext(*engine, weak->lock(), nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
+        "application.StaticSubscriberExtensionContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine,
+        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext, value, nullptr);
+    return contextObj;
+}
+
 JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     return new JsStaticSubscriberExtension(static_cast<JsRuntime&>(*runtime));
@@ -82,10 +102,13 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         return;
     }
     HILOG_INFO("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
-    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context);
+    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context, nullptr, nullptr);
     auto shellContextRef = jsRuntime_.LoadSystemModule("application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachStaticSubscriberExtensionContext,
+        AttachStaticSubscriberExtensionContext, new std::weak_ptr<StaticSubscriberExtensionContext>(context), nullptr);
     HILOG_INFO("JsStaticSubscriberExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
     HILOG_INFO("JsStaticSubscriberExtension::SetProperty.");

@@ -105,7 +105,8 @@ private:
     int curRequestCode_ = 0;
 };
 
-NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context);
+NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<AbilityContext> context,
+                                    DetachCallback detach, AttachCallback attach);
 
 class JSAbilityConnection : public AbilityConnectCallback {
 public:

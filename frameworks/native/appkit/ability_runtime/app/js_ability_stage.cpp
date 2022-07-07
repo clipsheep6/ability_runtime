@@ -26,6 +26,23 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+void* DetachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("DetachAbilityStageContext");
+    return value;
+}
+
+NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
+{
+    HILOG_INFO("AttachAbilityStageContext");
+    auto weak = reinterpret_cast<std::weak_ptr<AbilityContext>*>(value);
+    NativeValue* object = CreateJsAbilityStageContext(*engine, weak->lock(), nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext, value, nullptr);
+    return contextObj;
+}
+
 std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo)
 {
@@ -91,10 +108,12 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
         return;
     }
 
-    NativeValue* contextObj = CreateJsAbilityStageContext(engine, context);
+    NativeValue* contextObj = CreateJsAbilityStageContext(engine, context, nullptr, nullptr);
     shellContextRef_ = jsRuntime_.LoadSystemModule("application.AbilityStageContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
-
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
+        new std::weak_ptr<Context>(context), nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
 

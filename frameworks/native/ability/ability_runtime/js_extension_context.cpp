@@ -86,10 +86,10 @@ NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk
 }
 
 NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_ptr<ExtensionContext> &context,
-    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo)
+    std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo, DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("CreateJsExtensionContext begin");
-    NativeValue* objValue = CreateJsBaseContext(engine, context);
+    NativeValue* objValue = CreateJsBaseContext(engine, context, detach, attach);
     if (context == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
         return objValue;

@@ -48,6 +48,22 @@ std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> moni
 std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> ablityRecord_;
 std::mutex mutexAblityRecord_;
 
+void *DetachAppContext(NativeEngine *engine, void *value, void *hint)
+{
+    HILOG_INFO("DetachAppContext");
+    return value;
+}
+
+NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *hint)
+{
+    HILOG_INFO("AttachAppContext");
+    auto weak = reinterpret_cast<std::weak_ptr<AbilityRuntime::Context>*>(value);
+    NativeValue *object = CreateJsBaseContext(*engine, weak->lock(), nullptr, nullptr, true);
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
+    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext, value, nullptr);
+    return object;
+}
+
 JSAbilityDelegator::JSAbilityDelegator()
 {
     auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
@@ -407,7 +423,11 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
         HILOG_ERROR("context is null");
         return engine.CreateNull();
     }
-    return CreateJsBaseContext(engine, context, false);
+    NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(value);
+    nObject->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext,
+        new std::weak_ptr<AbilityRuntime::Context>(context), nullptr);
+    return value;
 }
 
 NativeValue *JSAbilityDelegator::OnGetAbilityState(NativeEngine &engine, NativeCallbackInfo &info)
