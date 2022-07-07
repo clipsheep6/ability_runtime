@@ -3783,25 +3783,31 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
 
+    std::string bundleName;
+    bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
+    if (!result) {
+        HILOG_ERROR("GetBundleNameForUid from bms fail.");
+        return RESOLVE_CALL_NO_PERMISSIONS;
+    }
+    AppExecFwk::ApplicationInfo callerAppInfo;
+    result = IN_PROCESS_CALL(
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetUserId(), callerAppInfo));
+    if (!result) {
+        HILOG_ERROR("GetApplicationInfo from bms fail.");
+        return RESOLVE_CALL_NO_PERMISSIONS;
+    }
+
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto apl = abilityRequest.appInfo.appPrivilegeLevel;
+    auto apl = callerAppInfo.appPrivilegeLevel;
     if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-        HILOG_DEBUG("caller is common app.");
-        std::string bundleName;
-        bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
-        if (!result) {
-            HILOG_ERROR("GetBundleNameForUid from bms fail.");
-            return RESOLVE_CALL_NO_PERMISSIONS;
-        }
+        HILOG_DEBUG("caller is normal app.");
         if (bundleName != abilityInfo.bundleName && callerUid != targetUid) {
-            HILOG_ERROR("the bundlename of caller is different from target one, caller: %{public}s "
+            HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
                         "target: %{public}s",
                 bundleName.c_str(),
                 abilityInfo.bundleName.c_str());
             return RESOLVE_CALL_NO_PERMISSIONS;
         }
-    } else {
-        HILOG_DEBUG("caller is systemapp or system ability.");
     }
     HILOG_DEBUG("the caller has permission to resolve the callproxy of common ability.");
     // check whether the target ability is singleton mode and page type.
