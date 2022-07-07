@@ -45,11 +45,13 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
 {
     HILOG_INFO("AttachFormExtensionContext");
     std::shared_ptr<FormExtensionContext> context(reinterpret_cast<FormExtensionContext *>(value));
-    NativeValue* object = CreateJsFormExtensionContext(*engine, context,
-                                                       DetachFormExtensionContext, AttachFormExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.FormExtensionContext", &object, 1)->Get();
+    NativeValue* object = CreateJsFormExtensionContext(*engine, context, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
+        "application.FormExtensionContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachFormExtensionContext, AttachFormExtensionContext,
+        context.get(), nullptr);
+    return contextObj;
 }
 
 JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime)
@@ -106,12 +108,12 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("JsFormExtension::Init CreateJsFormExtensionContext.");
-    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context,
-                                                           DetachFormExtensionContext, AttachFormExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context, nullptr, nullptr);
     shellContextRef_ = jsRuntime_.LoadSystemModule("application.FormExtensionContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachFormExtensionContext, AttachFormExtensionContext,
+        context.get(), nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsFormExtension::SetProperty.");

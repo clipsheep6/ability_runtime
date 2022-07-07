@@ -46,12 +46,13 @@ NativeValue* AttachStaticSubscriberExtensionContext(NativeEngine* engine, void* 
     HILOG_INFO("AttachStaticSubscriberExtensionContext");
     auto sp = reinterpret_cast<StaticSubscriberExtensionContext *>(value);
     std::shared_ptr<StaticSubscriberExtensionContext> context(sp);
-    NativeValue* object = CreateJsStaticSubscriberExtensionContext(*engine, context,
-        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.StaticSubscriberExtensionContext",
-                                               &object, 1)->Get();
+    NativeValue* object = CreateJsStaticSubscriberExtensionContext(*engine, context, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
+        "application.StaticSubscriberExtensionContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine,
+        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext, context.get(), nullptr);
+    return contextObj;
 }
 
 JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::unique_ptr<Runtime>& runtime)
@@ -102,13 +103,13 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         return;
     }
     HILOG_INFO("JsStaticSubscriberExtension::Init CreateJsStaticSubscriberExtensionContext.");
-    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context,
-        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue* contextObj = CreateJsStaticSubscriberExtensionContext(engine, context, nullptr, nullptr);
     auto shellContextRef = jsRuntime_.LoadSystemModule("application.StaticSubscriberExtensionContext",
         &contextObj, ARGC_ONE);
     contextObj = shellContextRef->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine,
+        DetachStaticSubscriberExtensionContext, AttachStaticSubscriberExtensionContext, context.get(), nullptr);
     HILOG_INFO("JsStaticSubscriberExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef.release());
     HILOG_INFO("JsStaticSubscriberExtension::SetProperty.");

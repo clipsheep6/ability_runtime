@@ -36,11 +36,12 @@ NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void* 
 {
     HILOG_INFO("AttachAbilityStageContext");
     std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
-    NativeValue* object = CreateJsAbilityStageContext(*engine, context,
-                                                      DetachAbilityStageContext, AttachAbilityStageContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
+    NativeValue* object = CreateJsAbilityStageContext(*engine, context, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext,
+        context.get(), nullptr);
+    return contextObj;
 }
 
 std::shared_ptr<AbilityStage> JsAbilityStage::Create(
@@ -108,13 +109,12 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
         return;
     }
 
-    NativeValue* contextObj = CreateJsAbilityStageContext(engine, context,
-                                                          DetachAbilityStageContext, AttachAbilityStageContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue* contextObj = CreateJsAbilityStageContext(engine, context, nullptr, nullptr);
     shellContextRef_ = jsRuntime_.LoadSystemModule("application.AbilityStageContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
-
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
+        context.get(), nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
 
