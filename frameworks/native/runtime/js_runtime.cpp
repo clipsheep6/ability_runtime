@@ -75,8 +75,7 @@ public:
 
     bool RunScript(const std::string& path) override
     {
-        static const char PANDA_MAIN_FUNCTION[] = "_GLOBAL::func_main_0";
-        return vm_ != nullptr ? panda::JSNApi::Execute(vm_, path.c_str(), PANDA_MAIN_FUNCTION) : false;
+        return nativeEngine_->RunScriptPath(path.c_str()) != nullptr;
     }
 
     NativeValue* LoadJsModule(const std::string& path) override
