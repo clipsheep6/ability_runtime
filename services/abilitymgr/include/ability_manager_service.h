@@ -1018,11 +1018,6 @@ private:
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
-    bool CheckTargetBundleList(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    void HandleFreeInstallErrorCode(int &resultCode);
-    int NotifyDmsCallback(const Want &want, int resultCode);
-    bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode);
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
