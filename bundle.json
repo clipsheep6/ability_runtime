@@ -181,16 +181,13 @@
           }
         ],
         "test": [
-          "//foundation/ability/ability_runtime/frameworks/kits/ability/native/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/unittest:unittest",
           "//foundation/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/services/abilitymgr/test:unittest",
           "//foundation/ability/ability_runtime/services/dataobsmgr/test:unittest",
           "//foundation/ability/ability_runtime/services/appmgr/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/wantagent/test/:unittest",
           "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
-          "//foundation/ability/ability_runtime/test/fuzztest:fuzztest"
+          "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
+          "//foundation/ability/ability_runtime/test/unittest:unittest"
         ]
       }
   }

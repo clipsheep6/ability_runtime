@@ -66,7 +66,7 @@ ohos_unittest("context_deal_interface_test") {
   sources = [
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include/mock_ability_manager_client_interface1.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include/mock_resourceManager_interface1.cpp",
-    "unittest/context_deal_interface1_test.cpp",
+    "context_deal_interface1_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -100,10 +100,10 @@ ohos_unittest("application_test") {
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "unittest/ability_stage_test.cpp",
-    "unittest/application_data_manager_test.cpp",
-    "unittest/application_test.cpp",
-    "unittest/context_impl_test.cpp",
+    "ability_stage_test.cpp",
+    "application_data_manager_test.cpp",
+    "application_test.cpp",
+    "context_impl_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -139,7 +139,7 @@ ohos_unittest("context_container_test") {
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
-    "unittest/context_container_test.cpp",
+    "context_container_test.cpp",
   ]
 
   configs = [ ":module_context_config" ]
@@ -173,7 +173,7 @@ ohos_unittest("context_deal_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include/mock_ability_manager_client.cpp",
-    "unittest/context_deal_test.cpp",
+    "context_deal_test.cpp",
   ]
 
   configs = [ ":module_context_config" ]
@@ -207,7 +207,7 @@ ohos_unittest("application_impl_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "unittest/application_impl_test.cpp",
+    "application_impl_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -255,7 +255,7 @@ ohos_unittest("ability_start_setting_test") {
 
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
-    "unittest/ability_start_setting_test.cpp",
+    "ability_start_setting_test.cpp",
   ]
 
   deps = [
@@ -284,7 +284,7 @@ ohos_unittest("watchdog_test") {
     ":ability_start_setting_config",
   ]
 
-  sources = [ "unittest/watchdog_test.cpp" ]
+  sources = [ "watchdog_test.cpp" ]
 
   deps = [
     "${ability_runtime_native_path}/appkit:appkit_native",
@@ -317,6 +317,6 @@ group("unittest") {
     ":watchdog_test",
   ]
 
-  deps += [ "unittest/ability_delegator:unittest" ]
+  deps += [ "ability_delegator:unittest" ]
 }
 ###############################################################################

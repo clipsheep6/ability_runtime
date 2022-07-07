@@ -24,7 +24,6 @@ config("amsKitSystemTestServiceconfig") {
     "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_runtime_kits_path}/appkit/native/app",
     "//third_party/jsoncpp/include",
   ]
   defines = [

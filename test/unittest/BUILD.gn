@@ -16,5 +16,15 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 group("unittest") {
   testonly = true
 
-  deps = []
+  deps = [
+    "completed_dispatcher_test:unittest",
+    "frameworks_kits_ability_ability_runtime_test:unittest",
+    "frameworks_kits_ability_native_test:unittest",
+    "frameworks_kits_appkit_native_test:unittest",
+    "pending_want_test:unittest",
+    "trigger_Info_test:unittest",
+    "want_agent_helper_test:unittest",
+    "want_agent_info_test:unittest",
+    "want_agent_test:unittest",
+  ]
 }
