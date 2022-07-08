@@ -392,9 +392,6 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         appRecord->SetTerminating();
         if (isClearMission) {
             HILOG_INFO("The ability is the last, KillApplication");
-            appMgrServiceInner->KillApplicationByUid(appRecord->GetBundleName(), appRecord->GetUid());
-            appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
-                EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         }
     }
 }
