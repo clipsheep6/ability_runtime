@@ -250,11 +250,7 @@ enum {
      */
     ERR_AAFWK_PARCEL_FAIL,
     /**
-     * Result(2097199) for type is empty.
-     */
-    ERR_WANT_NO_TYPE,
-    /**
-     * Result(2097200) for implicit start ability is failed.
+     * Result(2097199) for for implicit start ability is failed.
      */
     ERR_IMPLICIT_START_ABILITY_FAIL,
 };
