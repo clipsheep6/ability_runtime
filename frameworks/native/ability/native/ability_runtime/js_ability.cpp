@@ -383,7 +383,9 @@ void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)
 
 void JsAbility::DoOnForeground(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "scene_ == nullptr");
         if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
             HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
             return;
@@ -391,6 +393,7 @@ void JsAbility::DoOnForeground(const Want &want)
         scene_ = std::make_shared<Rosen::WindowScene>();
         int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
         if (setting_ != nullptr) {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "setting_ != nullptr");
             std::string strDisplayId =
                 setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
             std::regex formatRegex("[0-9]{0,9}$");
@@ -404,16 +407,20 @@ void JsAbility::DoOnForeground(const Want &want)
                 HILOG_INFO("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
             }
         }
-        auto option = GetWindowOption(want);
-        Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
-        if (ret != Rosen::WMError::WM_OK) {
-            HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
-            return;
+        {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "scene_->Init");
+            auto option = GetWindowOption(want);
+            Rosen::WMError ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+            if (ret != Rosen::WMError::WM_OK) {
+                HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
+                return;
+            }
         }
 
         // multi-instance ability continuation
         HILOG_INFO("launch reason = %{public}d", launchParam_.launchReason);
         if (IsRestoredInContinuation()) {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "OnSceneRestored");
             std::string pageStack;
             GetPageStackFromWant(want, pageStack);
             HandleScope handleScope(jsRuntime_);
@@ -427,9 +434,11 @@ void JsAbility::DoOnForeground(const Want &want)
             OnSceneRestored();
             WaitingDistributedObjectSyncComplete(want);
         } else {
+            HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "OnSceneCreated");
             OnSceneCreated();
         }
     } else {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "scene_ != nullptr");
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
             auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
@@ -441,6 +450,7 @@ void JsAbility::DoOnForeground(const Want &want)
 
     auto window = scene_->GetMainWindow();
     if (window) {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "window");
         HILOG_INFO("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
         std::weak_ptr<Ability> weakAbility = shared_from_this();
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
@@ -449,7 +459,10 @@ void JsAbility::DoOnForeground(const Want &want)
     }
 
     HILOG_INFO("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
-    scene_->GoForeground(Ability::sceneFlag_);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GoForeground");
+        scene_->GoForeground(Ability::sceneFlag_);
+    }
     HILOG_INFO("%{public}s end scene_->GoForeground.", __func__);
 }
 
