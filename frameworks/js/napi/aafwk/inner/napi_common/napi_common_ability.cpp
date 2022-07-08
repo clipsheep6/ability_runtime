@@ -28,6 +28,21 @@ namespace OHOS {
 namespace AppExecFwk {
 napi_ref thread_local g_dataAbilityHelper;
 bool thread_local g_dataAbilityHelperStatus = false;
+const int32_t ERR_ABILITY_START_SUCCESS = 0;
+const int32_t ERR_ABILITY_QUERY_FAILED = 1;
+const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
+const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
+    { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
+    { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
+    { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_PARAM_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { ERR_OK, ERR_ABILITY_START_SUCCESS },
+    { RESOLVE_ABILITY_ERR, ERR_ABILITY_QUERY_FAILED },
+    { CHECK_PERMISSION_FAILED, ERR_PERMISSION_VERIFY_FAILED },
+    { RESOLVE_CALL_NO_PERMISSIONS, ERR_PERMISSION_VERIFY_FAILED },
+};
 
 using NAPICreateJsRemoteObject = napi_value (*)(napi_env env, const sptr<IRemoteObject> target);
 
@@ -296,6 +311,15 @@ napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
+}
+
+int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
+{
+    auto iter = START_ABILITY_ERROR_CODE_MAP.find(innerErrorCode);
+    if (iter != START_ABILITY_ERROR_CODE_MAP.end()) {
+        return iter->second;
+    }
+    return ERR_ABILITY_QUERY_FAILED;
 }
 
 /**
@@ -3247,7 +3271,9 @@ void StartAbilityCallbackCompletedCB(napi_env env, napi_status status, void *dat
     napi_value result[ARGS_TWO] = {0};
     napi_value callResult = 0;
     napi_get_undefined(env, &undefined);
-    result[PARAM0] = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+
+    int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+    result[PARAM0] = GetCallbackErrorValue(env, errCode);
     if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
         napi_create_int32(env, 0, &result[PARAM1]);
     } else {
@@ -3275,7 +3301,8 @@ void StartAbilityPromiseCompletedCB(napi_env env, napi_status status, void *data
         napi_create_int32(env, 0, &result);
         napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
     } else {
-        result = GetCallbackErrorValue(env, asyncCallbackInfo->errCode);
+        int32_t errCode = GetStartAbilityErrorCode(asyncCallbackInfo->errCode);
+        result = GetCallbackErrorValue(env, errCode);
         napi_reject_deferred(env, asyncCallbackInfo->deferred, result);
     }
 
