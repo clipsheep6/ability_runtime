@@ -20,11 +20,8 @@ ohos_unittest("AmsMgrSchedulerTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_services_path}/appmgr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${ability_base_innerapi_path}/want/include",
   ]
 
   sources =

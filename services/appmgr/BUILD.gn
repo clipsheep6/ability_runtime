@@ -17,7 +17,6 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("appmgr_config") {
   include_dirs = [
     "include",
-    "${ability_base_innerapi_path}/configuration/include",
     "${ability_runtime_services_path}/common/include",
     "${appspawn_path}/interfaces/innerkits/include",
     "${ability_runtime_path}/tools/aa/include",

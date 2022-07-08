@@ -19,16 +19,16 @@ config("ability_manager_public_config") {
   include_dirs = [
     "include/",
     "//base/notification/eventhandler/interfaces/inner_api",
-    "${ability_base_innerapi_path}/configuration/include",
-    "${ability_base_innerapi_path}/uri/include",
-    "//third_party/jsoncpp/include",
-    "${ability_base_innerapi_path}/want/include",
+    "${ability_base_kits_path}/configuration/include",
+    "${ability_base_kits_path}/uri/include",
+    "${ability_base_kits_path}/want/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "//third_party/jsoncpp/include",
   ]
 
   defines = [ "ABILITY_COMMAND_FOR_TEST" ]

@@ -99,6 +99,9 @@ ohos_source_set("appmgr_mst_source") {
     cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
     public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
   }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 group("moduletest") {

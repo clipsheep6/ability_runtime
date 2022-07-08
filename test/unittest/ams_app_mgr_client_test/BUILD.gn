@@ -27,9 +27,6 @@ ohos_unittest("AmsAppMgrClientTest") {
   sources += [ "ams_app_mgr_client_test.cpp" ]
 
   include_dirs = [
-    "${ability_base_innerapi_path}/want/include/",
-    "${ability_base_path}/include/",
-    "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
   ]

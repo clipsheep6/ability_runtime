@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("tools_fm_config") {
   include_dirs = [
-    "${ability_base_innerapi_path}/want/include",
+    "${ability_base_kits_path}/want/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/tools/aa/include",
     "${ability_runtime_services_path}/common/include",

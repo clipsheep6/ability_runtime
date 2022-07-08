@@ -23,8 +23,6 @@ config("module_private_config") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -44,8 +42,6 @@ config("module_context_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app/task",
@@ -274,10 +270,7 @@ ohos_unittest("ability_start_setting_test") {
 ohos_unittest("watchdog_test") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "${ability_base_innerapi_path}/want/include",
-    "//third_party/json/include",
-  ]
+  include_dirs = [ "//third_party/json/include" ]
 
   configs = [
     ":module_context_config",
@@ -295,6 +288,7 @@ ohos_unittest("watchdog_test") {
 
   external_deps = [
     "ability_base:base",
+    "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",

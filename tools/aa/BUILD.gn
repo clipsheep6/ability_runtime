@@ -18,7 +18,6 @@ config("ability_command_config") {
   include_dirs = [
     "include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_runtime_innerkits_path}/uri/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",

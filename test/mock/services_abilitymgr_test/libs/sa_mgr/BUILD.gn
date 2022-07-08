@@ -41,4 +41,7 @@ ohos_source_set("sa_mgr_mock") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }

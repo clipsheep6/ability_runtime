@@ -29,8 +29,6 @@ config("module_private_config") {
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
     "${distributeddatamgr_path}/distributeddatamgr/interfaces/innerkits/app_distributeddata/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
@@ -55,12 +53,9 @@ config("module_ability_context_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
-    "${ability_base_innerapi_path}/uri/include",
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${ability_base_innerapi_path}/base/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/googletest/googlemock/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",

@@ -50,6 +50,9 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 ohos_source_set("appexecfwk_bundlemgr_mock") {
@@ -80,4 +83,7 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }

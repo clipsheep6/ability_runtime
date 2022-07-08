@@ -20,9 +20,7 @@ ohos_unittest("AmsAbilityRunningRecordTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_innerkits_path}/app_manager/inclide",
-    "${ability_base_innerapi_path}/uri/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
   ]

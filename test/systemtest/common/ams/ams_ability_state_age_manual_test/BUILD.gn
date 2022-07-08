@@ -18,10 +18,8 @@ module_output_path = "appexecfwk_standard/ams/"
 config("system_test_ams_ability_state_age_manual_test_config") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "${ability_base_innerapi_path}/want/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${ability_base_innerapi_path}/want/include",
     "//third_party/json/include",
   ]
   cflags = []

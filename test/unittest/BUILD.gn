@@ -92,6 +92,9 @@ ohos_source_set("appmgr_test_source") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 ohos_source_set("abilityms_test_source") {
@@ -223,6 +226,9 @@ ohos_source_set("abilityms_test_source") {
     ]
     external_deps += [ "window_manager:libdm" ]
   }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 group("unittest") {

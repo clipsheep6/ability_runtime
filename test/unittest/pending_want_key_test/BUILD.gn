@@ -19,10 +19,7 @@ module_output_path = "ability_runtime/abilitymgr"
 ohos_unittest("pending_want_key_test") {
   module_out_path = module_output_path
 
-  include_dirs = [
-    "${ability_runtime_services_path}/abilitymgr/include",
-    "${ability_base_innerapi_path}/want/include",
-  ]
+  include_dirs = [ "${ability_runtime_services_path}/abilitymgr/include" ]
 
   sources = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",

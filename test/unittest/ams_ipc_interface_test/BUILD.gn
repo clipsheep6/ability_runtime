@@ -19,9 +19,9 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${ability_base_innerapi_path}/want/include" ]
+  include_dirs = []
 
-  configs = [ "${ability_base_path}:want_public_config" ]
+  configs = []
 
   sources = [ "ams_ipc_appscheduler_interface_test.cpp" ]
   cflags = []
@@ -31,7 +31,9 @@ ohos_unittest("AmsIpcAppSchedulerInterfaceTest") {
   deps = [ "${ability_runtime_test_path}/unittest:appmgr_test_source" ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
+    "ability_base:zuri",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
