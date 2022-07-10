@@ -77,7 +77,7 @@ private:
         if (observer_ == nullptr) {
             // create observer
             observer_ = std::make_shared<JsErrorObserver>(engine);
-            DelayedSingleton<AppExecFwk::ApplicationDataManager>::GetInstance()->AddErrorObserver(observer_);
+            AppExecFwk::ApplicationDataManager::GetInstance().AddErrorObserver(observer_);
         }
         observer_->AddJsObserverObject(observerId, info.argv[0]);
         return engine.CreateNumber(observerId);
