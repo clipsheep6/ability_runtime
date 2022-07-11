@@ -38,7 +38,6 @@
 #include "context/context.h"
 #include "context/application_context.h"
 #include "hitrace_meter.h"
-#include "event_report.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -320,17 +319,6 @@ void JsAbility::OnForeground(const Want &want)
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
     HILOG_INFO("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
-    AAFWK::EventInfo eventInfo;
-    if (abilityContext_ != nullptr) {
-        auto abilityinfo = abilityContext_->GetAbilityInfo();
-        if (abilityinfo != nullptr) {
-            eventInfo.bundleName = abilityinfo->bundleName;
-            eventInfo.moduleName = abilityinfo->moduleName;
-            eventInfo.abilityName = abilityinfo->name;
-        }
-    }
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONFOREGROUND,
-        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 void JsAbility::OnBackground()
@@ -350,17 +338,6 @@ void JsAbility::OnBackground()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
-    AAFWK::EventInfo eventInfo;
-    if (abilityContext_ != nullptr) {
-        auto abilityinfo = abilityContext_->GetAbilityInfo();
-        if (abilityinfo != nullptr) {
-            eventInfo.bundleName = abilityinfo->bundleName;
-            eventInfo.moduleName = abilityinfo->moduleName;
-            eventInfo.abilityName = abilityinfo->name;
-        }
-    }
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONBACKGROUND,
-        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()

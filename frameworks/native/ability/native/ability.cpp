@@ -47,6 +47,7 @@
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
 #include "values_bucket.h"
+#include "event_report.h"
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_mgr_helper.h"
@@ -2181,6 +2182,12 @@ void Ability::OnForeground(const Want &want)
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
     HILOG_INFO("%{public}s end.", __func__);
+    AAFWK::EventInfo eventInfo;
+    eventInfo.bundleName = want.GetElement().GetBundleName();
+    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.abilityName = want.GetElement().GetAbilityName();
+    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONFOREGROUND,
+        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 /**
@@ -2229,6 +2236,12 @@ void Ability::OnBackground()
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
     HILOG_INFO("%{public}s end", __func__);
+    AAFWK::EventInfo eventInfo;
+    eventInfo.bundleName = abilityInfo_->bundleName;
+    eventInfo.moduleName = abilityInfo_->moduleName;
+    eventInfo.abilityName = abilityInfo_->name;
+    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONBACKGROUND,
+        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 /**
