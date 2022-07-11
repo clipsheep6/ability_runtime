@@ -602,6 +602,12 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
         info = CreateAbilityTransitionInfo(abilityRequest, token_);
     }
     info->windowModes_ = abilityInfo_.windowModes;
+    info->maxWindowRatio_ = abilityInfo_.maxWindowRatio;
+    info->minWindowRatio_ = abilityInfo_.minWindowRatio;
+    info->maxWindowWidth_ = abilityInfo_.maxWindowWidth;
+    info->minWindowWidth_ = abilityInfo_.minWindowWidth;
+    info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
+    info->minWindowHeight_ = abilityInfo_.minWindowHeight;
 
     SetStartingWindow(true);
     return info;
