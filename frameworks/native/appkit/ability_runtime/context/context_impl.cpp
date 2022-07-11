@@ -199,23 +199,29 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
     HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
         (size_t)bundleName.length(), bundleName.c_str());
-    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, accountId);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
         return nullptr;
     }
 
+    std::vector<std::string> moduleResPaths;
+    for (auto &info: bundleInfo.hapModuleInfos) {
+        if (info.moduleName == moduleName) {
+            moduleResPaths.emplace_back(info.resourcePath);
+            break;
+        }
+    }
+
+    if (moduleResPaths.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext hapModuleInfos is error.");
+        return nullptr;
+    }
+
+    bundleInfo.moduleResPaths.swap(moduleResPaths);
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
-
-    std::string prefix = ABS_CODE_PATH + FILE_SEPARATOR + bundleName + FILE_SEPARATOR + moduleName + FILE_SEPARATOR;
-    bundleInfo.moduleResPaths.erase(
-        std::remove_if(bundleInfo.moduleResPaths.begin(), bundleInfo.moduleResPaths.end(), [&prefix](std::string path) {
-            return path.compare(0, prefix.size(), prefix) != 0;
-        }),
-        bundleInfo.moduleResPaths.end());
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
-
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
 }
