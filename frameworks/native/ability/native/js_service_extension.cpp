@@ -37,13 +37,13 @@ constexpr size_t ARGC_TWO = 2;
 
 using namespace OHOS::AppExecFwk;
 
-void* DetachServiceExtensionContext(NativeEngine* engine, void* value, void* hint)
+void* DetachServiceExtensionContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachServiceExtensionContext");
     return value;
 }
 
-NativeValue* AttachServiceExtensionContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachServiceExtensionContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachServiceExtensionContext");
     std::shared_ptr<ServiceExtensionContext> context(reinterpret_cast<ServiceExtensionContext *>(value));

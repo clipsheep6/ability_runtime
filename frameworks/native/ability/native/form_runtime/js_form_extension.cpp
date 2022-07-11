@@ -35,13 +35,13 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 const int ON_EVENT_PARAMS_SIZE = 2;
 
-void* DetachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
+void* DetachFormExtensionContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachFormExtensionContext");
     return value;
 }
 
-NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachFormExtensionContext");
     std::shared_ptr<FormExtensionContext> context(reinterpret_cast<FormExtensionContext *>(value));

@@ -73,7 +73,7 @@ public:
 
     ~JsTimer() = default;
 
-    void operator()()
+    void operator()() const
     {
         if (interval_ > 0) {
             jsRuntime_.PostTask(*this, name_, interval_);

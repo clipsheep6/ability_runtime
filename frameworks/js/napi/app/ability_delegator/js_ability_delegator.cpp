@@ -48,13 +48,13 @@ std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> moni
 std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> ablityRecord_;
 std::mutex mutexAblityRecord_;
 
-void *DetachAppContext(NativeEngine *engine, void *value, void *hint)
+void *DetachAppContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachAppContext");
     return value;
 }
 
-NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *hint)
+NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachAppContext");
     std::shared_ptr<AbilityRuntime::Context> context(reinterpret_cast<AbilityRuntime::Context *>(value));

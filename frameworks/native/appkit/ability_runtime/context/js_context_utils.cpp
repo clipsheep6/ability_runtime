@@ -28,13 +28,13 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
-void* DetachBaseContext(NativeEngine* engine, void* value, void* hint)
+void* DetachBaseContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachBaseContext");
     return value;
 }
 
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachBaseContext");
     std::shared_ptr<Context> context(reinterpret_cast<Context *>(value));
@@ -45,13 +45,13 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
     return contextObj;
 }
 
-void* DetachApplicationContext(NativeEngine* engine, void* value, void* hint)
+void* DetachApplicationContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachApplicationContext");
     return value;
 }
 
-NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachApplicationContext");
     std::shared_ptr<ApplicationContext> context(reinterpret_cast<ApplicationContext *>(value));

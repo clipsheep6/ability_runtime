@@ -26,13 +26,13 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void* DetachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
+void* DetachAbilityStageContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachAbilityStageContext");
     return value;
 }
 
-NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachAbilityStageContext");
     std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
