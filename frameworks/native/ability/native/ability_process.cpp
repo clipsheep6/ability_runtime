@@ -82,6 +82,7 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
             HILOG_INFO("%{public}s param.setting == nullptr call StartAbilityForResult.", __func__);
+            param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
             HILOG_INFO("%{public}s param.setting != nullptr call StartAbilityForResult.", __func__);

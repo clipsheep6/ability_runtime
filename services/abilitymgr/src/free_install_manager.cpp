@@ -28,7 +28,6 @@ namespace AAFwk {
 const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
-const int DEFAULT_REQUEST_CODE = -1;
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -127,7 +126,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
     const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
 {
     HILOG_INFO("%{public}s", __func__);
-    if (requestCode == DEFAULT_REQUEST_CODE) {
+    if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         HILOG_INFO("%{public}s: StartAbility freeInstall", __func__);
         return StartFreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote);
     }

@@ -266,15 +266,17 @@ int MissionListManager::StartAbilityLocked(const std::shared_ptr<AbilityRecord> 
         targetAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_START_ABILITY);
     }
 
-    std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
-    int missionId = abilityRequest.want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
-    HILOG_DEBUG("Get srcNetWorkId = %s, missionId = %d", srcDeviceId.c_str(), missionId);
-    if (!srcDeviceId.empty() && missionId != DEFAULT_DMS_MISSION_ID) {
+    std::string srcAbilityId = "";
+    if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
+        std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
+        int missionId = abilityRequest.want.GetIntParam(DMS_MISSION_ID, DEFAULT_DMS_MISSION_ID);
+        HILOG_DEBUG("Get srcNetWorkId = %s, missionId = %d", srcDeviceId.c_str(), missionId);
         Want* newWant = const_cast<Want*>(&abilityRequest.want);
         newWant->RemoveParam(DMS_SRC_NETWORK_ID);
         newWant->RemoveParam(DMS_MISSION_ID);
+        newWant->RemoveParam(Want::PARAM_RESV_FOR_RESULT);
+        srcAbilityId = srcDeviceId + "_" + std::to_string(missionId);
     }
-    std::string srcAbilityId = srcDeviceId + "_" + std::to_string(missionId);
     targetAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode, srcAbilityId);
 
     // 3. move mission to target list

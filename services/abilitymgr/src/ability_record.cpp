@@ -53,7 +53,6 @@ int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
-const int DEFAULT_REQUEST_CODE = -1;
 const int VECTOR_SIZE = 2;
 const std::map<AbilityState, std::string> AbilityRecord::stateToStrMap = {
     std::map<AbilityState, std::string>::value_type(INITIAL, "INITIAL"),
@@ -1148,7 +1147,7 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Add caller record.");
-    if (requestCode != DEFAULT_REQUEST_CODE && IsSystemAbilityCall(callerToken)) {
+    if (!srcAbilityId.empty() && IsSystemAbilityCall(callerToken)) {
         AddSystemAbilityCallerRecord(callerToken, requestCode, srcAbilityId);
         return;
     }

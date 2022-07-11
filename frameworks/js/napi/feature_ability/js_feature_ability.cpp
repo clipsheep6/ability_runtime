@@ -171,6 +171,7 @@ NativeValue* JsFeatureAbility::OnStartAbilityForResult(NativeEngine &engine, Nat
         HILOG_INFO("OnStartAbilityForResult async callback is called end");
     };
 
+    want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
     requestCode_ = (requestCode_ == INT_MAX) ? 0 : (requestCode_ + 1);
     ability->StartFeatureAbilityForResult(want, requestCode_, std::move(task));
 

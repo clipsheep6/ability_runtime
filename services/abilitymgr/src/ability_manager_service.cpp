@@ -120,7 +120,6 @@ const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const int DEFAULT_DMS_MISSION_ID = -1;
-const int DEFAULT_REQUEST_CODE = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -383,7 +382,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
                     freeInstallManager_->StartRemoteFreeInstall(want, requestCode,
                         validUserId, callerToken, true);
             }
-            if (requestCode == DEFAULT_REQUEST_CODE) {
+            if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
                 HILOG_INFO("%{public}s: try to StartAbility", __func__);
                 return StartRemoteAbility(want, requestCode);
             }
