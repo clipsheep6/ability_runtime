@@ -42,6 +42,7 @@
 #include "wants_info.h"
 #include "want_receiver_stub.h"
 #include "want_sender_stub.h"
+#include "common_test_helper.h"
 
 using namespace std::placeholders;
 using namespace testing::ext;
@@ -57,25 +58,6 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t MOCK_MAIN_USER_ID = 100;
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 }  // namespace
 class RunningInfosModuleTest : public testing::Test {
 public:
@@ -89,6 +71,7 @@ public:
 
     inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
     inline static MockAppMgrClient *mockAppMgrClient_ = nullptr;
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 Want RunningInfosModuleTest::CreateWant(const std::string &abilityName, const std::string &bundleName)
@@ -140,7 +123,7 @@ void RunningInfosModuleTest::OnStartAms()
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
         }
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         return;
     }
 

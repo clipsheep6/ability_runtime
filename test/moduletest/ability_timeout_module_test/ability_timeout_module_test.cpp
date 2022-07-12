@@ -33,6 +33,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
+#include "common_test_helper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -44,24 +45,6 @@ namespace {
 const int32_t MOCK_MAIN_USER_ID = 100;
 const int32_t MOCK_U0_USER_ID = 0;
 static int MOCK_MISSION_ID = 10000;
-}
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
 }
 
 static void WaitUntilTaskFinishedByTimer()
@@ -101,6 +84,7 @@ public:
 
 public:
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 void AbilityTimeoutModuleTest::SetUpTestCase()
@@ -171,7 +155,7 @@ void AbilityTimeoutModuleTest::MockOnStart()
     abilityMs_->iBundleManager_ = new BundleMgrService();
     abilityMs_->eventLoop_->Run();
 
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
 }
 
 void AbilityTimeoutModuleTest::MockOnStop()

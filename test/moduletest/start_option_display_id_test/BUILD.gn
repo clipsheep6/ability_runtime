@@ -20,6 +20,7 @@ ohos_moduletest("start_option_module_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_test_path}/common",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
@@ -27,7 +28,10 @@ ohos_moduletest("start_option_module_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]
 
-  sources = [ "start_option_display_id_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/common/common_test_helper.cpp",
+    "start_option_display_id_test.cpp"
+  ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
   cflags = []

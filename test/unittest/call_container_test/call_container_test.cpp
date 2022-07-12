@@ -24,29 +24,9 @@
 #include "ability_event_handler.h"
 #include "ability_scheduler_mock.h"
 #include "mock_ability_connect_callback.h"
+#include "common_test_helper.h"
 
 using namespace testing::ext;
-
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<OHOS::AAFwk::AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                std::cout << "max count\n";
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 
 namespace OHOS {
 namespace AAFwk {
@@ -59,6 +39,7 @@ public:
     void OnStartAms();
     std::shared_ptr<CallContainer> get() const;
     std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 private:
     std::shared_ptr<CallContainer> callContainer_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
@@ -126,7 +107,7 @@ void CallContainerTest::OnStartAms()
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
         }
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         return;
     }
 
@@ -448,7 +429,7 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
     missionListMgr->currentMissionLists_.push_front(missionList);
     DelayedSingleton<AbilityManagerService>::GetInstance()->currentMissionListManager_ = missionListMgr;
     callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
 
     EXPECT_EQ(callContainer->callRecordMap_.size(), 0);
 }

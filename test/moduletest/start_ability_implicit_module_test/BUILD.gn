@@ -20,6 +20,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
+    "${ability_runtime_test_path}/common",
     "${ability_runtime_test_path}/moduletest/mock/include",
     "${ability_runtime_native_path}/ability/native/include/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
@@ -59,6 +60,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_test_path}/common/common_test_helper.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_bundle_mgr.cpp",

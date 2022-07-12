@@ -38,6 +38,7 @@
 #include "wants_info.h"
 #include "want_receiver_stub.h"
 #include "want_sender_stub.h"
+#include "common_test_helper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -46,24 +47,6 @@ using OHOS::AppExecFwk::ElementName;
 
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 
 #define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
 
@@ -77,6 +60,7 @@ public:
     WantSenderInfo MakeWantSenderInfo(Want &want, int32_t flags, int32_t userId, int32_t type = 1);
     WantSenderInfo MakeWantSenderInfo(std::vector<Want> &wants, int32_t flags, int32_t userId, int32_t type = 1);
     std::shared_ptr<PendingWantKey> MakeWantKey(WantSenderInfo &wantSenderInfo);
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
     static constexpr int TEST_WAIT_TIME = 100000;
 
     class CancelReceiver : public AAFwk::WantReceiverStub {
@@ -126,7 +110,7 @@ void PendingWantManagerTest::SetUp()
 {
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     abilityMs_->OnStart();
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
 }
 
 void PendingWantManagerTest::TearDown()

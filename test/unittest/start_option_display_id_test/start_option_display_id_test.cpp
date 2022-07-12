@@ -36,6 +36,7 @@
 #include "os_account_manager.h"
 #include "os_account_info.h"
 #endif // OS_ACCOUNT_PART_ENABLED
+#include "common_test_helper.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -47,25 +48,6 @@ namespace AAFwk {
 namespace {
 const int32_t USER_ID_U100 = 100;
 constexpr int32_t DISPLAY_ID = 256;
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 }  // namespace
 
 class StartOptionDisplayIdTest : public testing::Test {
@@ -79,6 +61,7 @@ public:
 
 public:
     std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 void StartOptionDisplayIdTest::SetUpTestCase()
@@ -149,7 +132,7 @@ void StartOptionDisplayIdTest::OnStartAms()
         abilityMs_->connectManager_->SetEventHandler(abilityMs_->handler_);
         abilityMs_->eventLoop_->Run();
 
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         return;
     }
 
@@ -179,7 +162,7 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_display_id_001, TestSize.Level1)
     StartOptions option;
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMs_->StartAbility(want, option, nullptr);
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
     auto topAbility = abilityMs_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
@@ -206,7 +189,7 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_display_id_002, TestSize.Level1)
     StartOptions option;
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMs_->StartAbility(want, option, nullptr);
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
 }
 }  // namespace AAFwk
