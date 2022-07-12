@@ -380,16 +380,18 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         HILOG_ERROR("appRecord is nullptr.");
         return;
     }
+    bool isLastAbilityRecord = appRecord->IsLastAbilityRecord(token);
+    bool isClearMission = (clearMissionFlag && appMgrServiceInner != nullptr);
+    if (isClearMission) {
+        isLastAbilityRecord = appRecord->IsLastPageAbilityRecord(token);
+    }
     appRecord->TerminateAbility(token, false);
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (isLastAbilityRecord && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
-        if (clearMissionFlag && appMgrServiceInner != nullptr) {
+        if (isClearMission) {
             HILOG_INFO("The ability is the last, KillApplication");
-            appMgrServiceInner->KillApplicationByUid(appRecord->GetBundleName(), appRecord->GetUid());
-            appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
-                EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         }
     }
 }

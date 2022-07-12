@@ -1018,11 +1018,6 @@ private:
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
-    bool CheckTargetBundleList(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken);
-    void HandleFreeInstallErrorCode(int &resultCode);
-    int NotifyDmsCallback(const Want &want, int resultCode);
-    bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode);
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
@@ -1046,7 +1041,6 @@ private:
     std::shared_ptr<AmsConfigurationParameter> amsConfigResolver_;
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
-    const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
 
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
@@ -1069,7 +1063,6 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
-    int CheckWindowMode(int32_t windowMode, std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif

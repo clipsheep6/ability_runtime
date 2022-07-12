@@ -874,11 +874,6 @@ void AppRunningRecord::SetEventHandler(const std::shared_ptr<AMSEventHandler> &h
 
 bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 {
-    if (!token) {
-        HILOG_ERROR("token is nullptr");
-        return false;
-    }
-
     auto moduleRecord = GetModuleRunningRecordByToken(token);
     if (!moduleRecord) {
         HILOG_ERROR("can not find module record");
@@ -891,6 +886,26 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     }
 
     return false;
+}
+
+bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
+{
+    auto moduleRecord = GetModuleRunningRecordByToken(token);
+    if (!moduleRecord) {
+        HILOG_ERROR("can not find module record");
+        return false;
+    }
+
+    int32_t pageAbilitySize = 0;
+    auto moduleRecordList = GetAllModuleRecord();
+    for (auto moduleRecord : moduleRecordList) {
+        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
+        if (pageAbilitySize > 1) {
+            return false;
+        }
+    }
+
+    return pageAbilitySize == 1;
 }
 
 void AppRunningRecord::SetTerminating()

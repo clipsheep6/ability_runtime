@@ -1032,11 +1032,12 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
         return false;
     }
 
-    auto GetKeepAliveAbilities = [&bundleInfos](std::vector<std::string> &keepAliveAbilities) -> void {
+    auto GetKeepAliveAbilities = [&bundleInfos](std::vector<std::pair<std::string, std::string>> &keepAliveAbilities) {
         for (size_t i = 0; i < bundleInfos.size(); i++) {
             if (!bundleInfos[i].isKeepAlive) {
                 continue;
             }
+            std::string bundleName = bundleInfos[i].name;
             for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
                 std::string mainElement;
                 if (!hapModuleInfo.isModuleJson) {
@@ -1047,19 +1048,20 @@ bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRe
                     mainElement = hapModuleInfo.mainElementName;
                 }
                 if (!mainElement.empty()) {
-                    keepAliveAbilities.push_back(mainElement);
+                    keepAliveAbilities.push_back(std::make_pair(bundleName, mainElement));
                 }
             }
         }
     };
 
-    auto findKeepAliveAbility = [abilityRecord](const std::string &mainElement) {
-        return (abilityRecord->GetAbilityInfo().name == mainElement ||
+    auto findKeepAliveAbility = [abilityRecord](const std::pair<std::string, std::string> &keepAlivePair) {
+        return ((abilityRecord->GetAbilityInfo().bundleName == keepAlivePair.first &&
+                abilityRecord->GetAbilityInfo().name == keepAlivePair.second) ||
                 abilityRecord->GetAbilityInfo().name == AbilityConfig::SYSTEM_UI_ABILITY_NAME ||
                 abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME);
     };
 
-    std::vector<std::string> keepAliveAbilities;
+    std::vector<std::pair<std::string, std::string>> keepAliveAbilities;
     GetKeepAliveAbilities(keepAliveAbilities);
     auto findIter = find_if(keepAliveAbilities.begin(), keepAliveAbilities.end(), findKeepAliveAbility);
     return (findIter != keepAliveAbilities.end());

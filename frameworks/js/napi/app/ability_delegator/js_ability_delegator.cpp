@@ -48,19 +48,28 @@ std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> moni
 std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> ablityRecord_;
 std::mutex mutexAblityRecord_;
 
-void *DetachAppContext(NativeEngine *engine, void *value, void *hint)
+void *DetachAppContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachAppContext");
     return value;
 }
 
-NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *hint)
+NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachAppContext");
-    std::shared_ptr<AbilityRuntime::Context> context(reinterpret_cast<AbilityRuntime::Context *>(value));
-    NativeValue *object = CreateJsBaseContext(*engine, context, DetachAppContext, AttachAppContext, true);
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::Context>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+
+    NativeValue *object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext, value, nullptr);
     return object;
 }
 
@@ -423,9 +432,21 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
         HILOG_ERROR("context is null");
         return engine.CreateNull();
     }
-    NativeValue *value = CreateJsBaseContext(engine, context, DetachAppContext, AttachAppContext, false);
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(value);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return engine.CreateNull();
+    }
+    auto workContext = new std::weak_ptr<AbilityRuntime::Context>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext, workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
+        },
+        nullptr);
     return value;
 }
 

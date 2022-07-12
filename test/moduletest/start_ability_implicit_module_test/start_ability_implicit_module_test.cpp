@@ -36,6 +36,7 @@ using namespace OHOS::AppExecFwk;
 namespace {
     const std::string EVENT_MULT_APP_CHOOSE = "EVENT_MULT_APP_CHOOSE";
     const std::string EVENT_MULT_APP_CLOSE = "EVENT_MULT_APP_CLOSE";
+    const std::string EVENT_TIPS_APP = "EVENT_TIPS_APP";
     const std::string ACTION_VIEW = "ohos.want.action.viewData";
     const std::string WANT_TYPE = "image/png";
     const int32_t MOCK_MAIN_USER_ID = 100;
@@ -66,8 +67,8 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-    void OnStartAms();
-    void OnStopAms();
+    void OnStartAms() const;
+    void OnStopAms() const;
     static constexpr int TEST_WAIT_TIME = 100000;
 
 public:
@@ -76,7 +77,7 @@ public:
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
 };
 
-void StartAbilityImplicitModuleTest::OnStartAms()
+void StartAbilityImplicitModuleTest::OnStartAms() const
 {
     if (abilityMs_) {
         if (abilityMs_->state_ == ServiceRunningState::STATE_RUNNING) {
@@ -107,6 +108,11 @@ void StartAbilityImplicitModuleTest::OnStartAms()
         abilityMs_->iBundleManager_ = new BundleMgrService();
         EXPECT_TRUE(abilityMs_->iBundleManager_);
 
+        abilityMs_->implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+        EXPECT_TRUE(abilityMs_->implicitStartProcessor_);
+        abilityMs_->implicitStartProcessor_->iBundleManager_ = new BundleMgrService();
+        EXPECT_TRUE(abilityMs_->implicitStartProcessor_->iBundleManager_);
+
         DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType("phone");
         abilityMs_->InitMissionListManager(userId, true);
         abilityMs_->SwitchManagers(0, false);
@@ -118,7 +124,7 @@ void StartAbilityImplicitModuleTest::OnStartAms()
     GTEST_LOG_(INFO) << "OnStart fail";
 }
 
-void StartAbilityImplicitModuleTest::OnStopAms()
+void StartAbilityImplicitModuleTest::OnStopAms() const
 {
     abilityMs_->currentMissionListManager_->launcherList_->missions_.clear();
     abilityMs_->currentMissionListManager_->defaultStandardList_->missions_.clear();
@@ -250,13 +256,13 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_004, TestSize.Level1)
     want.SetType(WANT_TYPE);
     want.SetParam("numMock", 0);
 
-    Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(EVENT_MULT_APP_CHOOSE);
+    Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(EVENT_TIPS_APP);
     abilityMs_->StartAbility(want, MOCK_MAIN_USER_ID);
     auto params = Ace::UIServiceMgrClient::GetInstance()->GetParams();
     auto isCallBack = Ace::UIServiceMgrClient::GetInstance()->IsCallBack();
 
-    EXPECT_TRUE(params.empty());
-    EXPECT_TRUE(!isCallBack);
+    EXPECT_TRUE(!params.empty());
+    EXPECT_TRUE(isCallBack);
 
     auto abilityRecord = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
@@ -281,7 +287,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_005, TestSize.Level1)
     Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(EVENT_MULT_APP_CHOOSE);
     auto ret = abilityMs_->StartAbility(want, MOCK_MAIN_USER_ID);
     
-    EXPECT_EQ(ret, ERR_WANT_NO_TYPE);
+    EXPECT_EQ(ret, ERR_OK);
 }
 }
 }

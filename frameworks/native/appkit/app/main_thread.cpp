@@ -939,7 +939,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
-            DelayedSingleton<ApplicationDataManager>::GetInstance()->NotifyUnhandledException(summary);
+            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             struct tm localUTC;
             struct timeval gtime;

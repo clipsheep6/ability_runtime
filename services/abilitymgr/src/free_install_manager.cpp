@@ -28,7 +28,6 @@ namespace AAFwk {
 const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
-const int DEFAULT_REQUEST_CODE = -1;
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -71,47 +70,6 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
     return false;
 }
 
-bool FreeInstallManager::CheckTargetBundleList(const Want &want, int32_t userId,
-    const sptr<IRemoteObject> &callerToken)
-{
-    HILOG_INFO("%{public}s", __func__);
-    auto caller = Token::GetAbilityRecordByToken(callerToken);
-    if (caller == nullptr) {
-        HILOG_ERROR("Caller is null!");
-        return false;
-    }
-
-    AppExecFwk::ElementName callerElementName = caller->GetWant().GetElement();
-    AppExecFwk::ApplicationInfo appInfo = {};
-    std::string callerBundleName;
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, false);
-    callerBundleName = callerElementName.GetBundleName();
-    if (callerBundleName.compare(want.GetBundle()) == 0) {
-        HILOG_INFO("Free install in the same application.");
-        return true;
-    }
-
-    HILOG_INFO("Free install with another application.");
-    constexpr auto appInfoflag = AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO;
-    if (!bms->GetApplicationInfo(callerBundleName, appInfoflag, userId, appInfo)) {
-        HILOG_ERROR("Cannot find caller ApplicationInfo!");
-        return false;
-    }
-
-    if (appInfo.targetBundleList.empty()) {
-        HILOG_ERROR("targetBundleList size is empty!");
-        return false;
-    }
-
-    auto it = std::find(appInfo.targetBundleList.begin(), appInfo.targetBundleList.end(), want.GetBundle());
-    if (it != appInfo.targetBundleList.end()) {
-        return true;
-    }
-
-    return false;
-}
-
 int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int requestCode,
     const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
 {
@@ -120,9 +78,6 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     if (!isSaCall && !isFromRemote) {
         if (!IsTopAbility(callerToken)) {
             return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
-        }
-        if (!CheckTargetBundleList(want, userId, callerToken)) {
-            return HandleFreeInstallErrorCode(TARGET_BUNDLE_NOT_EXIST);
         }
     }
     auto promise = std::make_shared<std::promise<int32_t>>();
@@ -171,7 +126,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
     const sptr<IRemoteObject> &callerToken, bool ifOperateRemote)
 {
     HILOG_INFO("%{public}s", __func__);
-    if (requestCode == DEFAULT_REQUEST_CODE) {
+    if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         HILOG_INFO("%{public}s: StartAbility freeInstall", __func__);
         return StartFreeInstall(want, validUserId, requestCode, callerToken, ifOperateRemote);
     }

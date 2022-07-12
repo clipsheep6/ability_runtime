@@ -1889,7 +1889,7 @@ napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoC
         abilityInfo = WrapAbilityInfo(env, hapModuleInfoCB.hapModuleInfo.abilityInfos.at(i));
         NAPI_CALL(env, napi_set_element(env, abilityInfos, i, abilityInfo));
     }
-    NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfos", abilityInfos));
+    NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfo", abilityInfos));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
 }

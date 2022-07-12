@@ -28,37 +28,54 @@ namespace AbilityRuntime {
 namespace {
 constexpr char BASE_CONTEXT_NAME[] = "__base_context_ptr__";
 
-void* DetachBaseContext(NativeEngine* engine, void* value, void* hint)
+void* DetachBaseContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachBaseContext");
     return value;
 }
 
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachBaseContext");
-    std::shared_ptr<Context> context(reinterpret_cast<Context *>(value));
-    NativeValue* object = CreateJsBaseContext(*engine, context, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<Context>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachBaseContext, AttachBaseContext, value, nullptr);
+    return contextObj;
 }
 
-void* DetachApplicationContext(NativeEngine* engine, void* value, void* hint)
+void* DetachApplicationContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachApplicationContext");
     return value;
 }
 
-NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachApplicationContext");
-    std::shared_ptr<ApplicationContext> context(reinterpret_cast<ApplicationContext *>(value));
-    NativeValue* object = CreateJsApplicationContext(*engine, context,
-                                                     DetachApplicationContext, AttachApplicationContext, true);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1)->Get();
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<ApplicationContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsApplicationContext(*engine, ptr, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.ApplicationContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachApplicationContext, AttachApplicationContext, value, nullptr);
+    return contextObj;
 }
 
 class JsBaseContext {
@@ -205,11 +222,24 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
         return engine.CreateUndefined();
     }
 
-    JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsBaseContext(engine, moduleContext, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, moduleContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return engine.CreateNull();
+    }
+    auto workContext = new std::weak_ptr<Context>(moduleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
+        workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<Context> *>(data);
+        },
+        nullptr);
+    return contextObj;
 }
 
 NativeValue* JsBaseContext::GetArea(NativeEngine* engine, NativeCallbackInfo* info)
@@ -381,11 +411,24 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
         return engine.CreateUndefined();
     }
 
-    JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsBaseContext(engine, bundleContext, DetachBaseContext, AttachBaseContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, bundleContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.Context", &value, 1)->Get();
+    NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return engine.CreateNull();
+    }
+    auto workContext = new std::weak_ptr<Context>(bundleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
+        workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<Context> *>(data);
+        },
+        nullptr);
+    return contextObj;
 }
 
 NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, NativeCallbackInfo& info)
@@ -402,12 +445,25 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         HILOG_WARN("applicatioContext is nullptr");
         return engine.CreateUndefined();
     }
-    JsRuntime& jsRuntime = *static_cast<JsRuntime*>(engine.GetJsEngine());
-    NativeValue* value = CreateJsApplicationContext(engine, applicatioContext, DetachApplicationContext,
-                                                    AttachApplicationContext, true);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(value);
-    object->SetNativeBindingPointer(&engine, applicatioContext.get(), nullptr);
-    return jsRuntime.LoadSystemModule("application.ApplicationContext", &value, 1)->Get();
+    NativeValue* value = CreateJsApplicationContext(engine, applicatioContext, nullptr,
+                                                    nullptr, true);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1)->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return engine.CreateNull();
+    }
+    auto workContext = new std::weak_ptr<ApplicationContext>(applicatioContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachApplicationContext, AttachApplicationContext,
+        workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+        },
+        nullptr);
+    return contextObj;
 }
 } // namespace
 

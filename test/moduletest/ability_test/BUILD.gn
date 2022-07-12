@@ -1,0 +1,324 @@
+# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/test"
+
+###############################################################################
+config("module_private_config") {
+  visibility = [ ":*" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  include_dirs = [
+    "//third_party/json/include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility",
+    "${ability_runtime_services_path}/abilitymgr/include",
+    "//third_party/jsoncpp/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
+  ]
+}
+
+ohos_moduletest("ability_moduletest") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "ability_test.cpp",
+  ]
+
+  configs = [
+    ":module_private_config",
+    "${ability_runtime_native_path}/ability/native:ability_config",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
+    external_deps += [ "input:libmmi-client" ]
+  }
+}
+
+ohos_moduletest("ability_conetxt_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "ability_context_test.cpp",
+  ]
+
+  configs = [
+    ":module_private_config",
+    "${ability_runtime_native_path}/ability/native:ability_config",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+  if (ability_runtime_graphics) {
+    external_deps += [ "input:libmmi-client" ]
+  }
+}
+
+ohos_moduletest("ability_thread_call_request_module_test") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/appkit/app/context_container.cpp",
+    "ability_thread_call_request_module_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "utils_base:utils",
+  ]
+}
+
+ohos_moduletest("data_ability_operation_moduletest") {
+  module_out_path = module_output_path
+  sources = [
+    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
+    "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/demo_ability_test.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility/mock_lifecycle_observer.cpp",
+    "data_ability_operation_module_test.cpp",
+  ]
+
+  configs = [
+    ":module_private_config",
+    "${ability_runtime_native_path}/ability/native:ability_config",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "${multimedia_path}/interfaces/innerkits:image_native" ]
+    external_deps += [ "input:libmmi-client" ]
+  }
+}
+
+ohos_moduletest("data_ability_helper_module_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoAbility",
+    "${ability_runtime_test_path}/mock/frameworks_kits_test/DemoObServer",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_services_path}/dataobsmgr/include",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
+    "${distributedschedule_path}/samgr/services/samgr/native/include",
+  ]
+
+  sources = [ "data_ability_helper_module_test.cpp" ]
+
+  configs = [
+    ":module_private_config",
+    "${ability_runtime_native_path}/ability/native:ability_config",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:data_ability_helper",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "eventhandler:libeventhandler",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "utils_base:utils",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "input:libmmi-client" ]
+  }
+}
+
+################################################################################
+group("moduletest") {
+  testonly = true
+
+  deps = []
+
+  if (is_phone_product) {
+    deps += [
+      ":ability_conetxt_test",
+      ":ability_moduletest",
+      ":ability_thread_call_request_module_test",
+      ":data_ability_helper_module_test",
+      ":data_ability_operation_moduletest",
+    ]
+  }
+}

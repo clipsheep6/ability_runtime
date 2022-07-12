@@ -170,6 +170,8 @@ private:
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
     ErrCode RunAsBlockAppServiceCommand();
+    ErrCode RunAsSendAppNotRespondingWithUnknownOption();
+    ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string &pid);
     #endif
     sptr<IAbilityManager> GetAbilityManagerService();
 

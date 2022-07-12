@@ -23,7 +23,8 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
 
   sources += [ "ipc_ability_connect_module_test.cpp" ]
 
-  configs = [ "${ability_runtime_test_path}/moduletest:aafwk_module_test_config" ]
+  configs =
+      [ "${ability_runtime_test_path}/moduletest:aafwk_module_test_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]

@@ -35,21 +35,31 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 const int ON_EVENT_PARAMS_SIZE = 2;
 
-void* DetachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
+void* DetachFormExtensionContext(NativeEngine*, void* value, void*)
 {
     HILOG_INFO("DetachFormExtensionContext");
     return value;
 }
 
-NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void* hint)
+NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachFormExtensionContext");
-    std::shared_ptr<FormExtensionContext> context(reinterpret_cast<FormExtensionContext *>(value));
-    NativeValue* object = CreateJsFormExtensionContext(*engine, context,
-                                                       DetachFormExtensionContext, AttachFormExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.FormExtensionContext", &object, 1)->Get();
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<FormExtensionContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsFormExtensionContext(*engine, ptr, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
+        "application.FormExtensionContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachFormExtensionContext, AttachFormExtensionContext,
+        value, nullptr);
+    return contextObj;
 }
 
 JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime)
@@ -106,29 +116,27 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     HILOG_INFO("JsFormExtension::Init CreateJsFormExtensionContext.");
-    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context,
-                                                           DetachFormExtensionContext, AttachFormExtensionContext);
-    NativeObject* nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->SetNativeBindingPointer(&engine, context.get(), nullptr);
-    shellContextRef_ = jsRuntime_.LoadSystemModule("application.FormExtensionContext", &contextObj, 1);
+    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context, nullptr, nullptr);
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.FormExtensionContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return;
+    }
+    auto workContext = new std::weak_ptr<FormExtensionContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachFormExtensionContext, AttachFormExtensionContext,
+        workContext, nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsFormExtension::SetProperty.");
     obj->SetProperty("context", contextObj);
-
-    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get form extension native object");
-        return;
-    }
-
     HILOG_INFO("Set form extension context");
 
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
+    nativeObj->SetNativePointer(workContext,
         [](NativeEngine*, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr form extension context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+            delete static_cast<std::weak_ptr<FormExtensionContext>*>(data);
         }, nullptr);
 
     HILOG_INFO("JsFormExtension::Init end.");

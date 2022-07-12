@@ -99,8 +99,6 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos)
 {
     HILOG_DEBUG("%{public}s", __func__);
-    CHECK_TRUE_RETURN_RET(request.want.GetType().empty(), ERR_WANT_NO_TYPE, "need to set type into want.");
-   
     // get abilityinfos from bms
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);

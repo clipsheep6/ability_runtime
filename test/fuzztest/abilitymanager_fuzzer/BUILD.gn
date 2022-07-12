@@ -23,7 +23,7 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
   module_out_path = module_output_path
 
   fuzz_config_file =
-      "${ability_runtime_path}/test/fuzztest/abilitymanager_fuzzer"
+      "${ability_runtime_test_path}/fuzztest/abilitymanager_fuzzer"
   include_dirs = [ "${ability_runtime_innerkits_path}/ability_manager/include" ]
   cflags = [
     "-g",

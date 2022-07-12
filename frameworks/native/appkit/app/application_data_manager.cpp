@@ -22,6 +22,12 @@ ApplicationDataManager::ApplicationDataManager() {}
 
 ApplicationDataManager::~ApplicationDataManager() {}
 
+ApplicationDataManager &ApplicationDataManager::GetInstance()
+{
+    static ApplicationDataManager manager;
+    return manager;
+}
+
 void ApplicationDataManager::AddErrorObserver(const std::shared_ptr<IErrorObserver> &observer)
 {
     HILOG_DEBUG("Add error observer come.");

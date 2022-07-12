@@ -38,24 +38,32 @@
 #include "context/context.h"
 #include "context/application_context.h"
 #include "hitrace_meter.h"
-#include "event_report.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-void *DetachJsAbilityContext(NativeEngine * engine, void *value, void *hint)
+void *DetachJsAbilityContext(NativeEngine *, void *value, void *)
 {
     HILOG_INFO("DetachJsAbilityContext");
     return value;
 }
 
-NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *hint)
+NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachJsAbilityContext");
-    std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
-    NativeValue *object = CreateJsAbilityContext(*engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->SetNativeBindingPointer(&engine, value, nullptr);
-    return JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::AbilityContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue *object = CreateJsAbilityContext(*engine, ptr, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachJsAbilityContext, AttachJsAbilityContext, value, nullptr);
+    return contextObj;
 }
 
 Ability *JsAbility::Create(const std::unique_ptr<Runtime> &runtime)
@@ -118,29 +126,27 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     }
 
     auto context = GetAbilityContext();
-    NativeValue *contextObj = CreateJsAbilityContext(engine, context, DetachJsAbilityContext, AttachJsAbilityContext);
-    NativeObject *object = ConvertNativeValueTo<NativeObject>(contextObj);
-    object->SetNativeBindingPointer(&engine, context.get(), nullptr);
+    NativeValue *contextObj = CreateJsAbilityContext(engine, context, nullptr, nullptr);
     shellContextRef_ = std::shared_ptr<NativeReference>(
-        jsRuntime_.LoadSystemModule("application.AbilityContext", &contextObj, 1).release());
+        JsRuntime::LoadSystemModuleByEngine(&engine, "application.AbilityContext", &contextObj, 1).release());
     contextObj = shellContextRef_->Get();
-
-    context->Bind(jsRuntime_, shellContextRef_.get());
-    obj->SetProperty("context", contextObj);
-
     auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get ability native object");
         return;
     }
-
+    auto workContext = new std::weak_ptr<AbilityRuntime::AbilityContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachJsAbilityContext, AttachJsAbilityContext,
+        workContext, nullptr);
+    context->Bind(jsRuntime_, shellContextRef_.get());
+    obj->SetProperty("context", contextObj);
     HILOG_INFO("Set ability context");
 
     nativeObj->SetNativePointer(
-        new std::weak_ptr<AbilityRuntime::Context>(context),
+        workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
+            delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
         },
         nullptr);
 }
@@ -318,17 +324,6 @@ void JsAbility::OnForeground(const Want &want)
         applicationContext->DispatchOnAbilityForeground(jsAbilityObj_);
     }
     HILOG_INFO("OnForeground end, ability is %{public}s.", GetAbilityName().c_str());
-    AAFWK::EventInfo eventInfo;
-    if (abilityContext_ != nullptr) {
-        auto abilityinfo = abilityContext_->GetAbilityInfo();
-        if (abilityinfo != nullptr) {
-            eventInfo.bundleName = abilityinfo->bundleName;
-            eventInfo.moduleName = abilityinfo->moduleName;
-            eventInfo.abilityName = abilityinfo->name;
-        }
-    }
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONFOREGROUND,
-        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 void JsAbility::OnBackground()
@@ -348,17 +343,6 @@ void JsAbility::OnBackground()
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityBackground(jsAbilityObj_);
     }
-    AAFWK::EventInfo eventInfo;
-    if (abilityContext_ != nullptr) {
-        auto abilityinfo = abilityContext_->GetAbilityInfo();
-        if (abilityinfo != nullptr) {
-            eventInfo.bundleName = abilityinfo->bundleName;
-            eventInfo.moduleName = abilityinfo->moduleName;
-            eventInfo.abilityName = abilityinfo->name;
-        }
-    }
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::ABILITY_ONBACKGROUND,
-        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
@@ -370,7 +354,7 @@ std::unique_ptr<NativeReference> JsAbility::CreateAppWindowStage()
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
     }
-    return jsRuntime_.LoadSystemModule("application.WindowStage", &jsWindowStage, 1);
+    return JsRuntime::LoadSystemModuleByEngine(&engine, "application.WindowStage", &jsWindowStage, 1);
 }
 
 void JsAbility::GetPageStackFromWant(const Want &want, std::string &pageStack)

@@ -1065,6 +1065,53 @@ sptr<IAbilityManager> AbilityManagerShellCommand::GetAbilityManagerService()
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
+ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithUnknownOption()
+{
+    switch (optopt) {
+        case 'h': {
+            break;
+        }
+        case 'p': {
+            HILOG_INFO("'aa ApplicationNotResponding -p' with no argument.");
+            resultReceiver_.append("error: option -p ");
+            resultReceiver_.append("' requires a value.\n");
+            break;
+        }
+        default: {
+            std::string unknownOption;
+            std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+            HILOG_INFO("'aa ApplicationNotResponding' with an unknown option.");
+            resultReceiver_.append(unknownOptionMsg);
+            break;
+        }
+    }
+    return OHOS::ERR_INVALID_VALUE;
+}
+
+ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithOption(int32_t option, std::string &pid)
+{
+    ErrCode result = ERR_OK;
+    switch (option) {
+        case 'h': {
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+        case 'p': {
+            HILOG_INFO("aa ApplicationNotResponding 'aa %{public}s'  -p process.", cmd_.c_str());
+            HILOG_INFO("aa ApplicationNotResponding 'aa optarg =  %{public}s'.", optarg);
+            pid = optarg;
+            HILOG_INFO("aa ApplicationNotResponding 'aa pid =  %{public}s'.", pid.c_str());
+            break;
+        }
+        default: {
+            HILOG_INFO("'aa %{public}s' with an unknown option.", cmd_.c_str());
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+    }
+    return result;
+}
+
 ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
 {
     static sptr<IAbilityManager> abilityMs_;
@@ -1083,63 +1130,9 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
             result = OHOS::ERR_INVALID_VALUE;
         }
     } else if (option == '?') {
-        switch (optopt) {
-            case 'h': {
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 'p': {
-                HILOG_INFO("'aa ApplicationNotResponding -p' with no argument.");
-                resultReceiver_.append("error: option -p ");
-                resultReceiver_.append("' requires a value.\n");
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 0: {
-                std::string unknownOption = "";
-                std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                HILOG_INFO("'aa ApplicationNotResponding' with an unknown option.");
-
-                resultReceiver_.append(unknownOptionMsg);
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            default: {
-                std::string unknownOption = "";
-                std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
-
-                HILOG_INFO("'aa ApplicationNotResponding' with an unknown option.");
-
-                resultReceiver_.append(unknownOptionMsg);
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-        }
+        result = RunAsSendAppNotRespondingWithUnknownOption();
     } else {
-        switch (option) {
-            case 'h': {
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            case 'p': {
-                HILOG_INFO("aa ApplicationNotResponding 'aa %{public}s'  -p process.", cmd_.c_str());
-                HILOG_INFO("aa ApplicationNotResponding 'aa optarg =  %{public}s'.", optarg);
-                pid = optarg;
-                HILOG_INFO("aa ApplicationNotResponding 'aa pid =  %{public}s'.", pid.c_str());
-                break;
-            }
-            case 0: {
-                HILOG_INFO("'aa %{public}s' with an unknown option.", cmd_.c_str());
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-            default: {
-                HILOG_INFO("'aa %{public}s' with an unknown option.", cmd_.c_str());
-                result = OHOS::ERR_INVALID_VALUE;
-                break;
-            }
-        }
+        result = RunAsSendAppNotRespondingWithOption(option, pid);
     }
 
     if (result == OHOS::ERR_OK) {
