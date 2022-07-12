@@ -14,6 +14,7 @@
  */
 
 #include "data_ability_helper.h"
+#include "abs_shared_result_set.h"
 #include "datashare_helper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -21,6 +22,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::RdbDataShareAdapter;
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl)
 {
     dataAbilityHelperImpl_ = helperImpl;
@@ -79,8 +81,14 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
         HILOG_ERROR("Input param invalid, uri is nullptr.");
         return nullptr;
     }
+
+    Uri dataShareUri("");
+    if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+        HILOG_ERROR("Tranfer data ability uri to data share uri failed.");
+        return nullptr;
+    }
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, uri->ToString());
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
     if (dataShareHelper) {
         ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
     }
@@ -115,8 +123,15 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
         HILOG_ERROR("Input param invalid, uri is nullptr.");
         return nullptr;
     }
+
+    Uri dataShareUri("");
+    if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+        HILOG_ERROR("Tranfer data ability uri to data share uri failed.");
+        return nullptr;
+    }
+
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, uri->ToString());
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
     if (dataShareHelper) {
         ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
     }
@@ -231,7 +246,14 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
             HILOG_ERROR("Input param invalid, uri is nullptr.");
             return nullptr;
         }
-        auto dataShareHelper = DataShare::DataShareHelper::Creator(token, uri->ToString());
+
+        Uri dataShareUri("");
+        if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+            HILOG_ERROR("Tranfer data ability uri to data share uri failed.");
+            return nullptr;
+        }
+
+        auto dataShareHelper = DataShare::DataShareHelper::Creator(token, dataShareUri.ToString());
         if (dataShareHelper) {
             ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
         }
@@ -285,7 +307,10 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper GetFileTypes.");
-        matchedMIMEs = dataShareHelper_->GetFileTypes(uri, mimeTypeFilter);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            matchedMIMEs = dataShareHelper_->GetFileTypes(dataShareUri, mimeTypeFilter);
+        }
     }
     return matchedMIMEs;
 }
@@ -311,7 +336,10 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper OpenFile.");
-        fd = dataShareHelper_->OpenFile(uri, mode);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            fd = dataShareHelper_->OpenFile(dataShareUri, mode);
+        }
     }
     return fd;
 }
@@ -338,7 +366,10 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper OpenFile.");
-        fd = dataShareHelper_->OpenRawFile(uri, mode);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            fd = dataShareHelper_->OpenRawFile(dataShareUri, mode);
+        }
     }
     return fd;
 }
@@ -363,7 +394,10 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Insert.");
         DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
-        index = dataShareHelper_->Insert(uri, dataShareValue);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Insert(dataShareUri, dataShareValue);
+        }
     }
     return index;
 }
@@ -407,7 +441,10 @@ int DataAbilityHelper::Update(
         HILOG_INFO("Call DataShareHelper Update.");
         DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
         DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
-        index = dataShareHelper_->Update(uri, dataShareValue, dataSharePredicates);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Update(dataShareUri, dataSharePredicates, dataShareValue);
+        }
     }
     return index;
 }
@@ -432,7 +469,10 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Delete.");
         DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
-        index = dataShareHelper_->Delete(uri, dataSharePredicates);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Delete(dataShareUri, dataSharePredicates);
+        }
     }
     return index;
 }
@@ -451,23 +491,26 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Query called.");
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     if (dataAbilityHelperImpl_) {
         HILOG_INFO("Call DataAbilityHelperImpl Query.");
-        resultset = dataAbilityHelperImpl_->Query(uri, columns, predicates);
+        resultSet = dataAbilityHelperImpl_->Query(uri, columns, predicates);
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Query.");
         DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
-        DataShare::DataShareResultSet dataShareResultSet = dataShareHelper_->Query(uri, dataSharePredicates, columns);
-        NativeRdb::AbsSharedResultSet absSharedResultSet;
-        if (RdbUtils::ToAbsSharedResultSet(dataShareResultSet, absSharedResultSet) != E_OK) {
-            HILOG_ERROR("Transfer to AbsSharedResultSet failed.");
-        } else {
-            resultset = make_shared<NativeRdb::AbsSharedResultSet>(absSharedResultSet);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            std::shared_ptr<DataShare::DataShareResultSet> dataShareResultSet
+                = dataShareHelper_->Query(dataShareUri, dataSharePredicates, columns);
+            resultSet = std::make_shared<NativeRdb::AbsSharedResultSet>();
+            if (!RdbUtils::ToAbsSharedResultSet(dataShareResultSet, resultSet)) {
+                resultSet = nullptr;
+                HILOG_ERROR("Transfer to AbsSharedResultSet failed.");
+            }
         }
     }
-    return resultset;
+    return resultSet;
 }
 
 /**
@@ -489,7 +532,10 @@ std::string DataAbilityHelper::GetType(Uri &uri)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper GetType.");
-        type = dataShareHelper_->GetType(uri);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            type = dataShareHelper_->GetType(dataShareUri);
+        }
     }
     return type;
 }
@@ -538,12 +584,15 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper BatchInsert.");
-        std::vector<DataShare::DataShareValuesBucket> &dataShareValues;
+        std::vector<DataShare::DataShareValuesBucket> dataShareValues;
         for (auto value : values) {
             DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
             dataShareValues.push_back(dataShareValue);
         }
-        ret = dataShareHelper_->BatchInsert(uri, dataShareValues);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            ret = dataShareHelper_->BatchInsert(dataShareUri, dataShareValues);
+        }
     }
     return ret;
 }
@@ -563,7 +612,10 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper RegisterObserver.");
-        dataShareHelper_->RegisterObserver(uri, dataObserver);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->RegisterObserver(dataShareUri, dataObserver);
+        }
     }
 }
 
@@ -582,7 +634,10 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper UnregisterObserver.");
-        dataShareHelper_->UnregisterObserver(uri, dataObserver);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->UnregisterObserver(dataShareUri, dataObserver);
+        }
     }
 }
 
@@ -601,7 +656,10 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper NotifyChange.");
-        dataShareHelper_->NotifyChange(uri);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->NotifyChange(dataShareUri);
+        }
     }
 }
 
@@ -628,7 +686,10 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper NormalizeUri.");
-        dataShareHelper_->NormalizeUri(uri);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->NormalizeUri(dataShareUri);
+        }
     }
     return urivalue;
 }
@@ -654,7 +715,10 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper DenormalizeUri.");
-        urivalue = dataShareHelper_->DenormalizeUri(uri);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            urivalue = dataShareHelper_->DenormalizeUri(dataShareUri);
+        }
     }
     return urivalue;
 }
@@ -673,6 +737,31 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
         // results = dataShareHelper_->ExecuteBatch(uri, operations); // DataShareHelper no this interface
     }
     return results;
+}
+
+bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
+{
+    const std::string dataAbilityScheme = "dataability";
+    const std::string dataShareScheme = "datashare";
+
+    Uri inputUri = uri;
+    if (inputUri.GetScheme() == dataShareScheme) {
+        dataShareUri = Uri(inputUri.ToString());
+        HILOG_INFO("input uri is data share uri, uri: %{public}s, no need transfer.", inputUri.ToString().c_str());
+        return true;
+    }
+
+    if (inputUri.GetScheme() != dataAbilityScheme) {
+        HILOG_ERROR("Input param invalid, uri: %{public}s", inputUri.ToString().c_str());
+        return false;
+    }
+
+    string uriStr = inputUri.ToString();
+    uriStr.replace(0, dataAbilityScheme.length(), dataShareScheme);
+    dataShareUri = Uri(uriStr);
+    HILOG_INFO("data ability uri: %{public}s transfer to data share uri: %{public}s.",
+        inputUri.ToString().c_str(), dataShareUri.ToString().c_str());
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

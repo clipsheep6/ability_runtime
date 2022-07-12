@@ -308,9 +308,6 @@ private:
 
     void ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> dataAbilityProxy);
 
-    bool CheckUriAndDataObserver(const Uri &uri,
-        const sptr<AAFwk::IDataAbilityObserver> &dataObserver);
-
     sptr<IRemoteObject> token_;
     std::weak_ptr<Context> context_;
     std::shared_ptr<Uri> uri_ = nullptr;

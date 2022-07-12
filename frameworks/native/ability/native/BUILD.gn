@@ -308,6 +308,7 @@ ohos_shared_library("data_ability_helper") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "data_share:datashare_abilitykit",
+    "data_share:datashare_common",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

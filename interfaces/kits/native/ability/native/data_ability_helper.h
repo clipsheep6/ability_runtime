@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace DataShare {
-    class DataShareHelper;
+class DataShareHelper;
 }
 namespace AppExecFwk {
 class DataAbilityHelper final : public std::enable_shared_from_this<DataAbilityHelper> {
@@ -295,6 +295,8 @@ public:
 private:
     DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
     DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper);
+
+    static bool TransferScheme(const Uri &uri, Uri &dataShareUri);
 
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_ = nullptr;
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_ = nullptr;
