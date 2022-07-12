@@ -28,7 +28,7 @@ bundlefwk_inner_api_path = "${bundlefwk_path}/interfaces/inner_api"
 
 multimedia_path = "//foundation/multimedia/image_standard"
 multimodalinput_path = "//foundation/multimodalinput/input"
-windowmanager_path = "//foundation/windowmanager"
+windowmanager_path = "//foundation/window/window_manager"
 graphic_path = "//foundation/graphic/graphic_2d"
 global_path = "//base/global"
 distributedschedule_path = "//foundation/distributedschedule"
