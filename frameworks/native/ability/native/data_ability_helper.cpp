@@ -287,7 +287,6 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
         HILOG_INFO("Call DataShareHelper GetFileTypes.");
         matchedMIMEs = dataShareHelper_->GetFileTypes(uri, mimeTypeFilter);
     }
-    HILOG_INFO("Return matchedMIMEs size: %{public}zu.", matchedMIMEs.size());
     return matchedMIMEs;
 }
 
@@ -314,7 +313,6 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
         HILOG_INFO("Call DataShareHelper OpenFile.");
         fd = dataShareHelper_->OpenFile(uri, mode);
     }
-    HILOG_INFO("Return fd: %{public}d.", fd);
     return fd;
 }
 
@@ -342,7 +340,6 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
         HILOG_INFO("Call DataShareHelper OpenFile.");
         fd = dataShareHelper_->OpenRawFile(uri, mode);
     }
-    HILOG_INFO("Return fd: %{public}d.", fd);
     return fd;
 }
 
@@ -365,9 +362,9 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Insert.");
-        // index = dataShareHelper_->Insert(uri, value);
+        DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
+        index = dataShareHelper_->Insert(uri, dataShareValue);
     }
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -384,7 +381,6 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
         HILOG_INFO("Call DataShareHelper Insert.");
         // result = dataShareHelper_->Call(uri, method, arg, pacMap); // DataShareHelper no this interface
     }
-    HILOG_INFO("Return result is or not nullptr: %{public}d.", result == nullptr);
     return result;
 }
 
@@ -409,9 +405,10 @@ int DataAbilityHelper::Update(
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Update.");
-        // index = dataShareHelper_->Update(uri, value, predicates);
+        DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
+        DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
+        index = dataShareHelper_->Update(uri, dataShareValue, dataSharePredicates);
     }
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -434,9 +431,9 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Delete.");
-        // index = dataShareHelper_->Delete(uri, predicates);
+        DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
+        index = dataShareHelper_->Delete(uri, dataSharePredicates);
     }
-    HILOG_INFO("Return index: %{public}d.", index);
     return index;
 }
 
@@ -461,9 +458,15 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper Query.");
-        // resultset = dataShareHelper_->Query(uri, columns, predicates);
+        DataShare::DataSharePredicates dataSharePredicates = RdbUtils::ToDataSharePredicates(predicates);
+        DataShare::DataShareResultSet dataShareResultSet = dataShareHelper_->Query(uri, dataSharePredicates, columns);
+        NativeRdb::AbsSharedResultSet absSharedResultSet;
+        if (RdbUtils::ToAbsSharedResultSet(dataShareResultSet, absSharedResultSet) != E_OK) {
+            HILOG_ERROR("Transfer to AbsSharedResultSet failed.");
+        } else {
+            resultset = make_shared<NativeRdb::AbsSharedResultSet>(absSharedResultSet);
+        }
     }
-    HILOG_INFO("Return resultset is or not nullptr: %{public}d.", resultset == nullptr);
     return resultset;
 }
 
@@ -488,7 +491,6 @@ std::string DataAbilityHelper::GetType(Uri &uri)
         HILOG_INFO("Call DataShareHelper GetType.");
         type = dataShareHelper_->GetType(uri);
     }
-    HILOG_INFO("Return type: %{public}s.", type.c_str());
     return type;
 }
 
@@ -514,7 +516,6 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
         HILOG_INFO("Call DataShareHelper Reload.");
         // ret = dataShareHelper_->Reload(uri, extras); // DataShareHelper no this interface
     }
-    HILOG_INFO("Return ret: %{public}d.", ret);
     return ret;
 }
 
@@ -537,9 +538,13 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
     }
     if (dataShareHelper_) {
         HILOG_INFO("Call DataShareHelper BatchInsert.");
-        // ret = dataShareHelper_->BatchInsert(uri, values);
+        std::vector<DataShare::DataShareValuesBucket> &dataShareValues;
+        for (auto value : values) {
+            DataShare::DataShareValuesBucket dataShareValue = RdbUtils::ToDataShareValuesBucket(value);
+            dataShareValues.push_back(dataShareValue);
+        }
+        ret = dataShareHelper_->BatchInsert(uri, dataShareValues);
     }
-    HILOG_INFO("Return ret: %{public}d.", ret);
     return ret;
 }
 
@@ -625,7 +630,6 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
         HILOG_INFO("Call DataShareHelper NormalizeUri.");
         dataShareHelper_->NormalizeUri(uri);
     }
-    HILOG_INFO("Return uri: %{public}s.", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -652,7 +656,6 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
         HILOG_INFO("Call DataShareHelper DenormalizeUri.");
         urivalue = dataShareHelper_->DenormalizeUri(uri);
     }
-    HILOG_INFO("Return uri: %{public}s.", urivalue.ToString().c_str());
     return urivalue;
 }
 
@@ -669,7 +672,6 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
         HILOG_INFO("Call DataShareHelper ExecuteBatch.");
         // results = dataShareHelper_->ExecuteBatch(uri, operations); // DataShareHelper no this interface
     }
-    HILOG_INFO("Return results size: %{public}zu.", results.size());
     return results;
 }
 }  // namespace AppExecFwk
