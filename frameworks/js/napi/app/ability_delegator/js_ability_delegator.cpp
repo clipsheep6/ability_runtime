@@ -57,11 +57,19 @@ void *DetachAppContext(NativeEngine*, void* value, void*)
 NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachAppContext");
-    std::shared_ptr<AbilityRuntime::Context> context(reinterpret_cast<AbilityRuntime::Context *>(value));
-    NativeValue *object = CreateJsBaseContext(*engine, context, nullptr, nullptr, true);
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityRuntime::Context>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+
+    NativeValue *object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(object);
-    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext,
-        context.get(), nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAppContext, AttachAppContext, value, nullptr);
     return object;
 }
 
@@ -425,9 +433,20 @@ NativeValue *JSAbilityDelegator::OnGetAppContext(NativeEngine &engine, NativeCal
         return engine.CreateNull();
     }
     NativeValue *value = CreateJsBaseContext(engine, context, nullptr, nullptr, false);
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(value);
-    nObject->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext,
-        context.get(), nullptr);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return engine.CreateNull();
+    }
+    auto workContext = new std::weak_ptr<AbilityRuntime::Context>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachAppContext, AttachAppContext, workContext, nullptr);
+    nativeObj->SetNativePointer(
+        workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
+        },
+        nullptr);
     return value;
 }
 

@@ -35,12 +35,19 @@ void* DetachAbilityStageContext(NativeEngine*, void* value, void*)
 NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachAbilityStageContext");
-    std::shared_ptr<AbilityContext> context(reinterpret_cast<AbilityContext *>(value));
-    NativeValue* object = CreateJsAbilityStageContext(*engine, context, nullptr, nullptr);
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsAbilityStageContext(*engine, ptr, nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext,
-        context.get(), nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext, value, nullptr);
     return contextObj;
 }
 
@@ -110,23 +117,21 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
     }
 
     NativeValue* contextObj = CreateJsAbilityStageContext(engine, context, nullptr, nullptr);
-    shellContextRef_ = jsRuntime_.LoadSystemModule("application.AbilityStageContext", &contextObj, 1);
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.AbilityStageContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
-        context.get(), nullptr);
-    context->Bind(jsRuntime_, shellContextRef_.get());
-    obj->SetProperty("context", contextObj);
-
-    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get ability stage native object");
+        HILOG_ERROR("Failed to get context native object");
         return;
     }
-
+    auto workContext = new std::weak_ptr<AbilityRuntime::Context>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
+        workContext, nullptr);
+    context->Bind(jsRuntime_, shellContextRef_.get());
+    obj->SetProperty("context", contextObj);
     HILOG_INFO("Set ability stage context");
 
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
+    nativeObj->SetNativePointer(workContext,
         [](NativeEngine*, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr ability stage context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
