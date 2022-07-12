@@ -34,6 +34,7 @@
 #include "napi_rdb_predicates.h"
 #include "napi_result_set.h"
 #include "securec.h"
+#include "native_engine/native_engine.h"
 
 #ifndef SUPPORT_GRAPHICS
 #define DBL_MIN ((double)2.22507385850720138309e-308L)
@@ -926,7 +927,11 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
     DataAbilityHelper *objectInfo = nullptr;
     napi_unwrap(env, thisVar, (void **)&objectInfo);
     HILOG_INFO("DataAbilityHelper objectInfo");
+    auto engine = reinterpret_cast<NativeEngine*>(env);
+    auto instanceValue = reinterpret_cast<NativeValue*>(thisVar);
+    auto ref = engine->CreateReference(instanceValue, 1);
     offCB->dataAbilityHelper = objectInfo;
+    offCB->ref = ref;
 
     ret = UnRegisterAsync(env, args, argcAsync, argcPromise, offCB);
     return ret;

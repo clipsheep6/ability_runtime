@@ -30,6 +30,7 @@
 using Want = OHOS::AAFwk::Want;
 using Ability = OHOS::AppExecFwk::Ability;
 using AbilityStartSetting = OHOS::AppExecFwk::AbilityStartSetting;
+class NativeReference;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -268,6 +269,7 @@ struct DAHelperOnOffCB {
     sptr<NAPIDataAbilityObserver> observer;
     std::string uri;
     int result = 0;
+    NativeReference* ref = nullptr;
     std::vector<DAHelperOnOffCB *> NotifyList;
     std::vector<DAHelperOnOffCB *> DestroyList;
 };

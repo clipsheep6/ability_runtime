@@ -38,6 +38,7 @@ ohos_shared_library("featureability") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/libuv:uv_static",
+    "//foundation/arkui/napi:ace_napi_ark",
   ]
 
   external_deps = [
