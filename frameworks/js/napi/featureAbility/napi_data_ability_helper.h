@@ -265,7 +265,7 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value UnRegisterAsync(
+napi_value UnRegisterSync(
     napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *insertCB);
 
 /**
@@ -288,7 +288,6 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data);
  */
 napi_value UnwrapValuesBucket(std::string &value, napi_env env, napi_value args);
 
-static std::vector<DAHelperOnOffCB *> registerInstances_;
 napi_value NAPI_Release(napi_env env, napi_callback_info info);
 
 napi_value ReleaseWrap(napi_env env, napi_callback_info info, DAHelperReleaseCB *releaseCB);
