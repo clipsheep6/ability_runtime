@@ -20,12 +20,14 @@ ohos_unittest("call_container_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_test_path}/common",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/ability_scheduler_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   sources = [
+    "${ability_runtime_test_path}/common/common_test_helper.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "call_container_test.cpp",
   ]

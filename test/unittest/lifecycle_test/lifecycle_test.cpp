@@ -24,6 +24,7 @@
 #include "lifecycle_test_base.h"
 #include "mock_bundle_manager.h"
 #include "sa_mgr_client.h"
+#include "common_test_helper.h"
 #undef private
 #undef protected
 
@@ -34,29 +35,6 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const std::string NAME_BUNDLE_MGR_SERVICE = "BundleMgrService";
-}
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler == nullptr) {
-        GTEST_LOG_(ERROR) << "handler is nullptr";
-        return;
-    }
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
 }
 
 class LifecycleTest : public testing::Test, public LifecycleTestBase {
@@ -88,6 +66,7 @@ public:
     OHOS::sptr<OHOS::AAFwk::AbilityScheduler> launcherScheduler_ {nullptr};        // launcher ability thread interface
     OHOS::sptr<OHOS::AAFwk::AbilityScheduler> nextScheduler_ {nullptr};            // next ability thread interface
     std::unique_ptr<LifeTestCommand> command_ {nullptr};                           // test command_ interact with ams_
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 void LifecycleTest::OnStartabilityAms()
@@ -137,7 +116,7 @@ void LifecycleTest::TearDownTestCase(void)
 void LifecycleTest::SetUp(void)
 {
     OnStartabilityAms();
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
     StartLauncherAbility();
     command_ = std::make_unique<LifeTestCommand>();
 }
@@ -304,7 +283,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_StartLauncherAbilityLifeCycle_005, TestS
         PacMap saveData;
         abilityMs_->AbilityTransitionDone(launcherToken_, command_->state_, saveData);
         if (launcherAbilityRecord_->GetAbilityState() != OHOS::AAFwk::AbilityState::ACTIVE) {
-            WaitUntilTaskFinished();
+            commonTestHelper_->WaitUntilTaskFinished();
             EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::ACTIVE);
         }
         EXPECT_EQ(launcherAbilityRecord_->IsReady(), true);
@@ -382,7 +361,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_002, TestSize.Leve
         // launcher is in inactivating process.
         PacMap saveData;
         EXPECT_NE(abilityMs_->AbilityTransitionDone(launcherToken_, OHOS::AAFwk::AbilityState::ACTIVE, saveData), 0);
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVATING);
         EXPECT_EQ(nextAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INITIAL);
     }
@@ -403,7 +382,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_003, TestSize.Leve
         command_->expectState_ = OHOS::AAFwk::AbilityState::ACTIVE;
         command_->state_ = OHOS::AAFwk::AbilityState::INITIAL;
         EXPECT_EQ(AttachAbility(launcherScheduler_, launcherToken_), 0);
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         EXPECT_TRUE(StartNextAbility());
         launcherAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INACTIVATING);
         PacMap saveData;
@@ -418,7 +397,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_003, TestSize.Leve
         EXPECT_EQ(nextAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::ACTIVATING);
         pthread_join(tid, nullptr);
 
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
     }
 }
 
@@ -469,7 +448,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_005, TestSize.Leve
         launcherAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INACTIVATING);
         PacMap saveData;
         EXPECT_EQ(abilityMs_->AbilityTransitionDone(launcherToken_, OHOS::AAFwk::AbilityState::INACTIVE, saveData), 0);
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         // launcher oninactive done.
         nextAbilityRecord_->SetAbilityState(OHOS::AAFwk::AbilityState::INITIAL);
         EXPECT_EQ(AttachAbility(nextScheduler_, nextToken_), 0);
@@ -538,7 +517,7 @@ HWTEST_F(LifecycleTest, AAFWK_AbilityMS_startAbilityLifeCycle_007, TestSize.Leve
         EXPECT_EQ(abilityMs_->AbilityTransitionDone(
             launcherToken_, OHOS::AAFwk::AbilityState::INACTIVE, saveData), OHOS::ERR_OK);
         // launcher oninactive done.
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         EXPECT_EQ(launcherAbilityRecord_->GetAbilityState(), OHOS::AAFwk::AbilityState::INACTIVE);
         EXPECT_EQ(AttachAbility(nextScheduler_, nextToken_), 0);
         pthread_t tid = 0;

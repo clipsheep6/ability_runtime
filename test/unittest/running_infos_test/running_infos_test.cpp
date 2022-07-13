@@ -32,6 +32,7 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "common_test_helper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -41,25 +42,6 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int32_t MOCK_MAIN_USER_ID = 100;
-
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 }  // namespace
 class RunningInfosTest : public testing::Test {
 public:
@@ -72,6 +54,7 @@ public:
 
 public:
     std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 void RunningInfosTest::OnStartAms()
@@ -107,7 +90,7 @@ void RunningInfosTest::OnStartAms()
         abilityMs_->InitMissionListManager(userId, true);
         abilityMs_->connectManager_->SetEventHandler(abilityMs_->handler_);
         abilityMs_->eventLoop_->Run();
-        WaitUntilTaskFinished();
+        commonTestHelper_->WaitUntilTaskFinished();
         auto topAbility = abilityMs_->GetListManagerByUserId(MOCK_MAIN_USER_ID)->GetCurrentTopAbilityLocked();
         if (topAbility) {
             topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);

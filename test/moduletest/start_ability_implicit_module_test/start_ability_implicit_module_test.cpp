@@ -29,6 +29,7 @@
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "ui_service_mgr_client_mock.h"
+#include "common_test_helper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -43,24 +44,6 @@ namespace {
 }
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 
 class StartAbilityImplicitModuleTest : public testing::Test {
 public:
@@ -75,6 +58,7 @@ public:
     AbilityRequest abilityRequest_;
     std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 void StartAbilityImplicitModuleTest::OnStartAms() const
@@ -141,7 +125,7 @@ void StartAbilityImplicitModuleTest::TearDownTestCase()
 void StartAbilityImplicitModuleTest::SetUp()
 {
     OnStartAms();
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
 }
 
 void StartAbilityImplicitModuleTest::TearDown()

@@ -31,6 +31,7 @@
 #include "mock_bundle_mgr.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "common_test_helper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -44,24 +45,6 @@ namespace {
 
 namespace OHOS {
 namespace AAFwk {
-static void WaitUntilTaskFinished()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    auto handler = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
 
 #define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
 
@@ -84,6 +67,7 @@ public:
     AbilityRequest abilityRequest_;
     std::shared_ptr<AbilityRecord> abilityRecord_ {nullptr};
     std::shared_ptr<AbilityManagerService> abilityMs_ = DelayedSingleton<AbilityManagerService>::GetInstance();
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 int AbilityManagerServiceTest::StartAbility(const Want &want)
@@ -149,7 +133,7 @@ void AbilityManagerServiceTest::TearDownTestCase()
 void AbilityManagerServiceTest::SetUp()
 {
     OnStartAms();
-    WaitUntilTaskFinished();
+    commonTestHelper_->WaitUntilTaskFinished();
     if (abilityRecord_ == nullptr) {
         abilityRequest_.appInfo.bundleName = "data.client.bundle";
         abilityRequest_.abilityInfo.name = "ClientAbility";

@@ -24,10 +24,12 @@ ohos_unittest("running_infos_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_test_path}/common",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]
 
   sources = [
+    "${ability_runtime_test_path}/common/common_test_helper.cpp",
     # add mock file
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "running_infos_test.cpp",

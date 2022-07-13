@@ -37,6 +37,7 @@
 #include "ability_config.h"
 #include "pending_want_manager.h"
 #include "pending_want_record.h"
+#include "common_test_helper.h"
 #undef private
 #undef protected
 #include "wants_info.h"
@@ -66,12 +67,12 @@ public:
     AbilityInfo CreateAbilityInfo(const std::string &name, const std::string &appName, const std::string &bundleName);
     ApplicationInfo CreateAppInfo(const std::string &appName, const std::string &name);
     bool MockAppClient() const;
-    void WaitAMS();
 
     inline static std::shared_ptr<MockAppMgrClient> mockAppMgrClient_ {nullptr};
     inline static std::shared_ptr<AbilityManagerService> abilityMgrServ_ {nullptr};
     sptr<MockAbilityScheduler> scheduler_ {nullptr};
     inline static bool doOnce_ = false;  // In order for mock to execute once
+    std::shared_ptr<CommonTestHelper> commonTestHelper_ = std::make_shared<CommonTestHelper>();
 };
 
 Want SpecifiedAbilityServiceTest::CreateWant(const std::string &entity)
@@ -125,31 +126,6 @@ bool SpecifiedAbilityServiceTest::MockAppClient() const
     return true;
 }
 
-void SpecifiedAbilityServiceTest::WaitAMS()
-{
-    const uint32_t maxRetryCount = 1000;
-    const uint32_t sleepTime = 1000;
-    uint32_t count = 0;
-    if (!abilityMgrServ_) {
-        return;
-    }
-    auto handler = abilityMgrServ_->GetEventHandler();
-    if (!handler) {
-        return;
-    }
-    std::atomic<bool> taskCalled(false);
-    auto f = [&taskCalled]() { taskCalled.store(true); };
-    if (handler->PostTask(f)) {
-        while (!taskCalled.load()) {
-            ++count;
-            if (count >= maxRetryCount) {
-                break;
-            }
-            usleep(sleepTime);
-        }
-    }
-}
-
 void SpecifiedAbilityServiceTest::SetUpTestCase(void)
 {
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
@@ -171,7 +147,7 @@ void SpecifiedAbilityServiceTest::SetUp(void)
         doOnce_ = true;
         MockAppClient();
     }
-    WaitAMS();
+    commonTestHelper_->WaitUntilTaskFinished();
 }
 
 void SpecifiedAbilityServiceTest::TearDown(void)
