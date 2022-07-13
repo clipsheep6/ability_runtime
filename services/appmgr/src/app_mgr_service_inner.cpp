@@ -40,6 +40,7 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "parameter.h"
+#include "parameters.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
@@ -115,6 +116,7 @@ AppMgrServiceInner::AppMgrServiceInner()
 void AppMgrServiceInner::Init()
 {
     GetGlobalConfiguration();
+    AddWatchParameter();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
 }
 
@@ -244,7 +246,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         bundleMgrResult = (IN_PROCESS_CALL(bundleMgr_->GetSandboxBundleInfo(appInfo->bundleName,
             appIndex, userId, bundleInfo)) == 0);
     }
-    
+
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
         return false;
@@ -1218,7 +1220,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             bundleIndex, userId, bundleInfo)) == 0);
         bundleInfos.emplace_back(bundleInfo);
     }
-    
+
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
         return;
@@ -2151,6 +2153,11 @@ void AppMgrServiceInner::GetGlobalConfiguration()
     // Assign to default colormode "light"
     HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
+
+    // Get input pointer device
+    std::string hasPointerDevice = system::GetParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
+    HILOG_INFO("current hasPointerDevice is %{public}s", hasPointerDevice.c_str());
+    configuration_->AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, hasPointerDevice);
 }
 
 std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration()
@@ -2505,6 +2512,55 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::BACKUP_EXTENSION);
     }
     return startFlags;
+}
+
+void AppMgrServiceInner::AddWatchParameter()
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    int ret;
+
+    auto context = new std::weak_ptr<AppMgrServiceInner>(shared_from_this());
+    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), PointerDeviceEventCallback,
+        context);
+    if (ret != 0) {
+        HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), ret);
+    }
+}
+
+void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char *value, void *context)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    auto weak = static_cast<std::weak_ptr<AppMgrServiceInner>*>(context);
+    if (weak == nullptr) {
+        HILOG_ERROR("context is nullptr.");
+        return;
+    }
+
+    auto appMgrServiceInner = weak->lock();
+    if (appMgrServiceInner == nullptr) {
+        HILOG_ERROR("app manager service inner is nullptr.");
+        return;
+    }
+
+    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str()) != 0) ||
+        ((strcmp(value, "true") != 0) && (strcmp(value, "false") != 0))) {
+        HILOG_ERROR("key %{public}s or value %{public}s mismatch.", key, value);
+        return;
+    }
+
+    Configuration changeConfig;
+    if (!changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, value)) {
+        HILOG_ERROR("add %{public}s item to configuration failed.", key);
+        return;
+    }
+
+    HILOG_DEBUG("update config %{public}s to %{public}s", key, value);
+    auto result = appMgrServiceInner->UpdateConfiguration(changeConfig);
+    if (result != 0) {
+        HILOG_ERROR("update config failed with %{public}d, key: %{public}s, value: %{public}s.", result, key, value);
+        return;
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -86,6 +86,7 @@ ohos_shared_library("libappms") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara_watchagent",
     "utils_base:utils",
   ]
 

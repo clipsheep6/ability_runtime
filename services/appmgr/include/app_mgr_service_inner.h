@@ -707,6 +707,10 @@ private:
 
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 
+    void AddWatchParameter();
+
+    static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.
