@@ -605,6 +605,8 @@ public:
      */
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) = 0;
 
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) = 0;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.
@@ -830,6 +832,9 @@ public:
 
         // stop extension ability (61)
         STOP_EXTENSION_ABILITY,
+
+        // stop extension ability (62)
+        GET_CALLER_TOKEN,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

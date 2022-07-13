@@ -146,6 +146,12 @@ public:
     virtual int BlockAmsService();
     virtual int BlockAbility(int32_t abilityRecordId);
     virtual int BlockAppService();
+
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) override
+    {
+        return nullptr;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 #endif
@@ -282,6 +288,12 @@ public:
     virtual int BlockAmsService();
     virtual int BlockAbility(int32_t abilityRecordId);
     virtual int BlockAppService();
+
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) override
+    {
+        return nullptr;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 #endif

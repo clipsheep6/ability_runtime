@@ -2437,6 +2437,35 @@ int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
+sptr<IRemoteObject> AbilityManagerProxy::GetCallerToken(const sptr<IRemoteObject> &token)
+{
+    if (!token) {
+        HILOG_ERROR("token is nullptr.");
+        return nullptr;
+    }
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("data interface token failed.");
+        return nullptr;
+    }
+
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("data write failed.");
+        return nullptr;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::GET_CALLER_TOKEN, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return nullptr;
+    }
+
+    return sptr<IRemoteObject>(reply.ReadRemoteObject());
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerProxy::BlockAmsService()
 {

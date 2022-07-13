@@ -234,6 +234,11 @@ public:
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) override
+    {
+        return nullptr;
+    }
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {

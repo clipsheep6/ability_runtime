@@ -300,6 +300,11 @@ public:
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
+    virtual sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token) override
+    {
+        return nullptr;
+    }
+
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
     {

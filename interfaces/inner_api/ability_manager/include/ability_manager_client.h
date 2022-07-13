@@ -722,6 +722,8 @@ public:
      */
     ErrCode SendANRProcessID(int pid);
 
+    sptr<IRemoteObject> GetCallerToken(const sptr<IRemoteObject> &token);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.
