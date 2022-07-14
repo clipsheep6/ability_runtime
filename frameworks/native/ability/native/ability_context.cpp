@@ -341,7 +341,7 @@ std::shared_ptr<Context> AbilityContext::CreateBundleContext(std::string bundleN
 
 std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceManager() const
 {
-    std::shared_ptr<Context> appcontext = GetApplicationContext();
+    std::shared_ptr<Context> appContext = GetApplicationContext();
     if (appContext == nullptr) {
         HILOG_ERROR("AbilityContext::GetResourceManager appContext is nullptr");
         return nullptr;
