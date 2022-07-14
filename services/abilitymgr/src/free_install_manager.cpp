@@ -27,7 +27,9 @@ namespace OHOS {
 namespace AAFwk {
 const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
 const std::string DMS_MISSION_ID = "dmsMissionId";
+const std::string FREE_INSTALL_CALLINGUID = "freeInstallCallingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
+
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -341,7 +343,10 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
         auto updateAtmoicServiceTask = [want, userId]() {
             auto bms = AbilityUtil::GetBundleManager();
             CHECK_POINTER(bms);
-            bms->UpgradeAtomicService(want, userId);
+            Want innerWant = want;
+            innerWant.SetParam(FREE_INSTALL_CALLINGUID, IPCSkeleton::GetCallingUid());
+            bms->UpgradeAtomicService(innerWant, userId);
+            innerWant.RemoveParam(FREE_INSTALL_CALLINGUID);
         };
 
         std::shared_ptr<AbilityEventHandler> handler =
