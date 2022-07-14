@@ -1257,17 +1257,6 @@ public:
     bool AcquireForm(const int64_t formId, const Want &want, const std::shared_ptr<FormCallback> callback);
 
     /**
-     * @brief Updates the content of a specified JS form.
-     *
-     * <p>This method is called by a form provider to update JS form data as needed.
-     *
-     * @param formId Indicates the form ID.
-     * @param formProviderData The data used to update the JS form displayed on the client.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode UpdateForm(const int64_t formId, const FormProviderData &formProviderData);
-
-    /**
      * @brief Cast temp form with formId.
      *
      * @param formId Indicates the form's ID.
@@ -1275,40 +1264,6 @@ public:
      * @return Returns {@code true} if the form is successfully casted; returns {@code false} otherwise.
      */
     ErrCode CastTempForm(const int64_t formId);
-
-    /**
-     * @brief Sends a notification to the form framework to make the specified forms visible.
-     *
-     * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
-     * will be called to notify the form provider of the form visibility change event.</p>
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode NotifyVisibleForms(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Sends a notification to the form framework to make the specified forms invisible.
-     *
-     * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
-     * will be called to notify the form provider of the form visibility change event.</p>
-     *
-     * @param formIds Indicates the IDs of the forms to be made invisible.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode NotifyInvisibleForms(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Set form next refresh time.
-     *
-     * <p>This method is called by a form provider to set refresh time.
-     *
-     * @param formId Indicates the ID of the form to set refresh time.
-     * @param nextTime Indicates the next time gap now in seconds, can not be litter than 300 seconds.
-     * @return Returns {@code true} if seting succeed; returns {@code false} otherwise.
-     */
-
-    ErrCode SetFormNextRefreshTime(const int64_t formId, const int64_t nextTime);
 
     /**
      * @brief Update form.
@@ -1397,115 +1352,6 @@ public:
      *             the bundle name, module name, ability name, form name and form dimension.
      */
     virtual FormState OnAcquireFormState(const Want &want);
-    /**
-     * @brief Requests for form data update.
-     *
-     * This method must be called when the application has detected that a system setting item (such as the language,
-     * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
-     * provider automatically updates the form data (if there is any update) through the form framework, with the update
-     * process being unperceivable by the application.
-     *
-     * @param formId Indicates the ID of the form to update.
-     * @return Returns true if the update request is successfully initiated, returns false otherwise.
-     */
-    ErrCode RequestForm(const int64_t formId);
-
-    /**
-     * @brief Requests for form data update, by passing a set of parameters (using Want) to the form provider.
-     *
-     * This method must be called when the application has detected that a system setting item (such as the language,
-     * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
-     * provider automatically updates the form data (if there is any update) through the form framework, with the update
-     * process being unperceivable by the application.
-     *
-     * @param formId Indicates the ID of the form to update.
-     * @param want Indicates a set of parameters to be transparently passed to the form provider.
-     * @return Returns true if the update request is successfully initiated, returns false otherwise.
-     */
-    ErrCode RequestForm(const int64_t formId, const Want &want);
-    /**
-     * @brief Enable form update.
-     *
-     * @param formIds formIds of hostclient.
-     */
-    ErrCode EnableUpdateForm(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Disable form update.
-     *
-     * @param formIds formIds of hostclient.
-     */
-    ErrCode DisableUpdateForm(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Check form manager service ready.
-     *
-     * @return Returns true if form manager service ready; returns false otherwise.
-     */
-    bool CheckFMSReady();
-
-    /**
-     * @brief Delete the invalid forms.
-     *
-     * @param formIds Indicates the ID of the valid forms.
-     * @param numFormsDeleted Returns the number of the deleted forms.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode DeleteInvalidForms(const std::vector<int64_t> &formIds, int32_t &numFormsDeleted);
-
-    /**
-     * @brief Acquire form state info by passing a set of parameters (using Want) to the form provider.
-     *
-     * @param want Indicates a set of parameters to be transparently passed to the form provider.
-     * @param stateInfo Returns the form's state info of the specify.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode AcquireFormState(const Want &want, FormStateInfo &stateInfo);
-
-    /**
-     * @brief Notify the forms is visible to FMS.
-     *
-     * @param formIds Indicates the ID of the forms.
-     * @param isVisible Visible or not.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode NotifyFormsVisible(const std::vector<int64_t> &formIds, bool isVisible);
-
-    /**
-     * @brief Notify the forms is enable update to FMS.
-     *
-     * @param formIds Indicates the ID of the forms.
-     * @param isEnableUpdate enable update or not.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode NotifyFormsEnableUpdate(const std::vector<int64_t> &formIds, bool isEnableUpdate);
-
-    /**
-     * @brief Get All FormsInfo.
-     *
-     * @param formInfos Returns the forms' information of all forms provided.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetAllFormsInfo(std::vector<FormInfo> &formInfos);
-
-    /**
-     * @brief Get forms info by application name.
-     *
-     * @param bundleName Application name.
-     * @param formInfos Returns the forms' information of the specify application name.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos);
-
-    /**
-     * @brief Get forms info by application name and module name.
-     *
-     * @param bundleName Application name.
-     * @param moduleName Module name of hap.
-     * @param formInfos Returns the forms' information of the specify application name and module name.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos);
 
     /**
      * @brief Get page ability stack info.
@@ -1776,16 +1622,6 @@ private:
     void HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsInfo);
 
     /**
-     * @brief Notify the forms visibility change event.
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible or invisible.
-     * @param eventType Indicates the form events occurred. FORM_VISIBLE means that the form becomes visible,
-     *                  and FORM_INVISIBLE means that the form becomes invisible.
-     * @return none.
-     */
-    ErrCode NotifyWhetherVisibleForms(const std::vector<int64_t> &formIds, int32_t eventType);
-
-    /**
      * @brief Check the param of want.
      *
      * @param formId Indicates the form's ID.
@@ -1794,15 +1630,6 @@ private:
      * @return Returns {@code true} if the check result is ok; returns {@code false} ng.
      */
     bool CheckWantValid(const int64_t formId, const Want &want);
-
-    /**
-     * @brief Handle enable/disable form update.
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible.
-     * @param updateType Update type.
-     * @return Returns true if the result is ok; returns false otherwise.
-     */
-    ErrCode LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType);
 
     /**
      * @brief Reacquire a specified form when the death callback is received.
