@@ -23,6 +23,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath);
+void StartDebuggerInWorkerModule();
 } // namespace AbilityRuntime
 } // namespace OHOS
 
