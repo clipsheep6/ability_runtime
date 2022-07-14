@@ -13,20 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_HDC_REGISTER_H
-#define FOUNDATION_APPEXECFWK_HDC_REGISTER_H
+#ifndef FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H
+#define FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H
 
 #include <string>
 
-namespace OHOS::AppExecFwk {
-class HdcRegister {
+namespace OHOS::AbilityRuntime {
+class HdcRegister final {
 public:
-    HdcRegister();
-    ~HdcRegister();
     static HdcRegister& Get();
     void StartHdcRegister(const std::string& bundleName);
 
 private:
+    HdcRegister() = default;
+    ~HdcRegister();
+
     void StopHdcRegister();
 
     void* registerHandler_ = nullptr;
@@ -36,6 +37,6 @@ private:
     HdcRegister& operator=(const HdcRegister&) = delete;
     HdcRegister& operator=(HdcRegister&&) = delete;
 };
-} // namespace OHOS::AppExecFwk
+} // namespace OHOS::AbilityRuntime
 
-#endif // FOUNDATION_APPEXECFWK_HDC_REGISTER_H
+#endif // FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H

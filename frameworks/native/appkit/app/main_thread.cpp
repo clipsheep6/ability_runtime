@@ -54,8 +54,6 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 
-#include "hdc_register.h"
-
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -1281,7 +1279,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto appInfo = application_->GetApplicationInfo();
     auto want = abilityRecord->GetWant();
     if (runtime && appInfo && want && appInfo->debug) {
-        HdcRegister::Get().StartHdcRegister(appInfo->bundleName);
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 

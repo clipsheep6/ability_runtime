@@ -20,19 +20,29 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <unistd.h>
 
+#include "connect_server_manager.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_runtime_utils.h"
+#include "native_engine/impl/ark/ark_native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * 1024 * 1024;
+#if defined(_ARM64_)
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+#else
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
+#endif
+
+bool g_debugMode = false;
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_INFO("RegisterInitWorkerFunc called");
+    HILOG_INFO("InitWorkerFunc called");
     if (nativeEngine == nullptr) {
         HILOG_ERROR("Input nativeEngine is nullptr");
         return;
@@ -45,6 +55,35 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     InitConsoleLogModule(*nativeEngine, *globalObj);
+
+    if (g_debugMode) {
+        auto instanceId = gettid();
+        std::string instanceName = "workerThread_" + std::to_string(instanceId);
+        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName);
+        auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
+            nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
+        };
+        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm, needBreakPoint, instanceId, workerPostTask);
+    }
+}
+
+void OffWorkerFunc(NativeEngine* nativeEngine)
+{
+    HILOG_INFO("OffWorkerFunc called");
+    if (nativeEngine == nullptr) {
+        HILOG_ERROR("Input nativeEngine is nullptr");
+        return;
+    }
+
+    if (g_debugMode) {
+        auto instanceId = gettid();
+        ConnectServerManager::Get().RemoveInstance(instanceId);
+        auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        panda::JSNApi::StopDebugger(vm);
+    }
 }
 
 bool ReadAssetData(const std::string& filePath, std::vector<uint8_t>& content)
@@ -111,7 +150,13 @@ struct AssetHelper final {
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath)
 {
     engine.SetInitWorkerFunc(InitWorkerFunc);
+    engine.SetOffWorkerFunc(OffWorkerFunc);
     engine.SetGetAssetFunc(AssetHelper(codePath));
+}
+
+void StartDebuggerInWorkerModule()
+{
+    g_debugMode = true;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
