@@ -19,7 +19,8 @@ class EventHub {
     }
 
     on(event, callback) {
-        if ((typeof(event) != 'string') || (typeof(callback) != 'function')) {
+        console.info("=============================zhangrengao1======================");
+	if ((typeof(event) != 'string') || (typeof(callback) != 'function')) {
             return;
         }
         if (!this.eventMap[event]) {
@@ -31,6 +32,7 @@ class EventHub {
     }
 
     off(event, callback) {
+	console.info("=============================zhangrengao2======================");
         if (typeof(event) != 'string') {
             return;
         }
@@ -47,6 +49,7 @@ class EventHub {
     }
 
     emit(event, ...args) {
+	console.info("=============================zhangrengao3======================");
         if (typeof(event) != 'string') {
             return;
         }
