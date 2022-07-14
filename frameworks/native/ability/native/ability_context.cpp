@@ -342,14 +342,14 @@ std::shared_ptr<Context> AbilityContext::CreateBundleContext(std::string bundleN
 std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceManager() const
 {
     std::shared_ptr<Context> appcontext = GetApplicationContext();
-    if (appcontext == nullptr) {
-        HILOG_ERROR("AbilityContext::GetResourceManager appcontext is nullptr");
+    if (appContext == nullptr) {
+        HILOG_ERROR("AbilityContext::GetResourceManager appContext is nullptr");
         return nullptr;
     }
 
-    HILOG_INFO("%{public}s begin appcontext->GetResourceManager.", __func__);
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appcontext->GetResourceManager();
-    HILOG_INFO("%{public}s end appcontext->GetResourceManager.", __func__);
+    HILOG_INFO("%{public}s begin appContext->GetResourceManager.", __func__);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appContext->GetResourceManager();
+    HILOG_INFO("%{public}s end appContext->GetResourceManager.", __func__);
     if (resourceManager == nullptr) {
         HILOG_ERROR("AbilityContext::GetResourceManager resourceManager is nullptr");
         return nullptr;
