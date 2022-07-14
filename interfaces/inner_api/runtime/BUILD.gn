@@ -50,14 +50,14 @@ ohos_shared_library("runtime") {
 
   configs = [
     ":runtime_config",
-    "//ark/js_runtime:ark_jsruntime_public_config",
+    "//arkcompiler/ets_runtime:ark_jsruntime_public_config",
     "${ability_runtime_services_path}/common:common_config",
   ]
 
   public_configs = [ ":runtime_public_config" ]
 
   deps = [
-    "//ark/js_runtime:libark_jsruntime",
+    "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
 
