@@ -17,7 +17,6 @@
 #define FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
 
 #include <string>
-#include <unordered_map>
 
 #include "hisysevent.h"
 

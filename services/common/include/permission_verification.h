@@ -16,8 +16,6 @@
 #ifndef OHOS_AAFWK_PERMISSION_VERIFICATION_H
 #define OHOS_AAFWK_PERMISSION_VERIFICATION_H
 
-#include <string.h>
-
 #include "singleton.h"
 
 namespace OHOS {

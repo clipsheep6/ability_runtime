@@ -16,9 +16,6 @@
 #include "sa_mgr_client.h"
 #include "hilog_wrapper.h"
 
-#include "ipc_skeleton.h"
-#include "string_ex.h"
-
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 

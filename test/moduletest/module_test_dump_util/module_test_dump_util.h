@@ -21,8 +21,6 @@
 #include <string>
 #include <regex>
 #include <unordered_map>
-#include <algorithm>
-#include <iterator>
 
 namespace OHOS {
 namespace MTUtil {

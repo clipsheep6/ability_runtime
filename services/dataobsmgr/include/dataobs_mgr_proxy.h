@@ -17,7 +17,6 @@
 #define OHOS_AAFWK_DATAOBS_MANAGER_PROXY_H
 
 #include "dataobs_mgr_interface.h"
-#include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 
 namespace OHOS {
