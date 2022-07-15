@@ -529,6 +529,15 @@ public:
      * @return
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
+
+    /**
+     * KillProcessByPid, Kill process by PID.
+     *
+     * @param pid_t, the app record pid.
+     *
+     * @return ERR_OK, return back success，others fail.
+     */
+    int32_t KillProcessByPid(const pid_t pid) const;
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount);
@@ -622,15 +631,6 @@ private:
      * @return ERR_OK, return back success, others fail.
      */
     int32_t KillApplicationByUserIdLocked(const std::string &bundleName, const int userId);
-
-    /**
-     * KillProcessByPid, Kill process by PID.
-     *
-     * @param pid_t, the app record pid.
-     *
-     * @return ERR_OK, return back success，others fail.
-     */
-    int32_t KillProcessByPid(const pid_t pid) const;
 
     /**
      * WaitForRemoteProcessExit, Wait for the process to exit normally.
