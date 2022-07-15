@@ -60,6 +60,13 @@ public:
 
     /**
      *
+     * @brief Get StopWatchDog flag.
+     *
+     */
+    bool IsStopWatchDog();
+
+    /**
+     *
      * @brief Get the eventHandler of watchdog thread.
      *
      * @return Returns the eventHandler of watchdog thread.
@@ -92,6 +99,8 @@ private:
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<std::thread> watchDogThread_ = nullptr;
     std::shared_ptr<EventRunner> watchDogRunner_ = nullptr;
+    std::mutex cvMutex_;
+    std::condition_variable cvWatchDog_;
     static bool appMainThreadIsAlive_;
     static std::shared_ptr<EventHandler> appMainHandler_;
     static std::shared_ptr<WatchDog> currentHandler_;
