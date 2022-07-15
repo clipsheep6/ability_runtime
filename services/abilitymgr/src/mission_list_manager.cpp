@@ -1381,17 +1381,14 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     }
 
     std::shared_ptr<Mission> mission = GetMissionById(missionId);
-    if (!mission) {
-        HILOG_ERROR("find mission failed, missionId:%{public}d", missionId);
-        return MISSION_NOT_FOUND;
+    if (mission) {
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (abilityRecord && abilityRecord->GetAbilityInfo().excludeFromMissions) {
+            HILOG_ERROR("excludeFromMissions is true, missionId:%{public}d", missionId);
+            return MISSION_NOT_FOUND;
+        }
+        mission->SetLockedState(lockedState);
     }
-
-    auto abilityRecord = mission->GetAbilityRecord();
-    if (abilityRecord && abilityRecord->GetAbilityInfo().excludeFromMissions) {
-        HILOG_ERROR("excludeFromMissions is true, missionId:%{public}d", missionId);
-        return MISSION_NOT_FOUND;
-    }
-    mission->SetLockedState(lockedState);
 
     // update inner mission info time
     InnerMissionInfo innerMissionInfo;
