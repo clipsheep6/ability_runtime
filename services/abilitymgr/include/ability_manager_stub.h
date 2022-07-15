@@ -151,6 +151,7 @@ private:
 
     int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
+    int GetCallerTokenInner(MessageParcel &data, MessageParcel &reply);
 
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);

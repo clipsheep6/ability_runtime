@@ -4946,6 +4946,22 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     return ERR_OK;
 }
 
+sptr<IRemoteObject> AbilityManagerService::GetCallerToken(const sptr<IRemoteObject> &token)
+{
+    HILOG_DEBUG("GetCallerToken begin");
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return nullptr;
+    }
+    auto callerRecord = abilityRecord->GetCallerRecord();
+    if (callerRecord == nullptr) {
+        HILOG_ERROR("callerRecord is nullptr");
+        return nullptr;
+    }
+    return callerRecord->GetToken();
+}
+
 #ifdef SUPPORT_GRAPHICS
 int AbilityManagerService::SetMissionLabel(const sptr<IRemoteObject> &token, const std::string &label)
 {

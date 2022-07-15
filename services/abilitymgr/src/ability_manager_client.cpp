@@ -947,5 +947,16 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
     want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
 #endif // WITH_DLP
 }
+
+sptr<IRemoteObject> AbilityManagerClient::GetCallerToken(const sptr<IRemoteObject> &token)
+{
+    HILOG_INFO("GetCallerToken begin.");
+    auto abms = GetAbilityManager();
+    if (!abms) {
+        HILOG_INFO("GetCallerToken:fail to get ability manager.");
+        return nullptr;
+    }
+    return abms->GetCallerToken(token);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
