@@ -649,9 +649,13 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     abilityRecord->SetScheduler(scheduler);
 
     if (abilityRecord->IsStartedByCall()) {
-        // started by callability, directly move to background.
-        abilityRecord->SetStartToBackground(true);
-        MoveToBackgroundTask(abilityRecord);
+        if (abilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_TO_FOREGROUND, false)) {
+            abilityRecord->SetStartToForeground(true);
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+        } else {
+            abilityRecord->SetStartToBackground(true);
+            MoveToBackgroundTask(abilityRecord);
+        }
         return ERR_OK;
     }
 
@@ -927,6 +931,13 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     /* PostTask to trigger start Ability from waiting queue */
     handler->PostTask(startWaitingAbilityTask, "startWaitingAbility", NEXTABILITY_TIMEOUT);
     TerminatePreviousAbility(abilityRecord);
+
+    // new version. started by caller, scheduler call request
+    if (abilityRecord->IsStartedByCall() && abilityRecord->IsStartToForeground() && abilityRecord->IsReady()) {
+        HILOG_DEBUG("call request after completing foreground state");
+        abilityRecord->CallRequest();
+        abilityRecord->SetStartToForeground(false);
+    }
 }
 
 void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)

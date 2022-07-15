@@ -779,6 +779,8 @@ public:
     bool CallRequest();
     bool IsStartToBackground() const;
     void SetStartToBackground(const bool flag);
+    bool IsStartToForeground() const;
+    void SetStartToForeground(const bool flag);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -916,6 +918,7 @@ private:
     std::shared_ptr<CallContainer> callContainer_ = nullptr;
     bool isStartedByCall_ = false;
     bool isStartToBackground_ = false;
+    bool isStartToForeground_ = false;
     int32_t appIndex_ = 0;
     bool minimizeReason_ = false;
 

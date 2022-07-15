@@ -20,6 +20,7 @@
 
 #include "ability_connect_callback.h"
 #include "connection_manager.h"
+#include "local_call_container.h"
 #include "start_options.h"
 #include "want.h"
 
@@ -47,6 +48,25 @@ public:
     ErrCode StartAbility(const AAFwk::Want &want) const;
 
     ErrCode StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const;
+
+    /**
+     * call function by callback object
+     *
+     * @param want Request info for ability.
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    ErrCode StartAbilityByCall(const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback);
+
+    /**
+     * caller release by callback object
+     *
+     * @param callback Indicates the callback object.
+     *
+     * @return Returns zero on success, others on failure.
+     */
+    ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) const;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
@@ -123,6 +143,7 @@ protected:
 
 private:
     static int ILLEGAL_REQUEST_CODE;
+    sptr<LocalCallContainer> localCallContainer_ = nullptr;
 
     /**
      * @brief Get Current Ability Type
