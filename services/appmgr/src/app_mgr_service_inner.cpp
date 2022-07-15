@@ -1234,6 +1234,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_ERROR("Get target fail.");
         return;
     }
+    bool isAllowInternet = false;
+    auto callerToken = IPCSkeleton::GetCallingTokenID();
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
+    if (result == Security::AccessToken::PERMISSION_GRANTED) {
+        isAllowInternet = true;
+    }
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
@@ -1242,6 +1248,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
     startMsg.bundleIndex = bundleIndex;
+    startMsg.isAllowInternet = isAllowInternet;
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
