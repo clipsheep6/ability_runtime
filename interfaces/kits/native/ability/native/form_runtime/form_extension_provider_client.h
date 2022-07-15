@@ -142,8 +142,8 @@ public:
      * @param requestCode requestCode of this form share.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
-        const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode) override;
+    virtual int ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode) override;
 
 private:
     std::shared_ptr<FormExtension> GetOwner();
@@ -165,7 +165,7 @@ private:
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                          const sptr<IRemoteObject> &callerToken);
-    void AcquireFormExtensionProviderShareFormInfo(const int64_t formId, AAFwk::WantParams &wantParams);
+    void AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
     mutable std::mutex formExtensionMutex_;

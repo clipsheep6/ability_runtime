@@ -351,7 +351,7 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
     }
 }
 
-void JsFormExtension::OnShare(const int64_t formId, AAFwk::WantParams &wantParams)
+void JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     HandleScope handleScope(jsRuntime_);

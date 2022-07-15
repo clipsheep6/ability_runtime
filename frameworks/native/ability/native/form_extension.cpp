@@ -101,7 +101,7 @@ FormState FormExtension::OnAcquireFormState(const Want &want)
     return FormState::DEFAULT;
 }
 
-void FormExtension::OnShare(const int64_t formId, AAFwk::WantParams &wantParams)
+void FormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 }

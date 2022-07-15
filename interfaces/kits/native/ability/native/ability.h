@@ -1347,7 +1347,7 @@ public:
      */
     virtual FormProviderInfo OnCreate(const Want &want);
 
-    virtual void OnShare(const int64_t formId, AAFwk::WantParams &wantParams);
+    virtual void OnShare(int64_t formId, AAFwk::WantParams &wantParams);
 
     /**
      * @brief Called to notify the form provider that a specified form has been deleted. Override this method if

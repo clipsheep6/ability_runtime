@@ -56,8 +56,8 @@ public:
     virtual int OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
                                      const Want &want) override;
 
-    virtual void OnShareAcquire(const int64_t formId, const std::string &remoteDeviceId,
-        const AAFwk::WantParams &wantParams, const int64_t requestCode) override;
+    virtual void OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
+        const AAFwk::WantParams &wantParams, int64_t requestCode) override;
 
 private:
     static std::mutex mutex;

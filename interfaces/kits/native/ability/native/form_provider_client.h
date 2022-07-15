@@ -143,8 +143,8 @@ public:
      * @param requestCode timeStamp of this form share.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
-        const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode) override;
+    virtual int ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode) override;
 
     /**
      * @brief Set the owner ability of the form provider client.

@@ -509,8 +509,8 @@ std::pair<int, int> FormExtensionProviderClient::CheckParam(const Want &want, co
  * @param requestCode requestCode of this form share.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::ShareAcquireProviderFormInfo(const int64_t formId, const std::string &remoteDeviceId,
-    const sptr<IRemoteObject> &formSupplyCallback, const int64_t requestCode)
+int FormExtensionProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+    const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 
@@ -537,7 +537,7 @@ int FormExtensionProviderClient::ShareAcquireProviderFormInfo(const int64_t form
 }
 
 void FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
-    const int64_t formId, AAFwk::WantParams &wantParams)
+    int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();

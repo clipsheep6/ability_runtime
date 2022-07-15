@@ -146,7 +146,7 @@ public:
      *
      * @return none.
      */
-    virtual void OnShare(const int64_t formId, AAFwk::WantParams &wantParams);
+    virtual void OnShare(int64_t formId, AAFwk::WantParams &wantParams);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
