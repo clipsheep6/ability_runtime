@@ -779,6 +779,8 @@ public:
      */
     bool IsBackgroundTaskUid(const int uid);
 
+    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -929,6 +931,8 @@ private:
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
+
+    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
 
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**

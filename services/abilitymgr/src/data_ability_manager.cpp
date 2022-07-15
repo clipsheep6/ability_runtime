@@ -149,7 +149,9 @@ int DataAbilityManager::Release(
 
     auto abilityRecord = dataAbilityRecord->GetAbilityRecord();
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_UNKNOWN_OBJECT);
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
+    int result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
