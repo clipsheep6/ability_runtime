@@ -28,40 +28,16 @@ const std::string SYSTEM_UI_STATUS_BAR = "com.ohos.systemui.statusbar.ServiceExt
 const std::string SYSTEM_UI_NAVIGATION_BAR = "com.ohos.systemui.navigationbar.ServiceExtAbility";
 const std::string SYSTEM_DIALOG_NAME = "com.ohos.systemui.systemdialog.MainAbility";
 const std::string SYSTEM_UI_ABILITY_NAME = "com.ohos.systemui.ServiceExtAbility";
-
-const std::string SYSTEM_DIALOG_REQUEST_PERMISSIONS = "OHOS_RESULT_PERMISSIONS_LIST_YES";
-const std::string SYSTEM_DIALOG_CALLER_BUNDLENAME = "OHOS_RESULT_CALLER_BUNDLERNAME";
-const std::string SYSTEM_DIALOG_KEY = "OHOS_RESULT_PERMISSION_KEY";
-
 const std::string DEVICE_MANAGER_BUNDLE_NAME = "com.ohos.devicemanagerui";
 const std::string DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
-
-const std::string EVENT_SYSTEM_WINDOW_MODE_CHANGED = "common.event.SYSTEM_WINDOW_MODE_CHANGED";
-const int EVENT_CODE_SYSTEM_WINDOW_MODE_CHANGED = 1;
-
-const std::string MISSION_NAME_MARK_HEAD = "#";
-const std::string MISSION_NAME_SEPARATOR = ":";
-
-const std::string FLOATING_WINDOW_PERMISSION = "ohos.permission.SYSTEM_FLOAT_WINDOW";
-
 const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
 const std::string LAUNCHER_RECENT_ABILITY_NAME = "com.ohos.launcher.recents.MainAbility";
-
-const std::string SETTINGS_DATA_ABILITY_NAME = "com.ohos.settingsdata.data";
-const std::string SETTINGS_DATA_BUNDLE_NAME = "com.ohos.settingsdata";
-
-const std::string PHONE_SERVICE_BUNDLE_NAME = "com.ohos.callui";
-const std::string PHONE_SERVICE_ABILITY_NAME = "com.ohos.callui.ServiceAbility";
-const std::string LOCK_SCREEN_EVENT_NAME = "lock_screen";
-
-const std::string MMS_ABILITY_NAME = "com.ohos.mms.ServiceAbility";
-const std::string MMS_BUNDLE_NAME = "com.ohos.mms";
-
-const std::string PARAMS_STREAM = "ability.params.stream";
-
 const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+const std::string PARAMS_STREAM = "ability.params.stream";
+const std::string MISSION_NAME_MARK_HEAD = "#";
+const std::string MISSION_NAME_SEPARATOR = ":";
 }  // namespace AbilityConfig
 }  // namespace AAFwk
 }  // namespace OHOS
