@@ -551,7 +551,7 @@ public:
         int requestCode,
         int callerUid = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE);
-        
+
     bool IsStartFreeInstall(const Want &want);
     int StartFreeInstall(const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId);
     int CheckPermission(const std::string &bundleName, const std::string &permission);
@@ -778,6 +778,12 @@ public:
      * @return Returns whether the uid is background task uid.
      */
     bool IsBackgroundTaskUid(const int uid);
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

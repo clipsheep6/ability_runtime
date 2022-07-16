@@ -654,6 +654,12 @@ public:
         return 0;
     }
 
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -925,6 +931,7 @@ public:
         STOP_SYNC_MISSIONS = 1113,
         REGISTER_SNAPSHOT_HANDLER = 1114,
         GET_MISSION_SNAPSHOT_INFO = 1115,
+        UPDATE_MISSION_SNAPSHOT = 1116,
 
         // ipc id for user test(1120)
         START_USER_TEST = 1120,

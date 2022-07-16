@@ -142,6 +142,11 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const int32_t missionId, Missio
     return ERR_OK;
 }
 
+void AbilityManagerClient::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+{
+    return;
+}
+
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 {
     return ERR_OK;

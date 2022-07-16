@@ -313,6 +313,12 @@ public:
     void RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler);
 
     /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    void UpdateSnapShot(const sptr<IRemoteObject>& token);
+
+    /**
      * @brief Get the Mission Snapshot object
      * @param missionId mission id
      * @param abilityToken abilityToken to get current mission snapshot

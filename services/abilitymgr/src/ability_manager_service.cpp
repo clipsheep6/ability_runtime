@@ -3824,6 +3824,17 @@ int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, i
     return ERR_OK;
 }
 
+void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+{
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return;
+    }
+    currentMissionListManager_->UpdateSnapShot(token);
+}
+
 int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot)
 {
