@@ -148,7 +148,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     }
 
     std::string processName;
-    MakeProcessName(processName, abilityInfo, appInfo, hapModuleInfo, appIndex);
+    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -191,8 +191,9 @@ bool AppMgrServiceInner::CheckLoadabilityConditions(const sptr<IRemoteObject> &t
     return true;
 }
 
-void AppMgrServiceInner::MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex)
+void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+    const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, int32_t appIndex,
+    std::string &processName)
 {
     if (!abilityInfo || !appInfo) {
         return;
@@ -201,14 +202,14 @@ void AppMgrServiceInner::MakeProcessName(std::string &processName, const std::sh
         processName = abilityInfo->process;
         return;
     }
-    MakeProcessName(processName, appInfo, hapModuleInfo);
+    MakeProcessName(appInfo, hapModuleInfo, processName);
     if (appIndex != 0) {
         processName += std::to_string(appIndex);
     }
 }
 
 void AppMgrServiceInner::MakeProcessName(
-    std::string &processName, const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo)
+    const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName)
 {
     if (!appInfo) {
         return;
@@ -1771,7 +1772,7 @@ int AppMgrServiceInner::StartUserTestProcess(
     }
 
     std::string processName;
-    MakeProcessName(processName, std::make_shared<ApplicationInfo>(bundleInfo.applicationInfo), hapModuleInfo);
+    MakeProcessName(std::make_shared<ApplicationInfo>(bundleInfo.applicationInfo), hapModuleInfo, processName);
     HILOG_INFO("processName = [%{public}s]", processName.c_str());
 
     // Inspection records
@@ -1968,7 +1969,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         HILOG_ERROR("abilityInfoPtr is nullptr.");
         return;
     }
-    MakeProcessName(processName, abilityInfoPtr, appInfo, hapModuleInfo, appIndex);
+    MakeProcessName(abilityInfoPtr, appInfo, hapModuleInfo, appIndex, processName);
 
     std::vector<HapModuleInfo> hapModules;
     hapModules.emplace_back(hapModuleInfo);
