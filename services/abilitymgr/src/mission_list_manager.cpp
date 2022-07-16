@@ -1402,6 +1402,19 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     return ERR_OK;
 }
 
+void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject>& token)
+{
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("Cannot find AbilityRecord by Token.");
+        return;
+    }
+    HILOG_INFO("UpdateSnapShot, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
+    UpdateMissionSnapshot(abilityRecord);
+    abilityRecord->SetNeedSnapShot(false);
+}
+
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1412,7 +1425,11 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
     NotifyMissionCreated(abilityRecord);
-    UpdateMissionSnapshot(abilityRecord);
+    if (abilityRecord->IsNeedTakeSnapShot()) {
+        UpdateMissionSnapshot(abilityRecord);
+    } else {
+        abilityRecord->SetNeedSnapShot(true);
+    }
 
     auto self(shared_from_this());
     auto task = [abilityRecord, self]() {

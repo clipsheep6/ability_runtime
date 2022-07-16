@@ -783,6 +783,12 @@ public:
 
     bool GetLocalDeviceId(std::string& localDeviceId);
 
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+
 #ifdef SUPPORT_GRAPHICS
     int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
 #endif
@@ -965,7 +971,7 @@ private:
 
     int32_t InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
         AppExecFwk::AbilityInfo &abilityInfo);
-    
+
     // multi user
     void StartFreezingScreen();
     void StopFreezingScreen();
@@ -1046,7 +1052,7 @@ private:
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
     std::shared_ptr<FreeInstallManager> freeInstallManager_;
-    
+
     std::shared_ptr<UserController> userController_;
     sptr<AppExecFwk::IAbilityController> abilityController_ = nullptr;
     bool controllerIsAStabilityTest_ = false;
