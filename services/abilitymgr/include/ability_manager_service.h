@@ -783,6 +783,8 @@ public:
 
     bool GetLocalDeviceId(std::string& localDeviceId);
 
+    int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
+
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
@@ -1008,6 +1010,8 @@ private:
     int VerifyMissionPermission();
 
     int VerifyAccountPermission(int32_t userId);
+
+    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;

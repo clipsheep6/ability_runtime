@@ -429,7 +429,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     GrantUriPermission(want, validUserId);
-    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo, callerUid);
+    result = JudgeAbilityVisibleControl(abilityInfo, callerUid);
     if (result != ERR_OK) {
         HILOG_ERROR("JudgeAbilityVisibleControl error, result is %{public}d.", result);
         return result;
@@ -559,7 +559,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return result;
     }
-    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
+    result = JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         eventInfo.errCode = result;
@@ -710,7 +710,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return result;
     }
-    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
+    result = JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         eventInfo.errCode = result;
@@ -785,7 +785,7 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
         return result;
     }
     GrantUriPermission(want, validUserId);
-    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
+    result = JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("JudgeAbilityVisibleControl error, result is %{public}d.", result);
         return result;
@@ -1073,7 +1073,7 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
@@ -1290,7 +1290,7 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
@@ -1462,7 +1462,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_INVALID_OPERATION;
     }
 
-    result = AbilityUtil::JudgeAbilityVisibleControl(abilityInfo);
+    result = JudgeAbilityVisibleControl(abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
@@ -2114,7 +2114,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
 bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
 {
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
+    int result = JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return false;
@@ -3042,7 +3042,7 @@ int AbilityManagerService::TerminateAbilityResult(const sptr<IRemoteObject> &tok
 
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
@@ -3769,38 +3769,13 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
     HILOG_DEBUG("%{public}s begin", __func__);
     auto abilityInfo = abilityRequest.abilityInfo;
     auto callerUid = abilityRequest.callerUid;
-    auto targetUid = abilityInfo.applicationInfo.uid;
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-
-    std::string bundleName;
-    bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
-    if (!result) {
-        HILOG_ERROR("GetBundleNameForUid from bms fail.");
-        return RESOLVE_CALL_NO_PERMISSIONS;
-    }
-    AppExecFwk::ApplicationInfo callerAppInfo;
-    result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetUserId(), callerAppInfo));
-    if (!result) {
-        HILOG_ERROR("GetApplicationInfo from bms fail.");
+    if (!CheckCallerEligibility(abilityInfo, callerUid)) {
+        HILOG_ERROR("called ability has no permission.");
         return RESOLVE_CALL_NO_PERMISSIONS;
     }
 
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto apl = callerAppInfo.appPrivilegeLevel;
-    if (!isSaCall && apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
-        HILOG_DEBUG("caller is normal app.");
-        if (bundleName != abilityInfo.bundleName && callerUid != targetUid) {
-            HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
-                        "target: %{public}s",
-                bundleName.c_str(),
-                abilityInfo.bundleName.c_str());
-            return RESOLVE_CALL_NO_PERMISSIONS;
-        }
-    }
-    HILOG_DEBUG("the caller has permission to resolve the callproxy of common ability.");
+    HILOG_DEBUG("the caller has permission to resolve the call proxy of common ability.");
     // check whether the target ability is singleton mode and page type.
     if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
         abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
@@ -3810,6 +3785,65 @@ int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityReq
         return RESOLVE_CALL_ABILITY_TYPE_ERR;
     }
     return ERR_OK;
+}
+
+int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
+{
+    HILOG_DEBUG("Judge ability visible begin.");
+    if (!abilityInfo.visible) {
+        HILOG_INFO("Ability visible is false.");
+        if (callerUid == -1) {
+            callerUid = IPCSkeleton::GetCallingUid();
+        }
+        if (!CheckCallerEligibility(abilityInfo, callerUid)) {
+            HILOG_ERROR("called ability has no permission.");
+            return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
+        }
+    }
+    HILOG_DEBUG("Judge ability visible success.");
+    return ERR_OK;
+}
+
+bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("fail to get bundle manager.");
+            return false;
+        }
+
+        std::string bundleName;
+        bool result = IN_PROCESS_CALL(bms->GetBundleNameForUid(callerUid, bundleName));
+        if (!result) {
+            HILOG_ERROR("GetBundleNameForUid from bms fail.");
+            return false;
+        }
+        AppExecFwk::ApplicationInfo callerAppInfo;
+        result = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+            GetUserId(), callerAppInfo));
+        if (!result) {
+            HILOG_ERROR("GetApplicationInfo from bms fail.");
+            return false;
+        }
+
+        auto apl = callerAppInfo.appPrivilegeLevel;
+        if (apl != AbilityUtil::SYSTEM_BASIC && apl != AbilityUtil::SYSTEM_CORE) {
+            HILOG_DEBUG("caller is normal app.");
+            auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+            auto targetTokenId = abilityInfo.applicationInfo.accessTokenId;
+            if (callerTokenId != targetTokenId) {
+                HILOG_ERROR("the bundle name of caller is different from target one, caller: %{public}s "
+                            "target: %{public}s",
+                    bundleName.c_str(),
+                    abilityInfo.bundleName.c_str());
+                return false;
+            }
+        }
+    }
+    HILOG_DEBUG("Success to check caller permission.");
+    return true;
 }
 
 int AbilityManagerService::StartUser(int userId)
@@ -4410,7 +4444,7 @@ int AbilityManagerService::DoAbilityForeground(const sptr<IRemoteObject> &token,
     std::lock_guard<std::recursive_mutex> guard(globalLock_);
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+    int result = JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
