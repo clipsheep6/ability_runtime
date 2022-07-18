@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_DATA_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_DATA_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_DATA_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_DATA_H
 
 #include <map>
 #include <string>
@@ -118,4 +118,4 @@ typedef struct __ComplexArrayData {
 } ComplexArrayData;
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_DATA_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_DATA_H

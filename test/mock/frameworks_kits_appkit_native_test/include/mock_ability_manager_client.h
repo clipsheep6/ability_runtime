@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_APPEXECFWK_MOCK_ABILITY_MANAGER_CLIENT_H
-#define OHOS_APPEXECFWK_MOCK_ABILITY_MANAGER_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_H
 
 #include "gmock/gmock.h"
 
@@ -39,4 +39,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif /* OHOS_APPEXECFWK_MOCK_ABILITY_MANAGER_CLIENT_H */
+#endif /* OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_CLIENT_H */

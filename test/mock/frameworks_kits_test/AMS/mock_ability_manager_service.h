@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MOCK_MANAGER_SERVICE_H
-#define OHOS_AAFWK_ABILITY_MOCK_MANAGER_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
 #include <singleton.h>
@@ -251,4 +251,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H

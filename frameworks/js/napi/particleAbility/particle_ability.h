@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_PARTICLE_ABILITY_H
-#define OHOS_APPEXECFWK_PARTICLE_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -33,4 +33,4 @@ namespace AppExecFwk {
 napi_value ParticleAbilityInit(napi_env env, napi_value exports);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_PARTICLE_ABILITY_H */
+#endif /* OHOS_ABILITY_RUNTIME_PARTICLE_ABILITY_H */

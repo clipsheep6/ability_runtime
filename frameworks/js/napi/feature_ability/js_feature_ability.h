@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
-#define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_H
 
 #include "ability.h"
 #include "distribute_req_param.h"
@@ -72,4 +72,4 @@ private:
 NativeValue* JsFeatureAbilityInit(NativeEngine* engine, NativeValue* exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_FEATURE_ABILITY_H

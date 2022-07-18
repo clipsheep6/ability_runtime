@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
 #include "ability_connect_callback_stub.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
@@ -316,4 +316,4 @@ enum ErrorCode {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H

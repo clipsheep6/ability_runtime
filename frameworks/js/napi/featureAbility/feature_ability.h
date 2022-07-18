@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_FEATURE_ABILITY_H
-#define OHOS_APPEXECFWK_FEATURE_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H
 #include "../inner/napi_common/feature_ability_common.h"
 using Want = OHOS::AAFwk::Want;
 
@@ -358,4 +358,4 @@ napi_value NAPI_FADisConnectAbility(napi_env env, napi_callback_info info);
 napi_value NAPI_FAContinueAbility(napi_env env, napi_callback_info info);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_FEATURE_ABILITY_H */
+#endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_H */

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONTINUATION_REGISTER_MANAGER_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONTINUATION_REGISTER_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTINUATION_REGISTER_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_CONTINUATION_REGISTER_MANAGER_H
 
 #include <string>
 #include "continuation_register_manager_interface.h"
@@ -78,4 +78,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_CONTINUATION_REGISTER_MANAGER_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTINUATION_REGISTER_MANAGER_H

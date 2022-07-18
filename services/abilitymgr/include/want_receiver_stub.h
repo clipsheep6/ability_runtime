@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_OS_AAFWK_WANT_RECEIVER_STUB_H
-#define OHOS_OS_AAFWK_WANT_RECEIVER_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_RECEIVER_STUB_H
+#define OHOS_ABILITY_RUNTIME_WANT_RECEIVER_STUB_H
 
 #include "want_receiver_interface.h"
 
@@ -40,4 +40,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_OS_AAFWK_WANT_RECEIVER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_RECEIVER_STUB_H

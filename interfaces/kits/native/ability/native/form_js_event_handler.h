@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_FORM_JS_EVENT_HANDLER_H
-#define FOUNDATION_APPEXECFWK_OHOS_FORM_JS_EVENT_HANDLER_H
+#ifndef OHOS_ABILITY_RUNTIME_FORM_JS_EVENT_HANDLER_H
+#define OHOS_ABILITY_RUNTIME_FORM_JS_EVENT_HANDLER_H
 
 #include <singleton.h>
 #include "ability.h"
@@ -59,4 +59,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_FORM_JS_EVENT_HANDLER_H
+#endif  // OHOS_ABILITY_RUNTIME_FORM_JS_EVENT_HANDLER_H

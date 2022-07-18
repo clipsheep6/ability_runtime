@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_LOADER_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_LOADER_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_LOADER_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_LOADER_H
 
 #include "ability.h"
 #include "context.h"
@@ -145,4 +145,4 @@ private:
 #endif
 }  // namespace OHOS
 }  // OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_LOADER_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LOADER_H

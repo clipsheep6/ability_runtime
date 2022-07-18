@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_MOCK_APP_SERVICE_MGR_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_MOCK_APP_SERVICE_MGR_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_APP_SERVICE_MGR_H
+#define OHOS_ABILITY_RUNTIME_MOCK_APP_SERVICE_MGR_H
 
 #include "iremote_object.h"
 #include "app_service_manager.h"
@@ -36,4 +36,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_TEST_MOCK_APP_SERVICE_MGR_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_APP_SERVICE_MGR_H

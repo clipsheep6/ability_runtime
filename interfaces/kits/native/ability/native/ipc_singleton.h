@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_IPCSINGLETON_H
-#define OHOS_AAFWK_IPCSINGLETON_H
+#ifndef OHOS_ABILITY_RUNTIME_IPC_SINGLETON_H
+#define OHOS_ABILITY_RUNTIME_IPC_SINGLETON_H
 
 #include "nocopyable.h"
 #include <mutex>
@@ -67,4 +67,4 @@ void DelayedIPCSingleton<T>::DestroyInstance()
     }
 }
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_IPCSINGLETON_H
+#endif  // OHOS_ABILITY_RUNTIME_IPC_SINGLETON_H

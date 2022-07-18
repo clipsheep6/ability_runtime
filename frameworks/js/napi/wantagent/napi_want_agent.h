@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef NAPI_WANT_AGENT_H
-#define NAPI_WANT_AGENT_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_WANT_AGENT_H
+#define OHOS_ABILITY_RUNTIME_NAPI_WANT_AGENT_H
 
 #include <map>
 #include <memory>
@@ -204,4 +204,4 @@ static std::unique_ptr<std::map<AsyncGetWantAgentCallbackInfo *, const int32_t>,
         });
 static std::recursive_mutex g_mutex;
 }  // namespace OHOS
-#endif  // NAPI_WANT_AGENT_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_WANT_AGENT_H

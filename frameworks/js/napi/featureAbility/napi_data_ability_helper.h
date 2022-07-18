@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_DATA_ABILITY_HELPER_H
-#define OHOS_APPEXECFWK_NAPI_DATA_ABILITY_HELPER_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H
+#define OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H
 #include "data_ability_observer_stub.h"
 #include "feature_ability_common.h"
 
@@ -498,4 +498,4 @@ void GetDataAbilityResultForResult(
 void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_NAPI_DATA_ABILITY_HELPER_H */
+#endif /* OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_HELPER_H */

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_APPEXECFWK_DATA_ABILITY_OPERATION_H
-#define OHOS_APPEXECFWK_DATA_ABILITY_OPERATION_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_OPERATION_H
+#define OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_OPERATION_H
 
 #include "data_ability_operation.h"
 #include "feature_ability_common.h"
@@ -71,4 +71,4 @@ napi_value UnwrapDataAbilityPredicatesBackReferences(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, napi_env env, napi_value args);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_WANT_WRAPPER_H */
+#endif /* OHOS_ABILITY_RUNTIME_NAPI_DATA_ABILITY_OPERATION_H */

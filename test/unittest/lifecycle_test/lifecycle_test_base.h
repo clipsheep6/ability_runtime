@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LIFECYCLE_TEST_BASE_H
-#define LIFECYCLE_TEST_BASE_H
+#ifndef OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
+#define OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
 
 #include <ctime>
 #include <pthread.h>
@@ -96,4 +96,4 @@ public:
     }
 };
 
-#endif  // LIFECYCLE_TEST_BASE_H
+#endif  // OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H

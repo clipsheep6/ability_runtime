@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_TEST_MOCK_SYSTEM_ABILITY_H
-#define FOUNDATION_AAFWK_SERVICES_TEST_MOCK_SYSTEM_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
 
 #include "hilog/log.h"
 #include "iremote_object.h"
@@ -68,4 +68,4 @@ protected:
     }
 };
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_TEST_MOCK_SYSTEM_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H

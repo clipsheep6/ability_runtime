@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_CONNECTION_MANAGER_H
-#define ABILITY_RUNTIME_CONNECTION_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_CONNECTION_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_CONNECTION_MANAGER_H
 
 #include <map>
 #include <vector>
@@ -149,4 +149,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_CONNECTION_MANAGER_H
+#endif // OHOS_ABILITY_RUNTIME_CONNECTION_MANAGER_H

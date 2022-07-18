@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_CONNECT_CALLBACK_PROXY_H
-#define OHOS_AAFWK_ABILITY_CONNECT_CALLBACK_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_PROXY_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_PROXY_H
 
 #include "ability_connect_callback_interface.h"
 #include "iremote_proxy.h"
@@ -59,4 +59,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_CONNECT_CALLBACK_PROXY_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_CONNECT_CALLBACK_PROXY_H

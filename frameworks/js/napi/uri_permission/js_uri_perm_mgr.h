@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_URI_PERM_MGR_H
-#define ABILITY_RUNTIME_JS_URI_PERM_MGR_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_URI_PERM_MGR_H
+#define OHOS_ABILITY_RUNTIME_JS_URI_PERM_MGR_H
 
 #include "native_engine/native_engine.h"
 
@@ -23,4 +23,4 @@ namespace AbilityRuntime {
 NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_URI_PERM_MGR_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_URI_PERM_MGR_H

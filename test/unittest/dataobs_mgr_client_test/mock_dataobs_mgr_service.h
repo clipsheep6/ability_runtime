@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_SERVICE_H
-#define MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_SERVICE_H
 
 #include <gmock/gmock.h>
 #define protected public
@@ -106,4 +106,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_SERVICE_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_SERVICE_H

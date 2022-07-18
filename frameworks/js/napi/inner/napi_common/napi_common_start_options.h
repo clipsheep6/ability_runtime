@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_START_OPTIONS_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_START_OPTIONS_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_START_OPTIONS_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_START_OPTIONS_H
 
 #include "napi_common_data.h"
 #include "start_options.h"
@@ -28,4 +28,4 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
 EXTERN_C_END
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_START_OPTIONS_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_START_OPTIONS_H

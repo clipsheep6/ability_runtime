@@ -18,8 +18,8 @@
 #include "element_name.h"
 #include "native_engine/native_engine.h"
 
-#ifndef OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
-#define OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -33,4 +33,4 @@ NativeValue *AbilityStateInit(NativeEngine *engine);
 NativeValue* CreateJsElementName(NativeEngine &engine, const AppExecFwk::ElementName &elementName);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif // OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
+#endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H

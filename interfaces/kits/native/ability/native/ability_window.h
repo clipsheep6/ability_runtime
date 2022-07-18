@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_WINDOW_H
-#define OHOS_ABILITY_WINDOW_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H
 
 #include <map>
 
@@ -100,4 +100,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_WINDOW_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H

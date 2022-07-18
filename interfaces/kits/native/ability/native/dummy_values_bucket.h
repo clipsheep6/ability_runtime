@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_VALUESBUCKER_H
-#define FOUNDATION_APPEXECFWK_OHOS_VALUESBUCKER_H
+#ifndef OHOS_ABILITY_RUNTIME_DUMMY_VALUES_BUCKET_H
+#define OHOS_ABILITY_RUNTIME_DUMMY_VALUES_BUCKET_H
 
 #include <string>
 #include <unistd.h>
@@ -47,4 +47,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_VALUESBUCKER_H
+#endif  // OHOS_ABILITY_RUNTIME_DUMMY_VALUES_BUCKET_H

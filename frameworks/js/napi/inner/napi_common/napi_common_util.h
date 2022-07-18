@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_UTIL_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_UTIL_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H
 
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -256,4 +256,4 @@ std::vector<uint8_t> ConvertU8Vector(napi_env env, napi_value jsValue);
 std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_UTIL_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_UTIL_H

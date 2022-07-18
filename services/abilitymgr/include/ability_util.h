@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_UTIL_H
-#define OHOS_AAFWK_ABILITY_UTIL_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_UTIL_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_UTIL_H
 
 #include <string>
 
@@ -191,4 +191,4 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_ABILITY_UTIL_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_UTIL_H

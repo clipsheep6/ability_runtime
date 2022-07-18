@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_UTILS_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_RUNTIME_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_RUNTIME_UTILS_H
 
 #include <cstdint>
 #include <memory>
@@ -185,4 +185,4 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 
-#endif  // FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_RUNTIME_UTILS_H

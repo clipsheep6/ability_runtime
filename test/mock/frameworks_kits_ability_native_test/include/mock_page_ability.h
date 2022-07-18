@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
-#define FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_PAGE_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_MOCK_PAGE_ABILITY_H
 
 #include <gtest/gtest.h>
 #include "ability.h"
@@ -180,4 +180,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_MOCK_PAGE_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_PAGE_ABILITY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -28,4 +28,4 @@ namespace AppExecFwk {
 #define NAPI_ERR_ABILITY_CALL_INVALID (-106)  // Call the ability interface, the return value is wrong
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_ERROR_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_ERROR_H

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_SYSTEM_DIALOG_SCHEDULER_H
-#define OHOS_AAFWK_SYSTEM_DIALOG_SCHEDULER_H
+#ifndef OHOS_ABILITY_RUNTIME_SYSTEM_DIALOG_SCHEDULER_H
+#define OHOS_ABILITY_RUNTIME_SYSTEM_DIALOG_SCHEDULER_H
 
 #include <functional>
 
@@ -92,4 +92,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_SYSTEM_DIALOG_SCHEDULER_H
+#endif  // OHOS_ABILITY_RUNTIME_SYSTEM_DIALOG_SCHEDULER_H

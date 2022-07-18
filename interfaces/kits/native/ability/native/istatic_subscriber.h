@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_I_STATIC_SUBSCRIBER_H
-#define OHOS_APPEXECFWK_I_STATIC_SUBSCRIBER_H
+#ifndef OHOS_ABILITY_RUNTIME_ISTATIC_SUBSCRIBER_H
+#define OHOS_ABILITY_RUNTIME_ISTATIC_SUBSCRIBER_H
 
 #include <string_ex.h>
 #include <iremote_broker.h>
@@ -37,5 +37,5 @@ public:
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-#endif // OHOS_APPEXECFWK_I_STATIC_SUBSCRIBER_H
+#endif // OHOS_ABILITY_RUNTIME_ISTATIC_SUBSCRIBER_H
 

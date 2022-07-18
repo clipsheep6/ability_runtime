@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
-#define OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
+#ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
+#define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
 #include "ability.h"
 #include "ability_info.h"
 #include "abs_shared_result_set.h"
@@ -335,4 +335,4 @@ struct DAHelperExecuteBatchCB {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H */
+#endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H */

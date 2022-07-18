@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_INTERFACES_INNERKITS_WANTS_INFO_H
-#define OHOS_AAFWK_INTERFACES_INNERKITS_WANTS_INFO_H
+#ifndef OHOS_ABILITY_RUNTIME_WANTS_INFO_H
+#define OHOS_ABILITY_RUNTIME_WANTS_INFO_H
 
 #include <string>
 #include "parcel.h"
@@ -33,4 +33,4 @@ struct WantsInfo : public Parcelable {
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_INTERFACES_INNERKITS_WANTS_INFO_H
+#endif  // OHOS_ABILITY_RUNTIME_WANTS_INFO_H

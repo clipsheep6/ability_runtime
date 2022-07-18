@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
-#define ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
 
 #include "extension_context.h"
 #include "native_engine/native_engine.h"
@@ -38,4 +38,4 @@ NativeValue* CreateJsExtensionContext(NativeEngine& engine, const std::shared_pt
     DetachCallback detach = nullptr, AttachCallback attach = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_JS_EXTENSION_CONTEXT_H

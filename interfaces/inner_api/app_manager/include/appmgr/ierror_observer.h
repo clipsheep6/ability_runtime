@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_APP_MANAGER_IERROR_ONSERVER_H
-#define ABILITY_RUNTIME_APP_MANAGER_IERROR_ONSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H
 
 #include <string>
 
@@ -33,4 +33,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_APP_MANAGER_IERROR_ONSERVER_H
+#endif  // OHOS_ABILITY_RUNTIME_IERROR_OBSERVER_H

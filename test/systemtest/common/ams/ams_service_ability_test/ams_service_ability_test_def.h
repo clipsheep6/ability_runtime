@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_SERVICE_ABILITY_TEST_DEF_H_
-#define AMS_SERVICE_ABILITY_TEST_DEF_H_
+#ifndef OHOS_ABILITY_RUNTIME_AMS_SERVICE_ABILITY_TEST_DEF_H_
+#define OHOS_ABILITY_RUNTIME_AMS_SERVICE_ABILITY_TEST_DEF_H_
 #include <map>
 #include <string>
 
@@ -85,4 +85,4 @@ const std::string REQ_EVENT_NAME_APP_H1 = "req_com_ohos_amsst_service_app_h1";
 const std::string DEVICE_ID = "device";
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_SERVICE_ABILITY_TEST_DEF_H_
+#endif  // OHOS_ABILITY_RUNTIME_AMS_SERVICE_ABILITY_TEST_DEF_H_

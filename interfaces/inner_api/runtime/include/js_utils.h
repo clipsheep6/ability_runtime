@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_JS_UTILS_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_JS_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_UTILS_H
 
 #include "native_engine/native_engine.h"
 
@@ -67,4 +67,4 @@ inline T* ConvertNativeValueTo(NativeValue* value)
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 
-#endif  // FOUNDATION_OHOS_ABILITYRUNTIME_JS_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_UTILS_H

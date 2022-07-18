@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_APPLICATION_CONTEXT_H
-#define ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H
 
 #include <vector>
 #include <shared_mutex>
@@ -77,4 +77,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H

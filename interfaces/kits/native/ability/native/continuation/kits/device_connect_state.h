@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_DEVICE_CONNECT_STATE_H
-#define FOUNDATION_APPEXECFWK_OHOS_DEVICE_CONNECT_STATE_H
+#ifndef OHOS_ABILITY_RUNTIME_DEVICE_CONNECT_STATE_H
+#define OHOS_ABILITY_RUNTIME_DEVICE_CONNECT_STATE_H
 namespace OHOS {
 namespace AppExecFwk {
 enum class DeviceConnectState {
@@ -35,4 +35,4 @@ enum class DeviceConnectState {
 using DEVICE_CONNECT_STATE = enum DeviceConnectState;
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_DEVICE_CONNECT_STATE_H
+#endif  // OHOS_ABILITY_RUNTIME_DEVICE_CONNECT_STATE_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
-#define ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
 
 #include <memory>
 
@@ -30,4 +30,4 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     DetachCallback detach, AttachCallback attach, bool keepApplicationContext = false);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_UTILS_H

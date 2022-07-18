@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_FORM_EXTENSION_H
-#define FOUNDATION_APPEXECFWK_OHOS_FORM_EXTENSION_H
+#ifndef OHOS_ABILITY_RUNTIME_FORM_EXTENSION_H
+#define OHOS_ABILITY_RUNTIME_FORM_EXTENSION_H
 
 #include "extension_base.h"
 #include "form_provider_info.h"
@@ -141,4 +141,4 @@ public:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_FORM_EXTENSION_H
+#endif  // OHOS_ABILITY_RUNTIME_FORM_EXTENSION_H

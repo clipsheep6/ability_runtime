@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_MISSION_CONTINUE_STUB_H
-#define OHOS_MISSION_CONTINUE_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_STUB_H
+#define OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_STUB_H
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -36,4 +36,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_MISSION_CONTINUE_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_STUB_H

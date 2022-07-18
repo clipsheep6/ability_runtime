@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef PENDING_WANT_COMMON_EVENT_H
-#define PENDING_WANT_COMMON_EVENT_H
+#ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_COMMON_EVENT_H
+#define OHOS_ABILITY_RUNTIME_PENDING_WANT_COMMON_EVENT_H
 
 #include "common_event_data.h"
 #include "common_event_subscriber.h"
@@ -43,4 +43,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // PENDING_WANT_COMMON_EVENT_H
+#endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_COMMON_EVENT_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_DELEGATOR_JS_ABILITY_DELEGATOR_UTILS_H
-#define OHOS_ABILITY_DELEGATOR_JS_ABILITY_DELEGATOR_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_UTILS_H
 
 #include "js_runtime_utils.h"
 #include "ability_delegator.h"
@@ -31,4 +31,4 @@ NativeValue *CreateJsAbilityDelegatorArguments(
 NativeValue *CreateJsShellCmdResult(NativeEngine &engine, std::unique_ptr<ShellCmdResult> &shellResult);
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
-#endif // OHOS_ABILITY_DELEGATOR_JS_ABILITY_DELEGATOR_UTILS_H
+#endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_UTILS_H

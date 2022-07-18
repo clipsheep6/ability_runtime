@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_URI_PERMISSION_MANAGER_SERVICE_H
-#define OHOS_AAFWK_URI_PERMISSION_MANAGER_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_SERVICE_H
 
 #include "singleton.h"
 #include "system_ability.h"
@@ -49,4 +49,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_URI_PERMISSION_MANAGER_SERVICE_H
+#endif  // OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_SERVICE_H

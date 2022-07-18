@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H
-#define FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H
+#ifndef OHOS_ABILITY_RUNTIME_HDC_REGISTER_H
+#define OHOS_ABILITY_RUNTIME_HDC_REGISTER_H
 
 #include <string>
 
@@ -39,4 +39,4 @@ private:
 };
 } // namespace OHOS::AbilityRuntime
 
-#endif // FOUNDATION_ABILITY_RUNTIME_HDC_REGISTER_H
+#endif // OHOS_ABILITY_RUNTIME_HDC_REGISTER_H

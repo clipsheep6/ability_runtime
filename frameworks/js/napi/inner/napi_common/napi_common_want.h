@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_WANT_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_WANT_H
 
 #include <map>
 #include <string>
@@ -51,4 +51,4 @@ bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, 
 EXTERN_C_END
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_WANT_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_WANT_H

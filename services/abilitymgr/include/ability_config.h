@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_CONFIG_H
-#define OHOS_AAFWK_ABILITY_CONFIG_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONFIG_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONFIG_H
 
 #include <string>
 
@@ -66,4 +66,4 @@ const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.Grant
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_ABILITY_CONFIG_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_CONFIG_H

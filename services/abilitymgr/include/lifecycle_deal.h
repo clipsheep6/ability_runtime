@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_LIFECYCLE_DEAL_H
-#define OHOS_AAFWK_LIFECYCLE_DEAL_H
+#ifndef OHOS_ABILITY_RUNTIME_LIFECYCLE_DEAL_H
+#define OHOS_ABILITY_RUNTIME_LIFECYCLE_DEAL_H
 
 #include <memory>
 #include <shared_mutex>
@@ -68,4 +68,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_LIFECYCLE_DEAL_H
+#endif  // OHOS_ABILITY_RUNTIME_LIFECYCLE_DEAL_H

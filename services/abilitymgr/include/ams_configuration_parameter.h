@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
-#define OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
+#ifndef OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H
+#define OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H
 
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -112,4 +112,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
+#endif  // OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H

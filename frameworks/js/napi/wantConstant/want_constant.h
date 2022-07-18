@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_WANT_CONSTANT_H
-#define OHOS_APPEXECFWK_WANT_CONSTANT_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_CONSTANT_H
+#define OHOS_ABILITY_RUNTIME_WANT_CONSTANT_H
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -35,4 +35,4 @@ void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, cons
 void SetNamedProperty(napi_env env, napi_value dstObj, const int32_t objValue, const char *propName);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_WANT_CONSTANT_H */
+#endif /* OHOS_ABILITY_RUNTIME_WANT_CONSTANT_H */

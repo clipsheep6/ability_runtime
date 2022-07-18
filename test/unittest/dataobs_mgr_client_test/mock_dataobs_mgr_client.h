@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_CLIENT_H
-#define MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_CLIENT_H
 
 #include <gmock/gmock.h>
 #include <memory>
@@ -63,4 +63,4 @@ ErrCode MockDataObsMgrClient::Connect()
 }
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // MOCK_FOUNDATION_AAFWK_MOCK_DATAOBS_MGR_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_DATAOBS_MGR_CLIENT_H

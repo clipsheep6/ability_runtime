@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef DEMO_ABILITY_H
-#define DEMO_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_DEMO_ABILITY_TEST_H
+#define OHOS_ABILITY_RUNTIME_DEMO_ABILITY_TEST_H
 #include "ability.h"
 #include "ability_loader.h"
 #include "want.h"
@@ -53,4 +53,4 @@ protected:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // DEMO_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_DEMO_ABILITY_TEST_H

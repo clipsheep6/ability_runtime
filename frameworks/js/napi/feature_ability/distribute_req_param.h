@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_DISTRIBUTE_REQ_PARAM_H
-#define OHOS_AAFWK_DISTRIBUTE_REQ_PARAM_H
+#ifndef OHOS_ABILITY_RUNTIME_DISTRIBUTE_REQ_PARAM_H
+#define OHOS_ABILITY_RUNTIME_DISTRIBUTE_REQ_PARAM_H
 
 #include <string>
 
@@ -129,4 +129,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DISTRIBUTE_REQ_PARAM_H
+#endif  // OHOS_ABILITY_RUNTIME_DISTRIBUTE_REQ_PARAM_H

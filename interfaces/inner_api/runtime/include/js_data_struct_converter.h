@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
-#define ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
+#define OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
 
 #include "ability_info.h"
 #include "application_info.h"
@@ -40,4 +40,4 @@ NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppEx
 NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &Info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H

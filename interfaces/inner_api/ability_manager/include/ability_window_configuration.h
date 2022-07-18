@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_ABILITY_WINDOW_CONFIGURATION_H
-#define OHOS_AAFWK_ABILITY_WINDOW_CONFIGURATION_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_CONFIGURATION_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_CONFIGURATION_H
 
 namespace OHOS {
 namespace AAFwk {
@@ -45,4 +45,4 @@ enum AbilityWindowConfiguration {
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_WINDOW_CONFIGURATION_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_CONFIGURATION_H
