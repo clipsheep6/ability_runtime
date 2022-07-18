@@ -1,6 +1,5 @@
 {
     "service_startup_config":{
-        "startup_settings_data": true,
         "mission_save_time" : 43200000,
         "root_launcher_restart_max":15,
         "app_not_response_process_timeout_time" : 1000,
