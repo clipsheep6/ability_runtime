@@ -75,7 +75,8 @@ void JsAbilityLifecycleCallback::CallJsMethod(
             if (jsCallback) {
                 jsCallback->CallJsMethodInner(methodName, ability);
             }
-        });
+        }
+    );
     NativeReference *callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule("JsAbilityLifecycleCallback::CallJsMethod:" + methodName,

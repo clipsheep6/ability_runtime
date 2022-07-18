@@ -463,7 +463,7 @@ NativeValue *JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
         return engine.CreateNumber(callback_->Register(info.argv[0]));
     }
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
-    int callbackId = callback_->Register(info.argv[INDEX_ZERO]);
+    int32_t callbackId = callback_->Register(info.argv[INDEX_ZERO]);
     keepApplicationContext_->RegisterAbilityLifecycleCallback(callback_);
     HILOG_INFO("OnRegisterAbilityLifecycleCallback is end");
     return engine.CreateNumber(callbackId);
@@ -507,9 +507,6 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));
                 return;
-            }
-            if (callback->IsEmpty()) {
-                applicationContext->UnregisterAbilityLifecycleCallback(callback);
             }
 
             task.Resolve(engine, engine.CreateUndefined());
@@ -555,7 +552,7 @@ NativeValue *JsApplicationContextUtils::OnRegisterEnvironmentCallback(
         return engine.CreateNumber(env_callback_->Register(info.argv[0]));
     }
     env_callback_ = std::make_shared<JsEnvironmentCallback>(&engine);
-    int callbackId = env_callback_->Register(info.argv[INDEX_ZERO]);
+    int32_t callbackId = env_callback_->Register(info.argv[INDEX_ZERO]);
     keepApplicationContext_->RegisterEnvironmentCallback(env_callback_);
     HILOG_DEBUG("OnRegisterEnvironmentCallback is end");
     return engine.CreateNumber(callbackId);
@@ -577,7 +574,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     } else {
         napi_get_value_int32(
             reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
-        HILOG_DEBUG("callbackId is %{public}d.", (int32_t)callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
     std::weak_ptr<JsEnvironmentCallback> env_callbackWptr(env_callback_);
     AsyncTask::CompleteCallback complete =

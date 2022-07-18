@@ -16,8 +16,8 @@
 #include "environment_callback.h"
 
 #include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
 #include "js_data_struct_converter.h"
+#include "js_runtime_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -66,7 +66,8 @@ void JsEnvironmentCallback::CallJsMethod(
             if (jsEnvCallback) {
                 jsEnvCallback->CallJsMethodInner(methodName, config);
             }
-        });
+        }
+    );
     NativeReference *callback = nullptr;
     std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
     AsyncTask::Schedule("JsEnvironmentCallback::OnConfigurationUpdated",
