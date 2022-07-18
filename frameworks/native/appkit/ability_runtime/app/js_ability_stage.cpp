@@ -26,28 +26,28 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void* DetachAbilityStageContext(NativeEngine*, void* value, void*)
-{
-    HILOG_INFO("DetachAbilityStageContext");
-    return value;
-}
-
-NativeValue* AttachAbilityStageContext(NativeEngine* engine, void* value, void*)
+NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachAbilityStageContext");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
     }
-    auto ptr = reinterpret_cast<std::weak_ptr<AbilityContext>*>(value)->lock();
+    auto ptr = reinterpret_cast<std::weak_ptr<AbilityContext> *>(value)->lock();
     if (ptr == nullptr) {
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsAbilityStageContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsAbilityStageContext(*engine, ptr, nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityStageContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachAbilityStageContext, AttachAbilityStageContext, value, nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachAbilityStageContext, value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability stage context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
+        }, nullptr);
     return contextObj;
 }
 
@@ -124,8 +124,8 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
         HILOG_ERROR("Failed to get context native object");
         return;
     }
-    auto workContext = new std::weak_ptr<AbilityRuntime::Context>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachAbilityStageContext, AttachAbilityStageContext,
+    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachAbilityStageContext,
         workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);

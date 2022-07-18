@@ -35,31 +35,6 @@ constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr int32_t ERROR_CODE_ONE = 1;
 
-void* DetachBaseContext(NativeEngine*, void* value, void*)
-{
-    HILOG_INFO("DetachBaseContext");
-    return value;
-}
-
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
-{
-    HILOG_INFO("AttachBaseContext");
-    if (value == nullptr) {
-        HILOG_WARN("invalid parameter.");
-        return nullptr;
-    }
-    auto ptr = reinterpret_cast<std::weak_ptr<Context>*>(value)->lock();
-    if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
-        return nullptr;
-    }
-    NativeValue* object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachBaseContext, AttachBaseContext, value, nullptr);
-    return contextObj;
-}
-
 class JsApplicationContextUtils {
 public:
     explicit JsApplicationContextUtils(std::weak_ptr<ApplicationContext> &&applicationContext)
@@ -151,18 +126,17 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
 
     NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
     auto contextObj =  JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return engine.CreateUndefined();
     }
-    auto workContext = new std::weak_ptr<Context>(bundleContext);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
-        workContext, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            HILOG_INFO("Finalizer for weak_ptr bundle context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
@@ -253,18 +227,17 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
 
     NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return engine.CreateUndefined();
     }
-    auto workContext = new std::weak_ptr<Context>(moduleContext);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
-        workContext, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            HILOG_INFO("Finalizer for weak_ptr module context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
