@@ -33,6 +33,9 @@ class EventHandler;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class TimerTask;
+
+void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
+
 class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<Runtime> Create(const Options& options);
