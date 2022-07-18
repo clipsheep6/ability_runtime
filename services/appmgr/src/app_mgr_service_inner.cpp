@@ -1238,7 +1238,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     auto callerToken = IPCSkeleton::GetCallingTokenID();
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
     if (result == Security::AccessToken::PERMISSION_GRANTED) {
-        isAllowInternet = true;
+        isAllowInternet = true; // have Internet permission
     }
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
