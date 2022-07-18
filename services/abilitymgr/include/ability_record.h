@@ -187,7 +187,6 @@ enum AbilityCallType {
     START_OPTIONS_TYPE,
     START_SETTINGS_TYPE,
     START_EXTENSION_TYPE,
-    CONNECT_ABILITY_TYPE,
 };
 struct AbilityRequest {
     Want want;
