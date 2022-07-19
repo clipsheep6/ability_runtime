@@ -1440,16 +1440,6 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     AbilityRequest abilityRequest;
-#ifdef SUPPORT_GRAPHICS
-    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        abilityRequest.Voluation(want, DEFAULT_INVAL_VALUE, callerToken);
-        abilityRequest.callType = AbilityCallType::CONNECT_ABILITY_TYPE;
-        abilityRequest.connect = connect;
-        abilityRequest.extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
-        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, userId);
-    }
-#endif
     ErrCode result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, callerToken, userId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
@@ -2945,42 +2935,6 @@ int AbilityManagerService::GenerateAbilityRequest(
 
     return ERR_OK;
 }
-
-#ifdef SUPPORT_GRAPHICS
-int32_t AbilityManagerService::ImplicitStartAbilityInner(const Want &targetWant,
-    const AbilityRequest &request, int32_t userId)
-{
-    int32_t result = ERR_OK;
-    switch (request.callType) {
-        case AbilityCallType::START_OPTIONS_TYPE: {
-            StartOptions startOptions;
-            auto displayId = targetWant.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, 0);
-            auto windowMode = targetWant.GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0);
-            startOptions.SetDisplayID(static_cast<int32_t>(displayId));
-            startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
-            result = StartAbility(targetWant, startOptions, request.callerToken, userId, request.requestCode);
-            break;
-        }
-        case AbilityCallType::START_SETTINGS_TYPE: {
-            CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
-            result = StartAbility(
-                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
-            break;
-        }
-        case AbilityCallType::START_EXTENSION_TYPE:
-            result = StartExtensionAbility(targetWant, request.callerToken, userId, request.extensionType);
-            break;
-        case AbilityCallType::CONNECT_ABILITY_TYPE:
-            result = ConnectLocalAbility(targetWant, userId, request.connect, request.callerToken);
-            break;
-        default:
-            result = StartAbilityInner(targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
-            break;
-    }
-
-    return result;
-}
-#endif
 
 int AbilityManagerService::GenerateExtensionAbilityRequest(
     const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
