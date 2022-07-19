@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_RUNTIME_H
+#define OHOS_ABILITY_RUNTIME_JS_RUNTIME_H
 
 #include <cstdint>
 #include <functional>
@@ -33,6 +33,9 @@ class EventHandler;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class TimerTask;
+
+void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
+
 class JsRuntime : public Runtime {
 public:
     static std::unique_ptr<Runtime> Create(const Options& options);
@@ -85,4 +88,4 @@ protected:
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 
-#endif  // FOUNDATION_OHOS_ABILITYRUNTIME_JS_RUNTIME_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_RUNTIME_H

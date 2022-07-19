@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONTINUATIONREQUEST_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONTINUATIONREQUEST_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTINUATION_REQUEST_H
+#define OHOS_ABILITY_RUNTIME_CONTINUATION_REQUEST_H
 namespace OHOS {
 namespace AppExecFwk {
 class ContinuationRequest {
@@ -29,4 +29,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_CONTINUATIONREQUEST_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTINUATION_REQUEST_H

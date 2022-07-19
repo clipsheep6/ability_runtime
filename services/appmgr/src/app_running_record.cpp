@@ -862,6 +862,15 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
     eventHandler_->SendEvent(msg, appEventId_, timeOut);
 }
 
+void AppRunningRecord::PostTask(std::string msg, int64_t timeOut, const Closure &task)
+{
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+    eventHandler_->PostTask(task, msg, timeOut);
+}
+
 int64_t AppRunningRecord::GetEventId() const
 {
     return eventId_;

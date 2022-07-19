@@ -941,6 +941,7 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
     if (terminatingAbilityRecord->GetAbilityState() == AbilityState::FOREGROUND) {
         auto task = [terminatingAbilityRecord, self] {
             HILOG_INFO("%{public}s, terminatingAbilityRecord move to background.", __func__);
+            self->PrintTimeOutLog(terminatingAbilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
             self->CompleteBackground(terminatingAbilityRecord);
         };
         terminatingAbilityRecord->BackgroundAbility(task);
@@ -948,7 +949,7 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
     if (terminatingAbilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
         auto task = [terminatingAbilityRecord, self]() {
             HILOG_INFO("%{public}s, To terminate terminatingAbilityRecord.", __func__);
-            self->CompleteTerminate(terminatingAbilityRecord);
+            self->DelayCompleteTerminate(terminatingAbilityRecord);
         };
         terminatingAbilityRecord->Terminate(task);
     }
@@ -999,8 +1000,7 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
         if (terminateAbility->GetAbilityState() == AbilityState::BACKGROUND) {
             auto timeoutTask = [terminateAbility, self]() {
                 HILOG_WARN("Disconnect ability terminate timeout.");
-                self->PrintTimeOutLog(terminateAbility, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
-                self->CompleteTerminate(terminateAbility);
+                self->DelayCompleteTerminate(terminateAbility);
             };
             terminateAbility->Terminate(timeoutTask);
         }
@@ -1057,7 +1057,9 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &c
         return NO_FOUND_ABILITY_BY_CALLER;
     }
 
-    int result = AbilityUtil::JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
+    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED)
+    int result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;
@@ -1094,7 +1096,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
         auto self(shared_from_this());
         auto task = [abilityRecord, self]() {
             HILOG_WARN("Disconnect ability terminate timeout.");
-            self->CompleteTerminate(abilityRecord);
+            self->DelayCompleteTerminate(abilityRecord);
         };
         abilityRecord->Terminate(task);
     }
@@ -1209,6 +1211,20 @@ int MissionListManager::DispatchTerminate(const std::shared_ptr<AbilityRecord> &
     handler->PostTask(task);
 
     return ERR_OK;
+}
+
+void MissionListManager::DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+    CHECK_POINTER(handler);
+
+    PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
+
+    auto timeoutTask = [self = shared_from_this(), abilityRecord]() {
+        HILOG_INFO("emit delay complete terminate task.");
+        self->CompleteTerminate(abilityRecord);
+    };
+    handler->PostTask(timeoutTask, "DELAY_KILL_PROCESS", AbilityManagerService::KILL_TIMEOUT);
 }
 
 void MissionListManager::CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1381,17 +1397,14 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     }
 
     std::shared_ptr<Mission> mission = GetMissionById(missionId);
-    if (!mission) {
-        HILOG_ERROR("find mission failed, missionId:%{public}d", missionId);
-        return MISSION_NOT_FOUND;
+    if (mission) {
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (abilityRecord && abilityRecord->GetAbilityInfo().excludeFromMissions) {
+            HILOG_ERROR("excludeFromMissions is true, missionId:%{public}d", missionId);
+            return MISSION_NOT_FOUND;
+        }
+        mission->SetLockedState(lockedState);
     }
-
-    auto abilityRecord = mission->GetAbilityRecord();
-    if (abilityRecord && abilityRecord->GetAbilityInfo().excludeFromMissions) {
-        HILOG_ERROR("excludeFromMissions is true, missionId:%{public}d", missionId);
-        return MISSION_NOT_FOUND;
-    }
-    mission->SetLockedState(lockedState);
 
     // update inner mission info time
     InnerMissionInfo innerMissionInfo;
@@ -1405,6 +1418,19 @@ int MissionListManager::SetMissionLockedState(int missionId, bool lockedState)
     return ERR_OK;
 }
 
+void MissionListManager::UpdateSnapShot(const sptr<IRemoteObject>& token)
+{
+    std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("Cannot find AbilityRecord by Token.");
+        return;
+    }
+    HILOG_INFO("UpdateSnapShot, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
+    UpdateMissionSnapshot(abilityRecord);
+    abilityRecord->SetNeedSnapShot(false);
+}
+
 void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1415,7 +1441,11 @@ void MissionListManager::MoveToBackgroundTask(const std::shared_ptr<AbilityRecor
     HILOG_INFO("Move the ability to background, ability:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
     abilityRecord->SetIsNewWant(false);
     NotifyMissionCreated(abilityRecord);
-    UpdateMissionSnapshot(abilityRecord);
+    if (abilityRecord->IsNeedTakeSnapShot()) {
+        UpdateMissionSnapshot(abilityRecord);
+    } else {
+        abilityRecord->SetNeedSnapShot(true);
+    }
 
     auto self(shared_from_this());
     auto task = [abilityRecord, self]() {
@@ -1446,6 +1476,11 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
 
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+    if (processInfo.pid_ == 0) {
+        HILOG_ERROR("error: the ability[%{public}s], app may fork fail or not running.",
+            ability->GetAbilityInfo().name.data());
+        return;
+    }
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
@@ -1474,11 +1509,11 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
         EVENT_KEY_UID, processInfo.uid_,
         EVENT_KEY_PID, processInfo.pid_,
-        EVENT_KEY_PACKAGE_NAME, processInfo.bundleNames,
+        EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid：%{public}d, pid：%{public}d, abilityName: %{public}s, msg: %{public}s",
+    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, abilityName: %{public}s, msg: %{public}s",
         processInfo.uid_,
         processInfo.pid_,
         ability->GetAbilityInfo().name.c_str(),

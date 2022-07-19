@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MOCK_MANAGER_SERVICE_H
-#define OHOS_AAFWK_ABILITY_MOCK_MANAGER_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
 #include <singleton.h>
@@ -80,7 +80,7 @@ public:
 
     void DumpState(const std::string &args, std::vector<std::string> &info) override;
     void DumpSysState(
-        const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID) override;
+        const std::string &args, std::vector<std::string> &state, bool isClient, bool isUserID, int UserID) override;
     int TerminateAbilityByCaller(const sptr<IRemoteObject> &callerToken, int requestCode) override;
     int TerminateAbilityResult(const sptr<IRemoteObject> &token, int startId) override;
     int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
@@ -115,8 +115,8 @@ public:
     MOCK_METHOD1(RegisterMissionListener, int(const sptr<IMissionListener> &listener));
     MOCK_METHOD1(UnRegisterMissionListener, int(const sptr<IMissionListener> &listener));
     MOCK_METHOD3(
-        GetMissionInfos, int(const std::string& deviceId, int32_t numMax, std::vector<MissionInfo> &missionInfos));
-    MOCK_METHOD3(GetMissionInfo, int(const std::string& deviceId, int32_t missionId, MissionInfo &missionInfo));
+        GetMissionInfos, int(const std::string &deviceId, int32_t numMax, std::vector<MissionInfo> &missionInfos));
+    MOCK_METHOD3(GetMissionInfo, int(const std::string &deviceId, int32_t missionId, MissionInfo &missionInfo));
     MOCK_METHOD1(CleanMission, int(int32_t missionId));
     MOCK_METHOD0(CleanAllMissions, int());
     MOCK_METHOD1(MoveMissionToFront, int(int32_t missionId));
@@ -151,12 +151,12 @@ public:
         return 0;
     }
 
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    virtual int StartSyncRemoteMissions(const std::string &devId, bool fixConflict, int64_t tag) override
     {
         return 0;
     }
 
-    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    virtual int StopSyncRemoteMissions(const std::string &devId) override
     {
         return 0;
     }
@@ -176,12 +176,16 @@ public:
     {
         return 0;
     }
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
-        MissionSnapshot& snapshot, bool isLowResolution)
+    virtual int GetMissionSnapshot(const std::string &deviceId, int32_t missionId,
+        MissionSnapshot &snapshot, bool isLowResolution)
     {
         return 0;
     }
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+    {
+        return;
+    }
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler> &handler)
     {
         return 0;
     }
@@ -227,7 +231,7 @@ public:
         return 0;
     }
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler) override
     {
         return 0;
     }
@@ -247,4 +251,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H

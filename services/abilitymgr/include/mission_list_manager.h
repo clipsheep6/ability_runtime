@@ -324,6 +324,12 @@ public:
         MissionSnapshot& missionSnapshot, bool isLowResolution);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm);
 
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    void UpdateSnapShot(const sptr<IRemoteObject>& token);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
@@ -398,6 +404,7 @@ private:
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,

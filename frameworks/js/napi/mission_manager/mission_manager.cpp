@@ -276,20 +276,9 @@ private:
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
-        if (info.argc != ARG_COUNT_TWO && info.argc != ARG_COUNT_THREE) {
-            HILOG_ERROR("missionSnapshot: need two or three params");
-            errCode = ERR_NOT_OK;
-        }
         std::string deviceId;
-        if (!errCode && !ConvertFromJsValue(engine, info.argv[0], deviceId)) {
-            HILOG_ERROR("missionSnapshot: Parse deviceId failed");
-            errCode = ERR_NOT_OK;
-        }
         int32_t missionId = -1;
-        if (!errCode && !ConvertFromJsValue(engine, info.argv[1], missionId)) {
-            HILOG_ERROR("missionSnapshot: Parse missionId failed");
-            errCode = ERR_NOT_OK;
-        }
+        CheckMissionSnapShotParams(engine, info, errCode, deviceId, missionId);
         AsyncTask::CompleteCallback complete =
             [deviceId, missionId, errCode, isLowResolution](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 if (errCode != 0) {
@@ -324,6 +313,23 @@ private:
         AsyncTask::Schedule("MissioManager::OnGetMissionSnapShot",
             engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
         return result;
+    }
+
+    void CheckMissionSnapShotParams(NativeEngine &engine, NativeCallbackInfo &info, int32_t &errCode,
+        std::string &deviceId, int32_t &missionId)
+    {
+        if (info.argc != ARG_COUNT_TWO && info.argc != ARG_COUNT_THREE) {
+            HILOG_ERROR("missionSnapshot: need two or three params");
+            errCode = ERR_NOT_OK;
+        }
+        if (!errCode && !ConvertFromJsValue(engine, info.argv[0], deviceId)) {
+            HILOG_ERROR("missionSnapshot: Parse deviceId failed");
+            errCode = ERR_NOT_OK;
+        }
+        if (!errCode && !ConvertFromJsValue(engine, info.argv[1], missionId)) {
+            HILOG_ERROR("missionSnapshot: Parse missionId failed");
+            errCode = ERR_NOT_OK;
+        }
     }
 
     NativeValue* OnLockMission(NativeEngine &engine, NativeCallbackInfo &info)

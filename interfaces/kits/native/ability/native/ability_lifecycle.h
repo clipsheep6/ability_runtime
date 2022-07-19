@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_LIFECYCLE_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_LIFECYCLE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_H
 
 #include <vector>
 #include <string>
@@ -88,4 +88,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_LIFECYCLE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_H

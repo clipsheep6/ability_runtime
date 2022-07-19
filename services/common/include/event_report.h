@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
-#define FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
+#ifndef OHOS_ABILITY_RUNTIME_EVENT_REPORT_H
+#define OHOS_ABILITY_RUNTIME_EVENT_REPORT_H
 
 #include <string>
-#include <unordered_map>
 
 #include "hisysevent.h"
 
@@ -91,4 +90,4 @@ public:
 };
 }  // namespace AAFWK
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_COMMON_INCLUDE_EVENT_REPORT_H
+#endif  // OHOS_ABILITY_RUNTIME_EVENT_REPORT_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_APP_DATA_MANAGER_H
-#define OHOS_APPEXECFWK_APP_DATA_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_DATA_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_DATA_MANAGER_H
 
 #include <string>
 
@@ -37,4 +37,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_APP_DATA_MANAGER_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_DATA_MANAGER_H

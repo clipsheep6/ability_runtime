@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_JS_TIMER_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_JS_TIMER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_TIMER_H
+#define OHOS_ABILITY_RUNTIME_JS_TIMER_H
 
 #include "native_engine/native_engine.h"
 
@@ -24,4 +24,4 @@ void InitTimerModule(NativeEngine& engine, NativeObject& globalObject);
 } // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif // FOUNDATION_OHOS_ABILITYRUNTIME_JS_TIMER_H
+#endif // OHOS_ABILITY_RUNTIME_JS_TIMER_H

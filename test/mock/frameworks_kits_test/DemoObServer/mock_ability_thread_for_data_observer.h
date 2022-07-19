@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
-#define MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
 
 #include <iostream>
 #include <memory>
@@ -66,4 +66,4 @@ sptr<AppExecFwk::AbilityThread> MockCreateAbilityThread()
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_FOR_DATA_OBSERVER_H

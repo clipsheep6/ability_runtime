@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_PERMISSION_CONSTANTS_H
-#define OHOS_AAFWK_PERMISSION_CONSTANTS_H
+#ifndef OHOS_ABILITY_RUNTIME_PERMISSION_CONSTANTS_H
+#define OHOS_ABILITY_RUNTIME_PERMISSION_CONSTANTS_H
 
 namespace OHOS {
 namespace AAFwk {
@@ -30,4 +30,4 @@ const std::string PERMISSION_UPDATE_CONFIGURATION = "ohos.permission.UPDATE_CONF
 } // namespace PermissionConstants
 } // namespace AAFwk
 } // namespace OHOS
-#endif // OHOS_AAFWK_PERMISSION_CONSTANTS_H
+#endif // OHOS_ABILITY_RUNTIME_PERMISSION_CONSTANTS_H

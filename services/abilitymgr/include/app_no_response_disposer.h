@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_APP_NO_RESPONE_DISPOSER_H
-#define OHOS_AAFWK_APP_NO_RESPONE_DISPOSER_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_NO_RESPONE_DISPOSER_H
+#define OHOS_ABILITY_RUNTIME_APP_NO_RESPONE_DISPOSER_H
 
 #include <string>
 #include <vector>
@@ -51,4 +51,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_APP_NO_RESPONE_DISPOSER_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_NO_RESPONE_DISPOSER_H

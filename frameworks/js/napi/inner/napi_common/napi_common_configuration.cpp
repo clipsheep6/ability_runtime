@@ -64,6 +64,10 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapInt32ToJS(env, displayId);
     SetPropertyValueByPropertyName(env, jsObject, "displayId", jsValue);
 
+    std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    jsValue = WrapBoolToJS(env, hasPointerDevice == "true" ? true : false);
+    SetPropertyValueByPropertyName(env, jsObject, "hasPointerDevice", jsValue);
+
     return jsObject;
 }
 

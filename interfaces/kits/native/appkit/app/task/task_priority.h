@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APP_DISPATCHER_TASK_TASK_PRIORITY_H
-#define OHOS_APP_DISPATCHER_TASK_TASK_PRIORITY_H
+#ifndef OHOS_ABILITY_RUNTIME_TASK_PRIORITY_H
+#define OHOS_ABILITY_RUNTIME_TASK_PRIORITY_H
 
 namespace OHOS {
 namespace AppExecFwk {

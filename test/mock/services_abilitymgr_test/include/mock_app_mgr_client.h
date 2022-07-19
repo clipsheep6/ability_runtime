@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_ABILITY_TEST_MOCK_APP_MGR_CLIENT_H
-#define FOUNDATION_AAFWK_SERVICES_ABILITY_TEST_MOCK_APP_MGR_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_CLIENT_H
 
 #include "gmock/gmock.h"
 #include "app_mgr_client.h"
@@ -46,4 +46,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_ABILITY_TEST_MOCK_APP_MGR_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_APP_MGR_CLIENT_H

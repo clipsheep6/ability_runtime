@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ELEMENTS_CALLBACK_H
-#define FOUNDATION_APPEXECFWK_OHOS_ELEMENTS_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_ELEMENT_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_ELEMENT_CALLBACK_H
 
 #include "configuration.h"
 
@@ -44,4 +44,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ELEMENTS_CALLBACK_H
+#endif  // OHOS_ABILITY_RUNTIME_ELEMENT_CALLBACK_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H
 
 #include "ability.h"
 #include "iability_lifecycle_callback.h"
@@ -478,4 +478,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H

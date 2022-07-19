@@ -46,6 +46,7 @@ using namespace OHOS::AppExecFwk;
 namespace OHOS {
 namespace AppExecFwk {
 std::list<std::shared_ptr<DataAbilityHelper>> g_dataAbilityHelperList;
+std::vector<DAHelperOnOffCB *> g_registerInstances;
 
 /**
  * @brief DataAbilityHelper NAPI module registration.
@@ -152,15 +153,15 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         dataAbilityHelper.get(),
         [](napi_env env, void *data, void *hint) {
             DataAbilityHelper *objectInfo = static_cast<DataAbilityHelper *>(data);
-            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", registerInstances_.size());
-            auto onCBIter = std::find_if(registerInstances_.begin(),
-                registerInstances_.end(),
+            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
+            auto onCBIter = std::find_if(g_registerInstances.begin(),
+                g_registerInstances.end(),
                 [&objectInfo](const DAHelperOnOffCB *onCB) { return onCB->dataAbilityHelper == objectInfo; });
-            if (onCBIter != registerInstances_.end()) {
+            if (onCBIter != g_registerInstances.end()) {
                 HILOG_INFO("DataAbilityHelper finalize_cb find helper");
                 DeleteDAHelperOnOffCB(*onCBIter);
             }
-            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", registerInstances_.size());
+            HILOG_INFO("DAHelper finalize_cb regInstances_.size = %{public}zu", g_registerInstances.size());
             g_dataAbilityHelperList.remove_if(
                 [objectInfo](const std::shared_ptr<DataAbilityHelper> &dataAbilityHelper) {
                     return objectInfo == dataAbilityHelper.get();
@@ -760,7 +761,7 @@ napi_value RegisterAsync(
     onCB->observer = observer;
 
     if (onCB->result == NO_ERROR) {
-        registerInstances_.emplace_back(onCB);
+        g_registerInstances.emplace_back(onCB);
     }
 
     NAPI_CALL(env,
@@ -782,8 +783,8 @@ void RegisterExecuteCB(napi_env env, void *data)
 {
     HILOG_INFO("NAPI_Register, worker pool thread execute.");
     DAHelperOnOffCB *onCB = static_cast<DAHelperOnOffCB *>(data);
-    auto onCBIter = std::find(registerInstances_.begin(), registerInstances_.end(), onCB);
-    if (onCBIter == registerInstances_.end()) {
+    auto onCBIter = std::find(g_registerInstances.begin(), g_registerInstances.end(), onCB);
+    if (onCBIter == g_registerInstances.end()) {
         // onCB is invalid or onCB has been delete
         HILOG_ERROR("%{public}s, input params onCB is invalid.", __func__);
         return;
@@ -808,8 +809,8 @@ void RegisterCompleteCB(napi_env env, napi_status status, void *data)
         return;
     }
 
-    auto onCBIter = std::find(registerInstances_.begin(), registerInstances_.end(), onCB);
-    if (onCBIter == registerInstances_.end()) {
+    auto onCBIter = std::find(g_registerInstances.begin(), g_registerInstances.end(), onCB);
+    if (onCBIter == g_registerInstances.end()) {
         // onCB is invalid or onCB has been delete
         HILOG_ERROR("%{public}s, input params onCB is invalid.", __func__);
         return;
@@ -863,8 +864,7 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
 {
     HILOG_INFO("%{public}s,called", __func__);
     size_t argcAsync = ARGS_THREE;
-    const size_t argcPromise = ARGS_TWO;
-    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    const size_t argCountWithAsync = ARGS_TWO + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = 0;
     napi_value thisVar = nullptr;
@@ -928,16 +928,15 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
     HILOG_INFO("DataAbilityHelper objectInfo");
     offCB->dataAbilityHelper = objectInfo;
 
-    ret = UnRegisterAsync(env, args, argcAsync, argcPromise, offCB);
+    ret = UnRegisterSync(env, offCB);
     return ret;
 }
 
-napi_value UnRegisterAsync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *offCB)
+napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (args == nullptr || offCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+    if (offCB == nullptr) {
+        HILOG_ERROR("%{public}s, offCB == nullptr.", __func__);
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -947,62 +946,6 @@ napi_value UnRegisterAsync(
         FindRegisterObs(env, offCB);
     }
 
-    NAPI_CALL(env,
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
-            UnRegisterExecuteCB,
-            UnRegisterCompleteCB,
-            (void *)offCB,
-            &offCB->cbBase.asyncWork));
-    NAPI_CALL(env, napi_queue_async_work(env, offCB->cbBase.asyncWork));
-    napi_value result = 0;
-    NAPI_CALL(env, napi_get_null(env, &result));
-    return result;
-}
-
-void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
-{
-    HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.");
-    if (data == nullptr || data->dataAbilityHelper == nullptr) {
-        HILOG_ERROR("NAPI_UnRegister, param is null.");
-        return;
-    }
-
-    HILOG_INFO("NAPI_UnRegister, uri=%{public}s.", data->uri.c_str());
-    if (!data->uri.empty()) {
-        // if match uri, unregister all observers corresponding the uri
-        std::string strUri = data->uri;
-        auto iter = registerInstances_.begin();
-        while (iter != registerInstances_.end()) {
-            DAHelperOnOffCB *helper = *iter;
-            if (helper == nullptr || helper->uri != strUri) {
-                iter++;
-                continue;
-            }
-            data->NotifyList.emplace_back(helper);
-            iter = registerInstances_.erase(iter);
-            HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", registerInstances_.size());
-        }
-    } else {
-        HILOG_ERROR("NAPI_UnRegister, error: uri is null.");
-    }
-    HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu", data->NotifyList.size());
-}
-
-void UnRegisterExecuteCB(napi_env env, void *data)
-{
-    HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB main event thread execute.");
-    DAHelperOnOffCB *offCB = static_cast<DAHelperOnOffCB *>(data);
-    if (offCB == nullptr || offCB->dataAbilityHelper == nullptr) {
-        HILOG_ERROR("NAPI_UnRegister, param is null.");
-        if (offCB != nullptr) {
-            delete offCB;
-            offCB = nullptr;
-        }
-        return;
-    }
     HILOG_INFO("NAPI_UnRegister, offCB->NotifyList size is %{public}zu", offCB->NotifyList.size());
     for (auto &iter : offCB->NotifyList) {
         if (iter != nullptr && iter->observer != nullptr) {
@@ -1012,22 +955,7 @@ void UnRegisterExecuteCB(napi_env env, void *data)
         }
     }
     offCB->NotifyList.clear();
-    HILOG_INFO("NAPI_UnRegister, UnRegisterExecuteCB main event thread execute. end");
-}
 
-void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
-{
-    HILOG_INFO("NAPI_UnRegister, main event thread complete.");
-    // cannot run it in executeCB, because need to use napi_strict_equals compare callbacks.
-    DAHelperOnOffCB *offCB = static_cast<DAHelperOnOffCB *>(data);
-    if (offCB == nullptr || offCB->dataAbilityHelper == nullptr) {
-        HILOG_ERROR("NAPI_UnRegister, param is null.");
-        if (offCB != nullptr) {
-            delete offCB;
-            offCB = nullptr;
-        }
-        return;
-    }
     HILOG_INFO("NAPI_UnRegister, offCB->DestroyList size is %{public}zu", offCB->DestroyList.size());
     for (auto &iter : offCB->DestroyList) {
         HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 1 ---");
@@ -1048,8 +976,38 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
     offCB->DestroyList.clear();
     delete offCB;
     offCB = nullptr;
+    napi_value result = 0;
+    NAPI_CALL(env, napi_get_null(env, &result));
+    return result;
+}
 
-    HILOG_INFO("NAPI_UnRegister, main event thread complete. end");
+void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
+{
+    HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.");
+    if (data == nullptr || data->dataAbilityHelper == nullptr) {
+        HILOG_ERROR("NAPI_UnRegister, param is null.");
+        return;
+    }
+
+    HILOG_INFO("NAPI_UnRegister, uri=%{public}s.", data->uri.c_str());
+    if (!data->uri.empty()) {
+        // if match uri, unregister all observers corresponding the uri
+        std::string strUri = data->uri;
+        auto iter = g_registerInstances.begin();
+        while (iter != g_registerInstances.end()) {
+            DAHelperOnOffCB *helper = *iter;
+            if (helper == nullptr || helper->uri != strUri) {
+                iter++;
+                continue;
+            }
+            data->NotifyList.emplace_back(helper);
+            iter = g_registerInstances.erase(iter);
+            HILOG_INFO("NAPI_UnRegister Instances erase size = %{public}zu", g_registerInstances.size());
+        }
+    } else {
+        HILOG_ERROR("NAPI_UnRegister, error: uri is null.");
+    }
+    HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu", data->NotifyList.size());
 }
 
 void NAPIDataAbilityObserver::ReleaseJSCallback()
@@ -3802,8 +3760,8 @@ void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
         onCB->dataAbilityHelper = nullptr;
     }
 
-    auto end = remove(registerInstances_.begin(), registerInstances_.end(), onCB);
-    (void)registerInstances_.erase(end);
+    auto end = remove(g_registerInstances.begin(), g_registerInstances.end(), onCB);
+    (void)g_registerInstances.erase(end);
     delete onCB;
     onCB = nullptr;
 }

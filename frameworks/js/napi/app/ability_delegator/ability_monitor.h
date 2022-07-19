@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_DELEGATOR_ABILITY_MONITOR_H
-#define OHOS_ABILITY_DELEGATOR_ABILITY_MONITOR_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MONITOR_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MONITOR_H
 
 #include <memory>
 #include "iability_monitor.h"
@@ -96,4 +96,4 @@ private:
 };
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_DELEGATOR_JS_ABILITY_MONITOR_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MONITOR_H

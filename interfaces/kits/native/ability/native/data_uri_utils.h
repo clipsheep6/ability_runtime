@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef DATA_URI_UTIL_H
-#define DATA_URI_UTIL_H
+#ifndef OHOS_ABILITY_RUNTIME_DATA_URI_UTILS_H
+#define OHOS_ABILITY_RUNTIME_DATA_URI_UTILS_H
 
 #include <cstring>
 #include "uri.h"

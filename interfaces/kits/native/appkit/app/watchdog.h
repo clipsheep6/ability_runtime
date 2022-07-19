@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_WATCH_DOG_H
-#define FOUNDATION_APPEXECFWK_WATCH_DOG_H
+#ifndef OHOS_ABILITY_RUNTIME_WATCHDOG_H
+#define OHOS_ABILITY_RUNTIME_WATCHDOG_H
 
 #include <string>
 #include <mutex>
@@ -107,4 +107,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_WATCH_DOG_H
+#endif  // OHOS_ABILITY_RUNTIME_WATCHDOG_H

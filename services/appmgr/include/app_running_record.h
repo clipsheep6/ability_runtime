@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H
+#define OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H
 
 #include <list>
 #include <map>
@@ -498,6 +498,9 @@ public:
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
 
+    using Closure = std::function<void()>;
+    void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
@@ -586,4 +589,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H

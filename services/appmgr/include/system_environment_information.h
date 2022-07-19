@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_SYSTEM_ENVIRONMENT_INFORMATION_H
-#define FOUNDATION_APPEXECFWK_SERVICES_SYSTEM_ENVIRONMENT_INFORMATION_H
+#ifndef OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H
+#define OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H
 
 #include "kernel_system_memory_info.h"
 
@@ -24,4 +24,4 @@ void GetMemInfo(KernelSystemMemoryInfo &memInfo);
 }  // namespace SystemEnv
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif // FOUNDATION_APPEXECFWK_SERVICES_SYSTEM_ENVIRONMENT_INFORMATION_H
+#endif // OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H

@@ -1101,7 +1101,7 @@ void GetAppInfoExecuteCB(napi_env env, void *data)
 
     std::shared_ptr<ApplicationInfo> appInfoPtr = appInfoCB->cbBase.ability->GetApplicationInfo();
     if (appInfoPtr != nullptr) {
-        SaveAppInfo(appInfoCB->appInfo, *appInfoPtr);
+        appInfoCB->appInfo = *appInfoPtr;
     } else {
         HILOG_ERROR("NAPI_GetApplicationInfo, appInfoPtr == nullptr");
         appInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;

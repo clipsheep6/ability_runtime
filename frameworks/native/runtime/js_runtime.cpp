@@ -19,15 +19,18 @@
 #include <climits>
 #include <cstdlib>
 #include <sys/epoll.h>
+#include <unistd.h>
 
-#include "native_engine/impl/ark/ark_native_engine.h"
+#include "connect_server_manager.h"
 #include "event_handler.h"
+#include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_module_searcher.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_worker.h"
+#include "native_engine/impl/ark/ark_native_engine.h"
 #include "parameters.h"
 #include "systemcapability.h"
 
@@ -58,23 +61,45 @@ public:
     ~ArkJsRuntime() override
     {
         Deinitialize();
+
         if (vm_ != nullptr) {
+            if (debugMode_) {
+                auto instanceId = gettid();
+                ConnectServerManager::Get().RemoveInstance(instanceId);
+                panda::JSNApi::StopDebugger(vm_);
+            }
+
             panda::JSNApi::DestroyJSVM(vm_);
             vm_ = nullptr;
         }
     }
 
-    void StartDebugMode(bool needBreakPoint, int32_t instanceId) override
+    void StartDebugMode(bool needBreakPoint) override
     {
-        if (!debugMode_) {
-            HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-            auto&& debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
-                eventHandler->PostTask(task);
-            };
-            panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId,
-                std::move(debuggerPostTask));
-            debugMode_ = true;
+        if (vm_ == nullptr) {
+            HILOG_ERROR("virtual machine does not exist");
+            return;
         }
+
+        if (debugMode_) {
+            HILOG_INFO("Already in debug mode");
+            return;
+        }
+
+        HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+
+        auto instanceId = gettid();
+        HdcRegister::Get().StartHdcRegister(bundleName_);
+        ConnectServerManager::Get().StartConnectServer(bundleName_);
+        ConnectServerManager::Get().AddInstance(instanceId, "MainThread");
+        StartDebuggerInWorkerModule();
+
+        auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
+            eventHandler->PostTask(task);
+        };
+        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId, debuggerPostTask);
+
+        debugMode_ = true;
     }
 
     bool RunScript(const std::string& path) override
@@ -108,6 +133,8 @@ private:
 
     bool Initialize(const Runtime::Options& options) override
     {
+        bundleName_ = options.bundleName;
+
         panda::RuntimeOption pandaOption;
         int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
         size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
@@ -131,6 +158,7 @@ private:
         return JsRuntime::Initialize(options);
     }
 
+    std::string bundleName_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
 
@@ -308,6 +336,11 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngin
     }
 
     return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
+}
+
+void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint)
+{
+    return value;
 }
 
 bool JsRuntime::Initialize(const Options& options)

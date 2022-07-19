@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONTEXT_DEAL_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONTEXT_DEAL_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
+#define OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H
 
 #include "context.h"
 #include "profile.h"
@@ -676,4 +676,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_CONTEXT_DEAL_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTEXT_DEAL_H

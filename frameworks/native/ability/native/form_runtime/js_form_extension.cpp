@@ -35,12 +35,6 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 const int ON_EVENT_PARAMS_SIZE = 2;
 
-void* DetachFormExtensionContext(NativeEngine*, void* value, void*)
-{
-    HILOG_INFO("DetachFormExtensionContext");
-    return value;
-}
-
 NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*)
 {
     HILOG_INFO("AttachFormExtensionContext");
@@ -57,8 +51,14 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.FormExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachFormExtensionContext, AttachFormExtensionContext,
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachFormExtensionContext,
         value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void * data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr form extension context is called");
+            delete static_cast<std::weak_ptr<FormExtensionContext> *>(data);
+        }, nullptr);
     return contextObj;
 }
 
@@ -124,8 +124,8 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         HILOG_ERROR("Failed to get context native object");
         return;
     }
-    auto workContext = new std::weak_ptr<FormExtensionContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachFormExtensionContext, AttachFormExtensionContext,
+    auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachFormExtensionContext,
         workContext, nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());

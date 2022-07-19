@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_WINDOW_TRANSITION_INFO_H
-#define OHOS_AAFWK_WINDOW_TRANSITION_INFO_H
+#ifndef OHOS_ABILITY_RUNTIME_WINDOW_INFO_H
+#define OHOS_ABILITY_RUNTIME_WINDOW_INFO_H
 
 #ifdef SUPPORT_GRAPHICS
 #include <typeinfo>
@@ -130,4 +130,4 @@ struct AbilityTransitionInfo : public Parcelable {
 } // namespace AAFwk
 } // namespace OHOS
 #endif
-#endif // OHOS_AAFWK_WINDOW_TRANSITION_INFO_H
+#endif // OHOS_ABILITY_RUNTIME_WINDOW_INFO_H

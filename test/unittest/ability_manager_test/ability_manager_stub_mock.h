@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_UNITTEST_ABILITY_MANAGER_STUB_MOCK_H
-#define ABILITY_UNITTEST_ABILITY_MANAGER_STUB_MOCK_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_MOCK_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_MOCK_H
 #include <gmock/gmock.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -125,6 +125,12 @@ public:
     {
         return 0;
     }
+
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+    {
+        return;
+    }
+    
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;

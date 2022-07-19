@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_SPAWN_CLIENT_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_SPAWN_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
 
 #include "nocopyable.h"
 #include "app_spawn_msg_wrapper.h"
@@ -92,4 +92,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_SPAWN_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H

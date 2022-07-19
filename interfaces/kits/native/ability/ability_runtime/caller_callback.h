@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_CALLER_CALLBACK_H
-#define ABILITY_RUNTIME_CALLER_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_CALLER_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_CALLER_CALLBACK_H
 
 #include "iremote_object.h"
 
@@ -68,4 +68,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_CALLER_CALLBACK_H
+#endif // OHOS_ABILITY_RUNTIME_CALLER_CALLBACK_H

@@ -66,6 +66,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "startup_l2:syspara_watchagent",
   ]
 }
 

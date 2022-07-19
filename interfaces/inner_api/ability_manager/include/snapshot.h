@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_SNAPSHOT_H
-#define OHOS_AAFWK_SNAPSHOT_H
+#ifndef OHOS_ABILITY_RUNTIME_SNAPSHOT_H
+#define OHOS_ABILITY_RUNTIME_SNAPSHOT_H
 
 #include <iremote_broker.h>
 
@@ -68,4 +68,4 @@ public:
 };
 } // namespace AAFwk
 } // namespace OHOS
-#endif // OHOS_AAFWK_SNAPSHOT_H
+#endif // OHOS_ABILITY_RUNTIME_SNAPSHOT_H

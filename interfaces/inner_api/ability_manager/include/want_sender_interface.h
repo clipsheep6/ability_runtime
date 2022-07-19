@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_WANT_SENDER_INTERFACE_H
-#define OHOS_AAFWK_WANT_SENDER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_SENDER_H
+#define OHOS_ABILITY_RUNTIME_WANT_SENDER_H
 
 #include <iremote_broker.h>
 
@@ -34,4 +34,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_WANT_SENDER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_SENDER_H

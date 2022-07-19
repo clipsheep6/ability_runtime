@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_EVENT_HANDLER_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_EVENT_HANDLER_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_EVENT_HANDLER_H
+#define OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_EVENT_HANDLER_H
 
 #include "event_handler.h"
 
@@ -39,9 +39,11 @@ public:
     static constexpr uint32_t ADD_ABILITY_STAGE_INFO_TIMEOUT = 3000; // ms
     static constexpr uint32_t START_SPECIFIED_ABILITY_TIMEOUT = 3000; // ms
     static constexpr uint32_t START_PROCESS_SPECIFIED_ABILITY_TIMEOUT = 5000; // ms
+    static constexpr uint32_t KILL_PROCESS_TIMEOUT = 3000; // ms
+
 private:
     std::weak_ptr<AppMgrServiceInner> appMgr_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_EVENT_HANDLER_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_EVENT_HANDLER_H

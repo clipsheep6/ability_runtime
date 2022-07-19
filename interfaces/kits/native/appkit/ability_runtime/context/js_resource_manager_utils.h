@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
-#define ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
 
 #include "context.h"
 #include "resource_manager.h"
@@ -31,4 +31,4 @@ NativeValue* CreateJsResourceManager(NativeEngine& engine,
     std::shared_ptr<AbilityRuntime::Context> context);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H

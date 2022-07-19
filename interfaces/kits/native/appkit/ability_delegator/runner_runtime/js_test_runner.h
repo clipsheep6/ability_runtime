@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef RUNNER_RUNTIME_JS_TEST_RUNNER_H
-#define RUNNER_RUNTIME_JS_TEST_RUNNER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_TEST_RUNNER_H
+#define OHOS_ABILITY_RUNTIME_JS_TEST_RUNNER_H
 
 #include "bundle_info.h"
 #include "js_runtime.h"
@@ -73,4 +73,4 @@ private:
 };
 }  // namespace RunnerRuntime
 }  // namespace OHOS
-#endif  // RUNNER_RUNTIME_JS_TEST_RUNNER_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_TEST_RUNNER_H

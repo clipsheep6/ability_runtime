@@ -195,7 +195,7 @@ ohos_moduletest("js_test_runner_moduletest") {
   configs = [ ":moduletest_include_dir" ]
   configs += [
     "${ability_runtime_services_path}/common:common_config",
-    "//ark/js_runtime:ark_jsruntime_public_config",
+    "//arkcompiler/ets_runtime:ark_jsruntime_public_config",
   ]
 
   deps = [
@@ -205,7 +205,7 @@ ohos_moduletest("js_test_runner_moduletest") {
     "${ability_runtime_native_path}/appkit:appkit_delegator",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "//ark/js_runtime:libark_jsruntime",
+    "//arkcompiler/ets_runtime:libark_jsruntime",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",

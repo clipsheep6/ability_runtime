@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
-#define OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
+#ifndef OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
+#define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
 #include <vector>
 #include <string>
@@ -46,6 +46,8 @@ private:
     using StartAbilityClosure = std::function<int32_t()>;
     int CallStartAbilityInner(int32_t userId, const Want &want, const StartAbilityClosure &callBack,
         const AbilityCallType &callType);
+    
+    int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);
 
 private:
     const static std::vector<std::string> blackList;
@@ -53,4 +55,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
+#endif  // OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H

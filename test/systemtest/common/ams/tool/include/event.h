@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_SYSTEM_TEST_STEVENT_H
-#define OHOS_SYSTEM_TEST_STEVENT_H
+#ifndef OHOS_ABILITY_RUNTIME_EVENT_H
+#define OHOS_ABILITY_RUNTIME_EVENT_H
 
 #include <string>
 #include <vector>
@@ -44,4 +44,4 @@ private:
 };
 }  // namespace STtools
 }  // namespace OHOS
-#endif  // OHOS_SYSTEM_TEST_STEVENT_H
+#endif  // OHOS_ABILITY_RUNTIME_EVENT_H

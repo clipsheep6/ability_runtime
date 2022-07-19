@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_DISTRIBUTED_PARCEL_HELPER_H
-#define OHOS_DISTRIBUTED_PARCEL_HELPER_H
+#ifndef OHOS_ABILITY_RUNTIME_DISTRIBUTED_PARCEL_HELPER_H
+#define OHOS_ABILITY_RUNTIME_DISTRIBUTED_PARCEL_HELPER_H
 
 #include <cinttypes>
 
@@ -109,4 +109,4 @@ namespace AAFwk {
     } while (0)
 } // namespace AAFwk
 } // namespace OHOS
-#endif /* OHOS_DISTRIBUTED_PARCEL_HELPER_H */
+#endif /* OHOS_ABILITY_RUNTIME_DISTRIBUTED_PARCEL_HELPER_H */

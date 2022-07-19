@@ -102,6 +102,11 @@ int MockAbilityDelegatorStub::GetMissionSnapshot(const std::string& deviceId, in
     return 0;
 }
 
+void MockAbilityDelegatorStub::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+{
+    return;
+}
+
 int MockAbilityDelegatorStub::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     return 0;
@@ -282,6 +287,11 @@ int MockAbilityDelegatorStub2::GetMissionSnapshot(const std::string& deviceId, i
     MissionSnapshot& snapshot, bool isLowResolution)
 {
     return 0;
+}
+
+void MockAbilityDelegatorStub2::UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+{
+    return;
 }
 
 int MockAbilityDelegatorStub2::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)

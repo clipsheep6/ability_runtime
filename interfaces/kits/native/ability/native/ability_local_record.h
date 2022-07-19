@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_ABILITY_ITEM_H
-#define FOUNDATION_APPEXECFWK_ABILITY_ITEM_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H
 
 #include <string>
 
@@ -127,4 +127,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_ABILITY_ITEM_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LOCAL_RECORD_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_TASK_HANDLER_CLIENT_H
-#define OHOS_AAFWK_TASK_HANDLER_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_TASK_HANDLER_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_TASK_HANDLER_CLIENT_H
 
 #include <mutex>
 #include "task_handler.h"
@@ -41,4 +41,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_TASK_HANDLER_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_TASK_HANDLER_CLIENT_H

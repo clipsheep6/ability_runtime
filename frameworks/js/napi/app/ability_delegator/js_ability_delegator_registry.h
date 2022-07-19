@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_DELEGATOR_ABILITY_DELEGATOR_REGISTRY_H
-#define OHOS_ABILITY_DELEGATOR_ABILITY_DELEGATOR_REGISTRY_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_REGISTRY_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_REGISTRY_H
 
 #include "native_engine/native_engine.h"
 
@@ -47,4 +47,4 @@ NativeValue *JsAbilityDelegatorRegistryInit(NativeEngine *engine, NativeValue *e
 NativeValue *AbilityLifecycleStateInit(NativeEngine *engine);
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
-#endif // OHOS_ABILITY_DELEGATOR_ABILITY_DELEGATOR_REGISTRY_H
+#endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_REGISTRY_H

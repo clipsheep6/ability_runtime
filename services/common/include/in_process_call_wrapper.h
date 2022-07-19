@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef IN_PROCESS_CALL_WRAPPER_H
-#define IN_PROCESS_CALL_WRAPPER_H
+#ifndef OHOS_ABILITY_RUNTIME_IN_PROCESS_CALL_WRAPPER_H
+#define OHOS_ABILITY_RUNTIME_IN_PROCESS_CALL_WRAPPER_H
 
 #include "ipc_skeleton.h"
 
@@ -33,4 +33,4 @@
         IPCSkeleton::SetCallingIdentity(identity);                   \
     } while (0)
 
-#endif // IN_PROCESS_CALL_WRAPPER_H
+#endif // OHOS_ABILITY_RUNTIME_IN_PROCESS_CALL_WRAPPER_H

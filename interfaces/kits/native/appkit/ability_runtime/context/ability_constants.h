@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
-#define FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,4 +26,4 @@ const std::string FILE_SEPARATOR = "/";
 }  // namespace Constants
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H

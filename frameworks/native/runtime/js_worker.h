@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_JS_WORKER_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_JS_WORKER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_WORKER_H
+#define OHOS_ABILITY_RUNTIME_JS_WORKER_H
 
 #include <string>
 
@@ -23,7 +23,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath);
+void StartDebuggerInWorkerModule();
 } // namespace AbilityRuntime
 } // namespace OHOS
 
-#endif // FOUNDATION_OHOS_ABILITYRUNTIME_JS_WORKER_H
+#endif // OHOS_ABILITY_RUNTIME_JS_WORKER_H

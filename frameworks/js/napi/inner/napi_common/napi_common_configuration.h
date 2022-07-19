@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_CONFIGURATION_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_CONFIGURATION_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_CONFIGURATION_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_CONFIGURATION_H
 
 #include "napi_common_data.h"
 #include "configuration.h"
@@ -30,4 +30,4 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config);
 EXTERN_C_END
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_CONFIGURATION_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_CONFIGURATION_H

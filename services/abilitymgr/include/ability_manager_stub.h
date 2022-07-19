@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_STUB_H
-#define OHOS_AAFWK_ABILITY_MANAGER_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H
 
 #include "ability_manager_interface.h"
 
@@ -53,6 +53,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
+
 private:
     void FirstStepInit();
     void SecondStepInit();
@@ -152,6 +153,7 @@ private:
     int IsRunningInStabilityTestInner(MessageParcel &data, MessageParcel &reply);
     int MoveMissionToFrontByOptionsInner(MessageParcel &data, MessageParcel &reply);
 
+    int UpdateMissionSnapShotInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);
@@ -179,4 +181,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_H

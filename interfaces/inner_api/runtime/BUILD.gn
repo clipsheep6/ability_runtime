@@ -36,6 +36,8 @@ config("runtime_public_config") {
 
 ohos_shared_library("runtime") {
   sources = [
+    "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
+    "${ability_runtime_native_path}/runtime/hdc_register.cpp",
     "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
     "${ability_runtime_native_path}/runtime/js_module_searcher.cpp",
@@ -48,14 +50,14 @@ ohos_shared_library("runtime") {
 
   configs = [
     ":runtime_config",
-    "//ark/js_runtime:ark_jsruntime_public_config",
+    "//arkcompiler/ets_runtime:ark_jsruntime_public_config",
     "${ability_runtime_services_path}/common:common_config",
   ]
 
   public_configs = [ ":runtime_public_config" ]
 
   deps = [
-    "//ark/js_runtime:libark_jsruntime",
+    "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
 

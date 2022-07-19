@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_MISSION_INFORMATION_H
-#define FOUNDATION_APPEXECFWK_OHOS_MISSION_INFORMATION_H
+#ifndef OHOS_ABILITY_RUNTIME_MISSION_INFORMATION_H
+#define OHOS_ABILITY_RUNTIME_MISSION_INFORMATION_H
 
 #include <string>
 
@@ -32,4 +32,4 @@ struct MissionInformation : public Parcelable {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_MISSION_INFORMATION_H
+#endif  // OHOS_ABILITY_RUNTIME_MISSION_INFORMATION_H

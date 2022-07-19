@@ -35,31 +35,6 @@ constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr int32_t ERROR_CODE_ONE = 1;
 
-void* DetachBaseContext(NativeEngine*, void* value, void*)
-{
-    HILOG_INFO("DetachBaseContext");
-    return value;
-}
-
-NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
-{
-    HILOG_INFO("AttachBaseContext");
-    if (value == nullptr) {
-        HILOG_WARN("invalid parameter.");
-        return nullptr;
-    }
-    auto ptr = reinterpret_cast<std::weak_ptr<Context>*>(value)->lock();
-    if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
-        return nullptr;
-    }
-    NativeValue* object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1)->Get();
-    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachBaseContext, AttachBaseContext, value, nullptr);
-    return contextObj;
-}
-
 class JsApplicationContextUtils {
 public:
     explicit JsApplicationContextUtils(std::weak_ptr<ApplicationContext> &&applicationContext)
@@ -151,18 +126,17 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
 
     NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
     auto contextObj =  JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return engine.CreateUndefined();
     }
-    auto workContext = new std::weak_ptr<Context>(bundleContext);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
-        workContext, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            HILOG_INFO("Finalizer for weak_ptr bundle context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
@@ -253,18 +227,17 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
 
     NativeValue* value = CreateJsBaseContext(engine, moduleContext, nullptr, nullptr, true);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1)->Get();
-    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(value);
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nativeObj == nullptr) {
         HILOG_ERROR("Failed to get context native object");
         return engine.CreateUndefined();
     }
-    auto workContext = new std::weak_ptr<Context>(moduleContext);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachBaseContext, AttachBaseContext,
-        workContext, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            HILOG_INFO("Finalizer for weak_ptr module context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr);
@@ -463,7 +436,7 @@ NativeValue *JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
         return engine.CreateNumber(callback_->Register(info.argv[0]));
     }
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(&engine);
-    int callbackId = callback_->Register(info.argv[INDEX_ZERO]);
+    int32_t callbackId = callback_->Register(info.argv[INDEX_ZERO]);
     keepApplicationContext_->RegisterAbilityLifecycleCallback(callback_);
     HILOG_INFO("OnRegisterAbilityLifecycleCallback is end");
     return engine.CreateNumber(callbackId);
@@ -480,12 +453,12 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("OnUnregisterAbilityLifecycleCallback, Not enough params");
         errCode = ERROR_CODE_ONE;
     } else {
         napi_get_value_int32(
             reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
-        HILOG_INFO("callbackId is %{public}d.", callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
     std::weak_ptr<JsAbilityLifecycleCallback> callbackWptr(callback_);
     AsyncTask::CompleteCallback complete =
@@ -502,14 +475,11 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
                 return;
             }
 
-            HILOG_INFO("OnUnregisterAbilityLifecycleCallback begin");
+            HILOG_DEBUG("OnUnregisterAbilityLifecycleCallback begin");
             if (!callback->UnRegister(callbackId)) {
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));
                 return;
-            }
-            if (callback->IsEmpty()) {
-                applicationContext->UnregisterAbilityLifecycleCallback(callback);
             }
 
             task.Resolve(engine, engine.CreateUndefined());
@@ -555,7 +525,7 @@ NativeValue *JsApplicationContextUtils::OnRegisterEnvironmentCallback(
         return engine.CreateNumber(env_callback_->Register(info.argv[0]));
     }
     env_callback_ = std::make_shared<JsEnvironmentCallback>(&engine);
-    int callbackId = env_callback_->Register(info.argv[INDEX_ZERO]);
+    int32_t callbackId = env_callback_->Register(info.argv[INDEX_ZERO]);
     keepApplicationContext_->RegisterEnvironmentCallback(env_callback_);
     HILOG_DEBUG("OnRegisterEnvironmentCallback is end");
     return engine.CreateNumber(callbackId);
@@ -572,12 +542,12 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("OnUnregisterEnvironmentCallback, Not enough params");
         errCode = ERROR_CODE_ONE;
     } else {
         napi_get_value_int32(
             reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
-        HILOG_DEBUG("callbackId is %{public}d.", (int32_t)callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
     std::weak_ptr<JsEnvironmentCallback> env_callbackWptr(env_callback_);
     AsyncTask::CompleteCallback complete =
@@ -595,7 +565,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
                 return;
             }
 
-            HILOG_INFO("OnUnregisterEnvironmentCallback begin");
+            HILOG_DEBUG("OnUnregisterEnvironmentCallback begin");
             if (!env_callback->UnRegister(callbackId)) {
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));

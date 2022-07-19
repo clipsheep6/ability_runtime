@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_SERVICEABILITY_MOCK_MANAGER_SERVICE_H
-#define OHOS_AAFWK_SERVICEABILITY_MOCK_MANAGER_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_SERVICEABILITY_MANAGER_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_MOCK_SERVICEABILITY_MANAGER_SERVICE_H
 
 #include <memory>
 #include <singleton.h>
@@ -154,6 +154,11 @@ public:
         return 0;
     }
 
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override
+    {
+        return;
+    }
+
     virtual int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;
@@ -286,4 +291,4 @@ public:
 };
 } // namespace AAFwk
 } // namespace OHOS
-#endif // OHOS_AAFWK_SERVICEABILITY_MOCK_MANAGER_SERVICE_H
+#endif // OHOS_ABILITY_RUNTIME_MOCK_SERVICEABILITY_MANAGER_SERVICE_H

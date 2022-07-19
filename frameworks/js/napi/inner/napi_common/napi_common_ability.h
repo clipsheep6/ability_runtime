@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H
 #include "ability_connect_callback_stub.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
+#include "application_info.h"
 #include "feature_ability_common.h"
 
 namespace OHOS {
@@ -30,8 +31,10 @@ napi_status SaveGlobalDataAbilityHelper(napi_env env, napi_value constructor);
 napi_value GetGlobalDataAbilityHelper(napi_env env);
 bool& GetDataAbilityHelperStatus();
 
-void SaveAppInfo(AppInfo_ &appInfo, const ApplicationInfo &appInfoOrg);
-napi_value WrapAppInfo(napi_env env, const AppInfo_ &appInfo);
+napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo);
+napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
+    napi_value &result);
+napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result);
 int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
@@ -316,4 +319,4 @@ enum ErrorCode {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_ABILITY_H

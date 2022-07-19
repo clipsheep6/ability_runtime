@@ -61,7 +61,9 @@ int AbilityConnectManager::TerminateAbility(const std::shared_ptr<AbilityRecord>
                 if (it->GetCaller() == caller && it->GetRequestCode() == requestCode) {
                     targetAbility = service.second;
                     if (targetAbility) {
-                        result = AbilityUtil::JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
+                        auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
+                        CHECK_POINTER(abilityMs);
+                        result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
                     }
                     break;
                 }
@@ -314,7 +316,9 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
             auto abilityRecord = connectRecord->GetAbilityRecord();
             CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
             HILOG_INFO("Disconnect ability, caller:%{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
-            int result = AbilityUtil::JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
+            auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
+            CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
+            int result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
             if (result != ERR_OK) {
                 HILOG_ERROR("Judge ability visible error.");
                 return result;

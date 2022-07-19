@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef APP_MGR_H
-#define APP_MGR_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MGR_H
+#define OHOS_ABILITY_RUNTIME_APP_MGR_H
 
 #include <js_native_api.h>
 
@@ -38,4 +38,4 @@ struct AsyncCallbackInfo {
 
 napi_value NAPI_KillProcessesByBundleName(napi_env env, napi_callback_info);
 
-#endif  // APP_MGR_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_H

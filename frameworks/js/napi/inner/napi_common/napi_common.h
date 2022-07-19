@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_COMMON_H
-#define OHOS_APPEXECFWK_NAPI_COMMON_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
 
 #include "napi_common_configuration.h"
 #include "napi_common_data.h"
@@ -22,4 +22,4 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_common_start_options.h"
-#endif  // OHOS_APPEXECFWK_NAPI_COMMON_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_H

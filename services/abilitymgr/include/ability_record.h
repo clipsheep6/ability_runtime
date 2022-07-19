@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_RECORD_H
-#define OHOS_AAFWK_ABILITY_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_RECORD_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_RECORD_H
 
 #include <ctime>
 #include <functional>
@@ -187,7 +187,6 @@ enum AbilityCallType {
     START_OPTIONS_TYPE,
     START_SETTINGS_TYPE,
     START_EXTENSION_TYPE,
-    CONNECT_ABILITY_TYPE,
 };
 struct AbilityRequest {
     Want want;
@@ -410,6 +409,15 @@ public:
      */
     bool IsReady() const;
 
+    inline void SetNeedSnapShot(bool needTakeSnapShot)
+    {
+        needTakeSnapShot_ = needTakeSnapShot;
+    }
+
+    inline bool IsNeedTakeSnapShot()
+    {
+        return needTakeSnapShot_;
+    }
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -930,6 +938,7 @@ private:
     mutable std::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
+    bool needTakeSnapShot_ = true;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
@@ -937,4 +946,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_RECORD_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_RECORD_H

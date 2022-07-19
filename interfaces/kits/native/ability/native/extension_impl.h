@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_IMPL_H
-#define FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_EXTENSION_IMPL_H
+#define OHOS_ABILITY_RUNTIME_EXTENSION_IMPL_H
 
 #include "extension.h"
 #include "lifecycle_state_info.h"
@@ -119,4 +119,4 @@ protected:
 };
 }
 }
-#endif  // FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_EXTENSION_IMPL_H

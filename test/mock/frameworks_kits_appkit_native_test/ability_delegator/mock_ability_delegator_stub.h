@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_ABILITY_DELEGATOR_MOCK_ABILITY_DELEGATOR_STUB_H
-#define FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_ABILITY_DELEGATOR_MOCK_ABILITY_DELEGATOR_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
+#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
 
 #include "gmock/gmock.h"
 
@@ -127,6 +127,7 @@ public:
         const AppExecFwk::ElementName &element) override;
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     virtual int SendANRProcessID(int pid) override;
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
@@ -263,6 +264,7 @@ public:
         const AppExecFwk::ElementName &element) override;
     virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
     virtual int SendANRProcessID(int pid) override;
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
@@ -300,4 +302,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_MOCK_ABILITY_MANAGER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H

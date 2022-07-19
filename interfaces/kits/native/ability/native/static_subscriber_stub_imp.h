@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_STATIC_SUBSCRIBER_STUB_IMP_H
-#define OHOS_APPEXECFWK_STATIC_SUBSCRIBER_STUB_IMP_H
+#ifndef OHOS_ABILITY_RUNTIME_STATIC_SUBSCRIBER_STUB_IMP_H
+#define OHOS_ABILITY_RUNTIME_STATIC_SUBSCRIBER_STUB_IMP_H
 
 #include <memory>
 #include "js_static_subscriber_extension.h"
@@ -36,5 +36,5 @@ private:
 };
 } // namespace AppExecFwk
 } // namespace OHOS
-#endif // OHOS_APPEXECFWK_STATIC_SUBSCRIBER_STUB_IMP_H
+#endif // OHOS_ABILITY_RUNTIME_STATIC_SUBSCRIBER_STUB_IMP_H
 

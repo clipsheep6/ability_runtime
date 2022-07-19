@@ -21,13 +21,17 @@
 #undef private
 #undef protected
 
+#include "ability_connect_callback_stub.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler.h"
 #include "connection_record.h"
 #include "mock_ability_connect_callback.h"
-#include "ability_connect_callback_stub.h"
+#include "mock_bundle_manager.h"
+#include "sa_mgr_client.h"
+#include "system_ability_definition.h"
 
 using namespace testing::ext;
+using namespace OHOS::AppExecFwk;
 
 namespace OHOS {
 namespace AAFwk {
@@ -46,11 +50,14 @@ public:
 
 void AbilityRecordTest::SetUpTestCase(void)
 {
+    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
+        OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
     OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStart();
 }
 void AbilityRecordTest::TearDownTestCase(void)
 {
     OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->OnStop();
+    OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
 }
 
 void AbilityRecordTest::SetUp(void)

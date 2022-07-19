@@ -72,10 +72,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         AAFwk::Want targetWant = request.want;
         targetWant.SetAction("");
         targetWant.SetElementName(bundle, abilityName);
-        auto callBack = [targetWant, request, userId]() -> int32_t {
-            auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
-            CHECK_POINTER_AND_RETURN(abilityMgr, ERR_INVALID_VALUE);
-            return abilityMgr->ImplicitStartAbilityInner(targetWant, request, userId);
+        auto callBack = [imp, targetWant, request, userId]() -> int32_t {
+            return imp->ImplicitStartAbilityInner(targetWant, request, userId);
         };
         return imp->CallStartAbilityInner(userId, targetWant, callBack, request.callType);
     };
@@ -111,8 +109,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}d, extensionInfos size: %{public}d",
         static_cast<int>(abilityInfos.size()), static_cast<int>(extensionInfos.size()));
 
-    auto isExtension = (request.callType == AbilityCallType::START_EXTENSION_TYPE ||
-        request.callType == AbilityCallType::CONNECT_ABILITY_TYPE);
+    auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
     
     for (auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
@@ -142,6 +139,43 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     return ERR_OK;
 }
 
+int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant,
+    const AbilityRequest &request, int32_t userId)
+{
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER_AND_RETURN(abilityMgr, ERR_INVALID_VALUE);
+
+    int32_t result = ERR_OK;
+    switch (request.callType) {
+        case AbilityCallType::START_OPTIONS_TYPE: {
+            StartOptions startOptions;
+            auto displayId = targetWant.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, 0);
+            auto windowMode = targetWant.GetIntParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+            startOptions.SetDisplayID(static_cast<int32_t>(displayId));
+            startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
+            result = abilityMgr->StartAbility(
+                targetWant, startOptions, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_SETTINGS_TYPE: {
+            CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
+            result = abilityMgr->StartAbility(
+                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
+            break;
+        }
+        case AbilityCallType::START_EXTENSION_TYPE:
+            result = abilityMgr->StartExtensionAbility(
+                targetWant, request.callerToken, userId, request.extensionType);
+            break;
+        default:
+            result = abilityMgr->StartAbilityInner(
+                targetWant, request.callerToken, request.requestCode, request.callerUid, userId);
+            break;
+    }
+
+    return result;
+}
+
 int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     const Want &want, const StartAbilityClosure &callBack, const AbilityCallType &callType)
 {
@@ -154,9 +188,6 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     if (callType == AbilityCallType::INVALID_TYPE) {
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     }
-    if (callType == AbilityCallType::CONNECT_ABILITY_TYPE) {
-        AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
-    }
 
     HILOG_INFO("ability:%{public}s, bundle:%{public}s", eventInfo.abilityName.c_str(), eventInfo.bundleName.c_str());
 
@@ -165,9 +196,6 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
         eventInfo.errCode = ret;
         if (callType == AbilityCallType::INVALID_TYPE) {
             AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
-        }
-        if (callType == AbilityCallType::CONNECT_ABILITY_TYPE) {
-            AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
         }
     }
     return ret;

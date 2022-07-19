@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_MISSION_CONTINUE_INTERFACE_H
-#define OHOS_MISSION_CONTINUE_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_INTERFACE_H
 
 #include "element_name.h"
 #include "iremote_broker.h"
@@ -33,4 +33,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_MISSION_CONTINUE_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_MISSION_CONTINUE_INTERFACE_H
