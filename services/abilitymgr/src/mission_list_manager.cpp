@@ -1057,7 +1057,9 @@ int MissionListManager::TerminateAbility(const std::shared_ptr<AbilityRecord> &c
         return NO_FOUND_ABILITY_BY_CALLER;
     }
 
-    int result = AbilityUtil::JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
+    auto abilityMs = DelayedSingleton<AbilityManagerService>::GetInstance();
+    CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED)
+    int result = abilityMs->JudgeAbilityVisibleControl(targetAbility->GetAbilityInfo());
     if (result != ERR_OK) {
         HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
         return result;

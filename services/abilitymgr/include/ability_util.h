@@ -161,7 +161,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
+[[maybe_unused]] static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
 {
     auto bundleObj =
         OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
@@ -170,40 +170,6 @@ static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
         return nullptr;
     }
     return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
-}
-
-[[maybe_unused]] static int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1)
-{
-    HILOG_DEBUG("Judge ability visible begin.");
-    if (!abilityInfo.visible) {
-        HILOG_INFO("Ability visible is false.");
-        if (callerUid == -1) {
-            callerUid = IPCSkeleton::GetCallingUid();
-        }
-        auto bms = GetBundleManager();
-        CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-
-        auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        auto apl = abilityInfo.applicationInfo.appPrivilegeLevel;
-        if (!isSaCall && apl != SYSTEM_BASIC && apl != SYSTEM_CORE) {
-            HILOG_INFO("Caller is not systemAp or system.");
-            std::string bundleName;
-            bool result = bms->GetBundleNameForUid(callerUid, bundleName);
-            if (!result) {
-                HILOG_ERROR("GetBundleNameForUid fail");
-                return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-            }
-            if (bundleName != abilityInfo.bundleName) {
-                HILOG_ERROR("Judge ability visible error, caller bundleName:%{public}s not equal callee "
-                            "bundleName: %{public}s",
-                    bundleName.c_str(),
-                    abilityInfo.bundleName.c_str());
-                return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
-            }
-        }
-    }
-    HILOG_DEBUG("Judge ability visible success.");
-    return ERR_OK;
 }
 
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
