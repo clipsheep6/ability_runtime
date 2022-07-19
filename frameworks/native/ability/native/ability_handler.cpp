@@ -21,11 +21,6 @@ AbilityHandler::AbilityHandler(const std::shared_ptr<EventRunner> &runner, const
     : EventHandler(runner), server_(server)
 {}
 
-/**
- * Process the event. Developers should override this method.
- *
- * @param event The event should be processed.
- */
 void AbilityHandler::ProcessEvent([[maybe_unused]] const InnerEvent::Pointer &event)
 {}
 }  // namespace AppExecFwk

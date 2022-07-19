@@ -17,83 +17,22 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-/**
- * @brief Called back in response to an ON_ACTIVE event.
- * When an ON_ACTIVE event is received, the ability or ability slice is in the foreground and is interactive.
- */
-void LifecycleObserver::OnActive()
-{}
+void LifecycleObserver::OnActive() {}
 
-/**
- * @brief Called back in response to an ON_INACTIVE event.
- * When an ON_INACTIVE event is received, the ability or ability slice is in the INACTIVE state. INACTIVE is an
- * intermediate state before the state changes to ACTIVE or BACKGROUND. In this state, the UI may be visible but is
- * not interactive. You are advised not to use this method to invoke complex service logic.
- *
- */
-void LifecycleObserver::OnInactive()
-{}
+void LifecycleObserver::OnInactive() {}
 
-/**
- * @brief Called back in response to an ON_START event, where the startup information
- * is carried in the want parameter.
- * This method initializes an Ability or AbilitySlice and is called back only once during the entire lifecycle.
- * You are advised to implement some initialization logic using this method, for example, you can initialize a
- * timer or define some global objects.
- *
- * @param want Indicates the startup information.
- */
-void LifecycleObserver::OnStart(const Want &want)
-{}
+void LifecycleObserver::OnStart(const Want &want) {}
 
-/**
- * @brief Called back in response to an ON_STOP event.
- * This method is called back when the lifecycle of the ability or ability slice is destroyed. You can reclaim
- * resources using this method.
- *
- */
-void LifecycleObserver::OnStop()
-{}
+void LifecycleObserver::OnStop() {}
 
-/**
- * @brief Called back in response to a lifecycle change. This method is triggered by a registered LifecycleObserver
- * each time the lifecycle state changes.
- *
- * @param event Indicates the lifecycle event.
- * @param want Indicates the state change information.
- */
-void LifecycleObserver::OnStateChanged(Lifecycle::Event event, const Want &want)
-{}
+void LifecycleObserver::OnStateChanged(Lifecycle::Event event, const Want &want) {}
 
-/**
- * @brief Called back in response to a lifecycle change. This method is triggered by a registered LifecycleObserver
- * each time the lifecycle state changes.
- *
- * @param event Indicates the lifecycle event.
- */
-virtual void LifecycleObserver::OnStateChanged(LifeCycle::Event event)
-{}
+virtual void LifecycleObserver::OnStateChanged(LifeCycle::Event event) {}
 
 #ifdef SUPPORT_GRAPHICS
-/**
- * @brief Called back in response to an ON_BACKGROUND event.
- * When an ON_BACKGROUND event is received, the ability or ability slice is invisible. You are advised to
- * suspend the threads related to this ability or ability slice and clear resources for more system memory.
- *
- */
-void LifecycleObserver::OnBackground()
-{}
+void LifecycleObserver::OnBackground() {}
 
-/**
- * @brief Called back in response to an ON_FOREGROUND event, where information for the
- * ability or ability slice to go back to the ACTIVE state is carried in the want parameter.
- * When an ON_FOREGROUND event is received, the ability or ability slice returns to the foreground. You can use
- * this method to implement re-initialization or adjust the UI display by using the want parameter.
- *
- * @param want Indicates the information for the ability or ability slice to go back to the ACTIVE state.
- */
-void LifecycleObserver::OnForeground(const Want &want)
-{}
+void LifecycleObserver::OnForeground(const Want &want) {}
 #endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

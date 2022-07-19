@@ -175,14 +175,10 @@ ohos_source_set("abilityms_test_source") {
     "//utils/native/base:utils",
   ]
 
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
-
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

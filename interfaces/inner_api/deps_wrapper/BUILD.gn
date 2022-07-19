@@ -14,42 +14,40 @@
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-config("upms_config") {
+config("ability_deps_wrapper_private_config") {
+  include_dirs = [ "${ability_runtime_services_path}/common/include" ]
+
+  defines = [
+    "AMS_LOG_TAG = \"AbilityDepsWrapper\"",
+    "AMS_LOG_DOMAIN = 0xD002201",
+  ]
+}
+
+config("ability_deps_wrapper_config") {
   visibility = [ ":*" ]
+
   include_dirs = [ "include" ]
-  cflags = []
-  if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
+
+  if (os_account_part_enabled) {
+    cflags_cc = [ "-DOS_ACCOUNT_PART_ENABLED" ]
   }
 }
 
-#build so
-ohos_shared_library("libupms") {
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
-  public_configs = [ ":upms_config" ]
+ohos_shared_library("ability_deps_wrapper") {
+  sources = [ "src/os_account_manager_wrapper.cpp" ]
 
-  sources = [
-    "src/uri_permission_manager_service.cpp",
-    "src/uri_permission_manager_stub_impl.cpp",
-  ]
+  public_configs = [ ":ability_deps_wrapper_config" ]
 
-  deps =
-      [ "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr" ]
+  configs = [ ":ability_deps_wrapper_private_config" ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_base:zuri",
-    "ability_runtime:ability_deps_wrapper",
-    "access_token:libaccesstoken_sdk",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
 
+  if (os_account_part_enabled) {
+    external_deps += [ "os_account:os_account_innerkits" ]
+  }
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

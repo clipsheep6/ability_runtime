@@ -17,23 +17,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-/**
- * @brief While Ability's lifecycle changes, dispatch lifecycle state.
- *
- * @param state  Lifecycle state.
- */
 void AbilityLifecycleExecutor::DispatchLifecycleState(const AbilityLifecycleExecutor::LifecycleState &state)
 {
     state_ = state;
 }
 
-/**
- * @brief Obtains the int value of the ability lifecycle state represented by the
- * AbilityLifecycleExecutor.LifecycleState enum constant.
- *
- * @return return  Returns the int value of the ability lifecycle state represented
- * by the AbilityLifecycleExecutor.LifecycleState enum constant.
- */
 int AbilityLifecycleExecutor::GetState()
 {
     return state_;

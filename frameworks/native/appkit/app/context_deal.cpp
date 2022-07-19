@@ -25,9 +25,7 @@
 #include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 
@@ -54,9 +52,6 @@ const std::string ContextDeal::CONTEXT_DEAL_PREFERENCES("preferences");
 const std::string ContextDeal::CONTEXT_DEAL_DISTRIBUTEDFILES("distributedfiles");
 const std::string ContextDeal::CONTEXT_DEAL_CACHE("cache");
 const std::string ContextDeal::CONTEXT_DEAL_DATA("data");
-#ifndef OS_ACCOUNT_PART_ENABLED
-const int DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
-#endif // OS_ACCOUNT_PART_ENABLED
 
 ContextDeal::ContextDeal(bool isCreateBySystemApp) : isCreateBySystemApp_(isCreateBySystemApp)
 {}
@@ -618,11 +613,7 @@ bool ContextDeal::IsCreateBySystemApp() const
 int ContextDeal::GetCurrentAccountId() const
 {
     int userId = 0;
-#ifdef OS_ACCOUNT_PART_ENABLED
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromProcess(userId);
-#else // OS_ACCOUNT_PART_ENABLED
-    userId = DEFAULT_OS_ACCOUNT_ID;
-#endif // OS_ACCOUNT_PART_ENABLED
+    DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromProcess(userId);
     return userId;
 }
 

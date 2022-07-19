@@ -25,6 +25,8 @@ group("abilityms_target") {
 }
 
 config("abilityms_config") {
+  cflags_cc = [ "-fexceptions" ]
+
   include_dirs = [
     "include/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
@@ -99,6 +101,7 @@ ohos_shared_library("abilityms") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
@@ -120,11 +123,6 @@ ohos_shared_library("abilityms") {
     "startup_l2:syspara",
     "utils_base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
