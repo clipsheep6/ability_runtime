@@ -142,7 +142,7 @@ public:
     /**
      * @brief Request currently shared data
      *
-     * @param WantParams type to share information data.
+     * @param wantParams Indicates the form share information data.
      *
      * @return none.
      */

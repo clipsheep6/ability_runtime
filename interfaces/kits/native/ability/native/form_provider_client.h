@@ -136,11 +136,11 @@ public:
                              const sptr<IRemoteObject> &callerToken) override;
 
     /**
-     * @brief Request to share form information data. This is sync API.
-     * @param formId form ID.
-     * @param remoteDeviceId Remote Device ID.
-     * @param formSupplyCallback lifecycle callback.
-     * @param requestCode timeStamp of this form share.
+     * @brief Acquire to share form information data. This is sync API.
+     * @param formId The Id of the from.
+     * @param remoteDeviceId Indicates the device ID to share.
+     * @param formSupplyCallback Indicates lifecycle callbacks.
+     * @param requestCode Indicates the request code of this share form.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
