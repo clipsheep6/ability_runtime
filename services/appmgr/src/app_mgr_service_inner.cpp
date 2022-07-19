@@ -70,6 +70,7 @@ const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string PERMISSION_NAME = "ohos.permission.INTERNET";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -1235,6 +1236,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_ERROR("Get target fail.");
         return;
     }
+    bool isAllowInternet = false;
+    auto callerToken = IPCSkeleton::GetCallingTokenID();
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
+    if (result == Security::AccessToken::PERMISSION_GRANTED) {
+        isAllowInternet = true;
+    }
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
@@ -1243,6 +1250,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
     startMsg.bundleIndex = bundleIndex;
+    startMsg.isAllowInternet = isAllowInternet;
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
