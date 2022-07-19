@@ -2613,10 +2613,12 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     // force timeout ability for test
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
-    if (IsNeedTimeoutForTest(abilityInfo.name,
-        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)))) {
+    bool isTerminate = abilityRecord->IsAbilityState(AbilityState::TERMINATING) && targetState == AbilityState::INITIAL;
+    std::string tempState = isTerminate ? AbilityRecord::ConvertAbilityState(AbilityState::TERMINATING) :
+        AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
+    if (IsNeedTimeoutForTest(abilityInfo.name, tempState)) {
         HILOG_WARN("force timeout ability for test, state:%{public}s, ability: %{public}s",
-            AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState)).c_str(),
+            tempState.c_str(),
             abilityInfo.name.c_str());
         return ERR_OK;
     }

@@ -77,7 +77,7 @@ constexpr int32_t BASE_USER_RANGE = 200000;
 
 constexpr ErrCode APPMGR_ERR_OFFSET = ErrCodeOffset(SUBSYS_APPEXECFWK, 0x01);
 constexpr ErrCode ERR_ALREADY_EXIST_RENDER = APPMGR_ERR_OFFSET + 100; // error code for already exist render.
-const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "LIFECYCLE_TIMEOUT";
+const std::string EVENT_NAME_LIFECYCLE_TIMEOUT = "APP_LIFECYCLE_TIMEOUT";
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
@@ -1433,7 +1433,6 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
         HILOG_ERROR("appRunningManager or event is nullptr");
         return;
     }
-    SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
 
     // check libc.hook_mode
     const int bufferLen = 128;
@@ -1450,13 +1449,16 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
             appRunningManager_->HandleTerminateTimeOut(event->GetParam());
             break;
         case AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG:
+            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
             HandleTerminateApplicationTimeOut(event->GetParam());
             break;
         case AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG:
         case AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG:
+            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
             HandleAddAbilityStageTimeOut(event->GetParam());
             break;
         case AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG:
+            SendHiSysEvent(event->GetInnerEventId(), event->GetParam());
             HandleStartSpecifiedAbilityTimeOut(event->GetParam());
             break;
         default:
@@ -1507,11 +1509,19 @@ void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
-        int32_t result = KillProcessByPid(pid);
-        if (result < 0) {
-            HILOG_ERROR("KillProcessByAbilityToken kill process is fail");
+        auto timeoutTask = [pid, innerService = shared_from_this()]() {
+            HILOG_INFO("KillProcessByPid %{public}d", pid);
+            int32_t result = innerService->KillProcessByPid(pid);
+            if (result < 0) {
+                HILOG_ERROR("KillProcessByPid kill process is fail");
+                return;
+            }
+        };
+        if (!eventHandler_) {
+            HILOG_ERROR("eventHandler_ is nullptr");
             return;
         }
+        eventHandler_->PostTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
     }
     appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
     RemoveAppFromRecentListById(appRecord->GetRecordId());
@@ -2178,10 +2188,19 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
         return;
     }
 
-    auto result = KillProcessByPid(pid);
-    if (result < 0) {
-        HILOG_ERROR("Kill application by app record, pid: %{public}d", pid);
+    auto timeoutTask = [pid, innerService = shared_from_this()]() {
+        HILOG_INFO("KillProcessByPid %{public}d", pid);
+        int32_t result = innerService->KillProcessByPid(pid);
+        if (result < 0) {
+            HILOG_ERROR("Kill application by app record, pid: %{public}d", pid);
+            return;
+        }
+    };
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
     }
+    eventHandler_->PostTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
 }
 
 void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_t eventId)

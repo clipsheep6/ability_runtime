@@ -345,7 +345,12 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         appRecord->SetTerminating();
     }
 
-    appRecord->TerminateAbility(token, true);
+    auto timeoutTask = [appRecord, token]() {
+        if (appRecord) {
+            appRecord->TerminateAbility(token, true);
+        }
+    };
+    appRecord->PostTask("DELAY_KILL_ABILITY", AMSEventHandler::KILL_PROCESS_TIMEOUT, timeoutTask);
 }
 
 void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
