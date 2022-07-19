@@ -786,6 +786,11 @@ public:
     bool GetLocalDeviceId(std::string& localDeviceId);
 
     int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
 #ifdef SUPPORT_GRAPHICS
     int32_t ImplicitStartAbilityInner(const Want &targetWant, const AbilityRequest &request, int32_t userId);

@@ -185,7 +185,7 @@ public:
     {
         return;
     }
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler> &handler)
+    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;
     }
