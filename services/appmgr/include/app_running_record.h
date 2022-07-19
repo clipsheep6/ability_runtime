@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H
+#define OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H
 
 #include <list>
 #include <map>
@@ -436,6 +436,8 @@ public:
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
+    bool IsLastPageAbilityRecord(const sptr<IRemoteObject> &token);
+
     void SetTerminating();
 
     bool IsTerminating();
@@ -493,6 +495,11 @@ public:
 
     void SetKilling();
     bool IsKilling() const;
+    void SetAppIndex(const int32_t appIndex);
+    int32_t GetAppIndex() const;
+
+    using Closure = std::function<void()>;
+    void PostTask(std::string msg, int64_t timeOut, const Closure &task);
 
 private:
     /**
@@ -578,7 +585,8 @@ private:
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
     AppSpawnStartMsg startMsg_;
+    int32_t appIndex_ = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_RUNNING_RECORD_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H

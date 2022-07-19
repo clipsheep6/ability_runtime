@@ -16,10 +16,7 @@
 #include "dataobs_mgr_proxy.h"
 
 #include "errors.h"
-#include "string_ex.h"
-
-#include "data_ability_observer_proxy.h"
-#include "data_ability_observer_stub.h"
+#include "hilog_wrapper.h"
 #include "dataobs_mgr_errors.h"
 
 namespace OHOS {

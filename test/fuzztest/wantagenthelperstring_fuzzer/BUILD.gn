@@ -15,16 +15,17 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_runtime/want"
 
 ##############################fuzztest##########################################
 ohos_fuzztest("WantAgentHelperStringFuzzTest") {
   module_out_path = module_output_path
 
-  fuzz_config_file = "${aafwk_path}/test/fuzztest/wantagenthelperstring_fuzzer"
+  fuzz_config_file =
+      "${ability_runtime_test_path}/fuzztest/wantagenthelperstring_fuzzer"
 
-  include_dirs = [ "${ability_base_innerapi_path}/wantagent/include" ]
+  include_dirs = [ "${ability_runtime_innerkits_path}/wantagent/include" ]
 
   cflags = [
     "-g",
@@ -35,11 +36,10 @@ ohos_fuzztest("WantAgentHelperStringFuzzTest") {
 
   sources = [ "wantagenthelperstring_fuzzer.cpp" ]
 
-  deps = [ "${aafwk_path}/frameworks/kits/wantagent:wantagent_innerkits" ]
-
   external_deps = [
     "ability_base:base",
     "ability_base:want",
+    "ability_runtime:wantagent_innerkits",
     "ipc:ipc_core",
     "utils_base:utils",
   ]

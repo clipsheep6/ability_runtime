@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_H
-#define BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_AGENT_H
+#define OHOS_ABILITY_RUNTIME_WANT_AGENT_H
 
 #include <string>
 #include <memory>
@@ -69,4 +69,4 @@ private:
     std::shared_ptr<PendingWant> pendingWant_;
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
-#endif  // BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_AGENT_H

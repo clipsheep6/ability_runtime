@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_SA_MGR_CLIENT_H
-#define OHOS_AAFWK_SA_MGR_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_SA_MGR_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_SA_MGR_CLIENT_H
 
 #include <memory>
 #include <mutex>
@@ -44,4 +44,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_SA_MGR_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_SA_MGR_CLIENT_H

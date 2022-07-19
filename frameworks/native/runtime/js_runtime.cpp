@@ -18,394 +18,38 @@
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
-#include <fstream>
 #include <sys/epoll.h>
+#include <unistd.h>
 
+#include "connect_server_manager.h"
+#include "event_handler.h"
+#include "hdc_register.h"
+#include "hilog_wrapper.h"
+#include "js_console_log.h"
+#include "js_module_searcher.h"
+#include "js_runtime_utils.h"
+#include "js_timer.h"
+#include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "parameters.h"
+#include "systemcapability.h"
+
 #ifdef SUPPORT_GRAPHICS
-#include "core/common/container_scope.h"
 #include "declarative_module_preloader.h"
 #endif
-#include "event_handler.h"
-#include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
-
-#ifdef ENABLE_HITRACE
-#include "hitrace/trace.h"
-#endif
-#include "systemcapability.h"
-#include "parameters.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr uint8_t SYSCAP_MAX_SIZE = 64;
 constexpr int64_t DEFAULT_GC_POOL_SIZE = 0x10000000; // 256MB
-constexpr int64_t ASSET_FILE_MAX_SIZE = 20 * 1024 * 1024;
 #if defined(_ARM64_)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #else
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
-constexpr char DEFAULT_BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
-constexpr char BUNDLES_INSTALL_PATH[] = "/data/bundles/";
-
-constexpr char PREFIX_BUNDLE[] = "@bundle:";
-constexpr char PREFIX_MODULE[] = "@module:";
-constexpr char PREFIX_LOCAL[] = "@local:";
-
-constexpr char NPM_PATH_SEGMENT[] = "node_modules";
-
-constexpr char NPM_ENTRY_FILE[] = "index.abc";
-constexpr char NPM_ENTRY_LINK[] = "entry.txt";
-
-constexpr char EXT_NAME_ABC[] = ".abc";
-constexpr char EXT_NAME_ETS[] = ".ets";
-constexpr char EXT_NAME_TS[] = ".ts";
-constexpr char EXT_NAME_JS[] = ".js";
-
-constexpr size_t NPM_LEVEL_START = 0;
-constexpr size_t NPM_LEVEL_END = 1;
-
 constexpr char TIMER_TASK[] = "uv_timer_task";
-
-inline bool StringEndWith(const std::string& str, const char* endStr, size_t endStrLen)
-{
-    size_t len = str.length();
-    return ((len >= endStrLen) && (str.compare(len - endStrLen, endStrLen, endStr) == 0));
-}
-
-inline bool StringStartWith(const std::string& str, const char* startStr, size_t startStrLen)
-{
-    return ((str.length() >= startStrLen) && (str.compare(0, startStrLen, startStr) == 0));
-}
-
-void SplitString(const std::string& str, std::vector<std::string>& out, size_t pos = 0, const char* seps = "\\/")
-{
-    if (str.empty() || pos >= str.length()) {
-        return;
-    }
-
-    size_t startPos = pos;
-    size_t endPos = 0;
-    while ((endPos = str.find_first_of(seps, startPos)) != std::string::npos) {
-        if (endPos > startPos) {
-            out.emplace_back(str.substr(startPos, endPos - startPos));
-        }
-        startPos = endPos + 1;
-    }
-
-    if (startPos < str.length()) {
-        out.emplace_back(str.substr(startPos));
-    }
-}
-
-std::string JoinString(const std::vector<std::string>& strs, char sep, size_t startIndex = 0)
-{
-    std::string out;
-    for (size_t index = startIndex; index < strs.size(); ++index) {
-        if (!strs[index].empty()) {
-            out.append(strs[index]) += sep;
-        }
-    }
-    if (!out.empty()) {
-        out.pop_back();
-    }
-    return out;
-}
-
-inline std::string StripString(const std::string& str, const char* charSet = " \t\n\r")
-{
-    size_t startPos = str.find_first_not_of(charSet);
-    if (startPos == std::string::npos) {
-        return std::string();
-    }
-
-    return str.substr(startPos, str.find_last_not_of(charSet) - startPos + 1);
-}
-
-class JsModuleSearcher {
-public:
-    JsModuleSearcher(const JsModuleSearcher&) = default;
-    JsModuleSearcher(JsModuleSearcher&&) = default;
-    JsModuleSearcher& operator=(const JsModuleSearcher&) = default;
-    JsModuleSearcher& operator=(JsModuleSearcher&&) = default;
-
-    explicit JsModuleSearcher(const std::string& bundleName) : bundleName_(bundleName) {}
-
-    std::string operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
-    {
-        HILOG_INFO("Search JS module (%{public}s, %{public}s) begin",
-            curJsModulePath.c_str(), newJsModuleUri.c_str());
-
-        std::string newJsModulePath;
-
-        if (curJsModulePath.empty() || newJsModuleUri.empty()) {
-            return newJsModulePath;
-        }
-    
-        switch (newJsModuleUri[0]) {
-            case '.': {
-                newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
-                break;
-            }
-            case '@': {
-                newJsModulePath = ParseOhmUri(curJsModulePath, newJsModuleUri);
-                if (newJsModulePath.empty()) {
-                    newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
-                }
-                break;
-            }
-            default: {
-                newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
-                break;
-            }
-        }
-
-        FixExtName(newJsModulePath);
-
-        HILOG_INFO("Search JS module (%{public}s, %{public}s) => %{public}s end",
-            curJsModulePath.c_str(), newJsModuleUri.c_str(), newJsModulePath.c_str());
-
-        return newJsModulePath;
-    }
-
-private:
-    static void FixExtName(std::string& path)
-    {
-        if (path.empty()) {
-            return;
-        }
-
-        if (StringEndWith(path, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
-            return;
-        }
-
-        if (StringEndWith(path, EXT_NAME_ETS, sizeof(EXT_NAME_ETS) - 1)) {
-            path.erase(path.length() - (sizeof(EXT_NAME_ETS) - 1), sizeof(EXT_NAME_ETS) - 1);
-        } else if (StringEndWith(path, EXT_NAME_TS, sizeof(EXT_NAME_TS) - 1)) {
-            path.erase(path.length() - (sizeof(EXT_NAME_TS) - 1), sizeof(EXT_NAME_TS) - 1);
-        } else if (StringEndWith(path, EXT_NAME_JS, sizeof(EXT_NAME_JS) - 1)) {
-            path.erase(path.length() - (sizeof(EXT_NAME_JS) - 1), sizeof(EXT_NAME_JS) - 1);
-        }
-
-        path.append(EXT_NAME_ABC);
-    }
-
-    static std::string GetInstallPath(const std::string& curJsModulePath, bool module = true)
-    {
-        size_t pos = std::string::npos;
-        if (StringStartWith(curJsModulePath, DEFAULT_BUNDLE_INSTALL_PATH, sizeof(DEFAULT_BUNDLE_INSTALL_PATH) - 1)) {
-            pos = sizeof(DEFAULT_BUNDLE_INSTALL_PATH) - 1 - 1;
-        } else {
-            if (!StringStartWith(curJsModulePath, BUNDLES_INSTALL_PATH, sizeof(BUNDLES_INSTALL_PATH) - 1)) {
-                return std::string();
-            }
-
-            pos = curJsModulePath.find('/', sizeof(BUNDLES_INSTALL_PATH) - 1);
-            if (pos == std::string::npos) {
-                return std::string();
-            }
-        }
-
-        if (module) {
-            pos = curJsModulePath.find('/', pos + 1);
-            if (pos == std::string::npos) {
-                return std::string();
-            }
-        }
-
-        return curJsModulePath.substr(0, pos + 1);
-    }
-
-    static std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri)
-    {
-        std::string moduleInstallPath = GetInstallPath(curJsModulePath, true);
-        if (moduleInstallPath.empty()) {
-            return std::string();
-        }
-
-        std::vector<std::string> pathVector;
-        SplitString(curJsModulePath, pathVector, moduleInstallPath.length());
-
-        if (pathVector.empty()) {
-            return std::string();
-        }
-
-        // Remove file name, reserve only dir name
-        pathVector.pop_back();
-
-        std::vector<std::string> relativePathVector;
-        SplitString(newJsModuleUri, relativePathVector);
-
-        for (auto& value : relativePathVector) {
-            if (value == ".") {
-                continue;
-            } else if (value == "..") {
-                if (pathVector.empty()) {
-                    return std::string();
-                }
-                pathVector.pop_back();
-            } else {
-                pathVector.emplace_back(std::move(value));
-            }
-        }
-
-        return moduleInstallPath + JoinString(pathVector, '/');
-    }
-
-    static std::string FindNpmPackageInPath(const std::string& npmPath)
-    {
-        std::string fileName = npmPath + "/" + NPM_ENTRY_FILE;
-
-        char path[PATH_MAX];
-        if (fileName.size() >= PATH_MAX) {
-            return std::string();
-        }
-        if (realpath(fileName.c_str(), path) != nullptr) {
-            return path;
-        }
-
-        fileName = npmPath + "/" + NPM_ENTRY_LINK;
-        if (fileName.size() >= PATH_MAX) {
-            return std::string();
-        }
-        if (realpath(fileName.c_str(), path) == nullptr) {
-            return std::string();
-        }
-
-        std::ifstream stream(path, std::ios::ate);
-        if (!stream.is_open()) {
-            return std::string();
-        }
-
-        auto fileLen = stream.tellg();
-        if (fileLen >= PATH_MAX) {
-            return std::string();
-        }
-
-        stream.seekg(0);
-        stream.read(path, fileLen);
-        path[fileLen] = '\0';
-        return npmPath + '/' + StripString(path);
-    }
-
-    static std::string FindNpmPackageInTopLevel(const std::string& moduleInstallPath, const std::string& npmPackage,
-        size_t start = NPM_LEVEL_START)
-    {
-        for (size_t level = start; level <= NPM_LEVEL_END; ++level) {
-            std::string path = moduleInstallPath + NPM_PATH_SEGMENT + '/' + std::to_string(level) + '/' + npmPackage;
-            path = FindNpmPackageInPath(path);
-            if (!path.empty()) {
-                return path;
-            }
-        }
-
-        return std::string();
-    }
-
-    static std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage)
-    {
-        std::string moduleInstallPath = GetInstallPath(curJsModulePath);
-        if (moduleInstallPath.empty()) {
-            return std::string();
-        }
-
-        std::vector<std::string> pathVector;
-        SplitString(curJsModulePath, pathVector, moduleInstallPath.length());
-        if (pathVector.empty()) {
-            return std::string();
-        }
-
-        if (pathVector[0] != NPM_PATH_SEGMENT) {
-            return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage);
-        }
-
-        // Remove file name, reserve only dir name
-        pathVector.pop_back();
-
-        // Find npm package until reach top level npm path such as 'node_modules/0',
-        // so there must be 2 element in vector
-        while (pathVector.size() > 2) {
-            std::string path =
-                moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + npmPackage;
-            path = FindNpmPackageInPath(path);
-            if (!path.empty()) {
-                return path;
-            }
-
-            pathVector.pop_back();
-        }
-
-        char* p = nullptr;
-        size_t index = std::strtoul(pathVector.back().c_str(), &p, 10);
-        if (p == nullptr || *p != '\0') {
-            return std::string();
-        }
-
-        return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage, index);
-    }
-
-    std::string ParseOhmUri(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
-    {
-        std::string moduleInstallPath;
-        std::vector<std::string> pathVector;
-        size_t index = 0;
-
-        if (StringStartWith(newJsModuleUri, PREFIX_BUNDLE, sizeof(PREFIX_BUNDLE) - 1)) {
-            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_BUNDLE) - 1);
-
-            // Uri should have atleast 3 segments
-            if (pathVector.size() < 3) {
-                return std::string();
-            }
-
-            const auto& bundleName = pathVector[index++];
-            if (bundleName == bundleName_) {
-                moduleInstallPath = DEFAULT_BUNDLE_INSTALL_PATH;
-            } else {
-                moduleInstallPath = BUNDLES_INSTALL_PATH;
-                moduleInstallPath.append(bundleName).append("/");
-            }
-            moduleInstallPath.append(pathVector[index++]).append("/");
-        } else if (StringStartWith(newJsModuleUri, PREFIX_MODULE, sizeof(PREFIX_MODULE) - 1)) {
-            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_MODULE) - 1);
-
-            // Uri should have atleast 2 segments
-            if (pathVector.size() < 2) {
-                return std::string();
-            }
-
-            moduleInstallPath = GetInstallPath(curJsModulePath, false);
-            if (moduleInstallPath.empty()) {
-                return std::string();
-            }
-            moduleInstallPath.append(pathVector[index++]).append("/");
-        } else if (StringStartWith(newJsModuleUri, PREFIX_LOCAL, sizeof(PREFIX_LOCAL) - 1)) {
-            SplitString(newJsModuleUri, pathVector, sizeof(PREFIX_LOCAL) - 1);
-
-            if (pathVector.empty()) {
-                return std::string();
-            }
-
-            moduleInstallPath = GetInstallPath(curJsModulePath);
-            if (moduleInstallPath.empty()) {
-                return std::string();
-            }
-        } else {
-            return std::string();
-        }
-
-        if (pathVector[index] != NPM_PATH_SEGMENT) {
-            return moduleInstallPath + JoinString(pathVector, '/', index);
-        }
-
-        return FindNpmPackageInTopLevel(moduleInstallPath, JoinString(pathVector, '/', index + 1));
-    }
-
-    std::string bundleName_;
-};
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -417,25 +61,50 @@ public:
     ~ArkJsRuntime() override
     {
         Deinitialize();
+
         if (vm_ != nullptr) {
+            if (debugMode_) {
+                auto instanceId = gettid();
+                ConnectServerManager::Get().RemoveInstance(instanceId);
+                panda::JSNApi::StopDebugger(vm_);
+            }
+
             panda::JSNApi::DestroyJSVM(vm_);
             vm_ = nullptr;
         }
     }
 
-    void StartDebugMode(bool needBreakPoint, int32_t instanceId) override
+    void StartDebugMode(bool needBreakPoint) override
     {
-        if (!debugMode_) {
-            HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
-            panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId);
-            debugMode_ = true;
+        if (vm_ == nullptr) {
+            HILOG_ERROR("virtual machine does not exist");
+            return;
         }
+
+        if (debugMode_) {
+            HILOG_INFO("Already in debug mode");
+            return;
+        }
+
+        HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+
+        auto instanceId = gettid();
+        HdcRegister::Get().StartHdcRegister(bundleName_);
+        ConnectServerManager::Get().StartConnectServer(bundleName_);
+        ConnectServerManager::Get().AddInstance(instanceId, "MainThread");
+        StartDebuggerInWorkerModule();
+
+        auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
+            eventHandler->PostTask(task);
+        };
+        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId, debuggerPostTask);
+
+        debugMode_ = true;
     }
 
     bool RunScript(const std::string& path) override
     {
-        static const char PANDA_MAIN_FUNCTION[] = "_GLOBAL::func_main_0";
-        return vm_ != nullptr ? panda::JSNApi::Execute(vm_, path.c_str(), PANDA_MAIN_FUNCTION) : false;
+        return nativeEngine_->RunScriptPath(path.c_str()) != nullptr;
     }
 
     NativeValue* LoadJsModule(const std::string& path) override
@@ -464,6 +133,8 @@ private:
 
     bool Initialize(const Runtime::Options& options) override
     {
+        bundleName_ = options.bundleName;
+
         panda::RuntimeOption pandaOption;
         int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
         size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
@@ -487,84 +158,9 @@ private:
         return JsRuntime::Initialize(options);
     }
 
+    std::string bundleName_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
 };
-
-std::string GetLogContent(NativeCallbackInfo& info)
-{
-    std::string content;
-
-    for (size_t i = 0; i < info.argc; i++) {
-        NativeValue* value = info.argv[i];
-        if (value->TypeOf() != NATIVE_STRING) {
-            value = value->ToString();
-        }
-
-        NativeString* str = ConvertNativeValueTo<NativeString>(value);
-        if (str == nullptr) {
-            continue;
-        }
-
-        size_t bufferLen = str->GetLength();
-        auto buffer = std::make_unique<char[]>(bufferLen + 1);
-        if (buffer == nullptr) {
-            break;
-        }
-
-        size_t strLen = 0;
-        str->GetCString(buffer.get(), bufferLen + 1, &strLen);
-        if (!content.empty()) {
-            content.append(" ");
-        }
-        content.append(buffer.get());
-    }
-
-    return content;
-}
-
-template<LogLevel LEVEL>
-NativeValue* ConsoleLog(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("engine or callback info is nullptr");
-        return nullptr;
-    }
-
-    std::string content = GetLogContent(*info);
-    HiLogPrint(LOG_APP, LEVEL, AMS_LOG_DOMAIN, "JsApp", "%{public}s", content.c_str());
-
-    return engine->CreateUndefined();
-}
-
-void InitConsoleLogModule(NativeEngine& engine, NativeObject& globalObject)
-{
-    NativeValue* consoleValue = engine.CreateObject();
-    NativeObject* consoleObj = ConvertNativeValueTo<NativeObject>(consoleValue);
-    if (consoleObj == nullptr) {
-        HILOG_ERROR("Failed to create console object");
-        return;
-    }
-
-    BindNativeFunction(engine, *consoleObj, "log", ConsoleLog<LOG_INFO>);
-    BindNativeFunction(engine, *consoleObj, "debug", ConsoleLog<LOG_DEBUG>);
-    BindNativeFunction(engine, *consoleObj, "info", ConsoleLog<LOG_INFO>);
-    BindNativeFunction(engine, *consoleObj, "warn", ConsoleLog<LOG_WARN>);
-    BindNativeFunction(engine, *consoleObj, "error", ConsoleLog<LOG_ERROR>);
-    BindNativeFunction(engine, *consoleObj, "fatal", ConsoleLog<LOG_FATAL>);
-
-    globalObject.SetProperty("console", consoleValue);
-}
-
-NativeValue* SetTimeout(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Set timeout failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.SetCallbackTimer(*engine, *info, false);
-}
 
 NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 {
@@ -591,36 +187,6 @@ NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 
     bool ret = HasSystemCapability(syscap);
     return engine->CreateBoolean(ret);
-}
-
-NativeValue* SetInterval(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Set interval failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.SetCallbackTimer(*engine, *info, true);
-}
-
-NativeValue* ClearTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info)
-{
-    if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Clear timer failed with engine or callback info is nullptr.");
-        return nullptr;
-    }
-
-    JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    return jsRuntime.ClearCallbackTimer(*engine, *info);
-}
-
-void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
-{
-    BindNativeFunction(engine, globalObject, "setTimeout", SetTimeout);
-    BindNativeFunction(engine, globalObject, "setInterval", SetInterval);
-    BindNativeFunction(engine, globalObject, "clearTimeout", ClearTimeoutOrInterval);
-    BindNativeFunction(engine, globalObject, "clearInterval", ClearTimeoutOrInterval);
 }
 
 void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
@@ -665,84 +231,6 @@ bool MakeFilePath(const std::string& codePath, const std::string& modulePath, st
 
     fileName = resolvedPath;
     return true;
-}
-
-void RegisterInitWorkerFunc(NativeEngine& engine)
-{
-    auto&& initWorkerFunc = [](NativeEngine* nativeEngine) {
-        HILOG_INFO("RegisterInitWorkerFunc called");
-        if (nativeEngine == nullptr) {
-            HILOG_ERROR("Input nativeEngine is nullptr");
-            return;
-        }
-
-        NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine->GetGlobal());
-        if (globalObj == nullptr) {
-            HILOG_ERROR("Failed to get global object");
-            return;
-        }
-
-        InitConsoleLogModule(*nativeEngine, *globalObj);
-    };
-    engine.SetInitWorkerFunc(initWorkerFunc);
-}
-
-bool GetResourceData(const std::string& filePath, std::vector<uint8_t>& content)
-{
-    std::ifstream stream(filePath);
-    if (!stream.is_open()) {
-        HILOG_ERROR("GetResourceData failed with file can't open, check uri.");
-        return false;
-    }
-
-    stream.seekg(0, std::ios::end);
-    auto fileLen = stream.tellg();
-    if (fileLen > ASSET_FILE_MAX_SIZE) {
-        HILOG_ERROR("GetResourceData failed with file too large.");
-        stream.close();
-        return false;
-    }
-
-    content.resize(fileLen);
-    stream.seekg(0, std::ios::beg);
-    stream.read(reinterpret_cast<char*>(content.data()), content.size());
-    stream.close();
-
-    return true;
-}
-
-void RegisterAssetFunc(NativeEngine& engine, const std::string& codePath)
-{
-    auto&& assetFunc = [codePath](const std::string& uri, std::vector<uint8_t>& content, std::string &ami) {
-        if (uri.empty()) {
-            HILOG_ERROR("Uri is empty.");
-            return;
-        }
-
-        HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
-        size_t index = uri.find_last_of(".");
-        if (index == std::string::npos) {
-            HILOG_ERROR("Invalid uri");
-            return;
-        }
-
-        std::string fileUri = uri.substr(0, index) + ".abc";
-        std::string targetFile = codePath;
-        targetFile += (codePath.back() == '/') ? fileUri : "/" + fileUri;
-        ami = targetFile;
-        HILOG_INFO("Get asset, ami: %{private}s", ami.c_str());
-        if (!GetResourceData(ami, content)) {
-            HILOG_ERROR("Get asset content failed.");
-            return;
-        }
-    };
-    engine.SetGetAssetFunc(assetFunc);
-}
-
-void RegisterWorker(NativeEngine& engine, const std::string& codePath)
-{
-    RegisterInitWorkerFunc(engine);
-    RegisterAssetFunc(engine, codePath);
 }
 
 class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
@@ -822,6 +310,39 @@ std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
     return instance;
 }
 
+std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(NativeEngine* engine,
+    const std::string& moduleName, NativeValue* const* argv, size_t argc)
+{
+    HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    if (engine == nullptr) {
+        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
+    std::unique_ptr<NativeReference> methodRequireNapiRef_;
+    methodRequireNapiRef_.reset(engine->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+    if (!methodRequireNapiRef_) {
+        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        return nullptr;
+    }
+    NativeValue* className = engine->CreateString(moduleName.c_str(), moduleName.length());
+    NativeValue* classValue =
+        engine->CallFunction(engine->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
+    NativeValue* instanceValue = engine->CreateInstance(classValue, argv, argc);
+    if (instanceValue == nullptr) {
+        HILOG_ERROR("Failed to create object instance");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    return std::unique_ptr<NativeReference>(engine->CreateReference(instanceValue, 1));
+}
+
+void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint)
+{
+    return value;
+}
+
 bool JsRuntime::Initialize(const Options& options)
 {
     // Create event handler for runtime
@@ -876,7 +397,7 @@ bool JsRuntime::Initialize(const Options& options)
         moduleManager->SetAppLibPath(packagePath.c_str());
     }
 
-    RegisterWorker(*nativeEngine_, options.codePath);
+    InitWorkerModule(*nativeEngine_, options.codePath);
 
     return true;
 }
@@ -1002,76 +523,7 @@ bool JsRuntime::RunSandboxScript(const std::string& path)
     return true;
 }
 
-#ifdef SUPPORT_GRAPHICS
-using OHOS::Ace::ContainerScope;
-#endif
-class TimerTask final {
-public:
-    TimerTask(
-        JsRuntime& jsRuntime, std::shared_ptr<NativeReference> jsFunction, const std::string &name, int64_t interval)
-        : jsRuntime_(jsRuntime), jsFunction_(jsFunction), name_(name), interval_(interval)
-    {
-#ifdef SUPPORT_GRAPHICS
-        containerScopeId_ = ContainerScope::CurrentId();
-#endif
-#ifdef ENABLE_HITRACE
-        traceId_ = new OHOS::HiviewDFX::HiTraceId(OHOS::HiviewDFX::HiTrace::GetId());
-#endif
-    }
-
-    ~TimerTask() = default;
-
-    void operator()()
-    {
-        if (interval_ > 0) {
-            jsRuntime_.PostTask(*this, name_, interval_);
-        }
-#ifdef SUPPORT_GRAPHICS
-        // call js function
-        ContainerScope containerScope(containerScopeId_);
-#endif
-        HandleScope handleScope(jsRuntime_);
-
-        std::vector<NativeValue*> args_;
-        args_.reserve(jsArgs_.size());
-        for (auto arg : jsArgs_) {
-            args_.emplace_back(arg->Get());
-        }
-
-        NativeEngine& engine = jsRuntime_.GetNativeEngine();
-#ifdef ENABLE_HITRACE
-        if (traceId_ && traceId_->IsValid()) {
-            OHOS::HiviewDFX::HiTrace::SetId(*traceId_);
-            engine.CallFunction(engine.CreateUndefined(), jsFunction_->Get(), args_.data(), args_.size());
-            OHOS::HiviewDFX::HiTrace::ClearId();
-            delete traceId_;
-            traceId_ = nullptr;
-            return;
-        }
-#endif
-        engine.CallFunction(engine.CreateUndefined(), jsFunction_->Get(), args_.data(), args_.size());
-    }
-
-    void PushArgs(std::shared_ptr<NativeReference> ref)
-    {
-        jsArgs_.emplace_back(ref);
-    }
-
-private:
-    JsRuntime& jsRuntime_;
-    std::shared_ptr<NativeReference> jsFunction_;
-    std::vector<std::shared_ptr<NativeReference>> jsArgs_;
-    std::string name_;
-    int64_t interval_ = 0;
-#ifdef SUPPORT_GRAPHICS
-    int32_t containerScopeId_ = 0;
-#endif
-#ifdef ENABLE_HITRACE
-    OHOS::HiviewDFX::HiTraceId* traceId_ = nullptr;
-#endif
-};
-
-void JsRuntime::PostTask(const TimerTask& task, const std::string& name, int64_t delayTime)
+void JsRuntime::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
     eventHandler_->PostTask(task, name, delayTime);
 }
@@ -1079,48 +531,6 @@ void JsRuntime::PostTask(const TimerTask& task, const std::string& name, int64_t
 void JsRuntime::RemoveTask(const std::string& name)
 {
     eventHandler_->RemoveTask(name);
-}
-
-NativeValue* JsRuntime::SetCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info, bool isInterval)
-{
-    // parameter check, must have at least 2 params
-    if (info.argc < 2 || info.argv[0]->TypeOf() != NATIVE_FUNCTION || info.argv[1]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Set callback timer failed with invalid parameter.");
-        return engine.CreateUndefined();
-    }
-
-    // parse parameter
-    std::shared_ptr<NativeReference> jsFunction(engine.CreateReference(info.argv[0], 1));
-    int64_t delayTime = *ConvertNativeValueTo<NativeNumber>(info.argv[1]);
-    uint32_t callbackId = callbackId_++;
-    std::string name = "JsRuntimeTimer_";
-    name.append(std::to_string(callbackId));
-
-    // create timer task
-    TimerTask task(*this, jsFunction, name, isInterval ? delayTime : 0);
-    for (size_t index = 2; index < info.argc; ++index) {
-        task.PushArgs(std::shared_ptr<NativeReference>(engine.CreateReference(info.argv[index], 1)));
-    }
-
-    JsRuntime::PostTask(task, name, delayTime);
-    return engine.CreateNumber(callbackId);
-}
-
-NativeValue* JsRuntime::ClearCallbackTimer(NativeEngine& engine, NativeCallbackInfo& info)
-{
-    // parameter check, must have at least 1 param
-    if (info.argc < 1 || info.argv[0]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Clear callback timer failed with invalid parameter.");
-        return engine.CreateUndefined();
-    }
-
-    uint32_t callbackId = *ConvertNativeValueTo<NativeNumber>(info.argv[0]);
-    std::string name = "JsRuntimeTimer_";
-    name.append(std::to_string(callbackId));
-
-    // event should be cancelable before executed
-    JsRuntime::RemoveTask(name);
-    return engine.CreateUndefined();
 }
 
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)

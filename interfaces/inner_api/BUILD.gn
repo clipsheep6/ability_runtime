@@ -10,7 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("innerkits_target") {
   deps = [
@@ -18,5 +18,6 @@ group("innerkits_target") {
     "app_manager:app_manager",
     "dataobs_manager:dataobs_manager",
     "uri_permission:uri_permission_mgr",
+    "wantagent:wantagent_innerkits",
   ]
 }

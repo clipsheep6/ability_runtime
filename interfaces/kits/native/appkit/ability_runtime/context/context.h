@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_CONTEXT_H
-#define ABILITY_RUNTIME_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H
 
 #include <memory>
 #include <mutex>
@@ -179,7 +179,7 @@ public:
     virtual void SwitchArea(int mode) = 0;
 
     /**
-     * @brief Creates a Context object for a hap with the given hap name and app name.
+     * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.
      *
@@ -255,4 +255,4 @@ protected:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H

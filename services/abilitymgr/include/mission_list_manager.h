@@ -324,6 +324,12 @@ public:
         MissionSnapshot& missionSnapshot, bool isLowResolution);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm);
 
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    void UpdateSnapShot(const sptr<IRemoteObject>& token);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.
@@ -392,11 +398,13 @@ private:
     void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     int DispatchState(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
-    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success);
+    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord, bool success,
+        bool isInvalidMode = false);
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteForegroundSuccess(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminateAndUpdateMission(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool RemoveMissionList(const std::list<std::shared_ptr<MissionList>> lists,
@@ -421,14 +429,14 @@ private:
 
     // handle timeout event
     void HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability);
-    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability);
+    void HandleForegroundTimeout(const std::shared_ptr<AbilityRecord> &ability, bool isInvalidMode = false);
+    void HandleTimeoutAndResumeAbility(const std::shared_ptr<AbilityRecord> &ability, bool isInvalidMode = false);
     void MoveToTerminateList(const std::shared_ptr<AbilityRecord> &ability);
     void DelayedResumeTimeout(const std::shared_ptr<AbilityRecord> &callerAbility);
     void BackToCaller(const std::shared_ptr<AbilityRecord> &callerAbility);
 
     // new version for call inner function.
-    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void CompleteForegroundFailed(const std::shared_ptr<AbilityRecord> &abilityRecord, bool isInvalidMode);
     int ResolveAbility(const std::shared_ptr<AbilityRecord> &targetAbility, const AbilityRequest &abilityRequest);
     std::shared_ptr<AbilityRecord> GetAbilityRecordByName(const AppExecFwk::ElementName &element);
     int CallAbilityLocked(const AbilityRequest &abilityRequest);

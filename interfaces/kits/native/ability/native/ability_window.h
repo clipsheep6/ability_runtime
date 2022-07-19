@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_WINDOW_H
-#define OHOS_ABILITY_WINDOW_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H
 
 #include <map>
 
@@ -41,17 +41,10 @@ public:
      */
     void Init(std::shared_ptr<AbilityHandler> &handler, std::shared_ptr<Ability> ability);
 
-    /**
-     * @brief Sets the window config for the host ability to create window.
-     *
-     * @param winType Indicates window config.
-     * @param abilityContext Indicates runtime ability context.
-     * @param listener Indicates window lifecycle listener.
-     * @return true if init window success.
-     */
     bool InitWindow(Rosen::WindowType winType,
         std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext,
-        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option);
+        sptr<Rosen::IWindowLifeCycle> &listener, int32_t displayId, sptr<Rosen::WindowOption> option,
+        bool isPrivacy);
 
     /**
      * @brief Called when this ability is started.
@@ -107,4 +100,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_WINDOW_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_WINDOW_H

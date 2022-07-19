@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_CONTEXT_IMPL_H
-#define ABILITY_RUNTIME_CONTEXT_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTEXT_IMPL_H
+#define OHOS_ABILITY_RUNTIME_CONTEXT_IMPL_H
 
 #include "context.h"
 
@@ -110,7 +110,7 @@ public:
     void SwitchArea(int mode) override;
 
     /**
-     * @brief Creates a Context object for a hap with the given hap name and app name.
+     * @brief Creates a Context object for a hap with the given module name.
      *
      * @param moduleName Indicates the module name of the hap.
      *
@@ -297,4 +297,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_CONTEXT_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTEXT_IMPL_H

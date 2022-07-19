@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_CANCEL_LISTENER_H
-#define BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_CANCEL_LISTENER_H
+#ifndef OHOS_ABILITY_RUNTIME_CANCEL_LISTENER_H
+#define OHOS_ABILITY_RUNTIME_CANCEL_LISTENER_H
 
 namespace OHOS::AbilityRuntime::WantAgent {
 class CancelListener {
@@ -28,4 +28,4 @@ public:
     virtual ~CancelListener() = default;
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
-#endif  // BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_CANCEL_LISTENER_H
+#endif  // OHOS_ABILITY_RUNTIME_CANCEL_LISTENER_H

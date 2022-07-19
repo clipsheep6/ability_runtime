@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_PENDING_WANT_MANAGER_H
-#define OHOS_AAFWK_PENDING_WANT_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_PENDING_WANT_MANAGER_H
 
 #include <mutex>
 #include <memory>
@@ -178,4 +178,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_PENDING_WANT_MANAGER_H
+#endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_MANAGER_H

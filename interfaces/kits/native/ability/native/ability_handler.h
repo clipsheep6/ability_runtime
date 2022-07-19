@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_ABILITY_HANDLER_H
-#define FOUNDATION_APPEXECFWK_ABILITY_HANDLER_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_HANDLER_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_HANDLER_H
 
 #include "ability_thread.h"
 #include "event_handler.h"
@@ -40,4 +40,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_ABILITY_HANDLER_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_HANDLER_H

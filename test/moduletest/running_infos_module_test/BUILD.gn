@@ -1,0 +1,136 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/mstabilitymgrservice"
+
+ohos_moduletest("running_infos_module_test") {
+  module_out_path = module_output_path
+  cflags_cc = []
+  include_dirs = [
+    "${ability_runtime_test_path}/moduletest/mock/include",
+    "//third_party/jsoncpp/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
+    "${ability_runtime_innerkits_path}/dataobs_manager/include",
+  ]
+
+  sources = [ "running_infos_module_test.cpp" ]
+  sources += [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/data_ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_key.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/pending_want_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
+    "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",
+    "${ability_runtime_test_path}/moduletest/mock/src/mock_bundle_mgr.cpp",
+  ]
+
+  configs = [
+    "${ability_runtime_test_path}/moduletest:aafwk_module_test_config",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr:sa_mgr_mock_config",
+    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
+  ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+  deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:perm_verification",
+    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+    "//third_party/icu/icu4c:shared_icuuc",
+    "//third_party/jsoncpp:jsoncpp",
+    "//utils/native/base:utils",
+  ]
+
+  if (os_account_part_enabled) {
+    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
+    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    deps += [
+      "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
+      "${global_path}/i18n/frameworks/intl:intl_util",
+      "${multimedia_path}/interfaces/innerkits:image_native",
+      "//third_party/icu/icu4c:shared_icuuc",
+      "//third_party/libpng:libpng",
+    ]
+  }
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "access_token:libaccesstoken_sdk",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "dsoftbus:softbus_client",
+    "hicollie_native:libhicollie",
+    "hisysevent_native:libhisysevent",
+    "hitrace_native:hitrace_meter",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "relational_store:native_appdatafwk",
+    "relational_store:native_dataability",
+    "relational_store:native_rdb",
+    "startup_l2:syspara",
+  ]
+
+  if (background_task_mgr_continuous_task_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libdm" ]
+  }
+}
+
+group("moduletest") {
+  testonly = true
+
+  deps = [ ":running_infos_module_test" ]
+}

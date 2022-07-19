@@ -13,21 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_JS_FORM_EXTENSION_CONTEXT_H
-#define FOUNDATION_APPEXECFWK_OHOS_JS_FORM_EXTENSION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H
 
 #include <memory>
 
 #include "form_extension_context.h"
 #include "ability_connect_callback_stub.h"
-
-class NativeEngine;
-class NativeValue;
-class NativeReference;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context);
+NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
+                                          DetachCallback detach, AttachCallback attach);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_JS_FORM_EXTENSION_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_FORM_EXTENSION_CONTEXT_H

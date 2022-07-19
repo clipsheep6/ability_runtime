@@ -1,0 +1,139 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_out_path = "ability_runtime/ability_call_test"
+
+###############################################################################
+
+config("module_private_config") {
+  visibility = [ ":*" ]
+}
+
+ohos_unittest("ability_context_impl_ut_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [ "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS" ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "ability_context_impl_ut_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+}
+
+ohos_unittest("caller_call_back_ut_test") {
+  module_out_path = module_out_path
+  sources = [ "caller_call_back_ut_test.cpp" ]
+
+  deps = [
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [ "utils_base:utils" ]
+}
+
+ohos_unittest("local_call_container_ut_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [ "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS" ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "local_call_container_ut_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+}
+
+ohos_unittest("local_call_record_ut_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [ "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS" ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_ability_manager_client.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS/mock_serviceability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
+    "local_call_record_ut_test.cpp",
+  ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_core",
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "utils_base:utils",
+  ]
+}
+
+################################################################################
+group("unittest") {
+  testonly = true
+  deps = []
+
+  deps += [
+    ":ability_context_impl_ut_test",
+    ":caller_call_back_ut_test",
+    ":local_call_container_ut_test",
+    ":local_call_record_ut_test",
+  ]
+}

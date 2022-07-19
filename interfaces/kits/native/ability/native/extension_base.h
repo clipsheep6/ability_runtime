@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_BASE_H
-#define FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_BASE_H
+#ifndef OHOS_ABILITY_RUNTIME_EXTENSION_BASE_H
+#define OHOS_ABILITY_RUNTIME_EXTENSION_BASE_H
 
 #include <string>
 
@@ -78,4 +78,4 @@ private:
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #include "extension_base.inl"
-#endif  // FOUNDATION_ABILITYRUNTIME_OHOS_EXTENSION_BASE_H
+#endif  // OHOS_ABILITY_RUNTIME_EXTENSION_BASE_H

@@ -230,8 +230,7 @@ bool ConnectionManager::IsConnectReceiverEqual(const AppExecFwk::ElementName &co
     const AppExecFwk::ElementName &connectReceiverOther)
 {
     return connectReceiver.GetBundleName() == connectReceiverOther.GetBundleName() &&
-           connectReceiver.GetAbilityName() == connectReceiverOther.GetAbilityName() &&
-           connectReceiver.GetModuleName() == connectReceiverOther.GetModuleName();
+           connectReceiver.GetAbilityName() == connectReceiverOther.GetAbilityName();
 }
 
 ErrCode ConnectionManager::HandleCallbackTimeOut(const sptr<IRemoteObject> &connectCaller, const AAFwk::Want &want,

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_BACKGROUND_TASK_OBSERVER_H
-#define OHOS_AAFWK_BACKGROUND_TASK_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_BACKGROUND_TASK_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_BACKGROUND_TASK_OBSERVER_H
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_subscriber.h"
@@ -41,4 +41,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif
-#endif  // OHOS_AAFWK_BACKGROUND_TASK_OBSERVER_H
+#endif  // OHOS_ABILITY_RUNTIME_BACKGROUND_TASK_OBSERVER_H

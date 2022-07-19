@@ -13,10 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_PERMISSION_VERIFICATION_H
-#define OHOS_AAFWK_PERMISSION_VERIFICATION_H
-
-#include <string.h>
+#ifndef OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H
+#define OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H
 
 #include "singleton.h"
 
@@ -43,4 +41,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif // OHOS_AAFWK_PERMISSION_VERIFICATION_H
+#endif // OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H

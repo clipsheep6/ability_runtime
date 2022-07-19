@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_PENDING_WANT_H
-#define BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_PENDING_WANT_H
+#ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_H
+#define OHOS_ABILITY_RUNTIME_PENDING_WANT_H
 
 #include <string>
 #include <vector>
@@ -283,4 +283,4 @@ private:
         WantAgentConstant::OperationType serviceKind);
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
-#endif  // BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_PENDING_WANT_H
+#endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_H

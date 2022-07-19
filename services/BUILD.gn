@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/ability/ability_runtime/aafwk.gni")
-group("ams_services_target") {
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+group("ams_target") {
   deps = [
     "abilitymgr:abilityms_target",
     "appmgr:appms_target",

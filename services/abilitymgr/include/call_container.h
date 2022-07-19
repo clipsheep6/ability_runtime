@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_CALL_CONTAINER_H
-#define OHOS_AAFWK_CALL_CONTAINER_H
+#ifndef OHOS_ABILITY_RUNTIME_CALL_CONTAINER_H
+#define OHOS_ABILITY_RUNTIME_CALL_CONTAINER_H
 
 #include <map>
 #include <string>
@@ -61,5 +61,5 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_CALL_CONTAINER_H
+#endif  // OHOS_ABILITY_RUNTIME_CALL_CONTAINER_H
 

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_MANAGER_H
-#define ABILITY_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H
 
 #include "ability_manager_client.h"
 #include "app_mgr_interface.h"
@@ -66,4 +66,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // ABILITY_MANAGER_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H

@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/ability/ability_runtime/services/dataobsmgr/dataobsms.gni")
 
 group("dataobsms_target") {
@@ -22,7 +22,7 @@ group("dataobsms_target") {
 config("dataobsms_config") {
   include_dirs = [
     "include/",
-    "${services_path}/common/include",
+    "${ability_runtime_services_path}/common/include",
     "//third_party/json/include",
   ]
   cflags = []
@@ -36,7 +36,7 @@ ohos_shared_library("dataobsms") {
 
   configs = [ ":dataobsms_config" ]
 
-  deps = [ "${innerkits_path}/dataobs_manager:dataobs_manager" ]
+  deps = [ "${ability_runtime_innerkits_path}/dataobs_manager:dataobs_manager" ]
 
   external_deps = [
     "ability_base:base",

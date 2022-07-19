@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_TEST_RUNNER_H
-#define FOUNDATION_APPEXECFWK_OHOS_TEST_RUNNER_H
+#ifndef OHOS_ABILITY_RUNTIME_TEST_RUNNER_H
+#define OHOS_ABILITY_RUNTIME_TEST_RUNNER_H
 
 #include <memory>
 #include "ability_delegator_args.h"
@@ -65,4 +65,4 @@ public:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_APPEXECFWK_OHOS_TEST_RUNNER_H
+#endif  // OHOS_ABILITY_RUNTIME_TEST_RUNNER_H

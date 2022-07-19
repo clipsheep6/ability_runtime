@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H
+#define OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H
 
 #include <list>
 #include <map>
@@ -529,6 +529,15 @@ public:
      * @return
      */
     void NotifyAppStatus(const std::string &bundleName, const std::string &eventData);
+
+    /**
+     * KillProcessByPid, Kill process by PID.
+     *
+     * @param pid_t, the app record pid.
+     *
+     * @return ERR_OK, return back success，others fail.
+     */
+    int32_t KillProcessByPid(const pid_t pid) const;
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount);
@@ -540,10 +549,12 @@ private:
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
 
-    void MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
+    void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo,
+        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName);
+
     void MakeProcessName(
-        std::string &processName, const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName);
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process
@@ -624,15 +635,6 @@ private:
     int32_t KillApplicationByUserIdLocked(const std::string &bundleName, const int userId);
 
     /**
-     * KillProcessByPid, Kill process by PID.
-     *
-     * @param pid_t, the app record pid.
-     *
-     * @return ERR_OK, return back success，others fail.
-     */
-    int32_t KillProcessByPid(const pid_t pid) const;
-
-    /**
      * WaitForRemoteProcessExit, Wait for the process to exit normally.
      *
      * @param pids, process number collection to exit.
@@ -686,7 +688,7 @@ private:
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
     bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo);
+        BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0);
     AppProcessData WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
         const ApplicationState state);
 
@@ -706,6 +708,10 @@ private:
         const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid);
 
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
+
+    void AddWatchParameter();
+
+    static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
 private:
     /**
@@ -753,4 +759,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H

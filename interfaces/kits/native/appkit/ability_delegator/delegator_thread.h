@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_DELEGATOR_THREAD_H
-#define FOUNDATION_APPEXECFWK_OHOS_DELEGATOR_THREAD_H
+#ifndef OHOS_ABILITY_RUNTIME_DELEGATOR_THREAD_H
+#define OHOS_ABILITY_RUNTIME_DELEGATOR_THREAD_H
 
 #include <functional>
 #include <memory>
@@ -67,4 +67,4 @@ private:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_APPEXECFWK_OHOS_DELEGATOR_THREAD_H
+#endif  // OHOS_ABILITY_RUNTIME_DELEGATOR_THREAD_H

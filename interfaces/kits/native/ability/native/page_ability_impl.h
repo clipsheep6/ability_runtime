@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_PAGE_ABILITY_IMPL_H
-#define FOUNDATION_APPEXECFWK_OHOS_PAGE_ABILITY_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_PAGE_ABILITY_IMPL_H
+#define OHOS_ABILITY_RUNTIME_PAGE_ABILITY_IMPL_H
 
 #include "ability_impl.h"
 
@@ -90,4 +90,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_PAGE_ABILITY_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_PAGE_ABILITY_IMPL_H

@@ -13,20 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_CONTEXT_UTILS_H
-#define ABILITY_RUNTIME_JS_CONTEXT_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_CONTEXT_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_CONTEXT_UTILS_H
 
 #include <memory>
 
 #include "context.h"
-
-class NativeEngine;
-class NativeValue;
-struct NativeCallbackInfo;
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, bool keepContext = false);
+NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void* hint);
+
+NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> context, DetachCallback detach,
+                                 AttachCallback attach, bool keepContext = false);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_CONTEXT_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_CONTEXT_UTILS_H

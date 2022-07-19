@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_ERRORS_H
-#define OHOS_AAFWK_ABILITY_MANAGER_ERRORS_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_ERRORS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_ERRORS_H
 
 #include <map>
 
@@ -249,6 +249,10 @@ enum {
      * Result(2097198) for parcel fail.
      */
     ERR_AAFWK_PARCEL_FAIL,
+    /**
+     * Result(2097199) for for implicit start ability is failed.
+     */
+    ERR_IMPLICIT_START_ABILITY_FAIL,
 };
 
 enum {
@@ -559,4 +563,4 @@ static const std::map<NativeFreeInstallError, std::string> FIErrorStrs = {
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_ERRORS_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_ERRORS_H

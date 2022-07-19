@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_APPLICATION_CONTEXT_H
-#define ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H
 
 #include <vector>
 #include <shared_mutex>
@@ -22,6 +22,7 @@
 #include "ability_lifecycle_callback.h"
 #include "context.h"
 #include "context_impl.h"
+#include "environment_callback.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -31,6 +32,8 @@ public:
     ~ApplicationContext() = default;
     void RegisterAbilityLifecycleCallback(const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback);
     void UnregisterAbilityLifecycleCallback(const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback);
+    void RegisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
+    void UnregisterEnvironmentCallback(const std::shared_ptr<EnvironmentCallback> &environmentCallback);
     void DispatchOnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj);
     void DispatchOnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj);
     void DispatchOnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj);
@@ -38,6 +41,7 @@ public:
     void DispatchOnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj);
     void DispatchOnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj);
     void DispatchOnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj);
+    void DispatchConfigurationUpdated(const AppExecFwk::Configuration &config);
 
     std::string GetBundleName() const override;
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
@@ -69,7 +73,8 @@ public:
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
+    static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_APPLICATION_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_CONTEXT_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_APPLICATION_H
-#define FOUNDATION_APPEXECFWK_OHOS_APPLICATION_H
+#ifndef OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
+#define OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
 
 #include <string>
 #include <list>
@@ -61,7 +61,7 @@ public:
      *
      * @param context ApplicationContext instance.
      */
-    void SetApplicationContext(const std::shared_ptr<AbilityRuntime::Context> &abilityRuntimeContext);
+    void SetApplicationContext(const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext);
 
     /**
      *
@@ -252,7 +252,7 @@ public:
      * @param runtime
      */
     const std::unique_ptr<AbilityRuntime::Runtime>& GetRuntime();
-    
+
     /*
      *
      * @brief Will be called the application ends
@@ -284,7 +284,7 @@ private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;
     std::shared_ptr<AbilityRecordMgr> abilityRecordMgr_ = nullptr;
-    std::shared_ptr<AbilityRuntime::Context> abilityRuntimeContext_ = nullptr;
+    std::shared_ptr<AbilityRuntime::ApplicationContext> abilityRuntimeContext_ = nullptr;
     std::unordered_map<std::string, std::shared_ptr<AbilityRuntime::AbilityStage>> abilityStages_;
     std::unique_ptr<AbilityRuntime::Runtime> runtime_;
     std::shared_ptr<Configuration> configuration_ = nullptr;
@@ -292,4 +292,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_APPLICATION_H
+#endif  // OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H

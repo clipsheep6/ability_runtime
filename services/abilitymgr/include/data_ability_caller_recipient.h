@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_OS_AAFWK_DATAABILITY_CALLER_RECIPIENT_H
-#define OHOS_OS_AAFWK_DATAABILITY_CALLER_RECIPIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_DATA_ABILITY_CALLER_RECIPIENT_H
+#define OHOS_ABILITY_RUNTIME_DATA_ABILITY_CALLER_RECIPIENT_H
 
 #include <functional>
 #include <iremote_object.h>
@@ -37,4 +37,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_OS_AAFWK_DATAABILITY_CALLER_RECIPIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_DATA_ABILITY_CALLER_RECIPIENT_H

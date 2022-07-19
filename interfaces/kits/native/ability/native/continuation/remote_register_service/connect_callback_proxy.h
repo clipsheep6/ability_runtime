@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONNECT_CALLBACK_PROXY_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONNECT_CALLBACK_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_PROXY_H
+#define OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_PROXY_H
 #include <string>
 #include "connect_callback_interface.h"
 #include "iremote_proxy.h"
@@ -47,4 +47,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ICONNECT_CALLBACK_H
+#endif  // OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_PROXY_H

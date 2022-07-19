@@ -49,6 +49,7 @@ int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, const sptr<IDataAbil
     for (; obs != obslist.end(); obs++) {
         if ((*obs)->AsObject() == dataObserver->AsObject()) {
             HILOG_ERROR("DataObsMgrInner::HandleRegisterObserver the obs exist. no need to register.");
+            AtomicSubTaskCount();
             return OBS_EXIST;
         }
     }

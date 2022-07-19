@@ -33,16 +33,16 @@ ohos_systemtest("ams_data_ability_test") {
   ]
 
   configs = [
-    "${aafwk_path}/services/abilitymgr:abilityms_config",
-    "${aafwk_path}/services/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/abilitymgr:abilityms_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
-    "${aafwk_path}/services/abilitymgr:abilityms",
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",

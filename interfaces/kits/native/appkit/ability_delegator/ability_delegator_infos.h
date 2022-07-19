@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_DELEGATOR_INFOS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_DELEGATOR_INFOS_H
 
 #include <string>
 #include "ability_lifecycle_executor.h"
@@ -37,4 +37,4 @@ struct ADelegatorAbilityProperty {
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_DELEGATOR_INFOS_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_DELEGATOR_INFOS_H

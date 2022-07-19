@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef ABILITY_RUNTIME_JS_CALLERCOMPLEX_H
-#define ABILITY_RUNTIME_JS_CALLERCOMPLEX_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_CALLER_COMPLEX_H
+#define OHOS_ABILITY_RUNTIME_JS_CALLER_COMPLEX_H
 
 #include <memory>
 #include <native_engine/native_value.h>
@@ -30,4 +30,4 @@ NativeValue* CreateJsCallerComplex(
 NativeValue* CreateJsCalleeRemoteObject(NativeEngine& engine, sptr<IRemoteObject> callee);
 } // AbilityRuntime
 } // OHOS
-#endif  // ABILITY_RUNTIME_JS_CALLERCOMPLEX_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_CALLER_COMPLEX_H

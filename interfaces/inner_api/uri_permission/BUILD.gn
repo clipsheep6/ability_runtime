@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("uripermkit_public_config") {
   visibility = [ ":*" ]
@@ -25,7 +25,7 @@ config("uripermkit_public_config") {
 
 #build so
 ohos_shared_library("uri_permission_mgr") {
-  configs = [ "${services_path}/common:common_config" ]
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":uripermkit_public_config" ]
 
   sources = [

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_MODULE_RUNNING_RECORD_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_MODULE_RUNNING_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_MODULE_RUNNING_RECORD_H
+#define OHOS_ABILITY_RUNTIME_MODULE_RUNNING_RECORD_H
 
 #include <string>
 #include <list>
@@ -76,6 +76,8 @@ public:
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want);
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
+
+    int32_t GetPageAbilitySize();
 
     // Get abilities_ for this process
     /**
@@ -193,4 +195,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_MODULE_RUNNING_RECORD_H
+#endif  // OHOS_ABILITY_RUNTIME_MODULE_RUNNING_RECORD_H

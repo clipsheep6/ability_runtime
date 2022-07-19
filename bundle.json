@@ -73,16 +73,15 @@
       },
       "build": {
         "sub_component": [
-          "//foundation/ability/ability_runtime/services:ams_services_target",
+          "//foundation/ability/ability_runtime/services:ams_target",
+	  "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension_module",
-          "//foundation/ability/ability_runtime/sa_profile:aafwk_sa_profile",
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
-          "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
-          "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+          "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native"
         ],
         "inner_kits": [
           {
@@ -101,7 +100,7 @@
                 "want_agent.h"
               ]
             },
-            "name": "//foundation/ability/ability_runtime/frameworks/kits/wantagent:wantagent_innerkits"
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent:wantagent_innerkits"
           },
           {
             "header": {
@@ -182,20 +181,10 @@
           }
         ],
         "test": [
-          "//foundation/ability/ability_runtime/frameworks/kits/ability/native/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/moduletest:moduletest",
-          "//foundation/ability/ability_runtime/frameworks/kits/ability/ability_runtime/test/unittest:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/test:moduletest",
-          "//foundation/ability/ability_runtime/services/test:moduletest",
-          "//foundation/ability/ability_runtime/services/abilitymgr/test:unittest",
-          "//foundation/ability/ability_runtime/services/dataobsmgr/test:unittest",
-          "//foundation/ability/ability_runtime/services/appmgr/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/test:unittest",
-          "//foundation/ability/ability_runtime/frameworks/kits/appkit/native/test:moduletest",
-          "//foundation/ability/ability_runtime/frameworks/kits/appkit/test:moduletest",
-          "//foundation/ability/ability_runtime/frameworks/kits/wantagent/test/:unittest",
+          "//foundation/ability/ability_runtime/test/moduletest:moduletest",
           "//foundation/ability/ability_runtime/test/benchmarktest:benchmarktest",
-          "//foundation/ability/ability_runtime/test/fuzztest:fuzztest"
+          "//foundation/ability/ability_runtime/test/fuzztest:fuzztest",
+          "//foundation/ability/ability_runtime/test/unittest:unittest"
         ]
       }
   }

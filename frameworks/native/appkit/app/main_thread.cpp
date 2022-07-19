@@ -54,8 +54,6 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 
-#include "hdc_register.h"
-
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -70,6 +68,7 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
+constexpr int32_t JS_CRASH_DELAY_TIME = 3000;
 constexpr int SIGNAL_JS_HEAP = 39;
 constexpr int SIGNAL_JS_HEAP_PRIV = 40;
 
@@ -81,7 +80,7 @@ constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
-const std::string JSCRASH_TYPE = "3";
+const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
 const std::string  DFX_THREAD_NAME = "DfxThreadName";
 constexpr char EXTENSION_PARAMS_TYPE[] = "type";
@@ -387,20 +386,31 @@ void MainThread::ScheduleShrinkMemory(const int level)
  */
 void MainThread::ScheduleProcessSecurityExit()
 {
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called start");
+    PostProcessSecurityExitTask(false);
+}
+
+void MainThread::PostProcessSecurityExitTask(bool delay)
+{
+    HILOG_INFO("PostProcessSecurityExitTask called start");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, HandleShrinkMemory failed.");
+            HILOG_ERROR("appThread is nullptr, PostProcessSecurityExitTask failed.");
             return;
         }
         appThread->HandleProcessSecurityExit();
     };
-    if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("MainThread::ScheduleProcessSecurityExit PostTask task failed");
+    bool result;
+    if (delay) {
+        result = mainHandler_->PostTask(task, JS_CRASH_DELAY_TIME);
+    } else {
+        result = mainHandler_->PostTask(task);
     }
-    HILOG_INFO("MainThread::ScheduleProcessSecurityExit called end");
+    if (!result) {
+        HILOG_ERROR("PostProcessSecurityExitTask post task failed");
+    }
+    HILOG_INFO("PostProcessSecurityExitTask called end");
 }
 
 /**
@@ -466,13 +476,6 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);
-
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    sptr<IBundleMgr> bundleMgr = contextDeal->GetBundleManager();
-    if (bundleMgr) {
-        BundleInfo bundleInfo;
-        bundleMgr->GetBundleInfo(abilityInfo->bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo);
-    }
 
     wptr<MainThread> weak = this;
     auto task = [weak, abilityRecord]() {
@@ -769,6 +772,10 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::string colormode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     HILOG_INFO("colormode is %{public}s.", colormode.c_str());
     resConfig->SetColorMode(ConvertColorMode(colormode));
+
+    std::string hasPointerDevice = config.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    HILOG_INFO("hasPointerDevice is %{public}s.", hasPointerDevice.c_str());
+    resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
 #endif
     resourceManager->UpdateResConfig(*resConfig);
     return true;
@@ -820,9 +827,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::string contactsDataAbility("com.ohos.contactsdataability");
     std::string mediaDataAbility("com.ohos.medialibrary.medialibrarydata");
     std::string telephonyDataAbility("com.ohos.telephonydataability");
+    std::string fusionSearchAbility("com.ohos.FusionSearch");
     auto appInfo = appLaunchData.GetApplicationInfo();
     auto bundleName = appInfo.bundleName;
-    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility) {
+    if (bundleName == contactsDataAbility || bundleName == mediaDataAbility || bundleName == telephonyDataAbility
+        || bundleName == fusionSearchAbility) {
         std::vector<std::string> localPaths;
         ChangeToLocalPath(bundleName, appInfo.moduleSourceDirs, localPaths);
         LoadAbilityLibrary(localPaths);
@@ -861,8 +870,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, UNSPECIFIED_USERID)) {
-        HILOG_DEBUG("MainThread::handleLaunchApplication GetBundleInfo fail.");
+    bool queryResult;
+    if (appLaunchData.GetAppIndex() != 0) {
+        queryResult = (bundleMgr->GetSandboxBundleInfo(appInfo.bundleName,
+            appLaunchData.GetAppIndex(), UNSPECIFIED_USERID, bundleInfo) == 0);
+    } else {
+        queryResult = bundleMgr->GetBundleInfo(appInfo.bundleName, BundleFlag::GET_BUNDLE_DEFAULT,
+            bundleInfo, UNSPECIFIED_USERID);
+    }
+
+    if (!queryResult) {
+        HILOG_ERROR("HandleLaunchApplication GetBundleInfo failed!");
+        return;
     }
 
     bool moduelJson = false;
@@ -922,26 +941,15 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
-            DelayedSingleton<ApplicationDataManager>::GetInstance()->NotifyUnhandledException(summary);
+            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
-            struct tm localUTC;
-            struct timeval gtime;
             time(&timet);
-            gmtime_r(&timet, &localUTC);
-            gettimeofday(&gtime, NULL);
-            std::string loacalUTCTime = std::to_string(localUTC.tm_year + 1900)
-                + "/" + std::to_string(localUTC.tm_mon + 1)
-                + "/" + std::to_string(localUTC.tm_mday)
-                + " " + std::to_string(localUTC.tm_hour)
-                + "-" + std::to_string(localUTC.tm_min)
-                + "-" + std::to_string(localUTC.tm_sec)
-                + "." + std::to_string(gtime.tv_usec/1000);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
                 OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                 EVENT_KEY_PACKAGE_NAME, bundleName,
                 EVENT_KEY_VERSION, std::to_string(versionCode),
                 EVENT_KEY_TYPE, JSCRASH_TYPE,
-                EVENT_KEY_HAPPEN_TIME, loacalUTCTime,
+                EVENT_KEY_HAPPEN_TIME, timet,
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
@@ -953,7 +961,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorName.c_str(), summary.c_str());
-            appThread->ScheduleProcessSecurityExit();
+            appThread->PostProcessSecurityExitTask(true);
         };
         jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
         application_->SetRuntime(std::move(runtime));
@@ -1260,7 +1268,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto appInfo = application_->GetApplicationInfo();
     auto want = abilityRecord->GetWant();
     if (runtime && appInfo && want && appInfo->debug) {
-        HdcRegister::Get().StartHdcRegister(appInfo->bundleName);
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 

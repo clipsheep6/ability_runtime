@@ -214,6 +214,9 @@ NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Confi
 
     object->SetProperty("displayId", CreateJsValue(engine, displayId));
 
+    std::string hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    object->SetProperty("hasPointerDevice", CreateJsValue(engine, hasPointerDevice == "true" ? true : false));
+
     return objValue;
 }
 }  // namespace AbilityRuntime

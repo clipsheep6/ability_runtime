@@ -12,15 +12,15 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/aafwk.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("ability_context_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${aafwk_path}/interfaces/kits/native/appkit/ability_runtime/context",
-    "${aafwk_path}/interfaces/kits/native/ability/ability_runtime",
-    "${aafwk_path}/interfaces/kits/native/ability/ability_runtime/context",
-    "${aafwk_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
   ]
 
   cflags = []
@@ -45,8 +45,8 @@ ohos_shared_library("ability_context_native") {
   ]
 
   deps = [
-    "${native_path}/appkit:app_context",
-    "${native_path}/appkit:app_context_utils",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context_utils",
   ]
 
   external_deps = [

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STOP_USER_CALLBACK_PROXY_H
-#define FOUNDATION_AAFWK_STOP_USER_CALLBACK_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_PROXY_H
+#define OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_PROXY_H
 
 #include <string>
 #include "iremote_proxy.h"
@@ -46,4 +46,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_STOP_USER_CALLBACK_PROXY_H
+#endif  // OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_PROXY_H

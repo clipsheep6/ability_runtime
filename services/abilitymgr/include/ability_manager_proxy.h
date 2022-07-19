@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_PROXY_H
-#define OHOS_AAFWK_ABILITY_MANAGER_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_PROXY_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_PROXY_H
 
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"
@@ -583,6 +583,12 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int DumpAbilityInfoDone(std::vector<std::string> &infos, const sptr<IRemoteObject> &callerToken) override;
+
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
 private:
     template <typename T>

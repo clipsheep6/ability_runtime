@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H
 
 #include "ability.h"
 #include "iability_lifecycle_callback.h"
@@ -458,6 +458,7 @@ public:
     void AfterFocused() override;
     void AfterUnfocused() override;
     void ForegroundFailed() override;
+    void ForegroundInvalidMode() override;
 private:
     sptr<IRemoteObject> token_ = nullptr;
     std::weak_ptr<AbilityImpl> owner_;
@@ -477,4 +478,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_IMPL_H

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_APPEXECFWK_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H
-#define OHOS_APPEXECFWK_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H
+#ifndef OHOS_ABILITY_RUNTIME_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H
+#define OHOS_ABILITY_RUNTIME_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H
 
 #include <memory>
 #include "reverse_continuation_scheduler_primary_handler_interface.h"
@@ -51,4 +51,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H */
+#endif /* OHOS_ABILITY_RUNTIME_REVERSE_CONTINUATION_SCHEDULER_PRIMARY_H */

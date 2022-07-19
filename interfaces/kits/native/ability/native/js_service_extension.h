@@ -13,14 +13,15 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_ABILITYRUNTIME_OHOS_JS_SERVICE_EXTENSION_H
-#define FOUNDATION_ABILITYRUNTIME_OHOS_JS_SERVICE_EXTENSION_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H
+#define OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H
 
 #include "configuration.h"
 #include "service_extension.h"
 
 class NativeReference;
 class NativeValue;
+class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -124,6 +125,8 @@ public:
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue* const* argv = nullptr, size_t argc = 0);
 
+    void BindContext(NativeEngine& engine, NativeObject* obj);
+
     void GetSrcPath(std::string &srcPath);
 
     JsRuntime& jsRuntime_;
@@ -132,4 +135,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_ABILITYRUNTIME_OHOS_JS_SERVICE_EXTENSION_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H

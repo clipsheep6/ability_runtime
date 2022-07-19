@@ -345,7 +345,12 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         appRecord->SetTerminating();
     }
 
-    appRecord->TerminateAbility(token, true);
+    auto timeoutTask = [appRecord, token]() {
+        if (appRecord) {
+            appRecord->TerminateAbility(token, true);
+        }
+    };
+    appRecord->PostTask("DELAY_KILL_ABILITY", AMSEventHandler::KILL_PROCESS_TIMEOUT, timeoutTask);
 }
 
 void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
@@ -380,14 +385,23 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         HILOG_ERROR("appRecord is nullptr.");
         return;
     }
+    bool isLastAbilityRecord = appRecord->IsLastAbilityRecord(token);
+    bool isClearMission = (clearMissionFlag && appMgrServiceInner != nullptr);
+    if (isClearMission) {
+        isLastAbilityRecord = appRecord->IsLastPageAbilityRecord(token);
+    }
     appRecord->TerminateAbility(token, false);
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
-        HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
+    if (isLastAbilityRecord && !appRecord->IsKeepAliveApp()) {
+        HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
-        if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            HILOG_INFO("The ability is the last, KillApplication");
-            appMgrServiceInner->KillApplicationByUid(appRecord->GetBundleName(), appRecord->GetUid());
+        if (isClearMission) {
+            HILOG_DEBUG("The ability is the last, kill application");
+            auto pid = appRecord->GetPriorityObject()->GetPid();
+            auto result = appMgrServiceInner->KillProcessByPid(pid);
+            if (result < 0) {
+                HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
+            }
             appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
                 EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         }

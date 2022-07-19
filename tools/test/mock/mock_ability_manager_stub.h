@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_MOCK_ABILITY_MANAGER_STUB_H
-#define FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_MOCK_ABILITY_MANAGER_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_STUB_H
+#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_STUB_H
 
 #include "gmock/gmock.h"
 
@@ -163,6 +163,12 @@ public:
     {
         return 0;
     }
+
+    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token)
+    {
+        return;
+    }
+
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;
@@ -247,4 +253,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_AAFWK_STANDARD_TOOLS_TEST_MOCK_MOCK_ABILITY_MANAGER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_STUB_H

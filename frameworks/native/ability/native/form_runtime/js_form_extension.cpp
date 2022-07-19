@@ -35,6 +35,33 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 const int ON_EVENT_PARAMS_SIZE = 2;
 
+NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*)
+{
+    HILOG_INFO("AttachFormExtensionContext");
+    if (value == nullptr) {
+        HILOG_WARN("invalid parameter.");
+        return nullptr;
+    }
+    auto ptr = reinterpret_cast<std::weak_ptr<FormExtensionContext>*>(value)->lock();
+    if (ptr == nullptr) {
+        HILOG_WARN("invalid context.");
+        return nullptr;
+    }
+    NativeValue* object = CreateJsFormExtensionContext(*engine, ptr, nullptr, nullptr);
+    auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
+        "application.FormExtensionContext", &object, 1)->Get();
+    NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachFormExtensionContext,
+        value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void * data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr form extension context is called");
+            delete static_cast<std::weak_ptr<FormExtensionContext> *>(data);
+        }, nullptr);
+    return contextObj;
+}
+
 JsFormExtension* JsFormExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     HILOG_INFO("JsFormExtension::Create runtime");
@@ -70,6 +97,7 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         HILOG_ERROR("Failed to get jsObj_");
         return;
     }
+
     HILOG_INFO("JsFormExtension::Init ConvertNativeValueTo.");
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(jsObj_->Get());
     if (obj == nullptr) {
@@ -77,32 +105,38 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
+    BindContext(engine, obj);
+}
+
+void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
+{
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_ERROR("Failed to get context");
         return;
     }
     HILOG_INFO("JsFormExtension::Init CreateJsFormExtensionContext.");
-    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context);
-    shellContextRef_ = jsRuntime_.LoadSystemModule("application.FormExtensionContext", &contextObj, 1);
+    NativeValue* contextObj = CreateJsFormExtensionContext(engine, context, nullptr, nullptr);
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(&engine, "application.FormExtensionContext", &contextObj, 1);
     contextObj = shellContextRef_->Get();
+    NativeObject *nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
+    if (nativeObj == nullptr) {
+        HILOG_ERROR("Failed to get context native object");
+        return;
+    }
+    auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachFormExtensionContext,
+        workContext, nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     HILOG_INFO("JsFormExtension::SetProperty.");
     obj->SetProperty("context", contextObj);
-
-    auto nativeObj = ConvertNativeValueTo<NativeObject>(contextObj);
-    if (nativeObj == nullptr) {
-        HILOG_ERROR("Failed to get form extension native object");
-        return;
-    }
-
     HILOG_INFO("Set form extension context");
 
-    nativeObj->SetNativePointer(new std::weak_ptr<AbilityRuntime::Context>(context),
+    nativeObj->SetNativePointer(workContext,
         [](NativeEngine*, void* data, void*) {
             HILOG_INFO("Finalizer for weak_ptr form extension context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
+            delete static_cast<std::weak_ptr<FormExtensionContext>*>(data);
         }, nullptr);
 
     HILOG_INFO("JsFormExtension::Init end.");

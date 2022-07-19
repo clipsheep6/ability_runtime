@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_ABILITY_CONTEXT_H
-#define ABILITY_RUNTIME_ABILITY_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONTEXT_H
 
 #include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 
@@ -254,7 +254,7 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) = 0;
-    
+
     virtual int GetCurrentWindowMode() = 0;
 #endif
     virtual bool IsTerminating() = 0;
@@ -270,4 +270,4 @@ protected:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_ABILITY_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_CONTEXT_H

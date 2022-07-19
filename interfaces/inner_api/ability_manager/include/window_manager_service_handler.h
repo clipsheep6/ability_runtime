@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_WMS_HANDLER_H
-#define OHOS_AAFWK_WMS_HANDLER_H
+#ifndef OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_H
+#define OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_H
 
 #ifdef SUPPORT_GRAPHICS
 #include "iremote_broker.h"
@@ -61,4 +61,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 #endif
-#endif  // OHOS_AAFWK_WMS_HANDLER_H
+#endif  // OHOS_ABILITY_RUNTIME_WINDOW_MANAGER_SERVICE_HANDLER_H

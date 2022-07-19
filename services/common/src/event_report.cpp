@@ -15,8 +15,6 @@
 
 #include "event_report.h"
 
-#include <chrono>
-
 namespace OHOS {
 namespace AAFWK {
 namespace {

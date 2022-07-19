@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ABILITY_COMMAND_H
-#define FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ABILITY_COMMAND_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H
 
 #include "shell_command.h"
 #include "ability_manager_interface.h"
@@ -170,6 +170,8 @@ private:
     ErrCode RunAsBlockAbilityCommand();
     ErrCode RunAsBlockAmsServiceCommand();
     ErrCode RunAsBlockAppServiceCommand();
+    ErrCode RunAsSendAppNotRespondingWithUnknownOption();
+    ErrCode RunAsSendAppNotRespondingWithOption(int32_t option, std::string &pid);
     #endif
     sptr<IAbilityManager> GetAbilityManagerService();
 
@@ -180,4 +182,4 @@ private:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ABILITY_COMMAND_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_COMMAND_H

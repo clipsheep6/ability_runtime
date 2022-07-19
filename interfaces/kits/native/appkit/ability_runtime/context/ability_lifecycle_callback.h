@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H
-#define ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H
 
 #include <map>
 #include <memory>
@@ -101,7 +101,7 @@ public:
 };
 
 class JsAbilityLifecycleCallback : public AbilityLifecycleCallback,
-                                   public std::enable_shared_from_this<AbilityLifecycleCallback> {
+                                   public std::enable_shared_from_this<JsAbilityLifecycleCallback> {
 public:
     explicit JsAbilityLifecycleCallback(NativeEngine* engine);
     void OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj) override;
@@ -112,7 +112,7 @@ public:
     void OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj) override;
     void OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj) override;
     int32_t Register(NativeValue *jsCallback);
-    void UnRegister(int32_t callbackId);
+    bool UnRegister(int32_t callbackId);
     bool IsEmpty();
     static int32_t serialNumber_;
 
@@ -125,4 +125,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_APPLICATION_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H
+#endif  // OHOS_ABILITY_RUNTIME_CONTEXT_ABILITY_LIFECYCLE_CALLBACK_H

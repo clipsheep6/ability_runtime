@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_STANDARD_TOOLS_FM_INCLUDE_FMS_COMMAND_H
-#define FOUNDATION_APPEXECFWK_STANDARD_TOOLS_FM_INCLUDE_FMS_COMMAND_H
+#ifndef OHOS_ABILITY_RUNTIME_FMS_COMMAND_H
+#define OHOS_ABILITY_RUNTIME_FMS_COMMAND_H
 
 #include "shell_command.h"
 #include "form_mgr_interface.h"
@@ -134,4 +134,4 @@ private:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_APPEXECFWK_STANDARD_TOOLS_FM_INCLUDE_FMS_COMMAND_H
+#endif  // OHOS_ABILITY_RUNTIME_FMS_COMMAND_H

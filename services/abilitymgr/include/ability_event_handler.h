@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_EVENT_HANDLER_H
-#define OHOS_AAFWK_ABILITY_EVENT_HANDLER_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_EVENT_HANDLER_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_EVENT_HANDLER_H
 
 #include <memory>
 
@@ -53,4 +53,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_EVENT_HANDLER_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_EVENT_HANDLER_H

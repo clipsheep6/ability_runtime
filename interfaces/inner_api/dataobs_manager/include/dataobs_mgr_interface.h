@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
-#define OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H
 
 #include <vector>
 
@@ -79,4 +79,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H

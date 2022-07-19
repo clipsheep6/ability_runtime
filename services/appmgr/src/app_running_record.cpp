@@ -328,6 +328,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetRecordId(appRecordId_);
     launchData.SetUId(mainUid_);
     launchData.SetUserTestInfo(userTestRecord_);
+    launchData.SetAppIndex(appIndex_);
     HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -861,6 +862,15 @@ void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
     eventHandler_->SendEvent(msg, appEventId_, timeOut);
 }
 
+void AppRunningRecord::PostTask(std::string msg, int64_t timeOut, const Closure &task)
+{
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+    eventHandler_->PostTask(task, msg, timeOut);
+}
+
 int64_t AppRunningRecord::GetEventId() const
 {
     return eventId_;
@@ -873,11 +883,6 @@ void AppRunningRecord::SetEventHandler(const std::shared_ptr<AMSEventHandler> &h
 
 bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 {
-    if (!token) {
-        HILOG_ERROR("token is nullptr");
-        return false;
-    }
-
     auto moduleRecord = GetModuleRunningRecordByToken(token);
     if (!moduleRecord) {
         HILOG_ERROR("can not find module record");
@@ -890,6 +895,26 @@ bool AppRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
     }
 
     return false;
+}
+
+bool AppRunningRecord::IsLastPageAbilityRecord(const sptr<IRemoteObject> &token)
+{
+    auto moduleRecord = GetModuleRunningRecordByToken(token);
+    if (!moduleRecord) {
+        HILOG_ERROR("can not find module record");
+        return false;
+    }
+
+    int32_t pageAbilitySize = 0;
+    auto moduleRecordList = GetAllModuleRecord();
+    for (auto moduleRecord : moduleRecordList) {
+        pageAbilitySize += moduleRecord->GetPageAbilitySize() ;
+        if (pageAbilitySize > 1) {
+            return false;
+        }
+    }
+
+    return pageAbilitySize == 1;
 }
 
 void AppRunningRecord::SetTerminating()
@@ -1053,6 +1078,16 @@ void AppRunningRecord::SetDebugApp(bool isDebugApp)
 {
     HILOG_INFO("SetDebugApp come, value is %{public}d", isDebugApp);
     isDebugApp_ = isDebugApp;
+}
+
+void AppRunningRecord::SetAppIndex(const int32_t appIndex)
+{
+    appIndex_ = appIndex;
+}
+
+int32_t AppRunningRecord::GetAppIndex() const
+{
+    return appIndex_;
 }
 
 void AppRunningRecord::SetKilling()

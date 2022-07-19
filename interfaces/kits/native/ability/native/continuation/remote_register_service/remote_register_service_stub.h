@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_REMOTE_REGISTER_SERVICE_STUB_H
-#define FOUNDATION_APPEXECFWK_OHOS_REMOTE_REGISTER_SERVICE_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_REMOTE_REGISTER_SERVICE_STUB_H
+#define OHOS_ABILITY_RUNTIME_REMOTE_REGISTER_SERVICE_STUB_H
 
 #include "remote_register_service_interface.h"
 #include <iremote_object.h>
@@ -42,4 +42,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_REMOTE_REGISTER_SERVICE_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_REMOTE_REGISTER_SERVICE_STUB_H
