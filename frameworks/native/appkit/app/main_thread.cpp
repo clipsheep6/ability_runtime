@@ -80,7 +80,7 @@ constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
-const std::string JSCRASH_TYPE = "3";
+const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
 const std::string  DFX_THREAD_NAME = "DfxThreadName";
 constexpr char EXTENSION_PARAMS_TYPE[] = "type";
@@ -943,24 +943,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
             ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
-            struct tm localUTC;
-            struct timeval gtime;
             time(&timet);
-            gmtime_r(&timet, &localUTC);
-            gettimeofday(&gtime, NULL);
-            std::string loacalUTCTime = std::to_string(localUTC.tm_year + 1900)
-                + "/" + std::to_string(localUTC.tm_mon + 1)
-                + "/" + std::to_string(localUTC.tm_mday)
-                + " " + std::to_string(localUTC.tm_hour)
-                + "-" + std::to_string(localUTC.tm_min)
-                + "-" + std::to_string(localUTC.tm_sec)
-                + "." + std::to_string(gtime.tv_usec/1000);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
                 OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                 EVENT_KEY_PACKAGE_NAME, bundleName,
                 EVENT_KEY_VERSION, std::to_string(versionCode),
                 EVENT_KEY_TYPE, JSCRASH_TYPE,
-                EVENT_KEY_HAPPEN_TIME, loacalUTCTime,
+                EVENT_KEY_HAPPEN_TIME, timet,
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);

@@ -498,6 +498,9 @@ public:
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
 
+    using Closure = std::function<void()>;
+    void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.

@@ -120,8 +120,8 @@ bool WatchDog::Timer()
                 if (applicationInfo_ != nullptr) {
                     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
                         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-                        EVENT_KEY_UID, std::to_string(applicationInfo_->uid),
-                        EVENT_KEY_PID, std::to_string(getpid()),
+                        EVENT_KEY_UID, applicationInfo_->uid,
+                        EVENT_KEY_PID, static_cast<int32_t>(getpid()),
                         EVENT_KEY_PACKAGE_NAME, applicationInfo_->bundleName,
                         EVENT_KEY_PROCESS_NAME, applicationInfo_->process,
                         EVENT_KEY_MESSAGE, msgContent);
