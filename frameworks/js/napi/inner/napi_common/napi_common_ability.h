@@ -32,6 +32,9 @@ napi_value GetGlobalDataAbilityHelper(napi_env env);
 bool& GetDataAbilityHelperStatus();
 
 napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo);
+napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
+    napi_value &result);
+napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result);
 int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode);
 
 /**
