@@ -30,6 +30,7 @@ ohos_moduletest("specified_ability_service_test") {
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
     "${ability_runtime_services_path}/common/src/event_report.cpp",
     "${ability_runtime_services_path}/common/src/permission_verification.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
@@ -90,6 +91,7 @@ ohos_moduletest("specified_ability_service_test") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",

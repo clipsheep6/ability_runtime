@@ -29,6 +29,7 @@
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
+#include "application_anr_listener.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -1060,6 +1061,7 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
+    std::shared_ptr<ApplicationAnrListener> anrListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

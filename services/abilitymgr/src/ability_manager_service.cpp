@@ -40,6 +40,7 @@
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
+#include "input_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
@@ -270,6 +271,9 @@ bool AbilityManagerService::Init()
     };
     handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
 #endif
+
+    anrListener_ = std::make_shared<ApplicationAnrListener>();
+    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 
     HILOG_INFO("Init success.");
     return true;

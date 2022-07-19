@@ -29,6 +29,7 @@ ohos_moduletest("on_new_want_module_test") {
   sources = [ "on_new_want_module_test.cpp" ]
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_list.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_list_manager.cpp",
     "${ability_runtime_services_path}/common/src/event_report.cpp",
@@ -88,6 +89,7 @@ ohos_moduletest("on_new_want_module_test") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
