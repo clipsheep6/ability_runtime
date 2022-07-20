@@ -79,8 +79,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     };
 
     if (dialogAppInfos.size() == 0) {
-        HILOG_WARN("implicit query ability infos failed, show tips dialog.");
-        return sysDialogScheduler->ShowTipsDialog();
+        HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
+        sysDialogScheduler->ShowTipsDialog();
+        return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
     if (dialogAppInfos.size() == 1) {
