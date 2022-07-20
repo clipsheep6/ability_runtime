@@ -1016,6 +1016,21 @@ private:
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
+    /**
+     * CheckCrowdtestExpired, check if an app of crowdtest is expired.
+     * 
+     * @param want, Special want for service type's ability.
+     * @param requestCode, ability request code. 
+     * @param request, ability request object.
+     * @param callerToken, caller ability token.
+     * @param userId, Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int CheckCrowdtestExpired(const Want &want, int requestCode,
+        AbilityRequest &request,
+        const sptr<IRemoteObject> &callerToken,
+        int32_t userId);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

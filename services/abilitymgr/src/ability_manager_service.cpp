@@ -119,6 +119,7 @@ const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+const std::string ACTION_CROWDTEST_EXPIRED = "ohos.want.action.crowdtestDead";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -404,6 +405,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityRequest abilityRequest;
+    
+    int ret = CheckCrowdtestExpired(want, requestCode, abilityRequest, validUserId);
+    if (ret != 0) {
+        HILOG_DEBUG("CheckCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
@@ -522,6 +530,13 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityRequest abilityRequest;
+
+    int ret = CheckCrowdtestExpired(want, requestCode, abilityRequest, validUserId);
+    if (ret != 0) {
+        HILOG_DEBUG("CheckCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+    
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(
@@ -4805,6 +4820,38 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     }
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
+}
+
+int CheckCrowdtestExpired(const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+    std::string bundleName = want.GetBundle();
+    AppExecFwk::Application callerAppInfo;
+    bool result = IN_PROCESS_CALL(
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,
+            GetUserId(), callerAppInfo)
+    );
+    if (!result) {
+        HILOG_ERROR("%{public}s GetApplicaionInfo from bms failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appDistributionType = callerAppInfo.appDistributionType;
+    auto appCrowdtestDeadline = callerAppInfo.crowdtestDeadline;
+    if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
+        appCrowdtestDeadline <= 0) {
+#ifdef SUPPORT_GRAPHICS
+        Want newWant;
+        newWant.SetBundleName("com.test.demo");
+        newWant.SetAbilityName("demo");
+        newWant.SetAction(ACTION_CROWDTEST_EXPIRED);
+        abilityRequest.Voluation(newWant, requestCode, callerToken);
+        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
+        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+#endif
+        return ERR_NOT_OK;
+    }
 }
 
 #ifdef SUPPORT_GRAPHICS
