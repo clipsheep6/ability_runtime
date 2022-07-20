@@ -1558,6 +1558,7 @@ void Ability::OnRemoteTerminated()
 
 void Ability::DispatchLifecycleOnForeground(const Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnForeground error. abilityLifecycleExecutor_ == nullptr.");
         return;
