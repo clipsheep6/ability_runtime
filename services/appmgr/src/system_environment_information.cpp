@@ -45,12 +45,25 @@ void KernelSystemMemoryInfo::Init(std::map<std::string, std::string> &memInfo)
         }
     };
 
-    memTotal_ = std::stoll(findData(std::string("MemTotal"))) * BYTES_KB;
-    memFree_ = std::stoll(findData(std::string("MemFree"))) * BYTES_KB;
-    memAvailable_ = std::stoll(findData(std::string("MemAvailable"))) * BYTES_KB;
-    buffers_ = std::stoll(findData(std::string("Buffers"))) * BYTES_KB;
-    cached_ = std::stoll(findData(std::string("Cached"))) * BYTES_KB;
-    swapCached_ = std::stoll(findData(std::string("SwapCached"))) * BYTES_KB;
+    memTotal_ = ParseMemInfo(findData(std::string("MemTotal")).c_str());
+    memFree_ = ParseMemInfo(findData(std::string("MemFree")).c_str());
+    memAvailable_ = ParseMemInfo(findData(std::string("MemAvailable")).c_str());
+    buffers_ = ParseMemInfo(findData(std::string("Buffers")).c_str());
+    cached_ = ParseMemInfo(findData(std::string("Cached")).c_str());
+    swapCached_ = ParseMemInfo(findData(std::string("SwapCached")).c_str());
+}
+
+int64_t KernelSystemMemoryInfo::ParseMemInfo(const char* data) const
+{
+    int32_t base = 10; // 10 means decimal
+    char* end = nullptr;
+    errno = 0;
+    auto result = strtoll(data, &end, base);
+    if (end == data || errno == ERANGE || result > LLONG_MAX || result < LLONG_MIN) {
+        HILOG_WARN("input str is: %{public}s!", data);
+        return 0;
+    }
+    return result * BYTES_KB;
 }
 
 int64_t KernelSystemMemoryInfo::GetMemTotal() const
