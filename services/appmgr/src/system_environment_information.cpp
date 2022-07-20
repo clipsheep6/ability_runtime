@@ -45,12 +45,36 @@ void KernelSystemMemoryInfo::Init(std::map<std::string, std::string> &memInfo)
         }
     };
 
-    memTotal_ = std::stoll(findData(std::string("MemTotal"))) * BYTES_KB;
-    memFree_ = std::stoll(findData(std::string("MemFree"))) * BYTES_KB;
-    memAvailable_ = std::stoll(findData(std::string("MemAvailable"))) * BYTES_KB;
-    buffers_ = std::stoll(findData(std::string("Buffers"))) * BYTES_KB;
-    cached_ = std::stoll(findData(std::string("Cached"))) * BYTES_KB;
-    swapCached_ = std::stoll(findData(std::string("SwapCached"))) * BYTES_KB;
+    try {
+        memTotal_ = std::stoll(findData(std::string("MemTotal"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("MemTotal")).c_str());
+    }
+    try {
+        memFree_ = std::stoll(findData(std::string("MemFree"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("MemFree")).c_str());
+    }
+    try {
+        memAvailable_ = std::stoll(findData(std::string("MemAvailable"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("MemAvailable")).c_str());
+    }
+    try {
+        buffers_ = std::stoll(findData(std::string("Buffers"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("Buffers")).c_str());
+    }
+    try {
+        cached_ = std::stoll(findData(std::string("Cached"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("Cached")).c_str());
+    }
+    try {
+        swapCached_ = std::stoll(findData(std::string("SwapCached"))) * BYTES_KB;
+    } catch (...) {
+        HILOG_WARN("stoll(%{public}s) failed", findData(std::string("SwapCached")).c_str());
+    }
 }
 
 int64_t KernelSystemMemoryInfo::GetMemTotal() const
