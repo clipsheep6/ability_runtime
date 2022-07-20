@@ -59,7 +59,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::string key = AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE;
-    auto context = new std::weak_ptr<AppMgrServiceInner>(appMgrServiceInner);
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(appMgrServiceInner);
     std::shared_ptr<AppExecFwk::Configuration> config = nullptr;
     std::string value;
 

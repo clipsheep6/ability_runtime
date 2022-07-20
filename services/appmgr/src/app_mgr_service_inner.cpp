@@ -2539,7 +2539,7 @@ void AppMgrServiceInner::AddWatchParameter()
     HILOG_INFO("%{public}s called.", __func__);
     int ret;
 
-    auto context = new std::weak_ptr<AppMgrServiceInner>(shared_from_this());
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(shared_from_this());
     ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), PointerDeviceEventCallback,
         context);
     if (ret != 0) {
