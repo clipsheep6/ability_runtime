@@ -29,8 +29,9 @@ const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedul
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string FREE_INSTLL_CALLING_APP_ID = "freeInstallCallingAppId";
 const std::string FREE_INSTLL_CALLING_BUNDLENAMES = "freeInstallCallingBundleNames";
-
+const std::string FREE_INSTALL_CALLINGUID = "freeInstallCallingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
+
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -88,6 +89,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
+    info.want.SetParam(FREE_INSTALL_CALLINGUID, IPCSkeleton::GetCallingUid());
     if (bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback)) {
         HILOG_INFO("The app has installed.");
     }
