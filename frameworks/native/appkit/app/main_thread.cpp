@@ -1441,8 +1441,7 @@ void MainThread::HandleTerminateApplication()
     }
 
     if (!applicationImpl_->PerformTerminate()) {
-        HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
-        return;
+        HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
 
     std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
