@@ -46,9 +46,9 @@ ohos_unittest("ability_context_impl_ut_test") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 
@@ -62,7 +62,7 @@ ohos_unittest("caller_call_back_ut_test") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "utils_base:utils" ]
+  external_deps = [ "c_utils:utils" ]
 }
 
 ohos_unittest("local_call_container_ut_test") {
@@ -89,9 +89,9 @@ ohos_unittest("local_call_container_ut_test") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 
@@ -119,9 +119,9 @@ ohos_unittest("local_call_record_ut_test") {
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 

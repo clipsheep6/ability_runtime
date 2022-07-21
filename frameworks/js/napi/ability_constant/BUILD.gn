@@ -23,9 +23,9 @@ ohos_shared_library("abilityconstant_napi") {
 
   external_deps = [
     "ability_runtime:ability_manager",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/application"
