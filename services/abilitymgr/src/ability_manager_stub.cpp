@@ -145,6 +145,8 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
 #endif
+    requestFuncMap_[REGISTER_SANDBOX_EXTERN_AUTH_CALLBACK] =
+        &AbilityManagerStub::RegisterSandboxExternalAuthorizeCallbackInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1062,6 +1064,18 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
     int result = StopUser(userId, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("StopUser failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::RegisterSandboxExternalAuthorizeCallbackInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<ISandboxExternalAuthorizeCallback> callback =
+        iface_cast<ISandboxExternalAuthorizeCallback>(data.ReadRemoteObject());
+    int result = RegisterSandboxExternalAuthorizeCallback(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("RegisterSandboxExternalAuthorizeCallback failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

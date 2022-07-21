@@ -62,6 +62,12 @@ int MockAbilityDelegatorStub::StopUser(int userId, const sptr<IStopUserCallback>
     return 0;
 }
 
+int MockAbilityDelegatorStub::RegisterSandboxExternalAuthorizeCallback(
+    const sptr<ISandboxExternalAuthorizeCallback> &callback)
+{
+    return 0;
+}
+
 int MockAbilityDelegatorStub::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
     return 0;
@@ -246,6 +252,12 @@ int MockAbilityDelegatorStub2::StartUser(int userId)
 }
 
 int MockAbilityDelegatorStub2::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+{
+    return 0;
+}
+
+int MockAbilityDelegatorStub2::RegisterSandboxExternalAuthorizeCallback(
+    const sptr<ISandboxExternalAuthorizeCallback> &callback)
 {
     return 0;
 }

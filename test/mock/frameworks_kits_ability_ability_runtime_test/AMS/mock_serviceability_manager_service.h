@@ -198,6 +198,12 @@ public:
         return 0;
     }
 
+    int RegisterSandboxExternalAuthorizeCallback(
+        const sptr<ISandboxExternalAuthorizeCallback> &callback) override
+    {
+        return 0;
+    }
+
     int SetMissionIcon(const sptr<IRemoteObject> &abilityToken,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon)
     {

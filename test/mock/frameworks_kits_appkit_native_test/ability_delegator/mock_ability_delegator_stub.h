@@ -115,6 +115,7 @@ public:
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     virtual int StartUser(int userId) override;
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+    virtual int RegisterSandboxExternalAuthorizeCallback(const sptr<ISandboxExternalAuthorizeCallback> &callback) = 0;
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
     virtual int RegisterMissionListener(const std::string &deviceId,
@@ -252,6 +253,7 @@ public:
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     virtual int StartUser(int userId) override;
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+    virtual int RegisterSandboxExternalAuthorizeCallback(const sptr<ISandboxExternalAuthorizeCallback> &callback) = 0;
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
     virtual int RegisterMissionListener(const std::string &deviceId,

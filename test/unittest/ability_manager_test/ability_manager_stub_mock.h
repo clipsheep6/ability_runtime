@@ -96,6 +96,11 @@ public:
     {
         return 0;
     }
+    virtual int RegisterSandboxExternalAuthorizeCallback(
+        const sptr<ISandboxExternalAuthorizeCallback> &callback) override
+    {
+        return 0;
+    }
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
@@ -130,7 +135,7 @@ public:
     {
         return;
     }
-    
+
     virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
     {
         return 0;
