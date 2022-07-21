@@ -458,6 +458,13 @@ void AppRunningRecord::ScheduleTrimMemory()
     }
 }
 
+void AppRunningRecord::ScheduleMemoryLevel(int32_t level)
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleMemoryLevel(level);
+    }
+}
+
 void AppRunningRecord::LowMemoryWarning()
 {
     if (appLifeCycleDeal_) {

@@ -72,6 +72,14 @@ public:
     virtual void ScheduleLowMemory() = 0;
 
     /**
+     * ScheduleMemoryLevel, call ScheduleMemoryLevel() through proxy project,
+     * Notify applications background the current memory level.
+     *
+     * @return
+     */
+    virtual void ScheduleMemoryLevel(int32_t level) = 0;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
@@ -136,6 +144,7 @@ public:
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
         SCHEDULE_TERMINATE_APPLICATION_TRANSACTION,
         SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION,
+        SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
         SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION,
         SCHEDULE_LAUNCH_ABILITY_TRANSACTION,
         SCHEDULE_CLEAN_ABILITY_TRANSACTION,
