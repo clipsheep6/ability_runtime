@@ -1511,8 +1511,8 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
     std::string eventType = "LIFECYCLE_TIMEOUT";
     OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
-        EVENT_KEY_UID, processInfo.uid_,
-        EVENT_KEY_PID, processInfo.pid_,
+        EVENT_KEY_UID, static_cast<int32_t>(processInfo.uid_),
+        EVENT_KEY_PID, static_cast<int32_t>(processInfo.pid_),
         EVENT_KEY_PACKAGE_NAME, ability->GetAbilityInfo().bundleName,
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);

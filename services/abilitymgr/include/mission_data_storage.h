@@ -26,14 +26,14 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string TASK_DATA_FILE_BASE_PATH = "/data/service/el1/public/AbilityManagerService";
-const std::string MISSION_DATA_FILE_PATH = "MissionInfo";
-const std::string MISSION_JSON_FILE_PREFIX = "mission";
-const std::string LOW_RESOLUTION_FLAG = "little";
-const std::string JSON_FILE_SUFFIX = ".json";
-const std::string PNG_FILE_SUFFIX = ".png";
-const std::string FILE_SEPARATOR = "/";
-const std::string UNDERLINE_SEPARATOR = "_";
+constexpr const char* TASK_DATA_FILE_BASE_PATH = "/data/service/el1/public/AbilityManagerService";
+constexpr const char* MISSION_DATA_FILE_PATH = "MissionInfo";
+constexpr const char* MISSION_JSON_FILE_PREFIX = "mission";
+constexpr const char* LOW_RESOLUTION_FLAG = "little";
+constexpr const char* JSON_FILE_SUFFIX = ".json";
+constexpr const char* PNG_FILE_SUFFIX = ".png";
+constexpr const char* FILE_SEPARATOR = "/";
+constexpr const char* UNDERLINE_SEPARATOR = "_";
 const int32_t SCALE = 2;
 
 class MissionDataStorage : public std::enable_shared_from_this<MissionDataStorage> {

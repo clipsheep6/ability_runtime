@@ -377,9 +377,11 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     appRecord->TerminateAbility(token, false);
 
     if (isLastAbilityRecord && !appRecord->IsKeepAliveApp()) {
+        HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (isClearMission) {
+            HILOG_INFO("The ability is the last, KillApplication");
             HILOG_DEBUG("The ability is the last, kill application");
             auto pid = appRecord->GetPriorityObject()->GetPid();
             auto result = appMgrServiceInner->KillProcessByPid(pid);
