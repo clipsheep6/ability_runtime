@@ -679,16 +679,20 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
 
     std::string language;
     std::string colormode;
+    std::string hasPointerDevice;
     if (setting_) {
         auto displayId = std::atoi(setting_->GetProperty(AbilityStartSetting::WINDOW_DISPLAY_ID_KEY).c_str());
         language = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         colormode = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        HILOG_INFO("displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s]",
-            displayId, language.c_str(), colormode.c_str());
+        hasPointerDevice = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        HILOG_INFO("displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s], "
+            "hasPointerDevice: [%{public}s]", displayId, language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
     } else {
         language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
-        HILOG_INFO("language: [%{public}s], colormode: [%{public}s]", language.c_str(), colormode.c_str());
+        hasPointerDevice = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        HILOG_INFO("language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s]",
+            language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
     }
 
     // Notify ResourceManager
@@ -710,9 +714,15 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &changeConfigurat
             }
         }
 #endif
-        resConfig->SetColorMode(ConvertColorMode(colormode));
+        if (!colormode.empty()) {
+            resConfig->SetColorMode(ConvertColorMode(colormode));
+        }
+        if (!hasPointerDevice.empty()) {
+            resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
+        }
         resourceManager->UpdateResConfig(*resConfig);
-        HILOG_INFO("Notify ResourceManager, colorMode: %{public}d.", resConfig->GetColorMode());
+        HILOG_INFO("Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d.",
+            resConfig->GetColorMode(), resConfig->GetInputDevice());
     }
 
 #ifdef SUPPORT_GRAPHICS

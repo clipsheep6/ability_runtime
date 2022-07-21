@@ -54,8 +54,6 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 
-#include "hdc_register.h"
-
 #if defined(ABILITY_LIBRARY_LOADER) || defined(APPLICATION_LIBRARY_LOADER)
 #include <dirent.h>
 #include <dlfcn.h>
@@ -774,6 +772,10 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     std::string colormode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     HILOG_INFO("colormode is %{public}s.", colormode.c_str());
     resConfig->SetColorMode(ConvertColorMode(colormode));
+
+    std::string hasPointerDevice = config.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    HILOG_INFO("hasPointerDevice is %{public}s.", hasPointerDevice.c_str());
+    resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
 #endif
     resourceManager->UpdateResConfig(*resConfig);
     return true;
@@ -1266,7 +1268,6 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
     auto appInfo = application_->GetApplicationInfo();
     auto want = abilityRecord->GetWant();
     if (runtime && appInfo && want && appInfo->debug) {
-        HdcRegister::Get().StartHdcRegister(appInfo->bundleName);
         runtime->StartDebugMode(want->GetBoolParam("debugApp", false));
     }
 
