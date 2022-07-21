@@ -487,6 +487,15 @@ void AbilityImpl::NotifyContinuationResult(int32_t result)
     ability_->OnCompleteContinuation(result);
 }
 
+void AbilityImpl::NotifyMemoryLevel(int32_t level)
+{
+    if (ability_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::NotifyMemoryLevel ability_ is nullptr");
+        return;
+    }
+    ability_->OnMemoryLevel(level);
+}
+
 #ifdef SUPPORT_GRAPHICS
 void AbilityImpl::AfterUnFocused()
 {

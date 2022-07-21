@@ -49,6 +49,7 @@ public:
     int32_t OnContinue(WantParams &wantParams) override;
     void OnConfigurationUpdated(const Configuration &configuration) override;
     void UpdateContextConfiguration() override;
+    void OnMemoryLevel(int level) override;
     void OnNewWant(const Want &want) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;

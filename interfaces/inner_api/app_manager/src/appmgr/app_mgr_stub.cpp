@@ -52,6 +52,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL)] =
+        &AppMgrStub::HandleNotifyMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_SYSTEM_MEMORY_ATTR)] =
         &AppMgrStub::HandleGetSystemMemoryAttr;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -225,6 +227,20 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
     }
     return NO_ERROR;
 }
+
+
+int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t  level= data.ReadInt32();
+    auto result = NotifyMemoryLevel(level);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+
 
 int32_t AppMgrStub::HandleGetSystemMemoryAttr(MessageParcel &data, MessageParcel &reply)
 {
