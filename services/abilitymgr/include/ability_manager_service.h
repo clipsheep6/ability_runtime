@@ -993,8 +993,6 @@ private:
 
     void StartResidentApps();
 
-    int VerifyMissionPermission();
-
     int VerifyAccountPermission(int32_t userId);
 
     bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);

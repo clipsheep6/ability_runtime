@@ -70,6 +70,7 @@ const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -805,6 +806,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
             appRecord->SetDebugApp(true);
         }
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
+        appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
     }
 
     if (preToken) {
@@ -1056,6 +1058,10 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
+    }
+
+    if (want) {
+        want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord->GetSecurityFlag());
     }
 
     if (abilityInfo->launchMode == LaunchMode::SINGLETON) {

@@ -1667,6 +1667,7 @@ protected:
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
+    bool securityFlag_ = false;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(
