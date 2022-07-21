@@ -1239,7 +1239,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     uint8_t allowInternet = 1;
     auto callerToken = (*bundleInfoIter).applicationInfo.accessTokenId;
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
-    if (result == Security::AccessToken::PERMISSION_GRANTED) {
+    if (result != Security::AccessToken::PERMISSION_GRANTED) {
         allowInternet = 0;
     }
     startMsg.uid = (*bundleInfoIter).uid;
