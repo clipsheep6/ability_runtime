@@ -1341,7 +1341,7 @@ napi_value NapiGetNull(napi_env env)
 
 
 auto NAPI_GetOperationTypeWrapExecuteCallBack = [](napi_env env, void *data) {
-    HILOG_INFO("GetOperationType called(CallBack Mode)...");
+    HILOG_INFO("GetOperationType called...");
     AsyncGetOperationTypeCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetOperationTypeCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("asyncCallbackInfo is nullptr.");
@@ -1371,6 +1371,23 @@ auto NAPI_GetOperationTypeWrapCompleteCallBack = [](napi_env env, napi_status st
     if (asyncCallbackInfo->callback[0] != nullptr) {
         napi_delete_reference(env, asyncCallbackInfo->callback[0]);
     }
+    napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
+    delete asyncCallbackInfo;
+    asyncCallbackInfo = nullptr;
+};
+
+auto NAPI_GetOperationTypeWrapPromiseCompleteCallBack = [](napi_env env, napi_status status, void *data) {
+    HILOG_INFO("GetOperationType completed(promise Mode)...");
+    AsyncGetOperationTypeCallbackInfo *asyncCallbackInfo = static_cast<AsyncGetOperationTypeCallbackInfo *>(data);
+    if (asyncCallbackInfo == nullptr) {
+        HILOG_ERROR("asyncCallbackInfo is nullptr.");
+        return;
+    }
+
+    napi_value result = nullptr;
+    napi_create_int32(env, asyncCallbackInfo->operationType, &result);
+    napi_resolve_deferred(asyncCallbackInfo->env, asyncCallbackInfo->deferred, result);
+
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
     asyncCallbackInfo = nullptr;
@@ -1409,7 +1426,7 @@ napi_value NAPI_GetOperationTypeWrap(
             nullptr,
             resourceName,
             NAPI_GetOperationTypeWrapExecuteCallBack,
-            NAPI_GetOperationTypeWrapCompleteCallBack,
+            NAPI_GetOperationTypeWrapPromiseCompleteCallBack,
             (void *)&asyncCallbackInfo,
             &asyncCallbackInfo.asyncWork);
         napi_queue_async_work(env, asyncCallbackInfo.asyncWork);
