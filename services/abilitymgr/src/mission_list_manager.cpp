@@ -378,6 +378,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     info.missionInfo.time = GetCurrentTime();
     info.missionInfo.iconPath = abilityRequest.appInfo.iconPath;
     info.missionInfo.want = abilityRequest.want;
+    auto element = info.missionInfo.want.GetElement();
+    if (element.GetBundleName().empty() || element.GetAbilityName().empty()) {
+        info.missionInfo.want.SetElementName(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+    }
 
     if (!findReusedMissionInfo) {
         info.missionInfo.label = abilityRequest.appInfo.label;
