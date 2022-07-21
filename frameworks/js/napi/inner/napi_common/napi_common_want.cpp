@@ -903,7 +903,7 @@ bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std
 
     napi_valuetype jsValueType = napi_undefined;
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, TYPE_PROPERTY.c_str(), &jsProValue), false);
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, TYPE_PROPERTY, &jsProValue), false);
     NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
     if (jsValueType != napi_string) {
         return false;
@@ -925,7 +925,7 @@ bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std
 
     jsValueType = napi_undefined;
     jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
     NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
     if (jsValueType != jsValueProType) {
@@ -942,7 +942,7 @@ bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFw
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
 
     int32_t natValue32 = 0;
@@ -962,7 +962,7 @@ bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, 
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
 
     sptr<IRemoteObject> remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, jsProValue);
