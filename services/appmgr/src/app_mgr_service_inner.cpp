@@ -689,6 +689,18 @@ int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningPr
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
+{
+    for (const auto &item : appRunningManager_->GetAppRunningRecordMap()) {
+        //appRecord是AppRunningRecord类型的
+        const auto &appRecord = item.second;
+        if (appRecord->GetState()==ApplicationState::APP_STATE_BACKGROUND) {
+            appRecord->ScheduleMemoryLevel(level);
+        }
+    }
+    return ERR_OK;
+}
+
 void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
     std::vector<RunningProcessInfo> &info)
 {
