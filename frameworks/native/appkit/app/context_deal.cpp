@@ -500,7 +500,7 @@ std::string ContextDeal::GetBundleResourcePath()
     if (isCreateBySystemApp_) {
         dir = std::regex_replace(abilityInfo_->resourcePath, std::regex(ABS_CODE_PATH), LOCAL_BUNDLES);
     } else {
-        std::regex pattern(ABS_CODE_PATH + FILE_SEPARATOR + abilityInfo_->bundleName);
+        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + abilityInfo_->bundleName);
         dir = std::regex_replace(abilityInfo_->resourcePath, pattern, LOCAL_CODE_PATH);
     }
     return dir;
