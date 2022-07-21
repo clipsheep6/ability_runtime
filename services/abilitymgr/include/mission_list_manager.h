@@ -324,6 +324,12 @@ public:
         MissionSnapshot& missionSnapshot, bool isLowResolution);
     void GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm);
 
+    /**
+     * Called to update mission snapshot.
+     * @param token The target ability.
+     */
+    void UpdateSnapShot(const sptr<IRemoteObject>& token);
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability.

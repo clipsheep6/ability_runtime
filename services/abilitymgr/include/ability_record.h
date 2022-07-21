@@ -409,6 +409,15 @@ public:
      */
     bool IsReady() const;
 
+    inline void SetNeedSnapShot(bool needTakeSnapShot)
+    {
+        needTakeSnapShot_ = needTakeSnapShot;
+    }
+
+    inline bool IsNeedTakeSnapShot()
+    {
+        return needTakeSnapShot_;
+    }
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -929,6 +938,7 @@ private:
     mutable std::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
+    bool needTakeSnapShot_ = true;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
