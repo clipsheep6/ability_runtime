@@ -1236,10 +1236,12 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_ERROR("Get target fail.");
         return;
     }
+    uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     auto callerToken = (*bundleInfoIter).applicationInfo.accessTokenId;
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        setAllowInternet = 1;
         allowInternet = 0;
     }
     startMsg.uid = (*bundleInfoIter).uid;
@@ -1250,6 +1252,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
     startMsg.bundleIndex = bundleIndex;
+    startMsg.setAllowInternet = setAllowInternet;
     startMsg.allowInternet = allowInternet;
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
