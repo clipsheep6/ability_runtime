@@ -93,6 +93,16 @@ public:
     void ScheduleTrimMemory(int32_t timeLevel);
 
     /**
+     * ScheduleMemoryLevel, call ScheduleMemorylevel() through proxy project,
+     * Notifies the application of the current memory.
+     *
+     * @param The memory level.
+     *
+     * @return
+     */
+    void ScheduleMemoryLevel(int32_t Level);
+
+    /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
      * Notify application to low memory.
      *

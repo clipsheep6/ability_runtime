@@ -40,6 +40,7 @@ private:
     int32_t HandleScheduleTerminateApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleLowMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleShrinkMemory(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleMemoryLevel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleLaunchAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleCleanAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleLaunchApplication(MessageParcel &data, MessageParcel &reply);

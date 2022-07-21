@@ -381,6 +381,31 @@ void MainThread::ScheduleShrinkMemory(const int level)
 
 /**
  *
+ * @brief Notify the memory level.
+ *
+ * @param level Indicates the memory trim level, which shows the current memory usage status.
+ */
+void MainThread::ScheduleMemoryLevel(const int level)
+{
+    HILOG_INFO("MainThread::ScheduleMemoryLevel level: %{public}d", level);
+    wptr<MainThread> weak = this;
+    auto task = [weak, level]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("appThread is nullptr, HandleMemoryLevel failed.");
+            return;
+        }
+        appThread->HandleMemoryLevel(level);
+    };
+
+    if (!mainHandler_->PostTask(task)) {
+        HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
+    }
+    HILOG_INFO("MainThread::ScheduleMemoryLevel level: %{public}d end.", level);
+}
+
+/**
+ *
  * @brief Schedule the application process exit safely.
  *
  */
@@ -1499,6 +1524,31 @@ void MainThread::HandleShrinkMemory(const int level)
     applicationImpl_->PerformMemoryLevel(level);
     HILOG_INFO("MainThread::HandleShrinkMemory called end.");
 }
+
+
+/**
+ *
+ * @brief Notify the memory level.
+ *
+ * @param level Indicates the memory trim level, which shows the current memory usage status.
+ *
+ */
+void MainThread::HandleMemoryLevel(const int level)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    HILOG_INFO("MainThread::HandleMemoryLevel called start.");
+
+    if (application_ == nullptr) {
+        HILOG_ERROR("MainThread::HandleMemoryLevel error! application_ is null");
+        return;
+    }
+
+    application_->OnMemoryLevel(level);
+    HILOG_INFO("MainThread::HandleMemoryLevel called end.");
+
+}
+
+
 
 /**
  *
