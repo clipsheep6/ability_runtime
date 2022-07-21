@@ -39,7 +39,7 @@ struct AppSpawnStartMsg {
     int32_t code = 0; // 0: DEFAULT; 1: GET_RENDER_TERMINATION_STATUS
     uint32_t flags;
     int32_t bundleIndex;   // when dlp launch another app used, default is 0
-    bool isAllowInternet; // hap sockect allowed
+    uint8_t allowInternet; // hap sockect allowed
 };
 
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;

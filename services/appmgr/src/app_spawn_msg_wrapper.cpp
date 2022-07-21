@@ -48,7 +48,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->gid = startMsg.gid;
         msg_->gidCount = startMsg.gids.size();
         msg_->bundleIndex = startMsg.bundleIndex;
-        msg_->isAllowInternet = startMsg.isAllowInternet;
+        msg_->allowInternet = startMsg.allowInternet;
         for (uint32_t i = 0; i < msg_->gidCount; ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }
