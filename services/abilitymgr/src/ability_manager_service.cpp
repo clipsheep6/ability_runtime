@@ -745,6 +745,26 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     return StartAbilityByMissionListManager(abilityRequest, oriValidUserId, eventInfo);
 }
 
+int AbilityManagerService::StartAbilityByMissionListManager(AbilityRequest &abilityRequest, int32_t oriValidUserId,
+    AAFWK::EventInfo &eventInfo)
+{
+    auto missionListManager = GetListManagerByUserId(oriValidUserId);
+    if (missionListManager == nullptr) {
+        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+            HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_VALUE;
+    }
+    auto ret = missionListManager->StartAbility(abilityRequest);
+    if (ret != ERR_OK) {
+        eventInfo.errCode = ret;
+        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
+            HiSysEventType::FAULT, eventInfo);
+    }
+    return ret;
+}
+
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
