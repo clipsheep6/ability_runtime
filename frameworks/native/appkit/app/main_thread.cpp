@@ -1081,9 +1081,10 @@ void MainThread::ChangeToLocalPath(const std::string &bundleName,
         if (item.empty()) {
             continue;
         }
-        std::regex pattern(ABS_CODE_PATH + FILE_SEPARATOR + bundleName + FILE_SEPARATOR);
+        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName
+            + std::string(FILE_SEPARATOR));
         localPath.emplace_back(
-            std::regex_replace(item, pattern, LOCAL_CODE_PATH + FILE_SEPARATOR));
+            std::regex_replace(item, pattern, std::string(LOCAL_CODE_PATH) + std::string(FILE_SEPARATOR)));
     }
 }
 

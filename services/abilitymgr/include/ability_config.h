@@ -21,23 +21,23 @@
 namespace OHOS {
 namespace AAFwk {
 namespace AbilityConfig {
-const std::string NAME_ABILITY_MGR_SERVICE = "AbilityManagerService";
-const std::string SCHEME_DATA_ABILITY = "dataability";
-const std::string SYSTEM_UI_BUNDLE_NAME = "com.ohos.systemui";
-const std::string SYSTEM_UI_STATUS_BAR = "com.ohos.systemui.statusbar.ServiceExtAbility";
-const std::string SYSTEM_UI_NAVIGATION_BAR = "com.ohos.systemui.navigationbar.ServiceExtAbility";
-const std::string SYSTEM_DIALOG_NAME = "com.ohos.systemui.systemdialog.MainAbility";
-const std::string SYSTEM_UI_ABILITY_NAME = "com.ohos.systemui.ServiceExtAbility";
-const std::string DEVICE_MANAGER_BUNDLE_NAME = "com.ohos.devicemanagerui";
-const std::string DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
-const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
-const std::string LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
-const std::string LAUNCHER_RECENT_ABILITY_NAME = "com.ohos.launcher.recents.MainAbility";
-const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
-const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
-const std::string PARAMS_STREAM = "ability.params.stream";
-const std::string MISSION_NAME_MARK_HEAD = "#";
-const std::string MISSION_NAME_SEPARATOR = ":";
+constexpr const char* NAME_ABILITY_MGR_SERVICE = "AbilityManagerService";
+constexpr const char* SCHEME_DATA_ABILITY = "dataability";
+constexpr const char* SYSTEM_UI_BUNDLE_NAME = "com.ohos.systemui";
+constexpr const char* SYSTEM_UI_STATUS_BAR = "com.ohos.systemui.statusbar.ServiceExtAbility";
+constexpr const char* SYSTEM_UI_NAVIGATION_BAR = "com.ohos.systemui.navigationbar.ServiceExtAbility";
+constexpr const char* SYSTEM_DIALOG_NAME = "com.ohos.systemui.systemdialog.MainAbility";
+constexpr const char* SYSTEM_UI_ABILITY_NAME = "com.ohos.systemui.ServiceExtAbility";
+constexpr const char* DEVICE_MANAGER_BUNDLE_NAME = "com.ohos.devicemanagerui";
+constexpr const char* DEVICE_MANAGER_NAME = "com.ohos.devicemanagerui.MainAbility";
+constexpr const char* LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
+constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
+constexpr const char* LAUNCHER_RECENT_ABILITY_NAME = "com.ohos.launcher.recents.MainAbility";
+constexpr const char* GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
+constexpr const char* GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+constexpr const char* PARAMS_STREAM = "ability.params.stream";
+constexpr const char* MISSION_NAME_MARK_HEAD = "#";
+constexpr const char* MISSION_NAME_SEPARATOR = ":";
 }  // namespace AbilityConfig
 }  // namespace AAFwk
 }  // namespace OHOS
