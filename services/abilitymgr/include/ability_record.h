@@ -53,7 +53,7 @@ class Mission;
 class MissionList;
 class CallContainer;
 
-const std::string ABILITY_TOKEN_NAME = "AbilityToken";
+constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 const std::string LINE_SEPARATOR = "\n";
 
 /**
