@@ -126,6 +126,15 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
      * Get system memory information.
      * @param SystemMemoryAttr, memory information.
      */
@@ -250,6 +259,7 @@ public:
         APP_CLEAR_UP_APPLICATION_DATA,
         APP_GET_ALL_RUNNING_PROCESSES,
         APP_GET_RUNNING_PROCESSES_BY_USER_ID,
+        APP_NOTIFY_MEMORY_LEVEL,
         APP_GET_SYSTEM_MEMORY_ATTR,
         APP_ADD_ABILITY_STAGE_INFO_DONE,
         STARTUP_RESIDENT_PROCESS,

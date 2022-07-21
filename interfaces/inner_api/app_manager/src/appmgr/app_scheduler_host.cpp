@@ -34,6 +34,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleLowMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleShrinkMemory;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION)] =
+        &AppSchedulerHost::HandleScheduleMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleLaunchAbility;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION)] =
@@ -109,6 +111,13 @@ int32_t AppSchedulerHost::HandleScheduleShrinkMemory(MessageParcel &data, Messag
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ScheduleShrinkMemory(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleMemoryLevel(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    ScheduleMemoryLevel(data.ReadInt32());
     return NO_ERROR;
 }
 
