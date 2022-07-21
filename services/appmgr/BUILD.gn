@@ -71,6 +71,7 @@ ohos_shared_library("libappms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
@@ -86,13 +87,9 @@ ohos_shared_library("libappms") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
+    "startup_l2:syspara_watchagent",
     "utils_base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]

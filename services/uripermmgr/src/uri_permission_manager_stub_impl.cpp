@@ -21,6 +21,7 @@
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "os_account_manager_wrapper.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
 #include "want.h"
@@ -28,9 +29,6 @@
 namespace OHOS {
 namespace AAFwk {
 const int32_t DEFAULT_USER_ID = 0;
-#ifndef OS_ACCOUNT_PART_ENABLED
-const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
-#endif // OS_ACCOUNT_PART_ENABLED
 
 void UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
     const Security::AccessToken::AccessTokenID fromTokenId, const Security::AccessToken::AccessTokenID targetTokenId)
@@ -199,17 +197,12 @@ void UriPermissionManagerStubImpl::BMSDeathRecipient::OnRemoteDied([[maybe_unuse
 int UriPermissionManagerStubImpl::GetCurrentAccountId()
 {
     std::vector<int32_t> osActiveAccountIds;
-#ifdef OS_ACCOUNT_PART_ENABLED
-    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(osActiveAccountIds);
+    ErrCode ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("QueryActiveOsAccountIds failed.");
         return DEFAULT_USER_ID;
     }
-#else // OS_ACCOUNT_PART_ENABLED
-    osActiveAccountIds.push_back(DEFAULT_OS_ACCOUNT_ID);
-    HILOG_DEBUG("%{public}s, do not have os account part, use default id.", __func__);
-#endif // OS_ACCOUNT_PART_ENABLED
-
     if (osActiveAccountIds.empty()) {
         HILOG_ERROR("%{public}s, QueryActiveOsAccountIds is empty, no accounts.", __func__);
         return DEFAULT_USER_ID;

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_START_SETTING_H
-#define OHOS_AAFWK_ABILITY_START_SETTING_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_START_SETTING_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_START_SETTING_H
 
 #include <map>
 #include <set>
@@ -105,4 +105,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_START_SETTING_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_START_SETTING_H

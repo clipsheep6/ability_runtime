@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_BINDABLE_H
-#define ABILITY_RUNTIME_BINDABLE_H
+#ifndef OHOS_ABILITY_RUNTIME_BINDABLE_H
+#define OHOS_ABILITY_RUNTIME_BINDABLE_H
 
 #include <memory>
 
@@ -83,4 +83,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_BINDABLE_H
+#endif  // OHOS_ABILITY_RUNTIME_BINDABLE_H

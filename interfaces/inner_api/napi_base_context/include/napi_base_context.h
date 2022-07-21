@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
-#define ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
 
 #include <memory>
 
@@ -35,4 +35,4 @@ std::shared_ptr<Context> GetStageModeContext(napi_env env, napi_value object);
 AppExecFwk::Ability* GetCurrentAbility(napi_env env);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_BASE_CONTEXT_H

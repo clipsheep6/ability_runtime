@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_DATAOBS_MANAGER_STUB_H
-#define OHOS_AAFWK_DATAOBS_MANAGER_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_DATAOBS_MGR_STUB_H
+#define OHOS_ABILITY_RUNTIME_DATAOBS_MGR_STUB_H
 
 #include "dataobs_mgr_interface.h"
 
@@ -47,4 +47,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DATAOBS_MANAGER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_DATAOBS_MGR_STUB_H

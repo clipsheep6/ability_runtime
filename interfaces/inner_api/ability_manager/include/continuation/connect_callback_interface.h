@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ICONNECT_CALLBACK_H
-#define FOUNDATION_APPEXECFWK_OHOS_ICONNECT_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_INTERFACE_H
 #include <string>
 #include "iremote_broker.h"
 
@@ -51,4 +51,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ICONNECT_CALLBACK_H
+#endif  // OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_INTERFACE_H

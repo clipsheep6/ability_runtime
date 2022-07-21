@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_MISSION_LISTENER_STUB_H
-#define OHOS_AAFWK_MISSION_LISTENER_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_MISSION_LISTENER_STUB_H
+#define OHOS_ABILITY_RUNTIME_MISSION_LISTENER_STUB_H
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -51,4 +51,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_MISSION_LISTENER_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_MISSION_LISTENER_STUB_H

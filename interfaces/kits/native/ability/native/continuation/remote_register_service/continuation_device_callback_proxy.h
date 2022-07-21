@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONTINUATION_DEVICE_CALLBACK_PROXY_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONTINUATION_DEVICE_CALLBACK_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_CONTINUATION_DEVICE_CALLBACK_PROXY_H
+#define OHOS_ABILITY_RUNTIME_CONTINUATION_DEVICE_CALLBACK_PROXY_H
 #include <memory>
 #include "connect_callback_stub.h"
 #include "continuation_device_callback_interface.h"

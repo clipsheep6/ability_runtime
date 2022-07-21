@@ -70,6 +70,8 @@ void WatchDog::Stop()
 {
     HILOG_INFO("Watchdog is stop !");
     stopWatchDog_.store(true);
+    cvWatchDog_.notify_all();
+
     if (watchDogThread_ != nullptr && watchDogThread_->joinable()) {
         watchDogThread_->join();
         watchDogThread_ = nullptr;
@@ -103,9 +105,37 @@ bool WatchDog::GetAppMainThreadState()
     return appMainThreadIsAlive_;
 }
 
+bool WatchDog::IsStopWatchDog()
+{
+    return stopWatchDog_;
+}
+
+bool WatchDog::WaitForDuration(uint32_t duration)
+{
+    std::unique_lock<std::mutex> lck(cvMutex_);
+    auto condition = [wp = WatchDog::weak_from_this()] {
+        auto sp = wp.lock();
+        if (!sp) {
+            return true;
+        }
+        auto self = std::static_pointer_cast<WatchDog>(sp);
+        if (!self) {
+            return true;
+        }
+        return self->IsStopWatchDog();
+    };
+    if (cvWatchDog_.wait_for(lck, std::chrono::milliseconds(duration), condition)) {
+        return true;
+    }
+    return false;
+}
+
 bool WatchDog::Timer()
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds(INI_TIMER_FIRST_SECOND));
+    if (WaitForDuration(INI_TIMER_FIRST_SECOND)) {
+        HILOG_INFO("cvWatchDog1 is stopped");
+        return true;
+    }
     while (!stopWatchDog_) {
         std::this_thread::sleep_for(std::chrono::milliseconds(INI_TIMER_SECOND));
         if (!stopWatchDog_) {
@@ -145,6 +175,24 @@ bool WatchDog::Timer()
                     appMainHandler_->SendEvent(MAIN_THREAD_IS_ALIVE);
                 }
             }
+            HILOG_INFO("%{public}zu %{public}s", msgContent.size(), msgContent.c_str());
+        };
+        if (timeOut_) {
+            HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
+            continue;
+        }
+        if (currentHandler_ != nullptr) {
+            // check libc.hook_mode
+            const int bufferLen = 128;
+            char paramOutBuf[bufferLen] = {0};
+            const char *hook_mode = "startup:";
+            int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+            if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
+                currentHandler_->PostTask(timeoutTask, MAIN_THREAD_IS_ALIVE_MSG, MAIN_THREAD_TIMEOUT_TIME);
+            }
+        }
+        if (appMainHandler_ != nullptr) {
+            appMainHandler_->SendEvent(MAIN_THREAD_IS_ALIVE);
         }
     }
     return true;

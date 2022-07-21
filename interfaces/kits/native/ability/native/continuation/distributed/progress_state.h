@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_PROGRESS_STATE_H
-#define FOUNDATION_APPEXECFWK_OHOS_PROGRESS_STATE_H
+#ifndef OHOS_ABILITY_RUNTIME_PROGRESS_STATE_H
+#define OHOS_ABILITY_RUNTIME_PROGRESS_STATE_H
 namespace OHOS {
 namespace AppExecFwk {
 enum class ProgressState {
@@ -24,4 +24,4 @@ enum class ProgressState {
 using PROGRESS_STATE = enum ProgressState;
 }
 }
-#endif // FOUNDATION_APPEXECFWK_OHOS_PROGRESS_STATE_H
+#endif // OHOS_ABILITY_RUNTIME_PROGRESS_STATE_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_UNITTEST_APP_SCHEDULE_CALL_BACK_MOCK_H
-#define ABILITY_UNITTEST_APP_SCHEDULE_CALL_BACK_MOCK_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_STATE_CALL_BACK_MOCK_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_STATE_CALL_BACK_MOCK_H
 
 #include <gmock/gmock.h>
 #include <iremote_object.h>

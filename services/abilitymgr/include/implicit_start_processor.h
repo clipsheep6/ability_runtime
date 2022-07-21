@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
-#define OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
+#ifndef OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
+#define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
 #include <vector>
 #include <string>
@@ -55,4 +55,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_IMPLICIT_START_PROCESSOR_H
+#endif  // OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H

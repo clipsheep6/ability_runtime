@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_NAPI_CONTEXT_H
-#define OHOS_APPEXECFWK_NAPI_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H
 #include "../inner/napi_common/napi_common.h"
 #include "ability.h"
 #include "napi/native_api.h"
@@ -199,4 +199,4 @@ void SetDisplayOrientationExecuteCallbackWork(napi_env env, void *data);
 napi_value NAPI_GetDisplayOrientation(napi_env env, napi_callback_info info);
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_NAPI_CONTEXT_H */
+#endif /* OHOS_ABILITY_RUNTIME_NAPI_CONTEXT_H */

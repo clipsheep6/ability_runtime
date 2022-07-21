@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
-#define ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
+#define OHOS_ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
 
 #include "caller_callback.h"
 #include "element_name.h"
@@ -76,4 +76,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_LOCAL_CALL_RECORD_H
+#endif // OHOS_ABILITY_RUNTIME_LOCAL_CALL_RECORD_H

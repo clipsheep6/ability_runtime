@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_LIFECYCLE_OBSERVER_INTERFACE_H
-#define FOUNDATION_APPEXECFWK_OHOS_LIFECYCLE_OBSERVER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_OBSERVER_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_OBSERVER_INTERFACE_H
 
 #include "want.h"
 #include "ability_lifecycle.h"
@@ -100,4 +100,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_LIFECYCLE_OBSERVER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_LIFECYCLE_OBSERVER_INTERFACE_H

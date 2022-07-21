@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AppExecFwk_APP_STATE_CALLBACK_HOST_H
-#define OHOS_AppExecFwk_APP_STATE_CALLBACK_HOST_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_STATE_CALLBACK_HOST_H
+#define OHOS_ABILITY_RUNTIME_APP_STATE_CALLBACK_HOST_H
 
 #include <map>
 #include "iremote_stub.h"
@@ -60,4 +60,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_INTERFACES_INNERKITS_APPMGR_INCLUDE_APP_STATE_CALLBACK_HOST_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_STATE_CALLBACK_HOST_H

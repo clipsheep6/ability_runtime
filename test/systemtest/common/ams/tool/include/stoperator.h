@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_SYSTEM_TEST_STOPERATORTREE_H
-#define OHOS_SYSTEM_TEST_STOPERATORTREE_H
+#ifndef OHOS_ABILITY_RUNTIME_STOPERATOR_H
+#define OHOS_ABILITY_RUNTIME_STOPERATOR_H
 
 #include <cstring>
 #include <string>
@@ -57,4 +57,4 @@ private:
 };
 }  // namespace STtools
 }  // namespace OHOS
-#endif  // OHOS_SYSTEM_TEST_STOPERATORTREE_H
+#endif  // OHOS_ABILITY_RUNTIME_STOPERATOR_H

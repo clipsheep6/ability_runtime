@@ -24,63 +24,35 @@ AbilityLoader &AbilityLoader::GetInstance()
     return abilityLoader;
 }
 
-/**
- * @brief Register Ability Info
- *
- * @param abilityName ability classname
- * @param createFunc  Constructor address
- */
 void AbilityLoader::RegisterAbility(const std::string &abilityName, const CreateAblity &createFunc)
 {
     abilities_.emplace(abilityName, createFunc);
     HILOG_DEBUG("AbilityLoader::RegisterAbility:%{public}s", abilityName.c_str());
 }
 
-/**
- * @brief Register Extension Info
- *
- * @param abilityName Extension classname
- * @param createFunc  Constructor address
- */
 void AbilityLoader::RegisterExtension(const std::string &abilityName, const CreateExtension &createFunc)
 {
     extensions_.emplace(abilityName, createFunc);
     HILOG_DEBUG("AbilityLoader::RegisterExtension:%{public}s", abilityName.c_str());
 }
 
-/**
- * @brief Get Ability address
- *
- * @param abilityName ability classname
- *
- * @return return Ability address
- */
 Ability *AbilityLoader::GetAbilityByName(const std::string &abilityName)
 {
     auto it = abilities_.find(abilityName);
     if (it != abilities_.end()) {
         return it->second();
-    } else {
-        HILOG_ERROR("AbilityLoader::GetAbilityByName failed:%{public}s", abilityName.c_str());
     }
+    HILOG_ERROR("AbilityLoader::GetAbilityByName failed:%{public}s", abilityName.c_str());
     return nullptr;
 }
 
-/**
- * @brief Get Extension address
- *
- * @param abilityName Extension classname
- *
- * @return return Extension address
- */
 AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &abilityName)
 {
     auto it = extensions_.find(abilityName);
     if (it != extensions_.end()) {
         return it->second();
-    } else {
-        HILOG_ERROR("AbilityLoader::GetExtensionByName failed:%{public}s", abilityName.c_str());
     }
+    HILOG_ERROR("AbilityLoader::GetExtensionByName failed:%{public}s", abilityName.c_str());
     return nullptr;
 }
 
@@ -96,10 +68,9 @@ AbilitySlice *AbilityLoader::GetAbilitySliceByName(const std::string &sliceName)
     auto it = slices_.find(sliceName);
     if (it != slices_.end()) {
         return it->second();
-    } else {
-        HILOG_ERROR(HILOG_MODULE_APP, "GetAbilitySliceByName failed: %s", sliceName.c_str());
-        return nullptr;
     }
+    HILOG_ERROR(HILOG_MODULE_APP, "GetAbilitySliceByName failed: %s", sliceName.c_str());
+    return nullptr;
 }
 #endif
 }  // namespace AppExecFwk

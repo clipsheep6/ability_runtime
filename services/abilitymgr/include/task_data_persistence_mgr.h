@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_TASK_DATA_PERSISTENCE_MGR_H
-#define FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_TASK_DATA_PERSISTENCE_MGR_H
+#ifndef OHOS_ABILITY_RUNTIME_TASK_DATA_PERSISTENCE_MGR_H
+#define OHOS_ABILITY_RUNTIME_TASK_DATA_PERSISTENCE_MGR_H
 
 #include <memory>
 #include <unordered_map>
@@ -25,11 +25,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string THREAD_NAME = "TaskDataStorage";
-const std::string SAVE_MISSION_INFO = "SaveMissionInfo";
-const std::string DELETE_MISSION_INFO = "DeleteMissionInfo";
-const std::string SAVE_MISSION_SNAPSHOT = "SaveMissionSnapshot";
-const std::string GET_MISSION_SNAPSHOT = "GetMissionSnapshot";
+constexpr const char* THREAD_NAME = "TaskDataStorage";
+constexpr const char* SAVE_MISSION_INFO = "SaveMissionInfo";
+constexpr const char* DELETE_MISSION_INFO = "DeleteMissionInfo";
+constexpr const char* SAVE_MISSION_SNAPSHOT = "SaveMissionSnapshot";
+constexpr const char* GET_MISSION_SNAPSHOT = "GetMissionSnapshot";
 
 class TaskDataPersistenceMgr : public std::enable_shared_from_this<TaskDataPersistenceMgr> {
     DECLARE_DELAYED_SINGLETON(TaskDataPersistenceMgr)
@@ -104,4 +104,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_ABILITYMGR_INCLUDE_TASK_DATA_PERSISTENCE_MGR_H
+#endif  // OHOS_ABILITY_RUNTIME_TASK_DATA_PERSISTENCE_MGR_H

@@ -40,6 +40,7 @@
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
+#include "input_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
@@ -51,9 +52,7 @@
 #include "softbus_bus_center.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
@@ -66,6 +65,10 @@
 #include "ui_service_mgr_client.h"
 #endif
 
+#ifdef SUSPEND_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif // SUSPEND_MANAGER_ENABLE
+
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
@@ -77,14 +80,6 @@ const int32_t MIN_ARGS_SIZE = 1;
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
-
-#ifndef OS_ACCOUNT_PART_ENABLED
-constexpr static int UID_TRANSFORM_DIVISOR = 200000;
-static void GetOsAccountIdFromUid(int uid, int &osAccountId)
-{
-    osAccountId = uid / UID_TRANSFORM_DIVISOR;
-}
-#endif // OS_ACCOUNT_PART_ENABLED
 } // namespace
 
 using namespace std::chrono;
@@ -228,20 +223,19 @@ bool AbilityManagerService::Init()
     // init user controller.
     userController_ = std::make_shared<UserController>();
     userController_->Init();
-    int userId = MAIN_USER_ID;
 
-    InitConnectManager(userId, true);
-    InitDataAbilityManager(userId, true);
-    InitPendWantManager(userId, true);
+    InitConnectManager(MAIN_USER_ID, true);
+    InitDataAbilityManager(MAIN_USER_ID, true);
+    InitPendWantManager(MAIN_USER_ID, true);
     systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
 
     amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
     amsConfigResolver_->Parse();
     HILOG_INFO("ams config parse");
-    InitMissionListManager(userId, true);
+    InitMissionListManager(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
-    std::string threadName = AbilityConfig::NAME_ABILITY_MGR_SERVICE + "(" +
+    std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
     if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, amsTimeOut) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
@@ -252,8 +246,8 @@ bool AbilityManagerService::Init()
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
-    auto startSystemTask = [aams = shared_from_this()]() { aams->StartSystemApplication(); };
-    handler_->PostTask(startSystemTask, "StartSystemApplication");
+    auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
+    handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
@@ -271,6 +265,9 @@ bool AbilityManagerService::Init()
     };
     handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
 #endif
+
+    anrListener_ = std::make_shared<ApplicationAnrListener>();
+    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 
     HILOG_INFO("Init success.");
     return true;
@@ -346,13 +343,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
-    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
-        return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
-    }
-
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
         return CHECK_PERMISSION_FAILED;
+    }
+
+    if (AbilityUtil::HandleDlpApp(const_cast<Want &>(want))) {
+        return StartExtensionAbility(want, callerToken, userId, AppExecFwk::ExtensionAbilityType::SERVICE);
     }
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
@@ -366,21 +364,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
-    auto promise = std::make_shared<std::promise<int32_t>>();
-    FreeInstallInfo info = {
-        .want = want,
-        .userId = validUserId,
-        .requestCode = requestCode,
-        .callerToken = callerToken,
-        .promise = promise
-    };
 
     if (callerToken != nullptr) {
         if (CheckIfOperateRemote(want)) {
             if (AbilityUtil::IsStartFreeInstall(want)) {
                 return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
-                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode,
-                        validUserId, callerToken, true);
+                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken);
             }
             if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
                 HILOG_INFO("%{public}s: try to StartAbility", __func__);
@@ -390,15 +379,18 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             if (missionId < 0) {
                 return ERR_INVALID_VALUE;
             }
-            Want* newWant = const_cast<Want*>(&want);
-            newWant->SetParam(DMS_MISSION_ID, missionId);
+            Want remoteWant = want;
+            remoteWant.SetParam(DMS_MISSION_ID, missionId);
             HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
-            return StartRemoteAbility(*newWant, requestCode);
+            return StartRemoteAbility(remoteWant, requestCode);
         }
     }
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-        int ret = freeInstallManager_->StartFreeInstall(
-            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
+        Want localWant = want;
+        if (!localWant.GetDeviceId().empty()) {
+            localWant.SetDeviceId("");
+        }
+        int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken);
         if (ret != ERR_OK) {
             HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
@@ -454,6 +446,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return result;
         }
     }
+
     UpdateCallerInfo(abilityRequest.want);
     if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
         auto connectManager = GetConnectManagerByUserId(validUserId);
@@ -462,6 +455,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return ERR_INVALID_VALUE;
         }
         HILOG_DEBUG("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
+#ifdef SUSPEND_MANAGER_ENABLE
+        auto bms = AbilityUtil::GetBundleManager();
+        if (bms) {
+            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+                bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
+                abilityInfo.bundleName, "THAW_BY_START_NOT_PAGE_ABILITY");
+        }
+#endif // SUSPEND_MANAGER_ENABLE
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -474,6 +475,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+#ifdef SUSPEND_MANAGER_ENABLE
+    auto bms = AbilityUtil::GetBundleManager();
+    if (bms) {
+        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+            bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
+            abilityInfo.bundleName, "THAW_BY_START_PAGE_ABILITY");
+    }
+#endif // SUSPEND_MANAGER_ENABLE
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -491,7 +500,8 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
 
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -513,8 +523,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = freeInstallManager_->StartFreeInstall(
-            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
+        int32_t ret = freeInstallManager_->StartFreeInstall(want, validUserId, requestCode, callerToken);
         if (ret != ERR_OK) {
             HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
@@ -642,7 +651,8 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
 
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -664,8 +674,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HILOG_ERROR("can not start remote free install");
             return ERR_INVALID_VALUE;
         }
-        int ret = freeInstallManager_->StartFreeInstall(
-            want, validUserId, requestCode, callerToken, CheckIfOperateRemote(want));
+        int32_t ret = freeInstallManager_->StartFreeInstall(want, validUserId, requestCode, callerToken);
         if (ret != ERR_OK) {
             HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
@@ -829,7 +838,8 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     eventInfo.extensionType = (int32_t)extensionType;
     AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::START_EXTENSION_ERROR,
@@ -922,7 +932,8 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     eventInfo.extensionType = (int32_t)extensionType;
     AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_SERVICE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_EXTENSION_ERROR,
@@ -1337,7 +1348,8 @@ int AbilityManagerService::ConnectAbility(
     AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE, HiSysEventType::BEHAVIOR,
         eventInfo);
 
-    if (VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+        VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         eventInfo.errCode = CHECK_PERMISSION_FAILED;
         AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
@@ -1355,7 +1367,7 @@ int AbilityManagerService::ConnectAbility(
     }
 
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
-        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId, getpid());
+        int result = freeInstallManager_->ConnectFreeInstall(want, validUserId, callerToken, localDeviceId);
         if (result != ERR_OK) {
             eventInfo.errCode = result;
             AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
@@ -1662,14 +1674,11 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     if (!wantSenderInfo.bundleName.empty()) {
         bool bundleMgrResult = false;
         if (wantSenderInfo.userId < 0) {
-#ifdef OS_ACCOUNT_PART_ENABLED
-            if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
+            if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+                GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
                 HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
                 return nullptr;
             }
-#else // OS_ACCOUNT_PART_ENABLED
-            GetOsAccountIdFromUid(callerUid, userId);
-#endif // OS_ACCOUNT_PART_ENABLED
         }
         bundleMgrResult = IN_PROCESS_CALL(bms->GetBundleInfo(wantSenderInfo.bundleName,
             AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
@@ -1703,14 +1712,11 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
 
     int userId = -1;
-#ifdef OS_ACCOUNT_PART_ENABLED
-    if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
+    if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+        GetOsAccountLocalIdFromUid(callerUid, userId) != 0) {
         HILOG_ERROR("GetOsAccountLocalIdFromUid failed. uid=%{public}d", callerUid);
         return;
     }
-#else // OS_ACCOUNT_PART_ENABLED
-    GetOsAccountIdFromUid(callerUid, userId);
-#endif // OS_ACCOUNT_PART_ENABLED
     AppExecFwk::BundleInfo bundleInfo;
     bool bundleMgrResult = IN_PROCESS_CALL(
         bms->GetBundleInfo(record->GetKey()->GetBundleName(),
@@ -2809,14 +2815,11 @@ int AbilityManagerService::GetUserId()
     return U0_USER_ID;
 }
 
-void AbilityManagerService::StartHighestPriorityAbility(bool isBoot)
+void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
 {
     HILOG_DEBUG("%{public}s", __func__);
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
-
-    auto userId = GetUserId();
-    HILOG_DEBUG("%{public}s, QueryAbilityInfo, userId is %{public}d", __func__, userId);
 
     /* Query the highest priority ability or extension ability, and start it. usually, it is OOBE or launcher */
     Want want;
@@ -3449,27 +3452,25 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     return nullptr;
 }
 
-int AbilityManagerService::GetUidByBundleName(std::string bundleName)
-{
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NO_INIT);
-    return IN_PROCESS_CALL(bms->GetUidByBundleName(bundleName, GetUserId()));
-}
-
-void AbilityManagerService::StartSystemApplication()
+void AbilityManagerService::StartResidentApps()
 {
     HILOG_DEBUG("%{public}s", __func__);
-
     ConnectBmsService();
-
-    if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
-        HILOG_INFO("start all");
-        StartingSettingsDataAbility();
+    auto bms = GetBundleManager();
+    CHECK_POINTER_IS_NULLPTR(bms);
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    if (!IN_PROCESS_CALL(
+        bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, U0_USER_ID))) {
+        HILOG_ERROR("Get resident bundleinfos failed");
         return;
     }
 
-    StartingSettingsDataAbility();
-    StartupResidentProcess(U0_USER_ID);
+    HILOG_INFO("StartResidentApps GetBundleInfos size: %{public}lu", (unsigned long)bundleInfos.size());
+
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
+    if (!bundleInfos.empty()) {
+        DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
+    }
 }
 
 void AbilityManagerService::ConnectBmsService()
@@ -3611,39 +3612,6 @@ sptr<IRemoteObject> AbilityManagerService::GetAbilityTokenByMissionId(int32_t mi
         return nullptr;
     }
     return currentMissionListManager_->GetAbilityTokenByMissionId(missionId);
-}
-
-void AbilityManagerService::StartingSettingsDataAbility()
-{
-#ifdef SUPPORT_GRAPHICS
-    HILOG_DEBUG("%{public}s", __func__);
-    auto bms = GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
-
-    AppExecFwk::AbilityInfo abilityInfo;
-    Want want;
-    want.SetElementName(AbilityConfig::SETTINGS_DATA_BUNDLE_NAME, AbilityConfig::SETTINGS_DATA_ABILITY_NAME);
-    uint32_t waitCnt = 0;
-    IN_PROCESS_CALL_WITHOUT_RET(
-        while (!bms->QueryAbilityInfo(want, OHOS::AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT,
-            U0_USER_ID, abilityInfo) && waitCnt < MAX_WAIT_SETTINGS_DATA_NUM) {
-            HILOG_INFO("Waiting query settings data info completed.");
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-            waitCnt++;
-        }
-    );
-
-    std::string abilityUri;
-    if (!GetValidDataAbilityUri(abilityInfo.uri, abilityUri)) {
-        return;
-    }
-
-    HILOG_INFO("abilityInfo uri: %{public}s.", abilityUri.c_str());
-
-    // start settings data ability
-    Uri uri(abilityUri);
-    (void)AcquireDataAbility(uri, true, nullptr);
-#endif
 }
 
 int AbilityManagerService::StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &connect)
@@ -4016,6 +3984,7 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
     if (oldUserId == U0_USER_ID) {
         isBoot = true;
     }
+    ConnectBmsService();
     StartUserApps(userId, isBoot);
     PauseOldConnectManager(oldUserId);
 }
@@ -4087,24 +4056,7 @@ void AbilityManagerService::StartUserApps(int32_t userId, bool isBoot)
         HILOG_INFO("missionListManager ResumeManager");
         currentMissionListManager_->ResumeManager();
     }
-    StartSystemAbilityByUser(userId, isBoot);
-}
-
-void AbilityManagerService::StartSystemAbilityByUser(int32_t userId, bool isBoot)
-{
-    HILOG_INFO("StartSystemAbilityByUser, userId:%{public}d, currentUserId:%{public}d", userId, GetUserId());
-    ConnectBmsService();
-
-#ifdef SUPPORT_GRAPHICS
-    if (!amsConfigResolver_ || amsConfigResolver_->NonConfigFile()) {
-        HILOG_INFO("start all");
-        StartHighestPriorityAbility(isBoot);
-        return;
-    }
-
-    HILOG_INFO("start oobe or launcher");
-    StartHighestPriorityAbility(isBoot);
-#endif
+    StartHighestPriorityAbility(userId, isBoot);
 }
 
 void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
@@ -4590,91 +4542,6 @@ bool AbilityManagerService::VerifyUriPermission(const AbilityRequest &abilityReq
         }
     }
     return false;
-}
-
-void AbilityManagerService::StartupResidentProcess(int userId)
-{
-    // Location may change
-    auto bms = GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
-
-    std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool getBundleInfos = IN_PROCESS_CALL(
-        bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, userId));
-    if (!getBundleInfos) {
-        HILOG_ERROR("get bundle infos failed");
-        return;
-    }
-
-    HILOG_INFO("StartupResidentProcess GetBundleInfos size: %{public}lu, userId: %{public}d",
-        (unsigned long)bundleInfos.size(), userId);
-
-    StartMainElement(userId, bundleInfos);
-    if (!bundleInfos.empty()) {
-        DelayedSingleton<AppScheduler>::GetInstance()->StartupResidentProcess(bundleInfos);
-    }
-}
-
-void AbilityManagerService::StartMainElement(int userId, std::vector<AppExecFwk::BundleInfo> &bundleInfos)
-{
-    std::set<uint32_t> needEraseIndexSet;
-
-    for (size_t i = 0; i < bundleInfos.size(); i++) {
-        if (!bundleInfos[i].isKeepAlive) {
-            needEraseIndexSet.insert(i);
-            continue;
-        }
-        for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
-            std::string mainElement;
-            if (!hapModuleInfo.isModuleJson) {
-                // old application model
-                mainElement = hapModuleInfo.mainAbility;
-                if (mainElement.empty()) {
-                    continue;
-                }
-
-                std::string uriStr;
-                bool getDataAbilityUri = GetDataAbilityUri(hapModuleInfo.abilityInfos, mainElement, uriStr);
-                if (getDataAbilityUri) {
-                    // dataability, need use AcquireDataAbility
-                    Uri uri(uriStr);
-                    (void)AcquireDataAbility(uri, true, nullptr);
-                    needEraseIndexSet.insert(i);
-                    continue;
-                }
-            } else {
-                // new application model
-                mainElement = hapModuleInfo.mainElementName;
-                if (mainElement.empty()) {
-                    continue;
-                }
-            }
-
-            // ability need to start, but need to filt page ability
-            bool mainElementIsPageAbility = false;
-            for (auto abilityInfo : hapModuleInfo.abilityInfos) {
-                if (abilityInfo.name == mainElement && abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-                    mainElementIsPageAbility = true;
-                    break;
-                }
-            }
-            if (mainElementIsPageAbility) {
-                HILOG_INFO("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
-                continue;
-            }
-
-            needEraseIndexSet.insert(i);
-            // startAbility
-            Want want;
-            want.SetElementName(hapModuleInfo.bundleName, mainElement);
-            (void)StartAbility(want, userId, DEFAULT_INVAL_VALUE);
-        }
-    }
-
-    // delete item which process has been started.
-    for (auto iter = needEraseIndexSet.rbegin(); iter != needEraseIndexSet.rend(); iter++) {
-        bundleInfos.erase(bundleInfos.begin() + *iter);
-    }
 }
 
 bool AbilityManagerService::GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri)

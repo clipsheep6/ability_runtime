@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPLICATION_ENV_IMPL_H
-#define OHOS_APPLICATION_ENV_IMPL_H
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_ENV_IMPL_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_ENV_IMPL_H
 
 #include <string>
 #include "nocopyable.h"
@@ -105,4 +105,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_APPLICATION_ENV_IMPL_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_ENV_IMPL_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
-#define OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H
 
 #include <vector>
 
@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace AAFwk {
 using Uri = OHOS::Uri;
-const std::string DATAOBS_MANAGER_SERVICE_NAME = "DataObsMgrService";
+constexpr const char* DATAOBS_MANAGER_SERVICE_NAME = "DataObsMgrService";
 /**
  * @class IDataObsMgr
  * IDataObsMgr interface is used to access dataobs manager services.
@@ -79,4 +79,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DATAOBS_MANAGER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_DATAOBS_MGR_INTERFACE_H

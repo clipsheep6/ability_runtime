@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
-#define ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
 
 #include <algorithm>
 #include <memory>
@@ -146,4 +146,4 @@ static int64_t g_serialNumber = 0;
 static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_ABILITY_CONTEXT_H

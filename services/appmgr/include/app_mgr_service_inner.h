@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
-#define FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H
+#define OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H
 
 #include <list>
 #include <map>
@@ -549,10 +549,12 @@ private:
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
 
-    void MakeProcessName(std::string &processName, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex);
+    void MakeProcessName(const std::shared_ptr<AbilityInfo> &abilityInfo,
+        const std::shared_ptr<ApplicationInfo> &appInfo,
+        const HapModuleInfo &hapModuleInfo, int32_t appIndex, std::string &processName);
+
     void MakeProcessName(
-        std::string &processName, const std::shared_ptr<ApplicationInfo> &appInfo, HapModuleInfo &hapModuleInfo);
+        const std::shared_ptr<ApplicationInfo> &appInfo, const HapModuleInfo &hapModuleInfo, std::string &processName);
     /**
      * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
      *  Start on a new boot process
@@ -707,6 +709,10 @@ private:
 
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 
+    void AddWatchParameter();
+
+    static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
+
 private:
     /**
      * ClearUpApplicationData, clear the application data.
@@ -753,4 +759,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_APPMGR_INCLUDE_APP_MGR_SERVICE_INNER_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_SERVICE_INNER_H

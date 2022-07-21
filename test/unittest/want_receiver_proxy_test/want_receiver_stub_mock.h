@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_UNITTEST_WANT_SENDER_STUB_MOCK_H
-#define ABILITY_UNITTEST_WANT_SENDER_STUB_MOCK_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_SENDER_STUB_MOCK_H
+#define OHOS_ABILITY_RUNTIME_WANT_SENDER_STUB_MOCK_H
 #include <gmock/gmock.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -46,4 +46,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // ABILITY_UNITTEST_WANT_SENDER_STUB_MOCK_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_SENDER_STUB_MOCK_H

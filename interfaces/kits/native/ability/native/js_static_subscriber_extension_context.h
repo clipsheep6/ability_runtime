@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H
-#define ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H
 
 #include <memory>
 
@@ -28,4 +28,4 @@ NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
     DetachCallback detach = nullptr, AttachCallback attach = nullptr);
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H
+#endif // OHOS_ABILITY_RUNTIME_JS_STATIC_SUBSCRIBER_EXTENSION_CONTEXT_H

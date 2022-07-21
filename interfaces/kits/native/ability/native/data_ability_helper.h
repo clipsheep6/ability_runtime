@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
-#define FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
+#ifndef OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_H
+#define OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_H
 
 #include "data_ability_helper_impl.h"
 namespace OHOS {
@@ -295,5 +295,5 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_DATA_ABILITY_HELPER_H
+#endif  // OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_H
 

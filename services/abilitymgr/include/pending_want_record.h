@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_PENDING_WANT_RECORD_H
-#define OHOS_AAFWK_PENDING_WANT_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_RECORD_H
+#define OHOS_ABILITY_RUNTIME_PENDING_WANT_RECORD_H
 
 #include <list>
 #include <mutex>
@@ -65,4 +65,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_PENDING_WANT_RECORD_H
+#endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_RECORD_H

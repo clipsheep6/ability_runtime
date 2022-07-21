@@ -43,6 +43,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/connection_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/data_ability_manager.cpp",
@@ -89,11 +90,6 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "//utils/native/base:utils",
   ]
 
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
-
   if (ability_runtime_graphics) {
     deps += [
       "${global_path}/i18n/frameworks/intl:intl_util",
@@ -107,6 +103,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -117,6 +114,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",

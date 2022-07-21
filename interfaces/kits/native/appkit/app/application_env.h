@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_APPLICATION_ENV_H
-#define OHOS_APPEXECFWK_APPLICATION_ENV_H
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_ENV_H
+#define OHOS_ABILITY_RUNTIME_APPLICATION_ENV_H
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -49,4 +49,4 @@ const char *GetDataPath();
 #endif
 #endif
 
-#endif  // OHOS_ABILITY_ENV_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_ENV_H

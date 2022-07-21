@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_PROXY_H
-#define OHOS_AAFWK_ABILITY_MANAGER_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_PROXY_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_PROXY_H
 
 #include "ability_manager_interface.h"
 #include "hilog_wrapper.h"

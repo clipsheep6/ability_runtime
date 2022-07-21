@@ -20,9 +20,7 @@
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 #include "resource_manager.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
@@ -30,57 +28,38 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-#ifndef OS_ACCOUNT_PART_ENABLED
-namespace {
-constexpr int UID_TRANSFORM_DIVISOR = 200000;
-static void GetOsAccountIdFromUid(int uid, int &osAccountId)
-{
-    osAccountId = uid / UID_TRANSFORM_DIVISOR;
-}
-}
-#endif // OS_ACCOUNT_PART_ENABLED
-
 int AbilityContext::ABILITY_CONTEXT_DEFAULT_REQUEST_CODE(0);
+namespace {
 const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string STATE_KEY = "ohos.user.grant.permission.state";
+}
 
 ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
 {
     HILOG_INFO("AbilityContext::StartAbility called, requestCode = %{public}d", requestCode);
-
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::StartAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
-
-    HILOG_INFO("%{public}s. Start calling ams->StartAbility.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     HILOG_INFO("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContext::StartAbility is failed %{public}d", err);
-    }
     return err;
 }
 
 ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
 {
+    HILOG_INFO("AbilityContext::StartAbility with start setting called, requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
-    if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
+    if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
         HILOG_ERROR("AbilityContext::StartAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
-
-    HILOG_INFO("%{public}s. Start calling ams->StartAbility.", __func__);
     ErrCode err =
         AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, abilityStartSetting, token_, requestCode);
     HILOG_INFO("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContext::StartAbility is failed %{public}d", err);
-    }
-
     return err;
 }
 
@@ -341,15 +320,15 @@ std::shared_ptr<Context> AbilityContext::CreateBundleContext(std::string bundleN
 
 std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceManager() const
 {
-    std::shared_ptr<Context> appcontext = GetApplicationContext();
-    if (appcontext == nullptr) {
-        HILOG_ERROR("AbilityContext::GetResourceManager appcontext is nullptr");
+    std::shared_ptr<Context> appContext = GetApplicationContext();
+    if (appContext == nullptr) {
+        HILOG_ERROR("AbilityContext::GetResourceManager appContext is nullptr");
         return nullptr;
     }
 
-    HILOG_INFO("%{public}s begin appcontext->GetResourceManager.", __func__);
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appcontext->GetResourceManager();
-    HILOG_INFO("%{public}s end appcontext->GetResourceManager.", __func__);
+    HILOG_INFO("%{public}s begin appContext->GetResourceManager.", __func__);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appContext->GetResourceManager();
+    HILOG_INFO("%{public}s end appContext->GetResourceManager.", __func__);
     if (resourceManager == nullptr) {
         HILOG_ERROR("AbilityContext::GetResourceManager resourceManager is nullptr");
         return nullptr;
@@ -375,24 +354,16 @@ int AbilityContext::VerifyPermission(const std::string &permission, int pid, int
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
 
-    std::string bundle_name;
-    if (!ptr->GetBundleNameForUid(uid, bundle_name)) {
+    std::string bundleName;
+    if (!ptr->GetBundleNameForUid(uid, bundleName)) {
         HILOG_ERROR("VerifyPermission failed to get bundle name by uid");
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
 
     int account = -1;
-#ifdef OS_ACCOUNT_PART_ENABLED
-    if (AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, account) != 0) {
-        HILOG_ERROR("VerifyPermission failed to get account by uid");
-        return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
-    }
-#else // OS_ACCOUNT_PART_ENABLED
-    GetOsAccountIdFromUid(uid, account);
-#endif // OS_ACCOUNT_PART_ENABLED
-
+    DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetOsAccountLocalIdFromUid(uid, account);
     AppExecFwk::ApplicationInfo appInfo;
-    if (!ptr->GetApplicationInfo(bundle_name, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, account, appInfo)) {
+    if (!ptr->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, account, appInfo)) {
         HILOG_ERROR("VerifyPermission failed to get application info");
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_PROCESS_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_PROCESS_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_PROCESS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_PROCESS_H
 
 #include <mutex>
 #include "feature_ability.h"
@@ -51,4 +51,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_PROCESS_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_PROCESS_H

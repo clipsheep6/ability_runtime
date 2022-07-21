@@ -58,6 +58,7 @@ ohos_unittest("AmsAppLifeCycleTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
@@ -67,6 +68,7 @@ ohos_unittest("AmsAppLifeCycleTest") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "startup_l2:syspara_watchagent",
   ]
 }
 

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONNECT_CALLBACK_STUB_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONNECT_CALLBACK_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_STUB_H
+#define OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_STUB_H
 #include <memory>
 #include <map>
 #include "connect_callback_interface.h"
@@ -45,4 +45,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_CONNECT_CALLBACK_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_CONNECT_CALLBACK_STUB_H

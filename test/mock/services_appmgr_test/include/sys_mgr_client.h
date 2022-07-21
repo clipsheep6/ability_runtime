@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_OS_AAFWK_SYS_MRG_CLIENT_H
-#define OHOS_OS_AAFWK_SYS_MRG_CLIENT_H
+#ifndef OHOS_ABILITY_RUNTIME_SYS_MRG_CLIENT_H
+#define OHOS_ABILITY_RUNTIME_SYS_MRG_CLIENT_H
 
 #include <memory>
 #include <mutex>
@@ -61,4 +61,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_OS_AAFWK_SYS_MRG_CLIENT_H
+#endif  // OHOS_ABILITY_RUNTIME_SYS_MRG_CLIENT_H

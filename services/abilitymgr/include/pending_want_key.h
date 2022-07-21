@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_PENDING_WANT_KEY_H
-#define OHOS_AAFWK_PENDING_WANT_KEY_H
+#ifndef OHOS_ABILITY_RUNTIME_PENDING_WANT_KEY_H
+#define OHOS_ABILITY_RUNTIME_PENDING_WANT_KEY_H
 
 #include <vector>
 #include <string>
@@ -67,4 +67,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_PENDING_WANT_KEY_H
+#endif  // OHOS_ABILITY_RUNTIME_PENDING_WANT_KEY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APP_DISPATCHER_TASK_REVOCABLE_H
-#define OHOS_APP_DISPATCHER_TASK_REVOCABLE_H
+#ifndef OHOS_ABILITY_RUNTIME_REVOCABLE_H
+#define OHOS_ABILITY_RUNTIME_REVOCABLE_H
 
 namespace OHOS {
 namespace AppExecFwk {

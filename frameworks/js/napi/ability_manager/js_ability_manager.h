@@ -16,12 +16,12 @@
 #include "native_engine/native_engine.h"
 #include "event_handler.h"
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H
 
 namespace OHOS {
 namespace AbilityRuntime {
 NativeValue* JsAbilityManagerInit(NativeEngine* engine, NativeValue* exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_H
+#endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_H

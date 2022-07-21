@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_IABILITY_MONITORE_H
-#define FOUNDATION_APPEXECFWK_OHOS_IABILITY_MONITORE_H
+#ifndef OHOS_ABILITY_RUNTIME_IABILITY_MONITORE_H
+#define OHOS_ABILITY_RUNTIME_IABILITY_MONITORE_H
 
 #include <condition_variable>
 #include <memory>
@@ -136,4 +136,4 @@ private:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_APPEXECFWK_OHOS_IABILITY_MONITORE_H
+#endif  // OHOS_ABILITY_RUNTIME_IABILITY_MONITORE_H

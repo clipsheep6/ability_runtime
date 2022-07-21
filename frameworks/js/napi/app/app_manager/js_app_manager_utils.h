@@ -17,8 +17,8 @@
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
 
-#ifndef OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
-#define OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -34,4 +34,4 @@ NativeValue* CreateJsProcessRunningInfoArray(NativeEngine &engine, const std::ve
 NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProcessInfo &info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif // OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_UTILS_H
+#endif // OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H

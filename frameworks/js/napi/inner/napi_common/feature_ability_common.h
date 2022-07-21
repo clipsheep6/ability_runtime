@@ -13,11 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
-#define OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H
+#ifndef OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
+#define OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H
 #include "ability.h"
+#include "ability_info.h"
 #include "abs_shared_result_set.h"
+#include "application_info.h"
 #include "data_ability_predicates.h"
+#include "hap_module_info.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "napi/native_node_api.h"
@@ -77,69 +80,18 @@ struct CBBase {
     int errCode = 0;
 };
 
-struct AppInfo_ {
-    std::string name;
-    std::string description;
-    int32_t descriptionId = 0;
-    bool systemApp = false;
-    bool enabled = true;  // no data
-    std::string label;
-    std::string labelId;
-    std::string icon;
-    std::string iconId;
-    std::string process;
-    int32_t supportedModes = 0;
-    std::vector<std::string> moduleSourceDirs;
-    std::vector<std::string> permissions;
-    std::vector<ModuleInfo> moduleInfos;
-    std::string entryDir;
-};
-
 struct AppInfoCB {
     CBBase cbBase;
-    AppInfo_ appInfo;
+    ApplicationInfo appInfo;
 };
 
 struct AppTypeCB {
     CBBase cbBase;
     std::string name;
 };
-
-struct AbilityInfo_ {
-    std::string bundleName;
-    std::string name;
-    std::string label;
-    std::string description;
-    std::string icon;
-    int32_t labelId;
-    int32_t descriptionId;
-    int32_t iconId;
-    std::string moduleName;
-    std::string process;
-    std::string targetAbility;  // no data
-    int32_t backgroundModes;    // no data
-    bool isVisible = true;
-    bool formEnabled = false;  // no data
-    int32_t type = 0;
-    int32_t subType = 0;  // no data
-    int32_t orientation = 0;
-    int32_t launchMode = 0;
-    std::vector<std::string> permissions;
-    std::vector<std::string> deviceTypes;
-    std::vector<std::string> deviceCapabilities;
-    std::string readPermission;   // no data
-    std::string writePermission;  // no data
-    AppInfo_ appInfo;
-    int32_t formEntity;         // no data
-    int32_t minFormHeight;      // no data
-    int32_t defaultFormHeight;  // no data
-    int32_t minFormWidth;       // no data
-    int32_t defaultFormWidth;   // no data
-    std::string uri;
-};
 struct AbilityInfoCB {
     CBBase cbBase;
-    AbilityInfo_ abilityInfo;
+    AbilityInfo abilityInfo;
 };
 
 struct AbilityNameCB {
@@ -187,27 +139,9 @@ struct ElementNameCB {
     std::string shortName;
 };
 
-struct HapModuleInfo_ {
-    std::string name;
-    std::string description;
-    int32_t descriptionId = 0;  // no data
-    std::string icon;
-    std::string label;
-    int32_t labelId = 0;  // no data
-    int32_t iconId = 0;   // no data
-    std::string backgroundImg;
-    int32_t supportedModes = 0;
-    std::vector<std::string> reqCapabilities;
-    std::vector<std::string> deviceTypes;
-    std::vector<AbilityInfo_> abilityInfos;
-    std::string moduleName;
-    std::string mainAbilityName;  // no data
-    bool installationFree;        // no data
-};
-
 struct HapModuleInfoCB {
     CBBase cbBase;
-    HapModuleInfo_ hapModuleInfo;
+    HapModuleInfo hapModuleInfo;
 };
 
 struct AppVersionInfo {
@@ -401,4 +335,4 @@ struct DAHelperExecuteBatchCB {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif /* OHOS_APPEXECFWK_FEATURE_ABILITY_COMMON_H */
+#endif /* OHOS_ABILITY_RUNTIME_FEATURE_ABILITY_COMMON_H */

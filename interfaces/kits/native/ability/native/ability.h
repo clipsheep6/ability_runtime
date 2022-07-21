@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_ABILITY_H
-#define FOUNDATION_APPEXECFWK_OHOS_ABILITY_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_H
 
 #include <functional>
 #include <string>
@@ -1701,6 +1701,9 @@ private:
      */
     void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
 
+    void InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
+        std::string& colormode, std::string& hasPointerDevice);
+
     std::shared_ptr<ContinuationHandler> continuationHandler_ = nullptr;
     std::shared_ptr<ContinuationManager> continuationManager_ = nullptr;
     std::shared_ptr<ContinuationRegisterManager> continuationRegisterManager_ = nullptr;
@@ -1826,4 +1829,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_ABILITY_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_H

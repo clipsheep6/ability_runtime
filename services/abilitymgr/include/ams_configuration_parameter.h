@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
-#define OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
+#ifndef OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H
+#define OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H
 
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -23,18 +23,17 @@ namespace OHOS {
 namespace AAFwk {
 namespace AmsConfig {
 namespace MemThreshold {
-const std::string HOME_APP("home_application");
+constexpr const char* HOME_APP = "home_application";
 }
-const std::string AMS_CONFIG_FILE_PATH {"/system/etc/ams_service_config.json"};
-const std::string SERVICE_ITEM_AMS {"service_startup_config"};
-const std::string STARTUP_SETTINGS_DATA {"startup_settings_data"};
-const std::string MISSION_SAVE_TIME {"mission_save_time"};
-const std::string APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME {"app_not_response_process_timeout_time"};
-const std::string AMS_TIMEOUT_TIME {"ams_timeout_time"};
-const std::string DEVICE_TYPE {"device_type"};
-const std::string SYSTEM_CONFIGURATION {"system_configuration"};
-const std::string SYSTEM_ORIENTATION {"system_orientation"};
-const std::string ROOT_LAUNCHER_RESTART_MAX {"root_launcher_restart_max"};
+constexpr const char* AMS_CONFIG_FILE_PATH = "/system/etc/ams_service_config.json";
+constexpr const char* SERVICE_ITEM_AMS = "service_startup_config";
+constexpr const char* MISSION_SAVE_TIME = "mission_save_time";
+constexpr const char* APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME = "app_not_response_process_timeout_time";
+constexpr const char* AMS_TIMEOUT_TIME = "ams_timeout_time";
+constexpr const char* DEVICE_TYPE = "device_type";
+constexpr const char* SYSTEM_CONFIGURATION = "system_configuration";
+constexpr const char* SYSTEM_ORIENTATION = "system_orientation";
+constexpr const char* ROOT_LAUNCHER_RESTART_MAX = "root_launcher_restart_max";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -48,11 +47,6 @@ public:
      * return false : ams have config file
      */
     bool NonConfigFile() const;
-    /**
-     * return true : ams can start settings data
-     * return false : ams do not start settings data
-     */
-    bool GetStartSettingsDataState() const;
     /**
      * Get profile information
      */
@@ -101,7 +95,6 @@ private:
 
 private:
     bool nonConfigFile_ {false};
-    bool canStartSettingsData_ {false};
     int maxRestartNum_ = 0;
     std::string orientation_ {""};
     int missionSaveTime_ {12 * 60 * 60 * 1000};
@@ -112,4 +105,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_AMS_CONFIGURATION_PARAMETER_H
+#endif  // OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H

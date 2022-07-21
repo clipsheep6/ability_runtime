@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_FREE_INSTALL_MANAGER_H
-#define OHOS_AAFWK_FREE_INSTALL_MANAGER_H
+#ifndef OHOS_ABILITY_RUNTIME_FREE_INSTALL_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_FREE_INSTALL_MANAGER_H
 
 #include <future>
 
@@ -26,8 +26,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string FREE_INSTALL_TYPE = "freeInstallType";
-const std::string FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
+constexpr const char* FREE_INSTALL_TYPE = "freeInstallType";
+constexpr const char* FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
 
 struct FreeInstallInfo {
@@ -74,11 +74,9 @@ public:
      * @param userId, designation User ID.
      * @param requestCode, ability request code.
      * @param callerToken, caller ability token.
-     * @param ifOperateRemote, is from other devices.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int StartFreeInstall(const Want &want, int32_t userId, int requestCode,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+    int StartFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
 
     /**
      * Start to remote free install.
@@ -87,11 +85,10 @@ public:
      * @param requestCode, ability request code.
      * @param validUserId, designation User ID.
      * @param callerToken, caller ability token.
-     * @param ifOperateRemote, is from other devices.
      * @return Returns ERR_OK on success, others on failure.
      */
     int StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
-        const sptr<IRemoteObject> &callerToken, bool ifOperateRemote);
+        const sptr<IRemoteObject> &callerToken);
 
     /**
      * Start to free install from another devices.
@@ -112,22 +109,34 @@ public:
      * @param userId, designation User ID.
      * @param callerToken, caller ability token.
      * @param localDeviceId, the device id of local.
-     * @param pid, the ability pid.
      * @return Returns ERR_OK on success, others on failure.
      */
     int ConnectFreeInstall(const Want &want, int32_t userId, const sptr<IRemoteObject> &callerToken,
-        std::string& localDeviceId, pid_t pid);
+        const std::string& localDeviceId);
 
 private:
     std::weak_ptr<AbilityManagerService> server_;
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
 
+    /**
+     * Start remote free install.
+     *
+     * @param want, the want of the ability to remote free install.
+     * @param userId, designation User ID.
+     * @param requestCode, ability request code.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int RemoteFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
+
     int HandleFreeInstallErrorCode(int resultCode);
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);
+    FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
+        const sptr<IRemoteObject> &callerToken);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_FREE_INSTALL_MANAGER_H
+#endif  // OHOS_ABILITY_RUNTIME_FREE_INSTALL_MANAGER_H

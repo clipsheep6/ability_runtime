@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_INTERFACE_H
-#define OHOS_AAFWK_ABILITY_MANAGER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H
 
 #include <vector>
 
@@ -48,11 +48,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
+constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
 const int DELAY_REMOTE_FREE_INSTALL_TIMEOUT = 30000 + DELAY_LOCAL_FREE_INSTALL_TIMEOUT;
-const std::string FROM_REMOTE_KEY = "freeInstallFromRemote";
+constexpr const char* FROM_REMOTE_KEY = "freeInstallFromRemote";
 /**
  * @class IAbilityManager
  * IAbilityManager interface is used to access ability manager services.
@@ -956,4 +956,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_INTERFACE_H

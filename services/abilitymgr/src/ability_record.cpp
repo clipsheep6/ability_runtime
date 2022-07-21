@@ -27,9 +27,7 @@
 #include "hitrace_meter.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 #include "system_ability_token_callback.h"
 #include "uri_permission_manager_client.h"
 #ifdef SUPPORT_GRAPHICS
@@ -37,6 +35,10 @@
 #include "locale_config.h"
 #include "mission_info_mgr.h"
 #endif
+#ifdef SUSPEND_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif // SUSPEND_MANAGER_ENABLE
+
 
 namespace OHOS {
 namespace AAFwk {
@@ -87,9 +89,6 @@ const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateM
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INVALID_WINDOW_MODE,
         FOREGROUND_INVALID_MODE),
 };
-#ifndef OS_ACCOUNT_PART_ENABLED
-const int32_t DEFAULT_OS_ACCOUNT_ID = 0; // 0 is the default id when there is no os_account part
-#endif // OS_ACCOUNT_PART_ENABLED
 
 Token::Token(std::weak_ptr<AbilityRecord> abilityRecord) : abilityRecord_(abilityRecord)
 {}
@@ -264,6 +263,12 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
+#ifdef SUSPEND_MANAGER_ENABLE
+            std::string bundleName = GetAbilityInfo().bundleName;
+            int32_t uid = GetUid();
+            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+                uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
+#endif // SUSPEND_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
@@ -1954,17 +1959,12 @@ void AbilityRecord::GrantUriPermission(const Want &want)
 int AbilityRecord::GetCurrentAccountId()
 {
     std::vector<int32_t> osActiveAccountIds;
-#ifdef OS_ACCOUNT_PART_ENABLED
-    ErrCode ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(osActiveAccountIds);
+    ErrCode ret = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
+            QueryActiveOsAccountIds(osActiveAccountIds);
     if (ret != ERR_OK) {
         HILOG_ERROR("QueryActiveOsAccountIds failed.");
         return DEFAULT_USER_ID;
     }
-#else // OS_ACCOUNT_PART_ENABLED
-    osActiveAccountIds.push_back(DEFAULT_OS_ACCOUNT_ID);
-    HILOG_DEBUG("AbilityRecord::GetCurrentAccountId, do not have os account part, use default id.");
-#endif // OS_ACCOUNT_PART_ENABLED
-
     if (osActiveAccountIds.empty()) {
         HILOG_ERROR("QueryActiveOsAccountIds is empty, no accounts.");
         return DEFAULT_USER_ID;

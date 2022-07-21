@@ -74,7 +74,7 @@
       "build": {
         "sub_component": [
           "//foundation/ability/ability_runtime/services:ams_target",
-	  "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
+          "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension_module",
@@ -84,6 +84,15 @@
           "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native"
         ],
         "inner_kits": [
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/deps_wrapper/include",
+              "header_files": [
+                "os_account_manager_wrapper.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/deps_wrapper:ability_deps_wrapper"
+          },
           {
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/wantagent/include/",

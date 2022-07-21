@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_DISTRIBUTE_CONSTANTS_H
-#define OHOS_AAFWK_DISTRIBUTE_CONSTANTS_H
+#ifndef OHOS_ABILITY_RUNTIME_DISTRIBUTE_CONSTANTS_H
+#define OHOS_ABILITY_RUNTIME_DISTRIBUTE_CONSTANTS_H
 
 #include <string>
 
@@ -31,4 +31,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_DISTRIBUTE_CONSTANTS_H
+#endif  // OHOS_ABILITY_RUNTIME_DISTRIBUTE_CONSTANTS_H

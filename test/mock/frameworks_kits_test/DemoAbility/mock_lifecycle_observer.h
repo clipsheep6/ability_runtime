@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_MOCKLIFECYCLE_OBSERVER_INTERFACE_H
-#define FOUNDATION_APPEXECFWK_OHOS_MOCKLIFECYCLE_OBSERVER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_MOCK_LIFECYCLE_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_MOCK_LIFECYCLE_OBSERVER_H
 
 #include "ability_lifecycle_observer_interface.h"
 #include "ability_lifecycle.h"
@@ -47,4 +47,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_MOCKLIFECYCLE_OBSERVER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_MOCK_LIFECYCLE_OBSERVER_H

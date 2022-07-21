@@ -411,6 +411,7 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelperImpl::Call(
     }
 
     result = dataAbilityProxy->Call(uri, method, arg, pacMap);
+
     ReleaseDataAbility(dataAbilityProxy);
     HILOG_INFO("Return result is or not nullptr: %{public}d.", result == nullptr);
     return result;
@@ -633,6 +634,7 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
 void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_WARN("RegisterObserver param is invalid.");
         return;
     }
 
@@ -647,6 +649,9 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
             uriMap_.emplace(dataObserver, tmpUri.GetPath());
         } else {
             auto path = uriMap_.find(dataObserver);
+            if (path == uriMap_.end()) {
+                return;
+            }
             if (path->second != tmpUri.GetPath()) {
                 HILOG_ERROR("Input uri's path is not equal the one the observer used.");
                 return;
@@ -675,6 +680,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
 void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_WARN("UnregisterObserver param is invalid.");
         return;
     }
 
@@ -687,6 +693,9 @@ void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk:
             return;
         }
         auto path = uriMap_.find(dataObserver);
+        if (path == uriMap_.end()) {
+            return;
+        }
         if (path->second != tmpUri.GetPath()) {
             HILOG_ERROR("Input uri's path is not equal the one the observer used.");
             return;

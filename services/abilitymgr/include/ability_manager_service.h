@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
-#define OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <future>
 #include <memory>
@@ -29,6 +29,7 @@
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
+#include "application_anr_listener.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -45,6 +46,7 @@
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
 #include "user_controller.h"
+#include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
@@ -867,35 +869,22 @@ private:
      * start highest priority ability.
      *
      */
-    void StartHighestPriorityAbility(bool isBoot);
-    /**
-     * starting settings data ability.
-     *
-     */
-    void StartingSettingsDataAbility();
-
+    void StartHighestPriorityAbility(int32_t userId, bool isBoot);
     /**
      * connet bms.
      *
      */
     void ConnectBmsService();
-
     /**
      * get the user id.
      *
      */
     int GetUserId();
-
     /**
      * Determine whether it is a system APP
      *
      */
     bool IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const;
-    /**
-     * Select to start the application according to the configuration file of AMS
-     *
-     */
-    void StartSystemApplication();
     /**
      * Get parameters from the global
      *
@@ -981,7 +970,6 @@ private:
     void SwitchToUser(int32_t oldUserId, int32_t userId);
     void SwitchManagers(int32_t userId, bool switchUser = true);
     void StartUserApps(int32_t userId, bool isBoot);
-    void StartSystemAbilityByUser(int32_t userId, bool isBoot);
     void PauseOldUser(int32_t userId);
     void PauseOldMissionListManager(int32_t userId);
     void PauseOldConnectManager(int32_t userId);
@@ -1003,11 +991,13 @@ private:
 
     bool IsNeedTimeoutForTest(const std::string &abilityName, const std::string &state) const;
 
-    void StartupResidentProcess(int userId);
+    void StartResidentApps();
 
     int VerifyMissionPermission();
 
     int VerifyAccountPermission(int32_t userId);
+
+    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
 
     using DumpFuncType = void (AbilityManagerService::*)(const std::string &args, std::vector<std::string> &info);
     std::map<uint32_t, DumpFuncType> dumpFuncMap_;
@@ -1019,8 +1009,6 @@ private:
     int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo);
     void GrantUriPermission(const Want &want, int32_t validUserId);
     bool VerifyUriPermission(const AbilityRequest &abilityRequest, const Want &want);
-
-    void StartMainElement(int userId, std::vector<AppExecFwk::BundleInfo> &bundleInfos);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1073,7 +1061,8 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
+    std::shared_ptr<ApplicationAnrListener> anrListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_SERVICE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H

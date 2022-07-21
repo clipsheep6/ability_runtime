@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_OHOS_ABILITYRUNTIME_RUNTIME_H
-#define FOUNDATION_OHOS_ABILITYRUNTIME_RUNTIME_H
+#ifndef OHOS_ABILITY_RUNTIME_RUNTIME_H
+#define OHOS_ABILITY_RUNTIME_RUNTIME_H
 
 #include <string>
 
@@ -45,7 +45,7 @@ public:
 
     virtual Language GetLanguage() const = 0;
 
-    virtual void StartDebugMode(bool needBreakPoint, int32_t instanceId = 0) = 0;
+    virtual void StartDebugMode(bool needBreakPoint) = 0;
     virtual std::string BuildJsStackTrace() = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
@@ -57,4 +57,4 @@ public:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_OHOS_ABILITYRUNTIME_RUNTIME_H
+#endif  // OHOS_ABILITY_RUNTIME_RUNTIME_H

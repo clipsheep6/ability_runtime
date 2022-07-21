@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_HELPER_H
-#define BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_HELPER_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_AGENT_HELPER_H
+#define OHOS_ABILITY_RUNTIME_WANT_AGENT_HELPER_H
 
 #include <string>
 #include <memory>
@@ -196,4 +196,4 @@ private:
     static unsigned int FlagsTransformer(const std::vector<WantAgentConstant::Flags> &flags);
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
-#endif  // BASE_NOTIFICATION_ANS_STANDARD_KITS_NATIVE_WANTAGENT_INCLUDE_WANT_AGENT_HELPER_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_AGENT_HELPER_H

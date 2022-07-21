@@ -210,6 +210,7 @@ ohos_shared_library("abilitykit_native") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_context_native",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:napi_base_context",
@@ -232,10 +233,6 @@ ohos_shared_library("abilitykit_native") {
   ]
 
   defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

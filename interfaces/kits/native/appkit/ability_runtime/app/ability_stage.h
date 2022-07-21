@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_RUNTIME_ABILITY_STAGE_H
-#define ABILITY_RUNTIME_ABILITY_STAGE_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_STAGE_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_STAGE_H
 
 #include <map>
 #include <memory>
@@ -59,4 +59,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_ABILITY_STAGE_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_STAGE_H

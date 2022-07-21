@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_WANT_RECEIVER_INTERFACE_H
-#define OHOS_AAFWK_WANT_RECEIVER_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_WANT_RECEIVER_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_WANT_RECEIVER_INTERFACE_H
 
 #include <iremote_broker.h>
 #include "want.h"
@@ -36,4 +36,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_WANT_RECEIVER_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_WANT_RECEIVER_INTERFACE_H

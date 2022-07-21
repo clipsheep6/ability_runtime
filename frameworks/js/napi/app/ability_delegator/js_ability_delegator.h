@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_DELEGATOR_JS_ABILITY_DELEGATOR_H
-#define OHOS_ABILITY_DELEGATOR_JS_ABILITY_DELEGATOR_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_H
+#define OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_H
 
 #include <string>
 #include "ability_delegator.h"
@@ -206,4 +206,4 @@ private:
 };
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS
-#endif  // ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_H
+#endif  // OHOS_ABILITY_RUNTIME_JS_ABILITY_DELEGATOR_H

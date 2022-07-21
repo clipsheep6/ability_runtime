@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ITEST_OBSERVER_H
-#define FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ITEST_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_ITEST_OBSERVER_H
+#define OHOS_ABILITY_RUNTIME_ITEST_OBSERVER_H
 
 #include "iremote_broker.h"
 #include "shell_command_result.h"
@@ -62,4 +62,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // FOUNDATION_AAFWK_STANDARD_TOOLS_AA_INCLUDE_ITEST_OBSERVER_H
+#endif  // OHOS_ABILITY_RUNTIME_ITEST_OBSERVER_H

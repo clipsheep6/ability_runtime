@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_URI_PERMISSION_MANAGER_PROXY_H
-#define OHOS_AAFWK_URI_PERMISSION_MANAGER_PROXY_H
+#ifndef OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_PROXY_H
+#define OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_PROXY_H
 
 #include "iremote_proxy.h"
 #include "uri_permission_manager_interface.h"
@@ -40,4 +40,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_URI_PERMISSION_MANAGER_PROXY_H
+#endif  // OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_PROXY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef SERVICE_EXTENSION_CONTEXT_H
-#define SERVICE_EXTENSION_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_CONTEXT_H
 
 #include "extension_context.h"
 
@@ -133,4 +133,4 @@ private:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // SERVICE_EXTENSION_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_SERVICE_EXTENSION_CONTEXT_H

@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
-#define FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace Constants {
-const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public";
-const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle";
-const std::string LOCAL_BUNDLES = "/data/bundles";
-const std::string FILE_SEPARATOR = "/";
+constexpr const char* ABS_CODE_PATH = "/data/app/el1/bundle/public";
+constexpr const char* LOCAL_CODE_PATH = "/data/storage/el1/bundle";
+constexpr const char* LOCAL_BUNDLES = "/data/bundles";
+constexpr const char* FILE_SEPARATOR = "/";
 }  // namespace Constants
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_ABILITY_CONSTANTS_H
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
