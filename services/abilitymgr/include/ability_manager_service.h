@@ -51,6 +51,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -899,6 +900,10 @@ private:
         const int32_t userId,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken);
+    bool CheckStaticCfgAndUriPermission(AbilityRequest &abilityRequest, const Want &want,
+        ErrCode &result);
+    int ConnectAbilityLocked(AbilityRequest &abilityRequest, int32_t validUserId,
+        const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
     int ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
@@ -1016,6 +1021,19 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
+
+    bool PreLoadAppDataAbilities(AppExecFwk::AbilityInfo &abilityInfo, int userId,
+        AAFWK::EventInfo &eventInfo, int &result);
+    
+    bool StartFreeInstall(const Want &want, int32_t userId, int requestCode,
+        const sptr<IRemoteObject> &callerToken, int &result);
+
+    int StartAbilityByMissionListManager(AbilityRequest &abilityRequest, int32_t oriValidUserId,
+        AAFWK::EventInfo &eventInfo);
+
+    void InitEventInfo(AAFWK::EventInfo &eventInfo, const Want &want, int32_t userId);
+
+    void SendAbilityEvent(AAFWK::EventInfo &eventInfo, int errCode, const std::string eventType);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

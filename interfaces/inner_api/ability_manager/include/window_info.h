@@ -91,13 +91,18 @@ struct AbilityTransitionInfo : public Parcelable {
             }
         }
 
-        if (!(parcel.WriteDouble(maxWindowRatio_) && parcel.WriteDouble(minWindowRatio_) &&
-            parcel.WriteUint32(maxWindowWidth_) && parcel.WriteUint32(minWindowWidth_) &&
-            parcel.WriteUint32(maxWindowHeight_) && parcel.WriteUint32(minWindowHeight_))) {
+        if (!WriteWindowInfo(parcel)) {
             return false;
         }
 
         return true;
+    }
+
+    bool WriteWindowInfo(Parcel& parcel) const
+    {
+        return (parcel.WriteDouble(maxWindowRatio_) && parcel.WriteDouble(minWindowRatio_) &&
+            parcel.WriteUint32(maxWindowWidth_) && parcel.WriteUint32(minWindowWidth_) &&
+            parcel.WriteUint32(maxWindowHeight_) && parcel.WriteUint32(minWindowHeight_));
     }
 
     static AbilityTransitionInfo* Unmarshalling(Parcel& parcel)
