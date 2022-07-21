@@ -500,7 +500,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
  */
 void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Schedule clean ability called, app is %{public}s.", applicationInfo_->name.c_str());
+    HILOG_INFO("Schedule clean ability called.");
     wptr<MainThread> weak = this;
     auto task = [weak, token]() {
         auto appThread = weak.promote();
