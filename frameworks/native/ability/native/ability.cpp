@@ -3766,7 +3766,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     }
 }
 
-void Ability::RequsetFocus(const Want &want)
+void Ability::RequestFocus(const Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (abilityWindow_ == nullptr) {

@@ -437,7 +437,7 @@ void JsAbility::DoOnForeground(const Want &want)
     HILOG_INFO("%{public}s end scene_->GoForeground.", __func__);
 }
 
-void JsAbility::RequsetFocus(const Want &want)
+void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (scene_ == nullptr) {

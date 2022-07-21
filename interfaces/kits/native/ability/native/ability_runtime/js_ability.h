@@ -76,7 +76,7 @@ public:
 
 protected:
     void DoOnForeground(const Want &want) override;
-    void RequsetFocus(const Want &want) override;
+    void RequestFocus(const Want &want) override;
     void ContinuationRestore(const Want &want) override;
 
 private:

@@ -43,7 +43,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
     ability_->sceneFlag_ = targetState.sceneFlag;
     if ((lifecycleState_ == targetState.state) && !targetState.isNewWant) {
         if (targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-            ability_->RequsetFocus(want);
+            ability_->RequestFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
         HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
@@ -122,7 +122,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
                 Foreground(want);
             } else {
                 if (ability_) {
-                    ability_->RequsetFocus(want);
+                    ability_->RequestFocus(want);
                 }
             }
             break;

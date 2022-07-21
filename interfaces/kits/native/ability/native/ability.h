@@ -1615,7 +1615,7 @@ protected:
      *
      * You can override this function to implement your own processing logic
      */
-    virtual void RequsetFocus(const Want &want);
+    virtual void RequestFocus(const Want &want);
 
     /**
      * @brief Acquire the window option.
