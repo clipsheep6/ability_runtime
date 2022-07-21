@@ -493,12 +493,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability setting.");
     AAFWK::EventInfo eventInfo;
-    eventInfo.userId = userId;
-    eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
-    eventInfo.abilityName = want.GetElement().GetAbilityName();
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
+    InitEventInfo(eventInfo, want, userId);
 
     if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
@@ -621,21 +616,8 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return ERR_WOULD_BLOCK;
     }
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", validUserId);
-        eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
-    }
-    auto ret = missionListManager->StartAbility(abilityRequest);
-    if (ret != ERR_OK) {
-        eventInfo.errCode = ret;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-    }
-    return ret;
+
+    return StartAbilityByMissionListManager(abilityRequest, oriValidUserId, eventInfo);
 }
 
 int AbilityManagerService::StartAbility(const Want &want, const StartOptions &startOptions,
@@ -644,12 +626,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Start ability options.");
     AAFWK::EventInfo eventInfo;
-    eventInfo.userId = userId;
-    eventInfo.bundleName = want.GetElement().GetBundleName();
-    eventInfo.moduleName = want.GetElement().GetModuleName();
-    eventInfo.abilityName = want.GetElement().GetAbilityName();
-    AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
-        HiSysEventType::BEHAVIOR, eventInfo);
+    InitEventInfo(eventInfo, want, userId);
 
     if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED) {
@@ -1462,14 +1439,8 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     HILOG_DEBUG("validUserId : %{public}d, singleton is : %{public}d",
         validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
 
-    result = CheckStaticCfgPermission(abilityInfo);
-    if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+    if (!CheckStaticCfgAndUriPermission(abilityRequest, want, result)) {
         return result;
-    }
-
-    if (!VerifyUriPermission(abilityRequest, want)) {
-        HILOG_ERROR("The uri has not granted.");
-        return ERR_INVALID_OPERATION;
     }
 
     result = JudgeAbilityVisibleControl(abilityInfo);
@@ -1490,12 +1461,46 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return result;
     }
 
+    return ConnectAbilityLocked(abilityRequest, validUserId, connect, callerToken);
+}
+
+bool AbilityManagerService::CheckStaticCfgAndUriPermission(AbilityRequest &abilityRequest, const Want &want,
+    ErrCode &result)
+{
+    result = CheckStaticCfgPermission(abilityRequest.abilityInfo);
+    if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        HILOG_ERROR("The static cfg has not granted.");
+        return false;
+    }
+
+    if (!VerifyUriPermission(abilityRequest, want)) {
+        HILOG_ERROR("The uri has not granted.");
+        result = ERR_INVALID_OPERATION;
+        return false;
+    }
+
+    return true;
+}
+
+int AbilityManagerService::ConnectAbilityLocked(AbilityRequest &abilityRequest, int32_t validUserId,
+    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+{
     auto connectManager = GetConnectManagerByUserId(validUserId);
     if (connectManager == nullptr) {
         HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
     return connectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken);
+}
+
+void AbilityManagerService::InitEventInfo(AAFWK::EventInfo &eventInfo, const Want &want, int32_t userId)
+{
+    eventInfo.userId = userId;
+    eventInfo.bundleName = want.GetElement().GetBundleName();
+    eventInfo.moduleName = want.GetElement().GetModuleName();
+    eventInfo.abilityName = want.GetElement().GetAbilityName();
+    AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
+        HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 int AbilityManagerService::ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect)
