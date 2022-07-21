@@ -37,30 +37,30 @@ constexpr size_t ARGC_TWO = 2;
 
 using namespace OHOS::AppExecFwk;
 
-void* DetachServiceExtensionContext(NativeEngine*, void* value, void*)
-{
-    HILOG_INFO("DetachServiceExtensionContext");
-    return value;
-}
-
-NativeValue* AttachServiceExtensionContext(NativeEngine* engine, void* value, void*)
+NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachServiceExtensionContext");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
     }
-    auto ptr = reinterpret_cast<std::weak_ptr<ServiceExtensionContext>*>(value)->lock();
+    auto ptr = reinterpret_cast<std::weak_ptr<ServiceExtensionContext> *>(value)->lock();
     if (ptr == nullptr) {
         HILOG_WARN("invalid context.");
         return nullptr;
     }
-    NativeValue* object = CreateJsServiceExtensionContext(*engine, ptr, nullptr, nullptr);
+    NativeValue *object = CreateJsServiceExtensionContext(*engine, ptr, nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine,
         "application.ServiceExtensionContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachServiceExtensionContext, AttachServiceExtensionContext,
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachServiceExtensionContext,
         value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void *data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr service extension context is called");
+            delete static_cast<std::weak_ptr<ServiceExtensionContext> *>(data);
+        }, nullptr);
     return contextObj;
 }
 
@@ -123,8 +123,8 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         HILOG_ERROR("Failed to get context native object");
         return;
     }
-    auto workContext = new std::weak_ptr<ServiceExtensionContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachServiceExtensionContext, AttachServiceExtensionContext,
+    auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachServiceExtensionContext,
         workContext, nullptr);
     HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());

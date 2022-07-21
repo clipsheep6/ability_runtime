@@ -41,12 +41,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void *DetachJsAbilityContext(NativeEngine *, void *value, void *)
-{
-    HILOG_INFO("DetachJsAbilityContext");
-    return value;
-}
-
 NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
 {
     HILOG_INFO("AttachJsAbilityContext");
@@ -62,7 +56,13 @@ NativeValue *AttachJsAbilityContext(NativeEngine *engine, void *value, void *)
     NativeValue *object = CreateJsAbilityContext(*engine, ptr, nullptr, nullptr);
     auto contextObj = JsRuntime::LoadSystemModuleByEngine(engine, "application.AbilityContext", &object, 1)->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
-    nObject->ConvertToNativeBindingObject(engine, DetachJsAbilityContext, AttachJsAbilityContext, value, nullptr);
+    nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachJsAbilityContext, value, nullptr);
+    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
+    nObject->SetNativePointer(workContext,
+        [](NativeEngine *, void * data, void *) {
+            HILOG_INFO("Finalizer for weak_ptr ability context is called");
+            delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
+        }, nullptr);
     return contextObj;
 }
 
@@ -135,8 +135,8 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("Failed to get ability native object");
         return;
     }
-    auto workContext = new std::weak_ptr<AbilityRuntime::AbilityContext>(context);
-    nativeObj->ConvertToNativeBindingObject(&engine, DetachJsAbilityContext, AttachJsAbilityContext,
+    auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(context);
+    nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachJsAbilityContext,
         workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
