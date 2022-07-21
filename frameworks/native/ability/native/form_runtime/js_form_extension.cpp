@@ -405,7 +405,7 @@ void JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 
     if (nativeResult->TypeOf() != NativeValueType::NATIVE_OBJECT) {
         HILOG_ERROR("%{public}s OnShare return value`s type is %{public}d", __func__,
-            static_cast<int>(nativeResult->TypeOf()));
+            static_cast<int32_t>(nativeResult->TypeOf()));
         return;
     }
 

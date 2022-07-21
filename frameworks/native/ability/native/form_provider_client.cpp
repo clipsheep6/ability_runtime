@@ -523,7 +523,7 @@ int FormProviderClient::HandleAcquireStateResult(FormState state, const std::str
  * @param requestCode Indicates the request code of this share form.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+int32_t FormProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
     const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
 {
     HILOG_DEBUG("FormProviderClient::%{public}s called.", __func__);

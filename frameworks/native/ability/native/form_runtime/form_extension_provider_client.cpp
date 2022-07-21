@@ -509,7 +509,7 @@ std::pair<int, int> FormExtensionProviderClient::CheckParam(const Want &want, co
  * @param requestCode Indicates the request code of this share form.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormExtensionProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+int32_t FormExtensionProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
     const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
