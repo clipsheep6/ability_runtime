@@ -3613,7 +3613,7 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         key.id = connectAbilityCB->id;
         key.want = connectAbilityCB->want;
         connects_.emplace(key, conn);
-        if (serialNumber_ < INT64_MAX) {
+        if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
         } else {
             serialNumber_ = 0;

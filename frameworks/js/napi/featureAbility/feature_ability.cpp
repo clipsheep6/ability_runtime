@@ -977,7 +977,7 @@ napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_valu
     // dummy requestCode for NativeC++ interface and onabilityresult callback
     param.requestCode = dummyRequestCode_;
     param.forResultOption = true;
-    dummyRequestCode_ = (dummyRequestCode_ < INT64_MAX) ? (dummyRequestCode_ + 1) : 0;
+    dummyRequestCode_ = (dummyRequestCode_ < INT32_MAX) ? (dummyRequestCode_ + 1) : 0;
     HILOG_INFO("%{public}s, reqCode=%{public}d forResultOption=%{public}d.",
         __func__,
         param.requestCode,

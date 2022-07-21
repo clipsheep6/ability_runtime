@@ -294,7 +294,7 @@ private:
         key.id = serialNumber_;
         key.want = want;
         connects_.emplace(key, connection);
-        if (serialNumber_ < INT64_MAX) {
+        if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
         } else {
             serialNumber_ = 0;
@@ -354,7 +354,7 @@ private:
         key.id = serialNumber_;
         key.want = want;
         connects_.emplace(key, connection);
-        if (serialNumber_ < INT64_MAX) {
+        if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
         } else {
             serialNumber_ = 0;
