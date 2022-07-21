@@ -19,6 +19,7 @@
 namespace OHOS {
 namespace AAFwk {
 namespace PermissionConstants {
+const std::string PERMISSION_ACCESS_DLP = "ohos.permission.ACCESS_DLP_FILE";
 const std::string PERMISSION_CLEAN_APPLICATION_DATA = "ohos.permission.CLEAN_APPLICATION_DATA";
 const std::string PERMISSION_CLEAN_BACKGROUND_PROCESSES = "ohos.permission.CLEAN_BACKGROUND_PROCESSES";
 const std::string PERMISSION_GET_RUNNING_INFO = "ohos.permission.GET_RUNNING_INFO";

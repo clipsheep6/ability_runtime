@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H
 
 #include "singleton.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -34,6 +35,8 @@ public:
     bool VerifyRunningInfoPerm();
 
     bool VerifyControllerPerm();
+
+    bool VerifyDlpPermission(Want &want);
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);

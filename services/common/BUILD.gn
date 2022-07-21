@@ -39,6 +39,7 @@ ohos_shared_library("perm_verification") {
   sources = [ "src/permission_verification.cpp" ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
