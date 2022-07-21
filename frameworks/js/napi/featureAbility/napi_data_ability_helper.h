@@ -263,7 +263,8 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *insertCB);
+napi_value UnRegisterSync(
+    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *insertCB);
 
 /**
  * @brief Off asynchronous processing function.

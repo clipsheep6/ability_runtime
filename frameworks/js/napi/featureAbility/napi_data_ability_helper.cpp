@@ -928,11 +928,12 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
     HILOG_INFO("DataAbilityHelper objectInfo");
     offCB->dataAbilityHelper = objectInfo;
 
-    ret = UnRegisterSync(env, offCB);
+    ret = UnRegisterSync(env, args, argcAsync, argcPromise, offCB);
     return ret;
 }
 
-napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
+napi_value UnRegisterSync(
+    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *offCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
     if (offCB == nullptr) {

@@ -844,6 +844,15 @@ void AppRunningRecord::SendEventForSpecifiedAbility(uint32_t msg, int64_t timeOu
     SendEvent(msg, timeOut);
 }
 
+void AppRunningRecord::PostTask(std::string msg, int64_t timeOut, const Closure &task)
+{
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+    eventHandler_->PostTask(task, msg, timeOut);
+}
+
 void AppRunningRecord::SendEvent(uint32_t msg, int64_t timeOut)
 {
     if (!eventHandler_) {

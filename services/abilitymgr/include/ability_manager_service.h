@@ -786,7 +786,6 @@ public:
     bool GetLocalDeviceId(std::string& localDeviceId);
 
     int JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid = -1);
-
     /**
      * Called to update mission snapshot.
      * @param token The target ability.
@@ -930,6 +929,7 @@ private:
     bool IsExistFile(const std::string &path);
 
     int CheckCallPermissions(const AbilityRequest &abilityRequest);
+    bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
