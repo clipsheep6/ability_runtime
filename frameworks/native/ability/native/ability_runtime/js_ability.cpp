@@ -76,7 +76,7 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 JsAbility::~JsAbility() = default;
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
+    const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     Ability::Init(abilityInfo, application, handler, token);
