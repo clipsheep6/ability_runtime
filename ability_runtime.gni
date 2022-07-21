@@ -51,7 +51,6 @@ declare_args() {
   ability_runtime_ces = true
   ability_runtime_resource = true
   ability_runtime_appspawn = true
-  suspend_manager = true
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {
@@ -63,11 +62,6 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_background_task_mgr)) {
     background_task_mgr_continuous_task_enable = false
-  }
-
-  if (defined(global_parts_info) &&
-      !defined(global_parts_info.resourceschedule_suspend_manager)) {
-    suspend_manager = false
   }
 
   if (defined(global_parts_info) &&

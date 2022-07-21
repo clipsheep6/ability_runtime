@@ -65,10 +65,6 @@
 #include "ui_service_mgr_client.h"
 #endif
 
-#ifdef SUSPEND_MANAGER_ENABLE
-#include "suspend_manager_client.h"
-#endif // SUSPEND_MANAGER_ENABLE
-
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
@@ -455,14 +451,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return ERR_INVALID_VALUE;
         }
         HILOG_DEBUG("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
-#ifdef SUSPEND_MANAGER_ENABLE
-        auto bms = AbilityUtil::GetBundleManager();
-        if (bms) {
-            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-                bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
-                abilityInfo.bundleName, "THAW_BY_START_NOT_PAGE_ABILITY");
-        }
-#endif // SUSPEND_MANAGER_ENABLE
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -475,14 +463,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
-#ifdef SUSPEND_MANAGER_ENABLE
-    auto bms = AbilityUtil::GetBundleManager();
-    if (bms) {
-        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-            bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
-            abilityInfo.bundleName, "THAW_BY_START_PAGE_ABILITY");
-    }
-#endif // SUSPEND_MANAGER_ENABLE
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
