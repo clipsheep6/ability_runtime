@@ -743,21 +743,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     GrantUriPermission(want, validUserId);
     abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is Null. userId=%{public}d", oriValidUserId);
-        eventInfo.errCode = ERR_INVALID_VALUE;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-        return ERR_INVALID_VALUE;
-    }
-    auto ret = missionListManager->StartAbility(abilityRequest);
-    if (ret != ERR_OK) {
-        eventInfo.errCode = ret;
-        AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
-            HiSysEventType::FAULT, eventInfo);
-    }
-    return ret;
+    return StartAbilityByMissionListManager(abilityRequest, oriValidUserId, eventInfo);
 }
 
 bool AbilityManagerService::IsBackgroundTaskUid(const int uid)
