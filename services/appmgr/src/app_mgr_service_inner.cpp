@@ -244,7 +244,7 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         bundleMgrResult = (IN_PROCESS_CALL(bundleMgr_->GetSandboxBundleInfo(appInfo->bundleName,
             appIndex, userId, bundleInfo)) == 0);
     }
-    
+
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
         return false;
@@ -1218,7 +1218,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
             bundleIndex, userId, bundleInfo)) == 0);
         bundleInfos.emplace_back(bundleInfo);
     }
-    
+
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleInfo is fail");
         return;
@@ -2159,7 +2159,7 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 #endif
 
     // Assign to default colormode "light"
-    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
+    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT);
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
 }
 
