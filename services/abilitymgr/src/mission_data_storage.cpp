@@ -145,23 +145,24 @@ bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& 
 
 std::string MissionDataStorage::GetMissionDataDirPath() const
 {
-    return TASK_DATA_FILE_BASE_PATH + "/" + std::to_string(userId_) + "/" + MISSION_DATA_FILE_PATH;
+    return std::string(TASK_DATA_FILE_BASE_PATH) + "/" +
+        std::to_string(userId_) + "/" + std::string(MISSION_DATA_FILE_PATH);
 }
 
 std::string MissionDataStorage::GetMissionDataFilePath(int missionId)
 {
     return GetMissionDataDirPath() + "/"
-        + MISSION_JSON_FILE_PREFIX + "_" + std::to_string(missionId) + JSON_FILE_SUFFIX;
+        + std::string(MISSION_JSON_FILE_PREFIX) + "_" + std::to_string(missionId) + std::string(JSON_FILE_SUFFIX);
 }
 
 std::string MissionDataStorage::GetMissionSnapshotPath(int32_t missionId, bool isLowResolution) const
 {
-    std::string filePath = GetMissionDataDirPath() + FILE_SEPARATOR + MISSION_JSON_FILE_PREFIX +
-        UNDERLINE_SEPARATOR + std::to_string(missionId);
+    std::string filePath = GetMissionDataDirPath() + std::string(FILE_SEPARATOR) +
+        std::string(MISSION_JSON_FILE_PREFIX) + std::string(UNDERLINE_SEPARATOR) + std::to_string(missionId);
     if (isLowResolution) {
-        filePath = filePath + UNDERLINE_SEPARATOR + LOW_RESOLUTION_FLAG;
+        filePath = filePath + std::string(UNDERLINE_SEPARATOR) + std::string(LOW_RESOLUTION_FLAG);
     }
-    filePath = filePath + PNG_FILE_SUFFIX;
+    filePath = filePath + std::string(PNG_FILE_SUFFIX);
     return filePath;
 }
 
@@ -172,11 +173,12 @@ bool MissionDataStorage::CheckFileNameValid(const std::string &fileName)
         return false;
     }
 
-    if (fileNameExcludePath.find("_") != MISSION_JSON_FILE_PREFIX.length()) {
+    if (fileNameExcludePath.find("_") != std::string(MISSION_JSON_FILE_PREFIX).length()) {
         return false;
     }
 
-    if (fileNameExcludePath.find(JSON_FILE_SUFFIX) != fileNameExcludePath.length() - JSON_FILE_SUFFIX.length()) {
+    if (fileNameExcludePath.find(JSON_FILE_SUFFIX) !=
+        fileNameExcludePath.length() - std::string(JSON_FILE_SUFFIX).length()) {
         return false;
     }
 
