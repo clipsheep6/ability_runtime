@@ -56,7 +56,6 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #include "parameter.h"
-#include "hisysevent.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
