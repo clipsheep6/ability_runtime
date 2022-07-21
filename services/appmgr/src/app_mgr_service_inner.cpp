@@ -2162,7 +2162,7 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 #endif
 
     // Assign to default colormode "light"
-    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
+    // HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
 
     // Get input pointer device
@@ -2540,11 +2540,11 @@ void AppMgrServiceInner::AddWatchParameter()
     int ret;
 
     auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(shared_from_this());
-    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), PointerDeviceEventCallback,
+    ret = WatchParameter(std::string(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE).c_str(), PointerDeviceEventCallback,
         context);
     if (ret != 0) {
         HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
-            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), ret);
+            std::string(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE).c_str(), ret);
     }
 }
 
@@ -2563,14 +2563,14 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
         return;
     }
 
-    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str()) != 0) ||
+    if ((strcmp(key, std::string(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE).c_str()) != 0) ||
         ((strcmp(value, "true") != 0) && (strcmp(value, "false") != 0))) {
         HILOG_ERROR("key %{public}s or value %{public}s mismatch.", key, value);
         return;
     }
 
     Configuration changeConfig;
-    if (!changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, value)) {
+    if (!changeConfig.AddItem(std::string(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE), value)) {
         HILOG_ERROR("add %{public}s item to configuration failed.", key);
         return;
     }
