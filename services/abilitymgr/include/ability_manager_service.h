@@ -51,6 +51,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
