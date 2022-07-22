@@ -35,6 +35,8 @@ public:
     int64_t GetSwapCached() const;
 
 private:
+    int64_t ParseMemInfo(const char* data) const;
+
     int64_t memTotal_ = 0;
     int64_t memFree_ = 0;
     int64_t memAvailable_ = 0;
