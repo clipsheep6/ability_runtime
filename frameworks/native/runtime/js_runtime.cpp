@@ -139,6 +139,8 @@ private:
         int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
         size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
         size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
+        std::string asmInterpreterEnabled = OHOS::system::GetParameter("persist.ark.asminterpreter", "true");
+        std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
         pandaOption.SetArkProperties(arkProperties);
         pandaOption.SetGcThreadNum(gcThreadNum);
         pandaOption.SetLongPauseTime(longPauseTime);
@@ -147,6 +149,8 @@ private:
         pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
         pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
         pandaOption.SetLogBufPrint(PrintVmLog);
+        pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled == "true");
+        pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
         vm_ = panda::JSNApi::CreateJSVM(pandaOption);
         if (vm_ == nullptr) {
             return false;
