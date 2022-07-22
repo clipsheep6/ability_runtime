@@ -111,6 +111,22 @@ void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
     HILOG_INFO("%{public}s end.", __func__);
 }
 
+void ExtensionImpl::NotifyMemoryLevel(int level)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+
+    if (extension_ == nullptr) {
+        HILOG_ERROR("ExtensionImpl::NotifyMemoryLevel extension_ is nullptr");
+        return;
+    }
+
+    if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
+        extension_->OnMemoryLevel(level);
+    }
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
 /**
  * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
  * that it belongs to of the lifecycle status.

@@ -1525,7 +1525,6 @@ void MainThread::HandleShrinkMemory(const int level)
     HILOG_INFO("MainThread::HandleShrinkMemory called end.");
 }
 
-
 /**
  *
  * @brief Notify the memory level.
@@ -1533,7 +1532,7 @@ void MainThread::HandleShrinkMemory(const int level)
  * @param level Indicates the memory trim level, which shows the current memory usage status.
  *
  */
-void MainThread::HandleMemoryLevel(const int level)
+void MainThread::HandleMemoryLevel(int level)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("MainThread::HandleMemoryLevel called start.");
@@ -1547,8 +1546,6 @@ void MainThread::HandleMemoryLevel(const int level)
     HILOG_INFO("MainThread::HandleMemoryLevel called end.");
 
 }
-
-
 
 /**
  *

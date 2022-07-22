@@ -548,12 +548,9 @@ void JsAbility::OnMemoryLevel(int level)
         return;
     }
 
-    //napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
-    NativeValue *jslevel = reinterpret_cast<NativeValue *>(level);
-
+    NativeValue *jslevel = CreateJsValue(nativeEngine, level);
     NativeValue *argv[] = {
         jslevel,
-        CreateJsLaunchParam(nativeEngine, GetLaunchParam()),
     };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
 
