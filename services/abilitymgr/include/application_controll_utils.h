@@ -24,28 +24,65 @@
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "ability_util.h"
 
 namespace OHOS {
 namespace AAFWK {
 namespace ApplicationControllUtils {
 using Want = OHOS::AAFwk::Want;
+const std::string CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME = "ohos.action.crowdtestDead";
+const std::string CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME = "com.demo.crowdtest";
+const int32_t CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED = 1;
+const int32_t CROWDTEST_EXPEIRD_REFUSED = -1;
 
-[[maybe_unused]] static sptr<AppExecFwk::IBundleMgr> GetBundleManager()
+static int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t userId)
 {
-    auto bundleObj =
-        OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
-        HILOG_ERROR("failed to get bundle manager service");
-        return nullptr;
+    if (IsCrowdtestExpired(want)) {
+#ifdef SUPPORT_GRAPHICS
+        Want newWant;
+        newWant.SetBundleName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME);
+        newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
+        int result = AbilityManagerService::StartAbility(newWant, userId, requestCode);
+        if (result != 0) {
+            return CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED;
+        }
+#endif
+        return CROWDTEST_EXPEIRD_REFUSED;
     }
-    return iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
+    return ERR_OK;
 }
 
-int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t userId);
+static int InterceptCrowdtestExpired(const Want& want)
+{
+    if (IsCrowdtestExpired(want)) {
+        return CROWDTEST_EXPEIRD_REFUSED;
+    }
+    return ERR_OK;
+}
 
-int InterceptCrowdtestExpired(const Want& want);
+static bool IsCrowdtestExpired(const Want &want)
+{
+    auto bms = AbilityUtil::GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+    std::string bundleName = want.GetBundle();
+    AppExecFwk::Application callerAppInfo;
+    bool result = IN_PROCESS_CALL(
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,
+            GetUserId(), callerAppInfo)
+    );
+    if (!result) {
+        HILOG_ERROR("%{public}s GetApplicaionInfo from bms failed.", __func__);
+        return false;
+    }
 
-bool IsCrowdtestExpired(const Want &want);
+    auto appDistributionType = callerAppInfo.appDistributionType;
+    auto appCrowdtestDeadline = callerAppInfo.crowdtestDeadline;
+    if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
+        appCrowdtestDeadline <= 0) {
+        return true;
+    }
+    return false;
+}
 }  // namespace ApplicationControllUtils
 }  // namespace AAFwk
 }  // namespace OHOS
