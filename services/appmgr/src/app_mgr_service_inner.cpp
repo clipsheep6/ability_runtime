@@ -1244,8 +1244,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
-    auto callerToken = (*bundleInfoIter).applicationInfo.accessTokenId;
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, PERMISSION_NAME);
+    auto token = (*bundleInfoIter).applicationInfo.accessTokenId;
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_NAME);
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
         setAllowInternet = 1;
         allowInternet = 0;

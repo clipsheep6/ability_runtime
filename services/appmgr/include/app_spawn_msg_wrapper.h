@@ -41,6 +41,8 @@ struct AppSpawnStartMsg {
     int32_t bundleIndex;   // when dlp launch another app used, default is 0
     uint8_t setAllowInternet;
     uint8_t allowInternet; // hap sockect allowed
+    uint8_t reserved1;
+    uint8_t reserved2;
 };
 
 using AppSpawnMsg = AppSpawn::ClientSocket::AppProperty;
