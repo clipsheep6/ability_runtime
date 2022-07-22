@@ -24,6 +24,7 @@
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "parameter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -673,6 +674,16 @@ void AbilityConnectManager::PostTimeOutTask(const std::shared_ptr<AbilityRecord>
         taskName = std::string("ConnectTimeout_") + std::to_string(recordId);
         resultCode = CONNECTION_TIMEOUT;
         delayTime = AbilityManagerService::CONNECT_TIMEOUT;
+    }
+
+    // check libc.hook_mode
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "startup:";
+    int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen - 1);
+    if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
+        HILOG_DEBUG("Hook_mode: no timeoutTask");
+        return;
     }
 
     auto timeoutTask = [abilityRecord, connectManager = shared_from_this(), resultCode]() {
