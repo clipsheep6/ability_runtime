@@ -315,7 +315,7 @@ AppMgrResultCode AppMgrClient::NotifyMemoryLevel(int32_t level)
     if (result == ERR_OK) {
         return AppMgrResultCode::RESULT_OK;
     }
-    return AppMgrResultCode::ERROR_SERVICE_NOT_READY; 
+    return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
 }
 
 AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)

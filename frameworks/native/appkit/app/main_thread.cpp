@@ -397,7 +397,6 @@ void MainThread::ScheduleMemoryLevel(const int level)
         }
         appThread->HandleMemoryLevel(level);
     };
-
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleMemoryLevel PostTask task failed");
     }
@@ -1544,7 +1543,6 @@ void MainThread::HandleMemoryLevel(int level)
 
     application_->OnMemoryLevel(level);
     HILOG_INFO("MainThread::HandleMemoryLevel called end.");
-
 }
 
 /**

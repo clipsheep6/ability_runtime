@@ -436,7 +436,8 @@ void OHOSApplication::OnMemoryLevel(int level)
 {
     HILOG_INFO("OHOSApplication::OnMemoryLevel: called");
 
-    HILOG_INFO("Number of ability to be notified : [%{public}d]", static_cast<int>(abilityRecordMgr_->GetRecordCount()));
+    HILOG_INFO("Number of ability to be notified : [%{public}d]",
+        static_cast<int>(abilityRecordMgr_->GetRecordCount()));
     for (const auto &abilityToken : abilityRecordMgr_->GetAllTokens()) {
         auto abilityRecord = abilityRecordMgr_->GetAbilityItem(abilityToken);
         if (abilityRecord && abilityRecord->GetAbilityThread()) {

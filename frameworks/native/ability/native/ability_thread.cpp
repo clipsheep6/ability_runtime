@@ -1196,7 +1196,6 @@ void AbilityThread::NotifyMemoryLevel(int32_t level)
         abilityImpl_->NotifyMemoryLevel(level);
     }
 }
-    
 
 /**
  * @description: Attach The ability thread to the main process.

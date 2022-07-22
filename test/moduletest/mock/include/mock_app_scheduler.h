@@ -41,6 +41,7 @@ public:
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const AppExecFwk::Configuration &config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
     MOCK_METHOD0(ScheduleLowMemory, void());
+    MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

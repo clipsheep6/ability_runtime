@@ -38,6 +38,7 @@ public:
     MOCK_METHOD1(ScheduleProfileChanged, void(const Profile &));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration &config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
+    MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD0(ScheduleLowMemory, void());
     MOCK_METHOD0(ScheduleProcessSecurityExit, void());
     MOCK_METHOD1(ScheduleAbilityStage, void(const HapModuleInfo &));

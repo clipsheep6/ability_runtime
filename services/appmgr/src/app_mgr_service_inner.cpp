@@ -691,7 +691,7 @@ int32_t AppMgrServiceInner::GetProcessRunningInfosByUserId(std::vector<RunningPr
 
 int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 {
-    if (!appRunningManager_ ) {
+    if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager nullptr!");
         return ERR_INVALID_VALUE;
     }
