@@ -17,6 +17,10 @@
 namespace OHOS {
 namespace AAFwk {
 namespace ApplicationControllUtils {
+const std::string CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME = "ohos.action.crowdtestDead";
+const std::string CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME = "com.demo.crowdtest";
+const int32_t CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED = 1;
+const int32_t CROWDTEST_EXPEIRD_REFUSED = -1;
 
 int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t userId)
 {
@@ -25,9 +29,12 @@ int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t
         Want newWant;
         newWant.SetBundleName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME);
         newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
-        return AbilityManagerService::StartAbility(newWant, userId, requestCode);
+        int result = AbilityManagerService::StartAbility(newWant, userId, requestCode);
+        if (result != 0) {
+            return CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED;
+        }
 #endif
-        return ERR_NOT_OK;
+        return CROWDTEST_EXPEIRD_REFUSED;
     }
     return ERR_OK;
 }
@@ -35,7 +42,7 @@ int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t
 int InterceptCrowdtestExpired(const Want& want)
 {
     if (IsCrowdtestExpired(want)) {
-        return ERR_NOT_OK;
+        return CROWDTEST_EXPEIRD_REFUSED;
     }
     return ERR_OK;
 }

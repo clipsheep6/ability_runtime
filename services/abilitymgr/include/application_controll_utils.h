@@ -19,6 +19,7 @@
 #include <string>
 
 #include "want.h"
+#include "ability_manager_service.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
@@ -28,8 +29,6 @@ namespace OHOS {
 namespace AAFWK {
 namespace ApplicationControllUtils {
 using Want = OHOS::AAFwk::Want;
-const std::string CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME = "ohos.action.crowdtestDead";
-const std::string CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME = "com.demo.crowdtest";
 
 [[maybe_unused]] static bool IsCrowdtestExpired(const Want &want)
 {
