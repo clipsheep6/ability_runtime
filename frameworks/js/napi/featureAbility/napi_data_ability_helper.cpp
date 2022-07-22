@@ -864,8 +864,7 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
 {
     HILOG_INFO("%{public}s,called", __func__);
     size_t argcAsync = ARGS_THREE;
-    const size_t argcPromise = ARGS_TWO;
-    const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
+    const size_t argCountWithAsync = ARGS_TWO + ARGS_ASYNC_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value ret = 0;
     napi_value thisVar = nullptr;
@@ -929,16 +928,15 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
     HILOG_INFO("DataAbilityHelper objectInfo");
     offCB->dataAbilityHelper = objectInfo;
 
-    ret = UnRegisterSync(env, args, argcAsync, argcPromise, offCB);
+    ret = UnRegisterSync(env, offCB);
     return ret;
 }
 
-napi_value UnRegisterSync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *offCB)
+napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
 {
     HILOG_INFO("%{public}s, asyncCallback.", __func__);
-    if (args == nullptr || offCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+    if (offCB == nullptr) {
+        HILOG_ERROR("%{public}s, offCB == nullptr.", __func__);
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -3763,7 +3761,9 @@ void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
     }
 
     auto end = remove(g_registerInstances.begin(), g_registerInstances.end(), onCB);
-    (void)g_registerInstances.erase(end);
+    if (end != g_registerInstances.end()) {
+        (void)g_registerInstances.erase(end);
+    }
     delete onCB;
     onCB = nullptr;
 }

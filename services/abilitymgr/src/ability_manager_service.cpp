@@ -228,17 +228,16 @@ bool AbilityManagerService::Init()
     // init user controller.
     userController_ = std::make_shared<UserController>();
     userController_->Init();
-    int userId = MAIN_USER_ID;
 
-    InitConnectManager(userId, true);
-    InitDataAbilityManager(userId, true);
-    InitPendWantManager(userId, true);
+    InitConnectManager(MAIN_USER_ID, true);
+    InitDataAbilityManager(MAIN_USER_ID, true);
+    InitPendWantManager(MAIN_USER_ID, true);
     systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
 
     amsConfigResolver_ = std::make_shared<AmsConfigurationParameter>();
     amsConfigResolver_->Parse();
     HILOG_INFO("ams config parse");
-    InitMissionListManager(userId, true);
+    InitMissionListManager(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
     std::string threadName = AbilityConfig::NAME_ABILITY_MGR_SERVICE + "(" +

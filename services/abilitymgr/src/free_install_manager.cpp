@@ -80,14 +80,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
             return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
         }
     }
-    auto promise = std::make_shared<std::promise<int32_t>>();
-    FreeInstallInfo info = {
-        .want = want,
-        .userId = userId,
-        .requestCode = requestCode,
-        .callerToken = callerToken,
-        .promise = promise
-    };
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
     freeInstallList_.push_back(info);
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
     if (ifOperateRemote) {
@@ -120,6 +113,20 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         return HandleFreeInstallErrorCode(FREE_INSTALL_TIMEOUT);
     }
     return HandleFreeInstallErrorCode(future.get());
+}
+
+FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
+    const sptr<IRemoteObject> &callerToken)
+{
+    auto promise = std::make_shared<std::promise<int32_t>>();
+    FreeInstallInfo info = {
+        .want = want,
+        .userId = userId,
+        .requestCode = requestCode,
+        .callerToken = callerToken,
+        .promise = promise
+    };
+    return info;
 }
 
 int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,
