@@ -208,7 +208,7 @@ public:
 
     // lifecycle callback
     virtual void Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
+        const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token);
 
     void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);

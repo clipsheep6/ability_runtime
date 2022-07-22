@@ -104,7 +104,7 @@ Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime
     }
 }
 
-void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
+void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -3671,13 +3671,18 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, GetDirectionStr(height, width));
     newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
-    std::vector<std::string> changeKeyV;
+    if (application_ == nullptr) {
+        HILOG_ERROR("application_ is nullptr.");
+        return;
+    }
+
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
         HILOG_ERROR("configuration is nullptr.");
         return;
     }
 
+    std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
     uint32_t size = changeKeyV.size();
     HILOG_INFO("changeKeyV size :%{public}u", size);
