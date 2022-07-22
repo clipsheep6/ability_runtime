@@ -134,8 +134,8 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
         return;
     }
     int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION), 
-            data, reply, option);
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION),
+        data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
