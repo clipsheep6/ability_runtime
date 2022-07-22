@@ -15,6 +15,8 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
+import(
+    "//foundation/distributeddatamgr/appdatamgr/relational_store/relational_store.gni")
 import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
 
 group("abilityms_target") {
@@ -39,9 +41,9 @@ config("abilityms_config") {
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
     "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/appdatafwk/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability/include",
+    "${relational_store_innerapi_path}/rdb/include",
+    "${relational_store_innerapi_path}/appdatafwk/include",
+    "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
     "//base/hiviewdfx/hiview/adapter/utility/include",

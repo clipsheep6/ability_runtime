@@ -13,18 +13,21 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import(
+    "//foundation/distributeddatamgr/appdatamgr/relational_store/relational_store.gni")
+
 ohos_shared_library("featureability") {
   include_dirs = [
     "./",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
+    "${relational_store_napi_path}/rdb/include",
+    "${relational_store_napi_path}/common/include",
+    "${relational_store_napi_path}/dataability/include",
   ]
 
   sources = [
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
+    "${relational_store_napi_path}/common/src/js_utils.cpp",
+    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+    "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
     "feature_ability.cpp",
     "feature_ability_constant.cpp",
     "napi_context.cpp",
@@ -60,8 +63,6 @@ ohos_shared_library("featureability") {
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
     "utils_base:utils",
-
-    #"appdatamgr_jskits:rdb",
   ]
 
   if (ability_runtime_graphics) {
