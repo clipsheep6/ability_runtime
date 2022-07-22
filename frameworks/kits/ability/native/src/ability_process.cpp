@@ -114,6 +114,24 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     return err;
 }
 
+void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam &param, int32_t errCode,
+                                              CallbackInfo &callback)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    std::map<int, CallbackInfo> map;
+    auto it = abilityResultMap_.find(ability);
+    if (it == abilityResultMap_.end()) {
+        HILOG_INFO("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
+    } else {
+        HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
+        map = it->second;
+    }
+    callback.errCode = errCode;
+    map[param.requestCode] = callback;
+    abilityResultMap_[ability] = map;
+}
+
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
 {
     HILOG_INFO("AbilityProcess::OnAbilityResult begin");

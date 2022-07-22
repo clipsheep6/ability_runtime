@@ -34,6 +34,7 @@ public:
 
     ErrCode StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callbackInfo);
     void OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData);
+    void AddAbilityResultCallback(Ability *ability, CallAbilityParam &param, int32_t errCode, CallbackInfo &callback);
 
     void RequestPermissionsFromUser(Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo);
     void OnRequestPermissionsFromUserResult(Ability *ability, int requestCode,
