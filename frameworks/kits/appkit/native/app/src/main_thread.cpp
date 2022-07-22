@@ -1380,8 +1380,7 @@ void MainThread::HandleTerminateApplication()
     }
 
     if (!applicationImpl_->PerformTerminate()) {
-        HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
-        return;
+        HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
