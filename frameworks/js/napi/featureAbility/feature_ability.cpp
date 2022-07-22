@@ -143,7 +143,7 @@ napi_value StartAbilityForResultWrap(napi_env env, napi_callback_info info, Asyn
     CallAbilityParam param;
     if (UnwrapForResultParam(param, env, args[0]) == nullptr) {
         HILOG_ERROR("%{public}s, call UnwrapForResultParam failed.", __func__);
-        return nullptr;
+        asyncCallbackInfo->errCode = NAPI_ERR_PARAM_INVALID;
     }
     asyncCallbackInfo->param = param;
     asyncCallbackInfo->aceCallback.env = env;
@@ -183,6 +183,12 @@ napi_value StartAbilityForResultAsync(napi_env env, AsyncCallbackInfo *asyncCall
             HILOG_INFO("NAPI_StartAbilityForResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             if (asyncCallbackInfo != nullptr) {
+                if (asyncCallbackInfo->errCode != NAPI_ERR_NO_ERROR) {
+                    HILOG_ERROR("%{public}s errCode:%{public}d", __func__, asyncCallbackInfo->errCode);
+                    AbilityProcess::GetInstance()->AddAbilityResultCallback(asyncCallbackInfo->ability,
+                        asyncCallbackInfo->param, asyncCallbackInfo->errCode, asyncCallbackInfo->aceCallback);
+                    return;
+                }
                 asyncCallbackInfo->errCode = AbilityProcess::GetInstance()->StartAbility(
                     asyncCallbackInfo->ability, asyncCallbackInfo->param, asyncCallbackInfo->aceCallback);
             } else {
@@ -238,6 +244,12 @@ napi_value StartAbilityForResultPromise(napi_env env, AsyncCallbackInfo *asyncCa
             HILOG_INFO("NAPI_StartAbilityForResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
             if (asyncCallbackInfo != nullptr) {
+                if (asyncCallbackInfo->errCode != NAPI_ERR_NO_ERROR) {
+                    HILOG_ERROR("%{public}s errCode:%{public}d", __func__, asyncCallbackInfo->errCode);
+                    AbilityProcess::GetInstance()->AddAbilityResultCallback(asyncCallbackInfo->ability,
+                        asyncCallbackInfo->param, asyncCallbackInfo->errCode, asyncCallbackInfo->aceCallback);
+                    return;
+                }
                 asyncCallbackInfo->errCode = AbilityProcess::GetInstance()->StartAbility(
                     asyncCallbackInfo->ability, asyncCallbackInfo->param, asyncCallbackInfo->aceCallback);
             } else {
@@ -971,17 +983,20 @@ bool InnerUnwrapWant(napi_env env, napi_value args, Want &want)
 napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_value args)
 {
     HILOG_INFO("%{public}s,called", __func__);
-    // unwrap the param : want object
-    InnerUnwrapWant(env, args, param.want);
-
     // dummy requestCode for NativeC++ interface and onabilityresult callback
     param.requestCode = dummyRequestCode_;
     param.forResultOption = true;
-    dummyRequestCode_ = (dummyRequestCode_ < INT64_MAX) ? (dummyRequestCode_ + 1) : 0;
+    dummyRequestCode_ = (dummyRequestCode_ < INT32_MAX) ? (dummyRequestCode_ + 1) : 0;
     HILOG_INFO("%{public}s, reqCode=%{public}d forResultOption=%{public}d.",
         __func__,
         param.requestCode,
         param.forResultOption);
+
+    // unwrap the param : want object
+    if (!InnerUnwrapWant(env, args, param.want)) {
+        HILOG_ERROR("Failed to InnerUnwrapWant");
+        return nullptr;
+    }
 
     // unwrap the param : abilityStartSetting (optional)
     napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);

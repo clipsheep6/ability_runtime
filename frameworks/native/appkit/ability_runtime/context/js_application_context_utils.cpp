@@ -453,12 +453,12 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("OnUnregisterAbilityLifecycleCallback, Not enough params");
         errCode = ERROR_CODE_ONE;
     } else {
         napi_get_value_int32(
             reinterpret_cast<napi_env>(&engine), reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
-        HILOG_INFO("callbackId is %{public}d.", callbackId);
+        HILOG_DEBUG("callbackId is %{public}d.", callbackId);
     }
     std::weak_ptr<JsAbilityLifecycleCallback> callbackWptr(callback_);
     AsyncTask::CompleteCallback complete =
@@ -475,7 +475,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
                 return;
             }
 
-            HILOG_INFO("OnUnregisterAbilityLifecycleCallback begin");
+            HILOG_DEBUG("OnUnregisterAbilityLifecycleCallback begin");
             if (!callback->UnRegister(callbackId)) {
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));
@@ -542,7 +542,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("Not enough params");
+        HILOG_ERROR("OnUnregisterEnvironmentCallback, Not enough params");
         errCode = ERROR_CODE_ONE;
     } else {
         napi_get_value_int32(
@@ -565,7 +565,7 @@ NativeValue *JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
                 return;
             }
 
-            HILOG_INFO("OnUnregisterEnvironmentCallback begin");
+            HILOG_DEBUG("OnUnregisterEnvironmentCallback begin");
             if (!env_callback->UnRegister(callbackId)) {
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "call UnRegister failed!"));

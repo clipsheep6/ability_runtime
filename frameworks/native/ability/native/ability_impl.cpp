@@ -22,8 +22,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string GRANTED_RESULT_KEY = "ohos.user.grant.permission.result";
+}
 
 void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<Ability> &ability, std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token,
@@ -57,12 +59,6 @@ void AbilityImpl::Init(std::shared_ptr<OHOSApplication> &application, const std:
     HILOG_INFO("AbilityImpl::init end");
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- * @param want  The Want object to switch the life cycle.
- */
 void AbilityImpl::Start(const Want &want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -97,11 +93,6 @@ void AbilityImpl::Start(const Want &want)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- */
 void AbilityImpl::Stop()
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -127,11 +118,6 @@ void AbilityImpl::Stop()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_ACTIVE. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- */
 void AbilityImpl::Active()
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -152,11 +138,6 @@ void AbilityImpl::Active()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- */
 void AbilityImpl::Inactive()
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -182,11 +163,6 @@ bool AbilityImpl::IsStageBasedModel() const
     return isStageBasedModel_;
 }
 
-/**
- * @brief Save data and states of an ability when it is restored by the system. and Calling information back to Ability.
- *        This method should be implemented by a Page ability.
- *
- */
 void AbilityImpl::DispatchSaveAbilityState()
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -195,17 +171,10 @@ void AbilityImpl::DispatchSaveAbilityState()
         return;
     }
 
-    HILOG_INFO("AbilityImpl::DispatchSaveAbilityState");
     needSaveDate_ = true;
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Restores data and states of an ability when it is restored by the system. and Calling information back to
- * Ability. This method should be implemented by a Page ability.
- * @param instate The Want object to connect to.
- *
- */
 void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -222,12 +191,6 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {}
 
-/**
- * @brief Connect the ability. and Calling information back to Ability.
- *
- * @param want The Want object to connect to.
- *
- */
 sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -245,11 +208,6 @@ sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
     return object;
 }
 
-/**
- * @brief Disconnects the connected object.
- *
- * @param want The Want object to disconnect to.
- */
 void AbilityImpl::DisconnectAbility(const Want &want)
 {
     if (ability_ == nullptr) {
@@ -260,18 +218,6 @@ void AbilityImpl::DisconnectAbility(const Want &want)
     ability_->OnDisconnect(want);
 }
 
-/**
- * @brief Command the ability. and Calling information back to Ability.
- *
- * @param want The Want object to command to.
- *
- * * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
- * destroyed, and the value false indicates a normal startup.
- *
- * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by 1
- * every time the ability is started. For example, if the ability has been started for six times, the value of startId
- * is 6.
- */
 void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -287,26 +233,11 @@ void AbilityImpl::CommandAbility(const Want &want, bool restart, int startId)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Gets the current Ability status.
- *
- */
 int AbilityImpl::GetCurrentState()
 {
     return lifecycleState_;
 }
 
-/**
- * @brief Send the result code and data to be returned by this Page ability to the caller.
- * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
- * receive the result set in the current method. This method can be called only after the ability has been initialized.
- *
- * @param requestCode Indicates the request code.
- * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result code
- * to identify an error.
- * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned. This
- * parameter can be null.
- */
 void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -332,12 +263,6 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Called when the launch mode of an ability is set to singleInstance. This happens when you re-launch
- * an ability that has been at the top of the ability stack.
- *
- * @param want  Indicates the new Want containing information about the ability.
- */
 void AbilityImpl::NewWant(const Want &want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -353,14 +278,6 @@ void AbilityImpl::NewWant(const Want &want)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Obtains the MIME types of files supported.
- *
- * @param uri Indicates the path of the files to obtain.
- * @param mimeTypeFilter Indicates the MIME types of the files to obtain. This parameter cannot be null.
- *
- * @return Returns the matched MIME types. If there is no match, null is returned.
- */
 std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
     HILOG_INFO("AbilityImpl::GetFileTypes");
@@ -368,49 +285,18 @@ std::vector<std::string> AbilityImpl::GetFileTypes(const Uri &uri, const std::st
     return types;
 }
 
-/**
- * @brief Opens a file in a specified remote path.
- *
- * @param uri Indicates the path of the file to open.
- * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
- * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
- * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
- *  or "rwt" for read and write access that truncates any existing file.
- *
- * @return Returns the file descriptor.
- */
 int AbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
 {
     HILOG_INFO("AbilityImpl::OpenFile");
     return -1;
 }
 
-/**
- * @brief This is like openFile, open a file that need to be able to return sub-sections of files，often assets
- * inside of their .hap.
- *
- * @param uri Indicates the path of the file to open.
- * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
- * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
- * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing
- * data, or "rwt" for read and write access that truncates any existing file.
- *
- * @return Returns the RawFileDescriptor object containing file descriptor.
- */
 int AbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     HILOG_INFO("AbilityImpl::OpenRawFile");
     return -1;
 }
 
-/**
- * @brief Inserts a single data record into the database.
- *
- * @param uri Indicates the path of the data to operate.
- * @param value  Indicates the data record to insert. If this parameter is null, a blank row will be inserted.
- *
- * @return Returns the index of the inserted data record.
- */
 int AbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     HILOG_INFO("AbilityImpl::Insert");
@@ -424,15 +310,6 @@ std::shared_ptr<AppExecFwk::PacMap> AbilityImpl::Call(
     return nullptr;
 }
 
-/**
- * @brief Updates data records in the database.
- *
- * @param uri Indicates the path of data to update.
- * @param value Indicates the data to update. This parameter can be null.
- * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
- *
- * @return Returns the number of data records updated.
- */
 int AbilityImpl::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
@@ -440,29 +317,12 @@ int AbilityImpl::Update(
     return -1;
 }
 
-/**
- * @brief Deletes one or more data records from the database.
- *
- * @param uri Indicates the path of the data to operate.
- * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
- *
- * @return Returns the number of data records deleted.
- */
 int AbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     HILOG_INFO("AbilityImpl::Delete");
     return -1;
 }
 
-/**
- * @brief Deletes one or more data records from the database.
- *
- * @param uri Indicates the path of data to query.
- * @param columns Indicates the columns to query. If this parameter is null, all columns are queried.
- * @param predicates Indicates filter criteria. You should define the processing logic when this parameter is null.
- *
- * @return Returns the query result.
- */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
@@ -470,52 +330,23 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityImpl::Query(
     return nullptr;
 }
 
-/**
- * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
- * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
- *
- * @param uri Indicates the URI of the data.
- *
- * @return Returns the MIME type that matches the data specified by uri.
- */
 std::string AbilityImpl::GetType(const Uri &uri)
 {
     HILOG_INFO("AbilityImpl::GetType");
     return "";
 }
 
-/**
- * @brief Reloads data in the database.
- *
- * @param uri Indicates the position where the data is to reload. This parameter is mandatory.
- * @param extras Indicates the PacMap object containing the additional parameters to be passed in this call. This
- * parameter can be null. If a custom Sequenceable object is put in the PacMap object and will be transferred across
- * processes, you must call BasePacMap.setClassLoader(ClassLoader) to set a class loader for the custom object.
- *
- * @return Returns true if the data is successfully reloaded; returns false otherwise.
- */
 bool AbilityImpl::Reload(const Uri &uri, const PacMap &extras)
 {
     return false;
 }
 
-/**
- * @brief Inserts multiple data records into the database.
- *
- * @param uri Indicates the path of the data to operate.
- * @param values Indicates the data records to insert.
- *
- * @return Returns the number of data records inserted.
- */
 int AbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_INFO("AbilityImpl::BatchInsert");
     return -1;
 }
 
-/**
- * @brief SerUriString
- */
 void AbilityImpl::SerUriString(const std::string &uri)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -527,11 +358,6 @@ void AbilityImpl::SerUriString(const std::string &uri)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Set the LifeCycleStateInfo to the deal.
- *
- * @param info the info to set.
- */
 void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
 {
     if (contextDeal_ == nullptr) {
@@ -541,11 +367,6 @@ void AbilityImpl::SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info)
     contextDeal_->SetLifeCycleStateInfo(info);
 }
 
-/**
- * @brief Check if it needs to restore the data to the ability.
- *
- * @return Return true if need and success, otherwise return false.
- */
 bool AbilityImpl::CheckAndRestore()
 {
     HILOG_INFO("AbilityImpl::CheckAndRestore called start");
@@ -566,11 +387,6 @@ bool AbilityImpl::CheckAndRestore()
     return true;
 }
 
-/**
- * @brief Check if it needs to save the data to the ability.
- *
- * @return Return true if need and success, otherwise return false.
- */
 bool AbilityImpl::CheckAndSave()
 {
     HILOG_INFO("AbilityImpl::CheckAndSave called start");
@@ -599,15 +415,6 @@ PacMap &AbilityImpl::GetRestoreData()
     return restoreData_;
 }
 
-/**
- * @brief Set deviceId/bundleName/abilityName of the calling ability
- *
- * @param deviceId deviceId of the calling ability
- *
- * @param deviceId bundleName of the calling ability
- *
- * @param deviceId abilityName of the calling ability
- */
 void AbilityImpl::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
     const std::string &abilityName, const std::string &moduleName)
 {
@@ -616,43 +423,18 @@ void AbilityImpl::SetCallingContext(const std::string &deviceId, const std::stri
     }
 }
 
-/**
- * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
- * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
- * context has changed. If you implement URI normalization for a Data ability, you must also implement
- * denormalizeUri(ohos.utils.net.Uri) to enable URI denormalization. After this feature is enabled, URIs passed to any
- * method that is called on the Data ability must require normalization verification and denormalization. The default
- * implementation of this method returns null, indicating that this Data ability does not support URI normalization.
- *
- * @param uri Indicates the Uri object to normalize.
- *
- * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
- */
 Uri AbilityImpl::NormalizeUri(const Uri &uri)
 {
     HILOG_INFO("AbilityImpl::NormalizeUri");
     return uri;
 }
 
-/**
- * @brief Converts the given normalized uri generated by normalizeUri(ohos.utils.net.Uri) into a denormalized one.
- * The default implementation of this method returns the original URI passed to it.
- *
- * @param uri uri Indicates the Uri object to denormalize.
- *
- * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed to
- * this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found in the
- * current environment.
- */
 Uri AbilityImpl::DenormalizeUri(const Uri &uri)
 {
     HILOG_INFO("AbilityImpl::DenormalizeUri");
     return uri;
 }
 
-/*
- * @brief ScheduleUpdateConfiguration, scheduling update configuration.
- */
 void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -669,11 +451,6 @@ void AbilityImpl::ScheduleUpdateConfiguration(const Configuration &config)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Create a PostEvent timeout task. The default delay is 5000ms
- *
- * @return Return a smart pointer to a timeout object
- */
 std::shared_ptr<AbilityPostEventTimeout> AbilityImpl::CreatePostEventTimeouter(std::string taskstr)
 {
     if (ability_ == nullptr) {
@@ -725,11 +502,10 @@ void AbilityImpl::AfterUnFocused()
     }
 
     HILOG_INFO("old version ability, window after unfocused.");
-    auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
+    auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
         info.isNewWant = false;
-        Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
@@ -750,11 +526,10 @@ void AbilityImpl::AfterFocused()
     }
 
     HILOG_INFO("fa mode ability, window after focused.");
-    auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
+    auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
         info.isNewWant = false;
-        Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
@@ -839,12 +614,6 @@ void AbilityImpl::WindowLifeCycleImpl::ForegroundInvalidMode()
         AbilityLifeCycleState::ABILITY_STATE_INVALID_WINDOW_MODE, restoreData);
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INACTIVE. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- * @param want The Want object to switch the life cycle.
- */
 void AbilityImpl::Foreground(const Want &want)
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -865,11 +634,6 @@ void AbilityImpl::Foreground(const Want &want)
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_BACKGROUND. And notifies the application
- * that it belongs to of the lifecycle status.
- *
- */
 void AbilityImpl::Background()
 {
     HILOG_INFO("%{public}s begin.", __func__);
@@ -891,40 +655,16 @@ void AbilityImpl::Background()
     HILOG_INFO("%{public}s end.", __func__);
 }
 
-/**
- * @brief Execution the KeyDown callback of the ability
- * @param keyEvent Indicates the key-down event.
- *
- * @return Returns true if this event is handled and will not be passed further; returns false if this event is
- * not handled and should be passed to other handlers.
- *
- */
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_INFO("AbilityImpl::DoKeyDown called");
 }
 
-/**
- * @brief Execution the KeyUp callback of the ability
- * @param keyEvent Indicates the key-up event.
- *
- * @return Returns true if this event is handled and will not be passed further; returns false if this event is
- * not handled and should be passed to other handlers.
- *
- */
 void AbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_INFO("AbilityImpl::DoKeyUp called");
 }
 
-/**
- * @brief Called when a touch event is dispatched to this ability. The default implementation of this callback
- * does nothing and returns false.
- * @param touchEvent Indicates information about the touch event.
- *
- * @return Returns true if the event is handled; returns false otherwise.
- *
- */
 void AbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
     HILOG_INFO("AbilityImpl::DoPointerEvent called");

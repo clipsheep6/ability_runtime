@@ -37,6 +37,7 @@ gen_js_obj("delegator_mgmt_abc") {
 }
 
 config("appkit_config") {
+  cflags_cc = [ "-fexceptions" ]
   defines = [
     "AMS_LOG_TAG = \"AppkitNative\"",
     "AMS_LOG_DOMAIN = 0xD001150",
@@ -71,7 +72,6 @@ config("appkit_public_config") {
 
 # build so
 ohos_shared_library("appkit_native") {
-  cflags_cc = []
   include_dirs = [
     "native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
@@ -124,6 +124,7 @@ ohos_shared_library("appkit_native") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
@@ -143,11 +144,6 @@ ohos_shared_library("appkit_native") {
     "startup_l2:syspara",
     "utils_base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     deps += [
@@ -193,6 +189,7 @@ ohos_shared_library("app_context") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
@@ -205,12 +202,6 @@ ohos_shared_library("app_context") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-    public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     deps += [
@@ -271,12 +262,6 @@ ohos_shared_library("app_context_utils") {
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
-
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-    public_deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     deps += [

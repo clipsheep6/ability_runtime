@@ -259,14 +259,11 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
  * @brief Off Async.
  *
  * @param env The environment that the Node-API call is invoked under.
- * @param args Indicates the arguments passed into the callback.
- * @param argcPromise Asynchronous data processing.
  * @param insertCB Process data asynchronously.
  *
  * @return Return JS data successfully, otherwise return nullptr.
  */
-napi_value UnRegisterSync(
-    napi_env env, napi_value *args, size_t argcAsync, const size_t argcPromise, DAHelperOnOffCB *insertCB);
+napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *insertCB);
 
 /**
  * @brief Off asynchronous processing function.

@@ -634,6 +634,7 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
 void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_WARN("RegisterObserver param is invalid.");
         return;
     }
 
@@ -679,6 +680,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
 void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_WARN("UnregisterObserver param is invalid.");
         return;
     }
 

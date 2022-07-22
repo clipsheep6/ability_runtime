@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H
-#define OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H
+#ifndef OHOS_ABILITY_RUNTIME_STAGE_CONTEXT_CONTEXT_H
+#define OHOS_ABILITY_RUNTIME_STAGE_CONTEXT_CONTEXT_H
 
 #include <memory>
 #include <mutex>
@@ -255,4 +255,4 @@ protected:
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_CONTEXT_CONTEXT_H
+#endif  // OHOS_ABILITY_RUNTIME_STAGE_CONTEXT_CONTEXT_H

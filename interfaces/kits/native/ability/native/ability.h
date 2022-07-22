@@ -208,7 +208,7 @@ public:
 
     // lifecycle callback
     virtual void Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
+        const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token);
 
     void AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext);
@@ -1615,7 +1615,7 @@ protected:
      *
      * You can override this function to implement your own processing logic
      */
-    virtual void RequsetFocus(const Want &want);
+    virtual void RequestFocus(const Want &want);
 
     /**
      * @brief Acquire the window option.
@@ -1667,6 +1667,7 @@ protected:
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     LaunchParam launchParam_;
     int32_t appIndex_ = 0;
+    bool securityFlag_ = false;
 
 private:
     std::shared_ptr<NativeRdb::DataAbilityPredicates> ParsePredictionArgsReference(
@@ -1700,6 +1701,9 @@ private:
      * @param launchParam the launch param.
      */
     void SetLaunchParam(const AAFwk::LaunchParam &launchParam);
+
+    void InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
+        std::string& colormode, std::string& hasPointerDevice);
 
     std::shared_ptr<ContinuationHandler> continuationHandler_ = nullptr;
     std::shared_ptr<ContinuationManager> continuationManager_ = nullptr;

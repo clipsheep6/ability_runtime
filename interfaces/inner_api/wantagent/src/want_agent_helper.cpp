@@ -401,15 +401,19 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     if (jsonObject.contains("flags")) {
         flags = jsonObject.at("flags").get<int>();
     }
-    if (flags | FLAG_ONE_SHOT) {
+    if (flags & FLAG_ONE_SHOT) {
         flagsVec.emplace_back(WantAgentConstant::Flags::ONE_TIME_FLAG);
-    } else if (flags | FLAG_NO_CREATE) {
+    }
+    if (flags & FLAG_NO_CREATE) {
         flagsVec.emplace_back(WantAgentConstant::Flags::NO_BUILD_FLAG);
-    } else if (flags | FLAG_CANCEL_CURRENT) {
+    }
+    if (flags & FLAG_CANCEL_CURRENT) {
         flagsVec.emplace_back(WantAgentConstant::Flags::CANCEL_PRESENT_FLAG);
-    } else if (flags | FLAG_UPDATE_CURRENT) {
+    }
+    if (flags & FLAG_UPDATE_CURRENT) {
         flagsVec.emplace_back(WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
-    } else if (flags | FLAG_IMMUTABLE) {
+    }
+    if (flags & FLAG_IMMUTABLE) {
         flagsVec.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
     }
 

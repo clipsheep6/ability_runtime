@@ -31,11 +31,12 @@ bool thread_local g_dataAbilityHelperStatus = false;
 const int32_t ERR_ABILITY_START_SUCCESS = 0;
 const int32_t ERR_ABILITY_QUERY_FAILED = 1;
 const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
+const int32_t ERR_PARAM_INVALID = 202;
 const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
     { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
     { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
     { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_PARAM_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_PARAM_INVALID, ERR_PARAM_INVALID },
     { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
     { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
     { ERR_OK, ERR_ABILITY_START_SUCCESS },
@@ -248,40 +249,10 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "process", proValue));
     NAPI_CALL(env, napi_create_int32(env, appInfo.supportedModes, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "supportedModes", proValue));
-    napi_value jsArrayModDirs = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayModDirs));
-    for (size_t i = 0; i < appInfo.moduleSourceDirs.size(); i++) {
-        proValue = nullptr;
-        NAPI_CALL(
-            env, napi_create_string_utf8(env, appInfo.moduleSourceDirs.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayModDirs, i, proValue));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "moduleSourceDirs", jsArrayModDirs));
-    napi_value jsArrayPermissions = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayPermissions));
-    for (size_t i = 0; i < appInfo.permissions.size(); i++) {
-        proValue = nullptr;
-        NAPI_CALL(env, napi_create_string_utf8(env, appInfo.permissions.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayPermissions, i, proValue));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "permissions", jsArrayPermissions));
-    napi_value jsArrayModuleInfo = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayModuleInfo));
-    for (size_t i = 0; i < appInfo.moduleInfos.size(); i++) {
-        napi_value jsModuleInfoObject = nullptr;
-        NAPI_CALL(env, napi_create_object(env, &jsModuleInfoObject));
-        proValue = nullptr;
-        NAPI_CALL(env,
-            napi_create_string_utf8(env, appInfo.moduleInfos.at(i).moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_named_property(env, jsModuleInfoObject, "moduleName", proValue));
-        proValue = nullptr;
-        NAPI_CALL(env,
-            napi_create_string_utf8(
-                env, appInfo.moduleInfos.at(i).moduleSourceDir.c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_named_property(env, jsModuleInfoObject, "moduleSourceDir", proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayModuleInfo, i, jsModuleInfoObject));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "moduleInfos", jsArrayModuleInfo));
+
+    (void)WrapProperties(env, appInfo.moduleSourceDirs, "moduleSourceDirs", result);
+    (void)WrapProperties(env, appInfo.permissions, "permissions", result);
+    (void)WrapModuleInfos(env, appInfo, result);
     NAPI_CALL(env, napi_create_string_utf8(env, appInfo.entryDir.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
     HILOG_INFO("%{public}s end.", __func__);
@@ -1391,41 +1362,53 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
     NAPI_CALL(env, napi_get_boolean(env, abilityInfo.formEnabled, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "formEnabled", proValue));
 
-    napi_value jsArrayPermissions = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayPermissions));
-    for (size_t i = 0; i < abilityInfo.permissions.size(); i++) {
-        proValue = nullptr;
-        NAPI_CALL(
-            env, napi_create_string_utf8(env, abilityInfo.permissions.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayPermissions, i, proValue));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "permissions", jsArrayPermissions));
-
-    napi_value jsArrayDeviceCapabilities = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayDeviceCapabilities));
-    for (size_t i = 0; i < abilityInfo.deviceCapabilities.size(); i++) {
-        proValue = nullptr;
-        NAPI_CALL(env,
-            napi_create_string_utf8(env, abilityInfo.deviceCapabilities.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayDeviceCapabilities, i, proValue));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "deviceCapabilities", jsArrayDeviceCapabilities));
-
-    napi_value jsArrayDeviceTypes = nullptr;
-    NAPI_CALL(env, napi_create_array(env, &jsArrayDeviceTypes));
-    for (size_t i = 0; i < abilityInfo.deviceTypes.size(); i++) {
-        proValue = nullptr;
-        NAPI_CALL(
-            env, napi_create_string_utf8(env, abilityInfo.deviceTypes.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
-        NAPI_CALL(env, napi_set_element(env, jsArrayDeviceTypes, i, proValue));
-    }
-    NAPI_CALL(env, napi_set_named_property(env, result, "deviceTypes", jsArrayDeviceTypes));
+    (void)WrapProperties(env, abilityInfo.permissions, "permissions", result);
+    (void)WrapProperties(env, abilityInfo.permissions, "deviceCapabilities", result);
+    (void)WrapProperties(env, abilityInfo.permissions, "deviceTypes", result);
 
     napi_value applicationInfo = nullptr;
     applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
     NAPI_CALL(env, napi_set_named_property(env, result, "applicationInfo", applicationInfo));
     HILOG_INFO("%{public}s end.", __func__);
     return result;
+}
+
+napi_value WrapProperties(napi_env env, const std::vector<std::string> properties, const std::string &proName,
+    napi_value &result)
+{
+    napi_value jsArrayProperties = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &jsArrayProperties));
+    napi_value proValue = nullptr;
+    for (size_t i = 0; i < properties.size(); i++) {
+        NAPI_CALL(
+            env, napi_create_string_utf8(env, properties.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
+        NAPI_CALL(env, napi_set_element(env, jsArrayProperties, i, proValue));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, result, proName.c_str(), jsArrayProperties));
+    return result;
+}
+
+napi_value WrapModuleInfos(napi_env env, const ApplicationInfo &appInfo, napi_value &result)
+{
+    napi_value jsArrayModuleInfo = nullptr;
+    napi_value jsModuleInfoObject = nullptr;
+    napi_value proValue = nullptr;
+    NAPI_CALL(env, napi_create_array(env, &jsArrayModuleInfo));
+    for (size_t i = 0; i < appInfo.moduleInfos.size(); i++) {
+        NAPI_CALL(env, napi_create_object(env, &jsModuleInfoObject));
+        proValue = nullptr;
+        NAPI_CALL(env,
+            napi_create_string_utf8(env, appInfo.moduleInfos.at(i).moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsModuleInfoObject, "moduleName", proValue));
+        
+        NAPI_CALL(env,
+            napi_create_string_utf8(
+                env, appInfo.moduleInfos.at(i).moduleSourceDir.c_str(), NAPI_AUTO_LENGTH, &proValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsModuleInfoObject, "moduleSourceDir", proValue));
+        NAPI_CALL(env, napi_set_element(env, jsArrayModuleInfo, i, jsModuleInfoObject));
+    }
+    NAPI_CALL(env, napi_set_named_property(env, result, "moduleInfos", jsArrayModuleInfo));
+    return nullptr;
 }
 
 napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
@@ -3631,7 +3614,7 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         key.id = connectAbilityCB->id;
         key.want = connectAbilityCB->want;
         connects_.emplace(key, conn);
-        if (serialNumber_ < INT64_MAX) {
+        if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
         } else {
             serialNumber_ = 0;

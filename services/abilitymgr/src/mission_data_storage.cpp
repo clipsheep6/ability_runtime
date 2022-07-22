@@ -145,7 +145,8 @@ bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& 
 
 std::string MissionDataStorage::GetMissionDataDirPath() const
 {
-    return TASK_DATA_FILE_BASE_PATH + "/" + std::to_string(userId_) + "/" + MISSION_DATA_FILE_PATH;
+    return std::string(TASK_DATA_FILE_BASE_PATH) + "/" + std::to_string(userId_) + "/"
+        + std::string(MISSION_DATA_FILE_PATH);
 }
 
 std::string MissionDataStorage::GetMissionDataFilePath(int missionId)
@@ -172,11 +173,12 @@ bool MissionDataStorage::CheckFileNameValid(const std::string &fileName)
         return false;
     }
 
-    if (fileNameExcludePath.find("_") != MISSION_JSON_FILE_PREFIX.length()) {
+    if (fileNameExcludePath.find("_") != std::string(MISSION_JSON_FILE_PREFIX).length()) {
         return false;
     }
 
-    if (fileNameExcludePath.find(JSON_FILE_SUFFIX) != fileNameExcludePath.length() - JSON_FILE_SUFFIX.length()) {
+    if (fileNameExcludePath.find(JSON_FILE_SUFFIX) != fileNameExcludePath.length()
+        - std::string(JSON_FILE_SUFFIX).length()) {
         return false;
     }
 

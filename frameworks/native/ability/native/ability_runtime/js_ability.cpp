@@ -76,7 +76,7 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 JsAbility::~JsAbility() = default;
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
+    const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     Ability::Init(abilityInfo, application, handler, token);
@@ -429,7 +429,7 @@ void JsAbility::DoOnForeground(const Want &want)
         std::weak_ptr<Ability> weakAbility = shared_from_this();
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        window->SetPrivacyMode(appIndex_ != 0);
+        window->SetPrivacyMode(securityFlag_);
     }
 
     HILOG_INFO("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
@@ -437,7 +437,7 @@ void JsAbility::DoOnForeground(const Want &want)
     HILOG_INFO("%{public}s end scene_->GoForeground.", __func__);
 }
 
-void JsAbility::RequsetFocus(const Want &want)
+void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (scene_ == nullptr) {

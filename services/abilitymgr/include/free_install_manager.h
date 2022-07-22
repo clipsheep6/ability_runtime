@@ -26,8 +26,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string FREE_INSTALL_TYPE = "freeInstallType";
-const std::string FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
+constexpr const char* FREE_INSTALL_TYPE = "freeInstallType";
+constexpr const char* FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
 
 struct FreeInstallInfo {
@@ -134,6 +134,8 @@ private:
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);
+    FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
+        const sptr<IRemoteObject> &callerToken);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -29,8 +29,9 @@ const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedul
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string FREE_INSTLL_CALLING_APP_ID = "freeInstallCallingAppId";
 const std::string FREE_INSTLL_CALLING_BUNDLENAMES = "freeInstallCallingBundleNames";
-
+const std::string FREE_INSTALL_CALLINGUID = "freeInstallCallingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
+
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
 {
@@ -81,20 +82,14 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     if (!isSaCall && !IsTopAbility(callerToken)) {
         return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
     }
-    auto promise = std::make_shared<std::promise<int32_t>>();
-    FreeInstallInfo info = {
-        .want = want,
-        .userId = userId,
-        .requestCode = requestCode,
-        .callerToken = callerToken,
-        .promise = promise
-    };
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
     freeInstallList_.push_back(info);
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
+    info.want.SetParam(FREE_INSTALL_CALLINGUID, IPCSkeleton::GetCallingUid());
     if (bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback)) {
         HILOG_INFO("The app has installed.");
     }
@@ -123,14 +118,7 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     if (!isSaCall && !isFromRemote && !IsTopAbility(callerToken)) {
         return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
     }
-    auto promise = std::make_shared<std::promise<int32_t>>();
-    FreeInstallInfo info = {
-        .want = want,
-        .userId = userId,
-        .requestCode = requestCode,
-        .callerToken = callerToken,
-        .promise = promise
-    };
+    FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
     freeInstallList_.push_back(info);
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
@@ -147,6 +135,20 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
         return HandleFreeInstallErrorCode(FREE_INSTALL_TIMEOUT);
     }
     return HandleFreeInstallErrorCode(remoteFuture.get());
+}
+
+FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
+    const sptr<IRemoteObject> &callerToken)
+{
+    auto promise = std::make_shared<std::promise<int32_t>>();
+    FreeInstallInfo info = {
+        .want = want,
+        .userId = userId,
+        .requestCode = requestCode,
+        .callerToken = callerToken,
+        .promise = promise
+    };
+    return info;
 }
 
 int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode, int32_t validUserId,

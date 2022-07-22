@@ -138,7 +138,7 @@ private:
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
             int64_t observerId = serialNumber_;
             observerIds_.emplace(observerId, observer);
-            if (serialNumber_ < INT64_MAX) {
+            if (serialNumber_ < INT32_MAX) {
                 serialNumber_++;
             } else {
                 serialNumber_ = 0;
@@ -405,7 +405,7 @@ private:
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
-        int accountId = -1;
+        int32_t accountId = -1;
         std::string bundleName;
 
         // only support 2 or 3 params
@@ -465,7 +465,7 @@ private:
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE_ONE, "abilityManager nullptr"));
                     return;
                 }
-                int memorySize = abilityManager->GetAppMemorySize();
+                int32_t memorySize = abilityManager->GetAppMemorySize();
                 HILOG_INFO("GetAppMemorySize memorySize:%{public}d", memorySize);
                 task.Resolve(engine, CreateJsValue(engine, memorySize));
             };

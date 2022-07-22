@@ -500,7 +500,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
  */
 void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Schedule clean ability called, app is %{public}s.", applicationInfo_->name.c_str());
+    HILOG_INFO("Schedule clean ability called.");
     wptr<MainThread> weak = this;
     auto task = [weak, token]() {
         auto appThread = weak.promote();
@@ -1081,9 +1081,10 @@ void MainThread::ChangeToLocalPath(const std::string &bundleName,
         if (item.empty()) {
             continue;
         }
-        std::regex pattern(ABS_CODE_PATH + FILE_SEPARATOR + bundleName + FILE_SEPARATOR);
+        std::regex pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleName
+            + std::string(FILE_SEPARATOR));
         localPath.emplace_back(
-            std::regex_replace(item, pattern, LOCAL_CODE_PATH + FILE_SEPARATOR));
+            std::regex_replace(item, pattern, std::string(LOCAL_CODE_PATH) + std::string(FILE_SEPARATOR)));
     }
 }
 
@@ -1441,8 +1442,7 @@ void MainThread::HandleTerminateApplication()
     }
 
     if (!applicationImpl_->PerformTerminate()) {
-        HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformTerminate() failed");
-        return;
+        HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
 
     std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
