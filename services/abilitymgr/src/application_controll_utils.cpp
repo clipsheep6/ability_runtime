@@ -54,7 +54,7 @@ bool IsCrowdtestExpired(const Want &want)
     std::string bundleName = want.GetBundle();
     AppExecFwk::Application callerAppInfo;
     bool result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,，
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,
             GetUserId(), callerAppInfo)
     );
     if (!result) {
