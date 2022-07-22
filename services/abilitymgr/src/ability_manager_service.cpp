@@ -59,6 +59,7 @@
 #include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
+#include "application_controll_utils.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
@@ -119,7 +120,6 @@ const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
-const std::string ACTION_CROWDTEST_EXPIRED = "ohos.want.action.crowdtestDead";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -364,6 +364,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
+
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want, requestCode, userId);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -405,12 +412,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityRequest abilityRequest;
-    
-    int ret = CheckCrowdtestExpired(want, requestCode, abilityRequest, validUserId);
-    if (ret != 0) {
-        HILOG_DEBUG("CheckCrowdtestDead ret : %{public}d", ret);
-        return ret;
-    }
 
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
@@ -506,6 +507,13 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want, requestCode, userId);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -530,12 +538,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityRequest abilityRequest;
-
-    int ret = CheckCrowdtestExpired(want, requestCode, abilityRequest, validUserId);
-    if (ret != 0) {
-        HILOG_DEBUG("CheckCrowdtestDead ret : %{public}d", ret);
-        return ret;
-    }
     
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
@@ -663,6 +665,13 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want, requestCode, userId);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -850,6 +859,13 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -1358,6 +1374,12 @@ int AbilityManagerService::ConnectAbility(
         AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
+    }
+
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
     }
 
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
@@ -3642,6 +3664,12 @@ int AbilityManagerService::StartAbilityByCall(
         return StartRemoteAbilityByCall(want, connect->AsObject());
     }
 
+    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want);
+    if (ret != 0) {
+        HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
+        return ret;
+    }
+
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
@@ -4820,38 +4848,6 @@ int AbilityManagerService::DumpAbilityInfoDone(std::vector<std::string> &infos, 
     }
     abilityRecord->DumpAbilityInfoDone(infos);
     return ERR_OK;
-}
-
-int CheckCrowdtestExpired(const Want &want, int requestCode, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
-{
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
-    std::string bundleName = want.GetBundle();
-    AppExecFwk::Application callerAppInfo;
-    bool result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,
-            GetUserId(), callerAppInfo)
-    );
-    if (!result) {
-        HILOG_ERROR("%{public}s GetApplicaionInfo from bms failed.", __func__);
-        return ERR_INVALID_VALUE;
-    }
-
-    auto appDistributionType = callerAppInfo.appDistributionType;
-    auto appCrowdtestDeadline = callerAppInfo.crowdtestDeadline;
-    if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
-        appCrowdtestDeadline <= 0) {
-#ifdef SUPPORT_GRAPHICS
-        Want newWant;
-        newWant.SetBundleName("com.test.demo");
-        newWant.SetAbilityName("demo");
-        newWant.SetAction(ACTION_CROWDTEST_EXPIRED);
-        abilityRequest.Voluation(newWant, requestCode, callerToken);
-        CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
-        return implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
-#endif
-        return ERR_NOT_OK;
-    }
 }
 
 #ifdef SUPPORT_GRAPHICS
