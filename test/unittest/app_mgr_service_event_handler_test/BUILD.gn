@@ -51,8 +51,8 @@ ohos_unittest("AMSEventHandlerTest") {
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
   ]
 
