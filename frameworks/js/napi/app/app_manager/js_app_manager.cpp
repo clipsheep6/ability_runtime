@@ -16,6 +16,7 @@
 #include "js_app_manager.h"
 
 #include <cstdint>
+#include <mutex>
 
 #include "ability_manager_interface.h"
 #include "app_mgr_interface.h"
@@ -41,6 +42,10 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERR_NOT_OK = -1;
+
+std::mutex observerMutex;
+std::map<int64_t, sptr<JSApplicationStateObserver>> observerIds;
+int64_t serialNumber = 0;
 
 class JsAppManager final {
 public:
@@ -136,12 +141,13 @@ private:
         int32_t ret = appManager_->RegisterApplicationStateObserver(observer);
         if (ret == 0) {
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
-            int64_t observerId = serialNumber_;
-            observerIds_.emplace(observerId, observer);
-            if (serialNumber_ < INT32_MAX) {
-                serialNumber_++;
+            std::lock_guard<std::mutex> lock(observerMutex);
+            int64_t observerId = serialNumber;
+            observerIds.emplace(observerId, observer);
+            if (serialNumber < INT32_MAX) {
+                serialNumber++;
             } else {
-                serialNumber_ = 0;
+                serialNumber = 0;
             }
             return engine.CreateNumber(observerId);
         } else {
@@ -165,8 +171,9 @@ private:
             // unwrap connectId
             napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
-            auto item = observerIds_.find(observerId);
-            if (item != observerIds_.end()) {
+            std::lock_guard<std::mutex> lock(observerMutex);
+            auto item = observerIds.find(observerId);
+            if (item != observerIds.end()) {
                 // match id
                 observer = item->second;
                 HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, (int32_t)observerId);
@@ -191,8 +198,10 @@ private:
                 int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
                 if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
-                    observerIds_.erase(observerId);
-                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu", observerIds_.size());
+                    std::lock_guard<std::mutex> lock(observerMutex);
+                    observerIds.erase(observerId);
+                    observer->Uninit();
+                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu", observerIds.size());
                 } else {
                     HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
                     task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));
@@ -546,9 +555,6 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
     std::unique_ptr<JsAppManager> jsAppManager =
         std::make_unique<JsAppManager>(GetAppManagerInstance(), GetAbilityManagerInstance());
     object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
-
-    // make handler
-    handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
 
     BindNativeFunction(*engine, *object, "registerApplicationStateObserver",
         JsAppManager::RegisterApplicationStateObserver);
