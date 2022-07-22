@@ -47,6 +47,30 @@ int InterceptCrowdtestExpired(const Want& want)
     return ERR_OK;
 }
 
+bool IsCrowdtestExpired(const Want &want)
+{
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+    std::string bundleName = want.GetBundle();
+    AppExecFwk::Application callerAppInfo;
+    bool result = IN_PROCESS_CALL(
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,，
+            GetUserId(), callerAppInfo)
+    );
+    if (!result) {
+        HILOG_ERROR("%{public}s GetApplicaionInfo from bms failed.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto appDistributionType = callerAppInfo.appDistributionType;
+    auto appCrowdtestDeadline = callerAppInfo.crowdtestDeadline;
+    if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
+        appCrowdtestDeadline <= 0) {
+        return true;
+    }
+    return false;
+}
+
 }
 }
 }
