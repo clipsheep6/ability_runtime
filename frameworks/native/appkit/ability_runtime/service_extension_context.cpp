@@ -48,6 +48,30 @@ ErrCode ServiceExtensionContext::StartAbility(const AAFwk::Want &want, const AAF
     return err;
 }
 
+ErrCode ServiceExtensionContext::StartAbilityByCall(
+    const AAFwk::Want& want, const std::shared_ptr<CallerCallBack> &callback)
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (localCallContainer_ == nullptr) {
+        localCallContainer_ = new (std::nothrow) LocalCallContainer();
+        if (localCallContainer_ == nullptr) {
+            HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
+            return ERR_INVALID_VALUE;
+        }
+    }
+    return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
+}
+
+ErrCode ServiceExtensionContext::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) const
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (localCallContainer_ == nullptr) {
+        HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    return localCallContainer_->Release(callback);
+}
+
 bool ServiceExtensionContext::ConnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {

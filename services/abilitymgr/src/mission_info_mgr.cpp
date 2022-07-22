@@ -216,7 +216,8 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
             break;
         }
 
-        if (DoesNotShowInTheMissionList(mission.startMethod)) {
+        if (DoesNotShowInTheMissionList(mission.startMethod) && 
+            !mission.missionInfo.want.GetBoolParam(Want::PARAM_RESV_TO_FOREGROUND, false)) {
             HILOG_INFO("MissionId[%{public}d] don't show in mission list", mission.missionInfo.id);
             continue;
         }
@@ -246,7 +247,8 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
         return -1;
     }
 
-    if (DoesNotShowInTheMissionList((*it).startMethod)) {
+    if (DoesNotShowInTheMissionList((*it).startMethod) && 
+        !(*it).missionInfo.want.GetBoolParam(Want::PARAM_RESV_TO_FOREGROUND, false)) {
         HILOG_INFO("MissionId[%{public}d] don't show in mission list", (*it).missionInfo.id);
         return -1;
     }
