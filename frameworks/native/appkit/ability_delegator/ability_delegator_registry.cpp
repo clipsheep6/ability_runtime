@@ -33,7 +33,7 @@ std::shared_ptr<AbilityDelegatorArgs> AbilityDelegatorRegistry::GetArguments()
 void AbilityDelegatorRegistry::RegisterInstance(
     const std::shared_ptr<AbilityDelegator> &delegator, const std::shared_ptr<AbilityDelegatorArgs> &args)
 {
-    abilityDelegator_     = delegator;
+    abilityDelegator_ = delegator;
     abilityDelegatorArgs_ = args;
 }
 }  // namespace AppExecFwk

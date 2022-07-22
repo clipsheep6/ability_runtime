@@ -123,7 +123,7 @@ public:
      *
      * @return true if found, false otherwise.
      */
-    bool FindDebugFlag();
+    bool FindDebugFlag() const;
 
 private:
     std::string GetParamValue(const std::string &key) const;
