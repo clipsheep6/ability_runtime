@@ -25,6 +25,7 @@ class Ability {
     onWindowStageDestroy() {}
     onForeground(want) {}
     onBackground() {}
+    onMemoryLevel(level) {}
     onWindowStageRestore(windowStage) {}
     onCallRequest() {
         console.log("Ability::onCallRequest callee is " + typeof this.callee + " " + this.callee);

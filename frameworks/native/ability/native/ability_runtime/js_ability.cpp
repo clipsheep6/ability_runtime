@@ -533,6 +533,30 @@ void JsAbility::OnConfigurationUpdated(const Configuration &configuration)
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
 }
 
+void JsAbility::OnMemoryLevel(int level)
+{
+    Ability::OnMemoryLevel(level);
+    HILOG_INFO("%{public}s called.", __func__);
+
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue *value = jsAbilityObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get Ability object");
+        return;
+    }
+
+    NativeValue *jslevel = CreateJsValue(nativeEngine, level);
+    NativeValue *argv[] = {
+        jslevel,
+    };
+    CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
 void JsAbility::UpdateContextConfiguration()
 {
     HILOG_INFO("%{public}s called.", __func__);

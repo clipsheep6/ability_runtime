@@ -94,6 +94,11 @@ void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configur
     HILOG_INFO("%{public}s called.", __func__);
 }
 
+void Extension::OnMemoryLevel(int level)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+}
+
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_INFO("%{public}s called.", __func__);

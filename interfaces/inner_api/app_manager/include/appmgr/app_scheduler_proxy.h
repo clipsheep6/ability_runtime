@@ -69,6 +69,14 @@ public:
     virtual void ScheduleLowMemory() override;
 
     /**
+     * ScheduleMemoryLevel, call ScheduleMemoryLevel() through proxy project,
+     * Notify applications background the current memory level.
+     *
+     * @return
+     */
+    virtual void ScheduleMemoryLevel(int32_t level) override;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *

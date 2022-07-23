@@ -487,6 +487,21 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     return result;
 }
 
+int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
+{
+    HILOG_INFO("call %{public}s", __func__);
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    HILOG_INFO("current app size %{public}d", static_cast<int>(appRunningRecordMap_.size()));
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord->GetState() == ApplicationState::APP_STATE_BACKGROUND) {
+            HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
+            appRecord->ScheduleMemoryLevel(level);
+        }
+    }
+    return ERR_OK;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRenderPid(const pid_t pid)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);

@@ -1175,6 +1175,28 @@ void AbilityThread::NotifyContinuationResult(int32_t result)
     abilityImpl_->NotifyContinuationResult(result);
 }
 
+void AbilityThread::NotifyMemoryLevel(int32_t level)
+{
+    HILOG_INFO("NotifyMemoryLevel, result:%{public}d", level);
+
+    if (isExtension_) {
+        HILOG_INFO("AbilityThread is an extension ability");
+        if (extensionImpl_ == nullptr) {
+            HILOG_ERROR("AbilityThread::NotifyMemoryLevel extensionImpl_ is nullptr");
+            return;
+        }
+        extensionImpl_->NotifyMemoryLevel(level);
+    }
+    else {
+        HILOG_INFO("AbilityThread is an ability");
+        if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("AbilityThread::NotifyMemoryLevel abilityImpl_ is nullptr");
+        return;
+        }
+        abilityImpl_->NotifyMemoryLevel(level);
+    }
+}
+
 /**
  * @description: Attach The ability thread to the main process.
  * @param application Indicates the main process.

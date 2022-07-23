@@ -70,6 +70,13 @@ public:
     void ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config);
 
     /**
+     * @brief Notify current memory level.
+     *
+     * @param level Current memory level.
+     */
+    void NotifyMemoryLevel(const int level);
+
+    /**
      * @brief Connect the Extension. and Calling information back to Extension.
      *
      * @param want The Want object to connect to.

@@ -126,6 +126,15 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
      * Get system memory information.
      * @param SystemMemoryAttr, memory information.
      */
@@ -268,6 +277,7 @@ public:
         UPDATE_CONFIGURATION,
         REGISTER_CONFIGURATION_OBSERVER,
         UNREGISTER_CONFIGURATION_OBSERVER,
+        APP_NOTIFY_MEMORY_LEVEL,
     };
 };
 }  // namespace AppExecFwk

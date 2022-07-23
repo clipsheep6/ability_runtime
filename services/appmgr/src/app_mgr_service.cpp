@@ -305,6 +305,14 @@ int32_t AppMgrService::GetProcessRunningInfosByUserId(std::vector<RunningProcess
     return appMgrServiceInner_->GetProcessRunningInfosByUserId(info, userId);
 }
 
+int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyMemoryLevel(level);
+}
+
 /**
  * Get system memory information.
  * @param SystemMemoryAttr, memory information.
