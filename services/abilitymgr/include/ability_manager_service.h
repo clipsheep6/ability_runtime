@@ -51,6 +51,8 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
+#include "hisysevent.h"
+#include "event_report.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -1009,6 +1011,14 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
+
+    bool CheckStaticCfgAndUriPermission(AbilityRequest &abilityRequest, const Want &want,
+        ErrCode &result);
+    int ConnectAbilityLocked(AbilityRequest &abilityRequest, int32_t validUserId,
+        const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken);
+    int StartAbilityByMissionListManager(AbilityRequest &abilityRequest, int32_t oriValidUserId,
+        AAFWK::EventInfo &eventInfo);
+    void InitEventInfo(AAFWK::EventInfo &eventInfo, const Want &want, int32_t userId);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
