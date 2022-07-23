@@ -122,6 +122,11 @@ ohos_moduletest("start_ability_implicit_module_test") {
     "startup_l2:syspara",
   ]
 
+  if (efficiency_manager) {
+    cflags_cc += [ "-DEFFICIENCY_MANAGER_ENABLE" ]
+    external_deps += [ "efficiency_manager:suspend_manager_client" ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
