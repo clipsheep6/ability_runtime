@@ -38,6 +38,7 @@ ohos_unittest("AmsMgrKillProcessTest") {
   }
 
   deps = [
+    "${aafwk_path}/frameworks/kits/ability/native:abilitykit_native",
     "${aafwk_path}/frameworks/kits/appkit:appkit_native",
     "${aafwk_path}/interfaces/inner_api/app_manager:app_manager",
     "${aafwk_path}/services/appmgr:libappms",
