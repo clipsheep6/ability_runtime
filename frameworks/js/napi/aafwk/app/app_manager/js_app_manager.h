@@ -45,14 +45,15 @@ public:
     void SetJsObserverObject(NativeValue* jsObserverObject);
     void CallJsFunction(const char* methodName, NativeValue* const* argv, size_t argc);
 
+    inline void Uninit()
+    {
+        jsObserverObject_.reset();
+    }
+
 private:
     NativeEngine& engine_;
     std::unique_ptr<NativeReference> jsObserverObject_ = nullptr;
 };
-
-static std::map<int64_t, sptr<JSApplicationStateObserver>> observerIds_;
-static int64_t serialNumber_ = 0;
-static std::shared_ptr<AppExecFwk::EventHandler> handler_ = nullptr;
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_APPEXECFWK_RUNTIME_APP_MANAGER_H
