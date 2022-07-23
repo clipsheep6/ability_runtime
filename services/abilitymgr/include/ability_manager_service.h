@@ -797,7 +797,7 @@ public:
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
-    static constexpr uint32_t LOAD_TIMEOUT = 3000;            // ms
+    static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
     static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
