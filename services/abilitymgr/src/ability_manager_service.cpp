@@ -88,7 +88,6 @@ const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
-static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
@@ -3505,32 +3504,6 @@ int AbilityManagerService::GetWantSenderInfo(const sptr<IWantSender> &target, st
     CHECK_POINTER_AND_RETURN(target, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(info, ERR_INVALID_VALUE);
     return pendingWantManager_->GetWantSenderInfo(target, info);
-}
-
-/**
- * Get system memory information.
- * @param SystemMemoryAttr, memory information.
- */
-void AbilityManagerService::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo)
-{
-    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler == nullptr) {
-        HILOG_ERROR("%{public}s, appScheduler is nullptr", __func__);
-        return;
-    }
-
-    int memoryThreshold = 0;
-    if (amsConfigResolver_ == nullptr) {
-        HILOG_ERROR("%{public}s, amsConfigResolver_ is nullptr", __func__);
-        memoryThreshold = EXPERIENCE_MEM_THRESHOLD;
-    } else {
-        memoryThreshold = amsConfigResolver_->GetMemThreshold(AmsConfig::MemThreshold::HOME_APP);
-    }
-
-    nlohmann::json memJson = { "memoryThreshold", memoryThreshold };
-    std::string memConfig = memJson.dump();
-
-    appScheduler->GetSystemMemoryAttr(memoryInfo, memConfig);
 }
 
 int AbilityManagerService::GetAppMemorySize()

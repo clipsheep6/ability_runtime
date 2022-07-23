@@ -488,13 +488,6 @@ ErrCode AbilityManagerClient::GetWantSenderInfo(const sptr<IWantSender> &target,
     return abms->GetWantSenderInfo(target, info);
 }
 
-void AbilityManagerClient::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->GetSystemMemoryAttr(memoryInfo);
-}
-
 ErrCode AbilityManagerClient::GetAppMemorySize()
 {
     auto abms = GetAbilityManager();

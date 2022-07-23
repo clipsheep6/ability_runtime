@@ -282,38 +282,6 @@ bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, Me
     return true;
 }
 
-/**
- * Get system memory information.
- * @param SystemMemoryAttr, memory information.
- */
-void AppMgrProxy::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        return;
-    }
-
-    if (!data.WriteString(strConfig)) {
-        HILOG_ERROR("want write failed.");
-        return;
-    }
-
-    if (!SendTransactCmd(IAppMgr::Message::APP_GET_SYSTEM_MEMORY_ATTR, data, reply)) {
-        HILOG_ERROR("SendTransactCmd failed");
-        return;
-    }
-
-    std::shared_ptr<SystemMemoryAttr> remoteRetsult(reply.ReadParcelable<SystemMemoryAttr>());
-    if (remoteRetsult == nullptr) {
-        HILOG_ERROR("recv SystemMemoryAttr failed");
-        return;
-    }
-
-    memoryInfo = *remoteRetsult;
-}
-
 void AppMgrProxy::AddAbilityStageDone(const int32_t recordId)
 {
     MessageParcel data;

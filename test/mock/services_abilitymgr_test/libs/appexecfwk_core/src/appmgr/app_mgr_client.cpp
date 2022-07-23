@@ -99,8 +99,5 @@ void AppMgrClient::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 
 void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
 {}
-
-void AppMgrClient::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig)
-{}
 }  // namespace AppExecFwk
 }  // namespace OHOS

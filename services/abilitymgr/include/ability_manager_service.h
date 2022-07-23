@@ -507,11 +507,6 @@ public:
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) override;
     virtual int GetAppMemorySize() override;
 
     virtual bool IsRamConstrainedDevice() override;
