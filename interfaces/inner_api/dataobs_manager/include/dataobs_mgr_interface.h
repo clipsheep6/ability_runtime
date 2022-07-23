@@ -27,7 +27,7 @@
 namespace OHOS {
 namespace AAFwk {
 using Uri = OHOS::Uri;
-const std::string DATAOBS_MANAGER_SERVICE_NAME = "DataObsMgrService";
+constexpr const char* DATAOBS_MANAGER_SERVICE_NAME = "DataObsMgrService";
 /**
  * @class IDataObsMgr
  * IDataObsMgr interface is used to access dataobs manager services.

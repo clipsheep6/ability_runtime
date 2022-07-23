@@ -28,40 +28,40 @@ namespace OHOS {
 namespace AAFWK {
 namespace {
 // fault event
-const std::string START_ABILITY_ERROR = "START_ABILITY_ERROR";
-const std::string TERMINATE_ABILITY_ERROR = "TERMINATE_ABILITY_ERROR";
-const std::string START_EXTENSION_ERROR = "START_EXTENSION_ERROR";
-const std::string STOP_EXTENSION_ERROR = "STOP_EXTENSION_ERROR";
-const std::string CONNECT_SERVICE_ERROR = "CONNECT_SERVICE_ERROR";
-const std::string DISCONNECT_SERVICE_ERROR = "DISCONNECT_SERVICE_ERROR";
+constexpr const char* START_ABILITY_ERROR = "START_ABILITY_ERROR";
+constexpr const char* TERMINATE_ABILITY_ERROR = "TERMINATE_ABILITY_ERROR";
+constexpr const char* START_EXTENSION_ERROR = "START_EXTENSION_ERROR";
+constexpr const char* STOP_EXTENSION_ERROR = "STOP_EXTENSION_ERROR";
+constexpr const char* CONNECT_SERVICE_ERROR = "CONNECT_SERVICE_ERROR";
+constexpr const char* DISCONNECT_SERVICE_ERROR = "DISCONNECT_SERVICE_ERROR";
 // ability behavior event
-const std::string START_ABILITY = "START_ABILITY";
-const std::string TERMINATE_ABILITY = "TERMINATE_ABILITY";
-const std::string CLOSE_ABILITY = "CLOSE_ABILITY";
-const std::string ABILITY_ONFOREGROUND = "ABILITY_ONFOREGROUND";
-const std::string ABILITY_ONBACKGROUND = "ABILITY_ONBACKGROUND";
+constexpr const char* START_ABILITY = "START_ABILITY";
+constexpr const char* TERMINATE_ABILITY = "TERMINATE_ABILITY";
+constexpr const char* CLOSE_ABILITY = "CLOSE_ABILITY";
+constexpr const char* ABILITY_ONFOREGROUND = "ABILITY_ONFOREGROUND";
+constexpr const char* ABILITY_ONBACKGROUND = "ABILITY_ONBACKGROUND";
 // serviceExtensionAbility behavior event
-const std::string START_SERVICE = "START_SERVICE";
-const std::string STOP_SERVICE = "STOP_SERVICE";
-const std::string CONNECT_SERVICE = "CONNECT_SERVICE";
-const std::string DISCONNECT_SERVICE = "DISCONNECT_SERVICE";
+constexpr const char* START_SERVICE = "START_SERVICE";
+constexpr const char* STOP_SERVICE = "STOP_SERVICE";
+constexpr const char* CONNECT_SERVICE = "CONNECT_SERVICE";
+constexpr const char* DISCONNECT_SERVICE = "DISCONNECT_SERVICE";
 // form behavior event
-const std::string ADD_FORM = "ADD_FORM";
-const std::string REQUEST_FORM = "REQUEST_FORM";
-const std::string DELETE_FORM = "DELETE_FORM";
-const std::string CASTTEMP_FORM = "CASTTEMP_FORM";
-const std::string ACQUIREFORMSTATE_FORM = "ACQUIREFORMSTATE_FORM";
-const std::string MESSAGE_EVENT_FORM = "MESSAGE_EVENT_FORM";
-const std::string ROUTE_EVENT_FORM = "ROUTE_EVENT_FORM";
-const std::string RELEASE_FORM = "RELEASE_FORM";
-const std::string DELETE_INVALID_FORM = "DELETE_INVALID_FORM";
-const std::string SET_NEXT_REFRESH_TIME_FORM = "SET_NEXT_REFRESH_TIME_FORM";
+constexpr const char* ADD_FORM = "ADD_FORM";
+constexpr const char* REQUEST_FORM = "REQUEST_FORM";
+constexpr const char* DELETE_FORM = "DELETE_FORM";
+constexpr const char* CASTTEMP_FORM = "CASTTEMP_FORM";
+constexpr const char* ACQUIREFORMSTATE_FORM = "ACQUIREFORMSTATE_FORM";
+constexpr const char* MESSAGE_EVENT_FORM = "MESSAGE_EVENT_FORM";
+constexpr const char* ROUTE_EVENT_FORM = "ROUTE_EVENT_FORM";
+constexpr const char* RELEASE_FORM = "RELEASE_FORM";
+constexpr const char* DELETE_INVALID_FORM = "DELETE_INVALID_FORM";
+constexpr const char* SET_NEXT_REFRESH_TIME_FORM = "SET_NEXT_REFRESH_TIME_FORM";
 // app behavior event
-const std::string APP_ATTACH = "APP_ATTACH";
-const std::string APP_LAUNCH = "APP_LAUNCH";
-const std::string APP_FOREGROUND = "APP_FOREGROUND";
-const std::string APP_BACKGROUND = "APP_BACKGROUND";
-const std::string APP_TERMINATE = "APP_TERMINATE";
+constexpr const char* APP_ATTACH = "APP_ATTACH";
+constexpr const char* APP_LAUNCH = "APP_LAUNCH";
+constexpr const char* APP_FOREGROUND = "APP_FOREGROUND";
+constexpr const char* APP_BACKGROUND = "APP_BACKGROUND";
+constexpr const char* APP_TERMINATE = "APP_TERMINATE";
 }
 
 struct EventInfo {

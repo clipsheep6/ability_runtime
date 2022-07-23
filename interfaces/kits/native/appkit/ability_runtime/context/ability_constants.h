@@ -19,10 +19,10 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace Constants {
-const std::string ABS_CODE_PATH = "/data/app/el1/bundle/public";
-const std::string LOCAL_CODE_PATH = "/data/storage/el1/bundle";
-const std::string LOCAL_BUNDLES = "/data/bundles";
-const std::string FILE_SEPARATOR = "/";
+constexpr const char* ABS_CODE_PATH = "/data/app/el1/bundle/public";
+constexpr const char* LOCAL_CODE_PATH = "/data/storage/el1/bundle";
+constexpr const char* LOCAL_BUNDLES = "/data/bundles";
+constexpr const char* FILE_SEPARATOR = "/";
 }  // namespace Constants
 }  // namespace AbilityRuntime
 }  // namespace OHOS

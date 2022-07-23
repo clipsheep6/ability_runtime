@@ -23,18 +23,18 @@ namespace OHOS {
 namespace AAFwk {
 namespace AmsConfig {
 namespace MemThreshold {
-const std::string HOME_APP("home_application");
+constexpr const char* HOME_APP = "home_application";
 }
-const std::string AMS_CONFIG_FILE_PATH {"/system/etc/ams_service_config.json"};
-const std::string SERVICE_ITEM_AMS {"service_startup_config"};
-const std::string STARTUP_SETTINGS_DATA {"startup_settings_data"};
-const std::string MISSION_SAVE_TIME {"mission_save_time"};
-const std::string APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME {"app_not_response_process_timeout_time"};
-const std::string AMS_TIMEOUT_TIME {"ams_timeout_time"};
-const std::string DEVICE_TYPE {"device_type"};
-const std::string SYSTEM_CONFIGURATION {"system_configuration"};
-const std::string SYSTEM_ORIENTATION {"system_orientation"};
-const std::string ROOT_LAUNCHER_RESTART_MAX {"root_launcher_restart_max"};
+constexpr const char* AMS_CONFIG_FILE_PATH = "/system/etc/ams_service_config.json";
+constexpr const char* SERVICE_ITEM_AMS = "service_startup_config";
+constexpr const char* STARTUP_SETTINGS_DATA {"startup_settings_data"};
+constexpr const char* MISSION_SAVE_TIME = "mission_save_time";
+constexpr const char* APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME = "app_not_response_process_timeout_time";
+constexpr const char* AMS_TIMEOUT_TIME = "ams_timeout_time";
+constexpr const char* DEVICE_TYPE = "device_type";
+constexpr const char* SYSTEM_CONFIGURATION = "system_configuration";
+constexpr const char* SYSTEM_ORIENTATION = "system_orientation";
+constexpr const char* ROOT_LAUNCHER_RESTART_MAX = "root_launcher_restart_max";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
