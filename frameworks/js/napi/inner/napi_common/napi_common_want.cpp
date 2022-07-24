@@ -269,19 +269,21 @@ bool InnerWrapWantParamsWantParams(
 bool InnerWrapWantParamsRemoteObject(
     napi_env env, napi_value jsObject, const std::string &key, const AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called. key=%{public}s", __func__, key.c_str());
+    HILOG_DEBUG("%{public}s called. key=%{public}s", __func__, key.c_str());
     auto value = wantParams.GetParam(key);
     AAFwk::IRemoteObjectWrap *remoteObjectIWrap = AAFwk::IRemoteObjectWrap::Query(value);
-    if (remoteObjectIWrap != nullptr) {
-        auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
-        auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
-        HILOG_INFO("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (remoteObjectIWrap == nullptr) {
+        return false;
     }
-    return false;
+    auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
+    auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
+    HILOG_DEBUG("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsArrayChar(napi_env env, napi_value jsObject, const std::string &key, sptr<AAFwk::IArray> &ao)
