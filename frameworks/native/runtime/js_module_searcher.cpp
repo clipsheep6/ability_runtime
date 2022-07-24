@@ -109,21 +109,23 @@ std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, con
     if (curJsModulePath.empty() || newJsModuleUri.empty()) {
         return newJsModulePath;
     }
+    std::string normalizeUri = newJsModuleUri;
+    replace(normalizeUri.begin(), normalizeUri.end(), '\\', '/');
 
-    switch (newJsModuleUri[0]) {
+    switch (normalizeUri[0]) {
         case '.': {
-            newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
+            newJsModulePath = MakeNewJsModulePath(curJsModulePath, normalizeUri);
             break;
         }
         case '@': {
-            newJsModulePath = ParseOhmUri(curJsModulePath, newJsModuleUri);
+            newJsModulePath = ParseOhmUri(curJsModulePath, normalizeUri);
             if (newJsModulePath.empty()) {
-                newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+                newJsModulePath = FindNpmPackage(curJsModulePath, normalizeUri);
             }
             break;
         }
         default: {
-            newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+            newJsModulePath = FindNpmPackage(curJsModulePath, normalizeUri);
             break;
         }
     }
@@ -131,7 +133,7 @@ std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, con
     FixExtName(newJsModulePath);
 
     HILOG_INFO("Search JS module (%{public}s, %{public}s) => %{public}s end",
-        curJsModulePath.c_str(), newJsModuleUri.c_str(), newJsModulePath.c_str());
+        curJsModulePath.c_str(), normalizeUri.c_str(), newJsModulePath.c_str());
 
     return newJsModulePath;
 }
@@ -284,8 +286,6 @@ std::string JsModuleSearcher::FindNpmPackage(const std::string& curJsModulePath,
     if (!newJsModulePath.empty()) {
         return newJsModulePath;
     }
-    std::string normalizeNpmPkg = npmPackage;
-    replace(normalizeNpmPkg.begin(), normalizeNpmPkg.end(), '\\', '/');
     std::string moduleInstallPath = GetInstallPath(curJsModulePath);
     if (moduleInstallPath.empty()) {
         return std::string();
@@ -297,7 +297,7 @@ std::string JsModuleSearcher::FindNpmPackage(const std::string& curJsModulePath,
     }
 
     if (pathVector[0] != NPM_PATH_SEGMENT) {
-        return FindNpmPackageInTopLevel(moduleInstallPath, normalizeNpmPkg);
+        return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage);
     }
 
     // Remove file name, reserve only dir name
@@ -307,7 +307,7 @@ std::string JsModuleSearcher::FindNpmPackage(const std::string& curJsModulePath,
     // so there must be 2 element in vector
     while (pathVector.size() > 2) {
         std::string path =
-            moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + normalizeNpmPkg;
+            moduleInstallPath + JoinString(pathVector, '/') + '/' + NPM_PATH_SEGMENT + '/' + npmPackage;
         path = FindNpmPackageInPath(path);
         if (!path.empty()) {
             return path;
@@ -322,7 +322,7 @@ std::string JsModuleSearcher::FindNpmPackage(const std::string& curJsModulePath,
         return std::string();
     }
 
-    return FindNpmPackageInTopLevel(moduleInstallPath, normalizeNpmPkg, index);
+    return FindNpmPackageInTopLevel(moduleInstallPath, npmPackage, index);
 }
 
 std::string JsModuleSearcher::ParseOhmUri(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
