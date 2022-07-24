@@ -247,22 +247,7 @@ bool AbilityManagerService::Init()
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
-    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
-        int attemptNums = 0;
-        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_)))) {
-            ++attemptNums;
-            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
-                HILOG_ERROR("subscribeBackgroundTask fail");
-                return;
-            }
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-        }
-    };
-    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
-#endif
+    SubscribeBackgroundTask();
 
     anrListener_ = std::make_shared<ApplicationAnrListener>();
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
@@ -821,6 +806,26 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
 
     UpdateCallerInfo(abilityRequest.want);
     return ERR_OK;
+}
+
+void AbilityManagerService::SubscribeBackgroundTask()
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
+    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
+        int attemptNums = 0;
+        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
+            *(aams->bgtaskObserver_)))) {
+            ++attemptNums;
+            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
+                HILOG_ERROR("subscribeBackgroundTask fail");
+                return;
+            }
+            usleep(REPOLL_TIME_MICRO_SECONDS);
+        }
+    };
+    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+#endif
 }
 
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,

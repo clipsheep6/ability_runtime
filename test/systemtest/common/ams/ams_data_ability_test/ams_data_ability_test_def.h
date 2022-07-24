@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H_
-#define OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H_
+#ifndef OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
+#define OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
 #include <string>
 
 namespace OHOS {

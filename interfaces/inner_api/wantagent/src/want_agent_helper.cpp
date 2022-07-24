@@ -396,26 +396,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
         operationType = static_cast<WantAgentConstant::OperationType>(jsonObject.at("operationType").get<int>());
     }
 
-    int flags = -1;
-    std::vector<WantAgentConstant::Flags> flagsVec = {};
-    if (jsonObject.contains("flags")) {
-        flags = jsonObject.at("flags").get<int>();
-    }
-    if (flags & FLAG_ONE_SHOT) {
-        flagsVec.emplace_back(WantAgentConstant::Flags::ONE_TIME_FLAG);
-    }
-    if (flags & FLAG_NO_CREATE) {
-        flagsVec.emplace_back(WantAgentConstant::Flags::NO_BUILD_FLAG);
-    }
-    if (flags & FLAG_CANCEL_CURRENT) {
-        flagsVec.emplace_back(WantAgentConstant::Flags::CANCEL_PRESENT_FLAG);
-    }
-    if (flags & FLAG_UPDATE_CURRENT) {
-        flagsVec.emplace_back(WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
-    }
-    if (flags & FLAG_IMMUTABLE) {
-        flagsVec.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
-    }
+    std::vector<WantAgentConstant::Flags> flagsVec = parseFlags(jsonObject);
 
     std::vector<std::shared_ptr<AAFwk::Want>> wants = {};
     if (jsonObject.contains("wants")) {
@@ -439,5 +420,31 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     WantAgentInfo info(requestCode, operationType, flagsVec, wants, extraInfo);
 
     return GetWantAgent(info);
+}
+
+std::vector<WantAgentConstant::Flags> WantAgentHelper::parseFlags(nlohmann::json jsonObject)
+{
+    int flags = -1;
+    std::vector<WantAgentConstant::Flags> flagsVec = {};
+    if (jsonObject.contains("flags")) {
+        flags = jsonObject.at("flags").get<int>();
+    }
+    if (flags & FLAG_ONE_SHOT) {
+        flagsVec.emplace_back(WantAgentConstant::Flags::ONE_TIME_FLAG);
+    }
+    if (flags & FLAG_NO_CREATE) {
+        flagsVec.emplace_back(WantAgentConstant::Flags::NO_BUILD_FLAG);
+    }
+    if (flags & FLAG_CANCEL_CURRENT) {
+        flagsVec.emplace_back(WantAgentConstant::Flags::CANCEL_PRESENT_FLAG);
+    }
+    if (flags & FLAG_UPDATE_CURRENT) {
+        flagsVec.emplace_back(WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
+    }
+    if (flags & FLAG_IMMUTABLE) {
+        flagsVec.emplace_back(WantAgentConstant::Flags::CONSTANT_FLAG);
+    }
+
+    return flagsVec;
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent

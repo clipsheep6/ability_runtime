@@ -3761,7 +3761,9 @@ void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
     }
 
     auto end = remove(g_registerInstances.begin(), g_registerInstances.end(), onCB);
-    (void)g_registerInstances.erase(end);
+    if (end != g_registerInstances.end()) {
+        (void)g_registerInstances.erase(end);
+    }
     delete onCB;
     onCB = nullptr;
 }
