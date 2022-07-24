@@ -316,7 +316,7 @@ private:
     }
 
     void CheckMissionSnapShotParams(NativeEngine &engine, NativeCallbackInfo &info, int32_t &errCode,
-        std::string &deviceId, int32_t &missionId)
+        const std::string &deviceId, const int32_t &missionId)
     {
         if (info.argc != ARG_COUNT_TWO && info.argc != ARG_COUNT_THREE) {
             HILOG_ERROR("missionSnapshot: need two or three params");
