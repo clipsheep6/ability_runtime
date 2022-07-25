@@ -126,7 +126,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     if (connCallback_) {
         connCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
     }
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("[PerformanceTest] result: %{public}d. connectstate:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
@@ -141,7 +141,7 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
     if (connCallback_) {
         connCallback_->OnAbilityDisconnectDone(element, isDied ? (resultCode - 1) : resultCode);
     }
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("[PerformanceTest] result: %{public}d. connectstate:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::ScheduleDisconnectAbilityDone()

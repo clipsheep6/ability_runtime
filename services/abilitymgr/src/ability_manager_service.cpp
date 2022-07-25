@@ -1340,7 +1340,7 @@ int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called.");
+    HILOG_INFO("[PerformanceTest] Connect ability called.");
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     AAFWK::EventInfo eventInfo;
@@ -1531,7 +1531,7 @@ int AbilityManagerService::DisconnectRemoteAbility(const sptr<IRemoteObject> &co
 int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("ContinueMission missionId: %{public}d", missionId);
+    HILOG_INFO("[PerformanceTest] ContinueMission missionId: %{public}d", missionId);
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;

@@ -1262,7 +1262,7 @@ napi_value ContinueAbilityWrap(napi_env env, napi_callback_info info, ContinueAb
 
 napi_value NAPI_ContinueAbility(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("[PerformanceTest] %{public}s called.", __func__);
     ContinueAbilityCB *continueAbilityCB = CreateContinueAbilityCBCBInfo(env);
     if (continueAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s continueAbilityCB == nullptr", __func__);
