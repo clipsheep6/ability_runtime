@@ -21,9 +21,9 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
   cflags_cc = []
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
+    "${systemabilitymgr_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
 
   defines = [ "usleep(time) = MockSleep(time)" ]
@@ -54,7 +54,7 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
   ]
 
   external_deps = [

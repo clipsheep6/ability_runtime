@@ -64,7 +64,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
 
   configs = [
     "${ability_runtime_test_path}/moduletest:aafwk_module_test_config",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_config",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk:system_ability_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -76,8 +76,8 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
