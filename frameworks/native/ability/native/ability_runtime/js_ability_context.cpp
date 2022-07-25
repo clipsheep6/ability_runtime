@@ -169,7 +169,7 @@ NativeValue* JsAbilityContext::IsTerminating(NativeEngine* engine, NativeCallbac
 NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("OnStartAbility is called.");
+    HILOG_INFO("[PerformanceTest] OnStartAbility is called.");
 
     if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
@@ -266,7 +266,7 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
 
 NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
+    HILOG_DEBUG("[PerformanceTest] JsAbilityContext::%{public}s, called", __func__);
     constexpr size_t ARGC_ONE = 1;
     constexpr size_t ARGC_TWO = 2;
     if (info.argc < ARGC_ONE || info.argv[0]->TypeOf() != NATIVE_OBJECT) {
@@ -704,7 +704,7 @@ NativeValue* JsAbilityContext::OnTerminateSelfWithResult(NativeEngine& engine, N
 NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called.");
+    HILOG_INFO("[PerformanceTest] Connect ability called.");
     // only support two params
     if (info.argc != ARGC_TWO) {
         HILOG_ERROR("Connect ability failed, not enough params.");
@@ -816,7 +816,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
 
 NativeValue* JsAbilityContext::OnDisconnectAbility(NativeEngine& engine, NativeCallbackInfo& info)
 {
-    HILOG_INFO("OnDisconnectAbility is called");
+    HILOG_INFO("[PerformanceTest] OnDisconnectAbility is called");
     // only support one or two params
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params");

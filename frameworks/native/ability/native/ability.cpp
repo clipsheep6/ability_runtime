@@ -86,10 +86,6 @@ const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-constexpr int32_t DISTRIBUTED_OBJECT_TIMEOUT = 10000;
-#endif
-
 Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
     if (!runtime) {
@@ -440,40 +436,10 @@ bool Ability::IsRestoredInContinuation() const
 
 void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
 {
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-    int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
-    std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
+    HILOG_INFO("[PerformanceTest] continuation WaitingDistributedObjectSyncComplete begin");
 
-    HILOG_INFO("continuation WaitingDistributedObjectSyncComplete begin");
-    auto timeout = [self = shared_from_this(), sessionId, originDeviceId]() {
-        HILOG_INFO("DistributedObject sync timeout");
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, false, nullptr);
-    };
-
-    // std::shared_ptr<AppExecFwk::EventHandler> handler = handler_;
-    auto callback = [self = shared_from_this(), sessionId, originDeviceId]() {
-        HILOG_INFO("DistributedObject sync complete");
-        if (self->handler_ != nullptr) {
-            self->handler_->RemoveTask("Waiting_Sync_Timeout");
-        }
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, true, nullptr);
-    };
-
-    std::string &bundleName = abilityInfo_->bundleName;
-    HILOG_INFO("continuation TriggerRestore begin");
-    ObjectStore::DistributedObjectStore::GetInstance(bundleName)->TriggerRestore(callback);
-    HILOG_INFO("continuation TriggerRestore end");
-
-    if (handler_ != nullptr) {
-        HILOG_INFO("continuation set timeout begin");
-        handler_->PostTask(timeout, "Waiting_Sync_Timeout", DISTRIBUTED_OBJECT_TIMEOUT);
-        HILOG_INFO("continuation set timeout end");
-    }
-#else
     NotityContinuationResult(want, true);
-#endif
+
 }
 
 void Ability::NotityContinuationResult(const Want& want, bool success)
@@ -505,7 +471,7 @@ void Ability::NotityContinuationResult(const Want& want, bool success)
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_INFO("[PerformanceTest] %{public}s begin", __func__);
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnConnect error. abilityLifecycleExecutor_ == nullptr.");
         return nullptr;
