@@ -98,8 +98,7 @@ export default {
             }
         } else if (this.deviceType == "pc") {
             let heightTotalVp = 1;
-            let heightVal = 70;
-            let scrollbar = "off"
+            let heightVal = 68;
             if (this.selectorHapList.length == 2) {
                 heightTotalVp = this.selectorHapList.length * heightVal;
             } else if (this.selectorHapList.length == 3) {
@@ -107,8 +106,7 @@ export default {
             } else if (this.selectorHapList.length == 4) {
                 heightTotalVp = this.selectorHapList.length * heightVal;
             } else if (this.selectorHapList.length > 4) {
-                heightTotalVp = 4 * heightVal + 36;
-                scrollbar = "auto";
+                heightTotalVp = 4 * heightVal + 34;
             } else {
                 ;
             }
@@ -116,7 +114,6 @@ export default {
             this.pcSelectorlist = {
                 width: "100%",
                 height: heightTotalVp + "vp",
-                scrollbar:scrollbar
             };
         }
     },
