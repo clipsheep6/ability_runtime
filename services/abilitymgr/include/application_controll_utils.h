@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,7 +35,6 @@ const std::string CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME = "com.demo.crowdtest";
 const int32_t CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED = 1;
 const int32_t CROWDTEST_EXPEIRD_REFUSED = -1;
 
-
 static bool IsCrowdtestExpired(const Want &want)
 {
     auto bms = AbilityUtil::GetBundleManager();
@@ -60,19 +59,13 @@ static bool IsCrowdtestExpired(const Want &want)
     return false;
 }
 
-static int CheckCrowdtestForeground(const Want &want, RequestCode requestCode, int32_t userId)
+static int CheckCrowdtestForeground(const Want &want)
 {
     if (IsCrowdtestExpired(want)) {
-#ifdef SUPPORT_GRAPHICS
         Want newWant;
-        // want setElement一个包参数可不可以
-        newWant.SetElementName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME);
+        newWant.SetElementName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME, NULL);
         newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
-        int result = AbilityManagerService::StartAbility(newWant, userId, requestCode);
-        if (result != 0) {
-            return CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED;
-        }
-#endif
+        want = newWant;
         return CROWDTEST_EXPEIRD_REFUSED;
     }
     return ERR_OK;
