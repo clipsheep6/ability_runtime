@@ -365,11 +365,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
-    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(want);
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
     if (ret != ERR_OK) {
         HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
         if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
-            return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
         }
         HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
         return ret;
@@ -512,11 +513,12 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(want, requestCode, userId);
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
     if (ret != ERR_OK) {
         HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
         if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
-            return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
         }
         HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
         return ret;
@@ -674,11 +676,12 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(want);
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
     if (ret != ERR_OK) {
         HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
         if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
-            return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
         }
         HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
         return ret;

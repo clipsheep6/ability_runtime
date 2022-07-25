@@ -42,7 +42,7 @@ static bool IsCrowdtestExpired(const Want &want)
     std::string bundleName = want.GetBundle();
     AppExecFwk::Application callerAppInfo;
     bool result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlags::GET_BUNDLE_DEFAULT,
+        bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
             GetUserId(), callerAppInfo)
     );
     if (!result) {
@@ -59,19 +59,17 @@ static bool IsCrowdtestExpired(const Want &want)
     return false;
 }
 
-static int CheckCrowdtestForeground(const Want &want)
+static int CheckCrowdtestForeground(Want &want)
 {
     if (IsCrowdtestExpired(want)) {
-        Want newWant;
-        newWant.SetElementName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME, NULL);
-        newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
-        want = newWant;
+        want.SetElementName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME, NULL);
+        want.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
         return CROWDTEST_EXPEIRD_REFUSED;
     }
     return ERR_OK;
 }
 
-static int CheckCrowdtestBackground(const Want& want)
+static int CheckCrowdtestBackground(const Want &want)
 {
     if (IsCrowdtestExpired(want)) {
         return CROWDTEST_EXPEIRD_REFUSED;
