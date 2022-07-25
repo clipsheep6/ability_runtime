@@ -13,21 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTIL
-#define OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTIL
+#ifndef OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTILS
+#define OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTILS
 
 #include <string>
 
-#include "want.h"
 #include "ability_manager_service.h"
+#include "ability_util.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
-#include "ability_util.h"
+#include "want.h"
 
 namespace OHOS {
-namespace AAFWK {
+namespace AAFwk {
 namespace ApplicationControllUtils {
 using Want = OHOS::AAFwk::Want;
 const std::string CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME = "ohos.action.crowdtestDead";
@@ -35,30 +35,6 @@ const std::string CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME = "com.demo.crowdtest";
 const int32_t CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED = 1;
 const int32_t CROWDTEST_EXPEIRD_REFUSED = -1;
 
-static int InterceptCrowdtestExpired(const Want &want, RequestCode requestCode, int32_t userId)
-{
-    if (IsCrowdtestExpired(want)) {
-#ifdef SUPPORT_GRAPHICS
-        Want newWant;
-        newWant.SetBundleName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME);
-        newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
-        int result = AbilityManagerService::StartAbility(newWant, userId, requestCode);
-        if (result != 0) {
-            return CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED;
-        }
-#endif
-        return CROWDTEST_EXPEIRD_REFUSED;
-    }
-    return ERR_OK;
-}
-
-static int InterceptCrowdtestExpired(const Want& want)
-{
-    if (IsCrowdtestExpired(want)) {
-        return CROWDTEST_EXPEIRD_REFUSED;
-    }
-    return ERR_OK;
-}
 
 static bool IsCrowdtestExpired(const Want &want)
 {
@@ -83,7 +59,33 @@ static bool IsCrowdtestExpired(const Want &want)
     }
     return false;
 }
+
+static int CheckCrowdtestForeground(const Want &want, RequestCode requestCode, int32_t userId)
+{
+    if (IsCrowdtestExpired(want)) {
+#ifdef SUPPORT_GRAPHICS
+        Want newWant;
+        // want setElement一个包参数可不可以
+        newWant.SetElementName(CROWDTEST_EXPEIRD_IMPLICIT_BUNDLE_NAME);
+        newWant.SetAction(CROWDTEST_EXPEIRD_IMPLICIT_ACTION_NAME);
+        int result = AbilityManagerService::StartAbility(newWant, userId, requestCode);
+        if (result != 0) {
+            return CROWDTEST_EXPEIRD_IMPLICIT_START_FAILED;
+        }
+#endif
+        return CROWDTEST_EXPEIRD_REFUSED;
+    }
+    return ERR_OK;
+}
+
+static int CheckCrowdtestBackground(const Want& want)
+{
+    if (IsCrowdtestExpired(want)) {
+        return CROWDTEST_EXPEIRD_REFUSED;
+    }
+    return ERR_OK;
+}
 }  // namespace ApplicationControllUtils
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTIL_H
+#endif  // OHOS_ABILITY_RUNTIME_APPLICATION_CONTROLL_UTILS_H

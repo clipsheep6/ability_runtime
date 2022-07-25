@@ -33,6 +33,7 @@
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "application_controll_utils.h"
 #include "background_task_mgr_helper.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
@@ -59,7 +60,6 @@
 #include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
-#include "application_controll_utils.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
@@ -365,7 +365,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
-    int ret = ApplicationControllUtils::InterceptCrowdtestExpired(want, requestCode, userId);
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(want, requestCode, userId);
     if (ret != 0) {
         HILOG_DEBUG("InterceptCrowdtestDead ret : %{public}d", ret);
         return ret;
