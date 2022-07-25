@@ -364,7 +364,7 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1300, Functio
 
     std::vector<std::string> lines;
     SplitStr(result, " ", lines);
-    EXPECT_GT(lines.size(), SIZE_ONE);
+    EXPECT_GE(lines.size(), SIZE_ONE);
 }
 
 /**
@@ -388,7 +388,7 @@ HWTEST_F(AaCommandDumpsysModuleTest, Aa_Command_Dumpsys_ModuleTest_1400, Functio
 
     std::vector<std::string> lines;
     SplitStr(result, " ", lines);
-    EXPECT_GT(lines.size(), SIZE_ONE);
+    EXPECT_GE(lines.size(), SIZE_ONE);
 }
 
 /**
