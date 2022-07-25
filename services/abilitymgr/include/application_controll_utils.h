@@ -40,7 +40,7 @@ static bool IsCrowdtestExpired(const Want &want)
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
     std::string bundleName = want.GetBundle();
-    AppExecFwk::Application callerAppInfo;
+    AppExecFwk::ApplicationInfo callerAppInfo;
     bool result = IN_PROCESS_CALL(
         bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
             GetUserId(), callerAppInfo)
