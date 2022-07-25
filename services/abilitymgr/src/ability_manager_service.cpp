@@ -1515,6 +1515,7 @@ int AbilityManagerService::ConnectRemoteAbility(const Want &want, const sptr<IRe
 int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection> &connect)
 {
     HILOG_INFO("Disconnect local ability begin.");
+    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
     return connectManager_->DisconnectAbilityLocked(connect);
 }
 
@@ -1658,6 +1659,7 @@ int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId
 
 void AbilityManagerService::RemoveAllServiceRecord()
 {
+    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
     connectManager_->RemoveAll();
 }
 
@@ -2050,12 +2052,21 @@ bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
 
 std::shared_ptr<AbilityRecord> AbilityManagerService::GetServiceRecordByElementName(const std::string &element)
 {
+    if (!connectManager_) {
+        HILOG_ERROR("Connect manager is nullptr.");
+        return nullptr;
+    }
     return connectManager_->GetServiceRecordByElementName(element);
 }
 
 std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRecordListByCallback(
     sptr<IAbilityConnection> callback)
 {
+    if (!connectManager_) {
+        HILOG_ERROR("Connect manager is nullptr.");
+        std::list<std::shared_ptr<ConnectionRecord>> connectList;
+        return connectList;
+    }
     return connectManager_->GetConnectRecordListByCallback(callback);
 }
 
@@ -2489,6 +2500,7 @@ void AbilityManagerService::DumpMissionInfosInner(const std::string &args, std::
 
 void AbilityManagerService::DumpMissionInner(const std::string &args, std::vector<std::string> &info)
 {
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -2505,6 +2517,7 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
 
 void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<std::string> &info)
 {
+    CHECK_POINTER_LOG(connectManager_, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -2772,6 +2785,8 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     HILOG_INFO("On app state changed.");
+    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission list manager not init.");
     connectManager_->OnAppStateChanged(info);
     currentMissionListManager_->OnAppStateChanged(info);
     dataAbilityManager_->OnAppStateChanged(info);
@@ -3661,6 +3676,7 @@ int AbilityManagerService::ReleaseAbility(
 
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
     std::string elementName = element.GetURI();
     HILOG_DEBUG("try to release called ability, name: %{public}s.", elementName.c_str());
@@ -4604,6 +4620,7 @@ int AbilityManagerService::BlockAmsService()
 int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
 
