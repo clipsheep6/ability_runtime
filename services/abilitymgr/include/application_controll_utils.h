@@ -43,7 +43,7 @@ static bool IsCrowdtestExpired(const Want &want)
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool result = IN_PROCESS_CALL(
         bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-            GetUserId(), callerAppInfo)
+            0, callerAppInfo)
     );
     if (!result) {
         HILOG_ERROR("%{public}s GetApplicaionInfo from bms failed.", __func__);
