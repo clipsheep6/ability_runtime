@@ -13,8 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import(
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/relational_store.gni")
+import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 ohos_shared_library("featureability") {
   include_dirs = [

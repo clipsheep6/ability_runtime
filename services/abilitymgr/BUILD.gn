@@ -15,8 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
-import(
-    "//foundation/distributeddatamgr/appdatamgr/relational_store/relational_store.gni")
+import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
 
 group("abilityms_target") {
