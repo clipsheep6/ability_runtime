@@ -23,6 +23,7 @@
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "want.h"
 
