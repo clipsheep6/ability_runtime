@@ -15,6 +15,7 @@
 
 #include "js_runtime.h"
 
+#include <atomic>
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
@@ -64,8 +65,7 @@ public:
 
         if (vm_ != nullptr) {
             if (debugMode_) {
-                auto instanceId = gettid();
-                ConnectServerManager::Get().RemoveInstance(instanceId);
+                ConnectServerManager::Get().RemoveInstance(instanceId_);
                 panda::JSNApi::StopDebugger(vm_);
             }
 
@@ -86,18 +86,22 @@ public:
             return;
         }
 
+        // Set instance id to tid after the first instance.
+        if (ArkJsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
+            instanceId_ = gettid();
+        }
+
         HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
 
-        auto instanceId = gettid();
         HdcRegister::Get().StartHdcRegister(bundleName_);
         ConnectServerManager::Get().StartConnectServer(bundleName_);
-        ConnectServerManager::Get().AddInstance(instanceId, "MainThread");
+        ConnectServerManager::Get().AddInstance(instanceId_);
         StartDebuggerInWorkerModule();
 
         auto debuggerPostTask = [eventHandler = eventHandler_](std::function<void()>&& task) {
             eventHandler->PostTask(task);
         };
-        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId, debuggerPostTask);
+        panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, needBreakPoint, instanceId_, debuggerPostTask);
 
         debugMode_ = true;
     }
@@ -131,40 +135,61 @@ private:
         return 0;
     }
 
+    void FinishPreload() override
+    {
+        panda::JSNApi::preFork(vm_);
+    }
+
     bool Initialize(const Runtime::Options& options) override
     {
-        bundleName_ = options.bundleName;
+        if (preloaded_) {
+            panda::JSNApi::postFork(vm_);
+            nativeEngine_->ReinitUVLoop();
+        } else {
+            panda::RuntimeOption pandaOption;
+            int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
+            size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
+            size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
+            pandaOption.SetArkProperties(arkProperties);
+            pandaOption.SetGcThreadNum(gcThreadNum);
+            pandaOption.SetLongPauseTime(longPauseTime);
+            HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d", arkProperties);
+            pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
+            pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
+            pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
+            pandaOption.SetLogBufPrint(PrintVmLog);
+            // Fix a problem that if vm will crash if preloaded
+            if (options.preload) {
+                pandaOption.SetEnableAsmInterpreter(false);
+            } else {
+                bool asmInterpreterEnabled = OHOS::system::GetBoolParameter("persist.ark.asminterpreter", true);
+                std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
+                pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
+                pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+            }
+            vm_ = panda::JSNApi::CreateJSVM(pandaOption);
+            if (vm_ == nullptr) {
+                return false;
+            }
 
-        panda::RuntimeOption pandaOption;
-        int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
-        size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
-        size_t longPauseTime = OHOS::system::GetUintParameter<size_t>("persist.ark.longpausetime", 40);
-        std::string asmInterpreterEnabled = OHOS::system::GetParameter("persist.ark.asminterpreter", "true");
-        std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
-        pandaOption.SetArkProperties(arkProperties);
-        pandaOption.SetGcThreadNum(gcThreadNum);
-        pandaOption.SetLongPauseTime(longPauseTime);
-        HILOG_INFO("ArkJSRuntime::Initialize ark properties = %{public}d", arkProperties);
-        pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
-        pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
-        pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
-        pandaOption.SetLogBufPrint(PrintVmLog);
-        pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled == "true");
-        pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
-        vm_ = panda::JSNApi::CreateJSVM(pandaOption);
-        if (vm_ == nullptr) {
-            return false;
+            nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
         }
 
-        panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
-
-        nativeEngine_ = std::make_unique<ArkNativeEngine>(vm_, static_cast<JsRuntime*>(this));
+        if (!options.preload) {
+            bundleName_ = options.bundleName;
+            panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
+        }
         return JsRuntime::Initialize(options);
     }
 
     std::string bundleName_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
+    uint32_t instanceId_ = 0;
+
+    static std::atomic<bool> hasInstance;
 };
+
+std::atomic<bool> ArkJsRuntime::hasInstance(false);
 
 NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 {
@@ -307,7 +332,19 @@ private:
 
 std::unique_ptr<Runtime> JsRuntime::Create(const Runtime::Options& options)
 {
-    std::unique_ptr<JsRuntime> instance = std::make_unique<ArkJsRuntime>();
+    std::unique_ptr<JsRuntime> instance;
+
+    if (!options.preload) {
+        auto preloadedInstance = Runtime::GetPreloaded();
+        if (preloadedInstance && preloadedInstance->GetLanguage() == Runtime::Language::JS) {
+            instance.reset(static_cast<JsRuntime*>(preloadedInstance.release()));
+        } else {
+            instance = std::make_unique<ArkJsRuntime>();
+        }
+    } else {
+        instance = std::make_unique<ArkJsRuntime>();
+    }
+
     if (!instance->Initialize(options)) {
         return std::unique_ptr<Runtime>();
     }
@@ -349,22 +386,6 @@ void *DetachCallbackFunc(NativeEngine *engine, void *value, void *)
 
 bool JsRuntime::Initialize(const Options& options)
 {
-    // Create event handler for runtime
-    eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(options.eventRunner);
-
-    auto uvLoop = nativeEngine_->GetUVLoop();
-    auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
-    if (fd < 0) {
-        HILOG_ERROR("Failed to get backend fd from uv loop");
-        return false;
-    }
-
-    // MUST run uv loop once before we listen its backend fd.
-    uv_run(uvLoop, UV_RUN_NOWAIT);
-
-    uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
-    eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
-
     HandleScope handleScope(*this);
 
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
@@ -373,36 +394,58 @@ bool JsRuntime::Initialize(const Options& options)
         return false;
     }
 
-    InitConsoleLogModule(*nativeEngine_, *globalObj);
-    InitTimerModule(*nativeEngine_, *globalObj);
-    InitSyscapModule(*nativeEngine_, *globalObj);
+    if (!preloaded_) {
+        InitConsoleLogModule(*nativeEngine_, *globalObj);
+        InitSyscapModule(*nativeEngine_, *globalObj);
 
-    // Simple hook function 'isSystemplugin'
-    BindNativeFunction(*nativeEngine_, *globalObj, "isSystemplugin",
-        [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
-            return engine->CreateUndefined();
-        });
+        // Simple hook function 'isSystemplugin'
+        BindNativeFunction(*nativeEngine_, *globalObj, "isSystemplugin",
+            [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
+                return engine->CreateUndefined();
+            });
 
-    methodRequireNapiRef_.reset(nativeEngine_->CreateReference(globalObj->GetProperty("requireNapi"), 1));
-    if (!methodRequireNapiRef_) {
-        HILOG_ERROR("Failed to create reference for global.requireNapi");
-        return false;
-    }
+        methodRequireNapiRef_.reset(nativeEngine_->CreateReference(globalObj->GetProperty("requireNapi"), 1));
+        if (!methodRequireNapiRef_) {
+            HILOG_ERROR("Failed to create reference for global.requireNapi");
+            return false;
+        }
 #ifdef SUPPORT_GRAPHICS
-    if (options.loadAce) {
-        OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
-    }
+        if (options.loadAce) {
+            OHOS::Ace::DeclarativeModulePreloader::Preload(*nativeEngine_);
+        }
 #endif
-    codePath_ = options.codePath;
-
-    auto moduleManager = NativeModuleManager::GetInstance();
-    std::string packagePath = options.packagePath;
-    if (moduleManager && !packagePath.empty()) {
-        moduleManager->SetAppLibPath(packagePath.c_str());
     }
 
-    InitWorkerModule(*nativeEngine_, options.codePath);
+    if (!options.preload) {
+        // Create event handler for runtime
+        eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(options.eventRunner);
 
+        auto uvLoop = nativeEngine_->GetUVLoop();
+        auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
+        if (fd < 0) {
+            HILOG_ERROR("Failed to get backend fd from uv loop");
+            return false;
+        }
+
+        // MUST run uv loop once before we listen its backend fd.
+        uv_run(uvLoop, UV_RUN_NOWAIT);
+
+        uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
+        eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<UvLoopHandler>(uvLoop));
+
+        codePath_ = options.codePath;
+
+        auto moduleManager = NativeModuleManager::GetInstance();
+        std::string packagePath = options.packagePath;
+        if (moduleManager && !packagePath.empty()) {
+            moduleManager->SetAppLibPath(packagePath.c_str());
+        }
+
+        InitTimerModule(*nativeEngine_, *globalObj);
+        InitWorkerModule(*nativeEngine_, codePath_);
+    }
+
+    preloaded_ = options.preload;
     return true;
 }
 
@@ -557,6 +600,14 @@ void JsRuntime::NotifyApplicationState(bool isBackground)
     }
     nativeEngine_->NotifyApplicationState(isBackground);
     HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
+}
+
+void JsRuntime::PreloadSystemModule(const std::string& moduleName)
+{
+    HandleScope handleScope(*this);
+
+    NativeValue* className = nativeEngine_->CreateString(moduleName.c_str(), moduleName.length());
+    nativeEngine_->CallFunction(nativeEngine_->GetGlobal(), methodRequireNapiRef_->Get(), &className, 1);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
