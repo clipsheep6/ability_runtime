@@ -713,22 +713,6 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
             return nullptr;
         }
     }
-
-    sptr<IBundleMgr> ptr = GetBundleManager();
-    if (ptr == nullptr) {
-        HILOG_ERROR("GetAppType failed to get bundle manager service");
-        return hapModuleInfoLocal_;
-    }
-    Want want;
-    ElementName name;
-    name.SetBundleName(GetBundleName());
-    name.SetAbilityName(abilityInfo_->name);
-    want.SetElement(name);
-    std::vector<AbilityInfo> abilityInfos;
-    bool isSuc = ptr->QueryAbilityInfos(want, abilityInfos);
-    if (isSuc) {
-        hapModuleInfoLocal_->abilityInfos = abilityInfos;
-    }
     HILOG_INFO("ContextDeal::GetHapModuleInfo end");
     return hapModuleInfoLocal_;
 }
@@ -1351,12 +1335,10 @@ bool ContextDeal::HapModuleInfoRequestInit()
     }
 
     hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit before IBundleMgr->GetBundleManager");
     if (!ptr->GetHapModuleInfo(*abilityInfo_.get(), *hapModuleInfoLocal_)) {
         HILOG_ERROR("IBundleMgr::GetHapModuleInfo failed, will retval false value");
         return false;
     }
-    HILOG_INFO("ContextDeal::HapModuleInfoRequestInit after IBundleMgr->GetBundleManager");
     HILOG_INFO("ContextDeal::HapModuleInfoRequestInit end");
     return true;
 }
