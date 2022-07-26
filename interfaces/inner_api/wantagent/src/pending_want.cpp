@@ -14,9 +14,10 @@
  */
 
 #include "pending_want.h"
-#include "ability_manager_client.h"
+
 #include "hilog_wrapper.h"
 #include "pending_want_record.h"
+#include "want_agent_client.h"
 #include "want_agent_log_wrapper.h"
 #include "want_sender_info.h"
 
@@ -35,7 +36,7 @@ PendingWant::PendingWant(const sptr<AAFwk::IWantSender> &target, const sptr<IRem
 WantAgentConstant::OperationType PendingWant::GetType(const sptr<AAFwk::IWantSender> &target)
 {
     int32_t operationType = 0;
-    AbilityManagerClient::GetInstance()->GetPendingWantType(target, operationType);
+    WantAgentClient::GetInstance().GetPendingWantType(target, operationType);
     return (WantAgentConstant::OperationType)operationType;
 }
 
@@ -70,7 +71,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbility(
     wantSenderInfo.flags = flags;
     wantSenderInfo.userId = -1; // -1 : invalid user id
     wantSenderInfo.requestCode = requestCode;
-    sptr<IWantSender> target = AbilityManagerClient::GetInstance()->GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
     WANT_AGENT_LOGI("PendingWant::GetAbility end.");
 
     return std::make_shared<PendingWant>(target);
@@ -109,7 +110,7 @@ std::shared_ptr<PendingWant> PendingWant::GetAbilities(
         }
         wantSenderInfo.allWants.push_back(wantsInfo);
     }
-    sptr<IWantSender> target = AbilityManagerClient::GetInstance()->GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
 
     return std::make_shared<PendingWant>(target);
 }
@@ -143,7 +144,7 @@ std::shared_ptr<PendingWant> PendingWant::GetCommonEventAsUser(
     wantSenderInfo.flags = flags;
     wantSenderInfo.userId = -1; // -1 : invalid user id
     wantSenderInfo.requestCode = requestCode;
-    sptr<IWantSender> target = AbilityManagerClient::GetInstance()->GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
 
     return std::make_shared<PendingWant>(target);
 }
@@ -187,14 +188,14 @@ std::shared_ptr<PendingWant> PendingWant::BuildServicePendingWant(
     wantSenderInfo.flags = flags;
     wantSenderInfo.userId = -1; // -1 : invalid user id
     wantSenderInfo.requestCode = requestCode;
-    sptr<IWantSender> target = AbilityManagerClient::GetInstance()->GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
 
     return std::make_shared<PendingWant>(target);
 }
 
 void PendingWant::Cancel(const sptr<AAFwk::IWantSender> &target)
 {
-    AbilityManagerClient::GetInstance()->CancelWantSender(target);
+    WantAgentClient::GetInstance().CancelWantSender(target);
 }
 
 void PendingWant::Send(const sptr<AAFwk::IWantSender> &target)
@@ -260,7 +261,7 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     senderInfo.code = resultCode;
     senderInfo.finishedReceiver = onCompleted;
 
-    return AbilityManagerClient::GetInstance()->SendWantSender(target, senderInfo);
+    return WantAgentClient::GetInstance().SendWantSender(target, senderInfo);
 }
 
 bool PendingWant::Equals(
@@ -319,7 +320,7 @@ void PendingWant::RegisterCancelListener(
     bool isEmpty = cancelListeners_.empty();
     cancelListeners_.push_back(cancelListener);
     if (isEmpty) {
-        AbilityManagerClient::GetInstance()->RegisterCancelListener(target, cancelReceiver_);
+        WantAgentClient::GetInstance().RegisterCancelListener(target, cancelReceiver_);
     }
 }
 
@@ -356,35 +357,35 @@ void PendingWant::UnregisterCancelListener(
         [cancelListener](std::shared_ptr<CancelListener> x) { return x == cancelListener; }),
         cancelListeners_.end());
     if (cancelListeners_.empty() && !isEmpty) {
-        AbilityManagerClient::GetInstance()->UnregisterCancelListener(target, cancelReceiver_);
+        WantAgentClient::GetInstance().UnregisterCancelListener(target, cancelReceiver_);
     }
 }
 
 int PendingWant::GetHashCode(const sptr<AAFwk::IWantSender> &target)
 {
     int32_t code = -1;
-    AbilityManagerClient::GetInstance()->GetPendingWantCode(target, code);
+    WantAgentClient::GetInstance().GetPendingWantCode(target, code);
     return code;
 }
 
 int PendingWant::GetUid(const sptr<AAFwk::IWantSender> &target)
 {
     int32_t uid = -1;
-    AbilityManagerClient::GetInstance()->GetPendingWantUid(target, uid);
+    WantAgentClient::GetInstance().GetPendingWantUid(target, uid);
     return uid;
 }
 
 std::string PendingWant::GetBundleName(const sptr<AAFwk::IWantSender> &target)
 {
     std::string bundleName = "";
-    AbilityManagerClient::GetInstance()->GetPendingWantBundleName(target, bundleName);
+    WantAgentClient::GetInstance().GetPendingWantBundleName(target, bundleName);
     return bundleName;
 }
 
 std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &target)
 {
     std::shared_ptr<Want> want = std::make_shared<Want>();
-    int ret = AbilityManagerClient::GetInstance()->GetPendingRequestWant(target, want);
+    int ret = WantAgentClient::GetInstance().GetPendingRequestWant(target, want);
     return ret ? nullptr : want;
 }
 
@@ -418,7 +419,7 @@ PendingWant *PendingWant::Unmarshalling(Parcel &parcel)
 std::shared_ptr<WantSenderInfo> PendingWant::GetWantSenderInfo(const sptr<AAFwk::IWantSender> &target)
 {
     std::shared_ptr<WantSenderInfo> info = std::make_shared<WantSenderInfo>();
-    int ret = AbilityManagerClient::GetInstance()->GetWantSenderInfo(target, info);
+    int ret = WantAgentClient::GetInstance().GetWantSenderInfo(target, info);
     return ret ? nullptr : info;
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent
