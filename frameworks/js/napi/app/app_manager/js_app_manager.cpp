@@ -564,7 +564,7 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::GetForegroundApplications);
     BindNativeFunction(*engine, *object, "getProcessRunningInfos",
         JsAppManager::GetProcessRunningInfos);
-    BindNativeFunction(*engine, *object, "getProcessRunningInformations",
+    BindNativeFunction(*engine, *object, "getProcessRunningInformation",
         JsAppManager::GetProcessRunningInfos);
     BindNativeFunction(*engine, *object, "isRunningInStabilityTest",
         JsAppManager::IsRunningInStabilityTest);
@@ -690,7 +690,6 @@ void JSApplicationStateObserver::HandleOnProcessCreated(const ProcessData &proce
     HILOG_INFO("HandleOnProcessCreated begin");
     NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
     CallJsFunction("onProcessCreated", argv, ARGC_ONE);
-    CallJsFunction("onAppProcessCreated", argv, ARGC_ONE);
 }
 
 void JSApplicationStateObserver::OnProcessDied(const ProcessData &processData)
@@ -717,7 +716,6 @@ void JSApplicationStateObserver::HandleOnProcessDied(const ProcessData &processD
     HILOG_INFO("HandleOnProcessDied begin");
     NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
     CallJsFunction("onProcessDied", argv, ARGC_ONE);
-    CallJsFunction("onAppProcessDied", argv, ARGC_ONE);
 }
 
 void JSApplicationStateObserver::CallJsFunction(const char* methodName, NativeValue* const* argv, size_t argc)
