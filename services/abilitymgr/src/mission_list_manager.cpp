@@ -1517,10 +1517,7 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         EVENT_KEY_MESSAGE, msgContent);
 
     HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, abilityName: %{public}s, msg: %{public}s",
-        processInfo.uid_,
-        processInfo.pid_,
-        ability->GetAbilityInfo().name.c_str(),
-        msgContent.c_str());
+        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 }
 
 void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord)
