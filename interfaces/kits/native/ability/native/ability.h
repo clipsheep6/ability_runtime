@@ -88,9 +88,6 @@ class IContinuationRegisterManager;
 class Ability : public IAbilityEvent,
                 public ILifeCycle,
                 public AbilityContext,
-#ifdef SUPPORT_GRAPHICS
-                public FormCallbackInterface,
-#endif
                 public IAbilityContinuation,
                 public IAbilityCallback,
                 public std::enable_shared_from_this<Ability> {
@@ -778,13 +775,6 @@ public:
     virtual int StopBackgroundRunning() final;
 
     /**
-     * @brief Get the error message by error code.
-     * @param errorCode the error code return form fms.
-     * @return Returns the error message detail.
-     */
-    std::string GetErrorMsg(const ErrCode errorCode);
-
-    /**
      * @brief Acquire a bundle manager, if it not existed,
      * @return returns the bundle manager ipc object, or nullptr for failed.
      */
@@ -1133,72 +1123,6 @@ public:
     int GetVolumeTypeAdjustedByKey();
 
     /**
-     * Releases an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application, but the Form Manager
-     * Service still keeps the cache information about the form, so that the application can quickly obtain it based on
-     * the {@code formId}.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be released by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode ReleaseForm(const int64_t formId);
-
-    /**
-     * @brief Releases an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application, if isReleaseCache is
-     * false, this method is same as {@link #releaseForm(int)}, otherwise the Form Manager Service still store this
-     * form in the cache.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @param isReleaseCache Indicates whether to clear cache in service.
-     * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be released by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode ReleaseForm(const int64_t formId, const bool isReleaseCache);
-
-    /**
-     * @brief Deletes an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application and the Form Manager
-     * Service no longer keeps the cache information about the form.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be deleted by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode DeleteForm(const int64_t formId);
-
-    /**
      * @brief The form callback.
      */
     class FormCallback {
@@ -1241,49 +1165,6 @@ public:
          */
         virtual void OnFormUninstall(const int64_t formId) const = 0;
     };
-
-    /**
-     * @brief Obtains a specified form that matches the application bundle name, module name, form name, and
-     * other related information specified in the passed {@code Want}.
-     *
-     * <p>This method is asynchronous. After the {@link FormJsInfo} instance is obtained.
-     *
-     * @param formId Indicates the form ID.
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    bool AcquireForm(const int64_t formId, const Want &want, const std::shared_ptr<FormCallback> callback);
-
-    /**
-     * @brief Cast temp form with formId.
-     *
-     * @param formId Indicates the form's ID.
-     *
-     * @return Returns {@code true} if the form is successfully casted; returns {@code false} otherwise.
-     */
-    ErrCode CastTempForm(const int64_t formId);
-
-    /**
-     * @brief Update form.
-     *
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     */
-    void ProcessFormUpdate(const FormJsInfo &formJsInfo) override;
-
-    /**
-     * @brief Uninstall form.
-     *
-     * @param formId Indicates the ID of the form to uninstall.
-     */
-    void ProcessFormUninstall(const int64_t formId) override;
-
-    /**
-     * @brief Called to reacquire form and update the form host after the death callback is received.
-     *
-     */
-    void OnDeathReceived() override;
 
     /**
      * @brief Called to return a FormProviderInfo object.
@@ -1577,82 +1458,15 @@ private:
 
     // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
-    std::map<int64_t, Want> userReqParams_;
+
     sptr<IBundleMgr> iBundleMgr_;
     static const int64_t MIN_NEXT_TIME = 5;
 
 #ifdef SUPPORT_GRAPHICS
 private:
-    /**
-     * @brief Delete or release form with formId.
-     *
-     * @param formId Indicates the form's ID.
-     * @param deleteType Indicates the type of delete or release.
-     * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
-     */
-    ErrCode DeleteForm(const int64_t formId, const int32_t deleteType);
-
-    /**
-     * @brief Clean form resource with formId.
-     *
-     * @param formId Indicates the form's ID.
-     */
-    void CleanFormResource(const int64_t formId);
-
-    /**
-     * @brief Handle acquire result of the obtained form instance.
-     *
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
-     */
-    void HandleAcquireResult(
-        const Want &want,
-        const FormJsInfo &formJsInfo,
-        const std::shared_ptr<FormCallback> callback
-        );
-
-    /**
-     * @brief Handle acquire message of the obtained form instance.
-     *
-     * @param msgCode Indicates the code of message type.
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     */
-    void HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsInfo);
-
-    /**
-     * @brief Check the param of want.
-     *
-     * @param formId Indicates the form's ID.
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @return Returns {@code true} if the check result is ok; returns {@code false} ng.
-     */
-    bool CheckWantValid(const int64_t formId, const Want &want);
-
-    /**
-     * @brief Reacquire a specified form when the death callback is received.
-     *
-     * @param formId Indicates the form ID.
-     * @param want Indicates the detailed information about the form to be obtained.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    bool ReAcquireForm(const int64_t formId, const Want &want);
-
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     bool bWindowFocus_ = false;
     bool showOnLockScreen_ = false;
-    std::vector<int64_t> lostedByReconnectTempForms_;
-    std::map<int64_t, std::shared_ptr<FormCallback>> appCallbacks_;
-    static const int32_t OHOS_FORM_ACQUIRE_FORM = 0;
-    static const int32_t OHOS_FORM_UPDATE_FORM = 1;
-
-    static const int32_t DELETE_FORM = 3;
-    static const int32_t ENABLE_FORM_UPDATE = 5;
-    static const int32_t DISABLE_FORM_UPDATE = 6;
-    static const int32_t RELEASE_FORM = 8;
-    static const int32_t RELEASE_CACHED_FORM = 9;
 #endif
 };
 }  // namespace AppExecFwk
