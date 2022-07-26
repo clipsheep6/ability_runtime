@@ -1363,8 +1363,8 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "formEnabled", proValue));
 
     (void)WrapProperties(env, abilityInfo.permissions, "permissions", result);
-    (void)WrapProperties(env, abilityInfo.permissions, "deviceCapabilities", result);
-    (void)WrapProperties(env, abilityInfo.permissions, "deviceTypes", result);
+    (void)WrapProperties(env, abilityInfo.deviceCapabilities, "deviceCapabilities", result);
+    (void)WrapProperties(env, abilityInfo.deviceTypes, "deviceTypes", result);
 
     napi_value applicationInfo = nullptr;
     applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
