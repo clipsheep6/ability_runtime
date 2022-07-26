@@ -564,6 +564,8 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::GetForegroundApplications);
     BindNativeFunction(*engine, *object, "getProcessRunningInfos",
         JsAppManager::GetProcessRunningInfos);
+    BindNativeFunction(*engine, *object, "getProcessRunningInformation",
+        JsAppManager::GetProcessRunningInfos);
     BindNativeFunction(*engine, *object, "isRunningInStabilityTest",
         JsAppManager::IsRunningInStabilityTest);
     BindNativeFunction(*engine, *object, "killProcessWithAccount",
