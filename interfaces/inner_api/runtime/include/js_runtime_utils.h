@@ -50,6 +50,8 @@ inline NativeValue* CreateJsValue(NativeEngine& engine, const T& value)
         return engine.CreateString(value.c_str(), value.length());
     } else if constexpr (std::is_enum_v<ValueType>) {
         return engine.CreateNumber(static_cast<std::make_signed_t<ValueType>>(value));
+    } else if constexpr (std::is_same_v<ValueType, const char*>) {
+        return (value != nullptr) ? engine.CreateString(value, strlen(value)) : engine.CreateUndefined();
     }
     return engine.CreateUndefined();
 }
