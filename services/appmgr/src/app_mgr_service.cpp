@@ -38,7 +38,6 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 using namespace std::chrono_literals;
-static const int APP_MS_TIMEOUT = 180;
 #ifdef ABILITY_COMMAND_FOR_TEST
 static const int APP_MS_BLOCK = 65;
 #endif
@@ -152,7 +151,7 @@ ErrCode AppMgrService::Init()
         return ERR_INVALID_OPERATION;
     }
     std::string threadName = Constants::APP_MGR_SERVICE_NAME + "(" + std::to_string(runner_->GetThreadId()) + ")";
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, APP_MS_TIMEOUT) != 0) {
+    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
     HILOG_INFO("init success");

@@ -233,9 +233,10 @@ bool AbilityManagerService::Init()
     InitMissionListManager(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
+    HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
     std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, amsTimeOut) != 0) {
+    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
 #ifdef SUPPORT_GRAPHICS
