@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-napi_ref thread_local g_dataAbilityHelper;
+napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
 const int32_t ERR_ABILITY_START_SUCCESS = 0;
 const int32_t ERR_ABILITY_QUERY_FAILED = 1;
