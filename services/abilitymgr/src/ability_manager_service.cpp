@@ -33,6 +33,7 @@
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "application_controll_utils.h"
 #include "background_task_mgr_helper.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
@@ -345,6 +346,18 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
+
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
+        }
+        HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -386,6 +399,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     AbilityRequest abilityRequest;
+
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
@@ -498,6 +512,18 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
+        }
+        HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -522,6 +548,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityRequest abilityRequest;
+    
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(
@@ -612,7 +639,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    auto ret = missionListManager->StartAbility(abilityRequest);
+    ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -649,6 +676,18 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    Want crowdtestWant = want;
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestForeground(crowdtestWant);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        if (ret == AAFwk::ApplicationControllUtils::CROWDTEST_EXPEIRD_REFUSED) {
+            return StartAbilityInner(crowdtestWant, nullptr, requestCode, -1, userId);
+        }
+        HILOG_ERROR("%{public}s: CheckCrowdtestForeground faild", __func__);
+        return ret;
+    }
+
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
@@ -757,7 +796,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    auto ret = missionListManager->StartAbility(abilityRequest);
+    ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
@@ -857,6 +896,13 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestBackground(want);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        return ret;
+    }
+
     int32_t validUserId = GetValidUserId(userId);
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -1367,6 +1413,12 @@ int AbilityManagerService::ConnectAbility(
         AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
+    }
+
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestBackground(want);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        return ret;
     }
 
     if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
@@ -3632,6 +3684,12 @@ int AbilityManagerService::StartAbilityByCall(
     if (CheckIfOperateRemote(want)) {
         HILOG_INFO("start remote ability by call");
         return StartRemoteAbilityByCall(want, connect->AsObject());
+    }
+
+    int ret = AAFwk::ApplicationControllUtils::CheckCrowdtestBackground(want);
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("%{public}s: Crowdtest expired", __func__);
+        return ret;
     }
 
     AbilityRequest abilityRequest;
