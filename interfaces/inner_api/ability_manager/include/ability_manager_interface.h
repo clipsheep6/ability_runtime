@@ -27,6 +27,7 @@
 #include "ability_start_setting.h"
 #include "extension_running_info.h"
 #include "iability_controller.h"
+#include "i_sandbox_external_authorize_callback.h"
 #include "mission_listener_interface.h"
 #include "mission_info.h"
 #include "mission_snapshot.h"
@@ -465,6 +466,7 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
 
+    virtual int RegisterSandboxExternalAuthorizeCallback(const sptr<ISandboxExternalAuthorizeCallback> &callback) = 0;
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) = 0;
 
@@ -830,6 +832,9 @@ public:
 
         // stop extension ability (61)
         STOP_EXTENSION_ABILITY,
+
+        // get sandbox external authorize (62)
+        REGISTER_SANDBOX_EXTERN_AUTH_CALLBACK,
 
         // ipc id 1001-2000 for DMS
         // ipc id for starting ability (1001)

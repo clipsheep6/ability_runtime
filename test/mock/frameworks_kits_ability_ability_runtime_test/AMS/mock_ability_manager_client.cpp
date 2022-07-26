@@ -318,5 +318,16 @@ ErrCode AbilityManagerClient::StopUser(int accountId, const sptr<IStopUserCallba
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
     return abms->StopUser(accountId, callback);
 }
+
+ErrCode AbilityManagerClient::RegisterSandboxExternalAuthorizeCallback(
+    const sptr<ISandboxExternalAuthorizeCallback> &callback)
+{
+    if (g_remoteObject == nullptr) {
+        return ABILITY_SERVICE_NOT_CONNECTED;
+    }
+
+    sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
+    return abms->RegisterSandboxExternalAuthorizeCallback(callback);
+}
 } // namespace AAFwk
 } // namespace OHOS

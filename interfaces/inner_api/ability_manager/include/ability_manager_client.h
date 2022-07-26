@@ -596,6 +596,15 @@ public:
     ErrCode StopUser(int accountId, const sptr<IStopUserCallback> &callback);
 
     /**
+     * @brief register sandbox external authorize callback.
+     * @param callback callback.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RegisterSandboxExternalAuthorizeCallback(
+        const sptr<ISandboxExternalAuthorizeCallback>& callback);
+
+    /**
      * @brief Register the snapshot handler
      * @param handler snapshot handler
      * @return ErrCode Returns ERR_OK on success, others on failure.

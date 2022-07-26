@@ -3806,6 +3806,18 @@ int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &c
     return 0;
 }
 
+int AbilityManagerService::RegisterSandboxExternalAuthorizeCallback(
+    const sptr<ISandboxExternalAuthorizeCallback> &callback)
+{
+    HILOG_DEBUG("%{public}s", __func__);
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isPerm) {
+        return ERR_INVALID_VALUE;
+    }
+
+    return 0;
+}
+
 void AbilityManagerService::OnAcceptWantResponse(
     const AAFwk::Want &want, const std::string &flag)
 {

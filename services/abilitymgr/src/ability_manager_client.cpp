@@ -736,6 +736,14 @@ ErrCode AbilityManagerClient::StopUser(int accountId, const sptr<IStopUserCallba
     return abms->StopUser(accountId, callback);
 }
 
+ErrCode AbilityManagerClient::RegisterSandboxExternalAuthorizeCallback(
+    const sptr<ISandboxExternalAuthorizeCallback>& callback)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterSandboxExternalAuthorizeCallback(callback);
+}
+
 ErrCode AbilityManagerClient::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
 {
     auto abms = GetAbilityManager();

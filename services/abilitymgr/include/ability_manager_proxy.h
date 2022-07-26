@@ -428,6 +428,9 @@ public:
 
     virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
 
+    virtual int RegisterSandboxExternalAuthorizeCallback(
+        const sptr<ISandboxExternalAuthorizeCallback> &callback) override;
+
 #ifdef SUPPORT_GRAPHICS
     virtual int SetMissionLabel(const sptr<IRemoteObject> &abilityToken, const std::string &label) override;
 
