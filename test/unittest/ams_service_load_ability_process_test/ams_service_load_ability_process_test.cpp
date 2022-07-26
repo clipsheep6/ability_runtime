@@ -71,7 +71,7 @@ protected:
     }
 
 protected:
-    std::unique_ptr<AppMgrServiceInner> service_;
+    std::shared_ptr<AppMgrServiceInner> service_;
     sptr<MockAbilityToken> mock_token_;
     sptr<BundleMgrService> bundleMgr_;
 };

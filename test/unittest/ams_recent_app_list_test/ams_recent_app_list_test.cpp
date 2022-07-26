@@ -52,7 +52,7 @@ protected:
     const std::shared_ptr<AppRunningRecord> GetAppRunningRecordByIndex(const int32_t index) const;
     void StartProcessSuccess(const int32_t index) const;
 
-    std::unique_ptr<AppMgrServiceInner> serviceInner_;
+    std::shared_ptr<AppMgrServiceInner> serviceInner_;
     sptr<MockAbilityToken> mockToken_;
     sptr<BundleMgrService> mockBundleMgr;
 };
