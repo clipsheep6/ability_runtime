@@ -1098,8 +1098,6 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
         HILOG_ERROR("OnChange, uv_queue_work onCB is nullptr");
         return;
     }
-    NAPIDataAbilityObserver* obs = onCB->observer;
-    onCB->observer = nullptr;
 
     napi_value result[ARGS_TWO] = {0};
     result[PARAM0] = GetCallbackErrorValue(onCB->cbBase.cbInfo.env, NO_ERROR);
@@ -1109,19 +1107,19 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     napi_value callResult = 0;
     napi_get_reference_value(onCB->cbBase.cbInfo.env, onCB->cbBase.cbInfo.callback, &callback);
     napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
-    if (obs != nullptr) {
-        if (obs->GetWorkInt() == 1) {
-            obs->ReleaseJSCallback();
-            const DAHelperOnOffCB* assicuated = obs->GetAssociatedObject();
+    if (onCB->observer != nullptr) {
+        if (onCB->observer->GetWorkInt() == 1) {
+            onCB->observer->ReleaseJSCallback();
+            const DAHelperOnOffCB* assicuated = onCB->observer->GetAssociatedObject();
             if (assicuated != nullptr) {
                 HILOG_INFO("OnChange, uv_queue_work ReleaseJSCallback Called");
-                obs->SetAssociatedObject(nullptr);
+                onCB->observer->SetAssociatedObject(nullptr);
                 delete assicuated;
                 assicuated = nullptr;
             }
         } else {
-            obs->ChangeWorkRunDone();
-            obs->ChangeWorkPreDone();
+            onCB->observer->ChangeWorkRunDone();
+            onCB->observer->ChangeWorkPreDone();
         }
     }
     delete onCB;
