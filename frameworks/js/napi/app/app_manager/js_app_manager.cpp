@@ -43,9 +43,9 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERR_NOT_OK = -1;
 
-std::mutex observerMutex;
-std::map<int64_t, sptr<JSApplicationStateObserver>> observerIds;
-int64_t serialNumber = 0;
+std::mutex g_observerMutex;
+std::map<int64_t, sptr<JSApplicationStateObserver>> g_observerIds;
+int64_t g_serialNumber = 0;
 
 class JsAppManager final {
 public:
@@ -141,13 +141,13 @@ private:
         int32_t ret = appManager_->RegisterApplicationStateObserver(observer);
         if (ret == 0) {
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
-            std::lock_guard<std::mutex> lock(observerMutex);
-            int64_t observerId = serialNumber;
-            observerIds.emplace(observerId, observer);
-            if (serialNumber < INT64_MAX) {
-                serialNumber++;
+            std::lock_guard<std::mutex> lock(g_observerMutex);
+            int64_t observerId = g_serialNumber;
+            g_observerIds.emplace(observerId, observer);
+            if (g_serialNumber < INT64_MAX) {
+                g_serialNumber++;
             } else {
-                serialNumber = 0;
+                g_serialNumber = 0;
             }
             return engine.CreateNumber(observerId);
         } else {
@@ -171,9 +171,9 @@ private:
             // unwrap connectId
             napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
-                std::lock_guard<std::mutex> lock(observerMutex);
-            auto item = observerIds.find(observerId);
-            if (item != observerIds.end()) {
+                std::lock_guard<std::mutex> lock(g_observerMutex);
+            auto item = g_observerIds.find(observerId);
+            if (item != g_observerIds.end()) {
                 // match id
                 observer = item->second;
                 HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, (int32_t)observerId);
@@ -198,10 +198,10 @@ private:
                 int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
                 if (ret == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
-                    std::lock_guard<std::mutex> lock(observerMutex);
-                    observerIds.erase(observerId);
+                    std::lock_guard<std::mutex> lock(g_observerMutex);
+                    g_observerIds.erase(observerId);
                     observer->Uninit();
-                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu", observerIds.size());
+                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu", g_observerIds.size());
                 } else {
                     HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
                     task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));
