@@ -655,6 +655,13 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) = 0;
 
+    /**
+     * Called to notify one process will be killed.
+     * @param bundleName Bundle name of the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int NotifyProcessWillBeKilled(const std::string &bundleName) = 0;
+
     enum {
         // ipc id 1-1000 for kit
         // ipc id for terminating ability (1)
@@ -944,6 +951,9 @@ public:
 
         GET_TOP_ABILITY = 3000,
         FREE_INSTALL_ABILITY_FROM_REMOTE = 3001,
+
+        // ipc id for notify will kill process
+        NOTIFY_WILL_KILL_PROCESS,
     };
 };
 }  // namespace AAFwk

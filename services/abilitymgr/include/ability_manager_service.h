@@ -788,6 +788,10 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
+    int NotifyProcessWillBeKilled(const std::string &bundleName) override;
+
+    bool IsRestartableAbility(const std::string &bundleName);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1057,6 +1061,7 @@ private:
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
     std::shared_ptr<ApplicationAnrListener> anrListener_;
+    std::set<std::string> restartableBundle_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

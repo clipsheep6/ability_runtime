@@ -2559,5 +2559,27 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
 
     return reply.ReadInt32();
 }
+
+int AbilityManagerProxy::NotifyProcessWillBeKilled(const std::string &bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("bundleName write failed.");
+        return INNER_ERR;
+    }
+
+    auto error = Remote()->SendRequest(IAbilityManager::NOTIFY_WILL_KILL_PROCESS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    return reply.ReadInt32();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

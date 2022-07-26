@@ -947,5 +947,13 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
     want.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
 #endif // WITH_DLP
 }
+
+ErrCode AbilityManagerClient::NotifyProcessWillBeKilled(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifyProcessWillBeKilled(bundleName);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

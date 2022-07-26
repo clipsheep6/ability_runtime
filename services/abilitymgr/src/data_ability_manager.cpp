@@ -631,39 +631,68 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
     // restart data ability if necessary
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER(bms);
+    bool restart = false;
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     bool getBundleInfos = bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
-    if (!getBundleInfos) {
-        HILOG_ERROR("Handle ability died task, get bundle infos failed");
+    if (getBundleInfos) {
+        HILOG_INFO("start keep alive data ability.");
+        for (size_t i = 0; i < bundleInfos.size(); i++) {
+            if (!bundleInfos[i].isKeepAlive) {
+                continue;
+            }
+            restart = StartDataAbilityWithMainElement(bundleInfos[i].hapModuleInfos, abilityRecord);
+        }
+    }
+
+    if (restart) {
         return;
     }
 
-    for (size_t i = 0; i < bundleInfos.size(); i++) {
-        if (!bundleInfos[i].isKeepAlive) {
-            continue;
-        }
-        for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
-            if (hapModuleInfo.isModuleJson) {
-                // new application model, it cannot be a data ability
+    HILOG_INFO("start restartable data ability.");
+    // find if this bundle is a restartable data ability.
+    std::string bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    bool restartable = DelayedSingleton<AbilityManagerService>::GetInstance()->IsRestartableAbility(bundleName);
+    if (!restartable) {
+        HILOG_INFO("bundleName: %{public}s is not restartable.", bundleName.c_str());
+        return;
+    }
+
+    getBundleInfos = bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_DEFAULT);
+    if (getBundleInfos) {
+        for (size_t i = 0; i < bundleInfos.size(); i++) {
+            if (bundleInfos[i].name != bundleName) {
                 continue;
             }
-            // old application model, it maybe a data ability
-            std::string mainElement = hapModuleInfo.mainAbility;
-            if (abilityRecord->GetAbilityInfo().name != mainElement) {
-                continue;
-            }
-            std::string uriStr;
-            bool getDataAbilityUri = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetDataAbilityUri(
-                hapModuleInfo.abilityInfos, mainElement, uriStr);
-            if (getDataAbilityUri) {
-                HILOG_INFO("restart data ability: %{public}s, uri: %{public}s",
-                    abilityRecord->GetAbilityInfo().name.c_str(), uriStr.c_str());
-                Uri uri(uriStr);
-                OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
-                return;
-            }
+            StartDataAbilityWithMainElement(bundleInfos[i].hapModuleInfos, abilityRecord);
         }
     }
+}
+
+bool DataAbilityManager::StartDataAbilityWithMainElement(const std::vector<AppExecFwk::HapModuleInfo> &hapModuleInfos,
+    const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    for (auto hapModuleInfo : hapModuleInfos) {
+        if (hapModuleInfo.isModuleJson) {
+            // new application model, it cannot be a data ability
+            continue;
+        }
+        // old application model, it maybe a data ability
+        std::string mainElement = hapModuleInfo.mainAbility;
+        if (abilityRecord->GetAbilityInfo().name != mainElement) {
+            continue;
+        }
+        std::string uriStr;
+        bool getDataAbilityUri = DelayedSingleton<AbilityManagerService>::GetInstance()->GetDataAbilityUri(
+            hapModuleInfo.abilityInfos, mainElement, uriStr);
+        if (getDataAbilityUri) {
+            HILOG_INFO("restart data ability: %{public}s, uri: %{public}s",
+                abilityRecord->GetAbilityInfo().name.c_str(), uriStr.c_str());
+            Uri uri(uriStr);
+            DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
+            return true;
+        }
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -766,6 +766,14 @@ public:
      * @param token The target ability.
      */
     void UpdateMissionSnapShot(const sptr<IRemoteObject>& token);
+
+    /**
+     * Called to notify one process will be killed.
+     * @param bundleName Bundle name of the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode NotifyProcessWillBeKilled(const std::string &bundleName);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

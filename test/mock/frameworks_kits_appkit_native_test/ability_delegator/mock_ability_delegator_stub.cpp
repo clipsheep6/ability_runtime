@@ -204,6 +204,11 @@ int MockAbilityDelegatorStub::BlockAppService()
     return 0;
 }
 
+int MockAbilityDelegatorStub::NotifyProcessWillBeKilled(const std::string &bundleName)
+{
+    return 0;
+}
+
 bool MockAbilityDelegatorStub2::finishFlag_ = false;
 
 MockAbilityDelegatorStub2::MockAbilityDelegatorStub2()
@@ -416,6 +421,11 @@ int MockAbilityDelegatorStub2::SetMissionIcon(
 }
 
 int MockAbilityDelegatorStub2::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler)
+{
+    return 0;
+}
+
+int MockAbilityDelegatorStub2::NotifyProcessWillBeKilled(const std::string &bundleName)
 {
     return 0;
 }
