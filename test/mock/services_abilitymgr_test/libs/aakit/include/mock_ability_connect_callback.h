@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H
 
 #include "ability_connect_callback_interface.h"
 #include "ability_connect_callback_stub.h"
@@ -34,4 +34,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_CONNECT_CALLBACK_H

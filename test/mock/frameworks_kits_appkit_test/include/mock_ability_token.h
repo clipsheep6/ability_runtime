@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H
 
 #include "nocopyable.h"
 #include "iremote_broker.h"
@@ -57,4 +57,4 @@ private:
 DECLARE_INTERFACE_DESCRIPTOR(u"IAbilityToken");
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_TOKEN_H

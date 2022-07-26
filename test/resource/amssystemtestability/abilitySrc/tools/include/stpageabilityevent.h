@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _AMS_ST_PAGE_ABILITY_EVENT_H_
-#define _AMS_ST_PAGE_ABILITY_EVENT_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_ST_PAGE_ABILITY_EVENT_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_ST_PAGE_ABILITY_EVENT_H
 
 #include <vector>
 #include <string>
@@ -131,4 +131,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // _AMS_ST_PAGE_ABILITY_EVENT_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_ST_PAGE_ABILITY_EVENT_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
+#ifndef UNITTEST_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
+#define UNITTEST_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
 #include <gmock/gmock.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef VERIFY_ACT_PAGE_ABILITY_H
-#define VERIFY_ACT_PAGE_ABILITY_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_PAGE_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_PAGE_ABILITY_H
 #include "ability_loader.h"
 #include "common_event.h"
 #include "common_event_manager.h"
@@ -48,4 +48,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // VERIFY_ACT_PAGE_ABILITY_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_PAGE_ABILITY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef BASE_ABILITY_H_
-#define BASE_ABILITY_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_BASE_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_BASE_ABILITY_H
 #include "ability.h"
 #include "common_event.h"
 #include "common_event_manager.h"
@@ -83,4 +83,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // BASE_ABILITY_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_BASE_ABILITY_H

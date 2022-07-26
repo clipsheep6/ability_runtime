@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef LIFT_CYCLE_CALL_BACKS_ABILITY_H_
-#define LIFT_CYCLE_CALL_BACKS_ABILITY_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_LIFT_CYCLE_CALL_BACKS_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_LIFT_CYCLE_CALL_BACKS_ABILITY_H
 
 #include "ability_loader.h"
 #include "base_ability.h"
@@ -90,4 +90,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // LIFT_CYCLE_CALL_BACKS_ABILITY_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_LIFT_CYCLE_CALL_BACKS_ABILITY_H

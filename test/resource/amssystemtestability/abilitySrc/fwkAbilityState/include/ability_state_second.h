@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FWK_ABILITY_STATE_ABILITY_B_H
-#define FWK_ABILITY_STATE_ABILITY_B_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_STATE_SECOND_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_STATE_SECOND_H
 #include <string>
 #include "ability_loader.h"
 #include "hilog_wrapper.h"
@@ -77,4 +77,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // _FWK_ABILITY_STATE_ABILITY_B_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_STATE_SECOND_H

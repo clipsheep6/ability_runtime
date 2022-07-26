@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_APPEND_TEST_INFO_H
-#define ABILITY_APPEND_TEST_INFO_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_APPEND_TEST_INFO_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_APPEND_TEST_INFO_H
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -92,4 +92,4 @@ enum class AppendApi {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // ABILITY_APPEND_TEST_INFO_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_APPEND_TEST_INFO_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_OHOS_CONTEXT_H
-#define FOUNDATION_APPEXECFWK_OHOS_CONTEXT_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_CONTEXT_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_CONTEXT_H
 
 #include "context.h"
 #include "gmock/gmock.h"
@@ -91,4 +91,4 @@ protected:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_OHOS_CONTEXT_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_CONTEXT_H

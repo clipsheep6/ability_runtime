@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H
-#define OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H
 
 #include <codecvt>
 #include <memory>
@@ -230,4 +230,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_FORM_MGR_SERVICE_H

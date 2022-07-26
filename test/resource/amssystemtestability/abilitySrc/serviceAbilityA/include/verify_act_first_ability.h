@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef VERIFY_ACT_FIRST_ABILITY
-#define VERIFY_ACT_FIRST_ABILITY
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_FIRST_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_FIRST_ABILITY_H
 #include "ability_loader.h"
 #include "common_event.h"
 #include "hilog_wrapper.h"
@@ -86,4 +86,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // VERIFY_ACT_FIRST_ABILITY
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_FIRST_ABILITY_H

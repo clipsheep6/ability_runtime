@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H
 
 #include "ability_scheduler_stub.h"
 #include "ability_record.h"
@@ -111,4 +111,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_H

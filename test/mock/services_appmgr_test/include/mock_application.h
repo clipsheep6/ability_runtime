@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H
-#define OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H
 
 #include "gmock/gmock.h"
 #include "semaphore_ex.h"
@@ -110,4 +110,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APPLICATION_H

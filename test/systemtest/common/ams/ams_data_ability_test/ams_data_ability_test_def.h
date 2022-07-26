@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
-#define OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
+#ifndef SYSTEMTEST_OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
+#define SYSTEMTEST_OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H
 #include <string>
 
 namespace OHOS {
@@ -107,4 +107,4 @@ const std::string DEFAULT_QUERY_RESULT = "Query";
 const std::string DEFAULT_GETTYPE_RESULT = "GetType";
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H_
+#endif  // SYSTEMTEST_OHOS_ABILITY_RUNTIME_AMS_DATA_ABILITY_TEST_DEF_H

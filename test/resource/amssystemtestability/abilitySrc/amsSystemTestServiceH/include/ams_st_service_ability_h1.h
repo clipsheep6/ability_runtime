@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_ST_SERVICE_ABILITY_H1_
-#define AMS_ST_SERVICE_ABILITY_H1_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_H1_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_H1_H
 
 #include <map>
 #include <string>
@@ -128,4 +128,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ST_SERVICE_ABILITY_H1_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_H1_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H
-#define OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H
+#define MOCK_OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -50,4 +50,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_IAPP_STATE_CALLBACK_H

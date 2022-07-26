@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
-#define OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
+#define MOCK_OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
 
 #include "hilog/log.h"
 #include "iremote_object.h"
@@ -61,4 +61,4 @@ protected:
     }
 };
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_SYSTEM_ABILITY_H
