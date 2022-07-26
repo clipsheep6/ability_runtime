@@ -934,7 +934,7 @@ napi_value UnRegisterWrap(napi_env env, napi_callback_info info, DAHelperOnOffCB
 
 napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("%{public}s, syncCallback.", __func__);
     if (offCB == nullptr) {
         HILOG_ERROR("%{public}s, offCB == nullptr.", __func__);
         return nullptr;
@@ -960,7 +960,7 @@ napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
     for (auto &iter : offCB->DestroyList) {
         HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 1 ---");
         if (iter->observer != nullptr) {
-            if (iter->observer->GetWorkPre() == 1 && iter->observer->GetWorkRun() == 0) {
+            if (iter->observer->GetWorkPre() == 1) {
                 iter->observer->SetAssociatedObject(iter);
                 iter->observer->ChangeWorkInt();
                 HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 3 ---");
@@ -1033,11 +1033,7 @@ void NAPIDataAbilityObserver::ChangeWorkPre()
     workPre_ = 1;
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workPre_);
 }
-void NAPIDataAbilityObserver::ChangeWorkRun()
-{
-    workRun_ = 1;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workRun_);
-}
+
 void NAPIDataAbilityObserver::ChangeWorkInt()
 {
     intrust_ = 1;
@@ -1054,9 +1050,8 @@ void NAPIDataAbilityObserver::ChangeWorkPreDone()
 
 void NAPIDataAbilityObserver::ChangeWorkRunDone()
 {
-    workRun_ = 0;
     intrust_ = 0;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called end %{public}d %{public}d", __func__, workRun_, intrust_);
+    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called end %{public}d", __func__, intrust_);
 }
 
 int NAPIDataAbilityObserver::GetWorkPre()
@@ -1071,12 +1066,6 @@ int NAPIDataAbilityObserver::GetWorkInt()
 {
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, intrust_);
     return intrust_;
-}
-
-int NAPIDataAbilityObserver::GetWorkRun()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. %{public}d", __func__, workRun_);
-    return workRun_;
 }
 
 const DAHelperOnOffCB* NAPIDataAbilityObserver::GetAssociatedObject(void)
@@ -1111,9 +1100,7 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     }
     NAPIDataAbilityObserver* obs = onCB->observer;
     onCB->observer = nullptr;
-    if (obs != nullptr) {
-        obs->ChangeWorkRun();
-    }
+
     napi_value result[ARGS_TWO] = {0};
     result[PARAM0] = GetCallbackErrorValue(onCB->cbBase.cbInfo.env, NO_ERROR);
     napi_value callback = 0;
@@ -1154,16 +1141,12 @@ void NAPIDataAbilityObserver::OnChange()
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
-        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        HILOG_ERROR("%{public}s, loop is nullptr.", __func__);
         ChangeWorkPreDone();
         return;
     }
+
     uv_work_t *work = new uv_work_t;
-    if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work==nullptr.", __func__);
-        ChangeWorkPreDone();
-        return;
-    }
     DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
     onCB->cbBase.cbInfo.env = env_;
     onCB->cbBase.cbInfo.callback = ref_;
