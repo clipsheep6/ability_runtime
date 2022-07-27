@@ -145,7 +145,7 @@ export default {
                 })
             }).catch(error => {
                 console.log("dialog service getResourceManager error:" + error);
-                this.updateHapName(this.hapList[i].ability, this.hapList[i].bundle);
+                this.updateHapName(this.hapList[i].ability, this.hapList[i].bundle, this.hapList[i].bundle);
             });
 
             let iconId = Number(this.hapList[i].icon);
