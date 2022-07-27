@@ -41,24 +41,6 @@ config("module_private_config") {
 ohos_moduletest("ability_moduletest") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
@@ -74,6 +56,7 @@ ohos_moduletest("ability_moduletest") {
   ]
 
   deps = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
@@ -110,14 +93,6 @@ ohos_moduletest("ability_moduletest") {
 ohos_moduletest("ability_conetxt_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
@@ -133,6 +108,7 @@ ohos_moduletest("ability_conetxt_test") {
   ]
 
   deps = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
@@ -166,13 +142,13 @@ ohos_moduletest("ability_conetxt_test") {
 ohos_moduletest("ability_thread_call_request_module_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "ability_thread_call_request_module_test.cpp",
   ]
 
   configs = [ ":module_private_config" ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
@@ -195,24 +171,6 @@ ohos_moduletest("ability_thread_call_request_module_test") {
 ohos_moduletest("data_ability_operation_moduletest") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_native_path}/ability/native/data_ability_operation.cpp",
-    "${ability_runtime_native_path}/ability/native/data_ability_operation_builder.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_scheduler_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_snapshot.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_stub.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS/mock_ability_manager_client.cpp",
