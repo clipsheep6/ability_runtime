@@ -28,11 +28,6 @@ ohos_moduletest("specified_ability_service_test") {
 
   sources = [ "specified_ability_service_test.cpp" ]
   sources += [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
-    "${ability_runtime_services_path}/common/src/event_report.cpp",
-    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_bundle_mgr.cpp",
@@ -54,6 +49,7 @@ ohos_moduletest("specified_ability_service_test") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
