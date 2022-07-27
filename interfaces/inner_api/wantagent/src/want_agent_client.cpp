@@ -16,6 +16,7 @@
 #include "want_agent_client.h"
 
 #include "ability_manager_errors.h"
+#include "ability_util.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -66,10 +67,7 @@ void WantAgentClient::CancelWantSender(const sptr<IWantSender> &sender)
 
 ErrCode WantAgentClient::GetPendingWantUid(const sptr<IWantSender> &target, int32_t &uid)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
@@ -81,10 +79,7 @@ ErrCode WantAgentClient::GetPendingWantUid(const sptr<IWantSender> &target, int3
 
 ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, int32_t &userId)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
@@ -96,10 +91,7 @@ ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, i
 
 ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &target, std::string &bundleName)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
@@ -111,10 +103,7 @@ ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &targe
 
 ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int32_t &code)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
@@ -126,10 +115,7 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
 
 ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int32_t &type)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
@@ -142,12 +128,7 @@ ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int
 
 void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier)
 {
-    if (sender == nullptr) {
-        HILOG_ERROR("sender is nullptr.");
-        return;
-    }
-    if (recevier == nullptr) {
-        HILOG_ERROR("recevier is nullptr.");
+    if (!CheckSenderAndRecevier(sender, recevier)) {
         return;
     }
     auto abms = GetAbilityManager();
@@ -161,12 +142,7 @@ void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, co
 void WantAgentClient::UnregisterCancelListener(
     const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier)
 {
-    if (sender == nullptr) {
-        HILOG_ERROR("sender is nullptr.");
-        return;
-    }
-    if (recevier == nullptr) {
-        HILOG_ERROR("recevier is nullptr.");
+    if (!CheckSenderAndRecevier(sender, recevier)) {
         return;
     }
     auto abms = GetAbilityManager();
@@ -177,12 +153,23 @@ void WantAgentClient::UnregisterCancelListener(
     abms->UnregisterCancelListener(sender, recevier);
 }
 
+bool WantAgentClient::CheckSenderAndRecevier(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier)
+{
+    if (sender == nullptr) {
+        HILOG_ERROR("sender is nullptr.");
+        return false;
+    }
+    if (recevier == nullptr) {
+        HILOG_ERROR("recevier is nullptr.");
+        return false;
+    }
+
+    return true;
+}
+
 ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr.");
         return INVALID_PARAMETERS_ERR;
@@ -197,14 +184,8 @@ ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, 
 
 ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info)
 {
-    if (target == nullptr) {
-        HILOG_ERROR("target is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
-    if (info == nullptr) {
-        HILOG_ERROR("info is nullptr.");
-        return INVALID_PARAMETERS_ERR;
-    }
+    CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
+    CHECK_POINTER_AND_RETURN(info, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     if (!abms) {
         HILOG_ERROR("ability proxy is nullptr.");
