@@ -71,6 +71,8 @@ private:
     sptr<IAbilityManager> GetAbilityManager();
     void ResetProxy(const wptr<IRemoteObject>& remote);
 
+    bool CheckSenderAndRecevier(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier);
+
     std::recursive_mutex mutex_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
