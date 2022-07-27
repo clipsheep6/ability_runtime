@@ -803,6 +803,16 @@ public:
 
     bool CanRestartRootLauncher();
 
+    inline void SetInitialToMinimize(bool initialToMinimize)
+    {
+        initialToMinimize_ = initialToMinimize;
+    }
+
+    inline bool IsInitialToMinimize() const
+    {
+        return initialToMinimize_;
+    }
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 
@@ -939,6 +949,7 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     bool needTakeSnapShot_ = true;
+    bool initialToMinimize_ = false;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;

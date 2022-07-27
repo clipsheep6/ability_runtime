@@ -613,6 +613,11 @@ int MissionListManager::MinimizeAbilityLocked(const std::shared_ptr<AbilityRecor
 
     if (!abilityRecord->IsAbilityState(AbilityState::FOREGROUND) &&
         !abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+        if (abilityRecord->IsAbilityState(AbilityState::INITIAL)) {
+            HILOG_ERROR("%{public}s InitialToMinimize set true", __func__);
+            abilityRecord->SetInitialToMinimize(true);
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+        }
         HILOG_ERROR("Minimize ability fail, ability state is invalid, not foregroundnew or foregerounding_new.");
         return ERR_OK;
     }
@@ -663,7 +668,13 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         abilityRecord->CallRequest();
     }
 
-    DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+    if (abilityRecord->IsInitialToMinimize()) {
+        HILOG_ERROR("%{public}s set InitialToMinimize to true", __func__);
+        abilityRecord->SetInitialToMinimize(false);
+    } else {
+        HILOG_ERROR("%{public}s InitialToMinimize is false", __func__);
+        DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+    }
 
     return ERR_OK;
 }
@@ -676,6 +687,11 @@ void MissionListManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
+        if (abilityRecord->IsInitialToMinimize()) {
+            HILOG_ERROR("%{public}s InitialToMinimize is true", __func__);
+            abilityRecord->SetInitialToMinimize(false);
+            return;
+        }
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
 

@@ -79,13 +79,6 @@ void AbilityWindow::OnPostAbilityStart()
 {
     if (!isWindowAttached) {
         HILOG_ERROR("AbilityWindow::OnPostAbilityStart window not attached.");
-        return;
-    }
-
-    if (windowScene_) {
-        HILOG_INFO("%{public}s begin windowScene_->GoBackground.", __func__);
-        windowScene_->GoBackground();
-        HILOG_INFO("%{public}s end windowScene_->GoBackground.", __func__);
     }
 }
 
