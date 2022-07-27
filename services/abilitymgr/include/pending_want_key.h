@@ -20,6 +20,7 @@
 #include <string>
 
 #include "want.h"
+#include "ability_record.h"
 #include "wants_info.h"
 
 namespace OHOS {

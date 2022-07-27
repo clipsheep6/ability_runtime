@@ -15,10 +15,10 @@
 
 #include "want_agent_helper.h"
 
+#include "ability_manager_client.h"
 #include "hilog_wrapper.h"
 #include "want_params_wrapper.h"
 #include "pending_want.h"
-#include "want_agent_client.h"
 #include "want_agent_log_wrapper.h"
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
@@ -157,7 +157,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
     wantSenderInfo.type = (int32_t)paramsInfo.GetOperationType();
     wantSenderInfo.userId = userId;
 
-    sptr<IWantSender> target = WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr);
+    sptr<IWantSender> target = AbilityManagerClient::GetInstance()->GetWantSender(wantSenderInfo, nullptr);
     if (target == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent target is nullptr.");
         return nullptr;

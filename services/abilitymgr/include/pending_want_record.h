@@ -20,10 +20,12 @@
 #include <mutex>
 
 #include "iremote_object.h"
-#include "pending_want_key.h"
 #include "refbase.h"
-#include "sender_info.h"
+
+#include "ability_record.h"
 #include "want_sender_stub.h"
+#include "sender_info.h"
+#include "pending_want_key.h"
 
 namespace OHOS {
 namespace AAFwk {
