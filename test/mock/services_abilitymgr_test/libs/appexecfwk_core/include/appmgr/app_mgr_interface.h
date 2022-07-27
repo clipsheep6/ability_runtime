@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
-#define MOCK_OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
+#define OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -155,4 +155,4 @@ public:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H

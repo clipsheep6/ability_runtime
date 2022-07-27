@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef MOCK_OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
-#define MOCK_OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
+#ifndef OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
+#define OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
 
 #include <sys/types.h>
 #include "parcel.h"
@@ -53,4 +53,4 @@ struct AppProcessData : public Parcelable {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // MOCK_OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
+#endif  // OHOS_ABILITY_RUNTIME_APP_PROCESS_DATA_H
