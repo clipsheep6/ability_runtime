@@ -253,6 +253,11 @@ enum {
      * Result(2097199) for for implicit start ability is failed.
      */
     ERR_IMPLICIT_START_ABILITY_FAIL,
+
+    /**
+     * Result(2097200) for instance reach to upper limit.
+     */
+    ERR_REACH_UPPER_LIMIT,
 };
 
 enum {
