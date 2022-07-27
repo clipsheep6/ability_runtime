@@ -18,9 +18,11 @@
 
 #include <mutex>
 
-#include "ability_manager_interface.h"
 #include "iremote_object.h"
 #include "want.h"
+#include "want_receiver_interface.h"
+#include "want_sender_info.h"
+#include "want_sender_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -56,23 +58,24 @@ public:
 
     ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 private:
-    class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
+    class WantAgentDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
-        AbilityMgrDeathRecipient() = default;
-        ~AbilityMgrDeathRecipient() = default;
+        WantAgentDeathRecipient() = default;
+        ~WantAgentDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
-        DISALLOW_COPY_AND_MOVE(AbilityMgrDeathRecipient);
+        DISALLOW_COPY_AND_MOVE(WantAgentDeathRecipient);
     };
     WantAgentClient();
     virtual ~WantAgentClient();
     DISALLOW_COPY_AND_MOVE(WantAgentClient);
 
-    sptr<IAbilityManager> GetAbilityManager();
+    sptr<IRemoteObject> GetAbilityManager();
     void ResetProxy(const wptr<IRemoteObject>& remote);
+    bool WriteInterfaceToken(MessageParcel &data);
 
     std::recursive_mutex mutex_;
-    sptr<IAbilityManager> proxy_;
+    sptr<IRemoteObject> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
 };
 }  // namespace AAFwk
