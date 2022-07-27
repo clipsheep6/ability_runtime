@@ -364,5 +364,25 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
     return ret;
 }
 #endif
+
+int32_t MissionList::GetMissionCountByUid(int32_t targetUid) const
+{
+    int32_t count = 0;
+    for (const auto& mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+
+        if (abilityRecord->GetUid() == targetUid) {
+            count++;
+        }
+    }
+    return count;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

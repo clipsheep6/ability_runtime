@@ -34,6 +34,7 @@ constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
+constexpr int32_t MAX_INSTANCE_COUNT = 128;
 constexpr uint32_t NEXTABILITY_TIMEOUT = 1000;         // ms
 constexpr uint64_t NANO_SECOND_PER_SEC = 1000000000; // ns
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
@@ -72,6 +73,11 @@ void MissionListManager::Init()
 int MissionListManager::StartAbility(const AbilityRequest &abilityRequest)
 {
     std::lock_guard<std::recursive_mutex> guard(managerLock_);
+    if (IsReachToLimitLocked(abilityRequest)) {
+        HILOG_ERROR("already reach limit instance. limit is : %{public}d", MAX_INSTANCE_COUNT);
+        return ERR_REACH_UPPER_LIMIT;
+    }
+
     auto currentTopAbility = GetCurrentTopAbilityLocked();
     if (currentTopAbility) {
         std::string element = currentTopAbility->GetWant().GetElement().GetURI();
@@ -2520,6 +2526,34 @@ std::shared_ptr<Mission> MissionListManager::GetMissionBySpecifiedFlag(
     }
 
     return defaultStandardList_->GetMissionBySpecifiedFlag(want, flag);
+}
+
+bool MissionListManager::IsReachToLimitLocked(const AbilityRequest &abilityRequest)
+{
+    auto reUsedMission = GetReusedMission(abilityRequest);
+    if (reUsedMission) {
+        return false;
+    }
+
+    int32_t totalCount = 0;
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+
+        totalCount += missionList->GetMissionCountByUid(abilityRequest.uid);
+        if (totalCount >= MAX_INSTANCE_COUNT) {
+            return true;
+        }
+    }
+
+    totalCount += defaultStandardList_->GetMissionCountByUid(abilityRequest.uid);
+    if (totalCount >= MAX_INSTANCE_COUNT) {
+        return true;
+    }
+
+    totalCount += defaultSingleList_->GetMissionCountByUid(abilityRequest.uid);
+    return totalCount >= MAX_INSTANCE_COUNT;
 }
 
 bool MissionListManager::MissionDmInitCallback::isInit_ = false;

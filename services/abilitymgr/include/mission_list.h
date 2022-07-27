@@ -191,6 +191,8 @@ public:
     int BlockAbilityByRecordId(int32_t abilityRecordId);
     #endif
 
+    int32_t GetMissionCountByUid(int32_t targetUid) const;
+
 private:
     std::string GetTypeName();
     bool MatchedInitialMission(const std::shared_ptr<Mission>& mission, const std::string &bundleName, int32_t uid);
