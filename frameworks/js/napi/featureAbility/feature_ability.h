@@ -105,6 +105,16 @@ napi_value NAPI_HasWindowFocus(napi_env env, napi_callback_info info);
 napi_value NAPI_GetContext(napi_env env, napi_callback_info info);
 
 /**
+ * @brief Get window.
+ *
+ * @param env The environment that the Node-API call is invoked under.
+ * @param info The callback info passed into the callback function.
+ *
+ * @return The return value from NAPI C++ to JS for the module.
+ */
+napi_value NAPI_GetWindow(napi_env env, napi_callback_info info);
+
+/**
  * @brief Get want.
  *
  * @param env The environment that the Node-API call is invoked under.
