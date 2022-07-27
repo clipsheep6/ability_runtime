@@ -42,41 +42,7 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
         }
         for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
             std::string mainElement;
-            if (!hapModuleInfo.isModuleJson) {
-                // old application model
-                mainElement = hapModuleInfo.mainAbility;
-                if (mainElement.empty()) {
-                    continue;
-                }
-
-                std::string uriStr;
-                bool getDataAbilityUri = DelayedSingleton<AbilityManagerService>::GetInstance()->GetDataAbilityUri(
-                    hapModuleInfo.abilityInfos, mainElement, uriStr);
-                if (getDataAbilityUri) {
-                    // dataability, need use AcquireDataAbility
-                    Uri uri(uriStr);
-                    DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
-                    needEraseIndexSet.insert(i);
-                    continue;
-                }
-            } else {
-                // new application model
-                mainElement = hapModuleInfo.mainElementName;
-                if (mainElement.empty()) {
-                    continue;
-                }
-            }
-
-            // ability need to start, but need to filt page ability
-            bool mainElementIsPageAbility = false;
-            for (auto abilityInfo : hapModuleInfo.abilityInfos) {
-                if (abilityInfo.name == mainElement && abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
-                    mainElementIsPageAbility = true;
-                    break;
-                }
-            }
-            if (mainElementIsPageAbility) {
-                HILOG_INFO("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
+            if (!CheckMainElement(hapModuleInfo, mainElement, needEraseIndexSet, i)) {
                 continue;
             }
 
@@ -93,6 +59,50 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
     for (auto iter = needEraseIndexSet.rbegin(); iter != needEraseIndexSet.rend(); iter++) {
         bundleInfos.erase(bundleInfos.begin() + *iter);
     }
+}
+
+bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, std::string &mainElement,
+    std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex)
+{
+    if (!hapModuleInfo.isModuleJson) {
+        // old application model
+        mainElement = hapModuleInfo.mainAbility;
+        if (mainElement.empty()) {
+            return false;
+        }
+
+        std::string uriStr;
+        bool getDataAbilityUri = DelayedSingleton<AbilityManagerService>::GetInstance()->GetDataAbilityUri(
+            hapModuleInfo.abilityInfos, mainElement, uriStr);
+        if (getDataAbilityUri) {
+            // dataability, need use AcquireDataAbility
+            Uri uri(uriStr);
+            DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
+            needEraseIndexSet.insert(bundleInfoIndex);
+            return false;
+        }
+    } else {
+        // new application model
+        mainElement = hapModuleInfo.mainElementName;
+        if (mainElement.empty()) {
+            return false;
+        }
+    }
+
+    // ability need to start, but need to filt page ability
+    bool mainElementIsPageAbility = false;
+    for (auto abilityInfo : hapModuleInfo.abilityInfos) {
+        if (abilityInfo.name == mainElement && abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+            mainElementIsPageAbility = true;
+            break;
+        }
+    }
+    if (mainElementIsPageAbility) {
+        HILOG_INFO("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
+        return false;
+    }
+
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

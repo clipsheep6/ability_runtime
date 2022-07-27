@@ -76,7 +76,7 @@ JsAbility::JsAbility(JsRuntime &jsRuntime) : jsRuntime_(jsRuntime)
 JsAbility::~JsAbility() = default;
 
 void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
+    const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     Ability::Init(abilityInfo, application, handler, token);
@@ -298,7 +298,10 @@ void JsAbility::OnForeground(const Want &want)
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
@@ -429,7 +432,7 @@ void JsAbility::DoOnForeground(const Want &want)
         std::weak_ptr<Ability> weakAbility = shared_from_this();
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        window->SetPrivacyMode(appIndex_ != 0);
+        window->SetPrivacyMode(securityFlag_);
     }
 
     HILOG_INFO("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
@@ -437,7 +440,7 @@ void JsAbility::DoOnForeground(const Want &want)
     HILOG_INFO("%{public}s end scene_->GoForeground.", __func__);
 }
 
-void JsAbility::RequsetFocus(const Want &want)
+void JsAbility::RequestFocus(const Want &want)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (scene_ == nullptr) {
@@ -478,7 +481,10 @@ int32_t JsAbility::OnContinue(WantParams &wantParams)
 {
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return false;
+    }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
@@ -554,7 +560,10 @@ void JsAbility::OnNewWant(const Want &want)
 
     HandleScope handleScope(jsRuntime_);
     auto &nativeEngine = jsRuntime_.GetNativeEngine();
-
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
     NativeValue *value = jsAbilityObj_->Get();
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {

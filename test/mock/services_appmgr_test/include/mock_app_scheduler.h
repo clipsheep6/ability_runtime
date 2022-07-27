@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
-#define OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
 
 #include "gmock/gmock.h"
 #include "refbase.h"
@@ -45,4 +45,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H

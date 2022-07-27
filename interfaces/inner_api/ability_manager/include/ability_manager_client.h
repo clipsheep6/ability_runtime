@@ -363,12 +363,6 @@ public:
 
     ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
-
     ErrCode GetAppMemorySize();
 
     bool IsRamConstrainedDevice();

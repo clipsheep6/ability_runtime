@@ -48,11 +48,11 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
+constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
 const int DELAY_REMOTE_FREE_INSTALL_TIMEOUT = 30000 + DELAY_LOCAL_FREE_INSTALL_TIMEOUT;
-const std::string FROM_REMOTE_KEY = "freeInstallFromRemote";
+constexpr const char* FROM_REMOTE_KEY = "freeInstallFromRemote";
 /**
  * @class IAbilityManager
  * IAbilityManager interface is used to access ability manager services.
@@ -407,12 +407,6 @@ public:
     virtual int GetPendingRequestWant(const sptr<IWantSender> &target, std::shared_ptr<Want> &want) = 0;
 
     virtual int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) = 0;
-
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) = 0;
 
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
@@ -884,8 +878,6 @@ public:
         START_ABILITY_FOR_SETTINGS,
 
         GET_ABILITY_MISSION_SNAPSHOT,
-
-        GET_SYSTEM_MEMORY_ATTR,
 
         GET_APP_MEMORY_SIZE,
 

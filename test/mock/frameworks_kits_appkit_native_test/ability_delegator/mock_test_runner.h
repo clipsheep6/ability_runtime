@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H
-#define OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H
 
 #include "gmock/gmock.h"
 
@@ -41,4 +41,4 @@ public:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_TEST_RUNNER_H

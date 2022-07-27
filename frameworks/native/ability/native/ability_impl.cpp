@@ -502,11 +502,10 @@ void AbilityImpl::AfterUnFocused()
     }
 
     HILOG_INFO("old version ability, window after unfocused.");
-    auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
+    auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
         info.isNewWant = false;
-        Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);
@@ -527,11 +526,10 @@ void AbilityImpl::AfterFocused()
     }
 
     HILOG_INFO("fa mode ability, window after focused.");
-    auto task = [abilityImpl = shared_from_this(), ability = ability_, contextDeal = contextDeal_]() {
+    auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
         info.isNewWant = false;
-        Want want(*(ability->GetWant()));
         abilityImpl->HandleAbilityTransaction(want, info);
     };
     handler_->PostTask(task);

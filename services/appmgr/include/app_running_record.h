@@ -497,6 +497,8 @@ public:
     bool IsKilling() const;
     void SetAppIndex(const int32_t appIndex);
     int32_t GetAppIndex() const;
+    void SetSecurityFlag(bool securityFlag);
+    bool GetSecurityFlag() const;
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
@@ -586,6 +588,7 @@ private:
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;
     AppSpawnStartMsg startMsg_;
     int32_t appIndex_ = 0;
+    bool securityFlag_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

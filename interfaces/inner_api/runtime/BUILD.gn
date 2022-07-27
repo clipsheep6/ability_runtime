@@ -71,7 +71,6 @@ ohos_shared_library("runtime") {
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "utils_base:utils",
@@ -81,7 +80,7 @@ ohos_shared_library("runtime") {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
       "hitrace_native:libhitrace",
-      "startup_l2:syspara",
+      "init:libbegetutil",
     ]
   } else {
     external_deps += [ "startup:syspara" ]

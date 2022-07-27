@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H
-#define OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H
+#ifndef UNITTEST_OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H
+#define UNITTEST_OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H
 #include <memory>
 
 #include "gtest/gtest.h"
@@ -49,4 +49,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif /* OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H */
+#endif /* UNITTEST_OHOS_ABILITY_RUNTIME_MOCK_DATA_OBS_MGR_STUB_H */

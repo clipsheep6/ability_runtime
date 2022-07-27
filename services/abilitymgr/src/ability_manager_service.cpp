@@ -45,7 +45,6 @@
 #include "iservice_registry.h"
 #include "itest_observer.h"
 #include "mission_info_mgr.h"
-#include "permission_constants.h"
 #include "permission_verification.h"
 #include "sa_mgr_client.h"
 #include "system_ability_token_callback.h"
@@ -65,9 +64,9 @@
 #include "ui_service_mgr_client.h"
 #endif
 
-#ifdef SUSPEND_MANAGER_ENABLE
+#ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
-#endif // SUSPEND_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
 
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -89,7 +88,6 @@ const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
-static const int EXPERIENCE_MEM_THRESHOLD = 20;
 constexpr auto DATA_ABILITY_START_TIMEOUT = 5s;
 constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
@@ -235,9 +233,10 @@ bool AbilityManagerService::Init()
     InitMissionListManager(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
     int amsTimeOut = amsConfigResolver_->GetAMSTimeOutTime();
-    std::string threadName = AbilityConfig::NAME_ABILITY_MGR_SERVICE + "(" +
+    HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
+    std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, amsTimeOut) != 0) {
+    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
 #ifdef SUPPORT_GRAPHICS
@@ -249,22 +248,7 @@ bool AbilityManagerService::Init()
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
-    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
-        int attemptNums = 0;
-        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_)))) {
-            ++attemptNums;
-            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
-                HILOG_ERROR("subscribeBackgroundTask fail");
-                return;
-            }
-            usleep(REPOLL_TIME_MICRO_SECONDS);
-        }
-    };
-    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
-#endif
+    SubscribeBackgroundTask();
 
     anrListener_ = std::make_shared<ApplicationAnrListener>();
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
@@ -455,14 +439,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return ERR_INVALID_VALUE;
         }
         HILOG_DEBUG("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
-#ifdef SUSPEND_MANAGER_ENABLE
+#ifdef EFFICIENCY_MANAGER_ENABLE
         auto bms = AbilityUtil::GetBundleManager();
         if (bms) {
             SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
                 bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
                 abilityInfo.bundleName, "THAW_BY_START_NOT_PAGE_ABILITY");
         }
-#endif // SUSPEND_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -475,14 +459,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
-#ifdef SUSPEND_MANAGER_ENABLE
+#ifdef EFFICIENCY_MANAGER_ENABLE
     auto bms = AbilityUtil::GetBundleManager();
     if (bms) {
         SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
             bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
             abilityInfo.bundleName, "THAW_BY_START_PAGE_ABILITY");
     }
-#endif // SUSPEND_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -823,6 +807,26 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
 
     UpdateCallerInfo(abilityRequest.want);
     return ERR_OK;
+}
+
+void AbilityManagerService::SubscribeBackgroundTask()
+{
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
+    auto subscribeBackgroundTask = [aams = shared_from_this()]() {
+        int attemptNums = 0;
+        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
+            *(aams->bgtaskObserver_)))) {
+            ++attemptNums;
+            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
+                HILOG_ERROR("subscribeBackgroundTask fail");
+                return;
+            }
+            usleep(REPOLL_TIME_MICRO_SECONDS);
+        }
+    };
+    handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+#endif
 }
 
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -1512,6 +1516,7 @@ int AbilityManagerService::ConnectRemoteAbility(const Want &want, const sptr<IRe
 int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection> &connect)
 {
     HILOG_INFO("Disconnect local ability begin.");
+    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
     return connectManager_->DisconnectAbilityLocked(connect);
 }
 
@@ -1528,7 +1533,7 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
     HILOG_INFO("ContinueMission missionId: %{public}d", missionId);
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1601,7 +1606,7 @@ int AbilityManagerService::NotifyContinuationResult(int32_t missionId, int32_t r
 
 int AbilityManagerService::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1611,7 +1616,7 @@ int AbilityManagerService::StartSyncRemoteMissions(const std::string& devId, boo
 
 int AbilityManagerService::StopSyncRemoteMissions(const std::string& devId)
 {
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1628,7 +1633,7 @@ int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,
         return REGISTER_REMOTE_MISSION_LISTENER_FAIL;
     }
     CHECK_POINTER_AND_RETURN(listener, ERR_INVALID_VALUE);
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1645,7 +1650,7 @@ int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId
         return REGISTER_REMOTE_MISSION_LISTENER_FAIL;
     }
     CHECK_POINTER_AND_RETURN(listener, ERR_INVALID_VALUE);
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1655,6 +1660,7 @@ int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId
 
 void AbilityManagerService::RemoveAllServiceRecord()
 {
+    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
     connectManager_->RemoveAll();
 }
 
@@ -1831,7 +1837,7 @@ int AbilityManagerService::LockMissionForCleanup(int32_t missionId)
     HILOG_INFO("request unlock mission for clean up all, id :%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1843,7 +1849,7 @@ int AbilityManagerService::UnlockMissionForCleanup(int32_t missionId)
     HILOG_INFO("request unlock mission for clean up all, id :%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1855,7 +1861,7 @@ int AbilityManagerService::RegisterMissionListener(const sptr<IMissionListener> 
     HILOG_INFO("request RegisterMissionListener ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1867,7 +1873,7 @@ int AbilityManagerService::UnRegisterMissionListener(const sptr<IMissionListener
     HILOG_INFO("request RegisterMissionListener ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1880,7 +1886,7 @@ int AbilityManagerService::GetMissionInfos(const std::string& deviceId, int32_t 
     HILOG_INFO("request GetMissionInfos.");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1911,7 +1917,7 @@ int AbilityManagerService::GetMissionInfo(const std::string& deviceId, int32_t m
     HILOG_INFO("request GetMissionInfo, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1947,7 +1953,7 @@ int AbilityManagerService::CleanMission(int32_t missionId)
     HILOG_INFO("request CleanMission, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1960,7 +1966,7 @@ int AbilityManagerService::CleanAllMissions()
     HILOG_INFO("request CleanAllMissions ");
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1980,7 +1986,7 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId)
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -1998,7 +2004,7 @@ int AbilityManagerService::MoveMissionToFront(int32_t missionId, const StartOpti
     HILOG_INFO("request MoveMissionToFront, missionId:%{public}d", missionId);
     CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -2047,12 +2053,21 @@ bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
 
 std::shared_ptr<AbilityRecord> AbilityManagerService::GetServiceRecordByElementName(const std::string &element)
 {
+    if (!connectManager_) {
+        HILOG_ERROR("Connect manager is nullptr.");
+        return nullptr;
+    }
     return connectManager_->GetServiceRecordByElementName(element);
 }
 
 std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRecordListByCallback(
     sptr<IAbilityConnection> callback)
 {
+    if (!connectManager_) {
+        HILOG_ERROR("Connect manager is nullptr.");
+        std::list<std::shared_ptr<ConnectionRecord>> connectList;
+        return connectList;
+    }
     return connectManager_->GetConnectRecordListByCallback(callback);
 }
 
@@ -2486,6 +2501,7 @@ void AbilityManagerService::DumpMissionInfosInner(const std::string &args, std::
 
 void AbilityManagerService::DumpMissionInner(const std::string &args, std::vector<std::string> &info)
 {
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -2502,6 +2518,7 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
 
 void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<std::string> &info)
 {
+    CHECK_POINTER_LOG(connectManager_, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -2769,6 +2786,8 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     HILOG_INFO("On app state changed.");
+    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
+    CHECK_POINTER_LOG(currentMissionListManager_, "Current mission list manager not init.");
     connectManager_->OnAppStateChanged(info);
     currentMissionListManager_->OnAppStateChanged(info);
     dataAbilityManager_->OnAppStateChanged(info);
@@ -3508,32 +3527,6 @@ int AbilityManagerService::GetWantSenderInfo(const sptr<IWantSender> &target, st
     return pendingWantManager_->GetWantSenderInfo(target, info);
 }
 
-/**
- * Get system memory information.
- * @param SystemMemoryAttr, memory information.
- */
-void AbilityManagerService::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo)
-{
-    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler == nullptr) {
-        HILOG_ERROR("%{public}s, appScheduler is nullptr", __func__);
-        return;
-    }
-
-    int memoryThreshold = 0;
-    if (amsConfigResolver_ == nullptr) {
-        HILOG_ERROR("%{public}s, amsConfigResolver_ is nullptr", __func__);
-        memoryThreshold = EXPERIENCE_MEM_THRESHOLD;
-    } else {
-        memoryThreshold = amsConfigResolver_->GetMemThreshold(AmsConfig::MemThreshold::HOME_APP);
-    }
-
-    nlohmann::json memJson = { "memoryThreshold", memoryThreshold };
-    std::string memConfig = memJson.dump();
-
-    appScheduler->GetSystemMemoryAttr(memoryInfo, memConfig);
-}
-
 int AbilityManagerService::GetAppMemorySize()
 {
     HILOG_INFO("service GetAppMemorySize start");
@@ -3684,6 +3677,7 @@ int AbilityManagerService::ReleaseAbility(
 
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
 
     std::string elementName = element.GetURI();
     HILOG_DEBUG("try to release called ability, name: %{public}s.", elementName.c_str());
@@ -3900,7 +3894,7 @@ int AbilityManagerService::RegisterSnapshotHandler(const sptr<ISnapshotHandler>&
 int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
     MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
-    if (VerifyMissionPermission() == CHECK_PERMISSION_FAILED) {
+    if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -4580,22 +4574,6 @@ bool AbilityManagerService::GetDataAbilityUri(const std::vector<AppExecFwk::Abil
     return GetValidDataAbilityUri(dataAbilityUri, uri);
 }
 
-int AbilityManagerService::VerifyMissionPermission()
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        PermissionConstants::PERMISSION_MANAGE_MISSION);
-    if (isCallingPerm) {
-        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
-        return ERR_OK;
-    }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-    return CHECK_PERMISSION_FAILED;
-}
-
 void AbilityManagerService::GetAbilityRunningInfo(std::vector<AbilityRunningInfo> &info,
     std::shared_ptr<AbilityRecord> &abilityRecord)
 {
@@ -4619,17 +4597,7 @@ int AbilityManagerService::VerifyAccountPermission(int32_t userId)
     if ((userId < 0) || (userController_ && (userController_->GetCurrentUserId() == userId))) {
         return ERR_OK;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
-    if (isCallingPerm) {
-        return ERR_OK;
-    }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-    return CHECK_PERMISSION_FAILED;
+    return AAFwk::PermissionVerification::GetInstance()->VerifyAccountPermission();
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -4653,6 +4621,7 @@ int AbilityManagerService::BlockAmsService()
 int AbilityManagerService::BlockAbility(int32_t abilityRecordId)
 {
     HILOG_DEBUG("%{public}s", __func__);
+    CHECK_POINTER_AND_RETURN(currentMissionListManager_, ERR_NO_INIT);
     return currentMissionListManager_->BlockAbility(abilityRecordId);
 }
 

@@ -92,7 +92,6 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[UNREGISTER_CANCEL_LISTENER] = &AbilityManagerStub::UnregisterCancelListenerInner;
     requestFuncMap_[GET_PENDING_REQUEST_WANT] = &AbilityManagerStub::GetPendingRequestWantInner;
     requestFuncMap_[GET_PENDING_WANT_SENDER_INFO] = &AbilityManagerStub::GetPendingRequestWantInner;
-    requestFuncMap_[GET_SYSTEM_MEMORY_ATTR] = &AbilityManagerStub::GetSystemMemoryAttrInner;
     requestFuncMap_[GET_APP_MEMORY_SIZE] = &AbilityManagerStub::GetAppMemorySizeInner;
     requestFuncMap_[IS_RAM_CONSTRAINED_DEVICE] = &AbilityManagerStub::IsRamConstrainedDeviceInner;
     requestFuncMap_[CLEAR_UP_APPLICATION_DATA] = &AbilityManagerStub::ClearUpApplicationDataInner;
@@ -747,14 +746,6 @@ int AbilityManagerStub::GetWantSenderInfoInner(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     reply.WriteParcelable(info.get());
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetSystemMemoryAttrInner(MessageParcel &data, MessageParcel &reply)
-{
-    AppExecFwk::SystemMemoryAttr memoryInfo;
-    GetSystemMemoryAttr(memoryInfo);
-    reply.WriteParcelable(&memoryInfo);
     return NO_ERROR;
 }
 

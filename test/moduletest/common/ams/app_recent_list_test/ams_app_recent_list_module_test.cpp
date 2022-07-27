@@ -56,7 +56,7 @@ protected:
     const std::shared_ptr<AppRunningRecord> CreateAppRunningRecordByIndex(const int32_t index) const;
     void CreateAppRecentList(const int32_t appNum);
 
-    std::unique_ptr<AppMgrServiceInner> serviceInner_ {nullptr};
+    std::shared_ptr<AppMgrServiceInner> serviceInner_ {nullptr};
     sptr<MockAbilityToken> mockToken_ {nullptr};
     sptr<BundleMgrService> mockBundleMgr {nullptr};
 };

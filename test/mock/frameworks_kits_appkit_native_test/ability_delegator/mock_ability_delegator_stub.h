@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
 
 #include "gmock/gmock.h"
 
@@ -90,7 +90,6 @@ public:
     MOCK_METHOD1(CloseMultiWindow, int(int missionId));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD1(SetShowOnLockScreen, int(bool isAllow));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
@@ -227,7 +226,6 @@ public:
     MOCK_METHOD1(CloseMultiWindow, int(int missionId));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
     MOCK_METHOD1(SetShowOnLockScreen, int(bool isAllow));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
@@ -302,4 +300,4 @@ public:
 }  // namespace AAFwk
 }  // namespace OHOS
 
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_DELEGATOR_STUB_H

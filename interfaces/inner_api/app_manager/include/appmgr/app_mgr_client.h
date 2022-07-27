@@ -175,13 +175,6 @@ public:
 
     virtual void PrepareTerminate(const sptr<IRemoteObject> &token);
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     * @param strConfig, params string.
-     */
-    virtual void GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig);
-
     virtual void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
     /**
      * Notify that the ability stage has been updated

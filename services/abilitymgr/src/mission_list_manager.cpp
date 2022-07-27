@@ -378,6 +378,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     info.missionInfo.time = GetCurrentTime();
     info.missionInfo.iconPath = abilityRequest.appInfo.iconPath;
     info.missionInfo.want = abilityRequest.want;
+    auto element = info.missionInfo.want.GetElement();
+    if (element.GetBundleName().empty() || element.GetAbilityName().empty()) {
+        info.missionInfo.want.SetElementName(abilityRequest.abilityInfo.bundleName, abilityRequest.abilityInfo.name);
+    }
 
     if (!findReusedMissionInfo) {
         info.missionInfo.label = abilityRequest.appInfo.label;
@@ -1513,11 +1517,9 @@ void MissionListManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &a
         EVENT_KEY_PROCESS_NAME, processInfo.processName_,
         EVENT_KEY_MESSAGE, msgContent);
 
-    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, abilityName: %{public}s, msg: %{public}s",
-        processInfo.uid_,
-        processInfo.pid_,
-        ability->GetAbilityInfo().name.c_str(),
-        msgContent.c_str());
+    HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, abilityName: %{public}s, abilityName: %{public}s,"
+        "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 }
 
 void MissionListManager::UpdateMissionSnapshot(const std::shared_ptr<AbilityRecord>& abilityRecord)

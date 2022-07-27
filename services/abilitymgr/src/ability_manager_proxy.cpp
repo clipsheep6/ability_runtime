@@ -1285,32 +1285,6 @@ int AbilityManagerProxy::GetWantSenderInfo(const sptr<IWantSender> &target, std:
     return NO_ERROR;
 }
 
-void AbilityManagerProxy::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
-        return;
-    }
-
-    auto error = Remote()->SendRequest(IAbilityManager::GET_SYSTEM_MEMORY_ATTR, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return;
-    }
-
-    std::shared_ptr<AppExecFwk::SystemMemoryAttr> remoteRetsult(reply.ReadParcelable<AppExecFwk::SystemMemoryAttr>());
-    if (remoteRetsult == nullptr) {
-        HILOG_ERROR("recv SystemMemoryAttr failed");
-        return;
-    }
-
-    memoryInfo = *remoteRetsult;
-}
-
 int AbilityManagerProxy::GetAppMemorySize()
 {
     MessageParcel data;

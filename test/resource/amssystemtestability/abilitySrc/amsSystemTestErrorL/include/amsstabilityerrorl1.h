@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef _AMS_ST_ABILITY_ERROR_L1_
-#define _AMS_ST_ABILITY_ERROR_L1_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_ERROR_L1_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_ERROR_L1_H
 #include "ability_loader.h"
 #include "hilog_wrapper.h"
 #include <string>
@@ -35,4 +35,4 @@ protected:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // _AMS_ST_ABILITY_G2_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_ERROR_L1_H

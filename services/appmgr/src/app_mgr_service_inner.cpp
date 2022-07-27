@@ -70,6 +70,7 @@ const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -805,6 +806,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
             appRecord->SetDebugApp(true);
         }
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
+        appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
     }
 
     if (preToken) {
@@ -1056,6 +1058,10 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
+    }
+
+    if (want) {
+        want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord->GetSecurityFlag());
     }
 
     if (abilityInfo->launchMode == LaunchMode::SINGLETON) {
@@ -2162,7 +2168,7 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 #endif
 
     // Assign to default colormode "light"
-    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
+    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT);
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
 
     // Get input pointer device
@@ -2540,11 +2546,11 @@ void AppMgrServiceInner::AddWatchParameter()
     int ret;
 
     auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(shared_from_this());
-    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), PointerDeviceEventCallback,
+    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, PointerDeviceEventCallback,
         context);
     if (ret != 0) {
         HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
-            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), ret);
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, ret);
     }
 }
 
@@ -2563,7 +2569,7 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
         return;
     }
 
-    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str()) != 0) ||
+    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE) != 0) ||
         ((strcmp(value, "true") != 0) && (strcmp(value, "false") != 0))) {
         HILOG_ERROR("key %{public}s or value %{public}s mismatch.", key, value);
         return;

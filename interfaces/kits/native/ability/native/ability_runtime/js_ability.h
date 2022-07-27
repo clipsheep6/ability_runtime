@@ -41,7 +41,7 @@ public:
     JsAbility(JsRuntime &jsRuntime);
     ~JsAbility() override;
 
-    void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> &application,
+    void Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<OHOSApplication> application,
         std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     void OnStart(const Want &want) override;
@@ -76,7 +76,7 @@ public:
 
 protected:
     void DoOnForeground(const Want &want) override;
-    void RequsetFocus(const Want &want) override;
+    void RequestFocus(const Want &want) override;
     void ContinuationRestore(const Want &want) override;
 
 private:

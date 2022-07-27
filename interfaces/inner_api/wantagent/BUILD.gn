@@ -42,10 +42,17 @@ ohos_shared_library("wantagent_innerkits") {
   include_dirs = [ "${ability_runtime_services_path}/common/include" ]
 
   sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
     "src/completed_dispatcher.cpp",
     "src/pending_want.cpp",
     "src/trigger_info.cpp",
     "src/want_agent.cpp",
+    "src/want_agent_client.cpp",
     "src/want_agent_helper.cpp",
     "src/want_agent_info.cpp",
     "src/want_agent_log_wrapper.cpp",
@@ -60,7 +67,6 @@ ohos_shared_library("wantagent_innerkits") {
   external_deps = [
     "ability_base:base",
     "ability_base:want",
-    "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "eventhandler:libeventhandler",

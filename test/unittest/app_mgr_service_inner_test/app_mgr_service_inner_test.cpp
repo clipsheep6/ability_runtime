@@ -102,12 +102,15 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Leve
     std::string value;
 
     appMgrServiceInner->AddWatchParameter();
+    sleep(1);
 
     // invalid parameter value
     system::SetParameter(key.c_str(), "invalid");
+    sleep(1);
 
     // set "input.pointer.device" to false
     system::SetParameter(key.c_str(), "false");
+    sleep(2); // sleep 2s, wait until UpdateConfiguration finished.
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
     value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
@@ -115,6 +118,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Leve
 
     // set "input.pointer.device" to true
     system::SetParameter(key.c_str(), "true");
+    sleep(2); // sleep 2s, wait until UpdateConfiguration finished.
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
     value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
@@ -143,19 +147,30 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
     value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "true");
+    EXPECT_TRUE((value == "true") || (value == "false"));
 
+    // config didn't change
     result = appMgrServiceInner->UpdateConfiguration(*config);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     Configuration changeConfig;
-    changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
-    result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-    EXPECT_EQ(result, 0);
-    config = appMgrServiceInner->GetConfiguration();
-    EXPECT_NE(config, nullptr);
-    value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-    EXPECT_EQ(value, "true");
+    if (value == "true") {
+        changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
+        result = appMgrServiceInner->UpdateConfiguration(changeConfig);
+        EXPECT_EQ(result, 0);
+        config = appMgrServiceInner->GetConfiguration();
+        EXPECT_NE(config, nullptr);
+        value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        EXPECT_EQ(value, "false");
+    } else {
+        changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
+        result = appMgrServiceInner->UpdateConfiguration(changeConfig);
+        EXPECT_EQ(result, 0);
+        config = appMgrServiceInner->GetConfiguration();
+        EXPECT_NE(config, nullptr);
+        value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+        EXPECT_EQ(value, "true");
+    }
 
     HILOG_INFO("PointerDeviceUpdateConfig_0100 end");
 }

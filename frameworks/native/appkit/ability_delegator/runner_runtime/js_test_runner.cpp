@@ -66,7 +66,8 @@ JsTestRunner::JsTestRunner(
     HILOG_INFO("JsTestRunner srcPath is %{public}s", srcPath_.c_str());
     if (!isFaJsModel) {
         std::string moduleName;
-        jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_);
+        jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_,
+            bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
     }
 }
 

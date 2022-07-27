@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
+import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
 
 group("abilityms_target") {
@@ -39,9 +40,9 @@ config("abilityms_config") {
     "//prebuilts/jdk/jdk8/linux-x86/include/linux",
     "//third_party/json/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/appdatafwk/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability/include",
+    "${relational_store_innerapi_path}/rdb/include",
+    "${relational_store_innerapi_path}/appdatafwk/include",
+    "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
     "//base/hiviewdfx/hiview/adapter/utility/include",
@@ -73,8 +74,8 @@ config("abilityms_config") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (suspend_manager) {
-    defines += [ "SUSPEND_MANAGER_ENABLE" ]
+  if (efficiency_manager) {
+    defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
   cflags = []
   if (target_cpu == "arm") {
@@ -117,13 +118,13 @@ ohos_shared_library("abilityms") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "startup_l2:syspara",
     "utils_base:utils",
   ]
 
@@ -131,8 +132,8 @@ ohos_shared_library("abilityms") {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
 
-  if (suspend_manager) {
-    external_deps += [ "suspend_manager:suspend_manager_client" ]
+  if (efficiency_manager) {
+    external_deps += [ "efficiency_manager:suspend_manager_client" ]
   }
 
   if (ability_runtime_graphics) {

@@ -35,9 +35,9 @@
 #include "locale_config.h"
 #include "mission_info_mgr.h"
 #endif
-#ifdef SUSPEND_MANAGER_ENABLE
+#ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
-#endif // SUSPEND_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
 
 
 namespace OHOS {
@@ -263,12 +263,12 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
-#ifdef SUSPEND_MANAGER_ENABLE
+#ifdef EFFICIENCY_MANAGER_ENABLE
             std::string bundleName = GetAbilityInfo().bundleName;
             int32_t uid = GetUid();
             SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
                 uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
-#endif // SUSPEND_MANAGER_ENABLE
+#endif // EFFICIENCY_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());

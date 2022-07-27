@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_MODULE_TEST_DUMP_UTIL_H
-#define OHOS_MODULE_TEST_DUMP_UTIL_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MODULE_TEST_DUMP_UTIL_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MODULE_TEST_DUMP_UTIL_H
 
 #include <mutex>
 #include <vector>
@@ -97,4 +97,4 @@ private:
 };
 }  // namespace MTUtil
 }  // namespace OHOS
-#endif  // OHOS_MODULE_TEST_DUMP_UTIL_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MODULE_TEST_DUMP_UTIL_H

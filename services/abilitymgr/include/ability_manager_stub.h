@@ -101,7 +101,6 @@ private:
     int GetPendingRequestWantInner(MessageParcel &data, MessageParcel &reply);
     int GetWantSenderInfoInner(MessageParcel &data, MessageParcel &reply);
 
-    int GetSystemMemoryAttrInner(MessageParcel &data, MessageParcel &reply);
     int GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply);
     int IsRamConstrainedDeviceInner(MessageParcel &data, MessageParcel &reply);
     int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);

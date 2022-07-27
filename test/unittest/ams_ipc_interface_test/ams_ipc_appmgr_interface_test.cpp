@@ -247,41 +247,6 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, GetAllRunningProcesses_010, TestSize.Level1)
  * FunctionPoints: KillApplication interface
  * CaseDescription: test IPC can transact data
  */
-HWTEST_F(AmsIpcAppMgrInterfaceTest, GetSystemMemoryAttr_0100, TestSize.Level1)
-{
-    HILOG_DEBUG("GetSystemMemoryAttr_0100 start");
-
-    OHOS::AppExecFwk::SystemMemoryAttr memInfo;
-    std::string strConfig;
-    sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
-    sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
-
-    auto TestCall = [](OHOS::AppExecFwk::SystemMemoryAttr& mem, std::string &strConfig) {
-        mem.availSysMem_ = 1;
-        mem.isSysInlowMem_ = true;
-        mem.threshold_ = 1;
-        mem.totalSysMem_ = 1;
-    };
-
-    EXPECT_CALL(*mockAppMgr, GetSystemMemoryAttr(_, _)).Times(1).WillOnce(Invoke(TestCall));
-
-    appMgrClient->GetSystemMemoryAttr(memInfo, strConfig);
-
-    EXPECT_EQ(1, memInfo.availSysMem_);
-    EXPECT_EQ(1, memInfo.threshold_);
-    EXPECT_EQ(1, memInfo.totalSysMem_);
-    EXPECT_TRUE(memInfo.isSysInlowMem_);
-
-    HILOG_DEBUG("GetSystemMemoryAttr_0100 end");
-}
-
-/*
- * Feature: AMS
- * Function: IPC
- * SubFunction: appmgr interface
- * FunctionPoints: KillApplication interface
- * CaseDescription: test IPC can transact data
- */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSize.Level0)
 {
     HILOG_DEBUG("RegisterApplicationStateObserver_001 start");

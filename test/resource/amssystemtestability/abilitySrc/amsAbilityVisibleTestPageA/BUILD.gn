@@ -44,8 +44,6 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/dataability:native_dataability",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/interfaces/inner_api/rdb:native_rdb",
     "//utils/native/base:utilsbase",
   ]
   external_deps = [

@@ -26,16 +26,17 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-napi_ref thread_local g_dataAbilityHelper;
+napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
 const int32_t ERR_ABILITY_START_SUCCESS = 0;
 const int32_t ERR_ABILITY_QUERY_FAILED = 1;
 const int32_t ERR_PERMISSION_VERIFY_FAILED = 8;
+const int32_t ERR_PARAM_INVALID = 202;
 const std::map<int32_t, int32_t> START_ABILITY_ERROR_CODE_MAP = {
     { NAPI_ERR_NO_ERROR, ERR_ABILITY_START_SUCCESS },
     { NAPI_ERR_NO_PERMISSION, ERR_PERMISSION_VERIFY_FAILED },
     { NAPI_ERR_ACE_ABILITY, ERR_ABILITY_QUERY_FAILED },
-    { NAPI_ERR_PARAM_INVALID, ERR_ABILITY_QUERY_FAILED },
+    { NAPI_ERR_PARAM_INVALID, ERR_PARAM_INVALID },
     { NAPI_ERR_ABILITY_TYPE_INVALID, ERR_ABILITY_QUERY_FAILED },
     { NAPI_ERR_ABILITY_CALL_INVALID, ERR_ABILITY_QUERY_FAILED },
     { ERR_OK, ERR_ABILITY_START_SUCCESS },
@@ -1362,8 +1363,8 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
     NAPI_CALL(env, napi_set_named_property(env, result, "formEnabled", proValue));
 
     (void)WrapProperties(env, abilityInfo.permissions, "permissions", result);
-    (void)WrapProperties(env, abilityInfo.permissions, "deviceCapabilities", result);
-    (void)WrapProperties(env, abilityInfo.permissions, "deviceTypes", result);
+    (void)WrapProperties(env, abilityInfo.deviceCapabilities, "deviceCapabilities", result);
+    (void)WrapProperties(env, abilityInfo.deviceTypes, "deviceTypes", result);
 
     napi_value applicationInfo = nullptr;
     applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
@@ -3613,7 +3614,7 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
         key.id = connectAbilityCB->id;
         key.want = connectAbilityCB->want;
         connects_.emplace(key, conn);
-        if (serialNumber_ < INT64_MAX) {
+        if (serialNumber_ < INT32_MAX) {
             serialNumber_++;
         } else {
             serialNumber_ = 0;

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
+#ifndef UNITTEST_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
+#define UNITTEST_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_STUB_IMPL_MOCK_H
 #include <gmock/gmock.h>
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -45,7 +45,6 @@ public:
     MOCK_METHOD2(RegisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject> &token,

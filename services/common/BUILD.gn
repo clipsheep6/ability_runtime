@@ -25,7 +25,10 @@ group("ams_common_target") {
 
 config("common_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+  ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]

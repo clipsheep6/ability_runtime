@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-const std::string DOT_STRING {"."};
 EXTERN_C_START
 
 napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &configuration);

@@ -214,6 +214,8 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
         HILOG_INFO("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
         appLifeCycleDeal_->LaunchAbility(ability);
         ability->SetState(AbilityState::ABILITY_STATE_READY);
+    } else {
+        HILOG_ERROR("Can not find ability or get appThread.");
     }
 }
 

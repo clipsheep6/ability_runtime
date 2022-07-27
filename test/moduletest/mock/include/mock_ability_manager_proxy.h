@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
-#define OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_PROXY_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_PROXY_H
 
 #include "gmock/gmock.h"
 #include "ability_manager_interface.h"
@@ -84,4 +84,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_ABILITY_MANAGER_PROXY_MOCK_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_PROXY_H

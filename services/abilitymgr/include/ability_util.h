@@ -30,14 +30,14 @@
 namespace OHOS {
 namespace AAFwk {
 namespace AbilityUtil {
-const std::string SYSTEM_BASIC = "system_basic";
-const std::string SYSTEM_CORE = "system_core";
-const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
-const std::string DLP_ABILITY_NAME = "ViewAbility";
-const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
-const std::string DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
-const std::string DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
-const std::string DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+constexpr const char* SYSTEM_BASIC = "system_basic";
+constexpr const char* SYSTEM_CORE = "system_core";
+constexpr const char* DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
+constexpr const char* DLP_ABILITY_NAME = "ViewAbility";
+constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
+constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
+constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
+constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
 static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
