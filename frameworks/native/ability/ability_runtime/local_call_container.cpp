@@ -59,7 +59,7 @@ int LocalCallContainer::StartAbilityByCallInner(
     HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) end");
 
     auto remote = localCallRecord->GetRemoteObject();
-    if (remote == nullptr) {
+    if (remote == nullptr || want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
         auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
         if (abilityClient == nullptr) {
             HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
