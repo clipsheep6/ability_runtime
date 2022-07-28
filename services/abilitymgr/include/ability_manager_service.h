@@ -29,6 +29,7 @@
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
+#include "application_anr_listener.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -506,11 +507,6 @@ public:
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) override;
     virtual int GetAppMemorySize() override;
 
     virtual bool IsRamConstrainedDevice() override;
@@ -801,7 +797,7 @@ public:
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
-    static constexpr uint32_t LOAD_TIMEOUT = 3000;            // ms
+    static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
     static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
@@ -992,8 +988,6 @@ private:
 
     void StartResidentApps();
 
-    int VerifyMissionPermission();
-
     int VerifyAccountPermission(int32_t userId);
 
     bool CheckCallerEligibility(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid);
@@ -1015,6 +1009,8 @@ private:
         const sptr<IRemoteObject> &callerToken, int32_t userId);
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
+
+    void SubscribeBackgroundTask();
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1060,6 +1056,7 @@ private:
     sptr<IWindowManagerServiceHandler> wmsHandler_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
+    std::shared_ptr<ApplicationAnrListener> anrListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

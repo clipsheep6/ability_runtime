@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_ABILITY_VISIBALE_TEST_SERVICE_A1
-#define AMS_ABILITY_VISIBALE_TEST_SERVICE_A1
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_VISIBALE_TEST_SERVICE_A1_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_VISIBALE_TEST_SERVICE_A1_H
 #include "stpageabilityevent.h"
 #include <string>
 #include <thread>
@@ -88,4 +88,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ABILITY_VISIBALE_TEST_SERVICE_A1
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_VISIBALE_TEST_SERVICE_A1_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ABILITY_LIFE_CYCLE_ABILITY_H_
-#define ABILITY_LIFE_CYCLE_ABILITY_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_LIFE_CYCLE_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_LIFE_CYCLE_ABILITY_H
 
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
@@ -206,4 +206,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // ABILITY_LIFE_CYCLE_ABILITY_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_ABILITY_LIFE_CYCLE_ABILITY_H

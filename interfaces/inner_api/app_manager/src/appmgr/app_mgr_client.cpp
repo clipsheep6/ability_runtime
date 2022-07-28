@@ -358,21 +358,6 @@ void AppMgrClient::PrepareTerminate(const sptr<IRemoteObject> &token)
     amsService->PrepareTerminate(token);
 }
 
-/**
- * Get system memory information.
- * @param SystemMemoryAttr, memory information.
- */
-void AppMgrClient::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig)
-{
-    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
-    if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
-        return;
-    }
-
-    service->GetSystemMemoryAttr(memoryInfo, strConfig);
-}
-
 void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

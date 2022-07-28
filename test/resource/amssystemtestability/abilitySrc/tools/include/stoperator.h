@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _ABILITY_MANAGER_SERVICE_ST_OPERATOR_H_
-#define _ABILITY_MANAGER_SERVICE_ST_OPERATOR_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_ST_OPERATOR_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_ST_OPERATOR_H
 
 #include <string>
 #include <memory>
@@ -57,5 +57,5 @@ private:
     static int countChild;
 };
 }  // namespace STtools
-#endif  // _ABILITY_MANAGER_SERVICE_ST_OPERATOR_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_ST_OPERATOR_H
 

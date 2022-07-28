@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_TEST_ABILITY_THREAD_H
-#define FOUNDATION_APPEXECFWK_TEST_ABILITY_THREAD_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_TEST_ABILITY_CONNECTION_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_TEST_ABILITY_CONNECTION_H
 
 #include "test_ability_connect_callback_stub.h"
 
@@ -37,4 +37,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_ABILITY_THREAD_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_TEST_ABILITY_CONNECTION_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H
-#define AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H
 #include "ability.h"
 #include "ability_loader.h"
 #include "common_event.h"
@@ -81,4 +81,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ABILITY_APPEND_TEST_A_SECOND_ABILITY_H

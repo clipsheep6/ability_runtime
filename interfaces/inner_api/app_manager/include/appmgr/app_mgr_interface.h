@@ -126,12 +126,6 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig) = 0;
-
-    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -250,7 +244,6 @@ public:
         APP_CLEAR_UP_APPLICATION_DATA,
         APP_GET_ALL_RUNNING_PROCESSES,
         APP_GET_RUNNING_PROCESSES_BY_USER_ID,
-        APP_GET_SYSTEM_MEMORY_ATTR,
         APP_ADD_ABILITY_STAGE_INFO_DONE,
         STARTUP_RESIDENT_PROCESS,
         REGISTER_APPLICATION_STATE_OBSERVER,

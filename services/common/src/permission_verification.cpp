@@ -15,6 +15,7 @@
 
 #include "permission_verification.h"
 
+#include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -22,6 +23,8 @@
 
 namespace OHOS {
 namespace AAFwk {
+const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName)
 {
@@ -91,6 +94,48 @@ bool PermissionVerification::VerifyControllerPerm()
         return true;
     }
     HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
+    return false;
+}
+
+bool PermissionVerification::VerifyDlpPermission(Want &want)
+{
+    if (want.GetIntParam(DLP_PARAMS_INDEX, 0) == 0) {
+        want.RemoveParam(DLP_PARAMS_SECURITY_FLAG);
+        return true;
+    }
+
+    if (IsSACall()) {
+        return true;
+    }
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_ACCESS_DLP)) {
+        return true;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return false;
+}
+
+int PermissionVerification::VerifyAccountPermission()
+{
+    if (IsSACall()) {
+        return ERR_OK;
+    }
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
+        return ERR_OK;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    return CHECK_PERMISSION_FAILED;
+}
+
+bool PermissionVerification::VerifyMissionPermission()
+{
+    if (IsSACall()) {
+        return true;
+    }
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
+        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
+        return true;
+    }
+    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
     return false;
 }
 

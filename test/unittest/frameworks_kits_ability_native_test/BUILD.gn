@@ -540,6 +540,7 @@ ohos_unittest("ability_thread_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
@@ -549,12 +550,6 @@ ohos_unittest("ability_thread_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
@@ -657,6 +652,7 @@ ohos_unittest("data_ability_impl_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
@@ -666,12 +662,6 @@ ohos_unittest("data_ability_impl_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
@@ -709,6 +699,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
@@ -718,12 +709,6 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
@@ -761,6 +746,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
@@ -770,12 +756,6 @@ ohos_unittest("data_ability_impl_file_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]
@@ -815,6 +795,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
@@ -824,12 +805,6 @@ ohos_unittest("ability_thread_dataability_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
   ]
-
-  defines = []
-  if (os_account_part_enabled) {
-    defines += [ "OS_ACCOUNT_PART_ENABLED" ]
-    external_deps += [ "os_account:os_account_innerkits" ]
-  }
 
   if (ability_runtime_graphics) {
     external_deps += [ "input:libmmi-client" ]

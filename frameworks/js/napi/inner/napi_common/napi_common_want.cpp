@@ -269,19 +269,21 @@ bool InnerWrapWantParamsWantParams(
 bool InnerWrapWantParamsRemoteObject(
     napi_env env, napi_value jsObject, const std::string &key, const AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called. key=%{public}s", __func__, key.c_str());
+    HILOG_DEBUG("%{public}s called. key=%{public}s", __func__, key.c_str());
     auto value = wantParams.GetParam(key);
     AAFwk::IRemoteObjectWrap *remoteObjectIWrap = AAFwk::IRemoteObjectWrap::Query(value);
-    if (remoteObjectIWrap != nullptr) {
-        auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
-        auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
-        HILOG_INFO("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (remoteObjectIWrap == nullptr) {
+        return false;
     }
-    return false;
+    auto remoteObject = AAFwk::RemoteObjectWrap::UnBox(remoteObjectIWrap);
+    auto jsValue = NAPI_ohos_rpc_CreateJsRemoteObject(env, remoteObject);
+    HILOG_DEBUG("%{public}s called, jsRemoteObject:%{public}p.", __func__, jsValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsArrayChar(napi_env env, napi_value jsObject, const std::string &key, sptr<AAFwk::IArray> &ao)
@@ -903,7 +905,7 @@ bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std
 
     napi_valuetype jsValueType = napi_undefined;
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, TYPE_PROPERTY.c_str(), &jsProValue), false);
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, TYPE_PROPERTY, &jsProValue), false);
     NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
     if (jsValueType != napi_string) {
         return false;
@@ -925,7 +927,7 @@ bool IsSpecialObject(napi_env env, napi_value param, std::string strProName, std
 
     jsValueType = napi_undefined;
     jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
     NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
     if (jsValueType != jsValueProType) {
@@ -942,7 +944,7 @@ bool HandleFdObject(napi_env env, napi_value param, std::string strProName, AAFw
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
 
     int32_t natValue32 = 0;
@@ -962,7 +964,7 @@ bool HandleRemoteObject(napi_env env, napi_value param, std::string strProName, 
     napi_value jsWantParamProValue = nullptr;
     NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsWantParamProValue), false);
     napi_value jsProValue = nullptr;
-    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY.c_str(), &jsProValue),
+    NAPI_CALL_BASE(env, napi_get_named_property(env, jsWantParamProValue, VALUE_PROPERTY, &jsProValue),
         false);
 
     sptr<IRemoteObject> remoteObject = NAPI_ohos_rpc_getNativeRemoteObject(env, jsProValue);

@@ -1090,6 +1090,16 @@ int32_t AppRunningRecord::GetAppIndex() const
     return appIndex_;
 }
 
+void AppRunningRecord::SetSecurityFlag(bool securityFlag)
+{
+    securityFlag_ = securityFlag;
+}
+
+bool AppRunningRecord::GetSecurityFlag() const
+{
+    return securityFlag_;
+}
+
 void AppRunningRecord::SetKilling()
 {
     isKilling_ = true;

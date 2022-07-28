@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
 
 #include "ability.h"
 #include "ability_impl.h"
@@ -35,4 +35,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_THREAD_H

@@ -19,7 +19,6 @@
 namespace OHOS {
 namespace AAFwk {
 using json = nlohmann::json;
-static const int EXPERIENCE_MEM_THRESHOLD = 20;
 
 void AmsConfigurationParameter::Parse()
 {
@@ -132,13 +131,6 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
     if (!Object.contains("memorythreshold")) {
         HILOG_ERROR("LoadAppConfigurationForMemoryThreshold return error");
         ret = -1;
-        return ret;
-    }
-
-    if (Object.at("memorythreshold").contains("home_application")) {
-        memThreshold_["home_application"] = Object.at("memorythreshold").at("home_application").get<std::string>();
-    } else {
-        HILOG_ERROR("LoadAppConfigurationForMemoryThreshold memorythreshold::home_application is nullptr");
     }
 
     return ret;
@@ -152,25 +144,6 @@ int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
     }
 
     return READ_FAIL;
-}
-
-/**
- * The low memory threshold under which the system will kill background processes
- */
-int AmsConfigurationParameter::GetMemThreshold(const std::string &key)
-{
-    auto threshold = memThreshold_.find(key);
-    if (threshold == memThreshold_.end()) {
-        HILOG_ERROR("%{public}s, threshold[%{public}s] find failed", __func__, key.c_str());
-        return EXPERIENCE_MEM_THRESHOLD;
-    }
-
-    try {
-        return std::stoi(threshold->second);
-    } catch (...) {
-        HILOG_WARN("stoi(%{public}s) failed", threshold->second.c_str());
-        return EXPERIENCE_MEM_THRESHOLD;
-    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_DFX_ST_SERVICE_ABILITY_A2_
-#define AMS_DFX_ST_SERVICE_ABILITY_A2_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_DFX_ST_SERVICE_ABILITY_A2_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_DFX_ST_SERVICE_ABILITY_A2_H
 #include "stpageabilityevent.h"
 #include <string>
 #include <thread>
@@ -47,4 +47,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_DFX_ST_SERVICE_ABILITY_A2_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_DFX_ST_SERVICE_ABILITY_A2_H

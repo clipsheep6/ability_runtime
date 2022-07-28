@@ -727,7 +727,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     key.id = g_serialNumber;
     key.want = want;
     abilityConnects_.emplace(key, connection);
-    if (g_serialNumber < INT64_MAX) {
+    if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
     } else {
         g_serialNumber = 0;
@@ -786,7 +786,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     key.id = g_serialNumber;
     key.want = want;
     abilityConnects_.emplace(key, connection);
-    if (g_serialNumber < INT64_MAX) {
+    if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
     } else {
         g_serialNumber = 0;

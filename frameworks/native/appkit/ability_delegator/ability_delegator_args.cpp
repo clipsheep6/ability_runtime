@@ -78,7 +78,7 @@ std::map<std::string, std::string> AbilityDelegatorArgs::GetTestParam() const
     return params_;
 }
 
-bool AbilityDelegatorArgs::FindDebugFlag()
+bool AbilityDelegatorArgs::FindDebugFlag() const
 {
     auto pos = params_.find(KEY_TEST_DEBUG);
     if (pos == params_.end()) {

@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef VERIFY_ACT_DATA_ABILITY_H
-#define VERIFY_ACT_DATA_ABILITY_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_DATA_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_DATA_ABILITY_H
 #include "ability.h"
 #include "rdb_helper.h"
 #include "rdb_open_callback.h"
@@ -51,4 +51,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // VERIFY_ACT_DATA_ABILITY_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_VERIFY_ACT_DATA_ABILITY_H

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H
-#define AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H
 #include "ability.h"
 #include "ability_loader.h"
 #include "common_event.h"
@@ -294,4 +294,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_KIT_SYSTEM_TEST_B_MAIN_ABILITY_H

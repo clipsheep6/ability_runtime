@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_UTILS_H_
-#define TEST_UTILS_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_
+#define RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_
 #include "ability_info.h"
 #include "application_info.h"
 #include "process_info.h"
@@ -85,4 +85,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // TEST_UTILS_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_

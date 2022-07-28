@@ -60,6 +60,7 @@ ohos_unittest("AppDeathRecipientTest") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",

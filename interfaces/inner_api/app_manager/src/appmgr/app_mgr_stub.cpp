@@ -52,8 +52,6 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
-    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_SYSTEM_MEMORY_ATTR)] =
-        &AppMgrStub::HandleGetSystemMemoryAttr;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
         &AppMgrStub::HandleAddAbilityStageDone;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::STARTUP_RESIDENT_PROCESS)] =
@@ -221,20 +219,6 @@ int32_t AppMgrStub::HandleGetProcessRunningInfosByUserId(MessageParcel &data, Me
         }
     }
     if (!reply.WriteInt32(result)) {
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int32_t AppMgrStub::HandleGetSystemMemoryAttr(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER(HITRACE_TAG_APP);
-    SystemMemoryAttr memoryInfo;
-    std::string strConfig;
-    data.ReadString(strConfig);
-    GetSystemMemoryAttr(memoryInfo, strConfig);
-    if (reply.WriteParcelable(&memoryInfo)) {
-        HILOG_ERROR("want write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

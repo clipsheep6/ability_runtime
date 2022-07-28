@@ -24,29 +24,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-/**
- *
- * default constructor
- *
- */
-AbilityImplFactory::AbilityImplFactory()
-{}
+AbilityImplFactory::AbilityImplFactory() {}
 
-/**
- *
- * default Destructor
- *
- */
-AbilityImplFactory::~AbilityImplFactory()
-{}
+AbilityImplFactory::~AbilityImplFactory() {}
 
-/**
- * @brief Create impl object based on abilitytype
- *
- * @param type AbilityType:PAGE/SERVICE/PROVIDER
- *
- * @return AbilityImpl object
- */
 std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std::shared_ptr<AbilityInfo> &info)
 {
     if (info == nullptr) {

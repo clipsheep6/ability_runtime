@@ -33,18 +33,14 @@
 
 #include "permission_constants.h"
 #include "permission_verification.h"
-#include "system_environment_information.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
 using namespace std::chrono_literals;
-static const int EXPERIENCE_MEM_THRESHOLD = 20;
-static const int APP_MS_TIMEOUT = 180;
 #ifdef ABILITY_COMMAND_FOR_TEST
 static const int APP_MS_BLOCK = 65;
 #endif
-static const float PERCENTAGE = 100.0;
 const std::string TASK_ATTACH_APPLICATION = "AttachApplicationTask";
 const std::string TASK_APPLICATION_FOREGROUNDED = "ApplicationForegroundedTask";
 const std::string TASK_APPLICATION_BACKGROUNDED = "ApplicationBackgroundedTask";
@@ -155,7 +151,7 @@ ErrCode AppMgrService::Init()
         return ERR_INVALID_OPERATION;
     }
     std::string threadName = Constants::APP_MGR_SERVICE_NAME + "(" + std::to_string(runner_->GetThreadId()) + ")";
-    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, APP_MS_TIMEOUT) != 0) {
+    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
     HILOG_INFO("init success");
@@ -303,35 +299,6 @@ int32_t AppMgrService::GetProcessRunningInfosByUserId(std::vector<RunningProcess
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetProcessRunningInfosByUserId(info, userId);
-}
-
-/**
- * Get system memory information.
- * @param SystemMemoryAttr, memory information.
- */
-void AppMgrService::GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig)
-{
-    SystemEnv::KernelSystemMemoryInfo systemMemInfo;
-    SystemEnv::GetMemInfo(systemMemInfo);
-    int memThreshold = 0;
-    nlohmann::json memJson = nlohmann::json::parse(strConfig, nullptr, false);
-    if (memJson.is_discarded()) {
-        memThreshold = EXPERIENCE_MEM_THRESHOLD;
-        HILOG_ERROR("%{public}s, discarded memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
-    } else {
-        if (!memJson.contains("memoryThreshold")) {
-            memThreshold = EXPERIENCE_MEM_THRESHOLD;
-            HILOG_ERROR("%{public}s, memThreshold = %{public}d", __func__, EXPERIENCE_MEM_THRESHOLD);
-        } else {
-            memThreshold = memJson.at("memorythreshold").get<int>();
-            HILOG_INFO("memThreshold = %{public}d", memThreshold);
-        }
-    }
-
-    memoryInfo.availSysMem_ = systemMemInfo.GetMemFree();
-    memoryInfo.totalSysMem_ = systemMemInfo.GetMemTotal();
-    memoryInfo.threshold_ = static_cast<int64_t>(memoryInfo.totalSysMem_ * memThreshold / PERCENTAGE);
-    memoryInfo.isSysInlowMem_ = memoryInfo.availSysMem_ < memoryInfo.threshold_;
 }
 
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)

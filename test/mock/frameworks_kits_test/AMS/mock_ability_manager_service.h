@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
-#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#define MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
 #include <singleton.h>
@@ -99,7 +99,6 @@ public:
     MOCK_METHOD2(RegisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
@@ -251,4 +250,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_SERVICE_H

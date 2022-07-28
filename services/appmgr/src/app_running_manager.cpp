@@ -22,22 +22,11 @@
 #include "appexecfwk_errors.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-#ifndef OS_ACCOUNT_PART_ENABLED
-namespace {
-constexpr static int UID_TRANSFORM_DIVISOR = 200000;
-static void GetOsAccountIdFromUid(int uid, int &osAccountId)
-{
-    osAccountId = uid / UID_TRANSFORM_DIVISOR;
-}
-}
-#endif // OS_ACCOUNT_PART_ENABLED
 AppRunningManager::AppRunningManager()
 {}
 AppRunningManager::~AppRunningManager()
@@ -174,13 +163,8 @@ bool AppRunningManager::GetPidsByUserId(int32_t userId, std::list<pid_t> &pids)
         const auto &appRecord = item.second;
         if (appRecord) {
             int32_t id = -1;
-#ifdef OS_ACCOUNT_PART_ENABLED
-            if ((AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(appRecord->GetUid(), id) == 0) &&
-                (id == userId)) {
-#else // OS_ACCOUNT_PART_ENABLED
-            GetOsAccountIdFromUid(appRecord->GetUid(), id);
-            if (id == userId) {
-#endif // OS_ACCOUNT_PART_ENABLED
+            if ((DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->
+                GetOsAccountLocalIdFromUid(appRecord->GetUid(), id) == 0) && (id == userId)) {
                 pid_t pid = appRecord->GetPriorityObject()->GetPid();
                 if (pid > 0) {
                     pids.push_back(pid);

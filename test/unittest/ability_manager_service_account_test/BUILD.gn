@@ -53,14 +53,10 @@ ohos_unittest("ability_manager_service_account_test") {
     "//utils/native/base:utils",
   ]
 
-  if (os_account_part_enabled) {
-    cflags_cc += [ "-DOS_ACCOUNT_PART_ENABLED" ]
-    deps += [ "//base/account/os_account/frameworks/osaccount/native:os_account_innerkits" ]
-  }
-
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",

@@ -70,6 +70,8 @@ const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
+const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -805,6 +807,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
             appRecord->SetDebugApp(true);
         }
         appRecord->SetAppIndex(want->GetIntParam(DLP_PARAMS_INDEX, 0));
+        appRecord->SetSecurityFlag(want->GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false));
     }
 
     if (preToken) {
@@ -1058,6 +1061,10 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
         return;
     }
 
+    if (want) {
+        want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord->GetSecurityFlag());
+    }
+
     if (abilityInfo->launchMode == LaunchMode::SINGLETON) {
         int32_t ownerUserId = -1;
         if (want) {
@@ -1235,6 +1242,14 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_ERROR("Get target fail.");
         return;
     }
+    uint8_t setAllowInternet = 0;
+    uint8_t allowInternet = 1;
+    auto token = (*bundleInfoIter).applicationInfo.accessTokenId;
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+    if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        setAllowInternet = 1;
+        allowInternet = 0;
+    }
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
@@ -1243,6 +1258,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
     startMsg.bundleIndex = bundleIndex;
+    startMsg.setAllowInternet = setAllowInternet;
+    startMsg.allowInternet = allowInternet;
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
@@ -2162,7 +2179,7 @@ void AppMgrServiceInner::GetGlobalConfiguration()
 #endif
 
     // Assign to default colormode "light"
-    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT.c_str());
+    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT);
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
 
     // Get input pointer device
@@ -2539,12 +2556,12 @@ void AppMgrServiceInner::AddWatchParameter()
     HILOG_INFO("%{public}s called.", __func__);
     int ret;
 
-    auto context = new std::weak_ptr<AppMgrServiceInner>(shared_from_this());
-    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), PointerDeviceEventCallback,
+    auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(shared_from_this());
+    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, PointerDeviceEventCallback,
         context);
     if (ret != 0) {
         HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
-            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str(), ret);
+            AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, ret);
     }
 }
 
@@ -2563,7 +2580,7 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
         return;
     }
 
-    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE.c_str()) != 0) ||
+    if ((strcmp(key, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE) != 0) ||
         ((strcmp(value, "true") != 0) && (strcmp(value, "false") != 0))) {
         HILOG_ERROR("key %{public}s or value %{public}s mismatch.", key, value);
         return;

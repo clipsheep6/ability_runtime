@@ -112,7 +112,7 @@ bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
         HILOG_ERROR("can not removed current user dir");
         return false;
     }
-    std::string userDir = TASK_DATA_FILE_BASE_PATH + "/" + std::to_string(userId);
+    std::string userDir = std::string(TASK_DATA_FILE_BASE_PATH) + "/" + std::to_string(userId);
     bool ret = OHOS::HiviewDFX::FileUtil::ForceRemoveDirectory(userDir);
     if (!ret) {
         HILOG_ERROR("remove user dir %{public}s failed.", userDir.c_str());

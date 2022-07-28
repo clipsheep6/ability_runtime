@@ -20,8 +20,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-const std::string ON_RELEASE = "release";
-const std::string ON_DIED = "died";
+constexpr const char* ON_RELEASE = "release";
+constexpr const char* ON_DIED = "died";
 /**
  * @class CallerCallBack
  * CallerCallBack the callback function of caller.

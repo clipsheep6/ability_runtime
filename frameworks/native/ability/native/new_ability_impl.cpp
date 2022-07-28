@@ -41,7 +41,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     }
     if ((lifecycleState_ == targetState.state) && !targetState.isNewWant) {
         if (ability_ != nullptr && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
-            ability_->RequsetFocus(want);
+            ability_->RequestFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
         HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
@@ -95,7 +95,7 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
 #ifdef SUPPORT_GRAPHICS
             if (lifecycleState_ == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
                 if (ability_) {
-                    ability_->RequsetFocus(want);
+                    ability_->RequestFocus(want);
                 }
             } else {
                 Foreground(want);

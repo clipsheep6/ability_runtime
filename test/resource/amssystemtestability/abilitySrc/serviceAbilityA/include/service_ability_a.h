@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MAIN_SERVICE_ABILITY_H
-#define MAIN_SERVICE_ABILITY_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_SERVICE_ABILITY_A_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_SERVICE_ABILITY_A_H
 #include "hilog_wrapper.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
@@ -64,4 +64,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // MAIN_SERVICE_ABILITY_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_SERVICE_ABILITY_A_H

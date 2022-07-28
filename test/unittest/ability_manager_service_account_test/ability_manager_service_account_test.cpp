@@ -33,16 +33,10 @@
 #include "mock_ability_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#ifdef OS_ACCOUNT_PART_ENABLED
-#include "os_account_manager.h"
-#include "os_account_info.h"
-#endif // OS_ACCOUNT_PART_ENABLED
+#include "os_account_manager_wrapper.h"
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
-#ifdef OS_ACCOUNT_PART_ENABLED
-using namespace OHOS::AccountSA;
-#endif // OS_ACCOUNT_PART_ENABLED
 namespace OHOS {
 namespace AAFwk {
 static void WaitUntilTaskFinished()
@@ -77,25 +71,18 @@ public:
     inline static std::shared_ptr<AbilityManagerService> abilityMs_ {nullptr};
     AbilityRequest abilityRequest_ {};
 };
-#ifdef OS_ACCOUNT_PART_ENABLED
-static OsAccountInfo osAccountInfo_ = OsAccountInfo();
-static int32_t new_user_id_;
-#else // OS_ACCOUNT_PART_ENABLED
-static int32_t new_user_id_ = USER_ID_U100;
-#endif // OS_ACCOUNT_PART_ENABLED
+static int32_t newUserId;
 void AbilityManagerServiceAccountTest::SetUpTestCase()
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest SetUpTestCase called";
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-#ifdef OS_ACCOUNT_PART_ENABLED
-    AccountSA::OsAccountManager::CreateOsAccount("testAccount", OsAccountType::NORMAL, osAccountInfo_);
-    new_user_id_ = osAccountInfo_.GetLocalId();
-#endif // OS_ACCOUNT_PART_ENABLED
+    DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->
+        CreateOsAccount("testAccount", newUserId);
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     abilityMs_->OnStart();
     WaitUntilTaskFinished();
-    GTEST_LOG_(INFO) << "Create new user. UserId: "<<new_user_id_;
+    GTEST_LOG_(INFO) << "Create new user. UserId: "<<newUserId;
 }
 
 void AbilityManagerServiceAccountTest::TearDownTestCase()
@@ -104,9 +91,7 @@ void AbilityManagerServiceAccountTest::TearDownTestCase()
     abilityMs_->OnStop();
     OHOS::DelayedSingleton<SaMgrClient>::DestroyInstance();
     OHOS::DelayedSingleton<AbilityManagerService>::DestroyInstance();
-#ifdef OS_ACCOUNT_PART_ENABLED
-    AccountSA::OsAccountManager::RemoveOsAccount(new_user_id_);
-#endif // OS_ACCOUNT_PART_ENABLED
+    DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->RemoveOsAccount(newUserId);
 }
 
 void AbilityManagerServiceAccountTest::SetUp()
@@ -138,13 +123,13 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_001, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(new_user_id_);
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
 
-    result = abilityMs_->StartAbility(want, new_user_id_);
+    result = abilityMs_->StartAbility(want, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
     abilityMs_->StartUser(USER_ID_U100);
@@ -212,12 +197,12 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_003, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(new_user_id_);
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
-    result = abilityMs_->StartAbility(want, abilityStartSetting, nullptr, new_user_id_, -1);
+    result = abilityMs_->StartAbility(want, abilityStartSetting, nullptr, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
     abilityMs_->StartUser(USER_ID_U100);
@@ -248,12 +233,12 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_004, TestSize.Le
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    abilityMs_->StartUser(new_user_id_);
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
-    result = abilityMs_->StartAbility(want, abilityStartOptions, nullptr, new_user_id_, -1);
+    result = abilityMs_->StartAbility(want, abilityStartOptions, nullptr, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
     abilityMs_->StartUser(USER_ID_U100);
@@ -408,7 +393,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StartAbility_011, TestSize.Le
     Want want;
     ElementName element("device", "ohos.samples.clock", "ohos.samples.clock.default");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want, new_user_id_);
+    auto result = abilityMs_->StartAbility(want, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StartAbility_011 end";
@@ -617,21 +602,21 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_001, TestSize.
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ConnectAbility_002 start";
-    abilityMs_->StartUser(new_user_id_);
+    abilityMs_->StartUser(newUserId);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-    auto result = abilityMs_->ConnectAbility(want, nullptr, nullptr, new_user_id_);
+    auto result = abilityMs_->ConnectAbility(want, nullptr, nullptr, newUserId);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     Want want1;
     ElementName element1("", "com.ix.hiMusic", "MusicAbility");
     want1.SetElement(element1);
-    auto result1 = abilityMs_->ConnectAbility(want1, callback, nullptr, new_user_id_);
+    auto result1 = abilityMs_->ConnectAbility(want1, callback, nullptr, newUserId);
     EXPECT_EQ(result1, TARGET_ABILITY_NOT_SERVICE);
 
-    auto result2 = abilityMs_->ConnectAbility(want, callback, nullptr, new_user_id_);
+    auto result2 = abilityMs_->ConnectAbility(want, callback, nullptr, newUserId);
     EXPECT_EQ(result2, ERR_OK);
     abilityMs_->StartUser(USER_ID_U100);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ConnectAbility_002 end";
@@ -716,7 +701,7 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ConnectAbility_006, TestSize.
     ElementName element("", "com.ix.hiBackgroundMusic", "hiBackgroundMusic");
     want.SetElement(element);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, new_user_id_);
+    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, newUserId);
     EXPECT_EQ(OHOS::ERR_INVALID_VALUE, result);
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ConnectAbility_006 end";
 }
@@ -814,15 +799,15 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_003 start";
-    abilityMs_->StartUser(new_user_id_);
+    abilityMs_->StartUser(newUserId);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, new_user_id_);
+    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(result, ERR_OK);
-    auto serviceMap = abilityMs_->GetConnectManagerByUserId(new_user_id_)->GetServiceMap();
+    auto serviceMap = abilityMs_->GetConnectManagerByUserId(newUserId)->GetServiceMap();
     auto service = serviceMap.at(element.GetURI());
     service->SetAbilityState(AAFwk::AbilityState::ACTIVE);
 
@@ -857,19 +842,19 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleConnectAbilityDone_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleConnectAbilityDone_004 start";
-    abilityMs_->StartUser(new_user_id_);
-    auto topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
     Want want;
     ElementName element("", "com.ix.hiAccount", "AccountTest");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want, new_user_id_, -1);
+    auto result = abilityMs_->StartAbility(want, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -975,19 +960,19 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleDisconnectAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleDisconnectAbilityDone_003 start";
-    abilityMs_->StartUser(new_user_id_);
-    auto topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
     Want want;
     ElementName element("", "com.ix.hiAccount", "AccountTest");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want, new_user_id_, -1);
+    auto result = abilityMs_->StartAbility(want, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -1094,15 +1079,15 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_003 start";
-    abilityMs_->StartUser(new_user_id_);
+    abilityMs_->StartUser(newUserId);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
     OHOS::sptr<IAbilityConnection> callback = new AbilityConnectCallback();
-    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, new_user_id_);
+    auto result = abilityMs_->ConnectAbility(want, callback, nullptr, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(result, ERR_OK);
-    auto serviceMap = abilityMs_->GetConnectManagerByUserId(new_user_id_)->GetServiceMap();
+    auto serviceMap = abilityMs_->GetConnectManagerByUserId(newUserId)->GetServiceMap();
     auto service = serviceMap.at(element.GetURI());
     service->SetAbilityState(AAFwk::AbilityState::ACTIVE);
 
@@ -1137,19 +1122,19 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_00
 HWTEST_F(AbilityManagerServiceAccountTest, Account_ScheduleCommandAbilityDone_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_ScheduleCommandAbilityDone_004 start";
-    abilityMs_->StartUser(new_user_id_);
-    auto topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    abilityMs_->StartUser(newUserId);
+    auto topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
     if (topAbility) {
         topAbility->SetAbilityState(AAFwk::AbilityState::FOREGROUND);
     }
     Want want;
     ElementName element("", "com.ix.hiAccount", "AccountTest");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want, new_user_id_, -1);
+    auto result = abilityMs_->StartAbility(want, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
 
-    topAbility = abilityMs_->GetListManagerByUserId(new_user_id_)->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->GetListManagerByUserId(newUserId)->GetCurrentTopAbilityLocked();
 
     sptr<IRemoteObject> token = nullptr;
     if (topAbility) {
@@ -1212,14 +1197,14 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_001, TestS
 HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityManagerServiceAccountTest Account_StopServiceAbility_002 start";
-    abilityMs_->StartUser(new_user_id_);
+    abilityMs_->StartUser(newUserId);
     Want want;
     ElementName element("", "com.ix.musicService", "MusicService");
     want.SetElement(element);
-    auto result = abilityMs_->StartAbility(want, new_user_id_, -1);
+    auto result = abilityMs_->StartAbility(want, newUserId, -1);
     WaitUntilTaskFinished();
     EXPECT_EQ(OHOS::ERR_OK, result);
-    auto serviceMap = abilityMs_->GetConnectManagerByUserId(new_user_id_)->GetServiceMap();
+    auto serviceMap = abilityMs_->GetConnectManagerByUserId(newUserId)->GetServiceMap();
     EXPECT_EQ(1, static_cast<int>(serviceMap.size()));
     for (auto &it : serviceMap) {
         EXPECT_EQ(it.first, element.GetURI());
@@ -1230,11 +1215,11 @@ HWTEST_F(AbilityManagerServiceAccountTest, Account_StopServiceAbility_002, TestS
     Want want1;
     ElementName element1("device", "com.ix.hiMusic", "MusicAbility");
     want1.SetElement(element1);
-    auto result1 = abilityMs_->StopServiceAbility(want1, new_user_id_);
+    auto result1 = abilityMs_->StopServiceAbility(want1, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(TARGET_ABILITY_NOT_SERVICE, result1);
 
-    auto result2 = abilityMs_->StopServiceAbility(want, new_user_id_);
+    auto result2 = abilityMs_->StopServiceAbility(want, newUserId);
     WaitUntilTaskFinished();
     EXPECT_EQ(ERR_OK, result2);
     abilityMs_->StartUser(USER_ID_U100);

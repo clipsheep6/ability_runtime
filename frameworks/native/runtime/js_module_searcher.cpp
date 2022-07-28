@@ -15,6 +15,7 @@
 
 #include "js_module_searcher.h"
 
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
@@ -108,21 +109,23 @@ std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, con
     if (curJsModulePath.empty() || newJsModuleUri.empty()) {
         return newJsModulePath;
     }
+    std::string normalizeUri = newJsModuleUri;
+    replace(normalizeUri.begin(), normalizeUri.end(), '\\', '/');
 
-    switch (newJsModuleUri[0]) {
+    switch (normalizeUri[0]) {
         case '.': {
-            newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
+            newJsModulePath = MakeNewJsModulePath(curJsModulePath, normalizeUri);
             break;
         }
         case '@': {
-            newJsModulePath = ParseOhmUri(curJsModulePath, newJsModuleUri);
+            newJsModulePath = ParseOhmUri(curJsModulePath, normalizeUri);
             if (newJsModulePath.empty()) {
-                newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+                newJsModulePath = FindNpmPackage(curJsModulePath, normalizeUri);
             }
             break;
         }
         default: {
-            newJsModulePath = FindNpmPackage(curJsModulePath, newJsModuleUri);
+            newJsModulePath = FindNpmPackage(curJsModulePath, normalizeUri);
             break;
         }
     }
@@ -130,7 +133,7 @@ std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, con
     FixExtName(newJsModulePath);
 
     HILOG_INFO("Search JS module (%{public}s, %{public}s) => %{public}s end",
-        curJsModulePath.c_str(), newJsModuleUri.c_str(), newJsModulePath.c_str());
+        curJsModulePath.c_str(), normalizeUri.c_str(), newJsModulePath.c_str());
 
     return newJsModulePath;
 }
@@ -216,8 +219,15 @@ std::string JsModuleSearcher::MakeNewJsModulePath(
             pathVector.emplace_back(std::move(value));
         }
     }
-
-    return moduleInstallPath + JoinString(pathVector, '/');
+    char path[PATH_MAX];
+    std::string jsModulePath = moduleInstallPath + JoinString(pathVector, '/');
+    if (jsModulePath.size() >= PATH_MAX) {
+        return std::string();
+    }
+    if (realpath(jsModulePath.c_str(), path) != nullptr) {
+        return std::string(path);
+    }
+    return std::string();
 }
 
 std::string JsModuleSearcher::FindNpmPackageInPath(const std::string& npmPath)
@@ -272,11 +282,14 @@ std::string JsModuleSearcher::FindNpmPackageInTopLevel(
 
 std::string JsModuleSearcher::FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage)
 {
+    std::string newJsModulePath = MakeNewJsModulePath(curJsModulePath, npmPackage);
+    if (!newJsModulePath.empty()) {
+        return newJsModulePath;
+    }
     std::string moduleInstallPath = GetInstallPath(curJsModulePath);
     if (moduleInstallPath.empty()) {
         return std::string();
     }
-
     std::vector<std::string> pathVector;
     SplitString(curJsModulePath, pathVector, moduleInstallPath.length());
     if (pathVector.empty()) {

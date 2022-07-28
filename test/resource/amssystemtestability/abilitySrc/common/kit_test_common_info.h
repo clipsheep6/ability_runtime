@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef KIT_TEST_COMMON_INFO_H
-#define KIT_TEST_COMMON_INFO_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_KIT_TEST_COMMON_INFO_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_KIT_TEST_COMMON_INFO_H
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -421,4 +421,4 @@ enum class WantParamsApi {
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // KIT_TEST_COMMON_INFO_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_KIT_TEST_COMMON_INFO_H

@@ -252,12 +252,6 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
     callback->OnAppStateChanged(info);
 }
 
-void AppScheduler::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo, std::string &strConfig)
-{
-    CHECK_POINTER(appMgrClient_);
-    appMgrClient_->GetSystemMemoryAttr(memoryInfo, strConfig);
-}
-
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     CHECK_POINTER(appMgrClient_);
