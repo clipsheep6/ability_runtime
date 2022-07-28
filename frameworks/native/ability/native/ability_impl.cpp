@@ -15,9 +15,10 @@
 
 #include "ability_impl.h"
 
-#include "hitrace_meter.h"
+#include "ability_runtime/js_ability.h"
 #include "data_ability_predicates.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "values_bucket.h"
 
 namespace OHOS {
@@ -497,7 +498,16 @@ void AbilityImpl::AfterUnFocused()
     }
 
     if (ability_->GetAbilityInfo()->isStageBasedModel) {
-        HILOG_INFO("new version ability, do nothing when after unfocused.");
+        HILOG_INFO("new version ability when after unfocused.");
+        std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = ability_->GetAbilityContext();
+        if (abilityContext != nullptr) {
+            std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+                abilityContext->GetApplicationContext();
+            if (applicationContext != nullptr && !applicationContext->isAbilityLifecycleCallbackEmpty()) {
+                AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*ability_);
+                applicationContext->DispatchWindowStageUnfocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
+            }
+        }
         return;
     }
 
@@ -521,7 +531,16 @@ void AbilityImpl::AfterFocused()
     }
 
     if (ability_->GetAbilityInfo()->isStageBasedModel) {
-        HILOG_INFO("new version ability, do nothing when after focused.");
+        HILOG_INFO("new version ability when after focused.");
+        std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = ability_->GetAbilityContext();
+        if (abilityContext != nullptr) {
+            std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+                abilityContext->GetApplicationContext();
+            if (applicationContext != nullptr && !applicationContext->isAbilityLifecycleCallbackEmpty()) {
+                AbilityRuntime::JsAbility& jsAbility = static_cast<AbilityRuntime::JsAbility&>(*ability_);
+                applicationContext->DispatchWindowStageFocus(jsAbility.GetJsAbility(), jsAbility.GetJsWindowStage());
+            }
+        }
         return;
     }
 

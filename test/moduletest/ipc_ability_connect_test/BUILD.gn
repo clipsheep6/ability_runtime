@@ -19,9 +19,7 @@ module_output_path = "ability_runtime/mstabilitymgrservice"
 ohos_moduletest("IpcAbilityConnectModuleTest") {
   module_out_path = module_output_path
 
-  sources = [ "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp" ]
-
-  sources += [ "ipc_ability_connect_module_test.cpp" ]
+  sources = [ "ipc_ability_connect_module_test.cpp" ]
 
   configs =
       [ "${ability_runtime_test_path}/moduletest:aafwk_module_test_config" ]
@@ -30,6 +28,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:perm_verification",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

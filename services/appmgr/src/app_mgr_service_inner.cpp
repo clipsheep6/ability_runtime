@@ -70,6 +70,7 @@ const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
 const std::string RENDER_PARAM = "invalidparam";
 const std::string COLD_START = "coldStart";
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
+const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
@@ -1241,6 +1242,14 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         HILOG_ERROR("Get target fail.");
         return;
     }
+    uint8_t setAllowInternet = 0;
+    uint8_t allowInternet = 1;
+    auto token = (*bundleInfoIter).applicationInfo.accessTokenId;
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+    if (result != Security::AccessToken::PERMISSION_GRANTED) {
+        setAllowInternet = 1;
+        allowInternet = 0;
+    }
     startMsg.uid = (*bundleInfoIter).uid;
     startMsg.gid = (*bundleInfoIter).gid;
     startMsg.accessTokenId = (*bundleInfoIter).applicationInfo.accessTokenId;
@@ -1249,6 +1258,8 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.renderParam = RENDER_PARAM;
     startMsg.flags = startFlags;
     startMsg.bundleIndex = bundleIndex;
+    startMsg.setAllowInternet = setAllowInternet;
+    startMsg.allowInternet = allowInternet;
     HILOG_DEBUG("Start process, apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
