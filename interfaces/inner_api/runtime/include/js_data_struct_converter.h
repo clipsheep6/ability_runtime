@@ -38,6 +38,7 @@ NativeValue* CreateJsCustomizeDataArray(NativeEngine& engine, const std::vector<
 NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration);
 NativeValue* CreateJsMetadataArray(NativeEngine& engine, const std::vector<AppExecFwk::Metadata> &infos);
 NativeValue* CreateJsMetadata(NativeEngine& engine, const AppExecFwk::Metadata &Info);
+NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_DATA_STRUCT_CONVERTER_H
