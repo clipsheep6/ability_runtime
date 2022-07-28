@@ -27,15 +27,7 @@ ohos_moduletest("on_new_want_module_test") {
   ]
 
   sources = [ "on_new_want_module_test.cpp" ]
-  sources += [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_list.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/mission_list_manager.cpp",
-    "${ability_runtime_services_path}/common/src/event_report.cpp",
-    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
-    "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
-  ]
+  sources += [ "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp" ]
 
   configs = [
     "${ability_runtime_test_path}/moduletest:aafwk_module_test_config",
@@ -52,6 +44,8 @@ ohos_moduletest("on_new_want_module_test") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:event_report",
+    "${ability_runtime_services_path}/common:perm_verification",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
