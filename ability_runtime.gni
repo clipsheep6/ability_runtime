@@ -71,7 +71,7 @@ declare_args() {
   }
 
   if (defined(global_parts_info) &&
-      !defined(global_parts_info.distributeddatamgr_distributeddataobject)) {
+      !defined(global_parts_info.distributeddatamgr_data_object)) {
     distributed_data_object_enable = false
   }
 

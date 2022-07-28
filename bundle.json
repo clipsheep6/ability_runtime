@@ -36,7 +36,7 @@
             "bundle_framework",
             "common",
             "common_event_service",
-            "distributeddataobject",
+            "data_object",
             "dsoftbus",
             "eventhandler",
             "faultloggerd",
