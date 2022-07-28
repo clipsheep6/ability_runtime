@@ -38,8 +38,7 @@ public:
     int32_t StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
         int32_t status, uint32_t accessToken);
     int32_t NotifyCompleteContinuation(const std::u16string &devId, int32_t sessionId, bool isSuccess);
-    int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
-        int32_t callerUid, int32_t callerPid, uint32_t accessToken);
+    int32_t ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect);
     int32_t DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid, uint32_t accessToken);
     int32_t StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag);
     int32_t StopSyncRemoteMissions(const std::string& devId);
@@ -49,8 +48,7 @@ public:
         std::vector<AAFwk::MissionInfo>& missionInfos);
     int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
         std::unique_ptr<MissionSnapshot>& missionSnapshot);
-    int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
-        int32_t callerUid, int32_t callerPid, uint32_t accessToken);
+    int32_t StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect);
     int32_t ReleaseRemoteAbility(const sptr<IRemoteObject>& connect, const AppExecFwk::ElementName &element);
     int32_t StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
         int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback);
@@ -74,6 +72,7 @@ public:
 private:
     sptr<IRemoteObject> GetDmsProxy();
     bool ReadMissionInfosFromParcel(Parcel& parcel, std::vector<AAFwk::MissionInfo>& missionInfos);
+    bool WriteInfosToParcel(MessageParcel& data, const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
