@@ -23,16 +23,16 @@ ohos_unittest("AmsServiceAppSpawnSocketTest") {
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
-  sources =
-      [ "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp" ]
-
-  sources += [ "ams_service_app_spawn_socket_test.cpp" ]
+  sources = [ "ams_service_app_spawn_socket_test.cpp" ]
 
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [ "${ability_runtime_test_path}/unittest:appmgr_test_source" ]
+  deps = [
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_test_path}/unittest:appmgr_test_source",
+  ]
 
   external_deps = [
     "appspawn:appspawn_socket_client",
