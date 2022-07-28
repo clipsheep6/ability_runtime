@@ -37,7 +37,53 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj) = 0;
+    virtual void OnAbilityCreate(const std::shared_ptr<NativeReference> &ability) = 0;
+
+    /**
+     * Called back when the window stage is created.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @param windowStage: window stage to create.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) = 0;
+
+    /**
+     * Called back when the window stage is created.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @param windowStage: window stage to destroy.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) = 0;
+
+    /**
+     * Called back when the window stage is actived.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) = 0;
+
+    /**
+     * Called back when the window stage is inactived.
+     *
+     * @since 9
+     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
+     * @param ability: Indicates the ability to register for listening.
+     * @StageModelOnly
+     */
+    virtual void OnWindowStageInactive(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) = 0;
 
     /**
      * Called back when the ability window stage is created.
@@ -47,7 +93,7 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj) = 0;
+    virtual void OnAbilityDestroy(const std::shared_ptr<NativeReference> &ability) = 0;
 
     /**
      * Called back when the ability window stage is created.
@@ -57,7 +103,7 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj) = 0;
+    virtual void OnAbilityForeground(const std::shared_ptr<NativeReference> &ability) = 0;
 
     /**
      * Called back when the ability window stage is created.
@@ -67,7 +113,7 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj) = 0;
+    virtual void OnAbilityBackground(const std::shared_ptr<NativeReference> &ability) = 0;
 
     /**
      * Called back when the ability window stage is created.
@@ -77,40 +123,26 @@ public:
      * @param ability: Indicates the ability to register for listening.
      * @StageModelOnly
      */
-    virtual void OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj) = 0;
-
-    /**
-     * Called back when the ability window stage is created.
-     *
-     * @since 9
-     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
-     * @param ability: Indicates the ability to register for listening.
-     * @StageModelOnly
-     */
-    virtual void OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj) = 0;
-
-    /**
-     * Called back when the ability window stage is created.
-     *
-     * @since 9
-     * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
-     * @param ability: Indicates the ability to register for listening.
-     * @StageModelOnly
-     */
-    virtual void OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj) = 0;
+    virtual void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) = 0;
 };
 
 class JsAbilityLifecycleCallback : public AbilityLifecycleCallback,
                                    public std::enable_shared_from_this<JsAbilityLifecycleCallback> {
 public:
     explicit JsAbilityLifecycleCallback(NativeEngine* engine);
-    void OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj) override;
-    void OnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj) override;
+    void OnAbilityCreate(const std::shared_ptr<NativeReference> &ability) override;
+    void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnWindowStageInactive(const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage) override;
+    void OnAbilityDestroy(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityForeground(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityBackground(const std::shared_ptr<NativeReference> &ability) override;
+    void OnAbilityContinue(const std::shared_ptr<NativeReference> &ability) override;
     int32_t Register(NativeValue *jsCallback);
     bool UnRegister(int32_t callbackId);
     bool IsEmpty();
@@ -120,8 +152,12 @@ private:
     NativeEngine* engine_;
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
-    void CallJsMethod(const std::string &methodName, const std::weak_ptr<NativeReference> &abilityObj);
+    void CallJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability);
     void CallJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability);
+    void CallWindowStageJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
+    void CallWindowStageJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
+        const std::shared_ptr<NativeReference> &windowStage);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
