@@ -552,8 +552,8 @@ int32_t FormProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const s
     }
 
     AAFwk::WantParams wantParams;
-    ownerAbility->OnShare(formId, wantParams);
-    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode);
+    auto result = ownerAbility->OnShare(formId, wantParams);
+    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode, result);
 
     HILOG_DEBUG("%{public}s, call over", __func__);
     return ERR_OK;

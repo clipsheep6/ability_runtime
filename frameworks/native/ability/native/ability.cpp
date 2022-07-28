@@ -2885,9 +2885,10 @@ FormProviderInfo Ability::OnCreate(const Want &want)
     return formProviderInfo;
 }
 
-void Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
+bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
+    return false;
 }
 
 /**

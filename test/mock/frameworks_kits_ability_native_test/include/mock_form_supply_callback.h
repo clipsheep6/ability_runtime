@@ -57,7 +57,7 @@ public:
                                      const Want &want) override;
 
     virtual void OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
-        const AAFwk::WantParams &wantParams, int64_t requestCode) override;
+        const AAFwk::WantParams &wantParams, int64_t requestCode, const bool &result) override;
 
 private:
     static std::mutex mutex;

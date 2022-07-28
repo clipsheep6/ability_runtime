@@ -527,28 +527,27 @@ int32_t FormExtensionProviderClient::ShareAcquireProviderFormInfo(int64_t formId
     }
 
     AAFwk::WantParams wantParams;
-    auto taskProc = [client = sptr<FormExtensionProviderClient>(this), formId, &wantParams]() {
-        client->AcquireFormExtensionProviderShareFormInfo(formId, wantParams);
+    bool result = false;
+    auto taskProc = [client = sptr<FormExtensionProviderClient>(this), formId, &wantParams, &result]() {
+        result = client->AcquireFormExtensionProviderShareFormInfo(formId, wantParams);
     };
     mainHandler->PostSyncTask(taskProc);
-    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode);
+    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode, result);
 
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
+bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
     int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
         HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
-        return;
+        return false;
     }
 
-    ownerFormExtension->OnShare(formId, wantParams);
-    HILOG_DEBUG("%{public}s called end.", __func__);
-    return;
+    return ownerFormExtension->OnShare(formId, wantParams);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

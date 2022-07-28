@@ -165,7 +165,7 @@ private:
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                          const sptr<IRemoteObject> &callerToken);
-    void AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
+    bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
     mutable std::mutex formExtensionMutex_;
