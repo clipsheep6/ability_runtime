@@ -40,7 +40,6 @@
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
-#include "input_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "itest_observer.h"
@@ -60,6 +59,7 @@
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
+#include "input_manager.h"
 #include "png.h"
 #include "ui_service_mgr_client.h"
 #endif
@@ -242,6 +242,8 @@ bool AbilityManagerService::Init()
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
+    anrListener_ = std::make_shared<ApplicationAnrListener>();
+    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
@@ -249,9 +251,6 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
-
-    anrListener_ = std::make_shared<ApplicationAnrListener>();
-    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 
     HILOG_INFO("Init success.");
     return true;

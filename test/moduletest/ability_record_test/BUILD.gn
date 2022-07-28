@@ -81,7 +81,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
@@ -98,7 +97,10 @@ ohos_moduletest("AbilityRecordModuleTest") {
   }
 
   if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libdm" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libdm",
+    ]
   }
 }
 

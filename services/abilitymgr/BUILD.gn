@@ -119,7 +119,6 @@ ohos_shared_library("abilityms") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
@@ -146,6 +145,7 @@ ohos_shared_library("abilityms") {
         [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
     external_deps += [
       "i18n:intl_util",
+      "input:libmmi-client",
       "multimedia_image_standard:image_native",
       "window_manager:libdm",
       "window_manager:libwm",
