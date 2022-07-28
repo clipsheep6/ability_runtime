@@ -1038,6 +1038,13 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
 
 bool AbilityConnectManager::IsAbilityNeedRestart(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
+    std::string bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    bool restartable = DelayedSingleton<AbilityManagerService>::GetInstance()->IsRestartableAbility(bundleName);
+    if (restartable) {
+        HILOG_INFO("Handle ability died task, bundleName: %{public}s is restartable.", bundleName.c_str());
+        return true;
+    }
+
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;

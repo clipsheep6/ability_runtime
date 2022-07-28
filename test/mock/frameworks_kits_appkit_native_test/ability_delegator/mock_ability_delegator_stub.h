@@ -156,6 +156,7 @@ public:
     virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 #endif
+    virtual int NotifyProcessWillBeKilled(const std::string &bundleName) override;
 
 public:
     std::string powerState_;
@@ -292,6 +293,7 @@ public:
     virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 #endif
+    virtual int NotifyProcessWillBeKilled(const std::string &bundleName) override;
 
 public:
     std::string powerState_;

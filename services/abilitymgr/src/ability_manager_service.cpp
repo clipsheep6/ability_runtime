@@ -3101,6 +3101,9 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
     if (dataAbilityManager) {
         dataAbilityManager->OnAbilityDied(abilityRecord);
     }
+
+    auto bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    restartableBundle_.erase(bundleName);
 }
 
 void AbilityManagerService::OnCallConnectDied(std::shared_ptr<CallRecord> callRecord)
@@ -4880,5 +4883,21 @@ int32_t AbilityManagerService::ShowPickerDialog(const Want& want, int32_t userId
     return Ace::UIServiceMgrClient::GetInstance()->ShowAppPickerDialog(want, abilityInfos, userId);
 }
 #endif
+
+int AbilityManagerService::NotifyProcessWillBeKilled(const std::string &bundleName)
+{
+    auto iter = restartableBundle_.find(bundleName);
+    HILOG_INFO("Notify process will be killed, bundleName: %{public}s was existed: %{public}d.",
+        bundleName.c_str(), (iter != restartableBundle_.end()));
+    if (iter == restartableBundle_.end()) {
+        restartableBundle_.insert(bundleName);
+    }
+    return ERR_OK;
+}
+
+bool AbilityManagerService::IsRestartableAbility(const std::string &bundleName)
+{
+    return (restartableBundle_.find(bundleName) != restartableBundle_.end());
+}
 }  // namespace AAFwk
 }  // namespace OHOS

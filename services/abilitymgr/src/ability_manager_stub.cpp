@@ -144,6 +144,7 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[REGISTER_WMS_HANDLER] = &AbilityManagerStub::RegisterWindowManagerServiceHandlerInner;
     requestFuncMap_[COMPLETEFIRSTFRAMEDRAWING] = &AbilityManagerStub::CompleteFirstFrameDrawingInner;
 #endif
+    requestFuncMap_[NOTIFY_WILL_KILL_PROCESS] = &AbilityManagerStub::NotifyProcessWillBeKilledInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -1471,6 +1472,19 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
     }
     CompleteFirstFrameDrawing(abilityToken);
     return 0;
+}
+
+int AbilityManagerStub::NotifyProcessWillBeKilledInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("bundleName is empty.");
+        return ERR_NULL_OBJECT;
+    }
+
+    int32_t result = NotifyProcessWillBeKilled(bundleName);
+    HILOG_INFO("result = %{public}d.", result);
+    return result;
 }
 #endif
 }  // namespace AAFwk

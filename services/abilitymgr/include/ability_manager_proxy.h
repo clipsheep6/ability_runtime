@@ -585,6 +585,13 @@ public:
      */
     virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
 
+    /**
+     * Called to notify one process will be killed.
+     * @param bundleName Bundle name of the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int NotifyProcessWillBeKilled(const std::string &bundleName) override;
+
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);
