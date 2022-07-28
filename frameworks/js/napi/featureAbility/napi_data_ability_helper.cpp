@@ -2436,14 +2436,44 @@ void CallExecuteCB(napi_env env, void *data)
     HILOG_INFO("CallExecuteCB, worker pool thread execute end.");
 }
 
+static std::string ExcludeTag(const std::string& jsonString, const std::string& tagString)
+{
+    size_t pos = jsonString.find(tagString);
+    if (pos == std::string::npos) {
+        return jsonString;
+    }
+    std::string valueString = jsonString.substr(pos);
+    pos = valueString.find(":");
+    if (pos == std::string::npos) {
+        return "";
+    }
+    size_t valuePos = pos + 1;
+    while (valuePos < valueString.size()) {
+        if (valueString.at(valuePos) != ' ' && valueString.at(valuePos) != '\t') {
+            break;
+        }
+        valuePos++;
+    }
+    if (valuePos >= valueString.size()) {
+        return "";
+    }
+    valueString = valueString.substr(valuePos);
+    return valueString.substr(0, valueString.size() - 1);
+}
+
 napi_value CallPacMapValue(napi_env env, std::shared_ptr<AppExecFwk::PacMap> result)
 {
     napi_value value = nullptr;
 
     NAPI_CALL(env, napi_create_object(env, &value));
     napi_value napiResult = nullptr;
-    napi_create_string_utf8(env, (result.get()->ToString()).c_str(), NAPI_AUTO_LENGTH, &napiResult);
-    NAPI_CALL(env, napi_set_named_property(env, value, "result", napiResult));
+    if (result != nullptr) {
+        std::string resultWithoutTag = ExcludeTag(result->ToString(), "pacmap");
+        napi_create_string_utf8(env, resultWithoutTag.c_str(), NAPI_AUTO_LENGTH, &napiResult);
+        NAPI_CALL(env, napi_set_named_property(env, value, "result", napiResult));
+    } else {
+        HILOG_ERROR("Return result is nullptr");
+    }
     return value;
 }
 
