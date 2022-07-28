@@ -23,19 +23,17 @@ ohos_unittest("AmsServiceAppSpawnMsgWrapperTest") {
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
-  sources = [
-    "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
-    "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
-  ]
-
-  sources += [ "ams_service_app_spawn_msg_wrapper_test.cpp" ]
+  sources = [ "ams_service_app_spawn_msg_wrapper_test.cpp" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   configs = []
 
-  deps = [ "${ability_runtime_test_path}/unittest:appmgr_test_source" ]
+  deps = [
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_test_path}/unittest:appmgr_test_source",
+  ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
