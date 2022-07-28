@@ -23,6 +23,7 @@ ohos_shared_library("abilityconstant_napi") {
 
   external_deps = [
     "ability_runtime:ability_manager",
+    "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
     "utils_base:utils",
   ]
