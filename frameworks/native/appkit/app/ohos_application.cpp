@@ -47,7 +47,7 @@ OHOSApplication::~OHOSApplication() = default;
 
 void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
 {
-    HILOG_INFO("OHOSApplication::dispatchAbilitySavedState: called");
+    HILOG_DEBUG("OHOSApplication::dispatchAbilitySavedState: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilitySaveState(outState);
@@ -62,13 +62,12 @@ void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
  */
 void OHOSApplication::OnForeground()
 {
-    HILOG_INFO("NotifyApplicationState::OnForeground begin");
     if (runtime_ == nullptr) {
-        HILOG_INFO("NotifyApplicationState, runtime_ is nullptr");
+        HILOG_ERROR("NotifyApplicationState, runtime_ is nullptr");
         return;
     }
     runtime_->NotifyApplicationState(false);
-    HILOG_INFO("NotifyApplicationState::OnForeground end");
+    HILOG_DEBUG("NotifyApplicationState::OnForeground end");
 }
 
 /**
@@ -78,13 +77,12 @@ void OHOSApplication::OnForeground()
  */
 void OHOSApplication::OnBackground()
 {
-    HILOG_INFO("NotifyApplicationState::OnBackground begin");
     if (runtime_ == nullptr) {
-        HILOG_INFO("NotifyApplicationState, runtime_ is nullptr");
+        HILOG_ERROR("NotifyApplicationState, runtime_ is nullptr");
         return;
     }
     runtime_->NotifyApplicationState(true);
-    HILOG_INFO("NotifyApplicationState::OnBackground end");
+    HILOG_DEBUG("NotifyApplicationState::OnBackground end");
 }
 
 void OHOSApplication::DumpApplication()
@@ -138,13 +136,12 @@ void OHOSApplication::DumpApplication()
  */
 void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime)
 {
-    HILOG_INFO("OHOSApplication::SetRuntime begin");
     if (runtime == nullptr) {
         HILOG_ERROR("OHOSApplication::SetRuntime failed, runtime is empty");
         return;
     }
     runtime_ = std::move(runtime);
-    HILOG_INFO("OHOSApplication::SetRuntime end");
+    HILOG_DEBUG("OHOSApplication::SetRuntime end");
 }
 
 /**
@@ -155,7 +152,7 @@ void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runt
 void OHOSApplication::SetApplicationContext(
     const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext)
 {
-    HILOG_INFO("OHOSApplication::SetApplicationContext");
+    HILOG_DEBUG("OHOSApplication::SetApplicationContext");
     if (abilityRuntimeContext == nullptr) {
         HILOG_ERROR("OHOSApplication::SetApplicationContext failed, context is empty");
         return;
@@ -171,7 +168,7 @@ void OHOSApplication::SetApplicationContext(
  */
 void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr> &abilityRecordMgr)
 {
-    HILOG_INFO("OHOSApplication::SetAbilityRecordMgr");
+    HILOG_DEBUG("OHOSApplication::SetAbilityRecordMgr");
     if (abilityRecordMgr == nullptr) {
         HILOG_ERROR("ContextDeal::SetAbilityRecordMgr failed, abilityRecordMgr is nullptr");
         return;
@@ -187,10 +184,10 @@ void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr
  */
 void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
-    HILOG_INFO("OHOSApplication::RegisterAbilityLifecycleCallbacks: called");
+    HILOG_DEBUG("OHOSApplication::RegisterAbilityLifecycleCallbacks: called");
 
     if (callBack == nullptr) {
-        HILOG_INFO("OHOSApplication::RegisterAbilityLifecycleCallbacks: observer is null");
+        HILOG_ERROR("OHOSApplication::RegisterAbilityLifecycleCallbacks: observer is null");
         return;
     }
 
@@ -205,10 +202,10 @@ void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<Ab
  */
 void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
-    HILOG_INFO("OHOSApplication::UnregisterAbilityLifecycleCallbacks: called");
+    HILOG_DEBUG("OHOSApplication::UnregisterAbilityLifecycleCallbacks: called");
 
     if (callBack == nullptr) {
-        HILOG_INFO("OHOSApplication::UnregisterAbilityLifecycleCallbacks: observer is null");
+        HILOG_ERROR("OHOSApplication::UnregisterAbilityLifecycleCallbacks: observer is null");
         return;
     }
 
@@ -228,7 +225,7 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<Ability> &ability)
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityStart: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityStart: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityStart(ability);
@@ -249,7 +246,7 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<Ability> &ability)
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityInactive: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityInactive: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityInactive(ability);
@@ -270,7 +267,7 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<Ability> &abilit
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityBackground: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityBackground: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityBackground(ability);
@@ -291,7 +288,7 @@ void OHOSApplication::OnAbilityForeground(const std::shared_ptr<Ability> &abilit
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityForeground: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityForeground: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityForeground(ability);
@@ -312,7 +309,7 @@ void OHOSApplication::OnAbilityActive(const std::shared_ptr<Ability> &ability)
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityActive: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityActive: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityActive(ability);
@@ -333,7 +330,7 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<Ability> &ability)
         return;
     }
 
-    HILOG_INFO("OHOSApplication::OnAbilityStop: called");
+    HILOG_DEBUG("OHOSApplication::OnAbilityStop: called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityStop(ability);
@@ -349,10 +346,10 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<Ability> &ability)
  */
 void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
-    HILOG_INFO("OHOSApplication::RegisterElementsCallbacks: called");
+    HILOG_DEBUG("OHOSApplication::RegisterElementsCallbacks: called");
 
     if (callback == nullptr) {
-        HILOG_INFO("OHOSApplication::RegisterElementsCallbacks: observer is null");
+        HILOG_ERROR("OHOSApplication::RegisterElementsCallbacks: observer is null");
         return;
     }
 
@@ -367,10 +364,10 @@ void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCa
  */
 void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
-    HILOG_INFO("OHOSApplication::UnregisterElementsCallbacks: called");
+    HILOG_DEBUG("OHOSApplication::UnregisterElementsCallbacks: called");
 
     if (callback == nullptr) {
-        HILOG_INFO("OHOSApplication::UnregisterElementsCallbacks: observer is null");
+        HILOG_ERROR("OHOSApplication::UnregisterElementsCallbacks: observer is null");
         return;
     }
 
@@ -385,9 +382,9 @@ void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<Elements
  */
 void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
 {
-    HILOG_INFO("OHOSApplication::OnConfigurationUpdated: called");
+    HILOG_DEBUG("OHOSApplication::OnConfigurationUpdated: called");
     if (!abilityRecordMgr_ || !configuration_) {
-        HILOG_INFO("abilityRecordMgr_ or configuration_ is null");
+        HILOG_ERROR("abilityRecordMgr_ or configuration_ is null");
         return;
     }
 
@@ -397,7 +394,7 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     configuration_->Merge(changeKeyV, config);
 
     // Notify all abilities
-    HILOG_INFO(
+    HILOG_DEBUG(
         "Number of ability to be notified : [%{public}d]", static_cast<int>(abilityRecordMgr_->GetRecordCount()));
     for (const auto &abilityToken : abilityRecordMgr_->GetAllTokens()) {
         auto abilityRecord = abilityRecordMgr_->GetAbilityItem(abilityToken);
@@ -407,7 +404,7 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     }
 
     // Notify AbilityStage
-    HILOG_INFO("Number of abilityStage to be notified : [%{public}zu]", abilityStages_.size());
+    HILOG_DEBUG("Number of abilityStage to be notified : [%{public}zu]", abilityStages_.size());
     for (auto it = abilityStages_.begin(); it != abilityStages_.end(); it++) {
         auto abilityStage = it->second;
         if (abilityStage) {
@@ -434,7 +431,7 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
  */
 void OHOSApplication::OnMemoryLevel(int level)
 {
-    HILOG_INFO("OHOSApplication::OnMemoryLevel: called");
+    HILOG_DEBUG("OHOSApplication::OnMemoryLevel: called");
     for (auto callback : elementsCallbacks_) {
         if (callback != nullptr) {
             callback->OnMemoryLevel(level);
@@ -449,7 +446,7 @@ void OHOSApplication::OnMemoryLevel(int level)
  */
 void OHOSApplication::OnStart()
 {
-    HILOG_INFO("OnStart called.");
+    HILOG_DEBUG("OnStart called.");
 }
 
 /**
@@ -459,7 +456,7 @@ void OHOSApplication::OnStart()
  */
 void OHOSApplication::OnTerminate()
 {
-    HILOG_INFO("OHOSApplication::OnTerminate: called");
+    HILOG_DEBUG("OHOSApplication::OnTerminate: called");
 }
 
 /**
@@ -503,7 +500,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         abilityStage->Init(stageContext);
         Want want;
         if (abilityRecord->GetWant()) {
-            HILOG_INFO("want is ok, transport to abilityStage");
+            HILOG_DEBUG("want is ok, transport to abilityStage");
             want = *(abilityRecord->GetWant());
         }
         abilityStage->OnCreate(want);
@@ -522,7 +519,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
 
 bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
-    HILOG_INFO("OHOSApplication::AddAbilityStage");
+    HILOG_DEBUG("OHOSApplication::AddAbilityStage");
     if (abilityRuntimeContext_ == nullptr) {
         HILOG_ERROR("OHOSApplication::AddAbilityStage abilityRuntimeContext_ is nullptr.");
         return false;
@@ -597,7 +594,7 @@ void OHOSApplication::SetConfiguration(const Configuration &config)
 
 void OHOSApplication::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName, std::string &flag)
 {
-    HILOG_INFO("OHOSApplication::ScheduleAcceptWant: called");
+    HILOG_DEBUG("OHOSApplication::ScheduleAcceptWant: called");
     auto iter = abilityStages_.find(moduleName);
     if (iter != abilityStages_.end()) {
         auto abilityStage = iter->second;
