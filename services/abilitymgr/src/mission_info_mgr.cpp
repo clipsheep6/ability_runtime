@@ -14,8 +14,13 @@
  */
 
 #include "mission_info_mgr.h"
+
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
+#ifdef SUPPORT_GRAPHICS
+#include "pixel_map.h"
+#include "securec.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -435,6 +440,9 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     }
 
 #ifdef SUPPORT_GRAPHICS
+    if (missionSnapshot.isPrivate) {
+        CreateWhitePixelMap(snapshot);
+    }
     missionSnapshot.snapshot = isLowResolution ?
         MissionDataStorage::GetReducedPixelMap(snapshot.GetPixelMap()) : snapshot.GetPixelMap();
 #endif
@@ -502,5 +510,21 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     HILOG_INFO("snapshot: storage mission snapshot not exists, create new snapshot");
     return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
 }
+
+#ifdef SUPPORT_GRAPHICS
+void MissionInfoMgr::CreateWhitePixelMap(Snapshot &snapshot) const
+{
+    if (snapshot.GetPixelMap() == nullptr) {
+        HILOG_ERROR("CreateWhitePixelMap error.");
+        return;
+    }
+    int32_t dataLength = snapshot.GetPixelMap()->GetByteCount();
+    const uint8_t *pixelData = snapshot.GetPixelMap()->GetPixels();
+    uint8_t *data = const_cast<uint8_t *>(pixelData);
+    if (memset_s(data, dataLength, 0xff, dataLength) != EOK) {
+        HILOG_ERROR("CreateWhitePixelMap memset_s error.");
+    }
+}
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS

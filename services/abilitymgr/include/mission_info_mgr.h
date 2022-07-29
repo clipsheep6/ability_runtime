@@ -179,6 +179,9 @@ private:
     bool LoadAllMissionInfo();
 
     void GetMatchedMission(const std::string &bundleName, int32_t uid, std::list<int32_t> &missions);
+#ifdef SUPPORT_GRAPHICS
+    void CreateWhitePixelMap(Snapshot &snapshot) const;
+#endif
 
 private:
     int32_t currentMissionId_ = MIN_MISSION_ID;
