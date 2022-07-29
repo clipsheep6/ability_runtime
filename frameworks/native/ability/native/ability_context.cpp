@@ -131,7 +131,6 @@ std::string AbilityContext::GetCallingBundle()
 
 std::shared_ptr<ElementName> AbilityContext::GetElementName()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
         HILOG_ERROR("AbilityContext::GetElementName info == nullptr");
@@ -147,13 +146,12 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     elementName->SetBundleName(info->bundleName);
     elementName->SetDeviceID(info->deviceId);
     elementName->SetModuleName(info->moduleName);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
     return elementName;
 }
 
 std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
 
     if (elementName == nullptr) {
@@ -164,7 +162,7 @@ std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
     elementName->SetBundleName(callingBundleName_);
     elementName->SetDeviceID(callingDeviceId_);
     elementName->SetModuleName(callingModuleName_);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
     return elementName;
 }
 
@@ -179,7 +177,7 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
         return false;
     }
 
-    HILOG_INFO("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
+    HILOG_DEBUG("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
 
     if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
         HILOG_ERROR("AbilityContext::ConnectAbility AbilityType = %{public}d", type);
@@ -187,12 +185,12 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
     }
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, conn, token_);
-    HILOG_INFO("%{public}s end ConnectAbility, ret=%{public}d", __func__, ret);
+    HILOG_DEBUG("%{public}s end ConnectAbility, ret=%{public}d", __func__, ret);
     bool value = ((ret == ERR_OK) ? true : false);
     if (!value) {
         HILOG_ERROR("AbilityContext::ConnectAbility ErrorCode = %{public}d", ret);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
     return value;
 }
 
@@ -200,7 +198,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
-    HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
+    HILOG_DEBUG("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
@@ -217,7 +215,7 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 
 bool AbilityContext::StopAbility(const AAFwk::Want &want)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (AppExecFwk::AbilityType::PAGE != type && AppExecFwk::AbilityType::SERVICE != type) {
         HILOG_ERROR("AbilityContext::StopAbility AbilityType = %{public}d", type);
@@ -359,7 +357,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
 
 int AbilityContext::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    HILOG_INFO("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
+    HILOG_DEBUG("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
         __func__,
         permission.c_str(),
         pid,
@@ -420,7 +418,6 @@ void AbilityContext::GetPermissionDes(const std::string &permissionName, std::st
 void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permissions,
     std::vector<int> &permissionsState, int requestCode)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     if (permissions.size() == 0) {
         HILOG_ERROR("AbilityContext::RequestPermissionsFromUser permissions is empty");
         return;
@@ -436,7 +433,7 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     want.SetParam(PERMISSION_KEY, permissions);
     want.SetParam(STATE_KEY, permissionsState);
     StartAbility(want, requestCode);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
 }
 
 bool AbilityContext::DeleteFile(const std::string &fileName)
@@ -460,7 +457,7 @@ Uri AbilityContext::GetCaller()
 
 void AbilityContext::AttachBaseContext(const std::shared_ptr<Context> &base)
 {
-    HILOG_INFO("AbilityContext::AttachBaseContext.");
+    HILOG_DEBUG("AbilityContext::AttachBaseContext.");
     ContextContainer::AttachBaseContext(base);
 }
 
@@ -556,7 +553,6 @@ int AbilityContext::GetThemeId()
 
 bool AbilityContext::TerminateAbilityResult(int startId)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityClient == nullptr) {
         HILOG_ERROR("AbilityContext::TerminateAbilityResult abilityClient is nullptr");
@@ -570,7 +566,7 @@ bool AbilityContext::TerminateAbilityResult(int startId)
         HILOG_ERROR("AbilityContext::TerminateAbilityResult TerminateAbilityResult retval is %d", errval);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
     return (errval == ERR_OK) ? true : false;
 }
 
@@ -601,11 +597,10 @@ int AbilityContext::GetMissionId()
 
 void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
     for (auto want : wants) {
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s success.", __func__);
 }
 
 bool AbilityContext::IsUpdatingConfigurations()
