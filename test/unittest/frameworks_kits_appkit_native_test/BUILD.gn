@@ -93,9 +93,6 @@ ohos_unittest("context_deal_interface_test") {
 ohos_unittest("application_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "ability_stage_test.cpp",
     "application_data_manager_test.cpp",
     "application_test.cpp",
@@ -131,8 +128,6 @@ ohos_unittest("application_test") {
 ohos_unittest("context_container_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "context_container_test.cpp",
@@ -164,8 +159,6 @@ ohos_unittest("context_container_test") {
 ohos_unittest("context_deal_test") {
   module_out_path = module_output_path
   sources = [
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/include/mock_ability_manager_client.cpp",
@@ -198,13 +191,7 @@ ohos_unittest("context_deal_test") {
 
 ohos_unittest("application_impl_test") {
   module_out_path = module_output_path
-  sources = [
-    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
-    "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "application_impl_test.cpp",
-  ]
+  sources = [ "application_impl_test.cpp" ]
 
   configs = [ ":module_private_config" ]
 
@@ -249,12 +236,10 @@ ohos_unittest("ability_start_setting_test") {
     ":ability_start_setting_config",
   ]
 
-  sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
-    "ability_start_setting_test.cpp",
-  ]
+  sources = [ "ability_start_setting_test.cpp" ]
 
   deps = [
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gtest_main",
     "//utils/native/base:utils",
