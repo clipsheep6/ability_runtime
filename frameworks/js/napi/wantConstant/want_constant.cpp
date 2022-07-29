@@ -67,7 +67,8 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, action, "ohos.action.fileSelect", "ACTION_FILE_SELECT");
     SetNamedProperty(env, action, "ability.params.stream", "PARAMS_STREAM");
     SetNamedProperty(env, action, "ohos.account.appAccount.action.oauth", "ACTION_APP_ACCOUNT_OAUTH");
-    SetNamedProperty(env, action, "ohos.want.action.marketDownload", "ACTION_MARKER_DOWNLOAD");
+    SetNamedProperty(env, action, "ohos.want.action.marketDownload", "ACTION_MARKET_DOWNLOAD");
+    SetNamedProperty(env, action, "ohos.want.action.marketCrowdTest", "ACTION_MARKET_CROWDTEST");
 
     SetNamedProperty(env, entity, "entity.system.default", "ENTITY_DEFAULT");
     SetNamedProperty(env, entity, "entity.system.home", "ENTITY_HOME");
