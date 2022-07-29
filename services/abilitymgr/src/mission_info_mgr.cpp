@@ -193,14 +193,17 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
     return true;
 }
 
-static bool DoesNotShowInTheMissionList(int32_t startMethod)
+static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 {
-    switch (static_cast<StartMethod>(startMethod)) {
+    bool isStartByCall = false;
+    switch (static_cast<StartMethod>(mission.startMethod)) {
         case StartMethod::START_CALL:
-            return true;
+            isStartByCall = true;
+            break;
         default:
-            return false;
+            isStartByCall = false;
     }
+    return (isStartByCall && !mission.missionInfo.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false));
 }
 
 int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos)
@@ -216,7 +219,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
             break;
         }
 
-        if (DoesNotShowInTheMissionList(mission.startMethod)) {
+        if (DoesNotShowInTheMissionList(mission)) {
             HILOG_INFO("MissionId[%{public}d] don't show in mission list", mission.missionInfo.id);
             continue;
         }
@@ -246,7 +249,7 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
         return -1;
     }
 
-    if (DoesNotShowInTheMissionList((*it).startMethod)) {
+    if (DoesNotShowInTheMissionList(*it)) {
         HILOG_INFO("MissionId[%{public}d] don't show in mission list", (*it).missionInfo.id);
         return -1;
     }

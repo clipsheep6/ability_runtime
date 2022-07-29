@@ -1733,6 +1733,16 @@ void AbilityRecord::SetStartToBackground(const bool flag)
     isStartToBackground_ = flag;
 }
 
+bool AbilityRecord::IsStartToForeground() const
+{
+    return isStartToForeground_;
+}
+
+void AbilityRecord::SetStartToForeground(const bool flag)
+{
+    isStartToForeground_ = flag;
+}
+
 bool AbilityRecord::CallRequest()
 {
     HILOG_INFO("Call Request.");

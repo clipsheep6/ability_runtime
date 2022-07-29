@@ -347,9 +347,16 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
             targetRecord->SetWant(abilityRequest.want);
             targetRecord->SetIsNewWant(true);
         }
-
+        /* No need to update condition:
+         *      1. not start by call
+         *      2. start by call, but call to background again
+         * Need to update condition:
+         *      1. start by call, but this time is not start by call
+         *      2. start by call, and call to foreground again
+         */
         if (!(targetMission->IsStartByCall()
-            && !CallTypeFilter(startMethod))) {
+            && (!CallTypeFilter(startMethod) ||
+                abilityRequest.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)))) {
             HILOG_DEBUG("mission exists. No update required");
             return;
         }
@@ -659,9 +666,13 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     abilityRecord->SetScheduler(scheduler);
 
     if (abilityRecord->IsStartedByCall()) {
-        // started by callability, directly move to background.
-        abilityRecord->SetStartToBackground(true);
-        MoveToBackgroundTask(abilityRecord);
+        if (abilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
+            abilityRecord->SetStartToForeground(true);
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+        } else {
+            abilityRecord->SetStartToBackground(true);
+            MoveToBackgroundTask(abilityRecord);
+        }
         return ERR_OK;
     }
 
@@ -937,6 +948,13 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     /* PostTask to trigger start Ability from waiting queue */
     handler->PostTask(startWaitingAbilityTask, "startWaitingAbility", NEXTABILITY_TIMEOUT);
     TerminatePreviousAbility(abilityRecord);
+
+    // new version. started by caller, scheduler call request
+    if (abilityRecord->IsStartedByCall() && abilityRecord->IsStartToForeground() && abilityRecord->IsReady()) {
+        HILOG_DEBUG("call request after completing foreground state");
+        abilityRecord->CallRequest();
+        abilityRecord->SetStartToForeground(false);
+    }
 }
 
 void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -2357,6 +2375,10 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     auto ret = ResolveAbility(targetAbilityRecord, abilityRequest);
     if (ret == ResolveResultType::OK_HAS_REMOTE_OBJ) {
         HILOG_DEBUG("target ability has been resolved.");
+        if (targetAbilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
+            HILOG_DEBUG("target ability needs to be switched to foreground.");
+            DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(targetAbilityRecord->GetToken());
+        }
         return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
         HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
