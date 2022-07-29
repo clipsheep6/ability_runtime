@@ -965,7 +965,6 @@ napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
                 iter->observer->ChangeWorkInt();
                 HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 3 ---");
             } else {
-                iter->observer->ReleaseJSCallback();
                 delete iter;
                 iter = nullptr;
                 HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 4 ---");
@@ -1010,14 +1009,14 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
     HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu", data->NotifyList.size());
 }
 
-void NAPIDataAbilityObserver::ReleaseJSCallback()
+NAPIDataAbilityObserver::~NAPIDataAbilityObserver()
 {
     if (ref_ == nullptr) {
-        HILOG_ERROR("NAPIDataAbilityObserver::ReleaseJSCallback, ref_ is null.");
+        HILOG_ERROR("%{public}s, ref_ is null.", __func__);
         return;
     }
     napi_delete_reference(env_, ref_);
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+    HILOG_INFO("%{public}s, called. end", __func__);
 }
 
 void NAPIDataAbilityObserver::SetAssociatedObject(DAHelperOnOffCB* object)
@@ -1109,7 +1108,6 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
     if (onCB->observer != nullptr) {
         if (onCB->observer->GetWorkInt() == 1) {
-            onCB->observer->ReleaseJSCallback();
             const DAHelperOnOffCB* assicuated = onCB->observer->GetAssociatedObject();
             if (assicuated != nullptr) {
                 HILOG_INFO("OnChange, uv_queue_work ReleaseJSCallback Called");
@@ -3732,7 +3730,6 @@ void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
 
     if (onCB->observer) {
         HILOG_INFO("DeleteDAHelperOnOffCB, call ReleaseJSCallback");
-        onCB->observer->ReleaseJSCallback();
         onCB->observer = nullptr;
     }
     if (onCB->dataAbilityHelper) {
