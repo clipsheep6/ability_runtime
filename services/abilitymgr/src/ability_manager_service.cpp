@@ -108,7 +108,6 @@ const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
 const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
-const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
@@ -348,27 +347,28 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
-    if (callerToken != nullptr) {
-        if (CheckIfOperateRemote(want)) {
-            if (AbilityUtil::IsStartFreeInstall(want)) {
-                return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
-                    freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken);
-            }
-            if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
-                HILOG_INFO("%{public}s: try to StartAbility", __func__);
-                return StartRemoteAbility(want, requestCode);
-            }
-            int32_t missionId = GetMissionIdByAbilityToken(callerToken);
-            if (missionId < 0) {
-                return ERR_INVALID_VALUE;
-            }
-            Want remoteWant = want;
-            remoteWant.SetParam(DMS_MISSION_ID, missionId);
-            HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
-            return StartRemoteAbility(remoteWant, requestCode);
+    if (callerToken != nullptr && CheckIfOperateRemote(want)) {
+        if (AbilityUtil::IsStartFreeInstall(want)) {
+            return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
+                freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken);
         }
+        if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
+            HILOG_INFO("%{public}s: try to StartAbility", __func__);
+            return StartRemoteAbility(want, requestCode);
+        }
+        int32_t missionId = GetMissionIdByAbilityToken(callerToken);
+        if (missionId < 0) {
+            return ERR_INVALID_VALUE;
+        }
+        Want remoteWant = want;
+        remoteWant.SetParam(DMS_MISSION_ID, missionId);
+        HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
+        return StartRemoteAbility(remoteWant, requestCode);
     }
-    if (AbilityUtil::IsStartFreeInstall(want) && freeInstallManager_ != nullptr) {
+    if (AbilityUtil::IsStartFreeInstall(want)) {
+        if (freeInstallManager_ == nullptr) {
+            return ERR_INVALID_VALUE;
+        }
         Want localWant = want;
         if (!localWant.GetDeviceId().empty()) {
             localWant.SetDeviceId("");

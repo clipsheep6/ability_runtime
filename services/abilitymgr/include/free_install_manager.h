@@ -26,8 +26,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-constexpr const char* FREE_INSTALL_TYPE = "freeInstallType";
-constexpr const char* FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
 
 struct FreeInstallInfo {

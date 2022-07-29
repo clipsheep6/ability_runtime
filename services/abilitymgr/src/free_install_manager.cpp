@@ -236,10 +236,6 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             continue;
         }
 
-        if (!isFromRemote && resultCode == ERR_OK) {
-            resultCode = ERR_OK;
-        }
-
         if ((*it).promise != nullptr) {
             HILOG_INFO("Handle apps setvalue done.");
             (*it).promise->set_value(resultCode);
