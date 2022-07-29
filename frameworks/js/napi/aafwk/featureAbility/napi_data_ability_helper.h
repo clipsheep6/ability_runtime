@@ -22,21 +22,19 @@ namespace OHOS {
 namespace AppExecFwk {
 class NAPIDataAbilityObserver : public AAFwk::DataAbilityObserverStub {
 public:
+    virtual ~NAPIDataAbilityObserver();
     void OnChange() override;
     void SetEnv(const napi_env &env);
     void SetCallbackRef(const napi_ref &ref);
-    void ReleaseJSCallback();
 
     void SetAssociatedObject(DAHelperOnOffCB* object);
     const DAHelperOnOffCB* GetAssociatedObject(void);
 
     void ChangeWorkPre();
-    void ChangeWorkRun();
     void ChangeWorkInt();
     void ChangeWorkPreDone();
     void ChangeWorkRunDone();
     int GetWorkPre();
-    int GetWorkRun();
     int GetWorkInt();
 
 private:
@@ -44,7 +42,6 @@ private:
     napi_ref ref_ = nullptr;
     DAHelperOnOffCB* onCB_ = nullptr;
     int workPre_ = 0;
-    int workRun_ = 0;
     int intrust_ = 0;
     std::mutex mutex_;
 };
