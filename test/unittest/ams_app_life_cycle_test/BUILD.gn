@@ -20,8 +20,8 @@ ohos_unittest("AmsAppLifeCycleTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
+    "${systemabilitymgr_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
 
   sources = [
@@ -53,7 +53,7 @@ ohos_unittest("AmsAppLifeCycleTest") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
+    "${systemabilitymgr_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
   ]
 
   external_deps = [
