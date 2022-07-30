@@ -153,10 +153,9 @@ private:
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
     void CallJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability);
-    void CallJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability);
-    void CallWindowStageJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
+    void CallJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
-    void CallWindowStageJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
+    void CallWindowStageJsMethod(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
 };
 }  // namespace AbilityRuntime

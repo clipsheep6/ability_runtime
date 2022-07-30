@@ -31,6 +31,7 @@ int32_t JsEnvironmentCallback::serialNumber_ = 0;
 void JsEnvironmentCallback::CallJsMethodInner(
     const std::string &methodName, const AppExecFwk::Configuration &config)
 {
+    NativeValue *argv[] = { CreateJsConfiguration(*engine_, config) };
     for (auto &callback : callbacks_) {
         if (!callback.second) {
             HILOG_ERROR("Invalid jsCallback");
@@ -50,7 +51,6 @@ void JsEnvironmentCallback::CallJsMethodInner(
             return;
         }
 
-        NativeValue *argv[] = { CreateJsConfiguration(*engine_, config) };
         engine_->CallFunction(value, method, argv, ArraySize(argv));
     }
 }
