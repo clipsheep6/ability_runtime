@@ -30,37 +30,18 @@ int32_t JsAbilityLifecycleCallback::serialNumber_ = 0;
 void JsAbilityLifecycleCallback::CallJsMethodInner(
     const std::string &methodName, const std::shared_ptr<NativeReference> &ability)
 {
-    for (auto &callback : callbacks_) {
-        if (!callback.second) {
-            HILOG_ERROR("Invalid jsCallback");
-            return;
-        }
-
-        auto value = callback.second->Get();
-        auto obj = ConvertNativeValueTo<NativeObject>(value);
-        if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
-            return;
-        }
-
-        auto method = obj->GetProperty(methodName.data());
-        if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
-            return;
-        }
-
-        auto nativeAbilityObj = engine_->CreateNull();
-        if (ability != nullptr) {
-            nativeAbilityObj = ability->Get();
-        }
-
-        NativeValue *argv[] = { nativeAbilityObj };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
-    }
+    CallJsMethodInnerCommon(methodName, ability, nullptr, false);
 }
 
 void JsAbilityLifecycleCallback::CallWindowStageJsMethodInner(const std::string &methodName,
     const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage)
+{
+    CallJsMethodInnerCommon(methodName, ability, windowStage, true);
+}
+
+void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &methodName,
+    const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage,
+    bool isWindowStage)
 {
     for (auto &callback : callbacks_) {
         if (!callback.second) {
@@ -91,8 +72,13 @@ void JsAbilityLifecycleCallback::CallWindowStageJsMethodInner(const std::string 
             nativeWindowStageObj = windowStage->Get();
         }
 
-        NativeValue *argv[] = { nativeAbilityObj, nativeWindowStageObj };
-        engine_->CallFunction(value, method, argv, ArraySize(argv));
+        if (!isWindowStage) {
+            NativeValue *argv[] = { nativeAbilityObj };
+            engine_->CallFunction(value, method, argv, ArraySize(argv));
+        } else {
+            NativeValue *argv[] = { nativeAbilityObj, nativeWindowStageObj };
+            engine_->CallFunction(value, method, argv, ArraySize(argv));
+        }
     }
 }
 

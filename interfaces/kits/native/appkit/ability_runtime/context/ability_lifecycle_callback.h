@@ -158,6 +158,9 @@ private:
         const std::shared_ptr<NativeReference> &windowStage);
     void CallWindowStageJsMethodInner(const std::string &methodName, const std::shared_ptr<NativeReference> &ability,
         const std::shared_ptr<NativeReference> &windowStage);
+    void CallJsMethodInnerCommon(const std::string &methodName,
+        const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage,
+        bool isWindowStage);
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

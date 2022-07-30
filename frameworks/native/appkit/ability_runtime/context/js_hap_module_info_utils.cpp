@@ -40,25 +40,8 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     object->SetProperty("mainElementName", CreateJsValue(engine, hapModuleInfo.mainElementName));
     object->SetProperty("hashValue", CreateJsValue(engine, hapModuleInfo.hashValue));
 
-    NativeValue *capArrayValue = engine.CreateArray(hapModuleInfo.reqCapabilities.size());
-    NativeArray *capArray = ConvertNativeValueTo<NativeArray>(capArrayValue);
-    if (capArray != nullptr) {
-        int index = 0;
-        for (auto cap : hapModuleInfo.reqCapabilities) {
-            capArray->SetElement(index++, CreateJsValue(engine, cap));
-        }
-    }
-    object->SetProperty("reqCapabilities", capArrayValue);
-
-    NativeValue *deviceArrayValue = engine.CreateArray(hapModuleInfo.deviceTypes.size());
-    NativeArray *deviceArray = ConvertNativeValueTo<NativeArray>(deviceArrayValue);
-    if (deviceArray != nullptr) {
-        int index = 0;
-        for (auto device : hapModuleInfo.deviceTypes) {
-            deviceArray->SetElement(index++, CreateJsValue(engine, device));
-        }
-    }
-    object->SetProperty("deviceTypes", deviceArrayValue);
+    SetProperty(engine, object, hapModuleInfo.reqCapabilities, "reqCapabilities");
+    SetProperty(engine, object, hapModuleInfo.deviceTypes, "deviceTypes");
 
     NativeValue *abilityArrayValue = engine.CreateArray(hapModuleInfo.abilityInfos.size());
     NativeArray *abilityArray = ConvertNativeValueTo<NativeArray>(abilityArrayValue);
@@ -91,6 +74,20 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     object->SetProperty("metadata", metadataArrayValue);
 
     return objValue;
+}
+
+void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> properties,
+    const std::string &proName)
+{
+    NativeValue *arrayValue = engine.CreateArray(properties.size());
+    NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    if (array != nullptr) {
+        int index = 0;
+        for (auto propertie : properties) {
+            array->SetElement(index++, CreateJsValue(engine, propertie));
+        }
+    }
+    object->SetProperty(proName.c_str(), arrayValue);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
