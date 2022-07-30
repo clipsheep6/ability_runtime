@@ -19,6 +19,7 @@
 #ifdef WITH_DLP
 #include "ability_record.h"
 #include "dlp_permission_kit.h"
+#include "permission_verification.h"
 #endif // WITH_DLP
 #include "iremote_object.h"
 #include "want.h"
@@ -32,13 +33,17 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
 #ifdef WITH_DLP
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (isSaCall) {
+        return true;
+    }
     if (callerToken == nullptr) {
         return true;
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("Ability has already been destroyed.");
-        return false;
+        return true;
     }
     if (abilityRecord->GetAppIndex() == 0) {
         return true;
