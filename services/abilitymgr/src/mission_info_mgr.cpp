@@ -14,8 +14,13 @@
  */
 
 #include "mission_info_mgr.h"
+
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
+#ifdef SUPPORT_GRAPHICS
+#include "pixel_map.h"
+#include "securec.h"
+#endif
 
 namespace OHOS {
 namespace AAFwk {
@@ -193,14 +198,17 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
     return true;
 }
 
-static bool DoesNotShowInTheMissionList(int32_t startMethod)
+static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 {
-    switch (static_cast<StartMethod>(startMethod)) {
+    bool isStartByCall = false;
+    switch (static_cast<StartMethod>(mission.startMethod)) {
         case StartMethod::START_CALL:
-            return true;
+            isStartByCall = true;
+            break;
         default:
-            return false;
+            isStartByCall = false;
     }
+    return (isStartByCall && !mission.missionInfo.want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false));
 }
 
 int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos)
@@ -216,7 +224,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
             break;
         }
 
-        if (DoesNotShowInTheMissionList(mission.startMethod)) {
+        if (DoesNotShowInTheMissionList(mission)) {
             HILOG_INFO("MissionId[%{public}d] don't show in mission list", mission.missionInfo.id);
             continue;
         }
@@ -246,7 +254,7 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
         return -1;
     }
 
-    if (DoesNotShowInTheMissionList((*it).startMethod)) {
+    if (DoesNotShowInTheMissionList(*it)) {
         HILOG_INFO("MissionId[%{public}d] don't show in mission list", (*it).missionInfo.id);
         return -1;
     }
@@ -432,6 +440,9 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
     }
 
 #ifdef SUPPORT_GRAPHICS
+    if (missionSnapshot.isPrivate) {
+        CreateWhitePixelMap(snapshot);
+    }
     missionSnapshot.snapshot = isLowResolution ?
         MissionDataStorage::GetReducedPixelMap(snapshot.GetPixelMap()) : snapshot.GetPixelMap();
 #endif
@@ -499,5 +510,21 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
     HILOG_INFO("snapshot: storage mission snapshot not exists, create new snapshot");
     return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
 }
+
+#ifdef SUPPORT_GRAPHICS
+void MissionInfoMgr::CreateWhitePixelMap(Snapshot &snapshot) const
+{
+    if (snapshot.GetPixelMap() == nullptr) {
+        HILOG_ERROR("CreateWhitePixelMap error.");
+        return;
+    }
+    int32_t dataLength = snapshot.GetPixelMap()->GetByteCount();
+    const uint8_t *pixelData = snapshot.GetPixelMap()->GetPixels();
+    uint8_t *data = const_cast<uint8_t *>(pixelData);
+    if (memset_s(data, dataLength, 0xff, dataLength) != EOK) {
+        HILOG_ERROR("CreateWhitePixelMap memset_s error.");
+    }
+}
+#endif
 }  // namespace AAFwk
 }  // namespace OHOS

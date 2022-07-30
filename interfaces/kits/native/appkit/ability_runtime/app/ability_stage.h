@@ -52,6 +52,7 @@ public:
     void RemoveAbility(const sptr<IRemoteObject> &token);
     bool ContainsAbility();
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
+    virtual void OnMemoryLevel(int level);
 
 private:
     std::shared_ptr<Context> context_;

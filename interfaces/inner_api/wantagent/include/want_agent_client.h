@@ -73,6 +73,7 @@ private:
     sptr<IRemoteObject> GetAbilityManager();
     void ResetProxy(const wptr<IRemoteObject>& remote);
     bool WriteInterfaceToken(MessageParcel &data);
+    bool CheckSenderAndRecevier(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
 
     std::recursive_mutex mutex_;
     sptr<IRemoteObject> proxy_;

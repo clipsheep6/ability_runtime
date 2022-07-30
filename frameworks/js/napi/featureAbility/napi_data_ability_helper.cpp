@@ -965,7 +965,6 @@ napi_value UnRegisterSync(napi_env env, DAHelperOnOffCB *offCB)
                 iter->observer->ChangeWorkInt();
                 HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 3 ---");
             } else {
-                iter->observer->ReleaseJSCallback();
                 delete iter;
                 iter = nullptr;
                 HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 4 ---");
@@ -1010,14 +1009,14 @@ void FindRegisterObs(napi_env env, DAHelperOnOffCB *data)
     HILOG_INFO("NAPI_UnRegister, FindRegisterObs main event thread execute.end %{public}zu", data->NotifyList.size());
 }
 
-void NAPIDataAbilityObserver::ReleaseJSCallback()
+NAPIDataAbilityObserver::~NAPIDataAbilityObserver()
 {
     if (ref_ == nullptr) {
-        HILOG_ERROR("NAPIDataAbilityObserver::ReleaseJSCallback, ref_ is null.");
+        HILOG_ERROR("%{public}s, ref_ is null.", __func__);
         return;
     }
     napi_delete_reference(env_, ref_);
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+    HILOG_INFO("%{public}s, called. end", __func__);
 }
 
 void NAPIDataAbilityObserver::SetAssociatedObject(DAHelperOnOffCB* object)
@@ -1109,7 +1108,6 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
     if (onCB->observer != nullptr) {
         if (onCB->observer->GetWorkInt() == 1) {
-            onCB->observer->ReleaseJSCallback();
             const DAHelperOnOffCB* assicuated = onCB->observer->GetAssociatedObject();
             if (assicuated != nullptr) {
                 HILOG_INFO("OnChange, uv_queue_work ReleaseJSCallback Called");
@@ -2438,14 +2436,44 @@ void CallExecuteCB(napi_env env, void *data)
     HILOG_INFO("CallExecuteCB, worker pool thread execute end.");
 }
 
+static std::string ExcludeTag(const std::string& jsonString, const std::string& tagString)
+{
+    size_t pos = jsonString.find(tagString);
+    if (pos == std::string::npos) {
+        return jsonString;
+    }
+    std::string valueString = jsonString.substr(pos);
+    pos = valueString.find(":");
+    if (pos == std::string::npos) {
+        return "";
+    }
+    size_t valuePos = pos + 1;
+    while (valuePos < valueString.size()) {
+        if (valueString.at(valuePos) != ' ' && valueString.at(valuePos) != '\t') {
+            break;
+        }
+        valuePos++;
+    }
+    if (valuePos >= valueString.size()) {
+        return "";
+    }
+    valueString = valueString.substr(valuePos);
+    return valueString.substr(0, valueString.size() - 1);
+}
+
 napi_value CallPacMapValue(napi_env env, std::shared_ptr<AppExecFwk::PacMap> result)
 {
     napi_value value = nullptr;
 
     NAPI_CALL(env, napi_create_object(env, &value));
     napi_value napiResult = nullptr;
-    napi_create_string_utf8(env, (result.get()->ToString()).c_str(), NAPI_AUTO_LENGTH, &napiResult);
-    NAPI_CALL(env, napi_set_named_property(env, value, "result", napiResult));
+    if (result != nullptr) {
+        std::string resultWithoutTag = ExcludeTag(result->ToString(), "pacmap");
+        napi_create_string_utf8(env, resultWithoutTag.c_str(), NAPI_AUTO_LENGTH, &napiResult);
+        NAPI_CALL(env, napi_set_named_property(env, value, "result", napiResult));
+    } else {
+        HILOG_ERROR("Return result is nullptr");
+    }
     return value;
 }
 
@@ -3732,7 +3760,6 @@ void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB)
 
     if (onCB->observer) {
         HILOG_INFO("DeleteDAHelperOnOffCB, call ReleaseJSCallback");
-        onCB->observer->ReleaseJSCallback();
         onCB->observer = nullptr;
     }
     if (onCB->dataAbilityHelper) {

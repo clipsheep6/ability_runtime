@@ -22,10 +22,10 @@ namespace OHOS {
 namespace AppExecFwk {
 class NAPIDataAbilityObserver : public AAFwk::DataAbilityObserverStub {
 public:
+    virtual ~NAPIDataAbilityObserver();
     void OnChange() override;
     void SetEnv(const napi_env &env);
     void SetCallbackRef(const napi_ref &ref);
-    void ReleaseJSCallback();
 
     void SetAssociatedObject(DAHelperOnOffCB* object);
     const DAHelperOnOffCB* GetAssociatedObject(void);

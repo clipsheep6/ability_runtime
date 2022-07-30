@@ -29,7 +29,6 @@
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
-#include "application_anr_listener.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -48,6 +47,7 @@
 #include "user_controller.h"
 #include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
+#include "application_anr_listener.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
@@ -1012,6 +1012,10 @@ private:
 
     void SubscribeBackgroundTask();
 
+    int CheckCrowdtestForeground(const Want &want, int requestCode, int32_t userId);
+
+    int StartAppgallery(int requestCode, int32_t userId, std::string action);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1054,9 +1058,9 @@ private:
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
+    std::shared_ptr<ApplicationAnrListener> anrListener_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
-    std::shared_ptr<ApplicationAnrListener> anrListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

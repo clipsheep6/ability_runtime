@@ -62,13 +62,13 @@ void WatchDog::Init(const std::shared_ptr<EventHandler> &mainHandler, const std:
     WatchDog::currentHandler_ = watchDogHandler;
     if (watchDogThread_ == nullptr) {
         watchDogThread_ = std::make_shared<std::thread>(&WatchDog::Timer, this);
-        HILOG_INFO("Watchdog is running!");
+        HILOG_DEBUG("Watchdog is running!");
     }
 }
 
 void WatchDog::Stop()
 {
-    HILOG_INFO("Watchdog is stop !");
+    HILOG_DEBUG("Watchdog is stop !");
     stopWatchDog_.store(true);
     cvWatchDog_.notify_all();
 

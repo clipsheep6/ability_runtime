@@ -92,6 +92,16 @@ void AppLifeCycleDeal::ScheduleTrimMemory(int32_t timeLevel)
     appThread_->ScheduleShrinkMemory(timeLevel);
 }
 
+void AppLifeCycleDeal::ScheduleMemoryLevel(int32_t Level)
+{
+    if (!appThread_) {
+        HILOG_ERROR("appThread_ is nullptr");
+        return;
+    }
+
+    appThread_->ScheduleMemoryLevel(Level);
+}
+
 void AppLifeCycleDeal::LowMemoryWarning()
 {
     if (!appThread_) {

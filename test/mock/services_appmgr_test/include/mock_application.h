@@ -28,6 +28,7 @@ public:
     MOCK_METHOD0(ScheduleTerminateApplication, void());
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
     MOCK_METHOD0(ScheduleLowMemory, void());
+    MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData &, const Configuration &config));
     MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo &, const sptr<IRemoteObject> &,
         const std::shared_ptr<AAFwk::Want> &));

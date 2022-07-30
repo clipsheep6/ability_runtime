@@ -30,6 +30,7 @@
 #include "system_memory_attr.h"
 #include "istart_specified_ability_response.h"
 #include "iconfiguration_observer.h"
+#include "app_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -163,6 +164,15 @@ public:
      */
     virtual AppMgrResultCode GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
 
+    /**
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode NotifyMemoryLevel(MemoryLevel level);
+    
     /**
      * GetConfiguration
      *

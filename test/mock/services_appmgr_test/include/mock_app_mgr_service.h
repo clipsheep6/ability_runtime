@@ -31,6 +31,7 @@ public:
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject> &token, bool clearMissionFlag));
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject> &token, const AbilityState state));
     MOCK_METHOD1(AttachApplication, void(const sptr<IRemoteObject> &app));
+    MOCK_METHOD1(NotifyMemoryLevel, int(int32_t level));
     MOCK_METHOD1(ApplicationForegrounded, void(const int32_t recordId));
     MOCK_METHOD1(ApplicationBackgrounded, void(const int32_t recordId));
     MOCK_METHOD1(ApplicationTerminated, void(const int32_t recordId));

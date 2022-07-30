@@ -59,20 +59,23 @@ int LocalCallContainer::StartAbilityByCallInner(
     HILOG_DEBUG("start ability by call, localCallRecord->AddCaller(callback) end");
 
     auto remote = localCallRecord->GetRemoteObject();
-    if (remote == nullptr) {
-        auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
-        if (abilityClient == nullptr) {
-            HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
-            return ERR_INVALID_VALUE;
-        }
-        sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
-        HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
-        return abilityClient->StartAbilityByCall(want, connect, callerToken);
-    }
     // already finish call request.
-    HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) begin");
-    callback->InvokeCallBack(remote);
-    HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) end");
+    if (remote) {
+        HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) begin");
+        callback->InvokeCallBack(remote);
+        HILOG_DEBUG("start ability by call, callback->InvokeCallBack(remote) end");
+        if (!want.GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
+            return ERR_OK;
+        }
+    }
+    auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
+    if (abilityClient == nullptr) {
+        HILOG_ERROR("LocalCallContainer::Resolve abilityClient is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
+    HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
+    return abilityClient->StartAbilityByCall(want, connect, callerToken);
 
     return ERR_OK;
 }

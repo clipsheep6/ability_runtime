@@ -28,10 +28,7 @@ ohos_moduletest("mission_dump_test") {
   ]
 
   sources = [ "mission_dump_test.cpp" ]
-  sources += [
-    "${ability_runtime_services_path}/common/src/permission_verification.cpp",
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
-  ]
+  sources += [ "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp" ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
   cflags = []
