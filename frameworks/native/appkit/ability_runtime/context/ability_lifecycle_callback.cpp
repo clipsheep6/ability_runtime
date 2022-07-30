@@ -43,6 +43,16 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
     const std::shared_ptr<NativeReference> &ability, const std::shared_ptr<NativeReference> &windowStage,
     bool isWindowStage)
 {
+    auto nativeAbilityObj = engine_->CreateNull();
+    if (ability != nullptr) {
+        nativeAbilityObj = ability->Get();
+    }
+
+    auto nativeWindowStageObj = engine_->CreateNull();
+    if (windowStage != nullptr) {
+        nativeWindowStageObj = windowStage->Get();
+    }
+
     for (auto &callback : callbacks_) {
         if (!callback.second) {
             HILOG_ERROR("Invalid jsCallback");
@@ -60,16 +70,6 @@ void JsAbilityLifecycleCallback::CallJsMethodInnerCommon(const std::string &meth
         if (method == nullptr) {
             HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
             return;
-        }
-
-        auto nativeAbilityObj = engine_->CreateNull();
-        if (ability != nullptr) {
-            nativeAbilityObj = ability->Get();
-        }
-
-        auto nativeWindowStageObj = engine_->CreateNull();
-        if (windowStage != nullptr) {
-            nativeWindowStageObj = windowStage->Get();
         }
 
         if (!isWindowStage) {
