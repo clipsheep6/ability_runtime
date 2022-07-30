@@ -124,6 +124,13 @@ public:
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
 
     /**
+     * @brief Notify current memory level.
+     *
+     * @param level Current memory level.
+     */
+    virtual void OnMemoryLevel(int level);
+
+    /**
      * @brief Called when extension need dump info.
      *
      * @param params The params from service.

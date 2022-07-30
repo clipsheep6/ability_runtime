@@ -342,6 +342,13 @@ public:
     void ScheduleTrimMemory();
 
     /**
+     * ScheduleMemoryLevel, Notifies the application of the current memory.
+     *
+     * @return
+     */
+    void ScheduleMemoryLevel(int32_t level);
+
+    /**
      * GetAbilityRunningRecordByToken, Obtaining the ability record through token.
      *
      * @param token, the unique identification to the ability.

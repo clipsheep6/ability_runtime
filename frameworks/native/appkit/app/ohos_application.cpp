@@ -439,6 +439,25 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
  */
 void OHOSApplication::OnMemoryLevel(int level)
 {
+    HILOG_INFO("OHOSApplication::OnMemoryLevel: called");
+
+    HILOG_DEBUG("Number of ability to be notified : [%{public}d]",
+        static_cast<int>(abilityRecordMgr_->GetRecordCount()));
+    for (const auto &abilityToken : abilityRecordMgr_->GetAllTokens()) {
+        auto abilityRecord = abilityRecordMgr_->GetAbilityItem(abilityToken);
+        if (abilityRecord && abilityRecord->GetAbilityThread()) {
+            abilityRecord->GetAbilityThread()->NotifyMemoryLevel(level);
+        }
+    }
+
+    HILOG_DEBUG("Number of abilityStage to be notified : [%{public}zu]", abilityStages_.size());
+    for (auto it = abilityStages_.begin(); it != abilityStages_.end(); it++) {
+        auto abilityStage = it->second;
+        if (abilityStage) {
+            abilityStage->OnMemoryLevel(level);
+        }
+    }
+
     HILOG_DEBUG("OHOSApplication::OnMemoryLevel: called");
     for (auto callback : elementsCallbacks_) {
         if (callback != nullptr) {
