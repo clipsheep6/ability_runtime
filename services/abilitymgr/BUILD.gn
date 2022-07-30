@@ -135,6 +135,11 @@ ohos_shared_library("abilityms") {
     external_deps += [ "efficiency_manager:suspend_manager_client" ]
   }
 
+  if (os_dlp_part_enabled) {
+    cflags_cc += [ "-DWITH_DLP" ]
+    external_deps += [ "dlp_permission_service:libdlp_permission_sdk" ]
+  }
+
   if (ability_runtime_graphics) {
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
