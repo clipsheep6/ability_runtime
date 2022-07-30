@@ -174,15 +174,18 @@ bool InnerWrapWantParamsShort(
 {
     auto value = wantParams.GetParam(key);
     AAFwk::IShort *ao = AAFwk::IShort::Query(value);
-    if (ao != nullptr) {
-        short natValue = AAFwk::Short::Unbox(ao);
-        napi_value jsValue = WrapInt32ToJS(env, natValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (ao == nullptr) {
+        return false;
     }
-    return false;
+
+    short natValue = AAFwk::Short::Unbox(ao);
+    napi_value jsValue = WrapInt32ToJS(env, natValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsInt32(
@@ -190,15 +193,18 @@ bool InnerWrapWantParamsInt32(
 {
     auto value = wantParams.GetParam(key);
     AAFwk::IInteger *ao = AAFwk::IInteger::Query(value);
-    if (ao != nullptr) {
-        int natValue = AAFwk::Integer::Unbox(ao);
-        napi_value jsValue = WrapInt32ToJS(env, natValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (ao == nullptr) {
+        return false;
     }
-    return false;
+
+    int natValue = AAFwk::Integer::Unbox(ao);
+    napi_value jsValue = WrapInt32ToJS(env, natValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsInt64(
@@ -206,15 +212,18 @@ bool InnerWrapWantParamsInt64(
 {
     auto value = wantParams.GetParam(key);
     AAFwk::ILong *ao = AAFwk::ILong::Query(value);
-    if (ao != nullptr) {
-        int64_t natValue = AAFwk::Long::Unbox(ao);
-        napi_value jsValue = WrapInt64ToJS(env, natValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (ao == nullptr) {
+        return false;
     }
-    return false;
+
+    int64_t natValue = AAFwk::Long::Unbox(ao);
+    napi_value jsValue = WrapInt64ToJS(env, natValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsFloat(
@@ -222,15 +231,18 @@ bool InnerWrapWantParamsFloat(
 {
     auto value = wantParams.GetParam(key);
     AAFwk::IFloat *ao = AAFwk::IFloat::Query(value);
-    if (ao != nullptr) {
-        float natValue = AAFwk::Float::Unbox(ao);
-        napi_value jsValue = WrapDoubleToJS(env, natValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (ao == nullptr) {
+        return false;
     }
-    return false;
+
+    float natValue = AAFwk::Float::Unbox(ao);
+    napi_value jsValue = WrapDoubleToJS(env, natValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsDouble(
@@ -238,15 +250,18 @@ bool InnerWrapWantParamsDouble(
 {
     auto value = wantParams.GetParam(key);
     AAFwk::IDouble *ao = AAFwk::IDouble::Query(value);
-    if (ao != nullptr) {
-        double natValue = AAFwk::Double::Unbox(ao);
-        napi_value jsValue = WrapDoubleToJS(env, natValue);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (ao == nullptr) {
+        return false;
     }
-    return false;
+
+    double natValue = AAFwk::Double::Unbox(ao);
+    napi_value jsValue = WrapDoubleToJS(env, natValue);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsWantParams(
@@ -255,15 +270,18 @@ bool InnerWrapWantParamsWantParams(
     HILOG_DEBUG("%{public}s called. key=%{public}s", __func__, key.c_str());
     auto value = wantParams.GetParam(key);
     AAFwk::IWantParams *o = AAFwk::IWantParams::Query(value);
-    if (o != nullptr) {
-        AAFwk::WantParams wp = AAFwk::WantParamWrapper::Unbox(o);
-        napi_value jsValue = WrapWantParams(env, wp);
-        if (jsValue != nullptr) {
-            NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
-            return true;
-        }
+    if (o == nullptr) {
+        return false;
     }
-    return false;
+
+    AAFwk::WantParams wp = AAFwk::WantParamWrapper::Unbox(o);
+    napi_value jsValue = WrapWantParams(env, wp);
+    if (jsValue == nullptr) {
+        return false;
+    }
+
+    NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
+    return true;
 }
 
 bool InnerWrapWantParamsRemoteObject(
