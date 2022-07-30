@@ -1093,16 +1093,10 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
     for (auto &iter : offCB->DestoryList) {
         HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 1 ---");
         if (iter->observer != nullptr) {
-            if (iter->observer->GetWorkPre() == 1 && iter->observer->GetWorkRun() == 0) {
-                iter->observer->SetAssociatedObject(iter);
-                iter->observer->ChangeWorkInt();
-                HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 3 ---");
-            } else {
-                iter->observer->ReleaseJSCallback();
-                delete iter;
-                iter = nullptr;
-                HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 4 ---");
-            }
+            iter->observer->ReleaseJSCallback();
+            delete iter;
+            iter = nullptr;
+            HILOG_INFO("NAPI_UnRegister ReleaseJSCallback. 2 ---");
         }
     }
 
@@ -1115,77 +1109,21 @@ void UnRegisterCompleteCB(napi_env env, napi_status status, void *data)
 
 void NAPIDataAbilityObserver::ReleaseJSCallback()
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     if (ref_ == nullptr) {
         HILOG_ERROR("NAPIDataAbilityObserver::ReleaseJSCallback, ref_ is null.");
         return;
     }
+
+    if (isCallingback_) {
+        needRelease_ = true;
+        HILOG_WARN("%{public}s, ref_ is calling back.", __func__);
+        return;
+    }
+
     napi_delete_reference(env_, ref_);
+    ref_ = nullptr;
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
-}
-
-void NAPIDataAbilityObserver::SetAssociatedObject(DAHelperOnOffCB* object)
-{
-    onCB_ = object;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
-}
-
-void NAPIDataAbilityObserver::ChangeWorkPre()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called.", __func__);
-    std::lock_guard<std::mutex> lock_l(mutex_);
-    workPre_ = 1;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workPre_);
-}
-void NAPIDataAbilityObserver::ChangeWorkRun()
-{
-    workRun_ = 1;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workRun_);
-}
-void NAPIDataAbilityObserver::ChangeWorkInt()
-{
-    intrust_ = 1;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, intrust_);
-}
-
-void NAPIDataAbilityObserver::ChangeWorkPreDone()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called.", __func__);
-    std::lock_guard<std::mutex> lock_l(mutex_);
-    workPre_ = 0;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workPre_);
-}
-
-void NAPIDataAbilityObserver::ChangeWorkRunDone()
-{
-    workRun_ = 0;
-    intrust_ = 0;
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called end %{public}d %{public}d", __func__, workRun_, intrust_);
-}
-
-int NAPIDataAbilityObserver::GetWorkPre()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called.", __func__);
-    std::lock_guard<std::mutex> lock_l(mutex_);
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, workPre_);
-    return workPre_;
-}
-
-int NAPIDataAbilityObserver::GetWorkInt()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end %{public}d", __func__, intrust_);
-    return intrust_;
-}
-
-int NAPIDataAbilityObserver::GetWorkRun()
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. %{public}d", __func__, workRun_);
-    return workRun_;
-}
-
-const DAHelperOnOffCB* NAPIDataAbilityObserver::GetAssociatedObject(void)
-{
-    HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called.", __func__);
-    return onCB_;
 }
 
 void NAPIDataAbilityObserver::SetEnv(const napi_env &env)
@@ -1212,39 +1150,45 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
         HILOG_ERROR("OnChange, uv_queue_work onCB is nullptr");
         return;
     }
-    NAPIDataAbilityObserver* obs = onCB->observer;
-    onCB->observer = nullptr;
-    if (obs != nullptr) {
-        obs->ChangeWorkRun();
-    }
-    napi_value result[ARGS_TWO] = {0};
-    result[PARAM0] = GetCallbackErrorValue(onCB->cbBase.cbInfo.env, NO_ERROR);
-    napi_value callback = 0;
-    napi_value undefined = 0;
-    napi_get_undefined(onCB->cbBase.cbInfo.env, &undefined);
-    napi_value callResult = 0;
-    napi_get_reference_value(onCB->cbBase.cbInfo.env, onCB->cbBase.cbInfo.callback, &callback);
-    napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
-    if (obs != nullptr) {
-        if (obs->GetWorkInt() == 1) {
-            obs->ReleaseJSCallback();
-            const DAHelperOnOffCB* assicuated = obs->GetAssociatedObject();
-            if (assicuated != nullptr) {
-                HILOG_INFO("OnChange, uv_queue_work ReleaseJSCallback Called");
-                obs->SetAssociatedObject(nullptr);
-                delete assicuated;
-                assicuated = nullptr;
-            }
-        } else {
-            obs->ChangeWorkRunDone();
-            obs->ChangeWorkPreDone();
-        }
-    }
+
+    onCB->observer->CallJsMethod();
     delete onCB;
     onCB = nullptr;
     delete work;
     work = nullptr;
     HILOG_INFO("OnChange, uv_queue_work. end");
+}
+
+void NAPIDataAbilityObserver::CallJsMethod()
+{
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (ref_ == nullptr || env_ == nullptr) {
+            HILOG_WARN("%{public}s observer is invalid.", __func__);
+            return;
+        }
+        isCallingback_ = true;
+    }
+
+    napi_value result[ARGS_TWO] = {0};
+    result[PARAM0] = GetCallbackErrorValue(env_, NO_ERROR);
+    napi_value callback = 0;
+    napi_value undefined = 0;
+    napi_get_undefined(env_, &undefined);
+    napi_value callResult = 0;
+    napi_get_reference_value(env_, ref_, &callback);
+    napi_call_function(env_, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (needRelease_ || ref_ != nullptr) {
+            HILOG_INFO("%{public}s to delete callback.", __func__);
+            napi_delete_reference(env_, ref_);
+            ref_ = nullptr;
+            isCallingback_ = false;
+            needRelease_ = false;
+        }
+    }
 }
 
 void NAPIDataAbilityObserver::OnChange()
@@ -1253,30 +1197,14 @@ void NAPIDataAbilityObserver::OnChange()
         HILOG_ERROR("%{public}s, OnChange ref is nullptr.", __func__);
         return;
     }
-    ChangeWorkPre();
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(env_, &loop);
     if (loop == nullptr) {
         HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
-        ChangeWorkPreDone();
         return;
     }
     uv_work_t *work = new uv_work_t;
-    if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work==nullptr.", __func__);
-        ChangeWorkPreDone();
-        return;
-    }
-    DAHelperOnOffCB *onCB = new (std::nothrow) DAHelperOnOffCB;
-    if (onCB == nullptr) {
-        HILOG_ERROR("%{public}s, onCB == nullptr.", __func__);
-        delete work;
-        work = nullptr;
-        ChangeWorkPreDone();
-        return;
-    }
-    onCB->cbBase.cbInfo.env = env_;
-    onCB->cbBase.cbInfo.callback = ref_;
+    DAHelperOnOffCB *onCB = new DAHelperOnOffCB;
     onCB->observer = this;
     work->data = (void *)onCB;
     int rev = uv_queue_work(
