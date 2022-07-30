@@ -21,7 +21,7 @@ ohos_unittest("dataobs_mgr_client_test") {
 
   include_dirs = [
     "${ability_runtime_services_path}/dataobsmgr/include",
-    "${distributedschedule_path}/safwk/services/safwk/include",
+    "${systemabilitymgr_path}/safwk/services/safwk/include",
   ]
 
   sources = [ "dataobs_mgr_client_test.cpp" ]

@@ -29,7 +29,7 @@ config("appmgr_test_service_config") {
 ohos_source_set("appmgr_test_service") {
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/include",
     "//third_party/jsoncpp/include",
   ]

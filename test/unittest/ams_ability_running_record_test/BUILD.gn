@@ -21,8 +21,8 @@ ohos_unittest("AmsAbilityRunningRecordTest") {
   cflags_cc = []
   include_dirs = [
     "${ability_runtime_innerkits_path}/app_manager/inclide",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${systemabilitymgr_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
 
   sources = [
