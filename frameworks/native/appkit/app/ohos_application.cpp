@@ -23,6 +23,7 @@
 #include "iservice_registry.h"
 #include "runtime.h"
 #include "system_ability_definition.h"
+#include "window.h"
 #include "ability_thread.h"
 
 namespace OHOS {
@@ -411,6 +412,13 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
             abilityStage->OnConfigurationUpdated(config);
         }
     }
+
+#ifdef SUPPORT_GRAPHICS
+    // Notify Window
+    HILOG_INFO("Update configuration for all window.");
+    auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(config);
+    Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
+#endif
 
     for (auto callback : elementsCallbacks_) {
         if (callback != nullptr) {
