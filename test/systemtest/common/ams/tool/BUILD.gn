@@ -17,7 +17,7 @@ config("system_test_ability_util_config") {
   include_dirs = [
     "//third_party/jsoncpp/include",
     "test/systemtest/common/ams/tool/include",
-    "${distributedschedule_path}/safwk/services/safwk/include",
+    "${systemabilitymgr_path}/safwk/services/safwk/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -44,7 +44,7 @@ ohos_shared_library("system_test_ability_util_lib") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/test/moduletest/module_test_dump_util:module_test_dump_util_lib",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/jsoncpp:jsoncpp",
     "//utils/native/base:utils",
   ]

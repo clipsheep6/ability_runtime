@@ -24,7 +24,7 @@
                 "ability_runtime",
                 "hiviewdfx_hilog_native",
                 "ipc",
-                "samgr_standard",
+                "samgr",
                 "utils_base"
             ],
             "third_party": []

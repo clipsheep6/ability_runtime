@@ -26,7 +26,7 @@ config("module_private_config") {
   include_dirs = [
     "//third_party/json/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_test_path}/mock/frameworks_kits_test/AMS",
     "${ability_runtime_services_path}/common/include",
@@ -61,8 +61,8 @@ ohos_moduletest("ability_moduletest") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -113,8 +113,8 @@ ohos_moduletest("ability_conetxt_test") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
@@ -150,7 +150,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -188,8 +188,8 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
@@ -224,7 +224,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_services_path}/dataobsmgr/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
-    "${distributedschedule_path}/samgr/services/samgr/native/include",
+    "${systemabilitymgr_path}/samgr/services/samgr/native/include",
   ]
 
   sources = [ "data_ability_helper_module_test.cpp" ]

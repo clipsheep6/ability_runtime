@@ -20,8 +20,8 @@ ohos_moduletest("call_ability_service_module_test") {
 
   include_dirs = [
     "${ability_runtime_test_path}/moduletest/mock/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
-    "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${systemabilitymgr_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
   ]

@@ -19,7 +19,7 @@ module_output_path = "ability_runtime/dataobsmgr"
 ohos_unittest("dataobs_mgr_service_test") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${distributedschedule_path}/safwk/services/safwk/include" ]
+  include_dirs = [ "${systemabilitymgr_path}/safwk/services/safwk/include" ]
 
   sources = [ "dataobs_mgr_service_test.cpp" ]
 
