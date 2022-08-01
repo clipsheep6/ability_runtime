@@ -23,7 +23,9 @@
 #include "iservice_registry.h"
 #include "runtime.h"
 #include "system_ability_definition.h"
+#ifdef SUPPORT_GRAPHICS
 #include "window.h"
+#endif
 #include "ability_thread.h"
 
 namespace OHOS {
