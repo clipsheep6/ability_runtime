@@ -27,7 +27,10 @@ ohos_moduletest("on_new_want_module_test") {
   ]
 
   sources = [ "on_new_want_module_test.cpp" ]
-  sources += [ "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp" ]
+  sources += [
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "//foundation/distributedhardware/device_manager/test/unittest/mock/parameter.cpp",
+  ]
 
   configs = [
     "${ability_runtime_test_path}/moduletest:aafwk_module_test_config",
