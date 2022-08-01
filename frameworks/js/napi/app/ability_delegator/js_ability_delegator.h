@@ -19,6 +19,7 @@
 #include <string>
 #include "ability_delegator.h"
 #include "ability_monitor.h"
+#include "ability_stage_monitor.h"
 #include "js_ability_delegator_registry.h"
 #include "js_ability_monitor.h"
 #include "want.h"
@@ -77,6 +78,15 @@ public:
      * @return exec result.
      */
     static NativeValue *WaitAbilityMonitor(NativeEngine *engine, NativeCallbackInfo *info);
+
+    /**
+     * Waits for the specified stage monitor.
+     *
+     * @param engine Indicates the native engine.
+     * @param info Indicates the parameters from js.
+     * @return exec result.
+     */
+    static NativeValue *WaitAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info);
 
     /**
      * Prints log information to the console.
@@ -171,7 +181,9 @@ public:
 private:
     NativeValue *OnAddAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnRemoveAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnWaitAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info);
+    NativeValue *OnWaitAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnPrint(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnPrintSync(NativeEngine &engine, NativeCallbackInfo &info);
     NativeValue *OnExecuteShellCommand(NativeEngine &engine, NativeCallbackInfo &info);
@@ -186,13 +198,19 @@ private:
 private:
     NativeValue *CreateAbilityObject(NativeEngine &engine, const sptr<IRemoteObject> &remoteObject);
     NativeValue *ParseMonitorPara(NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityMonitor> &monitor);
+    NativeValue *ParseStageMonitorPara(
+        NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityStageMonitor> &monitor);
     NativeValue *ParseAbilityPara(NativeEngine &engine, NativeValue *value, sptr<OHOS::IRemoteObject> &remoteObject);
     void AbilityLifecycleStateToJs(
         const AbilityDelegator::AbilityState &lifeState, AbilityLifecycleState &abilityLifeState);
     NativeValue *ParseAbilityMonitorPara(
         NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityMonitor> &monitor);
+    NativeValue *ParseAbilityStageMonitorPara(
+        NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityStageMonitor> &monitor);
     NativeValue *ParseWaitAbilityMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
         std::shared_ptr<AbilityMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout);
+    NativeValue *ParseWaitAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+        std::shared_ptr<AbilityStageMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout);
     NativeValue *ParseTimeoutCallbackPara(
         NativeEngine &engine, NativeCallbackInfo &info, TimeoutCallback &opt, int64_t &timeout);
     NativeValue *ParsePrintPara(NativeEngine &engine, NativeCallbackInfo &info, std::string &msg);
