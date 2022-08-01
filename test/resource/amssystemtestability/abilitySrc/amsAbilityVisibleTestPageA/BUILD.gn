@@ -44,9 +44,8 @@ ohos_shared_library("amsAbilityVisibleTestPageA") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "//utils/native/base:utilsbase",
   ]
-  external_deps = [
+  external_deps = ["c_utils:utilsbase",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:wantagent_innerkits",

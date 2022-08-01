@@ -50,7 +50,7 @@ ohos_shared_library("abilitydelegatorregistry") {
     "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module/application"

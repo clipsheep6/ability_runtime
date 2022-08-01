@@ -50,7 +50,7 @@ ohos_moduletest("aa_command_dumpsys_module_test") {
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 }
 

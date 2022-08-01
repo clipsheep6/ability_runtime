@@ -49,7 +49,7 @@ ohos_shared_library("abilitymanager_napi") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module/application"

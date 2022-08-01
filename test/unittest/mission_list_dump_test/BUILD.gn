@@ -32,7 +32,7 @@ ohos_unittest("mission_list_dump_test") {
     "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
