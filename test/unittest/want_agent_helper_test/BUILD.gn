@@ -27,7 +27,7 @@ ohos_unittest("want_agent_helper_test") {
 
   sources = [ "want_agent_helper_test.cpp" ]
 
-  configs = [ "//utils/native/base:utils_config" ]
+  configs = [ "//commonlibrary/c_utils/base:utils_config" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -38,10 +38,9 @@ ohos_unittest("want_agent_helper_test") {
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",

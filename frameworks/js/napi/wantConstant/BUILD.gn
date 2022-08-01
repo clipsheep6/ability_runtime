@@ -40,7 +40,7 @@ ohos_shared_library("wantconstant") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module/ability"

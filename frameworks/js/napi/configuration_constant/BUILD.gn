@@ -23,7 +23,7 @@ ohos_shared_library("configurationconstant_napi") {
   external_deps = [
     "napi:ace_napi",
     "resource_management:global_resmgr",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module/application"

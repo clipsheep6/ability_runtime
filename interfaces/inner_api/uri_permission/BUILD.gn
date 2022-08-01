@@ -44,7 +44,7 @@ ohos_shared_library("uri_permission_mgr") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   subsystem_name = "ability"

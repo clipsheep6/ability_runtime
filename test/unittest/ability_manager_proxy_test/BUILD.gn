@@ -51,10 +51,9 @@ ohos_unittest("ability_manager_proxy_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",

@@ -50,10 +50,9 @@ ohos_unittest("configuration_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",

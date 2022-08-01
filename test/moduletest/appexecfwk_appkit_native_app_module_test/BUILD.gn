@@ -54,10 +54,9 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
@@ -91,10 +90,9 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_second") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
@@ -128,10 +126,9 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_third") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
@@ -165,10 +162,9 @@ ohos_moduletest("appexecfwk_appkit_native_app_module_test_fourth") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",

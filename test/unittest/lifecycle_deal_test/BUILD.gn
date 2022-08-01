@@ -49,10 +49,9 @@ ohos_unittest("lifecycle_deal_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:app_manager",
