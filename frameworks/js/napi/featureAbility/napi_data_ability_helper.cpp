@@ -1080,13 +1080,13 @@ void NAPIDataAbilityObserver::CallJsMethod()
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        if (needRelease_ || ref_ != nullptr) {
+        if (needRelease_ && ref_ != nullptr) {
             HILOG_INFO("%{public}s to delete callback.", __func__);
             napi_delete_reference(env_, ref_);
             ref_ = nullptr;
-            isCallingback_ = false;
             needRelease_ = false;
         }
+        isCallingback_ = false;
     }
 }
 
