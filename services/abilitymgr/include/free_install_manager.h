@@ -128,7 +128,6 @@ private:
      */
     int RemoteFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
 
-    int HandleFreeInstallErrorCode(int resultCode);
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);

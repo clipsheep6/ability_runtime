@@ -80,7 +80,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     HILOG_INFO("StartFreeInstall called");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && !IsTopAbility(callerToken)) {
-        return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
+        return NOT_TOP_ABILITY;
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
     freeInstallList_.push_back(info);
@@ -104,9 +104,9 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     std::future_status status = future.wait_for(std::chrono::milliseconds(DELAY_LOCAL_FREE_INSTALL_TIMEOUT));
     if (status == std::future_status::timeout) {
         info.isInstalled = true;
-        return HandleFreeInstallErrorCode(FREE_INSTALL_TIMEOUT);
+        return FREE_INSTALL_TIMEOUT;
     }
-    return HandleFreeInstallErrorCode(future.get());
+    return future.get();
 }
 
 int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int requestCode,
@@ -116,7 +116,7 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall && !isFromRemote && !IsTopAbility(callerToken)) {
-        return HandleFreeInstallErrorCode(NOT_TOP_ABILITY);
+        return NOT_TOP_ABILITY;
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
     freeInstallList_.push_back(info);
@@ -126,15 +126,15 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
     DistributedClient dmsClient;
     auto result = dmsClient.StartRemoteFreeInstall(info.want, callerUid, info.requestCode, accessToken, callback);
     if (result != ERR_NONE) {
-        return HandleFreeInstallErrorCode(result);
+        return result;
     }
     auto remoteFuture = info.promise->get_future();
     std::future_status remoteStatus = remoteFuture.wait_for(std::chrono::milliseconds(
         DELAY_REMOTE_FREE_INSTALL_TIMEOUT));
     if (remoteStatus == std::future_status::timeout) {
-        return HandleFreeInstallErrorCode(FREE_INSTALL_TIMEOUT);
+        return FREE_INSTALL_TIMEOUT;
     }
-    return HandleFreeInstallErrorCode(remoteFuture.get());
+    return remoteFuture.get();
 }
 
 FreeInstallInfo FreeInstallManager::BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
@@ -276,21 +276,6 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
 
     handler->PostTask(freeInstallTask, "FreeInstallAbilityFromRemote");
     return ERR_OK;
-}
-
-int FreeInstallManager::HandleFreeInstallErrorCode(int resultCode)
-{
-    auto it = FIErrorStrs.find(static_cast<enum NativeFreeInstallError>(resultCode));
-    if (it != FIErrorStrs.end()) {
-        HILOG_ERROR("Error code : %{public}d, info: %{public}s", resultCode, it->second.c_str());
-    }
-
-    auto itToApp = FIErrorToAppMaps.find(static_cast<enum NativeFreeInstallError>(resultCode));
-    if (itToApp == FIErrorToAppMaps.end()) {
-        HILOG_ERROR("Undefind error code.");
-        return NativeFreeInstallError::UNDEFINE_ERROR_CODE;
-    }
-    return itToApp->second;
 }
 
 int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,

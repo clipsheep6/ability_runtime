@@ -23,6 +23,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime_utils.h"
 #include "ability_runtime/js_caller_complex.h"
+#include "napi_common_ability.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -195,8 +196,9 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
                 task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
                 return;
             }
-            auto errcode = (unwrapArgc == 1) ?
+            auto innerErrorCode = (unwrapArgc == 1) ?
                 context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+            ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
             if (errcode == 0) {
                 task.Resolve(engine, engine.CreateUndefined());
             } else {
@@ -247,9 +249,10 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
                     return;
                 }
 
-                auto errcode = (unwrapArgc == INDEX_TWO) ?
+                auto innerErrorCode = (unwrapArgc == INDEX_TWO) ?
                     context->StartAbilityWithAccount(want, accountId, -1) : context->StartAbilityWithAccount(
                         want, accountId, startOptions, -1);
+                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {

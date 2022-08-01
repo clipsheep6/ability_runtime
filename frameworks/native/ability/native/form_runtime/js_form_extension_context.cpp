@@ -24,6 +24,7 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
+#include "napi_common_ability.h"
 #include "napi_common_start_options.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
@@ -150,9 +151,9 @@ private:
                     return;
                 }
 
-                ErrCode errcode = ERR_OK;
                 // entry to the core functionality.
-                errcode = context->StartAbility(want);
+                ErrCode innerErrorCode = context->StartAbility(want);
+                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {

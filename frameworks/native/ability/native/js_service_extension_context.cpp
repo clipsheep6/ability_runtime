@@ -24,6 +24,7 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
+#include "napi_common_ability.h"
 #include "napi_common_want.h"
 #include "napi_common_util.h"
 #include "napi_remote_object.h"
@@ -171,9 +172,10 @@ private:
                     return;
                 }
 
-                ErrCode errcode = ERR_OK;
-                (unwrapArgc == 1) ? errcode = context->StartAbility(want) :
-                    errcode = context->StartAbility(want, startOptions);
+                ErrCode innerErrorCode = ERR_OK;
+                (unwrapArgc == 1) ? innerErrorCode = context->StartAbility(want) :
+                    innerErrorCode = context->StartAbility(want, startOptions);
+                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
@@ -362,9 +364,10 @@ private:
                         return;
                     }
 
-                    ErrCode errcode = ERR_OK;
-                    (unwrapArgc == ARGC_TWO) ? errcode = context->StartAbilityWithAccount(want, accountId) :
-                    errcode = context->StartAbilityWithAccount(want, accountId, startOptions);
+                    ErrCode innerErrorCode = ERR_OK;
+                    (unwrapArgc == ARGC_TWO) ? innerErrorCode = context->StartAbilityWithAccount(want, accountId) :
+                        innerErrorCode = context->StartAbilityWithAccount(want, accountId, startOptions);
+                    ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
                     if (errcode == 0) {
                         task.Resolve(engine, engine.CreateUndefined());
                     } else {
