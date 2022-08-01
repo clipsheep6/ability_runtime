@@ -27,22 +27,13 @@ public:
     void SetCallbackRef(const napi_ref &ref);
     void ReleaseJSCallback();
 
-    void SetAssociatedObject(DAHelperOnOffCB* object);
-    const DAHelperOnOffCB* GetAssociatedObject(void);
-
-    void ChangeWorkPre();
-    void ChangeWorkInt();
-    void ChangeWorkPreDone();
-    void ChangeWorkRunDone();
-    int GetWorkPre();
-    int GetWorkInt();
+    void CallJsMethod();
 
 private:
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
-    DAHelperOnOffCB* onCB_ = nullptr;
-    int workPre_ = 0;
-    int intrust_ = 0;
+    bool isCallingback_ = false;
+    bool needRelease_ = false;
     std::mutex mutex_;
 };
 
