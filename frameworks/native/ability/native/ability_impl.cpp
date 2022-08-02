@@ -617,12 +617,6 @@ void AbilityImpl::WindowLifeCycleImpl::AfterUnfocused()
 void AbilityImpl::WindowLifeCycleImpl::ForegroundFailed()
 {
     HILOG_INFO("%{public}s begin.", __func__);
-    auto owner = owner_.lock();
-    if (owner && !owner->IsStageBasedModel()) {
-        return;
-    }
-
-    HILOG_INFO("The ability is stage mode, schedule foreground failed.");
     PacMap restoreData;
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_,
         AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_FAILED, restoreData);

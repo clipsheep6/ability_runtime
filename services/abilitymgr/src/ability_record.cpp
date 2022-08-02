@@ -222,17 +222,13 @@ bool AbilityRecord::CanRestartRootLauncher()
     return true;
 }
 
-void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, AbilityManagerService::FOREGROUND_TIMEOUT);
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler && task) {
-        handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUND_TIMEOUT);
-    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -259,7 +255,10 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
 
     if (isReady_) {
-        if (IsAbilityState(AbilityState::BACKGROUND)) {
+        if (IsAbilityState(AbilityState::FOREGROUND)) {
+            HILOG_DEBUG("Activate %{public}s", element.c_str());
+            ForegroundAbility(sceneFlag);
+        } else {
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
@@ -270,9 +269,6 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
                 uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
 #endif // EFFICIENCY_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
-        } else {
-            HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
         HILOG_INFO("To load ability.");
@@ -291,7 +287,10 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     HILOG_INFO("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
-        if (IsAbilityState(AbilityState::BACKGROUND)) {
+        if (IsAbilityState(AbilityState::FOREGROUND)) {
+            HILOG_DEBUG("Activate %{public}s", element.c_str());
+            ForegroundAbility(sceneFlag);
+        } else {
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
@@ -301,9 +300,6 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             CancelStartingWindowHotTask();
 
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
-        } else {
-            HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
         HILOG_INFO("SUPPORT_GRAPHICS: to load ability.");
@@ -452,10 +448,10 @@ void AbilityRecord::CancelStartingWindowHotTask()
             abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
             HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
-            abilityRecord->SetStartingWindow(false);
+            // abilityRecord->SetStartingWindow(false);
         }
     };
-    handler->PostTask(delayTask, "CancelStartingWindowHot", AbilityManagerService::FOREGROUND_TIMEOUT);
+    handler->PostTask(delayTask, "CancelStartingWindow", AbilityManagerService::FOREGROUND_TIMEOUT);
 }
 
 void AbilityRecord::CancelStartingWindowColdTask()
@@ -480,10 +476,10 @@ void AbilityRecord::CancelStartingWindowColdTask()
             abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
             HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
-            abilityRecord->SetStartingWindow(false);
+            // abilityRecord->SetStartingWindow(false);
         }
     };
-    handler->PostTask(delayTask, "CancelStartingWindowCold", AbilityManagerService::FOREGROUND_TIMEOUT);
+    handler->PostTask(delayTask, "CancelStartingWindow", AbilityManagerService::FOREGROUND_TIMEOUT);
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const
@@ -614,7 +610,7 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(
     info->maxWindowHeight_ = abilityInfo_.maxWindowHeight;
     info->minWindowHeight_ = abilityInfo_.minWindowHeight;
 
-    SetStartingWindow(true);
+    SetStartingWindow();
     return info;
 }
 
@@ -746,6 +742,24 @@ bool AbilityRecord::IsForeground() const
 void AbilityRecord::SetAbilityState(AbilityState state)
 {
     currentState_ = state;
+    if (state == AbilityState::FOREGROUND) {
+        states_.emplace_back("foreground");
+    } else if (state == AbilityState::INITIAL) {
+        states_.emplace_back("initial");
+    } else if (state == AbilityState::BACKGROUND) {
+        states_.emplace_back("background");
+    } else if (state == AbilityState::FOREGROUNDING) {
+        states_.emplace_back("foregrounding");
+    } else if (state == AbilityState::BACKGROUNDING) {
+        states_.emplace_back("backgrounding");
+    } else if (state == AbilityState::FOREGROUND_FAILED) {
+        states_.emplace_back("foreground_failed");
+    } else if (state == AbilityState::FOREGROUND_INVALID_MODE) {
+        states_.emplace_back("foreground_invalid_mode");
+    }
+    for (auto state : states_) {
+        HILOG_ERROR("%{public}s state is %{public}s", __func__, state.c_str());
+    }
     if (state == AbilityState::FOREGROUND || state == AbilityState::ACTIVE) {
         SetRestarting(false);
     }
@@ -1991,6 +2005,42 @@ void AbilityRecord::SetWindowMode(int32_t windowMode)
 void AbilityRecord::RemoveWindowMode()
 {
     want_.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
+}
+
+void AbilityRecord::SetInitialToMinimize()
+{
+    std::lock_guard<std::mutex> testLock(testMutex_);
+    initialToMinimize_++;
+    HILOG_ERROR("%{public}s: initialToMinimize_ : %{public}d", __func__, initialToMinimize_);
+}
+
+bool AbilityRecord::IsInitialToMinimize()
+{
+    std::lock_guard<std::mutex> testLock(testMutex_);
+    if (initialToMinimize_ == 0) {
+        return false;
+    }
+    initialToMinimize_--;
+    HILOG_ERROR("%{public}s: initialToMinimize_ : %{public}d", __func__, initialToMinimize_);
+    return true;
+}
+
+bool AbilityRecord::IsStartingWindow()
+{
+    std::lock_guard<std::mutex> testLock(startingWindowMutex_);
+    if (isStartingWindow_ == 0) {
+        return false;
+    }
+    isStartingWindow_--;
+    HILOG_ERROR("%{public}s: isStartingWindow_ : %{public}d", __func__, isStartingWindow_);
+    return true;
+}
+
+void AbilityRecord::SetStartingWindow()
+{
+    std::lock_guard<std::mutex> testLock(startingWindowMutex_);
+    isStartingWindow_++;
+    HILOG_ERROR("%{public}s: isStartingWindow_ : %{public}d", __func__, isStartingWindow_);
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
