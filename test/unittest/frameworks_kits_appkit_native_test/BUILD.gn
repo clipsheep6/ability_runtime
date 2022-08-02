@@ -73,9 +73,9 @@ ohos_unittest("context_deal_interface_test") {
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -111,8 +111,8 @@ ohos_unittest("application_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -146,8 +146,8 @@ ohos_unittest("context_container_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -180,9 +180,9 @@ ohos_unittest("context_deal_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -216,8 +216,8 @@ ohos_unittest("application_impl_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -236,7 +236,7 @@ config("ability_start_setting_config") {
   visibility = [ ":*" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "//utils/native/base/include",
+    "//commonlibrary/c_utils/base/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
   ]
 }
@@ -256,9 +256,9 @@ ohos_unittest("ability_start_setting_test") {
 
   deps = [
     "${ability_runtime_native_path}/appkit:appkit_native",
+    "//commonlibrary/c_utils/base:utils",
+    "//commonlibrary/c_utils/base:utilsbase",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-    "//utils/native/base:utilsbase",
   ]
 
   external_deps = [
@@ -281,9 +281,9 @@ ohos_unittest("watchdog_test") {
 
   deps = [
     "${ability_runtime_native_path}/appkit:appkit_native",
+    "//commonlibrary/c_utils/base:utils",
+    "//commonlibrary/c_utils/base:utilsbase",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-    "//utils/native/base:utilsbase",
   ]
 
   external_deps = [

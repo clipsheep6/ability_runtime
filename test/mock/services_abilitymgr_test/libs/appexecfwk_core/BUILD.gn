@@ -40,7 +40,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
+    "//commonlibrary/c_utils/base:utils",
   ]
 
   external_deps = [
@@ -69,9 +69,9 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
   deps = [
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [

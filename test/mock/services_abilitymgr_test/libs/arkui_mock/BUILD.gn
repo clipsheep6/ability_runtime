@@ -37,9 +37,9 @@ ohos_source_set("arkui_mock") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [

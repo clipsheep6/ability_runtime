@@ -58,7 +58,7 @@ ohos_shared_library("wantagent_innerkits") {
     "src/want_agent_log_wrapper.cpp",
   ]
 
-  configs = [ "//utils/native/base:utils_config" ]
+  configs = [ "//commonlibrary/c_utils/base:utils_config" ]
 
   public_configs = [ ":wantagent_innerkits_public_config" ]
 

@@ -58,9 +58,9 @@ ohos_unittest("shell_cmd_result_unittest") {
 
   deps = [
     "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
@@ -209,9 +209,9 @@ ohos_unittest("js_test_runner_unittest") {
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "//arkcompiler/ets_runtime:libark_jsruntime",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
