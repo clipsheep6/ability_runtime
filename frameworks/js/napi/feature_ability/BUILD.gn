@@ -32,10 +32,10 @@ ohos_shared_library("featureability_napi") {
     "ability_base:zuri",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module"

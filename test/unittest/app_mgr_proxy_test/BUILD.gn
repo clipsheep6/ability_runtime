@@ -33,8 +33,8 @@ ohos_unittest("AppMgrProxyTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
+    "c_utils:utils",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 

@@ -34,9 +34,9 @@ ohos_benchmarktest("BenchmarkTestForMissionManager") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
   resource_config_file =
       "${form_fwk_path}/test/resource/benchmark/ohos_test.xml"
