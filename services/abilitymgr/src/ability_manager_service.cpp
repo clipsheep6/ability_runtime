@@ -321,12 +321,14 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
 
+    HILOG_DEBUG("fsy555");
     int32_t ret = StartAbilityInner(want, callerToken, requestCode, -1, userId);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
     }
+    HILOG_DEBUG("fsy666");
     return ret;
 }
 
@@ -364,6 +366,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t oriValidUserId = GetValidUserId(userId);
     int32_t validUserId = oriValidUserId;
 
+    HILOG_DEBUG("fsy777");
     if (callerToken != nullptr && CheckIfOperateRemote(want)) {
         if (AbilityUtil::IsStartFreeInstall(want)) {
             return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
@@ -382,6 +385,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
         return StartRemoteAbility(remoteWant, requestCode);
     }
+    HILOG_DEBUG("fsy888");
     if (AbilityUtil::IsStartFreeInstall(want)) {
         if (freeInstallManager_ == nullptr) {
             return ERR_INVALID_VALUE;
@@ -390,12 +394,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (!localWant.GetDeviceId().empty()) {
             localWant.SetDeviceId("");
         }
+        HILOG_DEBUG("fsy999");
         int32_t ret = freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken);
         if (ret != ERR_OK) {
             HILOG_DEBUG("StartFreeInstall ret : %{public}d", ret);
             return ret;
         }
     }
+    HILOG_DEBUG("fsy0100");
 
     if (!JudgeMultiUserConcurrency(validUserId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -3428,22 +3434,30 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
     HILOG_INFO("VerificationAllToken.");
     std::shared_lock<std::shared_mutex> lock(managersMutex_);
     for (auto item: missionListManagers_) {
+        HILOG_DEBUG("fsy00006");
         if (item.second && item.second->GetAbilityRecordByToken(token)) {
             return true;
         }
 
+        HILOG_DEBUG("fsy00007");
         if (item.second && item.second->GetAbilityFromTerminateList(token)) {
             return true;
         }
     }
 
     for (auto item: dataAbilityManagers_) {
+        HILOG_DEBUG("fsy00008");
         if (item.second && item.second->GetAbilityRecordByToken(token)) {
             return true;
         }
+        if (!item.second) {
+            HILOG_DEBUG("item.second == nullptr");
+        }
+        HILOG_DEBUG("GetAbilityRecordByToken ret is nullptr");
     }
 
     for (auto item: connectManagers_) {
+        HILOG_DEBUG("fsy00009");
         if (item.second && item.second->GetServiceRecordByToken(token)) {
             return true;
         }

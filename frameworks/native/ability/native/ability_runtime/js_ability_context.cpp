@@ -196,6 +196,7 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
                 task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
                 return;
             }
+            HILOG_DEBUG("fsy111");
             auto innerErrorCode = (unwrapArgc == 1) ?
                 context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
             ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
@@ -204,12 +205,15 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
             } else {
                 task.Reject(engine, CreateJsError(engine, errcode, "Start Ability failed."));
             }
+            HILOG_DEBUG("fsy222");
         };
 
     NativeValue* lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
     NativeValue* result = nullptr;
+    HILOG_DEBUG("fsy333");
     AsyncTask::Schedule("JsAbilityContext::OnStartAbility",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+    HILOG_DEBUG("fsy444");
     return result;
 }
 

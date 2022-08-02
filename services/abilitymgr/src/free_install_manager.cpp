@@ -100,12 +100,14 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     }
     info.want.RemoveParam(FREE_INSTLL_CALLING_APP_ID);
     info.want.RemoveParam(FREE_INSTLL_CALLING_BUNDLENAMES);
+    HILOG_DEBUG("fsy0200");
     auto future = info.promise->get_future();
     std::future_status status = future.wait_for(std::chrono::milliseconds(DELAY_LOCAL_FREE_INSTALL_TIMEOUT));
     if (status == std::future_status::timeout) {
         info.isInstalled = true;
         return FREE_INSTALL_TIMEOUT;
     }
+    HILOG_DEBUG("fsy0300");
     return future.get();
 }
 
