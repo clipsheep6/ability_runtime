@@ -96,6 +96,11 @@ ohos_moduletest("running_infos_module_test") {
     external_deps += [ "efficiency_manager:suspend_manager_client" ]
   }
 
+  if (resource_schedule_service_enable) {
+    cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
