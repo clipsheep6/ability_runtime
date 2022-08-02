@@ -113,6 +113,7 @@ const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+const std::string IS_DLP_FLAG = "ohos.dlp.params.isDlp";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -244,7 +245,6 @@ bool AbilityManagerService::Init()
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     anrListener_ = std::make_shared<ApplicationAnrListener>();
-    HILOG_INFO("SetAnrObserver come, pid is %{public}d", getpid());
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
@@ -2891,6 +2891,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+        (const_cast<Want &>(want)).SetParam(IS_DLP_FLAG, true);
     }
     request.want = want;
     request.requestCode = requestCode;
@@ -2968,6 +2969,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
+        (const_cast<Want &>(want)).SetParam(IS_DLP_FLAG, true);
     }
     request.want = want;
     request.callerToken = callerToken;

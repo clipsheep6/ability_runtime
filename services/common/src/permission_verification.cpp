@@ -26,6 +26,7 @@ namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string DMS_PROCESS_NAME = "distributedsched";
+const std::string IS_DLP_FLAG = "ohos.dlp.params.isDlp";
 bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName)
 {
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
@@ -99,6 +100,11 @@ bool PermissionVerification::VerifyControllerPerm()
 
 bool PermissionVerification::VerifyDlpPermission(Want &want)
 {
+    if (want.GetBoolParam(IS_DLP_FLAG, false)) {
+        want.RemoveParam(IS_DLP_FLAG);
+        return true;
+    }
+
     if (want.GetIntParam(DLP_PARAMS_INDEX, 0) == 0) {
         want.RemoveParam(DLP_PARAMS_SECURITY_FLAG);
         return true;
