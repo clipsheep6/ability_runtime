@@ -35,7 +35,7 @@ ohos_shared_library("featureability_napi") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module"

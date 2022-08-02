@@ -41,7 +41,7 @@ ohos_fuzztest("WantAgentHelperTriggerFuzzTest") {
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
     "ipc:ipc_core",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 }
 

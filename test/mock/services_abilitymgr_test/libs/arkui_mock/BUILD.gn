@@ -39,10 +39,9 @@ ohos_source_set("arkui_mock") {
   deps = [
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",

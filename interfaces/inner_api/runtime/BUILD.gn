@@ -73,7 +73,7 @@ ohos_shared_library("runtime") {
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
     "resource_management:global_resmgr",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   if (is_standard_system) {
