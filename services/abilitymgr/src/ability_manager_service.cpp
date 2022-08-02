@@ -244,6 +244,7 @@ bool AbilityManagerService::Init()
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     anrListener_ = std::make_shared<ApplicationAnrListener>();
+    HILOG_INFO("SetAnrObserver come, pid is %{public}d", getpid());
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
