@@ -44,6 +44,7 @@ init_path = "//base/startup/init"
 
 declare_args() {
   background_task_mgr_continuous_task_enable = true
+  resource_schedule_service_enable = true
   distributed_data_object_enable = true
   ability_runtime_graphics = true
   ability_runtime_power = true
@@ -63,6 +64,11 @@ declare_args() {
   if (defined(global_parts_info) &&
       !defined(global_parts_info.resourceschedule_background_task_mgr)) {
     background_task_mgr_continuous_task_enable = false
+  }
+
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.resourceschedule_resource_schedule_service)) {
+    resource_schedule_service_enable = false
   }
 
   if (defined(global_parts_info) &&

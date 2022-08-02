@@ -70,6 +70,11 @@
 #include "suspend_manager_client.h"
 #endif // EFFICIENCY_MANAGER_ENABLE
 
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+#include "res_sched_client.h"
+#include "res_type.h"
+#endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
+
 using OHOS::AppExecFwk::ElementName;
 using OHOS::Security::AccessToken::AccessTokenKit;
 
@@ -470,6 +475,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("missionListManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+    ReportAbilitStartInfoToRSS(abilityInfo);
 #ifdef EFFICIENCY_MANAGER_ENABLE
     auto bms = AbilityUtil::GetBundleManager();
     if (bms) {
@@ -851,6 +857,23 @@ void AbilityManagerService::SubscribeBackgroundTask()
         }
     };
     handler_->PostTask(subscribeBackgroundTask, "SubscribeBackgroundTask");
+#endif
+}
+
+void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo)
+{
+#ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
+    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
+        std::unordered_map<std::string, std::string> eventParams {
+            { "name", "ability_start" },
+            { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
+            { "bundleName", abilityInfo.applicationInfo.bundleName },
+            { "abilityName", abilityInfo.name }
+        };
+        ResourceSchedule::ResSchedClient::GetInstance().ReportData(
+            ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, 0, eventParams);
+    }
 #endif
 }
 
