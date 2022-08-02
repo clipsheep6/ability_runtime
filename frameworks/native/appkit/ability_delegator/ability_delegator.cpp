@@ -48,6 +48,21 @@ void AbilityDelegator::AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> 
     abilityMonitors_.emplace_back(monitor);
 }
 
+void AbilityDelegator::AddAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
+{
+    if (!monitor) {
+        HILOG_WARN("Invalid input parameter");
+        return;
+    }
+    std::unique_lock<std::mutex> lck(mutexStageMonitor_);
+    auto pos = std::find(abilityStageMonitors_.begin(), abilityStageMonitors_.end(), monitor);
+    if (pos != abilityStageMonitors_.end()) {
+        HILOG_WARN("Stage monitor has been added");
+        return;
+    }
+    abilityStageMonitors_.emplace_back(monitor);
+}
+
 void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor)
 {
     if (!monitor) {
@@ -59,6 +74,19 @@ void AbilityDelegator::RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonito
     auto pos = std::find(abilityMonitors_.begin(), abilityMonitors_.end(), monitor);
     if (pos != abilityMonitors_.end()) {
         abilityMonitors_.erase(pos);
+    }
+}
+
+void AbilityDelegator::RemoveAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor)
+{
+    if (!monitor) {
+        HILOG_WARN("Invalid input parameter");
+        return;
+    }
+    std::unique_lock<std::mutex> lck(mutexStageMonitor_);
+    auto pos = std::find(abilityStageMonitors_.begin(), abilityStageMonitors_.end(), monitor);
+    if (pos != abilityStageMonitors_.end()) {
+        abilityStageMonitors_.erase(pos);
     }
 }
 
@@ -93,6 +121,23 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
     return obtainedAbility;
 }
 
+std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStageMonitor(
+    const std::shared_ptr<IAbilityStageMonitor> &monitor)
+{
+    if (!monitor) {
+        HILOG_WARN("Invalid monitor for waiting abilityStage");
+        return {};
+    }
+
+    AddAbilityStageMonitor(monitor);
+    auto stage = monitor->WaitForAbilityStage();
+    if (!stage) {
+        HILOG_WARN("Invalid obtained abilityStage");
+        return {};
+    }
+    return stage;
+}
+
 std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
     const std::shared_ptr<IAbilityMonitor> &monitor, const int64_t timeoutMs)
 {
@@ -110,6 +155,22 @@ std::shared_ptr<ADelegatorAbilityProperty> AbilityDelegator::WaitAbilityMonitor(
     }
 
     return obtainedAbility;
+}
+
+std::shared_ptr<DelegatorAbilityStageProperty> AbilityDelegator::WaitAbilityStageMonitor(
+    const std::shared_ptr<IAbilityStageMonitor> &monitor, const int64_t timeoutMs)
+{
+    if (!monitor) {
+        HILOG_WARN("Invalid monitor for waiting abilityStage with timeout");
+        return {};
+    }
+    AddAbilityStageMonitor(monitor);
+    auto stage = monitor->WaitForAbilityStage(timeoutMs);
+    if (!stage) {
+        HILOG_WARN("Invalid obtained abilityStage");
+        return {};
+    }
+    return stage;
 }
 
 std::shared_ptr<AbilityRuntime::Context> AbilityDelegator::GetAppContext() const
@@ -309,6 +370,28 @@ void AbilityDelegator::PostPerformStart(const std::shared_ptr<ADelegatorAbilityP
         if (monitor->Match(ability, true)) {
             monitor->OnAbilityStart(ability->object_);
         }
+    }
+}
+
+void AbilityDelegator::PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage)
+{
+    HILOG_INFO("Enter");
+    if (!abilityStage) {
+        HILOG_WARN("Invalid input parameter");
+        return;
+    }
+
+    std::unique_lock<std::mutex> lck(mutexStageMonitor_);
+    if (abilityStageMonitors_.empty()) {
+        HILOG_WARN("Empty abilityStageMonitors");
+        return;
+    }
+
+    for (auto &monitor : abilityStageMonitors_) {
+        if (!monitor) {
+            continue;
+        }
+        monitor->Match(abilityStage, true);
     }
 }
 
