@@ -103,24 +103,12 @@ ErrCode WantAgentClient::SendWantSender(const sptr<IWantSender> &target, const S
 
 void WantAgentClient::CancelWantSender(const sptr<IWantSender> &sender)
 {
+    CHECK_POINTER_LOG(sender, "sender is nullptr");
     auto abms = GetAbilityManager();
-    if (!abms) {
-        HILOG_ERROR("ability proxy is nullptr.");
-        return;
-    }
-    MessageParcel data;
+    CHECK_POINTER_LOG(abms, "ability proxy is nullptr.");
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-    if (sender == nullptr || !data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
-        return;
-    }
-    auto error = abms->SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+    if (!SendRequest(IAbilityManager::CANCEL_PENDING_WANT_SENDER, abms, sender->AsObject(), reply, error)) {
         return;
     }
 }
@@ -130,20 +118,10 @@ ErrCode WantAgentClient::GetPendingWantUid(const sptr<IWantSender> &target, int3
     CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
-    MessageParcel data;
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_UID, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return INNER_ERR;
+    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_UID, abms, target->AsObject(), reply, error)) {
+        return error;
     }
     uid = reply.ReadInt32();
     return ERR_OK;
@@ -154,20 +132,10 @@ ErrCode WantAgentClient::GetPendingWantUserId(const sptr<IWantSender> &target, i
     CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
-    MessageParcel data;
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_USERID, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return INNER_ERR;
+    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_USERID, abms, target->AsObject(), reply, error)) {
+        return error;
     }
     userId = reply.ReadInt32();
     return ERR_OK;
@@ -178,20 +146,10 @@ ErrCode WantAgentClient::GetPendingWantBundleName(const sptr<IWantSender> &targe
     CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
-    MessageParcel data;
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
-        return INNER_ERR;
-    }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return INNER_ERR;
+    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_BUNDLENAME, abms, target->AsObject(), reply, error)) {
+        return error;
     }
     bundleName = Str16ToStr8(reply.ReadString16());
     return ERR_OK;
@@ -202,20 +160,10 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
     CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
-    MessageParcel data;
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return INNER_ERR;
+    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_CODE, abms, target->AsObject(), reply, error)) {
+        return error;
     }
     code = reply.ReadInt32();
     return ERR_OK;
@@ -226,20 +174,10 @@ ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int
     CHECK_POINTER_AND_RETURN(target, INVALID_PARAMETERS_ERR);
     auto abms = GetAbilityManager();
     CHECK_POINTER_AND_RETURN(abms, ABILITY_SERVICE_NOT_CONNECTED);
-    MessageParcel data;
+    ErrCode error;
     MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
-        return ERR_INVALID_VALUE;
-    }
-    auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return INNER_ERR;
+    if (!SendRequest(IAbilityManager::GET_PENDING_WANT_TYPE, abms, target->AsObject(), reply, error)) {
+        return error;
     }
     type = reply.ReadInt32();
     type < 0 ? type = 0 : type;
@@ -443,6 +381,30 @@ bool WantAgentClient::CheckSenderAndRecevier(const sptr<IWantSender> &sender, co
     }
     if (receiver == nullptr) {
         HILOG_ERROR("receiver is nullptr.");
+        return false;
+    }
+
+    return true;
+}
+
+bool WantAgentClient::SendRequest(int32_t operation, const sptr<IRemoteObject> &abms,
+    const sptr<IRemoteObject> &remoteObject, MessageParcel &reply, ErrCode &error)
+{
+    MessageParcel data;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        error = INNER_ERR;
+        return false;
+    }
+    if (!data.WriteRemoteObject(remoteObject)) {
+        HILOG_ERROR("write failed.");
+        error = ERR_INVALID_VALUE;
+        return false;
+    }
+    error = abms->SendRequest(operation, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        error = INNER_ERR;
         return false;
     }
 
