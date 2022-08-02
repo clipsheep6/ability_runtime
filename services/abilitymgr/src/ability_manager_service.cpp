@@ -113,7 +113,6 @@ const std::string FREE_INSTALL_TYPE_KEY = "freeInstallType";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
-const std::string IS_DLP_FLAG = "ohos.dlp.params.isDlp";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -328,7 +327,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
@@ -486,7 +485,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
 
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -638,7 +637,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY,
         HiSysEventType::BEHAVIOR, eventInfo);
 
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -846,7 +845,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     eventInfo.extensionType = (int32_t)extensionType;
     AAFWK::EventReport::SendExtensionEvent(AAFWK::START_SERVICE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
@@ -941,7 +940,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
     eventInfo.extensionType = (int32_t)extensionType;
     AAFWK::EventReport::SendExtensionEvent(AAFWK::STOP_SERVICE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed.", __func__);
@@ -1358,7 +1357,7 @@ int AbilityManagerService::ConnectAbility(
     AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE, HiSysEventType::BEHAVIOR,
         eventInfo);
 
-    if (!PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want)) ||
+    if (!DlpUtils::OtherAppsAccessDlpCheck(callerToken, want) ||
         VerifyAccountPermission(userId) == CHECK_PERMISSION_FAILED ||
         !DlpUtils::DlpAccessOtherAppsCheck(callerToken, want)) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
@@ -2891,7 +2890,6 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
-        (const_cast<Want &>(want)).SetParam(IS_DLP_FLAG, true);
     }
     request.want = want;
     request.requestCode = requestCode;
@@ -2969,7 +2967,6 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     if (abilityRecord && abilityRecord->GetAppIndex() != 0 &&
         abilityRecord->GetApplicationInfo().bundleName == want.GetElement().GetBundleName()) {
         (const_cast<Want &>(want)).SetParam(DLP_INDEX, abilityRecord->GetAppIndex());
-        (const_cast<Want &>(want)).SetParam(IS_DLP_FLAG, true);
     }
     request.want = want;
     request.callerToken = callerToken;
