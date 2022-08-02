@@ -64,7 +64,7 @@ ohos_shared_library("particleability") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   relative_install_dir = "module/ability"

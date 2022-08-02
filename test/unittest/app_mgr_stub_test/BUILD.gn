@@ -35,7 +35,7 @@ ohos_unittest("AppMgrStubTest") {
     "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "ipc:ipc_core",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 }
 

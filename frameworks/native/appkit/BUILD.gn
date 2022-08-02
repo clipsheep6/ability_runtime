@@ -138,7 +138,7 @@ ohos_shared_library("appkit_native") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -196,7 +196,7 @@ ohos_shared_library("app_context") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -256,7 +256,7 @@ ohos_shared_library("app_context_utils") {
     "napi:ace_napi",
     "resource_management:resmgr_napi_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -322,7 +322,7 @@ ohos_shared_library("appkit_delegator") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   public_deps = [ "//foundation/arkui/napi:ace_napi" ]

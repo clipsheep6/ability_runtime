@@ -47,9 +47,8 @@ ohos_shared_library("amsDataSystemTestB") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utilsbase",
   ]
-  external_deps = [
+  external_deps = ["c_utils:utilsbase",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",

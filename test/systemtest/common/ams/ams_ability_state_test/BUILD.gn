@@ -60,10 +60,9 @@ ohos_systemtest("ams_ability_state_test") {
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",

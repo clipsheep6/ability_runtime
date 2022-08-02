@@ -55,7 +55,7 @@ ohos_source_set("tools_fm_source_set") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   subsystem_name = "ability"

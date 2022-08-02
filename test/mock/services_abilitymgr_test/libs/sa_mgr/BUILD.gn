@@ -34,10 +34,9 @@ ohos_source_set("sa_mgr_mock") {
 
   deps = [
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [
+  external_deps = ["c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

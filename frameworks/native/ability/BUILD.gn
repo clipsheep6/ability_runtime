@@ -61,7 +61,7 @@ ohos_shared_library("ability_context_native") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
+    "c_utils:utils",
   ]
 
   subsystem_name = "ability"
