@@ -30,6 +30,7 @@
 
 #include "ability_delegator_infos.h"
 #include "iability_monitor.h"
+#include "iability_stage_monitor.h"
 #include "delegator_thread.h"
 #include "shell_cmd_result.h"
 #include "test_runner.h"
@@ -94,11 +95,25 @@ public:
     void AddAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor);
 
     /**
+     * Adds monitor for monitoring the lifecycle state changes of the abilityStage.
+     *
+     * @param monitor, Indicates the stage monitor object.
+     */
+    void AddAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor);
+
+    /**
      * Removes ability monitor.
      *
      * @param monitor, Indicates the specified monitor object.
      */
     void RemoveAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor);
+
+    /**
+     * Removes abilityStage monitor.
+     *
+     * @param monitor, Indicates the specified stage monitor object.
+     */
+    void RemoveAbilityStageMonitor(const std::shared_ptr<IAbilityStageMonitor> &monitor);
 
     /**
      * Clears all monitors.
@@ -121,6 +136,15 @@ public:
     std::shared_ptr<ADelegatorAbilityProperty> WaitAbilityMonitor(const std::shared_ptr<IAbilityMonitor> &monitor);
 
     /**
+     * Waits for the specified monitor and return the obtained abilityStage.
+     *
+     * @param monitor, Indicates the specified stage monitor object.
+     * @return the obtained abilityStage.
+     */
+    std::shared_ptr<DelegatorAbilityStageProperty> WaitAbilityStageMonitor(
+        const std::shared_ptr<IAbilityStageMonitor> &monitor);
+
+    /**
      * Waits for the specified monitor within the timeout time and return the obtained ability.
      *
      * @param monitor, Indicates the specified monitor object.
@@ -129,6 +153,16 @@ public:
      */
     std::shared_ptr<ADelegatorAbilityProperty> WaitAbilityMonitor(
         const std::shared_ptr<IAbilityMonitor> &monitor, const int64_t timeoutMs);
+
+    /**
+     * Waits for the specified monitor within the timeout time and return the obtained abilityStage.
+     *
+     * @param monitor, Indicates the specified stage monitor object.
+     * @param timeoutMs, Indicates the specified time out time, in milliseconds.
+     * @return the obtained abilityStage.
+     */
+    std::shared_ptr<DelegatorAbilityStageProperty> WaitAbilityStageMonitor(
+        const std::shared_ptr<IAbilityStageMonitor> &monitor, const int64_t timeoutMs);
 
     /**
      * Obtains the application context.
@@ -217,6 +251,8 @@ public:
      */
     void PostPerformStart(const std::shared_ptr<ADelegatorAbilityProperty> &ability);
 
+    void PostPerformStageStart(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage);
+
     /**
      * Saves ability properties when scence is created and notify monitors of state changes.
      *
@@ -294,11 +330,13 @@ private:
     std::unique_ptr<DelegatorThread> delegatorThread_;
     std::list<std::shared_ptr<ADelegatorAbilityProperty>> abilityProperties_;
     std::vector<std::shared_ptr<IAbilityMonitor>> abilityMonitors_;
+    std::vector<std::shared_ptr<IAbilityStageMonitor>> abilityStageMonitors_;
 
     ClearFunc clearFunc_;
 
     std::mutex mutexMonitor_;
     std::mutex mutexAbilityProperties_;
+    std::mutex mutexStageMonitor_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

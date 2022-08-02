@@ -15,6 +15,7 @@
 
 #include "js_ability_stage.h"
 
+#include "ability_delegator_registry.h"
 #include "hilog_wrapper.h"
 #include "js_ability_stage_context.h"
 #include "js_context_utils.h"
@@ -165,6 +166,12 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
         return;
     }
     nativeEngine.CallFunction(value, methodOnCreate, nullptr, 0);
+
+    auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
+    if (delegator) {
+        HILOG_INFO("Call AbilityDelegator::PostPerformStageStart");
+        delegator->PostPerformStageStart(CreateStageProperty());
+    }
 }
 
 std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
@@ -279,6 +286,45 @@ NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * co
     }
 
     return nativeEngine.CallFunction(value, method, argv, argc);
+}
+
+std::shared_ptr<AppExecFwk::DelegatorAbilityStageProperty> JsAbilityStage::CreateStageProperty() const
+{
+    auto property = std::make_shared<AppExecFwk::DelegatorAbilityStageProperty>();
+    property->moduleName_ = GetModuleName();
+    property->srcEntrance_ = GetSrcEntrance();
+    property->object_ = jsAbilityStageObj_;
+    return property;
+}
+
+std::string JsAbilityStage::GetModuleName() const
+{
+    auto context = GetContext();
+    if (!context) {
+        HILOG_ERROR("Failed to get context");
+        return std::string();
+    }
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (!hapModuleInfo) {
+        HILOG_ERROR("Failed to get hapModuleInfo");
+        return std::string();
+    }
+    return hapModuleInfo->name;
+}
+
+std::string JsAbilityStage::GetSrcEntrance() const
+{
+    auto context = GetContext();
+    if (!context) {
+        HILOG_ERROR("Failed to get context");
+        return std::string();
+    }
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (!hapModuleInfo) {
+        HILOG_ERROR("Failed to get hapModuleInfo");
+        return std::string();
+    }
+    return hapModuleInfo->srcEntrance;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
