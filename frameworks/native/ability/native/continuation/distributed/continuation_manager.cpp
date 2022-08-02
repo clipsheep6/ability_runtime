@@ -98,7 +98,7 @@ void ContinuationManager::ContinueAbilityWithStack(const std::string &deviceId, 
 
 bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_INFO("[PerformanceTest] %{public}s called begin", __func__);
 
     if (!CheckAbilityToken()) {
         HILOG_ERROR("HandleContinueAbilityWithStack checkAbilityToken failed");
@@ -157,9 +157,9 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_INFO("OnContinue begin");
+    HILOG_INFO("[PerformanceTest] OnContinue begin");
     int32_t status = ability->OnContinue(wantParams);
-    HILOG_INFO("OnContinue end, status: %{public}d", status);
+    HILOG_INFO("[PerformanceTest] OnContinue end, status: %{public}d", status);
     if (status != OnContinueResult::AGREE) {
         if (status == OnContinueResult::MISMATCH) {
             HILOG_ERROR("OnContinue version mismatch.");
@@ -168,11 +168,6 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
         HILOG_ERROR("OnContinue failed.");
         return CONTINUE_ON_CONTINUE_FAILED;
     }
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-    auto abilityInfo = abilityInfo_.lock();
-    std::string &bundleName = abilityInfo->bundleName;
-    ObjectStore::DistributedObjectStore::GetInstance(bundleName)->TriggerSync();
-#endif
 
 #ifdef SUPPORT_GRAPHICS
     bool ret = GetContentInfo(wantParams);
