@@ -65,6 +65,18 @@ static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, cons
 #endif // WITH_DLP
     return true;
 }
+
+static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
+{
+    if (callerToken != nullptr) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord £¡= nullptr && abilityRecord->GetAppIndex() £¡= 0) {
+            return true;
+        }
+    }
+
+    return PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want);
+}
 }  // namespace DlpUtils
 }  // namespace AAFwk
 }  // namespace OHOS
