@@ -448,6 +448,8 @@ private:
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
+    void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
+        const bool isSingleton, const int32_t startMethod, const AbilityRequest &abilityRequest);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

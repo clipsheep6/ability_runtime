@@ -244,7 +244,7 @@ private:
     AsyncTask::CompleteCallback GetCallComplete(std::shared_ptr<StartAbilityByCallParameters> calls)
     {
         auto callComplete = [weak = context_, calldata = calls] (
-            NativeEngine& engine, AsyncTask& task, int32_t status) {
+            NativeEngine& engine, AsyncTask& task, int32_t) {
             if (calldata->err != 0) {
                 HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
                 task.Reject(engine, CreateJsError(engine, calldata->err, "callComplete err."));
@@ -280,14 +280,14 @@ private:
     AsyncTask::ExecuteCallback GetCallExecute(std::shared_ptr<StartAbilityByCallParameters> calls)
     {
         auto callExecute = [calldata = calls] () {
-            constexpr int CALLER_TIME_OUT = 10; // 10s
+            constexpr int callerTimeOut = 10; // 10s
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
             if (calldata->remoteCallee != nullptr) {
                 HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
                 return;
             }
 
-            if (calldata->condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
+            if (calldata->condition.wait_for(lock, std::chrono::seconds(callerTimeOut)) == std::cv_status::timeout) {
                 HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
                 calldata->err = -1;
             }

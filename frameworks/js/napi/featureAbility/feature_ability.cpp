@@ -726,10 +726,7 @@ napi_value HasWindowFocusAsync(
     if (valuetype == napi_function) {
         NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback));
     }
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_HasWindowFocus, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -1056,10 +1053,7 @@ napi_value GetWindowWrapAsync(
     if (valuetype == napi_function) {
         NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback));
     }
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("GetWindowWrapAsync, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
