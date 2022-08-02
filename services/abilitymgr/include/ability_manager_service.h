@@ -961,7 +961,6 @@ private:
     void StopFreezingScreen();
     void UserStarted(int32_t userId);
     void SwitchToUser(int32_t userId);
-    void StartLauncherAbility(int32_t userId);
     void SwitchToUser(int32_t oldUserId, int32_t userId);
     void SwitchManagers(int32_t userId, bool switchUser = true);
     void StartUserApps(int32_t userId, bool isBoot);
