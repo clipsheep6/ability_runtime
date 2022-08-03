@@ -42,9 +42,9 @@ ohos_unittest("ability_connect_manage_test") {
     "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [

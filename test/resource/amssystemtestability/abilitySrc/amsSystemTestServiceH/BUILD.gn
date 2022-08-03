@@ -37,8 +37,8 @@ ohos_shared_library("amsSystemTestServiceH") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "//commonlibrary/c_utils/base:utilsbase",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utilsbase",
   ]
   external_deps = [
     "ability_base:want",
