@@ -51,29 +51,36 @@ class AppRunningRecord;
  */
 class RenderRecord {
 public:
-    RenderRecord(pid_t hostPid, const std::string& renderParam,
+    RenderRecord(pid_t hostPid, const std::string &renderParam,
         int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
 
     virtual ~RenderRecord();
 
-    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid, const std::string& renderParam,
+    static std::shared_ptr<RenderRecord> CreateRenderRecord(pid_t hostPid, const std::string &renderParam,
         int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host);
 
     void SetPid(pid_t pid);
-    pid_t GetPid();
-    pid_t GetHostPid();
-    std::string GetRenderParam();
-    int32_t GetIpcFd();
-    int32_t GetSharedFd();
-    std::shared_ptr<AppRunningRecord> GetHostRecord();
-    sptr<IRenderScheduler> GetScheduler();
+    pid_t GetPid() const ;
+    pid_t GetHostPid() const;
+    int32_t GetHostUid() const;
+    std::string GetHostBundleName() const;
+    std::string GetRenderParam() const;
+    int32_t GetIpcFd() const;
+    int32_t GetSharedFd() const;
+    std::shared_ptr<AppRunningRecord> GetHostRecord() const;
+    sptr<IRenderScheduler> GetScheduler() const;
     void SetScheduler(const sptr<IRenderScheduler> &scheduler);
     void SetDeathRecipient(const sptr<AppDeathRecipient> recipient);
     void RegisterDeathRecipient();
 
 private:
+    void SetHostUid(const int32_t hostUid);
+    void SetHostBundleName(const std::string &hostBundleName);
+
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
+    int32_t hostUid_;
+    std::string hostBundleName_;
     std::string renderParam_;
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;

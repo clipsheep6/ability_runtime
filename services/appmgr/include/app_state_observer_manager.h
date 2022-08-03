@@ -41,17 +41,22 @@ public:
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void HandleOnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void HandleOnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnRenderProcessDied(const std::shared_ptr<RenderRecord> &RenderRecord);
     bool ObserverExist(const sptr<IApplicationStateObserver> &observer);
     void AddObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
     void RemoveObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
     int VerifyObserverPermission();
     ProcessData WrapProcessData(const std::shared_ptr<AppRunningRecord> &appRecord);
+    ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
     void OnObserverDied(const wptr<IRemoteObject> &remote);
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state);

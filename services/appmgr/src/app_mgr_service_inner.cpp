@@ -1422,6 +1422,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     if (renderRecord && renderRecord->GetPid() > 0) {
         HILOG_DEBUG("Kill render process when nwebhost died.");
         KillProcessByPid(renderRecord->GetPid());
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
     }
 
     if (appRecord->IsKeepAliveApp()) {
@@ -2522,6 +2523,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     renderRecord->SetPid(pid);
     HILOG_INFO("start render process successed, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
         renderRecord->GetHostPid(), pid, startMsg.uid);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessCreated(renderRecord);
     return 0;
 }
 
@@ -2554,7 +2556,10 @@ void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_ERROR("On render remote died.");
     if (appRunningManager_) {
-        appRunningManager_->OnRemoteRenderDied(remote);
+        auto renderRecord = appRunningManager_->OnRemoteRenderDied(remote);
+        if (renderRecord) {
+            DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
+        }
     }
 }
 

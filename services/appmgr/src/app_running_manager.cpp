@@ -512,17 +512,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
     return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
 }
 
-void AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
+std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
-        return;
+        return nullptr;
     }
     sptr<IRemoteObject> object = remote.promote();
     if (!object) {
         HILOG_ERROR("promote failed.");
-        return;
+        return nullptr;
     }
 
     const auto &it =
@@ -541,8 +541,11 @@ void AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
         });
     if (it != appRunningRecordMap_.end()) {
         auto appRecord = it->second;
+        auto renderRecord = appRecord->GetRenderRecord();
         appRecord->SetRenderRecord(nullptr);
+        return renderRecord;
     }
+    return nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
