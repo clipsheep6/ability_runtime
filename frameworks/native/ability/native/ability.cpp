@@ -748,7 +748,14 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
  *
  */
 void Ability::OnMemoryLevel(int level)
-{}
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    if (scene_ == nullptr) {
+        HILOG_DEBUG("WindowScene is null");
+        return;
+    }
+    scene_->NotifyMemoryLevel(level);
+}
 
 /**
  * @brief This is like openFile, open a file that need to be able to return sub-sections of files，often assets

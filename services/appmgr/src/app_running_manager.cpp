@@ -494,10 +494,8 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord->GetState() == ApplicationState::APP_STATE_BACKGROUND) {
-            HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
-            appRecord->ScheduleMemoryLevel(level);
-        }
+        HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
+        appRecord->ScheduleMemoryLevel(level);
     }
     return ERR_OK;
 }
