@@ -122,16 +122,16 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_ContainsForm_0100, Function | 
 HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnAcquired_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_OnAcquired_0100 start";
-    FormJsInfo formInfo;
-    formInfo.formId = -1;
-    instance_->OnAcquired(formInfo);
+    FormJsInfo formJsInfo;
+    formJsInfo.formJsRecord.formId = -1;
+    instance_->OnAcquired(formJsInfo);
     int64_t formId = 1;
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     instance_->AddForm(ability, formId);
-    formInfo.formId = 1;
-    formInfo.jsFormCodePath = "/data/test";
-    formInfo.formData = "test";
-    instance_->OnAcquired(formInfo);
+    formJsInfo.formJsRecord.formId = 1;
+    formJsInfo.formJsRecord.jsFormCodePath = "/data/test";
+    formJsInfo.formData = "test";
+    instance_->OnAcquired(formJsInfo);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_OnAcquired_0100 end";
 }
@@ -144,14 +144,14 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnAcquired_0100, Function | Me
 HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnUpdate_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_OnUpdate_0100 start";
-    FormJsInfo formInfo;
-    formInfo.formId = -1;
-    instance_->OnUpdate(formInfo);
+    FormJsInfo formJsInfo;
+    formJsInfo.formJsRecord.formId = -1;
+    instance_->OnUpdate(formJsInfo);
     int64_t formId = 1;
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     instance_->AddForm(ability, formId);
-    formInfo.formId = 1;
-    instance_->OnUpdate(formInfo);
+    formJsInfo.formJsRecord.formId = 1;
+    instance_->OnUpdate(formJsInfo);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_OnUpdate_0100 end";
 }

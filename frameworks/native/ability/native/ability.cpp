@@ -2657,17 +2657,17 @@ bool Ability::AcquireForm(const int64_t formId, const Want &want, const std::sha
     }
     HILOG_DEBUG("%{public}s, end to acquire form, the formId returned from the fms is %{public}" PRId64 ".",
         __func__,
-        formJsInfo.formId);
+        formJsInfo.formJsRecord.formId);
 
     // check for form presence in hostForms
-    if (formHostClient->ContainsForm(formJsInfo.formId)) {
+    if (formHostClient->ContainsForm(formJsInfo.formJsRecord.formId)) {
         HILOG_ERROR("%{public}s error, form has already acquired, do not support acquire twice.", __func__);
         return false;
     }
 
     // add ability of form to hostForms
     std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-    formHostClient->AddForm(thisAbility, formJsInfo.formId);
+    formHostClient->AddForm(thisAbility, formJsInfo.formJsRecord.formId);
     // post the async task of handleAcquireResult
     PostTask([this, want, formJsInfo, callback]() { HandleAcquireResult(want, formJsInfo, callback); }, 0L);
     // the acquire form is successfully
@@ -3052,8 +3052,8 @@ void Ability::HandleAcquireResult(
         }
 
         // save wantParam and callback
-        userReqParams_.insert(std::make_pair(formJsInfo.formId, want));
-        appCallbacks_.insert(std::make_pair(formJsInfo.formId, callback));
+        userReqParams_.insert(std::make_pair(formJsInfo.formJsRecord.formId, want));
+        appCallbacks_.insert(std::make_pair(formJsInfo.formJsRecord.formId, callback));
     }
 
     struct timespec ts;
@@ -3079,11 +3079,11 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
         std::lock_guard<std::mutex> lock(formLock);
         // get callback iterator by formId
         std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
-            appCallbacks_.find(formJsInfo.formId);
+            appCallbacks_.find(formJsInfo.formJsRecord.formId);
         // call the callback function when you need to be notified
         if (appCallbackIterator == appCallbacks_.end()) {
-            HILOG_ERROR(
-                "%{public}s failed, callback not find, formId: %{public}" PRId64 ".", __func__, formJsInfo.formId);
+            HILOG_ERROR("%{public}s failed, callback not find, formId: %{public}" PRId64 ".", __func__,
+                formJsInfo.formJsRecord.formId);
             return;
         }
         formCallback = appCallbackIterator->second;
@@ -3093,7 +3093,8 @@ void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsI
         return;
     }
 
-    HILOG_DEBUG("%{public}s, call user implement of form %{public}" PRId64 ".", __func__, formJsInfo.formId);
+    HILOG_DEBUG("%{public}s, call user implement of form %{public}" PRId64 ".", __func__,
+        formJsInfo.formJsRecord.formId);
 
     if (msgCode == OHOS_FORM_ACQUIRE_FORM) {
         formCallback->OnAcquired(FormCallback::OHOS_FORM_ACQUIRE_SUCCESS, formJsInfo);
@@ -3302,7 +3303,7 @@ void Ability::OnDeathReceived()
             }
 
             FormJsInfo formJsInfo;
-            formJsInfo.formId = formId;
+            formJsInfo.formJsRecord.formId = formId;
             formCallback->OnAcquired(FormCallback::OHOS_FORM_RESTORE_FAILURE, formJsInfo);
         }
     }
@@ -3328,8 +3329,8 @@ bool Ability::ReAcquireForm(const int64_t formId, const Want &want)
 
     // reacquire form
     FormJsInfo formJsInfo;
-    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK || formJsInfo.formId <= 0 ||
-        formJsInfo.formId != formId) {
+    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK ||
+        formJsInfo.formJsRecord.formId <= 0 || formJsInfo.formJsRecord.formId != formId) {
         HILOG_ERROR("%{public}s error, fms reacquire form failed, formId:%{public}" PRId64 ".", __func__, formId);
         return false;
     }
