@@ -45,6 +45,10 @@ config("moduletest_include_dir") {
     "APP_LOG_TAG = \"ApplicationUnitTest\"",
     "LOG_DOMAIN = 0xD001151",
   ]
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 }
 
 ohos_moduletest("shell_cmd_result_moduletest") {

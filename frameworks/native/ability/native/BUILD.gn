@@ -235,6 +235,10 @@ ohos_shared_library("abilitykit_native") {
 
   defines = []
 
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
