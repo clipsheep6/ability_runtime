@@ -36,9 +36,9 @@ ohos_shared_library("errormanager_napi") {
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/application"

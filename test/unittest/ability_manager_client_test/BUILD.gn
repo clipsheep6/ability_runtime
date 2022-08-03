@@ -47,7 +47,6 @@ ohos_unittest("ability_manager_client_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libpng:libpng",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -55,6 +54,7 @@ ohos_unittest("ability_manager_client_test") {
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
