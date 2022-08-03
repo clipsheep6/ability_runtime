@@ -45,7 +45,7 @@
 #endif
 
 #ifndef AMS_LOG_TAG
-#define AMS_LOG_TAG "AAFwk"
+#define AMS_LOG_TAG "AbilityManagerService"
 #endif
 
 #ifdef LOG_LABEL
