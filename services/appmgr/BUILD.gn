@@ -53,7 +53,9 @@ ohos_shared_library("libappms") {
     "AMS_LOG_DOMAIN = 0xD001110",
   ]
 
-  defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 
   configs = [ ":appmgr_config" ]
   cflags = []

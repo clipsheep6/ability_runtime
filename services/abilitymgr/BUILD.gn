@@ -57,7 +57,11 @@ config("abilityms_config") {
     "${bgtaskmgr_frameworks_path}/include",
   ]
 
-  defines = [ "ABILITY_COMMAND_FOR_TEST" ]
+  defines = []
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 
   if (ability_runtime_graphics) {
     include_dirs += [

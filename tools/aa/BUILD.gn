@@ -23,6 +23,12 @@ config("ability_command_config") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "//third_party/jsoncpp/include",
   ]
+
+  defines = []
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 }
 
 ohos_source_set("tools_aa_source_set") {
