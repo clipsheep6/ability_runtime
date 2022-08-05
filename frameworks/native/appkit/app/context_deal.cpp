@@ -707,23 +707,6 @@ std::shared_ptr<HapModuleInfo> ContextDeal::GetHapModuleInfo()
             return nullptr;
         }
     }
-
-    sptr<IBundleMgr> ptr = GetBundleManager();
-    if (ptr == nullptr) {
-        HILOG_ERROR("GetAppType failed to get bundle manager service");
-        return hapModuleInfoLocal_;
-    }
-    Want want;
-    ElementName name;
-    name.SetBundleName(GetBundleName());
-    name.SetAbilityName(abilityInfo_->name);
-    name.SetModuleName(abilityInfo_->moduleName);
-    want.SetElement(name);
-    std::vector<AbilityInfo> abilityInfos;
-    bool isSuc = ptr->QueryAbilityInfos(want, abilityInfos);
-    if (isSuc) {
-        hapModuleInfoLocal_->abilityInfos = abilityInfos;
-    }
     HILOG_INFO("ContextDeal::GetHapModuleInfo end");
     return hapModuleInfoLocal_;
 }
