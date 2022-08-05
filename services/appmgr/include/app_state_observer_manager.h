@@ -36,7 +36,8 @@ class AppStateObserverManager : public std::enable_shared_from_this<AppStateObse
     DECLARE_DELAYED_SINGLETON(AppStateObserverManager)
 public:
     void Init();
-    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {});
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
@@ -54,7 +55,6 @@ private:
     bool ObserverExist(const sptr<IApplicationStateObserver> &observer);
     void AddObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
     void RemoveObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
-    int VerifyObserverPermission();
     ProcessData WrapProcessData(const std::shared_ptr<AppRunningRecord> &appRecord);
     ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
     void OnObserverDied(const wptr<IRemoteObject> &remote);
@@ -63,9 +63,9 @@ private:
 
 private:
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
-    std::vector<sptr<IApplicationStateObserver>> appStateObservers_;
     std::recursive_mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
+    std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

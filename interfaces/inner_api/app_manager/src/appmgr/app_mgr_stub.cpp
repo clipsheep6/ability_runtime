@@ -263,8 +263,10 @@ int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessagePar
 
 int32_t AppMgrStub::HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply)
 {
+    std::vector<std::string> bundleNameList;
     auto callback = iface_cast<AppExecFwk::IApplicationStateObserver>(data.ReadRemoteObject());
-    int32_t result = RegisterApplicationStateObserver(callback);
+    data.ReadStringVector(&bundleNameList);
+    int32_t result = RegisterApplicationStateObserver(callback, bundleNameList);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -323,7 +325,8 @@ int32_t AppMgrStub::HandleFinishUserTest(MessageParcel &data, MessageParcel &rep
     return result;
 }
 
-int32_t AppMgrStub::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
+int32_t AppMgrStub::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+    const std::vector<std::string> &bundleNameList)
 {
     return NO_ERROR;
 }

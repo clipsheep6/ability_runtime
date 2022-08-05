@@ -373,7 +373,7 @@ int AppMgrProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcel
 }
 
 int AppMgrProxy::RegisterApplicationStateObserver(
-    const sptr<IApplicationStateObserver> &observer)
+    const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
     if (!observer) {
         HILOG_ERROR("observer null");
@@ -388,6 +388,10 @@ int AppMgrProxy::RegisterApplicationStateObserver(
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
         HILOG_ERROR("observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteStringVector(bundleNameList)) {
+        HILOG_ERROR("bundleNameList write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 

@@ -252,12 +252,13 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSi
     HILOG_DEBUG("RegisterApplicationStateObserver_001 start");
 
     sptr<IApplicationStateObserver> observer = new ApplicationStateObserverStub();
+    std::vector<std::string> bundleNameList;
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
 
-    EXPECT_CALL(*mockAppMgr, RegisterApplicationStateObserver(_)).Times(1).WillOnce(Return(OHOS::NO_ERROR));
+    EXPECT_CALL(*mockAppMgr, RegisterApplicationStateObserver(_, _)).Times(1).WillOnce(Return(OHOS::NO_ERROR));
 
-    int32_t err = appMgrClient->RegisterApplicationStateObserver(observer);
+    int32_t err = appMgrClient->RegisterApplicationStateObserver(observer, bundleNameList);
 
     EXPECT_EQ(OHOS::NO_ERROR, err);
 

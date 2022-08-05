@@ -20,6 +20,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 const std::string THREAD_NAME = "AppStateObserverManager";
+const int BUNDLENAMELIST_MAX_SIZE = 128;
 AppStateObserverManager::AppStateObserverManager()
 {
     HILOG_INFO("AppStateObserverManager instance is created");
@@ -37,10 +38,15 @@ void AppStateObserverManager::Init()
     }
 }
 
-int32_t AppStateObserverManager::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
+int32_t AppStateObserverManager::RegisterApplicationStateObserver(
+    const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
     HILOG_INFO("Register applicationStateObserver begin.");
-    if (VerifyObserverPermission() == ERR_PERMISSION_DENIED) {
+    if (bundleNameList.size() > BUNDLENAMELIST_MAX_SIZE) {
+        HILOG_ERROR("the bundleNameList passed in is too long");
+        return ERR_INVALID_VALUE;
+    }
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return ERR_PERMISSION_DENIED;
     }
@@ -53,8 +59,8 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(const sptr<IAp
         HILOG_ERROR("Observer exist.");
         return ERR_INVALID_VALUE;
     }
-    appStateObservers_.push_back(observer);
-    HILOG_INFO("%{public}s appStateObservers_ size:%{public}d", __func__, (int32_t)appStateObservers_.size());
+    appStateObserverMap_.emplace(observer, bundleNameList);
+    HILOG_DEBUG("%{public}s appStateObserverMap_ size:%{public}d", __func__, (int32_t)appStateObserverMap_.size());
     AddObserverDeathRecipient(observer);
     return ERR_OK;
 }
@@ -62,7 +68,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(const sptr<IAp
 int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
 {
     HILOG_INFO("%{public}s begin", __func__);
-    if (VerifyObserverPermission() == ERR_PERMISSION_DENIED) {
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return ERR_PERMISSION_DENIED;
     }
@@ -71,11 +77,12 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
         HILOG_ERROR("Observer nullptr");
         return ERR_INVALID_VALUE;
     }
-    std::vector<sptr<IApplicationStateObserver>>::iterator it;
-    for (it = appStateObservers_.begin(); it != appStateObservers_.end(); ++it) {
-        if ((*it)->AsObject() == observer->AsObject()) {
-            appStateObservers_.erase(it);
-            HILOG_INFO("%{public}s appStateObservers_ size:%{public}d", __func__, (int32_t)appStateObservers_.size());
+    std::map<sptr<IApplicationStateObserver>, std::vector<std::string>>::iterator it;
+    for (it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        if (it->first->AsObject() == observer->AsObject()) {
+            appStateObserverMap_.erase(it);
+            HILOG_INFO("%{public}s appStateObserverMap_ size:%{public}d", __func__,
+                (int32_t)appStateObserverMap_.size());
             RemoveObserverDeathRecipient(observer);
             return ERR_OK;
         }
@@ -177,9 +184,11 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         HILOG_DEBUG("OnForegroundApplicationChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);
         std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-        for (const auto &observer : appStateObservers_) {
-            if (observer != nullptr) {
-                observer->OnForegroundApplicationChanged(data);
+        for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+            std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+                it->second.end(), data.bundleName);
+            if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+                it->first->OnForegroundApplicationChanged(data);
             }
         }
     }
@@ -189,9 +198,11 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         HILOG_INFO("OnApplicationStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);
         std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-        for (const auto &observer : appStateObservers_) {
-            if (observer != nullptr) {
-                observer->OnApplicationStateChanged(data);
+        for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+            std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+                it->second.end(), data.bundleName);
+            if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+                it->first->OnApplicationStateChanged(data);
             }
         }
     }
@@ -205,12 +216,14 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(const AbilityStat
         abilityStateData.moduleName.c_str(), abilityStateData.bundleName.c_str(),
         abilityStateData.abilityName.c_str(), abilityStateData.abilityState,
         abilityStateData.pid, abilityStateData.uid, abilityStateData.abilityType, isAbility);
-    for (const auto &observer : appStateObservers_) {
-        if (observer != nullptr) {
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), abilityStateData.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
             if (isAbility) {
-                observer->OnAbilityStateChanged(abilityStateData);
+                it->first->OnAbilityStateChanged(abilityStateData);
             } else {
-                observer->OnExtensionStateChanged(abilityStateData);
+                it->first->OnExtensionStateChanged(abilityStateData);
             }
         }
     }
@@ -224,11 +237,13 @@ void AppStateObserverManager::HandleOnProcessCreated(const std::shared_ptr<AppRu
     }
     ProcessData data = WrapProcessData(appRecord);
     HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObservers_.size());
+        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-    for (const auto &observer : appStateObservers_) {
-        if (observer != nullptr) {
-            observer->OnProcessCreated(data);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessCreated(data);
         }
     }
 }
@@ -241,11 +256,13 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
     HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObservers_.size());
+        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-    for (const auto &observer : appStateObservers_) {
-        if (observer != nullptr) {
-            observer->OnProcessCreated(data);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessCreated(data);
         }
     }
 }
@@ -258,11 +275,13 @@ void AppStateObserverManager::HandleOnProcessDied(const std::shared_ptr<AppRunni
     }
     ProcessData data = WrapProcessData(appRecord);
     HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d.",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObservers_.size());
+        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-    for (const auto &observer : appStateObservers_) {
-        if (observer != nullptr) {
-            observer->OnProcessDied(data);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessDied(data);
         }
     }
 }
@@ -275,11 +294,13 @@ void AppStateObserverManager::HandleOnRenderProcessDied(const std::shared_ptr<Re
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
     HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d.",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObservers_.size());
+        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
-    for (const auto &observer : appStateObservers_) {
-        if (observer != nullptr) {
-            observer->OnProcessDied(data);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessDied(data);
         }
     }
 }
@@ -308,9 +329,8 @@ bool AppStateObserverManager::ObserverExist(const sptr<IApplicationStateObserver
         HILOG_ERROR("The param observer is nullptr.");
         return false;
     }
-
-    for (size_t i = 0; i < appStateObservers_.size(); i++) {
-        if (appStateObservers_[i]->AsObject() == observer->AsObject()) {
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        if (it->first->AsObject() == observer->AsObject()) {
             return true;
         }
     }
@@ -355,22 +375,6 @@ void AppStateObserverManager::RemoveObserverDeathRecipient(const sptr<IApplicati
         recipientMap_.erase(it);
         return;
     }
-}
-
-int AppStateObserverManager::VerifyObserverPermission()
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER);
-    if (isCallingPerm) {
-        HILOG_INFO("Permission verification succeeded.");
-        return ERR_OK;
-    }
-    HILOG_ERROR("Permission verification failed.");
-    return ERR_PERMISSION_DENIED;
 }
 
 void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote)

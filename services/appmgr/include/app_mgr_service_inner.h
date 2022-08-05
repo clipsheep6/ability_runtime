@@ -461,7 +461,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {});
 
     /**
      * Unregister application or process state observer.

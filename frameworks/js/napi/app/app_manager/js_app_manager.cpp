@@ -29,6 +29,7 @@
 #include "system_ability_definition.h"
 #include "js_app_manager_utils.h"
 #include "event_runner.h"
+#include "napi_common_util.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -125,8 +126,8 @@ private:
     NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        // only support 1 params
-        if (info.argc != ARGC_ONE) {
+        // only support 1 or 2 params
+        if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
             return engine.CreateUndefined();
         }
@@ -135,10 +136,15 @@ private:
             return engine.CreateUndefined();
         }
         static int64_t serialNumber = 0;
+        std::vector<std::string> bundleNameList;
         // unwarp observer
         sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver(engine);
-        observer->SetJsObserverObject(info.argv[0]);
-        int32_t ret = appManager_->RegisterApplicationStateObserver(observer);
+        observer->SetJsObserverObject(info.argv[INDEX_ZERO]);
+        if (info.argc == ARGC_TWO) {
+            AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
+                reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), bundleNameList);
+        }
+        int32_t ret = appManager_->RegisterApplicationStateObserver(observer, bundleNameList);
         if (ret == 0) {
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
             std::lock_guard<std::mutex> lock(g_observerMutex);
