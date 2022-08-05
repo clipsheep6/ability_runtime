@@ -24,10 +24,7 @@ ohos_unittest("AmsMgrSchedulerTest") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
-  sources =
-      [ "${ability_runtime_services_path}/appmgr/src/ams_mgr_scheduler.cpp" ]
-
-  sources += [ "ams_mgr_scheduler_test.cpp" ]
+  sources = [ "ams_mgr_scheduler_test.cpp" ]
 
   configs = [ "${ability_runtime_test_path}/unittest:appmgr_test_config" ]
   cflags = []
