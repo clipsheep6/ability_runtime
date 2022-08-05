@@ -200,7 +200,7 @@ void Ability::OnStart(const Want &want)
     (const_cast<Want &>(want)).RemoveParam(DLP_INDEX);
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
-
+    SetWant(want);
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
@@ -289,8 +289,6 @@ void Ability::OnStart(const Want &want)
         }
     }
 #endif
-
-    SetWant(want);
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStart error. abilityLifecycleExecutor_ == nullptr.");
         return;

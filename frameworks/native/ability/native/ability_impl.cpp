@@ -521,6 +521,11 @@ void AbilityImpl::AfterUnFocused()
     }
 
     HILOG_INFO("old version ability, window after unfocused.");
+    if (ability_->GetWant() == nullptr) {
+        HILOG_INFO("old version ability, want is nullptr.");
+        return;
+    }
+
     auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
@@ -554,6 +559,11 @@ void AbilityImpl::AfterFocused()
     }
 
     HILOG_INFO("fa mode ability, window after focused.");
+    if (ability_->GetWant() == nullptr) {
+        HILOG_INFO("fa mode ability, want is nullptr.");
+        return;
+    }
+
     auto task = [abilityImpl = shared_from_this(), want = *(ability_->GetWant()), contextDeal = contextDeal_]() {
         auto info = contextDeal->GetLifeCycleStateInfo();
         info.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
