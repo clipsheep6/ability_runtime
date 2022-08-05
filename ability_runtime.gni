@@ -53,6 +53,7 @@ declare_args() {
   ability_runtime_resource = true
   ability_runtime_appspawn = true
   efficiency_manager = true
+  ability_command_for_test = false
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {

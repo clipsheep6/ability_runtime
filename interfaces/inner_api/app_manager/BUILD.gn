@@ -25,12 +25,18 @@ config("appmgr_sdk_config") {
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
   ]
-  defines = [ "ABILITY_COMMAND_FOR_TEST" ]
+  defines = []
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 }
 
 config("appmgr_core_config") {
   include_dirs = [ "include" ]
-  defines = [ "ABILITY_COMMAND_FOR_TEST" ]
+  defines = []
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 }
 
 ohos_shared_library("app_manager") {
