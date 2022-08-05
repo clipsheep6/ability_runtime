@@ -15,7 +15,10 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 group("tools_target") {
-  deps = [ "aa:tools_aa" ]
+  deps = [
+    "aa:tools_aa",
+    "connection_tool:tools_connection_obs",
+  ]
 
   if (ability_runtime_graphics) {
     deps += [ "fm:tools_fm" ]
