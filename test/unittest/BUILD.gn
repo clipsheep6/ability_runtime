@@ -23,10 +23,7 @@ config("appmgr_test_config") {
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppMgrService\"",
-    "AMS_LOG_DOMAIN = 0xD00111E",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",

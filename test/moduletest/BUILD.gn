@@ -14,11 +14,6 @@
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 config("aafwk_module_test_config") {
-  defines = [
-    # "AMS_LOG_TAG = \"AbilityMgrService\"",
-    # "AMS_LOG_DOMAIN = 0xD00111F",
-  ]
-
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
   include_dirs = [

@@ -39,12 +39,12 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
 
 void AbilityStage::OnCreate(const AAFwk::Want &want) const
 {
-    HILOG_INFO("AbilityStage OnCreate come.");
+    HILOG_DEBUG("AbilityStage OnCreate come.");
 }
 
 void AbilityStage::OnDestory() const
 {
-    HILOG_INFO("AbilityStage::OnDestory come");
+    HILOG_DEBUG("AbilityStage::OnDestory come");
 }
 
 std::shared_ptr<Context> AbilityStage::GetContext() const
@@ -89,18 +89,18 @@ bool AbilityStage::ContainsAbility()
 
 std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)
 {
-    HILOG_INFO("AbilityStage::OnAcceptWant come");
+    HILOG_DEBUG("AbilityStage::OnAcceptWant come");
     return "";
 }
 
 void AbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void AbilityStage::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

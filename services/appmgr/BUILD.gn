@@ -48,10 +48,7 @@ ohos_shared_library("libappms") {
     "src/remote_client_manager.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppMgrService\"",
-    "AMS_LOG_DOMAIN = 0xD001110",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   defines += [ "ABILITY_COMMAND_FOR_TEST" ]
 

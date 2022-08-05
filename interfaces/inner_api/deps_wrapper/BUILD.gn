@@ -17,10 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("ability_deps_wrapper_private_config") {
   include_dirs = [ "${ability_runtime_services_path}/common/include" ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AbilityDepsWrapper\"",
-    "AMS_LOG_DOMAIN = 0xD002201",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AbilityDepsWrapper\"" ]
 }
 
 config("ability_deps_wrapper_config") {

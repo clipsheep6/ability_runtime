@@ -26,10 +26,7 @@ config("module_private_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"ApplicationModuleTest\"",
-    "AMS_LOG_DOMAIN = 0xD001152",
-  ]
+  defines = [ "AMS_LOG_TAG = \"ApplicationModuleTest\"" ]
 }
 
 ohos_moduletest("appexecfwk_appkit_native_app_module_test_first") {

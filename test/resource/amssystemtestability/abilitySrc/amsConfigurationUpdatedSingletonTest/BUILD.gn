@@ -23,10 +23,7 @@ config("amsConfigurationUpdatedSingletonTestConfig") {
     "${common_path}/log/include",
     "${SUBST_TOOLS_DIR}/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsConfigurationUpdatedSingletonTest\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsConfigurationUpdatedSingletonTest\"" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]

@@ -24,10 +24,7 @@ config("amsSystemTestMConfig") {
     "${SUBST_TOOLS_DIR}/include",
     "//third_party/jsoncpp/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsSystemTestM\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsSystemTestM\"" ]
 }
 ohos_shared_library("amsSystemTestM") {
   sources = [

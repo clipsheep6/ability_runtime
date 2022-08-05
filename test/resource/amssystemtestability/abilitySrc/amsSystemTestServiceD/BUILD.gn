@@ -24,10 +24,7 @@ config("amsSystemTestCConfig") {
     "${ability_runtime_services_path}/common/include",
     "//third_party/jsoncpp/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsSystemTestServiceD\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsSystemTestServiceD\"" ]
 }
 ohos_shared_library("amsSystemTestServiceD") {
   sources = [ "${subdemosystem_path}/src/ams_st_service_ability_d1.cpp" ]

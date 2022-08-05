@@ -22,10 +22,7 @@ config("amsSystemTestErrorKConfig") {
     "${ability_runtime_services_path}/common/include",
     "//third_party/jsoncpp/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsSystemTestErrorK\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsSystemTestErrorK\"" ]
 }
 ohos_shared_library("amsSystemTestErrorK") {
   sources = [ "${SUBDEMOSYSTEM_DIR}/src/amsstabilityerrork1.cpp" ]
