@@ -35,8 +35,8 @@ ohos_shared_library("uripermissionmanager_napi") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   if (!ability_runtime_graphics) {

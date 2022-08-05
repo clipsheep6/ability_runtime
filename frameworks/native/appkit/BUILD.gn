@@ -127,6 +127,7 @@ ohos_shared_library("appkit_native") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "faultloggerd:lib_dfx_dump_catcher",
@@ -138,7 +139,6 @@ ohos_shared_library("appkit_native") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -191,12 +191,12 @@ ohos_shared_library("app_context") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -250,13 +250,13 @@ ohos_shared_library("app_context_utils") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:resmgr_napi_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -317,12 +317,12 @@ ohos_shared_library("appkit_delegator") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr_standard:samgr_proxy",
-    "utils_base:utils",
   ]
 
   public_deps = [ "//foundation/arkui/napi:ace_napi" ]

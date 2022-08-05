@@ -33,12 +33,12 @@ ohos_unittest("dataobs_mgr_stub_test") {
     "${ability_runtime_services_path}/dataobsmgr:dataobsms",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
