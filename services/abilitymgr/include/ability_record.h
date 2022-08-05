@@ -289,7 +289,7 @@ public:
      * foreground the ability.
      *
      */
-    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
+    void ForegroundAbility(uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
@@ -426,15 +426,18 @@ public:
      */
     bool IsWindowAttached() const;
 
-    inline bool IsStartingWindow() const
-    {
-        return isStartingWindow_;
-    }
+    bool IsStartingWindow();
+    void SetStartingWindow();
 
-    inline void SetStartingWindow(bool isStartingWindow)
-    {
-        isStartingWindow_ = isStartingWindow;
-    }
+    // inline bool IsStartingWindow() const
+    // {
+    //     return isStartingWindow_;
+    // }
+
+    // inline void SetStartingWindow(bool isStartingWindow)
+    // {
+    //     isStartingWindow_ = isStartingWindow;
+    // }
 
     /**
      * process request of foregrounding the ability.
@@ -805,6 +808,10 @@ public:
 
     bool CanRestartRootLauncher();
 
+    void SetInitialToMinimize();
+
+    bool IsInitialToMinimize();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 
@@ -942,9 +949,13 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     bool needTakeSnapShot_ = true;
+    int32_t initialToMinimize_ = 0;
+    std::mutex testMutex_;
+    std::vector<std::string> states_;
 
 #ifdef SUPPORT_GRAPHICS
-    bool isStartingWindow_ = false;
+    int32_t isStartingWindow_ = 0;
+    std::mutex startingWindowMutex_;
 #endif
 };
 }  // namespace AAFwk
