@@ -669,12 +669,12 @@ ErrCode AbilityManagerClient::StartAbilityByCall(
     return abms->StartAbilityByCall(want, connect, callToken);
 }
 
-ErrCode AbilityManagerClient::ReleaseAbility(
+ErrCode AbilityManagerClient::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ReleaseAbility(connect, element);
+    return abms->ReleaseCall(connect, element);
 }
 
 ErrCode AbilityManagerClient::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)

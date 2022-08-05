@@ -106,7 +106,7 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[MOVE_MISSION_TO_FRONT] = &AbilityManagerStub::MoveMissionToFrontInner;
     requestFuncMap_[MOVE_MISSION_TO_FRONT_BY_OPTIONS] = &AbilityManagerStub::MoveMissionToFrontByOptionsInner;
     requestFuncMap_[START_CALL_ABILITY] = &AbilityManagerStub::StartAbilityByCallInner;
-    requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseInner;
+    requestFuncMap_[RELEASE_CALL_ABILITY] = &AbilityManagerStub::ReleaseCallInner;
     requestFuncMap_[START_USER] = &AbilityManagerStub::StartUserInner;
     requestFuncMap_[STOP_USER] = &AbilityManagerStub::StopUserInner;
     requestFuncMap_[GET_ABILITY_RUNNING_INFO] = &AbilityManagerStub::GetAbilityRunningInfosInner;
@@ -1010,7 +1010,7 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
-int AbilityManagerStub::ReleaseInner(MessageParcel &data, MessageParcel &reply)
+int AbilityManagerStub::ReleaseCallInner(MessageParcel &data, MessageParcel &reply)
 {
     auto callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
     if (callback == nullptr) {
@@ -1023,7 +1023,7 @@ int AbilityManagerStub::ReleaseInner(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("callback stub receive element is nullptr");
         return ERR_INVALID_VALUE;
     }
-    int32_t result = ReleaseAbility(callback, *element);
+    int32_t result = ReleaseCall(callback, *element);
 
     HILOG_DEBUG("release call ability ret = %d", result);
 

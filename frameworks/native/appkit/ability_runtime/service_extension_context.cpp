@@ -62,14 +62,14 @@ ErrCode ServiceExtensionContext::StartAbilityByCall(
     return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
 }
 
-ErrCode ServiceExtensionContext::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) const
+ErrCode ServiceExtensionContext::ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) const
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (localCallContainer_ == nullptr) {
         HILOG_ERROR("%{public}s failed, localCallContainer_ is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
-    return localCallContainer_->Release(callback);
+    return localCallContainer_->ReleaseCall(callback);
 }
 
 bool ServiceExtensionContext::ConnectAbility(

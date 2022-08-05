@@ -24,10 +24,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-using ReleaseAbilityFunc = std::function<ErrCode(std::shared_ptr<CallerCallBack>&)>;
+using ReleaseCallFunc = std::function<ErrCode(std::shared_ptr<CallerCallBack>&)>;
 
 NativeValue* CreateJsCallerComplex(
-    NativeEngine& engine, ReleaseAbilityFunc releaseAbilityFunc, sptr<IRemoteObject> callee,
+    NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
     std::shared_ptr<CallerCallBack> callerCallBack);
 
 NativeValue* CreateJsCalleeRemoteObject(NativeEngine& engine, sptr<IRemoteObject> callee);

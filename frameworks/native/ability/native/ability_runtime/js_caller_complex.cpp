@@ -49,9 +49,10 @@ public:
     };
 
     explicit JsCallerComplex(
-        NativeEngine& engine, ReleaseAbilityFunc releaseAbilityFunc, sptr<IRemoteObject> callee,
-        std::shared_ptr<CallerCallBack> callerCallBack) : releaseAbilityFunc_(releaseAbilityFunc), callee_(callee),
-        releaseCallBackEngine_(engine), callerCallBackObj_(callerCallBack), jsreleaseCallBackObj_(nullptr)
+        NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
+        std::shared_ptr<CallerCallBack> callerCallBack) : releaseCallFunc_(releaseCallFunc),
+        callee_(callee), releaseCallBackEngine_(engine),
+        callerCallBackObj_(callerCallBack), jsReleaseCallBackObj_(nullptr)
     {
         AddJsCallerComplex(this);
         handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
@@ -112,7 +113,7 @@ public:
         HILOG_DEBUG("JsCallerComplex::%{public}s end.", __func__);
     }
 
-    static NativeValue* JsRelease(NativeEngine* engine, NativeCallbackInfo* info)
+    static NativeValue* JsReleaseCall(NativeEngine* engine, NativeCallbackInfo* info)
     {
         if (engine == nullptr || info == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s is called, but input parameters %{public}s is nullptr",
@@ -127,7 +128,7 @@ public:
             return nullptr;
         }
 
-        return object->ReleaseInner(*engine, *info);
+        return object->ReleaseCallInner(*engine, *info);
     }
 
     static NativeValue* JsSetOnReleaseCallBack(NativeEngine* engine, NativeCallbackInfo* info)
@@ -293,13 +294,13 @@ private:
     void OnReleaseNotifyTask(const std::string &str)
     {
         HILOG_DEBUG("OnReleaseNotifyTask begin");
-        if (jsreleaseCallBackObj_ == nullptr) {
+        if (jsReleaseCallBackObj_ == nullptr) {
             HILOG_ERROR("JsCallerComplex::%{public}s, jsreleaseObj is nullptr", __func__);
             return;
         }
 
-        NativeValue* value = jsreleaseCallBackObj_->Get();
-        NativeValue* callback = jsreleaseCallBackObj_->Get();
+        NativeValue* value = jsReleaseCallBackObj_->Get();
+        NativeValue* callback = jsReleaseCallBackObj_->Get();
         NativeValue* args[] = { CreateJsValue(releaseCallBackEngine_, str) };
         releaseCallBackEngine_.CallFunction(value, callback, args, 1);
         HILOG_DEBUG("OnReleaseNotifyTask CallFunction call done");
@@ -308,7 +309,7 @@ private:
         HILOG_DEBUG("OnReleaseNotifyTask end");
     }
 
-    NativeValue* ReleaseInner(NativeEngine& engine, NativeCallbackInfo& info)
+    NativeValue* ReleaseCallInner(NativeEngine& engine, NativeCallbackInfo& info)
     {
         HILOG_DEBUG("JsCallerComplex::%{public}s, called", __func__);
         if (callerCallBackObj_ == nullptr) {
@@ -316,11 +317,11 @@ private:
             return CreateJsError(engine, -1, "CallerComplex callback is nullptr.");
         }
 
-        if (!releaseAbilityFunc_) {
+        if (!releaseCallFunc_) {
             HILOG_ERROR("JsCallerComplex::%{public}s, releaseFunc is nullptr", __func__);
             return CreateJsError(engine, -1, "CallerComplex get releaseFunc failed.");
         }
-        int32_t retErr = releaseAbilityFunc_(callerCallBackObj_);
+        int32_t retErr = releaseCallFunc_(callerCallBackObj_);
         if (retErr != ERR_OK) {
             HILOG_ERROR("JsCallerComplex::%{public}s, ReleaseAbility failed %{public}d",
                 __func__, static_cast<int>(retErr));
@@ -355,7 +356,7 @@ private:
             return CreateJsError(engine, -1, "CallerComplex on release input params isn`t function.");
         }
 
-        jsreleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));
+        jsReleaseCallBackObj_.reset(releaseCallBackEngine_.CreateReference(param1, 1));
         auto task = [notify = this] (const std::string &str) {
             if (!FindJsCallerComplexAndChangeState(notify, OBJSTATE::OBJ_EXECUTION)) {
                 HILOG_ERROR("ptr not found, address error");
@@ -369,11 +370,11 @@ private:
     }
 
 private:
-    ReleaseAbilityFunc releaseAbilityFunc_;
+    ReleaseCallFunc releaseCallFunc_;
     sptr<IRemoteObject> callee_;
     NativeEngine& releaseCallBackEngine_;
     std::shared_ptr<CallerCallBack> callerCallBackObj_;
-    std::unique_ptr<NativeReference> jsreleaseCallBackObj_;
+    std::unique_ptr<NativeReference> jsReleaseCallBackObj_;
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::mutex stateMechanismMutex_;
     OBJSTATE currentState_;
@@ -387,21 +388,21 @@ std::mutex JsCallerComplex::jsCallerComplexMutex;
 } // nameless
 
 NativeValue* CreateJsCallerComplex(
-    NativeEngine& engine, ReleaseAbilityFunc releaseAbilityFunc, sptr<IRemoteObject> callee,
+    NativeEngine& engine, ReleaseCallFunc releaseCallFunc, sptr<IRemoteObject> callee,
     std::shared_ptr<CallerCallBack> callerCallBack)
 {
     HILOG_DEBUG("JsCallerComplex::%{public}s, begin", __func__);
-    if (callee == nullptr || callerCallBack == nullptr || releaseAbilityFunc == nullptr) {
+    if (callee == nullptr || callerCallBack == nullptr || releaseCallFunc == nullptr) {
         HILOG_ERROR("%{public}s is called, input params error. %{public}s is nullptr", __func__,
             (callee == nullptr) ? ("callee") :
-            ((releaseAbilityFunc == nullptr) ? ("releaseAbilityFunc") : ("callerCallBack")));
+            ((releaseCallFunc == nullptr) ? ("releaseCallFunc") : ("callerCallBack")));
         return engine.CreateUndefined();
     }
 
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
-    auto jsCaller = std::make_unique<JsCallerComplex>(engine, releaseAbilityFunc, callee, callerCallBack);
+    auto jsCaller = std::make_unique<JsCallerComplex>(engine, releaseCallFunc, callee, callerCallBack);
     if (jsCaller == nullptr) {
         HILOG_ERROR("%{public}s is called, but make_unique<JsCallerComplex> is nullptr", __func__);
         return engine.CreateUndefined();
@@ -415,7 +416,7 @@ NativeValue* CreateJsCallerComplex(
 
     object->SetNativePointer(jsCaller.release(), JsCallerComplex::Finalizer, nullptr);
     object->SetProperty("callee", CreateJsCalleeRemoteObject(engine, remoteObj));
-    BindNativeFunction(engine, *object, "release", JsCallerComplex::JsRelease);
+    BindNativeFunction(engine, *object, "release", JsCallerComplex::JsReleaseCall);
     BindNativeFunction(engine, *object, "onRelease", JsCallerComplex::JsSetOnReleaseCallBack);
 
     HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);

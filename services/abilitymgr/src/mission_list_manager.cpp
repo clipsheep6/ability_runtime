@@ -2406,9 +2406,10 @@ int MissionListManager::CallAbilityLocked(const AbilityRequest &abilityRequest)
     return targetAbilityRecord->LoadAbility();
 }
 
-int MissionListManager::ReleaseLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
+int MissionListManager::ReleaseCallLocked(
+    const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
-    HILOG_DEBUG("release ability.");
+    HILOG_DEBUG("release call ability.");
 
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
@@ -2418,7 +2419,7 @@ int MissionListManager::ReleaseLocked(const sptr<IAbilityConnection> &connect, c
     std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecordByName(element);
     CHECK_POINTER_AND_RETURN(abilityRecord, RELEASE_CALL_ABILITY_INNER_ERR);
 
-    if (!abilityRecord->Release(connect)) {
+    if (!abilityRecord->ReleaseCall(connect)) {
         HILOG_ERROR("ability release call record failed.");
         return RELEASE_CALL_ABILITY_INNER_ERR;
     }
@@ -2482,7 +2483,7 @@ void MissionListManager::OnCallConnectDied(const std::shared_ptr<CallRecord> &ca
     AppExecFwk::ElementName element = callRecord->GetTargetServiceName();
     auto abilityRecord = GetAbilityRecordByName(element);
     CHECK_POINTER(abilityRecord);
-    abilityRecord->Release(callRecord->GetConCallBack());
+    abilityRecord->ReleaseCall(callRecord->GetConCallBack());
 }
 void MissionListManager::OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag)
 {

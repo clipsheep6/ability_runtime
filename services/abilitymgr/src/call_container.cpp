@@ -83,7 +83,7 @@ bool CallContainer::RemoveCallRecord(const sptr<IAbilityConnection> & connect)
     if (iter != callRecordMap_.end()) {
         auto callrecord = iter->second;
         if (callrecord) {
-            callrecord->SchedulerDisConnectDone();
+            callrecord->SchedulerDisconnectDone();
         }
         RemoveConnectDeathRecipient(connect);
         callRecordMap_.erase(callRecordMap_.find(connect->AsObject()));

@@ -21,7 +21,7 @@ class Caller {
     constructor(obj) {
         console.log("Caller::constructor obj is " + typeof obj);
         this.__call_obj__ = obj;
-        this.releaseCall = false;
+        this.releaseState = false;
     }
 
     call(method, data) {
@@ -39,7 +39,7 @@ class Caller {
                 return;
             }
 
-            if (this.releaseCall == true) {
+            if (this.releaseState == true) {
                 console.log("Caller call this.callee release");
                 reject(new Error("function inner object error"));
                 return;
@@ -114,7 +114,7 @@ class Caller {
                 return;
             }
 
-            if (this.releaseCall == true) {
+            if (this.releaseState == true) {
                 console.log("Caller callWithResult this.callee release");
                 reject(new Error("function inner object error"));
                 return;
@@ -177,7 +177,7 @@ class Caller {
 
     release() {
         console.log("Caller release js called.");
-        if (this.releaseCall == true) {
+        if (this.releaseState == true) {
             console.log("Caller release remoteObj releaseState is true");
             throw new Error("caller release call remoteObj is released");
             return;
@@ -189,7 +189,7 @@ class Caller {
             return;
         }
 
-        this.releaseCall = true;
+        this.releaseState = true;
         this.__call_obj__.release();
     }
 
@@ -201,7 +201,7 @@ class Caller {
             return;
         }
 
-        if (this.releaseCall == true) {
+        if (this.releaseState == true) {
             console.log("Caller onRelease remoteObj releaseState is true");
             throw new Error("caller onRelease call remoteObj is released");
             return;

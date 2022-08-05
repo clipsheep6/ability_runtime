@@ -780,7 +780,7 @@ public:
 
     // new version
     ResolveResultType Resolve(const AbilityRequest &abilityRequest);
-    bool Release(const sptr<IAbilityConnection> & connect);
+    bool ReleaseCall(const sptr<IAbilityConnection> & connect);
     bool IsNeedToCallRequest() const;
     bool IsStartedByCall() const;
     void SetStartedByCall(const bool isFlag);

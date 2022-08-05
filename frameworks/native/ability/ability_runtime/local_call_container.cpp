@@ -80,9 +80,9 @@ int LocalCallContainer::StartAbilityByCallInner(
     return ERR_OK;
 }
 
-int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
+int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)
 {
-    HILOG_DEBUG("LocalCallContainer::Release begin.");
+    HILOG_DEBUG("LocalCallContainer::ReleaseCall begin.");
     auto isExist = [&callback](auto &record) {
         return record.second->RemoveCaller(callback);
     };
@@ -101,7 +101,7 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
 
     if (record->IsExistCallBack()) {
         // just release callback.
-        HILOG_DEBUG("LocalCallContainer::Release callback not exist.");
+        HILOG_DEBUG("LocalCallContainer::ReleaseCall, The callee has onther callers, just release this callback.");
         return ERR_OK;
     }
 
@@ -113,13 +113,13 @@ int LocalCallContainer::Release(const std::shared_ptr<CallerCallBack>& callback)
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
-    if (abilityClient->ReleaseAbility(connect, elementName) != ERR_OK) {
-        HILOG_ERROR("ReleaseAbility failed.");
+    if (abilityClient->ReleaseCall(connect, elementName) != ERR_OK) {
+        HILOG_ERROR("ReleaseCall failed.");
         return ERR_INVALID_VALUE;
     }
 
     callProxyRecords_.erase(iter);
-    HILOG_DEBUG("LocalCallContainer::Release end.");
+    HILOG_DEBUG("LocalCallContainer::ReleaseCall end.");
     return ERR_OK;
 }
 

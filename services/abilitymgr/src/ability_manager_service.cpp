@@ -3732,7 +3732,7 @@ int AbilityManagerService::StartAbilityByCall(
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
 
-int AbilityManagerService::ReleaseAbility(
+int AbilityManagerService::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
     HILOG_DEBUG("Release called ability.");
@@ -3749,7 +3749,7 @@ int AbilityManagerService::ReleaseAbility(
         return ReleaseRemoteAbility(connect->AsObject(), element);
     }
 
-    return currentMissionListManager_->ReleaseLocked(connect, element);
+    return currentMissionListManager_->ReleaseCallLocked(connect, element);
 }
 
 int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityRequest)

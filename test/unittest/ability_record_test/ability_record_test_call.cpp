@@ -232,7 +232,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Resolve_005, TestSize.Level1)
 HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Release_001, TestSize.Level1)
 {
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
-    EXPECT_EQ(abilityRecord_->Release(connect), false);
+    EXPECT_EQ(abilityRecord_->ReleaseCall(connect), false);
 }
 
 /*
@@ -255,7 +255,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_Release_002, TestSize.Level1)
         abilityRequest.connect, abilityRequest.callerToken);
     abilityRecord_->callContainer_ = std::make_shared<CallContainer>();
     abilityRecord_->callContainer_->AddCallRecord(abilityRequest.connect, callRecord);
-    EXPECT_EQ(abilityRecord_->Release(connect), true);
+    EXPECT_EQ(abilityRecord_->ReleaseCall(connect), true);
 }
 
 /*

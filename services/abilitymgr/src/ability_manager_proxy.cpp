@@ -2102,7 +2102,8 @@ int AbilityManagerProxy::StartAbilityByCall(
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
+int AbilityManagerProxy::ReleaseCall(
+    const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
     int error;
     MessageParcel data;

@@ -451,7 +451,7 @@ ErrCode AbilityContextImpl::StartAbilityByCall(
     return localCallContainer_->StartAbilityByCallInner(want, callback, token_);
 }
 
-ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback)
+ErrCode AbilityContextImpl::ReleaseCall(const std::shared_ptr<CallerCallBack> &callback)
 {
     HILOG_DEBUG("AbilityContextImpl::Release begin.");
     if (localCallContainer_ == nullptr) {
@@ -459,7 +459,7 @@ ErrCode AbilityContextImpl::ReleaseAbility(const std::shared_ptr<CallerCallBack>
         return ERR_INVALID_VALUE;
     }
     HILOG_DEBUG("AbilityContextImpl::Release end.");
-    return localCallContainer_->Release(callback);
+    return localCallContainer_->ReleaseCall(callback);
 }
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)

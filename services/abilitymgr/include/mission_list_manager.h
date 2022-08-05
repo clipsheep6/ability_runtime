@@ -305,7 +305,7 @@ public:
      * @param connect, caller callback ipc.
      * @param element, target ability name.
      */
-    int ReleaseLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
     /**
      * @brief register snapshotHandler
      * @param handler the snapshotHandler

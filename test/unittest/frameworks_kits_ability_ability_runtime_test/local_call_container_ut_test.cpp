@@ -169,7 +169,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_Release_0100, Function | M
     std::string uri = elementName.GetURI();
     localCallContainer->callProxyRecords_.emplace(uri, localCallRecord);
 
-    ErrCode ret = localCallContainer->Release(callback);
+    ErrCode ret = localCallContainer->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_OK);
 }
 
@@ -189,7 +189,7 @@ HWTEST_F(LocalCallContainerTest, Local_Call_Container_Release_0200, Function | M
 
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
 
-    ErrCode ret = localCallContainer->Release(callback);
+    ErrCode ret = localCallContainer->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
 

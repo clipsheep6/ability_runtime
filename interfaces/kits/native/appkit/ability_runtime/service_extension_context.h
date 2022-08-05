@@ -66,7 +66,7 @@ public:
      *
      * @return Returns zero on success, others on failure.
      */
-    ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) const;
+    ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) const;
 
     /**
      * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.

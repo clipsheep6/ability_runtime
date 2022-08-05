@@ -331,17 +331,18 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
 
         auto context = weak.lock();
         if (context != nullptr && calldata->callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
-            auto releaseAbilityFunc = [weak] (
+            auto releaseCallAbilityFunc = [weak] (
                 const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
                 auto contextForRelease = weak.lock();
                 if (contextForRelease == nullptr) {
-                    HILOG_ERROR("releaseAbilityFunction, context is nullptr");
+                    HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
                     return -1;
                 }
-                return contextForRelease->ReleaseAbility(callback);
+                return contextForRelease->ReleaseCall(callback);
             };
             task.Resolve(engine,
-                CreateJsCallerComplex(engine, releaseAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
+                CreateJsCallerComplex(
+                    engine, releaseCallAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
         } else {
             HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
                 context == nullptr ? "context" :
