@@ -65,7 +65,7 @@
             "window_manager"
   ],
           "third_party": [
-            "libpng",
+            "libjpeg",
             "node",
             "jsoncpp",
             "json"

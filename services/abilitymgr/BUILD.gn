@@ -70,6 +70,7 @@ config("abilityms_config") {
       "${multimedia_path}/interfaces/innerkits/include",
       "${graphic_path}/interfaces/inner_api/wmservice",
       "${global_path}/i18n/frameworks/intl/include",
+      "//third_party/libjpeg",
     ]
 
     defines += [ "SUPPORT_GRAPHICS" ]
@@ -158,7 +159,7 @@ ohos_shared_library("abilityms") {
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
       "//third_party/icu/icu4c:shared_icuuc",
-      "//third_party/libpng:libpng",
+      "//third_party/libjpeg:libjpeg_static",
     ]
     public_deps =
         [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]

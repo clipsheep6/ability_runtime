@@ -63,7 +63,7 @@ ohos_moduletest("on_new_want_module_test") {
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
       "${global_path}/i18n/frameworks/intl:intl_util",
       "${multimedia_path}/interfaces/innerkits:image_native",
-      "//third_party/libpng:libpng",
+      "//third_party/libjpeg:libjpeg_static",
     ]
   }
 

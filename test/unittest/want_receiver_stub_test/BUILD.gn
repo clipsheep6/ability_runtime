@@ -47,7 +47,7 @@ ohos_unittest("want_receiver_stub_test") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/libpng:libpng",
+    "//third_party/libjpeg:libjpeg_static",
     "//utils/native/base:utils",
   ]
 

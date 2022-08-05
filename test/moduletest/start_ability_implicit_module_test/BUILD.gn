@@ -68,7 +68,7 @@ ohos_moduletest("start_ability_implicit_module_test") {
       "${global_path}/i18n/frameworks/intl:intl_util",
       "${multimedia_path}/interfaces/innerkits:image_native",
       "//third_party/icu/icu4c:shared_icuuc",
-      "//third_party/libpng:libpng",
+      "//third_party/libjpeg:libjpeg_static",
     ]
   }
 
