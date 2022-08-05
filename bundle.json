@@ -171,6 +171,19 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager/include",
+              "header_files": [
+                "connection_data.h",
+                "connection_observer_client.h",
+                "connection_observer_errors.h",
+                "connection_observer.h",
+                "dlp_state_data.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager:connection_obs_manager"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
                 "extension.h",

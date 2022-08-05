@@ -24,6 +24,7 @@
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "bundle_mgr_client.h"
+#include "connection_state_manager.h"
 #include "hitrace_meter.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
@@ -51,6 +52,7 @@ const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 int64_t AbilityRecord::abilityRecordId = 0;
 int64_t AbilityRecord::g_abilityRecordEventId_ = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -174,6 +176,11 @@ void AbilityRecord::SetUid(int32_t uid)
 int32_t AbilityRecord::GetUid()
 {
     return uid_;
+}
+
+int32_t AbilityRecord::GetPid()
+{
+    return pid_;
 }
 
 int AbilityRecord::LoadAbility()
@@ -720,6 +727,7 @@ int AbilityRecord::TerminateAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Schedule terminate ability to AppMs, ability:%{public}s.", abilityInfo_.name.c_str());
+    HandleDlpClosed();
     return DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(token_, clearMissionFlag_);
 }
 
@@ -779,6 +787,8 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (schedulerObject != nullptr) {
             schedulerObject->AddDeathRecipient(schedulerDeathRecipient_);
         }
+        pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
+        HandleDlpAttached();
     } else {
         HILOG_ERROR("scheduler is nullptr");
         isReady_ = false;
@@ -791,6 +801,7 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
             }
         }
         scheduler_ = scheduler;
+        pid_ = 0;
     }
 }
 
@@ -1506,6 +1517,7 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
         ability->SendResultToCallers();
     };
     handler->PostTask(uriTask);
+    HandleDlpClosed();
 }
 
 void AbilityRecord::SetConnRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -1963,6 +1975,28 @@ void AbilityRecord::GrantUriPermission(const Want &want)
         if (abilityMgr) {
             abilityMgr->GrantUriPermission(want, GetCurrentAccountId(), targetTokenId);
         }
+    }
+}
+
+void AbilityRecord::HandleDlpAttached()
+{
+    if (abilityInfo_.bundleName == DLP_BUNDLE_NAME) {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDlpManager(shared_from_this());
+    }
+
+    if (appIndex_ > 0) {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDlpAbility(shared_from_this());
+    }
+}
+
+void AbilityRecord::HandleDlpClosed()
+{
+    if (abilityInfo_.bundleName == DLP_BUNDLE_NAME) {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDlpManager(shared_from_this());
+    }
+
+    if (appIndex_ > 0) {
+        DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDlpAbility(shared_from_this());
     }
 }
 

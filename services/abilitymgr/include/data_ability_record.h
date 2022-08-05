@@ -58,8 +58,10 @@ private:
         IRemoteObjectPtr client;
         bool tryBind;
         bool isSaCall;
+        int32_t clientPid = 0;
     };
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
+    int32_t GetDiedCallerPid(const sptr<IRemoteObject> &remote);
 
 private:
     std::condition_variable_any loadedCond_ {};

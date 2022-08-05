@@ -30,7 +30,11 @@ enum {
     /**
      *  Module type: ABility Kit side
      */
-    ABILITY_MODULE_TYPE_KIT = 1
+    ABILITY_MODULE_TYPE_KIT = 1,
+    /**
+     *  Module type: Ability  connection state kit side
+     */
+    ABILITY_MODULE_TYPE_CONNECTION_STATE_KIT = 2
 };
 
 // offset of aafwk error, only be used in this file.

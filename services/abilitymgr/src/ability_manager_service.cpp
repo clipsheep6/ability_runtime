@@ -58,6 +58,7 @@
 #include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
+#include "connection_state_manager.h"
 
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
@@ -260,6 +261,8 @@ bool AbilityManagerService::Init()
     handler_->PostTask(startResidentAppsTask, "StartResidentApps");
 
     SubscribeBackgroundTask();
+
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->Init();
 
     HILOG_INFO("Init success.");
     return true;
@@ -675,7 +678,7 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
-    
+
     auto result = CheckCrowdtestForeground(want, requestCode, userId);
     if (result != ERR_OK) {
         return result;
@@ -1681,6 +1684,16 @@ int AbilityManagerService::StopSyncRemoteMissions(const std::string& devId)
     }
     DistributedClient dmsClient;
     return dmsClient.StopSyncRemoteMissions(devId);
+}
+
+int AbilityManagerService::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    return DelayedSingleton<ConnectionStateManager>::GetInstance()->RegisterObserver(observer);
+}
+
+int AbilityManagerService::UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    return DelayedSingleton<ConnectionStateManager>::GetInstance()->UnregisterObserver(observer);
 }
 
 int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,

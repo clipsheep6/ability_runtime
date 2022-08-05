@@ -138,6 +138,8 @@ void AbilityManagerStub::ThirdStepInit()
     requestFuncMap_[START_EXTENSION_ABILITY] = &AbilityManagerStub::StartExtensionAbilityInner;
     requestFuncMap_[STOP_EXTENSION_ABILITY] = &AbilityManagerStub::StopExtensionAbilityInner;
     requestFuncMap_[UPDATE_MISSION_SNAPSHOT] = &AbilityManagerStub::UpdateMissionSnapShotInner;
+    requestFuncMap_[REGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::RegisterConnectionObserverInner;
+    requestFuncMap_[UNREGISTER_CONNECTION_OBSERVER] = &AbilityManagerStub::UnregisterConnectionObserverInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[SET_MISSION_LABEL] = &AbilityManagerStub::SetMissionLabelInner;
     requestFuncMap_[SET_MISSION_ICON] = &AbilityManagerStub::SetMissionIconInner;
@@ -1317,6 +1319,18 @@ int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
+int AbilityManagerStub::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    // should implement in child.
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
+{
+    // should implement in child
+    return NO_ERROR;
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityManagerStub::ForceTimeoutForTestInner(MessageParcel &data, MessageParcel &reply)
 {
@@ -1409,6 +1423,30 @@ int AbilityManagerStub::UpdateMissionSnapShotInner(MessageParcel &data, MessageP
     }
     UpdateMissionSnapShot(token);
     return NO_ERROR;
+}
+
+int AbilityManagerStub::RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityRuntime::IConnectionObserver> observer = iface_cast<AbilityRuntime::IConnectionObserver>(
+        data.ReadRemoteObject());
+    if (!observer) {
+        HILOG_ERROR("RegisterConnectionObserverInner read observer failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return RegisterObserver(observer);
+}
+
+int AbilityManagerStub::UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AbilityRuntime::IConnectionObserver> observer = iface_cast<AbilityRuntime::IConnectionObserver>(
+        data.ReadRemoteObject());
+    if (!observer) {
+        HILOG_ERROR("UnregisterConnectionObserverInner read observer failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    return UnregisterObserver(observer);
 }
 
 #ifdef SUPPORT_GRAPHICS

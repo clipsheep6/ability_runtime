@@ -130,6 +130,13 @@ public:
 
     void Dump(std::vector<std::string> &info) const;
 
+    void AttachCallerInfo();
+    int32_t GetCallerUid() const;
+    int32_t GetCallerPid() const;
+    std::string GetCallerName() const;
+    sptr<IRemoteObject> GetTargetToken() const;
+    sptr<IRemoteObject> GetConnection() const;
+
 private:
     static int64_t connectRecordId;
     int recordId_;                                  // record id
@@ -137,6 +144,9 @@ private:
     sptr<IRemoteObject> callerToken_;               // from:caller token
     std::shared_ptr<AbilityRecord> targetService_;  // target:service need to be connected
     sptr<IAbilityConnection> connCallback_;         // service connect callback
+    int32_t callerUid_;                             // caller uid
+    int32_t callerPid_;                             // caller pid
+    std::string callerName_;                        // caller bundleName or processName
 
     DISALLOW_COPY_AND_MOVE(ConnectionRecord);
 };
