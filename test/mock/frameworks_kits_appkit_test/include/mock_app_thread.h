@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H
-#define OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H
 
 #include <gtest/gtest.h>
 #include "event_handler.h"
@@ -33,4 +33,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_THREAD_H

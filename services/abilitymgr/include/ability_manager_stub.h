@@ -101,7 +101,6 @@ private:
     int GetPendingRequestWantInner(MessageParcel &data, MessageParcel &reply);
     int GetWantSenderInfoInner(MessageParcel &data, MessageParcel &reply);
 
-    int GetSystemMemoryAttrInner(MessageParcel &data, MessageParcel &reply);
     int GetAppMemorySizeInner(MessageParcel &data, MessageParcel &reply);
     int IsRamConstrainedDeviceInner(MessageParcel &data, MessageParcel &reply);
     int ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply);
@@ -127,7 +126,7 @@ private:
 
 	// for new version ability (call ability)
     int StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply);
-    int ReleaseInner(MessageParcel &data, MessageParcel &reply);
+    int ReleaseCallInner(MessageParcel &data, MessageParcel &reply);
     int StartUserInner(MessageParcel &data, MessageParcel &reply);
     int StopUserInner(MessageParcel &data, MessageParcel &reply);
     int GetAbilityRunningInfosInner(MessageParcel &data, MessageParcel &reply);

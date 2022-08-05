@@ -126,10 +126,13 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
      */
-    virtual void GetSystemMemoryAttr(SystemMemoryAttr &memoryInfo, std::string &strConfig) = 0;
+    virtual int NotifyMemoryLevel(int32_t level) = 0;
 
     /**
      * Notify that the ability stage has been updated
@@ -147,7 +150,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) = 0;
+    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) = 0;
 
     /**
      * Unregister application or process state observer.
@@ -250,7 +254,6 @@ public:
         APP_CLEAR_UP_APPLICATION_DATA,
         APP_GET_ALL_RUNNING_PROCESSES,
         APP_GET_RUNNING_PROCESSES_BY_USER_ID,
-        APP_GET_SYSTEM_MEMORY_ATTR,
         APP_ADD_ABILITY_STAGE_INFO_DONE,
         STARTUP_RESIDENT_PROCESS,
         REGISTER_APPLICATION_STATE_OBSERVER,
@@ -268,6 +271,7 @@ public:
         UPDATE_CONFIGURATION,
         REGISTER_CONFIGURATION_OBSERVER,
         UNREGISTER_CONFIGURATION_OBSERVER,
+        APP_NOTIFY_MEMORY_LEVEL,
     };
 };
 }  // namespace AppExecFwk

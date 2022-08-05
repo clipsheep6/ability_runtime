@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
-#define OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#define MOCK_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
 
 #include <mutex>
 
@@ -25,6 +25,10 @@
 #include "ui_service_mgr_errors.h"
 #include "ui_service_mgr_interface.h"
 #include "uri.h"
+
+namespace OHOS::Rosen {
+enum class WindowType : uint32_t;
+}
 
 namespace OHOS {
 namespace Ace {
@@ -91,4 +95,4 @@ private:
 };
 }  // namespace Ace
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H

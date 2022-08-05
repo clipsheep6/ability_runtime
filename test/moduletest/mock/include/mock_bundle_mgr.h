@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_ABILITY_MOCK_BUNDLE_MANAGER_H
-#define OHOS_AAFWK_ABILITY_MOCK_BUNDLE_MANAGER_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_H
 
 #include <vector>
 #include <gmock/gmock.h>
@@ -479,4 +479,4 @@ public:
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // OHOS_AAFWK_ABILITY_MOCK_BUNDLE_MANAGER_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_BUNDLE_MANAGER_H

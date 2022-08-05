@@ -22,9 +22,6 @@
 namespace OHOS {
 namespace AAFwk {
 namespace AmsConfig {
-namespace MemThreshold {
-constexpr const char* HOME_APP = "home_application";
-}
 constexpr const char* AMS_CONFIG_FILE_PATH = "/system/etc/ams_service_config.json";
 constexpr const char* SERVICE_ITEM_AMS = "service_startup_config";
 constexpr const char* MISSION_SAVE_TIME = "mission_save_time";
@@ -51,10 +48,7 @@ public:
      * Get profile information
      */
     void Parse();
-    /**
-     * The low memory threshold under which the system will kill background processes
-     */
-    int GetMemThreshold(const std::string &key);
+
     /**
      * Get the save time of the current content
      */
@@ -101,7 +95,6 @@ private:
     int anrTime_ {5000};
     int amsTime_ {5000};
     std::string deviceType_ {""};
-    std::map<std::string, std::string> memThreshold_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

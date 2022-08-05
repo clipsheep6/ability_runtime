@@ -302,6 +302,13 @@ public:
     void NotifyContinuationResult(int32_t result);
 
     /**
+     * @brief notify this ability current memory level.
+     *
+     * @param level: Current memory level
+     */
+    void NotifyMemoryLevel(int32_t level);
+
+    /**
      * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
      * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
      * context has changed. If you implement URI normalization for a Data ability, you must also implement

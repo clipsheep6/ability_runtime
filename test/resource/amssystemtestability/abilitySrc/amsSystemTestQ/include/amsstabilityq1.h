@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef _AMS_ST_ABILITY_Q1_
-#define _AMS_ST_ABILITY_Q1_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_Q1_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_Q1_H
 #include "stpageabilityevent.h"
 #include <string>
 #include <thread>
@@ -48,4 +48,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // _AMS_ST_ABILITY_Q1_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_ABILITY_Q1_H

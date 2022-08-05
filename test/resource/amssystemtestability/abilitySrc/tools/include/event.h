@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef _ABILITY_MANAGER_SERVICE_EVENT_H_
-#define _ABILITY_MANAGER_SERVICE_EVENT_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_EVENT_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_EVENT_H
 
 #include <string>
 #include <vector>
@@ -40,4 +40,4 @@ int WaitCompleted(Event &event, const std::string &eventName, const int code, co
 void Completed(Event &event, const std::string &eventName, const int code);
 void CleanMsg(Event &event);
 }  // namespace STtools
-#endif  // _ABILITY_MANAGER_SERVICE_EVENT_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_EVENT_H

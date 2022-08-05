@@ -23,6 +23,9 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+static const uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
+static const char* JS_CONSOLE_LOG_TAG = "JsApp";
+
 std::string MakeLogContent(NativeCallbackInfo& info)
 {
     std::string content;
@@ -67,7 +70,7 @@ NativeValue* ConsoleLog(NativeEngine* engine, NativeCallbackInfo* info)
     }
 
     std::string content = MakeLogContent(*info);
-    HiLogPrint(LOG_APP, LEVEL, AMS_LOG_DOMAIN, "JsApp", "%{public}s", content.c_str());
+    HiLogPrint(LOG_APP, LEVEL, JS_CONSOLE_LOG_DOMAIN, JS_CONSOLE_LOG_TAG, "%{public}s", content.c_str());
 
     return engine->CreateUndefined();
 }

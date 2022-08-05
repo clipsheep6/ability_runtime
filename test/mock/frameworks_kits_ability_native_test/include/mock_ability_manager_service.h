@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H
 
 #include <memory>
 #include <singleton.h>
@@ -101,7 +101,6 @@ public:
     MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
@@ -217,7 +216,7 @@ public:
         return true;
     }
 
-    virtual int ReleaseAbility(
+    virtual int ReleaseCall(
         const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override
     {
         return 0;
@@ -281,4 +280,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MANAGER_SERVICE_H

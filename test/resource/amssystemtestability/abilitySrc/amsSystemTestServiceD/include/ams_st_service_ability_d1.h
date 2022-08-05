@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_ST_SERVICE_ABILITY_D1_
-#define AMS_ST_SERVICE_ABILITY_D1_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_D1_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_D1_H
 #include <string>
 #include <map>
 #include "ability_connect_callback_stub.h"
@@ -117,4 +117,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ST_SERVICE_ABILITY_D1_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_D1_H

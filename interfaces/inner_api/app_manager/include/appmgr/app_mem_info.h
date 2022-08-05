@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,16 +12,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H
-#define OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H
 
-#include "kernel_system_memory_info.h"
+#ifndef OHOS_ABILITY_RUNTIME_APP_MEM_INFO_H
+#define OHOS_ABILITY_RUNTIME_APP_MEM_INFO_H
 
 namespace OHOS {
 namespace AppExecFwk {
-namespace SystemEnv {
-void GetMemInfo(KernelSystemMemoryInfo &memInfo);
-}  // namespace SystemEnv
+enum MemoryLevel {
+    MEMORY_LEVEL_MODERATE = 0,
+    MEMORY_LEVEL_LOW = 1,
+    MEMORY_LEVEL_CRITICAL = 2,
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_SYSTEM_ENVIRONMENT_INFORMATION_H
+
+#endif  // OHOS_ABILITY_RUNTIME_APP_MEM_INFO_H

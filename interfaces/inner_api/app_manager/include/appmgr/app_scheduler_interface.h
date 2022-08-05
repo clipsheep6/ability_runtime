@@ -72,6 +72,14 @@ public:
     virtual void ScheduleLowMemory() = 0;
 
     /**
+     * ScheduleMemoryLevel, call ScheduleMemoryLevel() through proxy project,
+     * Notify applications background the current memory level.
+     *
+     * @return
+     */
+    virtual void ScheduleMemoryLevel(int32_t level) = 0;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
@@ -145,6 +153,7 @@ public:
         SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION,
         SCHEDULE_ABILITY_STAGE_INFO,
         SCHEDULE_ACCEPT_WANT,
+        SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
     };
 };
 }  // namespace AppExecFwk

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
-#define OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H
 
 #include <mutex>
 
@@ -26,6 +26,9 @@
 #include "ui_service_mgr_interface.h"
 #include "uri.h"
 
+namespace OHOS::Rosen {
+enum class WindowType : uint32_t;
+}
 namespace OHOS {
 namespace Ace {
 class UIServiceMgrClient {
@@ -62,7 +65,7 @@ public:
 
     ErrCode ShowAppPickerDialog(
         const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, int32_t userId);
-    
+
     void SetDialogCheckState(const std::string& code)
     {
         code_ = code;
@@ -97,4 +100,4 @@ private:
 };
 }  // namespace Ace
 }  // namespace OHOS
-#endif  // OHOS_AAFWK_UI_SERVICE_MANAGER_CLIENT_MOCK_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_UI_SERVICE_MANAGER_CLIENT_MOCK_H

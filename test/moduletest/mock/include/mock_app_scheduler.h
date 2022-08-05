@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_TEST_MOCK_APP_SCHEDULER_H
-#define FOUNDATION_AAFWK_SERVICES_TEST_MOCK_APP_SCHEDULER_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H
 
 #include "gmock/gmock.h"
 #include "refbase.h"
@@ -40,8 +40,9 @@ public:
     MOCK_METHOD1(ScheduleProfileChanged, void(const AppExecFwk::Profile &));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const AppExecFwk::Configuration &config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
+    MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD0(ScheduleLowMemory, void());
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_TEST_MOCK_APP_SCHEDULER_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_APP_SCHEDULER_H

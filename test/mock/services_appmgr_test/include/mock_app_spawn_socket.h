@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H
-#define OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H
 
 #include "gmock/gmock.h"
 #include "app_spawn_socket.h"
@@ -56,4 +56,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_APP_SPAWN_SOCKET_H

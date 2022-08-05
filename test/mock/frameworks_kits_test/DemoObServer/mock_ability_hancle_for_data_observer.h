@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H
+#ifndef MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H
+#define MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H
 
 #include <string>
 
@@ -32,4 +32,4 @@ bool EventHandler::SendEvent(InnerEvent::Pointer &event, int64_t delayTime, Prio
 }  // namespace AppExecFwk
 }  // namespace OHOS
 
-#endif  // OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H
+#endif  // MOCK_OHOS_ABILITY_RUNTIME_MOCK_ABILIT_HANCLDE_FOR_DATA_OBSERVER_H

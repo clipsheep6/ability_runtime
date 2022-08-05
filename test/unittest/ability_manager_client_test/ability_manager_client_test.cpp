@@ -91,13 +91,13 @@ HWTEST_F(AbilityManagerClientTest, StartAbilityByCall_001, TestSize.Level1)
  * SubFunction: NA
  * FunctionPoints: AbilityManagerClient StartAbility
  * EnvConditions: NA
- * CaseDescription: Verify the ReleaseAbility call normal
+ * CaseDescription: Verify the ReleaseCall call normal
  */
-HWTEST_F(AbilityManagerClientTest, ReleaseAbility_001, TestSize.Level1)
+HWTEST_F(AbilityManagerClientTest, ReleaseCall_001, TestSize.Level1)
 {
     ElementName element;
     sptr<IAbilityConnection> connect = nullptr;
-    EXPECT_EQ(client_->ReleaseAbility(connect, element), 0);
+    EXPECT_EQ(client_->ReleaseCall(connect, element), 0);
 }
 
 /**

@@ -52,6 +52,11 @@ void ApplicationContext::UnregisterAbilityLifecycleCallback(
     }
 }
 
+bool ApplicationContext::isAbilityLifecycleCallbackEmpty()
+{
+    return (callbacks_.size() == 0);
+}
+
 void ApplicationContext::RegisterEnvironmentCallback(
     const std::shared_ptr<EnvironmentCallback> &environmentCallback)
 {
@@ -69,80 +74,108 @@ void ApplicationContext::UnregisterEnvironmentCallback(
     }
 }
 
-void ApplicationContext::DispatchOnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    if (!ability) {
+        HILOG_ERROR("ability is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityCreate(abilityObj);
+        callback->OnAbilityCreate(ability);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    if (!ability || !windowStage) {
+        HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityWindowStageCreate(abilityObj);
+        callback->OnWindowStageCreate(ability, windowStage);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    if (!ability || !windowStage) {
+        HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityWindowStageDestroy(abilityObj);
+        callback->OnWindowStageDestroy(ability, windowStage);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (!ability || !windowStage) {
+        HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityDestroy(abilityObj);
+        callback->OnWindowStageActive(ability, windowStage);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<NativeReference> &ability,
+    const std::shared_ptr<NativeReference> &windowStage)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (!ability || !windowStage) {
+        HILOG_ERROR("ability or windowStage is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityForeground(abilityObj);
+        callback->OnWindowStageInactive(ability, windowStage);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeReference> &ability)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    if (!ability) {
+        HILOG_ERROR("ability is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityBackground(abilityObj);
+        callback->OnAbilityDestroy(ability);
     }
 }
 
-void ApplicationContext::DispatchOnAbilityContinue(const std::weak_ptr<NativeReference> &abilityObj)
+void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<NativeReference> &ability)
 {
-    if (abilityObj.expired()) {
-        HILOG_WARN("abilityObj is nullptr");
+    if (!ability) {
+        HILOG_ERROR("ability is nullptr");
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityContinue(abilityObj);
+        callback->OnAbilityForeground(ability);
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<NativeReference> &ability)
+{
+    if (!ability) {
+        HILOG_ERROR("ability is nullptr");
+        return;
+    }
+    for (auto callback : callbacks_) {
+        callback->OnAbilityBackground(ability);
+    }
+}
+
+void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeReference> &ability)
+{
+    if (!ability) {
+        HILOG_ERROR("ability is nullptr");
+        return;
+    }
+    for (auto callback : callbacks_) {
+        callback->OnAbilityContinue(ability);
     }
 }
 

@@ -408,12 +408,6 @@ public:
 
     virtual int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) = 0;
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) = 0;
-
     virtual int ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId, int32_t missionId,
         const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams) = 0;
 
@@ -460,12 +454,12 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) = 0;
 
     /**
-     * Release Ability, disconnect session with common ability.
+     * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
+    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
 
     virtual int StartUser(int userId) = 0;
 
@@ -884,8 +878,6 @@ public:
         START_ABILITY_FOR_SETTINGS,
 
         GET_ABILITY_MISSION_SNAPSHOT,
-
-        GET_SYSTEM_MEMORY_ATTR,
 
         GET_APP_MEMORY_SIZE,
 

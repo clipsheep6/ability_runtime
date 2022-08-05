@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_AAFWK_SERVICES_MOCK_ABILITY_MGR_SERVICE_H
-#define FOUNDATION_AAFWK_SERVICES_MOCK_ABILITY_MGR_SERVICE_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_SERVICE_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_SERVICE_H
 
 #include "gmock/gmock.h"
 #include "semaphore_ex.h"
@@ -74,7 +74,6 @@ public:
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender> &target, std::shared_ptr<Want> &want));
     MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
-    MOCK_METHOD1(GetSystemMemoryAttr, void(AppExecFwk::SystemMemoryAttr &memoryInfo));
     MOCK_METHOD3(StartContinuation, int(const Want &want, const sptr<IRemoteObject> &abilityToken, int32_t status));
     MOCK_METHOD2(NotifyContinuationResult, int(int32_t missionId, int32_t result));
     MOCK_METHOD5(ContinueMission, int(const std::string &srcDeviceId, const std::string &dstDeviceId,
@@ -148,7 +147,7 @@ public:
         return 0;
     }
 
-    virtual int ReleaseAbility(const sptr<IAbilityConnection> &connect,
+    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {
         return 0;
@@ -244,4 +243,4 @@ private:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_AAFWK_SERVICES_MOCK_ABILITY_MGR_SERVICE_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_SERVICE_H

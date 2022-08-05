@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H
-#define OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H
+#ifndef SYSTEMTEST_OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H
+#define SYSTEMTEST_OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H
 #include "event.h"
 #include "stoperator.h"
 #include "ability_manager_service.h"
@@ -337,4 +337,4 @@ private:
 };
 }  // namespace STABUtil
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H
+#endif  // SYSTEMTEST_OHOS_ABILITY_RUNTIME_ST_ABILITY_UTIL_H

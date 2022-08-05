@@ -60,8 +60,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
             std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
                 return connectCaller == obj.first.connectCaller &&
                     connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName() &&
-                    connectReceiver.GetModuleName() == obj.first.connectReceiver.GetModuleName();
+                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
         std::vector<sptr<AbilityConnectCallback>> callbacks = item->second;
@@ -110,8 +109,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
             const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
             return connectCaller == obj.first.connectCaller &&
                    connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                   connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName() &&
-                   connectReceiver.GetModuleName() == obj.first.connectReceiver.GetModuleName();
+                   connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
         std::vector<sptr<AbilityConnectCallback>> callbacks = item->second;

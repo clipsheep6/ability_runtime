@@ -17,10 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("runtime_config") {
   visibility = [ ":*" ]
 
-  defines = [
-    "AMS_LOG_TAG = \"Runtime\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"Runtime\"" ]
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
@@ -71,7 +68,6 @@ ohos_shared_library("runtime") {
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "init:libbegetutil",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "utils_base:utils",
@@ -81,7 +77,7 @@ ohos_shared_library("runtime") {
     defines = [ "ENABLE_HITRACE" ]
     external_deps += [
       "hitrace_native:libhitrace",
-      "startup_l2:syspara",
+      "init:libbegetutil",
     ]
   } else {
     external_deps += [ "startup:syspara" ]

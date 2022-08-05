@@ -70,7 +70,7 @@ public:
 
     void Dump(std::vector<std::string> &info) const;
     bool SchedulerConnectDone();
-    bool SchedulerDisConnectDone();
+    bool SchedulerDisconnectDone();
     void OnCallStubDied(const wptr<IRemoteObject> & remote);
 
     int32_t GetCallerUid() const;

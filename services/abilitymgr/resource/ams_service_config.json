@@ -6,9 +6,6 @@
         "ams_timeout_time" : 180,
         "device_type": "phone"
     },
-    "memorythreshold":{
-        "home_application": "20"
-    },
     "system_configuration":{
         "system_orientation": "vertical"
     }

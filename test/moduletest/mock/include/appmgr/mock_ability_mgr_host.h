@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef FOUNDATION_APPEXECFWK_SERVICES_BUNDLEMGR_TEST_MOCK_MOCK_APP_MGR_HOST_H
-#define FOUNDATION_APPEXECFWK_SERVICES_BUNDLEMGR_TEST_MOCK_MOCK_APP_MGR_HOST_H
+#ifndef MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_HOST_H
+#define MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_HOST_H
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -189,9 +189,6 @@ public:
         return 0;
     }
 
-    void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) override
-    {}
-
     int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) override
     {
         return 0;
@@ -306,4 +303,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // FOUNDATION_APPEXECFWK_SERVICES_BUNDLEMGR_TEST_MOCK_MOCK_APP_MGR_HOST_H
+#endif  // MODULETEST_OHOS_ABILITY_RUNTIME_MOCK_ABILITY_MGR_HOST_H

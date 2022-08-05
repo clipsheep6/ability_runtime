@@ -38,7 +38,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
+    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) override;
 
     /**
      * Unregister application or process state observer.
@@ -65,8 +66,8 @@ private:
     int32_t HandleClearUpApplicationData(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllRunningProcesses(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetProcessRunningInfosByUserId(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleGetSystemMemoryAttr(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAddAbilityStageDone(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);

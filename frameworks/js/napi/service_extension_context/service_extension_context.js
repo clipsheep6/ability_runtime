@@ -14,6 +14,7 @@
  */
 
 var ExtensionContext = requireNapi("application.ExtensionContext")
+var Caller = requireNapi("application.Caller")
 
 class ServiceExtensionContext extends ExtensionContext {
     constructor(obj) {
@@ -68,6 +69,27 @@ class ServiceExtensionContext extends ExtensionContext {
     terminateSelf(callback) {
         console.log("terminateSelf");
         return this.__context_impl__.terminateSelf(callback);
+    }
+
+    startAbilityByCall(want) {
+        return new Promise(async (resolve, reject) => {
+            if (typeof want !== 'object' || want == null) {
+                console.log("ServiceExtensionContext::startAbilityByCall input param error");
+                reject(new Error("function input parameter error"));
+                return;
+            }
+
+            let callee = await this.__context_impl__.startAbilityByCall(want);
+            if (callee == null || typeof callee !== 'object') {
+                console.log("ServiceExtensionContext::startAbilityByCall Obtain remoteObject failed");
+                reject(new Error("function request remote error"));
+                return;
+            }
+
+            resolve(new Caller(callee));
+            console.log("ServiceExtensionContext::startAbilityByCall success");
+            return;
+        });
     }
 }
 

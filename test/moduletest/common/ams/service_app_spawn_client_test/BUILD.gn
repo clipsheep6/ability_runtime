@@ -24,10 +24,7 @@ ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
-  sources = [
-    "${ability_runtime_services_path}/appmgr/src/system_environment_information.cpp",
-    "ams_service_app_spawn_client_module_test.cpp",
-  ]
+  sources = [ "ams_service_app_spawn_client_module_test.cpp" ]
 
   deps = [
     "${ability_runtime_services_path}/common:perm_verification",

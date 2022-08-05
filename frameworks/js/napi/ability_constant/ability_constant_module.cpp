@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include "ability_window_configuration.h"
+#include "hilog_wrapper.h"
 #include "launch_param.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
@@ -71,27 +73,60 @@ static napi_value InitOnContinueResultObject(napi_env env)
     return object;
 }
 
+static napi_value InitWindowModeObject(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_UNDEFINED", MULTI_WINDOW_DISPLAY_UNDEFINED));
+    NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_FULLSCREEN", MULTI_WINDOW_DISPLAY_FULLSCREEN));
+    NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_SPLIT_PRIMARY", MULTI_WINDOW_DISPLAY_PRIMARY));
+    NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_SPLIT_SECONDARY", MULTI_WINDOW_DISPLAY_SECONDARY));
+    NAPI_CALL(env, SetEnumItem(env, object, "WINDOW_MODE_FLOATING", MULTI_WINDOW_DISPLAY_FLOATING));
+
+    return object;
+}
+
 /*
  * The module initialization.
  */
 static napi_value AbilityConstantInit(napi_env env, napi_value exports)
 {
     napi_value launchReason = InitLaunchReasonObject(env);
-    NAPI_ASSERT(env, launchReason != nullptr, "failed to create launch reason object");
+    if (launchReason == nullptr) {
+        HILOG_ERROR("failed to create launch reason object");
+        return nullptr;
+    }
 
     napi_value lastExitReason = InitLastExitReasonObject(env);
-    NAPI_ASSERT(env, lastExitReason != nullptr, "failed to create last exit reason object");
+    if (lastExitReason == nullptr) {
+        HILOG_ERROR("failed to create last exit reason object");
+        return nullptr;
+    }
 
     napi_value onContinueResult = InitOnContinueResultObject(env);
-    NAPI_ASSERT(env, onContinueResult != nullptr, "failed to create onContinue result object");
+    if (onContinueResult == nullptr) {
+        HILOG_ERROR("failed to create onContinue result object");
+        return nullptr;
+    }
+
+    napi_value windowMode = InitWindowModeObject(env);
+    if (windowMode == nullptr) {
+        HILOG_ERROR("failed to create window mode object");
+        return nullptr;
+    }
 
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("LaunchReason", launchReason),
         DECLARE_NAPI_PROPERTY("LastExitReason", lastExitReason),
         DECLARE_NAPI_PROPERTY("OnContinueResult", onContinueResult),
+        DECLARE_NAPI_PROPERTY("WindowMode", windowMode),
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
-    NAPI_ASSERT(env, status == napi_ok, "failed to define properties for exports");
+    if (status != napi_ok) {
+        HILOG_ERROR("failed to define properties for exports");
+        return nullptr;
+    }
 
     return exports;
 }

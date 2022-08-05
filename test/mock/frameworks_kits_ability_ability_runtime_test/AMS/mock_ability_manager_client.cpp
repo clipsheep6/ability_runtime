@@ -130,18 +130,18 @@ ErrCode AbilityManagerClient::StartAbilityByCall(
     return abms->StartAbilityByCall(want, connect, callerToken);
 }
 
-ErrCode AbilityManagerClient::ReleaseAbility(
+ErrCode AbilityManagerClient::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
-    HILOG_INFO("AbilityManagerClient::ReleaseAbility start");
+    HILOG_INFO("AbilityManagerClient::ReleaseCall start");
     if (g_remoteObject == nullptr) {
-        HILOG_INFO("AbilityManagerClient::ReleaseAbility fail because remoteObject is null");
+        HILOG_INFO("AbilityManagerClient::ReleaseCall fail because remoteObject is null");
                 g_remoteObject =
             OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    HILOG_INFO("AbilityManagerClient::ReleaseAbility end");
-    return abms->ReleaseAbility(connect, element);
+    HILOG_INFO("AbilityManagerClient::ReleaseCall end");
+    return abms->ReleaseCall(connect, element);
 }
 
 ErrCode AbilityManagerClient::TerminateAbility(

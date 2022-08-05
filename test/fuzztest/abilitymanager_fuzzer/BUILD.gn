@@ -47,12 +47,15 @@ ohos_fuzztest("AbilityManagerFuzzTest") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "utils_base:utils",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "input:libmmi-client" ]
+  }
 }
 
 ###############################################################################

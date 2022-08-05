@@ -225,7 +225,7 @@ public:
      *
      * @return Returns zero on success, others on failure.
      */
-    virtual ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) = 0;
+    virtual ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) = 0;
 
     /**
      * @brief Get LocalCallContainer.

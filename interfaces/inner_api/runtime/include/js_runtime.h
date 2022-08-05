@@ -68,6 +68,8 @@ public:
     bool RunSandboxScript(const std::string& path);
     virtual bool RunScript(const std::string& path) = 0;
 
+    void PreloadSystemModule(const std::string& moduleName) override;
+
 protected:
     JsRuntime() = default;
 
@@ -79,6 +81,7 @@ protected:
 
     bool isArkEngine_ = false;
     bool debugMode_ = false;
+    bool preloaded_ = false;
     std::unique_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;

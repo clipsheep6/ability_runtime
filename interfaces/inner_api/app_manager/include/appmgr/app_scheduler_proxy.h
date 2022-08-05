@@ -69,6 +69,14 @@ public:
     virtual void ScheduleLowMemory() override;
 
     /**
+     * ScheduleMemoryLevel, call ScheduleMemoryLevel() through proxy project,
+     * Notify applications background the current memory level.
+     *
+     * @return
+     */
+    virtual void ScheduleMemoryLevel(int32_t level) override;
+
+    /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
@@ -136,6 +144,7 @@ public:
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);
+    void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);
     static inline BrokerDelegator<AppSchedulerProxy> delegator_;
 };
 }  // namespace AppExecFwk

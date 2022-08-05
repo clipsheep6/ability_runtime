@@ -14,6 +14,7 @@
  */
 
 #include <cstring>
+#include <unistd.h>
 
 #include "ability_command.h"
 #include "ability_tool_command.h"
@@ -27,6 +28,5 @@ int main(int argc, char *argv[])
         OHOS::AAFwk::AbilityToolCommand cmd(argc, argv);
         std::cout << cmd.ExecCommand();
     }
-
-    return 0;
+    _exit(0);
 }

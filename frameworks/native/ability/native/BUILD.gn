@@ -13,6 +13,7 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
+import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 config("ability_config") {
   visibility = [ ":*" ]
@@ -41,10 +42,7 @@ config("ability_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"Ability\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }
@@ -111,9 +109,9 @@ ohos_shared_library("static_subscriber_ipc") {
 
 ohos_shared_library("abilitykit_native") {
   include_dirs = [
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi//common/include",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/include",
+    "${relational_store_napi_path}/rdb/include",
+    "${relational_store_napi_path}/common/include",
+    "${relational_store_napi_path}/dataability/include",
   ]
 
   sources = [
@@ -185,9 +183,9 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
     "${ability_runtime_services_path}/common/src/event_report.cpp",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/common/src/js_utils.cpp",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/dataability/src/napi_data_ability_predicates.cpp",
-    "${distributeddatamgr_path}/appdatamgr/relational_store/frameworks/js/napi/rdb/src/napi_result_set.cpp",
+    "${relational_store_napi_path}/common/src/js_utils.cpp",
+    "${relational_store_napi_path}/dataability/src/napi_data_ability_predicates.cpp",
+    "${relational_store_napi_path}/rdb/src/napi_result_set.cpp",
   ]
   configs = [ ":ability_config" ]
   public_configs = [
@@ -240,7 +238,7 @@ ohos_shared_library("abilitykit_native") {
   }
 
   if (distributed_data_object_enable) {
-    external_deps += [ "distributeddataobject:distributeddataobject_impl" ]
+    external_deps += [ "data_object:distributeddataobject_impl" ]
     defines += [ "DISTRIBUTED_DATA_OBJECT_ENABLE" ]
   }
 

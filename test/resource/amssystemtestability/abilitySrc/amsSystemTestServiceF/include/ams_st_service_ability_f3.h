@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef AMS_ST_SERVICE_ABILITY_F3_
-#define AMS_ST_SERVICE_ABILITY_F3_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_F3_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_F3_H
 #include <string>
 #include "ability_loader.h"
 
@@ -42,4 +42,4 @@ private:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ST_SERVICE_ABILITY_F3_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_SERVICE_ABILITY_F3_H

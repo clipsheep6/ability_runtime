@@ -36,9 +36,12 @@ public:
         std::string packagePath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
+        bool preload = false;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
+    static void SavePreloaded(std::unique_ptr<Runtime>&& instance);
+    static std::unique_ptr<Runtime> GetPreloaded();
 
     Runtime() = default;
     virtual ~Runtime() = default;
@@ -49,6 +52,8 @@ public:
     virtual std::string BuildJsStackTrace() = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
+    virtual void PreloadSystemModule(const std::string& moduleName) = 0;
+    virtual void FinishPreload() = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

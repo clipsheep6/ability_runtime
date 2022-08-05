@@ -80,10 +80,7 @@ ohos_shared_library("app_manager") {
     ":appmgr_sdk_config",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppexecfwkCore\"",
-    "AMS_LOG_DOMAIN = 0xD001100",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppexecfwkCore\"" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]

@@ -488,13 +488,6 @@ ErrCode AbilityManagerClient::GetWantSenderInfo(const sptr<IWantSender> &target,
     return abms->GetWantSenderInfo(target, info);
 }
 
-void AbilityManagerClient::GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->GetSystemMemoryAttr(memoryInfo);
-}
-
 ErrCode AbilityManagerClient::GetAppMemorySize()
 {
     auto abms = GetAbilityManager();
@@ -676,12 +669,12 @@ ErrCode AbilityManagerClient::StartAbilityByCall(
     return abms->StartAbilityByCall(want, connect, callToken);
 }
 
-ErrCode AbilityManagerClient::ReleaseAbility(
+ErrCode AbilityManagerClient::ReleaseCall(
     const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ReleaseAbility(connect, element);
+    return abms->ReleaseCall(connect, element);
 }
 
 ErrCode AbilityManagerClient::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)

@@ -35,6 +35,10 @@
 #include "locale_config.h"
 #include "mission_info_mgr.h"
 #endif
+#ifdef EFFICIENCY_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif // EFFICIENCY_MANAGER_ENABLE
+
 
 namespace OHOS {
 namespace AAFwk {
@@ -259,6 +263,12 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
+#ifdef EFFICIENCY_MANAGER_ENABLE
+            std::string bundleName = GetAbilityInfo().bundleName;
+            int32_t uid = GetUid();
+            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+                uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
+#endif // EFFICIENCY_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         } else {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
@@ -1723,6 +1733,16 @@ void AbilityRecord::SetStartToBackground(const bool flag)
     isStartToBackground_ = flag;
 }
 
+bool AbilityRecord::IsStartToForeground() const
+{
+    return isStartToForeground_;
+}
+
+void AbilityRecord::SetStartToForeground(const bool flag)
+{
+    isStartToForeground_ = flag;
+}
+
 bool AbilityRecord::CallRequest()
 {
     HILOG_INFO("Call Request.");
@@ -1784,7 +1804,7 @@ ResolveResultType AbilityRecord::Resolve(const AbilityRequest &abilityRequest)
     return ResolveResultType::OK_NO_REMOTE_OBJ;
 }
 
-bool AbilityRecord::Release(const sptr<IAbilityConnection> & connect)
+bool AbilityRecord::ReleaseCall(const sptr<IAbilityConnection> & connect)
 {
     HILOG_DEBUG("ability release call record by callback.");
     CHECK_POINTER_RETURN_BOOL(callContainer_);

@@ -19,6 +19,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+std::unique_ptr<Runtime> g_preloadedInstance;
+}
+
 std::unique_ptr<Runtime> Runtime::Create(const Runtime::Options& options)
 {
     switch (options.lang) {
@@ -28,6 +32,19 @@ std::unique_ptr<Runtime> Runtime::Create(const Runtime::Options& options)
         default:
             return std::unique_ptr<Runtime>();
     }
+}
+
+void Runtime::SavePreloaded(std::unique_ptr<Runtime>&& instance)
+{
+    if (instance) {
+        instance->FinishPreload();
+    }
+    g_preloadedInstance = std::move(instance);
+}
+
+std::unique_ptr<Runtime> Runtime::GetPreloaded()
+{
+    return std::move(g_preloadedInstance);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

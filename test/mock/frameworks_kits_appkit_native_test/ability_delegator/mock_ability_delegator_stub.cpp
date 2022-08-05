@@ -90,7 +90,7 @@ int MockAbilityDelegatorStub::StartAbilityByCall(
     return 0;
 }
 
-int MockAbilityDelegatorStub::ReleaseAbility(const sptr<IAbilityConnection> &connect,
+int MockAbilityDelegatorStub::ReleaseCall(const sptr<IAbilityConnection> &connect,
     const AppExecFwk::ElementName &element)
 {
     return 0;
@@ -277,7 +277,7 @@ int MockAbilityDelegatorStub2::StartAbilityByCall(
 {
     return 0;
 }
-int MockAbilityDelegatorStub2::ReleaseAbility(const sptr<IAbilityConnection> &connect,
+int MockAbilityDelegatorStub2::ReleaseCall(const sptr<IAbilityConnection> &connect,
     const AppExecFwk::ElementName &element)
 {
     return 0;

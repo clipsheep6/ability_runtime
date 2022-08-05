@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
-#define OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
+#ifndef UNITTEST_OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
+#define UNITTEST_OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
 
 #include <ctime>
 #include <pthread.h>
@@ -53,7 +53,6 @@ public:
 
 class LifecycleTestBase {
 public:
-    virtual bool StartLauncherAbility() = 0;
     virtual bool StartNextAbility() = 0;
     virtual int AttachAbility(
         const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler, const OHOS::sptr<OHOS::IRemoteObject> &token) = 0;
@@ -96,4 +95,4 @@ public:
     }
 };
 
-#endif  // OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H
+#endif  // UNITTEST_OHOS_ABILITY_RUNTIME_LIFECYCLE_TEST_BASE_H

@@ -32,10 +32,7 @@ config("module_private_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"ApplicationUnitTest\"",
-    "AMS_LOG_DOMAIN = 0xD001151",
-  ]
+  defines = [ "AMS_LOG_TAG = \"ApplicationUnitTest\"" ]
 }
 
 config("module_context_config") {
@@ -51,10 +48,7 @@ config("module_context_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"ApplicationUnitTest\"",
-    "AMS_LOG_DOMAIN = 0xD001151",
-  ]
+  defines = [ "AMS_LOG_TAG = \"ApplicationUnitTest\"" ]
 }
 
 ohos_unittest("context_deal_interface_test") {

@@ -38,10 +38,7 @@ gen_js_obj("delegator_mgmt_abc") {
 
 config("appkit_config") {
   cflags_cc = [ "-fexceptions" ]
-  defines = [
-    "AMS_LOG_TAG = \"AppkitNative\"",
-    "AMS_LOG_DOMAIN = 0xD001150",
-  ]
+  defines = [ "AMS_LOG_TAG = \"Appkit\"" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }
@@ -94,17 +91,13 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/ability_runtime/app/js_ability_stage_context.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
-    "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/application_data_manager.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
-    "${ability_runtime_native_path}/appkit/app/context_container.cpp",
-    "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
-    "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
     "${ability_runtime_native_path}/appkit/app/watchdog.cpp",
   ]
   cflags = []
@@ -138,10 +131,10 @@ ohos_shared_library("appkit_native") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
     "utils_base:utils",
   ]
 

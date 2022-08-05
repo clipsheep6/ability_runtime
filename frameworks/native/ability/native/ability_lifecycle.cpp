@@ -20,16 +20,16 @@ namespace OHOS {
 namespace AppExecFwk {
 LifeCycle::Event LifeCycle::GetLifecycleState()
 {
-    HILOG_INFO("LifeCycle::GetLifecycleState: called");
+    HILOG_DEBUG("LifeCycle::GetLifecycleState: called");
     return state_;
 }
 
 void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_INFO("LifeCycle::AddObserver: called");
+    HILOG_DEBUG("LifeCycle::AddObserver: called");
 
     if (observer == nullptr) {
-        HILOG_INFO("LifeCycle::AddObserver: observer is null");
+        HILOG_ERROR("LifeCycle::AddObserver: observer is null");
         return;
     }
 
@@ -38,7 +38,7 @@ void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &want)
 {
-    HILOG_INFO("LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_FOREGROUND) && (event != LifeCycle::Event::ON_START)) {
         HILOG_ERROR("event value error: event is %{public}d", event);
         return;
@@ -74,7 +74,7 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &wan
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 {
-    HILOG_INFO("LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_ACTIVE) && (event != LifeCycle::Event::ON_BACKGROUND) &&
         (event != LifeCycle::Event::ON_INACTIVE) && (event != LifeCycle::Event::ON_STOP)) {
         HILOG_ERROR("event value error: event is %{public}d", event);
@@ -123,10 +123,10 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 
 void LifeCycle::RemoveObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_INFO("LifeCycle::RemoveObserver: called");
+    HILOG_DEBUG("LifeCycle::RemoveObserver: called");
 
     if (observer == nullptr) {
-        HILOG_INFO("LifeCycle::RemoveObserver: observer is null");
+        HILOG_ERROR("LifeCycle::RemoveObserver: observer is null");
         return;
     }
 

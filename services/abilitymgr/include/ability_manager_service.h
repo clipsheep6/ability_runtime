@@ -29,7 +29,6 @@
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
-#include "application_anr_listener.h"
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
 #endif
@@ -48,6 +47,7 @@
 #include "user_controller.h"
 #include "resident_process_manager.h"
 #ifdef SUPPORT_GRAPHICS
+#include "application_anr_listener.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #endif
@@ -507,11 +507,6 @@ public:
 
     virtual int StopSyncRemoteMissions(const std::string& devId) override;
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    virtual void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo) override;
     virtual int GetAppMemorySize() override;
 
     virtual bool IsRamConstrainedDevice() override;
@@ -526,13 +521,13 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
 
     /**
-     * Release Ability, disconnect session with common ability.
+     * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param element, the element of target service.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int ReleaseAbility(
+    virtual int ReleaseCall(
         const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) override;
 
     /**
@@ -802,7 +797,7 @@ public:
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
-    static constexpr uint32_t LOAD_TIMEOUT = 3000;            // ms
+    static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
     static constexpr uint32_t ACTIVE_TIMEOUT = 5000;          // ms
     static constexpr uint32_t INACTIVE_TIMEOUT = 500;         // ms
     static constexpr uint32_t TERMINATE_TIMEOUT = 10000;      // ms
@@ -966,7 +961,6 @@ private:
     void StopFreezingScreen();
     void UserStarted(int32_t userId);
     void SwitchToUser(int32_t userId);
-    void StartLauncherAbility(int32_t userId);
     void SwitchToUser(int32_t oldUserId, int32_t userId);
     void SwitchManagers(int32_t userId, bool switchUser = true);
     void StartUserApps(int32_t userId, bool isBoot);
@@ -1015,6 +1009,14 @@ private:
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 
+    void SubscribeBackgroundTask();
+
+    void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
+
+    int CheckCrowdtestForeground(const Want &want, int requestCode, int32_t userId);
+
+    int StartAppgallery(int requestCode, int32_t userId, std::string action);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1057,9 +1059,9 @@ private:
     int32_t ShowPickerDialog(const Want& want, int32_t userId);
     std::shared_ptr<ImplicitStartProcessor> implicitStartProcessor_;
     sptr<IWindowManagerServiceHandler> wmsHandler_;
+    std::shared_ptr<ApplicationAnrListener> anrListener_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
-    std::shared_ptr<ApplicationAnrListener> anrListener_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -36,10 +36,7 @@ config("module_private_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"AbilityUnitTest\"",
-    "AMS_LOG_DOMAIN = 0xD002201",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AbilityUnitTest\"" ]
 
   if (ability_runtime_graphics) {
     include_dirs += [
@@ -68,10 +65,7 @@ config("module_ability_context_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"AbilityUnitTest\"",
-    "AMS_LOG_DOMAIN = 0xD002201",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AbilityUnitTest\"" ]
 }
 
 ohos_unittest("ability_test") {
@@ -819,10 +813,7 @@ config("data_uri_utils_test_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "AMS_LOG_TAG = \"AbilityUnitTest\"",
-    "AMS_LOG_DOMAIN = 0xD002201",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AbilityUnitTest\"" ]
 }
 ohos_unittest("data_uri_utils_test") {
   module_out_path = module_output_path

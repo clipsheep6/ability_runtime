@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef AMS_ST_KIT_DATA_ABILITY_DATA_B_H
-#define AMS_ST_KIT_DATA_ABILITY_DATA_B_H
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_KIT_DATA_ABILITY_DATA_B_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_KIT_DATA_ABILITY_DATA_B_H
 #include <string>
 
 #include "ability.h"
@@ -115,4 +115,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // AMS_ST_KIT_DATA_ABILITY_DATA_B_H
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_AMS_ST_KIT_DATA_ABILITY_DATA_B_H

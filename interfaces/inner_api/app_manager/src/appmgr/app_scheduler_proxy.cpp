@@ -119,7 +119,19 @@ void AppSchedulerProxy::ScheduleLowMemory()
     }
 }
 
+void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
+{
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION);
+    ScheduleMemoryCommon(level, operation);
+}
+
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
+{
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);
+    ScheduleMemoryCommon(level, operation);
+}
+
+void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, uint32_t operation)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -133,11 +145,7 @@ void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
         HILOG_ERROR("Remote() is NULL");
         return;
     }
-    int32_t ret = remote->SendRequest(
-        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION),
-        data,
-        reply,
-        option);
+    int32_t ret = remote->SendRequest(operation, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }

@@ -363,12 +363,6 @@ public:
 
     ErrCode GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 
-    /**
-     * Get system memory information.
-     * @param SystemMemoryAttr, memory information.
-     */
-    void GetSystemMemoryAttr(AppExecFwk::SystemMemoryAttr &memoryInfo);
-
     ErrCode GetAppMemorySize();
 
     bool IsRamConstrainedDevice();
@@ -555,12 +549,12 @@ public:
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callToken);
 
     /**
-     * Release Ability, disconnect session with common ability.
+     * Release the call between Ability, disconnect session with common ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ReleaseAbility(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    ErrCode ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
 
     ErrCode GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info);
 
