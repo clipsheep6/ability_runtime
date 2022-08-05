@@ -206,10 +206,17 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
-    want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
-    auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-        token_, callerToken_, abilityInfo_, applicationInfo_, want_);
-    want_.RemoveParam(ABILITY_OWNER_USERID);
+    int result = ERR_OK;
+    if (initialToMinimize_) {
+        HILOG_ERROR("%{public}s set InitialToMinimize to true", __func__);
+        SetInitialToMinimize(false);
+    } else {
+        HILOG_ERROR("%{public}s InitialToMinimize is false", __func__);
+        want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
+        result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
+            token_, callerToken_, abilityInfo_, applicationInfo_, want_);
+        want_.RemoveParam(ABILITY_OWNER_USERID);
+    }
     return result;
 }
 
@@ -291,12 +298,17 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     HILOG_INFO("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
-        if (IsAbilityState(AbilityState::BACKGROUND)) {
-            // background to active state
+        if (IsAbilityState(AbilityState::BACKGROUND) || IsAbilityState(AbilityState::INITIAL)) {
+            // background or initial to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
 
-            StartingWindowTask(isRecent, false, abilityRequest, startOptions);
+            if (IsAbilityState(AbilityState::INITIAL)) {
+                HILOG_ERROR("%{public}s AbilityState::INITIAL", __func__);
+                StartingWindowTask(isRecent, true, abilityRequest, startOptions);
+            } else {
+                StartingWindowTask(isRecent, false, abilityRequest, startOptions);
+            }
             AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
             CancelStartingWindowHotTask();
 
