@@ -45,6 +45,7 @@ public:
 
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue * const * argv = nullptr, size_t argc = 0);
+    bool CheckAbilityStage(NativeObject* &obj, NativeValue* &value) const;
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsAbilityStageObj_;
