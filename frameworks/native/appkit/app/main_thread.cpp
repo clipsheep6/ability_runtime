@@ -985,6 +985,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             application_->GetRuntime());
         LoadAndRegisterExtension("system/lib64/libwallpaper_extension_module.z.so", "WallpaperExtension",
             application_->GetRuntime());
+        LoadAndRegisterExtension("system/lib64/libinputmethod_extension_module.z.so", "InputMethodExtension",
+            application_->GetRuntime());
 #else
         LoadAllExtensions("system/lib/extensionability");
         LoadAndRegisterExtension("system/lib/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
@@ -994,6 +996,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         LoadAndRegisterExtension("system/lib/libaccessibility_extension_module.z.so", "AccessibilityExtension",
             application_->GetRuntime());
         LoadAndRegisterExtension("system/lib/libwallpaper_extension_module.z.so", "WallpaperExtension",
+            application_->GetRuntime());
+        LoadAndRegisterExtension("system/lib/libinputmethod_extension_module.z.so", "InputMethodExtension",
             application_->GetRuntime());
 #endif
     }
