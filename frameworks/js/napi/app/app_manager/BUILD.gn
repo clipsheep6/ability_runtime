@@ -47,7 +47,7 @@ ohos_shared_library("appmanager_napi") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
   if (ability_runtime_graphics) {

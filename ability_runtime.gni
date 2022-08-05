@@ -31,7 +31,7 @@ multimodalinput_path = "//foundation/multimodalinput/input"
 windowmanager_path = "//foundation/window/window_manager"
 graphic_path = "//foundation/graphic/graphic_2d"
 global_path = "//base/global"
-distributedschedule_path = "//foundation/distributedschedule"
+distributedschedule_path = "//foundation/systemabilitymgr"
 notification_path = "//base/notification"
 ans_core_path =
     "${notification_path}/distributed_notification_service/frameworks/core"
