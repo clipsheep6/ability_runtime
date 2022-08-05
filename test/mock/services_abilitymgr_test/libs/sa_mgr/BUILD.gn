@@ -17,7 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("sa_mgr_mock_config") {
   include_dirs = [
     "${ability_runtime_services_path}/abilitymgr/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -33,7 +33,7 @@ ohos_source_set("sa_mgr_mock") {
   ]
 
   deps = [
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${systemabilitymgr_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//utils/native/base:utils",
   ]
 
