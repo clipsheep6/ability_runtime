@@ -151,7 +151,7 @@ bool WatchDog::Timer()
             appMainHandler_->Dump(handlerDumper);
             msgContent += handlerDumper.GetDumpInfo();
             if (applicationInfo_ != nullptr) {
-                isSixSecondEvent_ store(true);
+                isSixSecondEvent_.store(true);
                 OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
                     OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                     EVENT_KEY_UID, applicationInfo_->uid,
