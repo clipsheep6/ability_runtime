@@ -62,13 +62,13 @@ void WatchDog::Init(const std::shared_ptr<EventHandler> &mainHandler, const std:
     WatchDog::currentHandler_ = watchDogHandler;
     if (watchDogThread_ == nullptr) {
         watchDogThread_ = std::make_shared<std::thread>(&WatchDog::Timer, this);
-        HILOG_INFO("Watchdog is running!");
+        HILOG_DEBUG("Watchdog is running!");
     }
 }
 
 void WatchDog::Stop()
 {
-    HILOG_INFO("Watchdog is stop !");
+    HILOG_DEBUG("Watchdog is stop !");
     stopWatchDog_.store(true);
     cvWatchDog_.notify_all();
 
@@ -133,12 +133,12 @@ bool WatchDog::WaitForDuration(uint32_t duration)
 bool WatchDog::Timer()
 {
     if (WaitForDuration(INI_TIMER_FIRST_SECOND)) {
-        HILOG_INFO("cvWatchDog1 is stopped");
+        HILOG_DEBUG("cvWatchDog1 is stopped");
         return true;
     }
     while (!stopWatchDog_) {
         if (WaitForDuration(INI_TIMER_SECOND)) {
-            HILOG_INFO("cvWatchDog2 is stopped");
+            HILOG_DEBUG("cvWatchDog2 is stopped");
             return true;
         }
         auto timeoutTask = [&]() {
@@ -183,7 +183,7 @@ bool WatchDog::Timer()
 
 void MainHandlerDumper::Dump(const std::string &message)
 {
-    HILOG_INFO("message is %{public}s", message.c_str());
+    HILOG_DEBUG("message is %{public}s", message.c_str());
     dumpInfo += message;
 }
 

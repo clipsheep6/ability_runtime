@@ -24,10 +24,7 @@ config("amsKitSystemTestServiceconfig") {
     "${ability_runtime_services_path}/common/include",
     "//third_party/jsoncpp/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsKitSystemTestService\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsKitSystemTestService\"" ]
 }
 ohos_shared_library("amsKitSystemTestService") {
   sources = [

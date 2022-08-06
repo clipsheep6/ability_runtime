@@ -59,6 +59,10 @@ private:
     DataAbilityRecordPtr LoadLocked(const std::string &name, const AbilityRequest &req);
     void DumpLocked(const char *func, int line);
     void RestartDataAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void ReportDataAbilityAcquired(const sptr<IRemoteObject> &client, bool isSaCall,
+        std::shared_ptr<DataAbilityRecord> &record);
+    void ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isSaCall,
+        std::shared_ptr<DataAbilityRecord> &record);
 
 private:
     std::mutex mutex_;

@@ -225,6 +225,34 @@ void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& con
     CallObjectMethod("onConfigurationUpdated", &jsConfiguration, 1);
 }
 
+void JsAbilityStage::OnMemoryLevel(int32_t level)
+{
+    AbilityStage::OnMemoryLevel(level);
+    HILOG_INFO("%{public}s called.", __func__);
+
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
+        return;
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityStageObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
+
+    NativeValue *jslevel = CreateJsValue(nativeEngine, level);
+    NativeValue *argv[] = {
+        jslevel,
+    };
+    CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
 NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * const * argv, size_t argc)
 {
     HILOG_INFO("JsAbilityStage::CallObjectMethod %{public}s", name);

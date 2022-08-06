@@ -301,6 +301,14 @@ int32_t AppMgrService::GetProcessRunningInfosByUserId(std::vector<RunningProcess
     return appMgrServiceInner_->GetProcessRunningInfosByUserId(info, userId);
 }
 
+int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyMemoryLevel(level);
+}
+
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 {
     if (!IsReady()) {
@@ -311,14 +319,15 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     handler_->PostTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
 }
 
-int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
+int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+    const std::vector<std::string> &bundleNameList)
 {
     HILOG_INFO("%{public}s begin", __func__);
     if (!IsReady()) {
         HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
-    return appMgrServiceInner_->RegisterApplicationStateObserver(observer);
+    return appMgrServiceInner_->RegisterApplicationStateObserver(observer, bundleNameList);
 }
 
 int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)

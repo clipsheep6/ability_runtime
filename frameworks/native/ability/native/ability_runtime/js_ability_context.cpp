@@ -23,6 +23,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime_utils.h"
 #include "ability_runtime/js_caller_complex.h"
+#include "napi_common_ability.h"
 #include "napi_common_start_options.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -195,8 +196,9 @@ NativeValue* JsAbilityContext::OnStartAbility(NativeEngine& engine, NativeCallba
                 task.Reject(engine, CreateJsError(engine, 1, "Context is released"));
                 return;
             }
-            auto errcode = (unwrapArgc == 1) ?
+            auto innerErrorCode = (unwrapArgc == 1) ?
                 context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
+            ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
             if (errcode == 0) {
                 task.Resolve(engine, engine.CreateUndefined());
             } else {
@@ -247,9 +249,10 @@ NativeValue* JsAbilityContext::OnStartAbilityWithAccount(NativeEngine& engine, N
                     return;
                 }
 
-                auto errcode = (unwrapArgc == INDEX_TWO) ?
+                auto innerErrorCode = (unwrapArgc == INDEX_TWO) ?
                     context->StartAbilityWithAccount(want, accountId, -1) : context->StartAbilityWithAccount(
                         want, accountId, startOptions, -1);
+                ErrCode errcode = AppExecFwk::GetStartAbilityErrorCode(innerErrorCode);
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
@@ -328,8 +331,18 @@ NativeValue* JsAbilityContext::OnStartAbilityByCall(NativeEngine& engine, Native
 
         auto context = weak.lock();
         if (context != nullptr && calldata->callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
+            auto releaseCallAbilityFunc = [weak] (
+                const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
+                auto contextForRelease = weak.lock();
+                if (contextForRelease == nullptr) {
+                    HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
+                    return -1;
+                }
+                return contextForRelease->ReleaseCall(callback);
+            };
             task.Resolve(engine,
-                CreateJsCallerComplex(engine, context, calldata->remoteCallee, calldata->callerCallBack));
+                CreateJsCallerComplex(
+                    engine, releaseCallAbilityFunc, calldata->remoteCallee, calldata->callerCallBack));
         } else {
             HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
                 context == nullptr ? "context" :
@@ -726,6 +739,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    connection->SetConnectionId(key.id);
     abilityConnects_.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
@@ -785,6 +799,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    connection->SetConnectionId(key.id);
     abilityConnects_.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
@@ -1154,6 +1169,11 @@ JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine)
 
 JSAbilityConnection::~JSAbilityConnection() = default;
 
+void JSAbilityConnection::SetConnectionId(int64_t id)
+{
+    connectionId_ = id;
+}
+
 void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
@@ -1252,10 +1272,11 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
     auto item = std::find_if(abilityConnects_.begin(), abilityConnects_.end(),
-        [bundleName, abilityName] (
+        [bundleName, abilityName, connectionId = connectionId_] (
             const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
                 return (bundleName == obj.first.want.GetBundle()) &&
-                    (abilityName == obj.first.want.GetElement().GetAbilityName());
+                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                    connectionId == obj.first.id;
         });
     if (item != abilityConnects_.end()) {
         // match bundlename && abilityname

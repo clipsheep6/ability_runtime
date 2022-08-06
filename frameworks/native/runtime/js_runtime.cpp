@@ -88,7 +88,7 @@ public:
 
         // Set instance id to tid after the first instance.
         if (ArkJsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
-            instanceId_ = gettid();
+            instanceId_ = static_cast<uint32_t>(gettid());
         }
 
         HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");

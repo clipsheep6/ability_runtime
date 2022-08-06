@@ -26,6 +26,9 @@
 #include "ui_service_mgr_interface.h"
 #include "uri.h"
 
+namespace OHOS::Rosen {
+enum class WindowType : uint32_t;
+}
 namespace OHOS {
 namespace Ace {
 class UIServiceMgrClient {
@@ -62,7 +65,7 @@ public:
 
     ErrCode ShowAppPickerDialog(
         const AAFwk::Want& want, const std::vector<AppExecFwk::AbilityInfo>& abilityInfos, int32_t userId);
-    
+
     void SetDialogCheckState(const std::string& code)
     {
         code_ = code;

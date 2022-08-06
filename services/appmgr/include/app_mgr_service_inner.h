@@ -253,6 +253,15 @@ public:
      */
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId);
 
+    /**
+     * NotifyMemoryLevel, Notify applications background the current memory level.
+     *
+     * @param level, current memory level.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyMemoryLevel(int32_t level);
+    
     std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
         const sptr<IRemoteObject> &token,
         const sptr<IRemoteObject> &preToken,
@@ -452,7 +461,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
+    int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {});
 
     /**
      * Unregister application or process state observer.

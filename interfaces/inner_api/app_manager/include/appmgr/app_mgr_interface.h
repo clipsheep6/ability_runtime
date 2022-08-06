@@ -126,6 +126,15 @@ public:
     virtual int GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) = 0;
 
     /**
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -141,7 +150,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) = 0;
+    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) = 0;
 
     /**
      * Unregister application or process state observer.
@@ -261,6 +271,7 @@ public:
         UPDATE_CONFIGURATION,
         REGISTER_CONFIGURATION_OBSERVER,
         UNREGISTER_CONFIGURATION_OBSERVER,
+        APP_NOTIFY_MEMORY_LEVEL,
     };
 };
 }  // namespace AppExecFwk

@@ -17,10 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("runtime_config") {
   visibility = [ ":*" ]
 
-  defines = [
-    "AMS_LOG_TAG = \"Runtime\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"Runtime\"" ]
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]

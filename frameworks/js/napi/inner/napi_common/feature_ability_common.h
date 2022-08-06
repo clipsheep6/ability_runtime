@@ -69,6 +69,9 @@ struct AsyncCallbackInfo {
     AbilityType abilityType = AbilityType::UNKNOWN;
     int errCode = 0;
     ContinueAbilityOptionsInfo optionInfo;
+#ifdef SUPPORT_GRAPHICS
+    sptr<OHOS::Rosen::Window> window;
+#endif
 };
 
 struct CBBase {

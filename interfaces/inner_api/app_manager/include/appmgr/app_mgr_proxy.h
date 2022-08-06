@@ -117,6 +117,15 @@ public:
     virtual int32_t GetProcessRunningInfosByUserId(std::vector<RunningProcessInfo> &info, int32_t userId) override;
 
     /**
+     * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities background the current memory level.
+     *
+     * @param level, the current memory level
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyMemoryLevel(int32_t level) override;
+    
+    /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
      */
@@ -132,7 +141,8 @@ public:
      * @param observer, ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
+    virtual int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+        const std::vector<std::string> &bundleNameList = {}) override;
 
     /**
      * Unregister application or process state observer.

@@ -132,6 +132,15 @@ public:
     * @return Returns ERR_OK on success, others on failure.
     */
     int32_t UpdateConfiguration(const Configuration &config);
+
+    /*
+    *  Notify application background of current memory level.
+    *
+    * @param level current memory level.
+    * @return Returns ERR_OK on success, others on failure.
+    */
+    int32_t NotifyMemoryLevel(int32_t level);
+
     void HandleTerminateTimeOut(int64_t eventId);
     void HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecord(const int64_t eventId);
@@ -150,7 +159,7 @@ public:
     void HandleAddAbilityStageTimeOut(const int64_t eventId);
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);
-    void OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
+    std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
 

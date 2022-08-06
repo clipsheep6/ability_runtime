@@ -50,6 +50,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleClearUpApplicationData;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_ALL_RUNNING_PROCESSES)] =
         &AppMgrStub::HandleGetAllRunningProcesses;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL)] =
+        &AppMgrStub::HandleNotifyMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -231,6 +233,17 @@ int32_t AppMgrStub::HandleAddAbilityStageDone(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t level = data.ReadInt32();
+    auto result = NotifyMemoryLevel(level);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -250,8 +263,10 @@ int32_t AppMgrStub::HandleStartupResidentProcess(MessageParcel &data, MessagePar
 
 int32_t AppMgrStub::HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply)
 {
+    std::vector<std::string> bundleNameList;
     auto callback = iface_cast<AppExecFwk::IApplicationStateObserver>(data.ReadRemoteObject());
-    int32_t result = RegisterApplicationStateObserver(callback);
+    data.ReadStringVector(&bundleNameList);
+    int32_t result = RegisterApplicationStateObserver(callback, bundleNameList);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -310,7 +325,8 @@ int32_t AppMgrStub::HandleFinishUserTest(MessageParcel &data, MessageParcel &rep
     return result;
 }
 
-int32_t AppMgrStub::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer)
+int32_t AppMgrStub::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
+    const std::vector<std::string> &bundleNameList)
 {
     return NO_ERROR;
 }

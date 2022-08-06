@@ -23,10 +23,7 @@ config("appmgr_test_config") {
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"AppMgrService\"",
-    "AMS_LOG_DOMAIN = 0xD00111E",
-  ]
+  defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
@@ -113,7 +110,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_token_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_no_response_disposer.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
@@ -121,10 +117,14 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/call_container.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/call_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_observer_controller.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/connection_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_state_item.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/connection_state_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/data_ability_caller_recipient.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/data_ability_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/data_ability_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/dlp_state_item.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/free_install_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/launch_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
@@ -169,6 +169,7 @@ ohos_source_set("abilityms_test_source") {
   }
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr:sa_mgr_mock",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
@@ -190,7 +191,6 @@ ohos_source_set("abilityms_test_source") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
     "ipc:ipc_core",
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
@@ -203,8 +203,14 @@ ohos_source_set("abilityms_test_source") {
     external_deps += [ "efficiency_manager:suspend_manager_client" ]
   }
 
+  if (resource_schedule_service_enable) {
+    cflags_cc += [ "-RESOURCE_SCHEDULE_SERVICE_ENABLE" ]
+    external_deps += [ "resource_schedule_service:ressched_client" ]
+  }
+
   if (ability_runtime_graphics) {
     sources += [
+      "${ability_runtime_services_path}/abilitymgr/src/application_anr_listener.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
@@ -228,7 +234,10 @@ ohos_source_set("abilityms_test_source") {
       "${multimedia_path}/interfaces/innerkits:image_native",
       "//third_party/icu/icu4c:shared_icuuc",
     ]
-    external_deps += [ "window_manager:libdm" ]
+    external_deps += [
+      "input:libmmi-client",
+      "window_manager:libdm",
+    ]
   }
 
   subsystem_name = "ability"

@@ -60,8 +60,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
             std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
                 return connectCaller == obj.first.connectCaller &&
                     connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName() &&
-                    connectReceiver.GetModuleName() == obj.first.connectReceiver.GetModuleName();
+                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
         std::vector<sptr<AbilityConnectCallback>> callbacks = item->second;
@@ -110,27 +109,27 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
             const std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>>::value_type &obj) {
             return connectCaller == obj.first.connectCaller &&
                    connectReceiver.GetBundleName() == obj.first.connectReceiver.GetBundleName() &&
-                   connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName() &&
-                   connectReceiver.GetModuleName() == obj.first.connectReceiver.GetModuleName();
+                   connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
-        std::vector<sptr<AbilityConnectCallback>> callbacks = item->second;
-        HILOG_DEBUG("%{public}s begin remove callback, callbackSize:%{public}d.", __func__, (int32_t)callbacks.size());
-        auto iter = callbacks.begin();
-        while (iter != callbacks.end()) {
+        HILOG_DEBUG("%{public}s begin remove callback, Size:%{public}d.", __func__, (int32_t)item->second.size());
+        auto iter = item->second.begin();
+        while (iter != item->second.end()) {
             if (*iter == connectCallback) {
-                iter = callbacks.erase(iter);
+                iter = item->second.erase(iter);
             } else {
                 iter++;
             }
         }
-        abilityConnections_[item->first] = callbacks;
-        sptr<AbilityConnection> abilityConnection;
-        abilityConnection = item->first.abilityConnection;
-        abilityConnection->SetConnectCallback(connectCallback);
+
+        sptr<AbilityConnection> abilityConnection = item->first.abilityConnection;
+        if (abilityConnection) {
+            abilityConnection->SetConnectCallback(connectCallback);
+        }
+
         HILOG_INFO("%{public}s end, find abilityConnection exist, abilityConnectionsSize:%{public}d.",
             __func__, (int32_t)abilityConnections_.size());
-        if (callbacks.empty()) {
+        if (item->second.empty()) {
             abilityConnections_.erase(item);
             HILOG_DEBUG("%{public}s no callback left, so disconnectAbility.", __func__);
             return AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(abilityConnection);

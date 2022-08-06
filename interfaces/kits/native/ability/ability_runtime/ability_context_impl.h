@@ -132,7 +132,7 @@ public:
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
 
     /**
-     * call function by callback object
+     * call function by callback objectS
      *
      * @param want Request info for ability.
      * @param callback Indicates the callback object.
@@ -148,7 +148,7 @@ public:
      *
      * @return Returns zero on success, others on failure.
      */
-    ErrCode ReleaseAbility(const std::shared_ptr<CallerCallBack> &callback) override;
+    ErrCode ReleaseCall(const std::shared_ptr<CallerCallBack> &callback) override;
 
     /**
      * register ability callback

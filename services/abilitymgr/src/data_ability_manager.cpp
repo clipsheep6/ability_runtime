@@ -20,6 +20,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "connection_state_manager.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -114,6 +115,8 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
         DumpLocked(__func__, __LINE__);
     }
 
+    ReportDataAbilityAcquired(client, isSaCall, dataAbilityRecord);
+
     return scheduler;
 }
 
@@ -167,6 +170,8 @@ int DataAbilityManager::Release(
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
     }
+
+    ReportDataAbilityReleased(client, isSaCall, dataAbilityRecord);
 
     return ERR_OK;
 }
@@ -298,6 +303,7 @@ void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abi
             // If 'abilityRecord' is a data ability server, trying to remove it from 'dataAbilityRecords_'.
             for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end();) {
                 if (it->second && it->second->GetAbilityRecord() == abilityRecord) {
+                    DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleDataAbilityDied(it->second);
                     it->second->KillBoundClientProcesses();
                     HILOG_DEBUG("Removing died data ability record...");
                     it = dataAbilityRecordsLoaded_.erase(it);
@@ -664,6 +670,37 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
             }
         }
     }
+}
+
+void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &client, bool isSaCall,
+    std::shared_ptr<DataAbilityRecord> &record)
+{
+    DataAbilityCaller caller;
+    caller.isSaCall = isSaCall;
+    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerUid = IPCSkeleton::GetCallingUid();
+    caller.callerToken = client;
+    if (client && !isSaCall) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(client);
+        if (abilityRecord) {
+            caller.callerName = abilityRecord->GetAbilityInfo().bundleName;
+        }
+    } else {
+        caller.callerName = ConnectionStateManager::GetProcessNameByPid(caller.callerPid);
+    }
+
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDataAbilityConnection(caller, record);
+}
+
+void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isSaCall,
+    std::shared_ptr<DataAbilityRecord> &record)
+{
+    DataAbilityCaller caller;
+    caller.isSaCall = isSaCall;
+    caller.callerPid = IPCSkeleton::GetCallingPid();
+    caller.callerUid = IPCSkeleton::GetCallingUid();
+    caller.callerToken = client;
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDataAbilityConnection(caller, record);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

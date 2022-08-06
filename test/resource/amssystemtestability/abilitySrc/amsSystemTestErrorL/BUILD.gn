@@ -22,10 +22,7 @@ config("amsSystemTestErrorLConfig") {
     "${ability_runtime_services_path}/common/include",
     "//third_party/jsoncpp/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsSystemTestErrorL\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsSystemTestErrorL\"" ]
 }
 ohos_shared_library("amsSystemTestErrorL") {
   sources = [ "${SUBDEMOSYSTEM_DIR}/src/amsstabilityerrorl1.cpp" ]

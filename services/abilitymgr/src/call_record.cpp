@@ -133,7 +133,7 @@ bool CallRecord::SchedulerConnectDone()
     return true;
 }
 
-bool CallRecord::SchedulerDisConnectDone()
+bool CallRecord::SchedulerDisconnectDone()
 {
     HILOG_DEBUG("Scheduler disconnect Done by callback. id:%{public}d", recordId_);
     std::shared_ptr<AbilityRecord> tmpService = service_.lock();

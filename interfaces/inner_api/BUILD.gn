@@ -16,6 +16,7 @@ group("innerkits_target") {
   deps = [
     "ability_manager:ability_manager",
     "app_manager:app_manager",
+    "connectionobs_manager:connection_obs_manager",
     "dataobs_manager:dataobs_manager",
     "deps_wrapper:ability_deps_wrapper",
     "uri_permission:uri_permission_mgr",

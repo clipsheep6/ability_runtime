@@ -36,7 +36,7 @@
             "bundle_framework",
             "common",
             "common_event_service",
-            "distributeddataobject",
+            "data_object",
             "dsoftbus",
             "eventhandler",
             "faultloggerd",
@@ -65,7 +65,7 @@
             "window_manager"
   ],
           "third_party": [
-            "libpng",
+            "libjpeg",
             "node",
             "jsoncpp",
             "json"
@@ -163,10 +163,24 @@
                 "appmgr/iapp_state_callback.h",
                 "appmgr/app_state_callback_host.h",
                 "appmgr/app_mgr_constants.h",
-                "appmgr/app_process_data.h"
+                "appmgr/app_process_data.h",
+                "appmgr/app_mem_info.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager:app_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager/include",
+              "header_files": [
+                "connection_data.h",
+                "connection_observer_client.h",
+                "connection_observer_errors.h",
+                "connection_observer.h",
+                "dlp_state_data.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager:connection_obs_manager"
           },
           {
             "header": {

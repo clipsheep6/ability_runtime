@@ -24,10 +24,7 @@ config("amsAbilityVisibleTestServiceBConfig") {
     "${ability_runtime_services_path}/common/include",
     "${SUBST_TOOLS_DIR}/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsAbilityVisibleTestServiceB\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsAbilityVisibleTestServiceB\"" ]
 }
 ohos_shared_library("amsAbilityVisibleTestServiceB") {
   sources = [

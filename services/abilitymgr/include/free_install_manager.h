@@ -26,8 +26,6 @@
 
 namespace OHOS {
 namespace AAFwk {
-constexpr const char* FREE_INSTALL_TYPE = "freeInstallType";
-constexpr const char* FREE_INSTALL_UPGRADED_KEY = "freeInstallUpgraded";
 class AbilityManagerService;
 
 struct FreeInstallInfo {
@@ -118,6 +116,7 @@ private:
     std::weak_ptr<AbilityManagerService> server_;
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
+    std::map<std::string, std::time_t> timeStampMap_;
 
     /**
      * Start remote free install.
@@ -130,12 +129,12 @@ private:
      */
     int RemoteFreeInstall(const Want &want, int32_t userId, int requestCode, const sptr<IRemoteObject> &callerToken);
 
-    int HandleFreeInstallErrorCode(int resultCode);
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
     void NotifyFreeInstallResult(const Want &want, int resultCode);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
         const sptr<IRemoteObject> &callerToken);
+    std::time_t GetTimeStamp();
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -133,11 +133,11 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_StartAbility_0300, Function | MediumTe
 }
 
 /**
- * @tc.number: AaFwk_Ability_ReleaseAbility_0100
+ * @tc.number: AaFwk_Ability_ReleaseCall_0100
  * @tc.name: AbilityFwk
- * @tc.desc: Ability Caller to process ReleaseAbility, and the result is success.
+ * @tc.desc: Ability Caller to process ReleaseCall, and the result is success.
  */
-HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0100, Function | MediumTest | Level1)
 {
     Want want;
     want.SetElementName("DemoDeviceIdB", "DemoBundleNameB", "DemoAbilityNameB");
@@ -148,21 +148,21 @@ HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0100, Function | Medium
     ErrCode ret = context_->StartAbilityByCall(want, callback);
     EXPECT_TRUE(ret == 0);
 
-    ret = context_->ReleaseAbility(callback);
+    ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == 0);
 }
 
 /**
- * @tc.number: AaFwk_Ability_ReleaseAbility_0200
+ * @tc.number: AaFwk_Ability_ReleaseCall_0200
  * @tc.name: AbilityFwk
- * @tc.desc: Ability Caller to process ReleaseAbility, and the result is fail because has no caller record.
+ * @tc.desc: Ability Caller to process ReleaseCall, and the result is fail because has no caller record.
  */
-HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseAbility_0200, Function | MediumTest | Level1)
+HWTEST_F(AbilityCallerTest, AaFwk_Ability_ReleaseCall_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
 
-    ErrCode ret = context_->ReleaseAbility(callback);
+    ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_FALSE(ret == 0);
 }
 

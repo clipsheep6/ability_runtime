@@ -143,6 +143,14 @@ public:
 
     /**
      *
+     * @brief Notify the current memory.
+     *
+     * @param level Indicates the memory trim level, which shows the current memory usage status.
+     */
+    void ScheduleMemoryLevel(int level) override;
+
+    /**
+     *
      * @brief Low the memory which used by application.
      *
      */
@@ -301,6 +309,15 @@ private:
      *
      */
     void HandleShrinkMemory(const int level);
+
+    /**
+     *
+     * @brief Notify the memory.
+     *
+     * @param level Indicates the memory trim level, which shows the current memory usage status.
+     *
+     */
+    void HandleMemoryLevel(int level);
 
     /**
      *

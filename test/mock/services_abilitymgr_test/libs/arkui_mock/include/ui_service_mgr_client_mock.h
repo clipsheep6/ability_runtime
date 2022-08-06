@@ -26,6 +26,10 @@
 #include "ui_service_mgr_interface.h"
 #include "uri.h"
 
+namespace OHOS::Rosen {
+enum class WindowType : uint32_t;
+}
+
 namespace OHOS {
 namespace Ace {
 class UIServiceMgrClient {

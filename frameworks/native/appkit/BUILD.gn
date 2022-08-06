@@ -38,10 +38,7 @@ gen_js_obj("delegator_mgmt_abc") {
 
 config("appkit_config") {
   cflags_cc = [ "-fexceptions" ]
-  defines = [
-    "AMS_LOG_TAG = \"AppkitNative\"",
-    "AMS_LOG_DOMAIN = 0xD001150",
-  ]
+  defines = [ "AMS_LOG_TAG = \"Appkit\"" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
   }

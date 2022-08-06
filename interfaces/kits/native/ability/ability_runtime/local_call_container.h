@@ -33,7 +33,7 @@ public:
     int StartAbilityByCallInner(
         const Want &want, const std::shared_ptr<CallerCallBack> &callback, const sptr<IRemoteObject> &callerToken);
 
-    int Release(const std::shared_ptr<CallerCallBack> &callback);
+    int ReleaseCall(const std::shared_ptr<CallerCallBack> &callback);
 
     void DumpCalls(std::vector<std::string> &info) const;
 

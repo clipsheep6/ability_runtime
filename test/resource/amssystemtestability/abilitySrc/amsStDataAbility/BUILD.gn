@@ -24,10 +24,7 @@ config("verify_act_ability_config") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/common/include",
   ]
-  defines = [
-    "AMS_LOG_TAG = \"amsStDataAbility\"",
-    "AMS_LOG_DOMAIN = 0xD002200",
-  ]
+  defines = [ "AMS_LOG_TAG = \"amsStDataAbility\"" ]
 }
 config("verify_act_ability_public_config") {
   visibility = [ ":*" ]

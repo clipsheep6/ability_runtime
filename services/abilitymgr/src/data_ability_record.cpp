@@ -19,6 +19,7 @@
 
 #include "ability_util.h"
 #include "app_scheduler.h"
+#include "connection_state_manager.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -204,23 +205,21 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
         return ERR_NULL_OBJECT;
     }
 
-    if (isSaCall) {
-        HILOG_ERROR("When the caller is system,add death monitoring");
-        if (client != nullptr && callerDeathRecipient_ != nullptr) {
-            client->RemoveDeathRecipient(callerDeathRecipient_);
-        }
-        if (callerDeathRecipient_ == nullptr) {
-            std::weak_ptr<DataAbilityRecord> thisWeakPtr(shared_from_this());
-            callerDeathRecipient_ = new DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
-                auto dataAbilityRecord = thisWeakPtr.lock();
-                if (dataAbilityRecord) {
-                    dataAbilityRecord->OnSchedulerDied(remote);
-                }
-            });
-        }
-        if (client != nullptr) {
-            client->AddDeathRecipient(callerDeathRecipient_);
-        }
+    HILOG_INFO("add death monitoring for data ability caller.");
+    if (client != nullptr && callerDeathRecipient_ != nullptr) {
+        client->RemoveDeathRecipient(callerDeathRecipient_);
+    }
+    if (callerDeathRecipient_ == nullptr) {
+        std::weak_ptr<DataAbilityRecord> thisWeakPtr(shared_from_this());
+        callerDeathRecipient_ = new DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            auto dataAbilityRecord = thisWeakPtr.lock();
+            if (dataAbilityRecord) {
+                dataAbilityRecord->OnSchedulerDied(remote);
+            }
+        });
+    }
+    if (client != nullptr) {
+        client->AddDeathRecipient(callerDeathRecipient_);
     }
 
     // One client can be added multi-times, so 'RemoveClient()' must be called in corresponding times.
@@ -228,6 +227,7 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     clientInfo.client = client;
     clientInfo.tryBind = tryBind;
     clientInfo.isSaCall = isSaCall;
+    clientInfo.clientPid = IPCSkeleton::GetCallingPid();
     if (!isSaCall) {
         auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
@@ -500,6 +500,7 @@ void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_INFO("'%{public}s':", __func__);
     auto object = remote.promote();
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleDataAbilityCallerDied(GetDiedCallerPid(object));
 
     if (clients_.empty()) {
         HILOG_DEBUG("BUG: Data ability record has no clients.");
@@ -539,6 +540,23 @@ void DataAbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
             }
         }
     }
+}
+
+int32_t DataAbilityRecord::GetDiedCallerPid(const sptr<IRemoteObject> &remote)
+{
+    if (!remote) {
+        return 0;
+    }
+
+    int32_t result = 0;
+    for (auto it = clients_.begin(); it != clients_.end(); it++) {
+        if (it->client == remote) {
+            result = it->clientPid;
+            break;
+        }
+    }
+
+    return result;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

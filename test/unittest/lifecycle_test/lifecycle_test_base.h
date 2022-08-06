@@ -53,7 +53,6 @@ public:
 
 class LifecycleTestBase {
 public:
-    virtual bool StartLauncherAbility() = 0;
     virtual bool StartNextAbility() = 0;
     virtual int AttachAbility(
         const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler, const OHOS::sptr<OHOS::IRemoteObject> &token) = 0;

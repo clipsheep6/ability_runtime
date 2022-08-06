@@ -56,8 +56,7 @@ int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY, data, reply);
 }
 
-int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect,
-    int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
     HILOG_INFO("called");
     if (connect == nullptr) {
@@ -71,14 +70,9 @@ int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, c
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!WriteInfosToParcel(data, want, connect)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, Parcelable, &want);
-    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
-    PARCEL_WRITE_HELPER(data, Int32, callerUid);
-    PARCEL_WRITE_HELPER(data, Int32, callerPid);
-    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, CONNECT_REMOTE_ABILITY, data, reply);
 }
@@ -353,8 +347,7 @@ bool DistributedClient::ReadMissionInfosFromParcel(Parcel& parcel,
     return true;
 }
 
-int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want,
-    const sptr<IRemoteObject>& connect, int32_t callerUid, int32_t callerPid, uint32_t accessToken)
+int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
     HILOG_INFO("called");
     if (connect == nullptr) {
@@ -368,14 +361,9 @@ int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& wan
         return ERR_NULL_OBJECT;
     }
     MessageParcel data;
-    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+    if (!WriteInfosToParcel(data, want, connect)) {
         return ERR_FLATTEN_OBJECT;
     }
-    PARCEL_WRITE_HELPER(data, Parcelable, &want);
-    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
-    PARCEL_WRITE_HELPER(data, Int32, callerUid);
-    PARCEL_WRITE_HELPER(data, Int32, callerPid);
-    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_ABILITY_BY_CALL, data, reply);
 }
@@ -435,6 +423,23 @@ int32_t DistributedClient::StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
     PARCEL_WRITE_HELPER(data, RemoteObject, callback);
     MessageParcel reply;
     PARCEL_TRANSACT_SYNC_RET_INT(remote, START_REMOTE_FREE_INSTALL, data, reply);
+}
+
+bool DistributedClient::WriteInfosToParcel(MessageParcel& data, const OHOS::AAFwk::Want& want,
+    const sptr<IRemoteObject>& connect)
+{
+    int32_t callerUid = IPCSkeleton::GetCallingUid();
+    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
+        return false;
+    }
+    PARCEL_WRITE_HELPER(data, Parcelable, &want);
+    PARCEL_WRITE_HELPER(data, RemoteObject, connect);
+    PARCEL_WRITE_HELPER(data, Int32, callerUid);
+    PARCEL_WRITE_HELPER(data, Int32, callerPid);
+    PARCEL_WRITE_HELPER(data, Uint32, accessToken);
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

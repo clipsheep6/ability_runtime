@@ -266,6 +266,31 @@ int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessIn
     return result;
 }
 
+int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    data.WriteInt32(level);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret =
+        remote->SendRequest(
+            static_cast<uint32_t>(IAppMgr::Message::APP_NOTIFY_MEMORY_LEVEL), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
 bool AppMgrProxy::SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply)
 {
     MessageOption option(MessageOption::TF_SYNC);
@@ -348,7 +373,7 @@ int AppMgrProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcel
 }
 
 int AppMgrProxy::RegisterApplicationStateObserver(
-    const sptr<IApplicationStateObserver> &observer)
+    const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
     if (!observer) {
         HILOG_ERROR("observer null");
@@ -363,6 +388,10 @@ int AppMgrProxy::RegisterApplicationStateObserver(
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
         HILOG_ERROR("observer write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteStringVector(bundleNameList)) {
+        HILOG_ERROR("bundleNameList write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 

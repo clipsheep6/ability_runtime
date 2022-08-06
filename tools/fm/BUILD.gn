@@ -32,10 +32,7 @@ ohos_source_set("tools_fm_source_set") {
     "src/main.cpp",
   ]
 
-  defines = [
-    "AMS_LOG_TAG = \"FmsTool\"",
-    "AMS_LOG_DOMAIN = 0xD001152",
-  ]
+  defines = [ "AMS_LOG_TAG = \"FmsTool\"" ]
 
   public_configs = [ ":tools_fm_config" ]
 

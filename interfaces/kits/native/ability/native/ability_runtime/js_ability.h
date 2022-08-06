@@ -49,6 +49,7 @@ public:
     int32_t OnContinue(WantParams &wantParams) override;
     void OnConfigurationUpdated(const Configuration &configuration) override;
     void UpdateContextConfiguration() override;
+    void OnMemoryLevel(int level) override;
     void OnNewWant(const Want &want) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
@@ -65,6 +66,8 @@ public:
      */
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
+    std::shared_ptr<NativeReference> GetJsAbility();
+
 #ifdef SUPPORT_GRAPHICS
 public:
     void OnSceneCreated() override;
@@ -74,6 +77,8 @@ public:
     void OnForeground(const Want &want) override;
     void OnBackground() override;
 
+    std::shared_ptr<NativeReference> GetJsWindowStage();
+
 protected:
     void DoOnForeground(const Want &want) override;
     void RequestFocus(const Want &want) override;
@@ -81,6 +86,7 @@ protected:
 
 private:
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
+    std::shared_ptr<NativeReference> jsWindowStageObj_;
 #endif
 
 private:

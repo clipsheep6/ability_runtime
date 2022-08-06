@@ -305,7 +305,7 @@ public:
      * @param connect, caller callback ipc.
      * @param element, target ability name.
      */
-    int ReleaseLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
+    int ReleaseCallLocked(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element);
     /**
      * @brief register snapshotHandler
      * @param handler the snapshotHandler
@@ -448,6 +448,8 @@ private:
     void TerminatePreviousAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
+    void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
+        const bool isSingleton, const int32_t startMethod, const AbilityRequest &abilityRequest);
 
     int userId_;
     mutable std::recursive_mutex managerLock_;

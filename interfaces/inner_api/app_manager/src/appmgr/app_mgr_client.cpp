@@ -25,6 +25,7 @@
 #include "app_mgr_interface.h"
 #include "app_service_manager.h"
 #include "hilog_wrapper.h"
+#include "app_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -301,6 +302,17 @@ AppMgrResultCode AppMgrClient::GetProcessRunningInfosByUserId(std::vector<Runnin
         return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+AppMgrResultCode AppMgrClient::NotifyMemoryLevel(MemoryLevel level)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return AppMgrResultCode(service->NotifyMemoryLevel(level));
 }
 
 AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)

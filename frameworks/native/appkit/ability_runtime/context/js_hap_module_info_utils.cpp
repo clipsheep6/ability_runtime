@@ -28,31 +28,20 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     object->SetProperty("name", CreateJsValue(engine, hapModuleInfo.name));
     object->SetProperty("moduleName", CreateJsValue(engine, hapModuleInfo.moduleName));
     object->SetProperty("description", CreateJsValue(engine, hapModuleInfo.description));
+    object->SetProperty("descriptionId", CreateJsValue(engine, hapModuleInfo.descriptionId));
     object->SetProperty("icon", CreateJsValue(engine, hapModuleInfo.iconPath));
+    object->SetProperty("iconId", CreateJsValue(engine, hapModuleInfo.iconId));
     object->SetProperty("label", CreateJsValue(engine, hapModuleInfo.label));
+    object->SetProperty("labelId", CreateJsValue(engine, hapModuleInfo.labelId));
     object->SetProperty("backgroundImg", CreateJsValue(engine, hapModuleInfo.backgroundImg));
     object->SetProperty("mainAbilityName", CreateJsValue(engine, hapModuleInfo.mainAbility));
     object->SetProperty("supportedModes", CreateJsValue(engine, hapModuleInfo.supportedModes));
+    object->SetProperty("installationFree", CreateJsValue(engine, hapModuleInfo.installationFree));
+    object->SetProperty("mainElementName", CreateJsValue(engine, hapModuleInfo.mainElementName));
+    object->SetProperty("hashValue", CreateJsValue(engine, hapModuleInfo.hashValue));
 
-    NativeValue *capArrayValue = engine.CreateArray(hapModuleInfo.reqCapabilities.size());
-    NativeArray *capArray = ConvertNativeValueTo<NativeArray>(capArrayValue);
-    if (capArray != nullptr) {
-        int index = 0;
-        for (auto cap : hapModuleInfo.reqCapabilities) {
-            capArray->SetElement(index++, CreateJsValue(engine, cap));
-        }
-    }
-    object->SetProperty("reqCapabilities", capArrayValue);
-
-    NativeValue *deviceArrayValue = engine.CreateArray(hapModuleInfo.deviceTypes.size());
-    NativeArray *deviceArray = ConvertNativeValueTo<NativeArray>(deviceArrayValue);
-    if (deviceArray != nullptr) {
-        int index = 0;
-        for (auto device : hapModuleInfo.deviceTypes) {
-            deviceArray->SetElement(index++, CreateJsValue(engine, device));
-        }
-    }
-    object->SetProperty("deviceTypes", deviceArrayValue);
+    SetProperty(engine, object, hapModuleInfo.reqCapabilities, "reqCapabilities");
+    SetProperty(engine, object, hapModuleInfo.deviceTypes, "deviceTypes");
 
     NativeValue *abilityArrayValue = engine.CreateArray(hapModuleInfo.abilityInfos.size());
     NativeArray *abilityArray = ConvertNativeValueTo<NativeArray>(abilityArrayValue);
@@ -64,7 +53,41 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     }
     object->SetProperty("abilityInfo", abilityArrayValue);
 
+    NativeValue *extensionArrayValue = engine.CreateArray(hapModuleInfo.extensionInfos.size());
+    NativeArray *extensionArray = ConvertNativeValueTo<NativeArray>(extensionArrayValue);
+    if (extensionArray != nullptr) {
+        int index = 0;
+        for (auto extensionInfo : hapModuleInfo.extensionInfos) {
+            extensionArray->SetElement(index++, CreateJsExtensionAbilityInfo(engine, extensionInfo));
+        }
+    }
+    object->SetProperty("extensionAbilityInfo", extensionArrayValue);
+
+    NativeValue *metadataArrayValue = engine.CreateArray(hapModuleInfo.metadata.size());
+    NativeArray *metadataArray = ConvertNativeValueTo<NativeArray>(metadataArrayValue);
+    if (metadataArray != nullptr) {
+        int index = 0;
+        for (auto metadata : hapModuleInfo.metadata) {
+            metadataArray->SetElement(index++, CreateJsMetadata(engine, metadata));
+        }
+    }
+    object->SetProperty("metadata", metadataArrayValue);
+
     return objValue;
+}
+
+void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> properties,
+    const std::string &proName)
+{
+    NativeValue *arrayValue = engine.CreateArray(properties.size());
+    NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
+    if (array != nullptr) {
+        int index = 0;
+        for (auto propertie : properties) {
+            array->SetElement(index++, CreateJsValue(engine, propertie));
+        }
+    }
+    object->SetProperty(proName.c_str(), arrayValue);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

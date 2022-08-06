@@ -98,13 +98,13 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0200, Functio
 }
 
 /**
- * @tc.number: Ability_Context_Impl_ReleaseAbility_0100
+ * @tc.number: Ability_Context_Impl_ReleaseCall_0100
  * @tc.name: StartAbility
- * @tc.desc: Ability context to process ReleaseAbility, and the result is success.
+ * @tc.desc: Ability context to process ReleaseCall, and the result is success.
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseAbility_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0100, Function | MediumTest | Level1)
 {
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseAbility_0100beagin==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100beagin==============.";
 
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     callback->SetCallBack([](const sptr<IRemoteObject> &) {});
@@ -119,20 +119,20 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseAbility_0100, Funct
     std::string uri = elementName.GetURI();
     context_->localCallContainer_->callProxyRecords_.emplace(uri, localCallRecord);
 
-    ErrCode ret = context_->ReleaseAbility(callback);
+    ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_OK);
-    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseAbility_0100end==============.";
+    GTEST_LOG_(INFO) << "========Ability_Context_Impl_ReleaseCall_0100end==============.";
 }
 
 /**
- * @tc.number: Ability_Context_Impl_ReleaseAbility_0200
+ * @tc.number: Ability_Context_Impl_ReleaseCall_0200
  * @tc.name: StartAbility
- * @tc.desc: Ability context to process ReleaseAbility, and the result is fail because localCallContainer is null.
+ * @tc.desc: Ability context to process ReleaseCall, and the result is fail because localCallContainer is null.
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseAbility_0200, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ReleaseCall_0200, Function | MediumTest | Level1)
 {
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
-    ErrCode ret = context_->ReleaseAbility(callback);
+    ErrCode ret = context_->ReleaseCall(callback);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
 }
 

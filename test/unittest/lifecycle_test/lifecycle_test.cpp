@@ -69,8 +69,6 @@ public:
 
     void TearDown() override;
 
-    bool StartLauncherAbility() override;
-
     bool StartNextAbility() override;
 
     int AttachAbility(const OHOS::sptr<OHOS::AAFwk::AbilityScheduler> &scheduler,
@@ -138,7 +136,6 @@ void LifecycleTest::SetUp(void)
 {
     OnStartabilityAms();
     WaitUntilTaskFinished();
-    StartLauncherAbility();
     command_ = std::make_unique<LifeTestCommand>();
 }
 
@@ -153,11 +150,6 @@ void LifecycleTest::TearDown(void)
     nextScheduler_ = nullptr;
     command_.reset();
     startLancherFlag_ = false;
-}
-
-bool LifecycleTest::StartLauncherAbility()
-{
-    return false;
 }
 
 bool LifecycleTest::StartNextAbility()

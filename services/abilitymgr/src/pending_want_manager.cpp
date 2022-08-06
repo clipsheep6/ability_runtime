@@ -164,9 +164,6 @@ bool PendingWantManager::CheckPendingWantRecordByKey(
     if (inputKey->GetRequestResolvedType().compare(key->GetRequestResolvedType()) != 0) {
         return false;
     }
-    if (inputKey->GetFlags() != key->GetFlags()) {
-        return false;
-    }
     if (inputKey->GetUserId() != key->GetUserId()) {
         return false;
     }
