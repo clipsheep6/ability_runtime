@@ -26,10 +26,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 constexpr uint32_t MAIN_THREAD_IS_ALIVE = 0;
-constexpr uint32_t MAIN_THREAD_TIMEOUT_TIME = 6000;
+constexpr uint32_t CHECK_INTERVAL_TIME = 3000;
 constexpr uint32_t INI_TIMER_FIRST_SECOND = 10000;
-constexpr uint32_t INI_TIMER_SECOND = 3000;
+constexpr const char* CHECK_MAIN_THREAD_IS_ALIVE_MSG = "CHECK_MAIN_THREAD_IS_ALIVE";
 constexpr const char* MAIN_THREAD_IS_ALIVE_MSG = "MAIN_THREAD_IS_ALIVE";
+constexpr const char* MAIN_THREAD_TIMEOUT_TASK = "MAIN_THREAD_TIMEOUT_TASK";
 class WatchDog : public EventHandler {
 public:
     WatchDog(const std::shared_ptr<EventRunner> &runner);
