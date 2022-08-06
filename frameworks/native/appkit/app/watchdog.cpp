@@ -53,6 +53,7 @@ void WatchDog::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event)
             currentHandler_->RemoveTask(MAIN_THREAD_IS_ALIVE_MSG);
         }
         timeOut_.store(false);
+        isSixSecondEvent_.store(false);
     }
 }
 
@@ -144,12 +145,13 @@ bool WatchDog::Timer()
         auto timeoutTask = [&]() {
             timeOut_.store(true);
             appMainThreadIsAlive_ = false;
-            std::string eventType = "THREAD_BLOCK_3S";
+            std::string eventType = isSixSecondEvent_ ? "THREAD_BLOCK_6S" : "THREAD_BLOCK_3S";
             std::string msgContent = "App main thread is not response!";
             MainHandlerDumper handlerDumper;
             appMainHandler_->Dump(handlerDumper);
             msgContent += handlerDumper.GetDumpInfo();
             if (applicationInfo_ != nullptr) {
+                isSixSecondEvent_.store(true);
                 OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, eventType,
                     OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
                     EVENT_KEY_UID, applicationInfo_->uid,

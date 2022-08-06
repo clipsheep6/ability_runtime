@@ -97,6 +97,7 @@ private:
 
     std::atomic_bool stopWatchDog_ = false;
     std::atomic<bool> timeOut_ = false;
+    std::atomic_bool isSixSecondEvent_ = false;
     std::shared_ptr<ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<std::thread> watchDogThread_ = nullptr;
     std::shared_ptr<EventRunner> watchDogRunner_ = nullptr;
