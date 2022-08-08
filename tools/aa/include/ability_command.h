@@ -31,11 +31,15 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
                              "  stop-service                stop service with options\n"
                              "  dump                        dump the ability info\n"
                              "  force-stop <bundle-name>    force stop the process with bundle name\n"
+#ifdef ABILITY_COMMAND_FOR_TEST
                              "  test                        start the test framework with options\n"
                              "  ApplicationNotResponding     Pass in pid with options\n"
                              "  block-ability <ability-record-id>       block ability with ability record id\n"
                              "  block-ams-service                       block ams service\n"
                              "  block-app-service                       block app service\n";
+#else
+                             "  test                        start the test framework with options\n";
+#endif
 
 const std::string HELP_MSG_SCREEN =
     "usage: aa screen <options>\n"

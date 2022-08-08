@@ -739,6 +739,7 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    connection->SetConnectionId(key.id);
     abilityConnects_.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
@@ -798,6 +799,7 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
     ConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
+    connection->SetConnectionId(key.id);
     abilityConnects_.emplace(key, connection);
     if (g_serialNumber < INT32_MAX) {
         g_serialNumber++;
@@ -1167,6 +1169,11 @@ JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine)
 
 JSAbilityConnection::~JSAbilityConnection() = default;
 
+void JSAbilityConnection::SetConnectionId(int64_t id)
+{
+    connectionId_ = id;
+}
+
 void JSAbilityConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
@@ -1265,10 +1272,11 @@ void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::Elemen
     std::string bundleName = element.GetBundleName();
     std::string abilityName = element.GetAbilityName();
     auto item = std::find_if(abilityConnects_.begin(), abilityConnects_.end(),
-        [bundleName, abilityName] (
+        [bundleName, abilityName, connectionId = connectionId_] (
             const std::map<ConnectionKey, sptr<JSAbilityConnection>>::value_type &obj) {
                 return (bundleName == obj.first.want.GetBundle()) &&
-                    (abilityName == obj.first.want.GetElement().GetAbilityName());
+                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                    connectionId == obj.first.id;
         });
     if (item != abilityConnects_.end()) {
         // match bundlename && abilityname

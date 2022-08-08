@@ -59,13 +59,13 @@
             "relational_store",
             "resource_management",
             "safwk",
-            "samgr_standard",
+            "samgr",
             "startup_l2",
             "utils_base",
             "window_manager"
   ],
           "third_party": [
-            "libpng",
+            "libjpeg",
             "node",
             "jsoncpp",
             "json"
@@ -168,6 +168,19 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/interfaces/inner_api/app_manager:app_manager"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager/include",
+              "header_files": [
+                "connection_data.h",
+                "connection_observer_client.h",
+                "connection_observer_errors.h",
+                "connection_observer.h",
+                "dlp_state_data.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/interfaces/inner_api/connectionobs_manager:connection_obs_manager"
           },
           {
             "header": {

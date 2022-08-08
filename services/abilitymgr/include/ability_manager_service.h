@@ -479,6 +479,10 @@ public:
 
     virtual int GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info) override;
 
+    virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer) override;
+
+    virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer) override;
+
     virtual int LockMissionForCleanup(int32_t missionId) override;
 
     virtual int UnlockMissionForCleanup(int32_t missionId) override;

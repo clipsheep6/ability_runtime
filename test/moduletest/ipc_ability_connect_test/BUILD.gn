@@ -36,7 +36,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
   ]
 
   if (ability_runtime_graphics) {
-    deps += [ "//third_party/libpng:libpng" ]
+    deps += [ "//third_party/libjpeg:libjpeg_static" ]
   }
 
   external_deps = [

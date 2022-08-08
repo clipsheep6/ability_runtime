@@ -16,12 +16,12 @@
 #ifndef OHOS_ABILITY_RUNTIME_DLP_UTILS_H
 #define OHOS_ABILITY_RUNTIME_DLP_UTILS_H
 
-#ifdef WITH_DLP
 #include "ability_record.h"
+#ifdef WITH_DLP
 #include "dlp_permission_kit.h"
-#include "permission_verification.h"
 #endif // WITH_DLP
 #include "iremote_object.h"
+#include "permission_verification.h"
 #include "want.h"
 
 namespace OHOS {
@@ -64,6 +64,18 @@ static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, cons
     }
 #endif // WITH_DLP
     return true;
+}
+
+static bool OtherAppsAccessDlpCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
+{
+    if (callerToken != nullptr) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord != nullptr && abilityRecord->GetAppIndex() != 0) {
+            return true;
+        }
+    }
+
+    return PermissionVerification::GetInstance()->VerifyDlpPermission(const_cast<Want &>(want));
 }
 }  // namespace DlpUtils
 }  // namespace AAFwk

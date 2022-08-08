@@ -31,7 +31,11 @@ config("ability_manager_public_config") {
     "//third_party/jsoncpp/include",
   ]
 
-  defines = [ "ABILITY_COMMAND_FOR_TEST" ]
+  defines = []
+
+  if (ability_command_for_test) {
+    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
+  }
 
   if (ability_runtime_graphics) {
     include_dirs += [ "${multimedia_path}/interfaces/innerkits/include" ]
@@ -106,7 +110,7 @@ ohos_shared_library("ability_manager") {
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 

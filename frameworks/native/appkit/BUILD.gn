@@ -134,7 +134,7 @@ ohos_shared_library("appkit_native") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 
@@ -192,7 +192,7 @@ ohos_shared_library("app_context") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 
@@ -252,7 +252,7 @@ ohos_shared_library("app_context_utils") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:resmgr_napi_core",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 
@@ -318,7 +318,7 @@ ohos_shared_library("appkit_delegator") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "utils_base:utils",
   ]
 

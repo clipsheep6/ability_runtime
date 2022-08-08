@@ -45,7 +45,7 @@ ohos_moduletest("start_option_module_test") {
     "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/libpng:libpng",
+    "//third_party/libjpeg:libjpeg_static",
     "//utils/native/base:utils",
   ]
 

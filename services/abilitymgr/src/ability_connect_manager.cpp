@@ -211,6 +211,7 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     auto serviceMapIter = serviceMap_.find(element.GetURI());
     if (serviceMapIter == serviceMap_.end()) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
+        targetService->SetOwnerMissionUserId(userId_);
         if (isCreatedByConnect && targetService != nullptr) {
             targetService->SetCreateByConnectMode();
         }
@@ -264,6 +265,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     // 4. Other cases , need to connect the service ability
     auto connectRecord = ConnectionRecord::CreateConnectionRecord(callerToken, targetService, connect);
     CHECK_POINTER_AND_RETURN(connectRecord, ERR_INVALID_VALUE);
+    connectRecord->AttachCallerInfo();
     connectRecord->SetConnectState(ConnectionState::CONNECTING);
     targetService->AddConnectRecordToList(connectRecord);
     connectRecordList.push_back(connectRecord);
