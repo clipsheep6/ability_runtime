@@ -60,6 +60,7 @@ ohos_unittest("ability_connect_callback_proxy_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "startup_l2:syspara_watchagent",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

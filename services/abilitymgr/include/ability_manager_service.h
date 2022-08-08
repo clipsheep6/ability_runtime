@@ -42,6 +42,7 @@
 #include "system_ability.h"
 #include "uri.h"
 #include "ability_config.h"
+#include "parameter.h"
 #include "pending_want_manager.h"
 #include "ams_configuration_parameter.h"
 #include "user_controller.h"

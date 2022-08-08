@@ -89,6 +89,7 @@ ohos_moduletest("ability_timeout_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "startup_l2:syspara_watchagent",
   ]
 
   if (efficiency_manager) {

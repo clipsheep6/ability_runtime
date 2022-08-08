@@ -55,7 +55,6 @@
 #include "os_account_manager_wrapper.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
-#include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
 #include "connection_state_manager.h"
@@ -122,6 +121,8 @@ const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.syste
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
+const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -213,6 +214,10 @@ void AbilityManagerService::OnStart()
         HILOG_ERROR("Publish AMS failed!");
         return;
     }
+
+    SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
+
+    WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
 
     HILOG_INFO("AMS start success.");
 }

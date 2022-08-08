@@ -64,6 +64,7 @@ ohos_unittest("data_ability_manager_test") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "startup_l2:syspara_watchagent",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

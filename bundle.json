@@ -81,7 +81,8 @@
           "//foundation/ability/ability_runtime/frameworks/js/napi:napi_packages",
           "//foundation/ability/ability_runtime/frameworks/native/ability:ability_context_native",
           "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context",
-          "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native"
+          "//foundation/ability/ability_runtime/frameworks/native/appkit:appkit_native",
+          "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc"
         ],
         "inner_kits": [
           {

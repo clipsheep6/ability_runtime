@@ -53,6 +53,7 @@ ohos_unittest("ability_connect_manage_test") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "startup_l2:syspara_watchagent",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
