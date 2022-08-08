@@ -37,8 +37,6 @@ public:
     void AddAbilityResultCallback(Ability *ability, CallAbilityParam &param, int32_t errCode, CallbackInfo &callback);
 
     void RequestPermissionsFromUser(Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo);
-    void OnRequestPermissionsFromUserResult(Ability *ability, int requestCode,
-        const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
 
 private:
     bool CaullFunc(int requestCode, const std::vector<std::string> &permissions,
@@ -48,7 +46,6 @@ private:
     static std::mutex mutex_;
     static std::shared_ptr<AbilityProcess> instance_;
     static std::map<Ability *, std::map<int, CallbackInfo>> abilityResultMap_;
-    static std::map<Ability *, std::map<int, CallbackInfo>> abilityRequestPermissionsForUserMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

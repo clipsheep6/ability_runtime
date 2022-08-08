@@ -90,12 +90,6 @@ void Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSet
     return;
 }
 
-void Ability::OnRequestPermissionsFromUserResult(
-    int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults)
-{
-    return;
-}
-
 std::string Ability::GetType(const Uri &uri)
 {
     std::string value("\nullptr");

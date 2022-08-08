@@ -19,10 +19,14 @@
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
+#include "authorization_result.h"
 #include "hitrace_meter.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
 #include "permission_list_state.h"
+#include "remote_object_wrapper.h"
+#include "string_wrapper.h"
+#include "want_params_wrapper.h"
 
 using OHOS::Security::AccessToken::AccessTokenKit;
 using OHOS::Security::AccessToken::PermissionListState;
@@ -35,6 +39,8 @@ const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string STATE_KEY = "ohos.user.grant.permission.state";
+const std::string TOKEN_KEY = "ohos.ability.params.token";
+const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
 std::string AbilityContextImpl::GetBaseDir() const
 {
@@ -367,10 +373,10 @@ sptr<IRemoteObject> AbilityContextImpl::GetToken()
 }
 
 void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::string> &permissions,
-    int requestCode, PermissionRequestTask &&task)
+    PermissionRequestTask &&task)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    if (permissions.empty() || requestCode < 0) {
+    if (permissions.empty()) {
         HILOG_ERROR("%{public}s. The params are invalid.", __func__);
         return;
     }
@@ -406,28 +412,18 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
         want.SetElementName(GRANT_ABILITY_BUNDLE_NAME, GRANT_ABILITY_ABILITY_NAME);
         want.SetParam(PERMISSION_KEY, permissions);
         want.SetParam(STATE_KEY, permissionsState);
-        permissionRequestCallbacks_.insert(make_pair(requestCode, std::move(task)));
-        HILOG_DEBUG("%{public}s. Start calling StartAbility.", __func__);
-        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
-        HILOG_INFO("%{public}s. End calling StartAbility. ret=%{public}d", __func__, err);
+        want.SetParam(TOKEN_KEY, token_);
+        sptr<IRemoteObject> remoteObject = new AuthorizationResult(std::move(task));
+        want.SetParam(CALLBACK_KEY, remoteObject);
+
+        HILOG_DEBUG("%{public}s. Start calling StartExtension.", __func__);
+        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
+        HILOG_INFO("%{public}s. End calling StartExtension. ret=%{public}d", __func__, err);
     } else {
         HILOG_DEBUG("%{public}s. No dynamic popup required.", __func__);
         if (task) {
             task(permissions, permissionsState);
         }
-    }
-}
-
-void AbilityContextImpl::OnRequestPermissionsFromUserResult(
-    int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &permissionsState)
-{
-    HILOG_DEBUG("%{public}s. Start calling OnRequestPermissionsFromUserResult.", __func__);
-    auto iter = permissionRequestCallbacks_.find(requestCode);
-    if (iter != permissionRequestCallbacks_.end() && iter->second) {
-        auto task = iter->second;
-        task(permissions, permissionsState);
-        permissionRequestCallbacks_.erase(iter);
-        HILOG_DEBUG("%{public}s. End calling OnRequestPermissionsFromUserResult.", __func__);
     }
 }
 

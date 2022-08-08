@@ -53,8 +53,6 @@ public:
     void OnNewWant(const Want &want) override;
 
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
-    void OnRequestPermissionsFromUserResult(
-        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) override;
 
     sptr<IRemoteObject> CallRequest() override;
 

@@ -533,19 +533,17 @@ std::string ContextContainer::GetProcessName()
 /**
  * @brief Requests certain permissions from the system.
  * This method is called for permission request. This is an asynchronous method. When it is executed,
- * the Ability.onRequestPermissionsFromUserResult(int, String[], int[]) method will be called back.
+ * the task will be called back.
  *
  * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
  * @param permissionsState Indicates the list of permissions' state to be requested. This parameter cannot be null.
- * @param requestCode Indicates the request code to be passed to the Ability.onRequestPermissionsFromUserResult(int,
- * String[], int[]) callback method. This code cannot be a negative number.
- *
+ * @param task The callback or promise fo js interface.
  */
 void ContextContainer::RequestPermissionsFromUser(std::vector<std::string> &permissions,
-    std::vector<int> &permissionsState, int requestCode)
+    std::vector<int> &permissionsState, PermissionRequestTask &&task)
 {
     if (baseContext_ != nullptr) {
-        baseContext_->RequestPermissionsFromUser(permissions, permissionsState, requestCode);
+        baseContext_->RequestPermissionsFromUser(permissions, permissionsState, std::move(task));
     } else {
         HILOG_ERROR("ContextContainer::RequestPermissionsFromUser baseContext_ is nullptr");
     }

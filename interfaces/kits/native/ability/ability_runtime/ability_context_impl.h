@@ -81,10 +81,7 @@ public:
 
     sptr<IRemoteObject> GetToken() override;
 
-    void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
-        int requestCode, PermissionRequestTask &&task) override;
-    void OnRequestPermissionsFromUserResult(
-        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults) override;
+    void RequestPermissionsFromUser(const std::vector<std::string> &permissions, PermissionRequestTask &&task) override;
 
     ErrCode RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage) override;
 

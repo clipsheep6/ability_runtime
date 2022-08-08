@@ -243,18 +243,7 @@ void AbilityImpl::SendResult(int requestCode, int resultCode, const Want &result
         return;
     }
 
-    if (resultData.HasParameter(PERMISSION_KEY)) {
-        std::vector<std::string> permissions = resultData.GetStringArrayParam(PERMISSION_KEY);
-        std::vector<int> grantedResult(permissions.size(), -1);
-        if (resultCode > 0) {
-            grantedResult = resultData.GetIntArrayParam(GRANTED_RESULT_KEY);
-            HILOG_DEBUG("%{public}s Get user granted result.", __func__);
-        }
-        ability_->OnRequestPermissionsFromUserResult(requestCode, permissions, grantedResult);
-    } else {
-        ability_->OnAbilityResult(requestCode, resultCode, resultData);
-    }
-
+    ability_->OnAbilityResult(requestCode, resultCode, resultData);
     // for api5 FeatureAbility::startAbilityForResult
     ability_->OnFeatureAbilityResult(requestCode, resultCode, resultData);
     HILOG_DEBUG("%{public}s end.", __func__);
