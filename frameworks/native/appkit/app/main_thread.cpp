@@ -1736,7 +1736,7 @@ MainThread::MainHandler::MainHandler(const std::shared_ptr<EventRunner> &runner,
 void MainThread::MainHandler::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event)
 {
     auto eventId = event->GetInnerEventId();
-    if (eventId == MAIN_THREAD_IS_ALIVE) {
+    if (eventId == CHECK_MAIN_THREAD_IS_ALIVE) {
         auto watchDogHanlder = WatchDog::GetCurrentHandler();
         if (watchDogHanlder != nullptr) {
             watchDogHanlder->SendEvent(MAIN_THREAD_IS_ALIVE);
