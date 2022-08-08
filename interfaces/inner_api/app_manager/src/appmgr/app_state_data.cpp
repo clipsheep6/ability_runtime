@@ -22,7 +22,7 @@ namespace AppExecFwk {
 bool AppStateData::Marshalling(Parcel &parcel) const
 {
     return (parcel.WriteString(bundleName) && parcel.WriteInt32(uid) && parcel.WriteInt32(state)
-        && parcel.WriteInt32(pid));
+        && parcel.WriteInt32(pid) && parcel.WriteInt32(accessTokenId));
 }
 
 bool AppStateData::ReadFromParcel(Parcel &parcel)
@@ -31,6 +31,7 @@ bool AppStateData::ReadFromParcel(Parcel &parcel)
     uid = parcel.ReadInt32();
     state = parcel.ReadInt32();
     pid = parcel.ReadInt32();
+    accessTokenId = parcel.ReadInt32();
 
     return true;
 }

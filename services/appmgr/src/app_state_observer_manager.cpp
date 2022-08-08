@@ -397,6 +397,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.bundleName = appRecord->GetBundleName();
     appStateData.state = static_cast<int32_t>(state);
     appStateData.uid = appRecord->GetUid();
+    appStateData.accessTokenId = appRecord->GetApplicationInfo()->accessTokenId;
     return appStateData;
 }
 }  // namespace AppExecFwk
