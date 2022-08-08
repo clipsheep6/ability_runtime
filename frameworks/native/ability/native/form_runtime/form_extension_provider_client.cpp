@@ -500,5 +500,54 @@ std::pair<int, int> FormExtensionProviderClient::CheckParam(const Want &want, co
     }
     return std::pair<int, int>(ERR_OK, ERR_OK);
 }
+
+/**
+ * @brief Acquire to share form information data. This is sync API.
+ * @param formId The Id of the from.
+ * @param remoteDeviceId Indicates the device ID to share.
+ * @param formSupplyCallback Indicates lifecycle callbacks.
+ * @param requestCode Indicates the request code of this share form.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int32_t FormExtensionProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+    const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+
+    if (!FormProviderClient::CheckIsSystemApp()) {
+        HILOG_ERROR("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
+        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
+    }
+
+    std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
+    auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
+    if (formCall == nullptr) {
+        HILOG_ERROR("%{public}s error, callback is nullptr.", __func__);
+        return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
+    }
+
+    AAFwk::WantParams wantParams;
+    bool result = false;
+    auto taskProc = [client = sptr<FormExtensionProviderClient>(this), formId, &wantParams, &result]() {
+        result = client->AcquireFormExtensionProviderShareFormInfo(formId, wantParams);
+    };
+    mainHandler->PostSyncTask(taskProc);
+    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode, result);
+
+    return ERR_OK;
+}
+
+bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
+    int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
+    if (ownerFormExtension == nullptr) {
+        HILOG_ERROR("%{public}s error, ownerFormExtension is nullptr.", __func__);
+        return false;
+    }
+
+    return ownerFormExtension->OnShare(formId, wantParams);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

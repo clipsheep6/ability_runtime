@@ -514,5 +514,49 @@ int FormProviderClient::HandleAcquireStateResult(FormState state, const std::str
     HILOG_INFO("%{public}s end", __func__);
     return ERR_OK;
 }
+
+/**
+ * @brief Acquire to share form information data. This is sync API.
+ * @param formId The Id of the from.
+ * @param remoteDeviceId Indicates the device ID to share.
+ * @param formSupplyCallback Indicates lifecycle callbacks.
+ * @param requestCode Indicates the request code of this share form.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int32_t FormProviderClient::ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+    const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
+{
+    HILOG_DEBUG("FormProviderClient::%{public}s called.", __func__);
+    if (formId <= 0 || remoteDeviceId.empty() || formSupplyCallback == nullptr || requestCode <= 0) {
+        HILOG_ERROR("%{public}s error, Abnormal parameters exist.", __func__);
+        return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
+    }
+
+    std::shared_ptr<Ability> ownerAbility = GetOwner();
+    if (ownerAbility == nullptr) {
+        HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
+        return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
+    }
+
+    HILOG_DEBUG("%{public}s come, %{public}s.", __func__, ownerAbility->GetAbilityName().c_str());
+
+    if (!CheckIsSystemApp()) {
+        HILOG_WARN("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
+        return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
+    }
+
+    auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
+    if (formCall == nullptr) {
+        HILOG_ERROR("%{public}s error, callback is nullptr.", __func__);
+        return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
+    }
+
+    AAFwk::WantParams wantParams;
+    auto result = ownerAbility->OnShare(formId, wantParams);
+    formCall->OnShareAcquire(formId, remoteDeviceId, wantParams, requestCode, result);
+
+    HILOG_DEBUG("%{public}s, call over", __func__);
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

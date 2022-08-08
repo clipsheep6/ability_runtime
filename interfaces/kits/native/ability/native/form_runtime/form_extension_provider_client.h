@@ -134,6 +134,17 @@ public:
      */
     void ClearOwner(const std::shared_ptr<FormExtension> formExtension);
 
+    /**
+     * @brief Acquire to share form information data. This is sync API.
+     * @param formId The Id of the from.
+     * @param remoteDeviceId Indicates the device ID to share.
+     * @param formSupplyCallback Indicates lifecycle callbacks.
+     * @param requestCode Indicates the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ShareAcquireProviderFormInfo(int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode) override;
+
 private:
     std::shared_ptr<FormExtension> GetOwner();
     std::pair<int, int> CheckParam(const Want &want, const sptr<IRemoteObject> &callerToken);
@@ -154,6 +165,7 @@ private:
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                          const sptr<IRemoteObject> &callerToken);
+    bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
     mutable std::mutex formExtensionMutex_;
