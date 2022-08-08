@@ -29,9 +29,7 @@ ohos_unittest("data_ability_manager_test") {
     "${ability_runtime_services_path}/common/include",
   ]
 
-  sources = [
-    "data_ability_manager_test.cpp",  # add mock file
-  ]
+  sources = [ "data_ability_manager_test.cpp" ]
 
   configs = [
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
