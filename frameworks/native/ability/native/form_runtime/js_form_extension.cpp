@@ -384,5 +384,39 @@ FormState JsFormExtension::OnAcquireFormState(const Want &want)
         return (AppExecFwk::FormState) state;
     }
 }
+
+bool JsFormExtension::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
+    if (nativeEngine == nullptr) {
+        HILOG_ERROR("%{public}s OnShare get NativeEngine is nullptr", __func__);
+        return false;
+    }
+
+    auto formIdStr = std::to_string(formId);
+    NativeValue* argv[] = { nativeEngine->CreateString(formIdStr.c_str(), formIdStr.length()) };
+    NativeValue* nativeResult = CallObjectMethod("onShare", argv, 1);
+    if (nativeResult == nullptr) {
+        HILOG_ERROR("%{public}s OnShare return value is nullptr", __func__);
+        return false;
+    }
+
+    if (nativeResult->TypeOf() != NativeValueType::NATIVE_OBJECT) {
+        HILOG_ERROR("%{public}s OnShare return value`s type is %{public}d", __func__,
+            static_cast<int32_t>(nativeResult->TypeOf()));
+        return false;
+    }
+
+    if (!OHOS::AppExecFwk::UnwrapWantParams(reinterpret_cast<napi_env>(nativeEngine),
+        reinterpret_cast<napi_value>(nativeResult), wantParams)) {
+        HILOG_ERROR("%{public}s OnShare UnwrapWantParams failed, return false", __func__);
+        return false;
+    }
+
+    HILOG_DEBUG("%{public}s called end.", __func__);
+    return true;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
