@@ -3167,7 +3167,7 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
     CHECK_POINTER(abilityRecord);
 
     auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
-    if (manager) {
+    if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
         manager->OnAbilityDied(abilityRecord, GetUserId());
         return;
     }
