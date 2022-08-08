@@ -39,8 +39,11 @@ NativeValue *CreateJsAbilityDelegator(NativeEngine &engine)
     object->SetNativePointer(jsAbilityDelegator.release(), JSAbilityDelegator::Finalizer, nullptr);
 
     BindNativeFunction(engine, *object, "addAbilityMonitor", JSAbilityDelegator::AddAbilityMonitor);
+    BindNativeFunction(engine, *object, "addAbilityStageMonitor", JSAbilityDelegator::AddAbilityStageMonitor);
     BindNativeFunction(engine, *object, "removeAbilityMonitor", JSAbilityDelegator::RemoveAbilityMonitor);
+    BindNativeFunction(engine, *object, "removeAbilityStageMonitor", JSAbilityDelegator::RemoveAbilityStageMonitor);
     BindNativeFunction(engine, *object, "waitAbilityMonitor", JSAbilityDelegator::WaitAbilityMonitor);
+    BindNativeFunction(engine, *object, "waitAbilityStageMonitor", JSAbilityDelegator::WaitAbilityStageMonitor);
     BindNativeFunction(engine, *object, "getAppContext", JSAbilityDelegator::GetAppContext);
     BindNativeFunction(engine, *object, "getAbilityState", JSAbilityDelegator::GetAbilityState);
     BindNativeFunction(engine, *object, "getCurrentTopAbility", JSAbilityDelegator::GetCurrentTopAbility);

@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_H
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_H
 
+#include "ability_delegator_infos.h"
 #include "ability_stage.h"
 #include "configuration.h"
 #include "native_engine/native_value.h"
@@ -46,8 +47,12 @@ public:
 private:
     NativeValue* CallObjectMethod(const char* name, NativeValue * const * argv = nullptr, size_t argc = 0);
 
+    std::shared_ptr<AppExecFwk::DelegatorAbilityStageProperty> CreateStageProperty() const;
+
+    std::string GetHapModuleProp(const std::string &propName) const;
+
     JsRuntime& jsRuntime_;
-    std::unique_ptr<NativeReference> jsAbilityStageObj_;
+    std::shared_ptr<NativeReference> jsAbilityStageObj_;
     std::shared_ptr<NativeReference> shellContextRef_;
 };
 }  // namespace AbilityRuntime

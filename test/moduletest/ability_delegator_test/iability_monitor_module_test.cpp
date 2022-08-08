@@ -23,6 +23,7 @@
 
 #define private public
 #include "iability_monitor.h"
+#include "iability_stage_monitor.h"
 #include "ability_manager_client.h"
 #undef private
 
@@ -38,6 +39,12 @@ namespace {
 const std::string ABILITY_NAME = "com.example.myapplication.MainAbilitymodule";
 const std::string PROPERTY_ABILITY_NAME = "com.example.myapplication.MainAbilitymodule";
 const std::string PROPERTY_ABILITY_NAME1 = "com.example.myapplication.MainAbility1module";
+const std::string ABILITY_STAGE_MODULE_NAME = "com.example.entry_test";
+const std::string ABILITY_STAGE_SOURCE_ENTRANCE = "./ets/Application/TestAbilityStage.ts";
+const std::string PROPERTY_ABILITY_STAGE_MODULE_NAME = "com.example.entry_test";
+const std::string PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE = "./ets/Application/TestAbilityStage.ts";
+const std::string PROPERTY_ABILITY_STAGE_MODULE_NAME2 = "com.example.entry_test2";
+const std::string PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE2 = "./ets/Application/TestAbilityStage2.ts";
 }
 
 class IabilityMonitorModuleTest : public ::testing::Test {
@@ -88,8 +95,34 @@ HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0100, Function | Mediu
     HILOG_INFO("Iability_Monitor_Test_0100 is called");
 
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
-    std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
-    proterty->token_ = new MockAbilityDelegatorStub;
-    proterty->name_ = PROPERTY_ABILITY_NAME;
-    EXPECT_TRUE(iabilityMonitor.Match(proterty));
+    std::shared_ptr<ADelegatorAbilityProperty> property = std::make_shared<ADelegatorAbilityProperty>();
+    property->token_ = new MockAbilityDelegatorStub;
+    property->name_ = PROPERTY_ABILITY_NAME;
+    EXPECT_TRUE(iabilityMonitor.Match(property));
+}
+
+/**
+ * @tc.number: Iability_Monitor_Test_0200
+ * @tc.name: Match AbilityStage
+ * @tc.desc: Verify the AbilityStage Match.
+ */
+HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0200, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Iability_Monitor_Test_0200 is called");
+
+    IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
+    std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
+    property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE;
+    EXPECT_TRUE(stageMonitor.Match(property));
+
+    std::shared_ptr<DelegatorAbilityStageProperty> property2 = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME2;
+    property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE;
+    EXPECT_FALSE(stageMonitor.Match(property2));
+
+    std::shared_ptr<DelegatorAbilityStageProperty> property3 = std::make_shared<DelegatorAbilityStageProperty>();
+    property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
+    property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE2;
+    EXPECT_FALSE(stageMonitor.Match(property3));
 }
