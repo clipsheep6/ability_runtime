@@ -144,9 +144,18 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
 
     AbilityStage::OnCreate(want);
 
-    NativeObject* obj;
-    NativeValue* value;
-    if (!CheckAbilityStage(obj, value)) {
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
+        return;
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityStageObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
         return;
     }
 
@@ -155,7 +164,6 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
         HILOG_ERROR("Failed to get 'onCreate' from AbilityStage object");
         return;
     }
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
     nativeEngine.CallFunction(value, methodOnCreate, nullptr, 0);
 }
 
@@ -165,13 +173,21 @@ std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
 
     AbilityStage::OnAcceptWant(want);
 
-    NativeObject* obj;
-    NativeValue* value;
-    if (!CheckAbilityStage(obj, value)) {
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
         return "";
     }
 
+    HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityStageObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return "";
+    }
+
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(&nativeEngine), want);
     NativeValue* jsWant = reinterpret_cast<NativeValue*>(napiWant);
 
@@ -214,13 +230,21 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     AbilityStage::OnMemoryLevel(level);
     HILOG_INFO("%{public}s called.", __func__);
 
-    NativeObject* obj;
-    NativeValue* value;
-    if (!CheckAbilityStage(obj, value)) {
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
         return;
     }
 
+    HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityStageObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
+
     NativeValue *jslevel = CreateJsValue(nativeEngine, level);
     NativeValue *argv[] = {
         jslevel,
@@ -233,9 +257,18 @@ NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * co
 {
     HILOG_INFO("JsAbilityStage::CallObjectMethod %{public}s", name);
 
-    NativeObject* obj;
-    NativeValue* value;
-    if (!CheckAbilityStage(obj, value)) {
+    if (!jsAbilityStageObj_) {
+        HILOG_WARN("Not found AbilityStage.js");
+        return nullptr;
+    }
+
+    HandleScope handleScope(jsRuntime_);
+    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+
+    NativeValue* value = jsAbilityStageObj_->Get();
+    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
         return nullptr;
     }
 
@@ -245,27 +278,7 @@ NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * co
         return nullptr;
     }
 
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
     return nativeEngine.CallFunction(value, method, argv, argc);
-}
-
-bool JsAbilityStage::CheckAbilityStage(NativeObject* &obj, NativeValue* &value) const
-{
-    if (!jsAbilityStageObj_) {
-        HILOG_WARN("Not found AbilityStage.js");
-        return false;
-    }
-
-    HandleScope handleScope(jsRuntime_);
-
-    value = jsAbilityStageObj_->Get();
-    obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
-        return false;
-    }
-
-    return true;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
