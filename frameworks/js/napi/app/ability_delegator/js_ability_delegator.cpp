@@ -1199,7 +1199,7 @@ void JSAbilityDelegator::AddStageMonitorRecord(
         std::unique_lock<std::mutex> lck(mtxStageMonitorRecord_);
         stageMonitorRecord_.emplace(reference, monitor);
     }
-    HILOG_INFO("stageMonitorRecord_ added, size = %{public}u", stageMonitorRecord_.size());
+    HILOG_INFO("stageMonitorRecord_ added, size = %{public}zu", stageMonitorRecord_.size());
 }
 
 void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
@@ -1217,7 +1217,7 @@ void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
         if (value->StrictEquals(jsMonitor->Get())) {
             stageMonitorRecord_.erase(iter);
-            HILOG_INFO("stageMonitorRecord_ removed, size = %{public}u", stageMonitorRecord_.size());
+            HILOG_INFO("stageMonitorRecord_ removed, size = %{public}zu", stageMonitorRecord_.size());
             break;
         }
     }
