@@ -23,8 +23,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-static const uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
-static const char* JS_CONSOLE_LOG_TAG = "JsApp";
+constexpr uint32_t JS_CONSOLE_LOG_DOMAIN = 0xFEFE;
+constexpr char JS_CONSOLE_LOG_TAG[] = "JsApp";
 
 std::string MakeLogContent(NativeCallbackInfo& info)
 {
