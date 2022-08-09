@@ -185,6 +185,7 @@ napi_value NAPI_GetOperationType(napi_env env, napi_callback_info info);
 
 napi_value GetCallbackErrorResult(napi_env env, int errCode);
 napi_value NapiGetNull(napi_env env);
+napi_value JSParaError(const napi_env &env, const bool bCallback);
 
 void DeleteRecordByCode(const int32_t code);
 static std::unique_ptr<std::map<AsyncGetWantAgentCallbackInfo *, const int32_t>,
