@@ -88,7 +88,7 @@ AbilityRuntime::Extension *AbilityLoader::GetExtensionByName(const std::string &
 void AbilityLoader::RegisterAbilitySlice(const std::string &sliceName, const CreateSlice &createFunc)
 {
     slices_.emplace(sliceName, createFunc);
-    HILOG_INFO(HILOG_MODULE_APP, "RegisterAbilitySlice %s", sliceName.c_str());
+    HILOG_DEBUG(HILOG_MODULE_APP, "RegisterAbilitySlice %s", sliceName.c_str());
 }
 
 AbilitySlice *AbilityLoader::GetAbilitySliceByName(const std::string &sliceName)

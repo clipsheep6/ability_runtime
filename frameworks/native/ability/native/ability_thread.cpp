@@ -89,7 +89,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
     }
 
     if (abilityInfo->isNativeAbility) {
-        HILOG_INFO("Create ability name success, name is %{public}s.", abilityInfo->name.c_str());
+        HILOG_DEBUG("Create ability name success, name is %{public}s.", abilityInfo->name.c_str());
         return abilityInfo->name;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -117,7 +117,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
     } else if (abilityInfo->type == AbilityType::EXTENSION) {
         application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
         if (abilityName.length() > 0) {
-            HILOG_INFO("Get extension name by plugin success, name: %{public}s", abilityName.c_str());
+            HILOG_DEBUG("Get extension name by plugin success, name: %{public}s", abilityName.c_str());
             return abilityName;
         }
         abilityName = BASE_SERVICE_EXTENSION;
@@ -147,12 +147,12 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::ENTERPRISE_ADMIN) {
             abilityName = ENTERPRISE_ADMIN_EXTENSION;
         }
-        HILOG_INFO("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
+        HILOG_DEBUG("CreateAbilityName extension type, abilityName:%{public}s", abilityName.c_str());
     } else {
         abilityName = abilityInfo->name;
     }
 
-    HILOG_INFO("Create ability name success, name is %{public}s.", abilityName.c_str());
+    HILOG_DEBUG("Create ability name success, name is %{public}s.", abilityName.c_str());
     return abilityName;
 }
 
@@ -169,7 +169,7 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
 std::shared_ptr<ContextDeal> AbilityThread::CreateAndInitContextDeal(std::shared_ptr<OHOSApplication> &application,
     const std::shared_ptr<AbilityLocalRecord> &abilityRecord, const std::shared_ptr<Context> &abilityObject)
 {
-    HILOG_INFO("AbilityThread::CreateAndInitContextDeal.");
+    HILOG_DEBUG("AbilityThread::CreateAndInitContextDeal.");
     std::shared_ptr<ContextDeal> contextDeal = nullptr;
     if ((application == nullptr) || (abilityRecord == nullptr) || (abilityObject == nullptr)) {
         HILOG_ERROR("AbilityThread::ability attach failed,context or record or abilityObject is nullptr");
@@ -217,7 +217,7 @@ void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
         HILOG_ERROR("Attach ability failed, abilityInfo is nullptr.");
         return;
     }
-    HILOG_INFO("Attach ability begin, ability:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
+    HILOG_DEBUG("Attach ability begin, ability:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
     abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner, this);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("Attach ability failed, abilityHandler_ is nullptr.");
@@ -281,7 +281,7 @@ void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &applicatio
         HILOG_ERROR("Attach ability failed, abilityInfo is nullptr.");
         return;
     }
-    HILOG_INFO("Attach extension begin, extension:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
+    HILOG_DEBUG("Attach extension begin, extension:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
     abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner, this);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("Attach extension failed, abilityHandler_ is nullptr");
@@ -325,7 +325,7 @@ void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &applicatio
     const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::AttachExtension begin");
+    HILOG_DEBUG("AbilityThread::AttachExtension begin");
     if ((application == nullptr) || (abilityRecord == nullptr)) {
         HILOG_ERROR("AbilityThread::AttachExtension failed,context or record is nullptr");
         return;
@@ -369,7 +369,7 @@ void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &applicatio
         HILOG_ERROR("AbilityThread:: AttachExtension failed err = %{public}d", err);
         return;
     }
-    HILOG_INFO("AbilityThread::AttachExtension end");
+    HILOG_DEBUG("AbilityThread::AttachExtension end");
 }
 
 /**
@@ -382,7 +382,7 @@ void AbilityThread::Attach(
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::Attach begin");
+    HILOG_DEBUG("AbilityThread::Attach begin");
     if ((application == nullptr) || (abilityRecord == nullptr)) {
         HILOG_ERROR("AbilityThread::ability attach failed,context or record is nullptr");
         return;
@@ -435,7 +435,7 @@ void AbilityThread::Attach(
         return;
     }
 
-    HILOG_INFO("AbilityThread::Attach end");
+    HILOG_DEBUG("AbilityThread::Attach end");
 }
 
 /**
@@ -446,7 +446,7 @@ void AbilityThread::Attach(
 void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Handle ability transaction begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("Handle ability transaction begin, name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("Handle ability transaction error, abilityImpl_ == nullptr.");
         return;
@@ -457,7 +457,7 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
         lifeCycleStateInfo.caller.abilityName,
         lifeCycleStateInfo.caller.moduleName);
     abilityImpl_->HandleAbilityTransaction(want, lifeCycleStateInfo);
-    HILOG_INFO("Handle ability transaction end.");
+    HILOG_DEBUG("Handle ability transaction success.");
 }
 
 /**
@@ -469,13 +469,13 @@ void AbilityThread::HandleAbilityTransaction(const Want &want, const LifeCycleSt
 void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleExtensionTransaction begin");
+    HILOG_DEBUG("AbilityThread::HandleExtensionTransaction begin");
     if (extensionImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleExtensionTransaction extensionImpl_ == nullptr");
         return;
     }
     extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo);
-    HILOG_INFO("AbilityThread::HandleAbilityTransaction end");
+    HILOG_DEBUG("AbilityThread::HandleAbilityTransaction end");
 }
 
 /**
@@ -485,7 +485,7 @@ void AbilityThread::HandleExtensionTransaction(const Want &want, const LifeCycle
 void AbilityThread::HandleConnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleConnectAbility begin");
+    HILOG_DEBUG("AbilityThread::HandleConnectAbility begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleConnectAbility abilityImpl_ == nullptr");
         return;
@@ -496,7 +496,7 @@ void AbilityThread::HandleConnectAbility(const Want &want)
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityThread:: HandleConnectAbility failed err = %{public}d", err);
     }
-    HILOG_INFO("AbilityThread::HandleConnectAbility end");
+    HILOG_DEBUG("AbilityThread::HandleConnectAbility end");
 }
 
 /**
@@ -505,14 +505,14 @@ void AbilityThread::HandleConnectAbility(const Want &want)
 void AbilityThread::HandleDisconnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Handle disconnect ability begin.");
+    HILOG_DEBUG("Handle disconnect ability begin.");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("Handle disconnect ability error, abilityImpl_ == nullptr.");
         return;
     }
 
     abilityImpl_->DisconnectAbility(want);
-    HILOG_INFO("Handle disconnect ability done, notify ability manager service.");
+    HILOG_DEBUG("Handle disconnect ability done, notify ability manager service.");
     ErrCode err = AbilityManagerClient::GetInstance()->ScheduleDisconnectAbilityDone(token_);
     if (err != ERR_OK) {
         HILOG_ERROR("Handle disconnect ability error, err = %{public}d.", err);
@@ -534,7 +534,7 @@ void AbilityThread::HandleDisconnectAbility(const Want &want)
 void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleCommandAbility begin");
+    HILOG_DEBUG("AbilityThread::HandleCommandAbility begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleCommandAbility failed. abilityImpl_ == nullptr");
         return;
@@ -544,7 +544,7 @@ void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int sta
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityThread:: HandleCommandAbility  failed err = %{public}d", err);
     }
-    HILOG_INFO("AbilityThread::HandleCommandAbility end");
+    HILOG_DEBUG("AbilityThread::HandleCommandAbility end");
 }
 
 /**
@@ -555,7 +555,7 @@ void AbilityThread::HandleCommandAbility(const Want &want, bool restart, int sta
 void AbilityThread::HandleConnectExtension(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleConnectExtension begin");
+    HILOG_DEBUG("AbilityThread::HandleConnectExtension begin");
     if (extensionImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleConnectExtension extensionImpl_ == nullptr");
         return;
@@ -565,7 +565,7 @@ void AbilityThread::HandleConnectExtension(const Want &want)
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityThread::HandleConnectExtension failed err = %{public}d", err);
     }
-    HILOG_INFO("AbilityThread::HandleConnectExtension end");
+    HILOG_DEBUG("AbilityThread::HandleConnectExtension end");
 }
 
 /**
@@ -574,7 +574,7 @@ void AbilityThread::HandleConnectExtension(const Want &want)
 void AbilityThread::HandleDisconnectExtension(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleDisconnectExtension begin");
+    HILOG_DEBUG("AbilityThread::HandleDisconnectExtension begin");
     if (extensionImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleDisconnectExtension extensionImpl_ == nullptr");
         return;
@@ -584,7 +584,7 @@ void AbilityThread::HandleDisconnectExtension(const Want &want)
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityThread:: HandleDisconnectExtension failed err = %{public}d", err);
     }
-    HILOG_INFO("AbilityThread::HandleDisconnectExtension end");
+    HILOG_DEBUG("AbilityThread::HandleDisconnectExtension end");
 }
 
 /**
@@ -600,7 +600,7 @@ void AbilityThread::HandleDisconnectExtension(const Want &want)
 void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread::HandleCommandExtension begin");
+    HILOG_DEBUG("AbilityThread::HandleCommandExtension begin");
     if (extensionImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleCommandExtension extensionImpl_ == nullptr");
         return;
@@ -610,7 +610,7 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityThread::HandleCommandExtension failed err = %{public}d", err);
     }
-    HILOG_INFO("AbilityThread::HandleCommandExtension end");
+    HILOG_DEBUG("AbilityThread::HandleCommandExtension end");
 }
 
 /**
@@ -619,14 +619,14 @@ void AbilityThread::HandleCommandExtension(const Want &want, bool restart, int s
  */
 void AbilityThread::HandleRestoreAbilityState(const PacMap &state)
 {
-    HILOG_INFO("AbilityThread::HandleRestoreAbilityState begin");
+    HILOG_DEBUG("AbilityThread::HandleRestoreAbilityState begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleRestoreAbilityState abilityImpl_ == nullptr");
         return;
     }
 
     abilityImpl_->DispatchRestoreAbilityState(state);
-    HILOG_INFO("AbilityThread::HandleRestoreAbilityState end");
+    HILOG_DEBUG("AbilityThread::HandleRestoreAbilityState end");
 }
 
 /**
@@ -634,14 +634,14 @@ void AbilityThread::HandleRestoreAbilityState(const PacMap &state)
  */
 void AbilityThread::ScheduleSaveAbilityState()
 {
-    HILOG_INFO("AbilityThread::ScheduleSaveAbilityState begin");
+    HILOG_DEBUG("AbilityThread::ScheduleSaveAbilityState begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::ScheduleSaveAbilityState abilityImpl_ == nullptr");
         return;
     }
 
     abilityImpl_->DispatchSaveAbilityState();
-    HILOG_INFO("AbilityThread::ScheduleSaveAbilityState end");
+    HILOG_DEBUG("AbilityThread::ScheduleSaveAbilityState end");
 }
 
 /**
@@ -650,13 +650,13 @@ void AbilityThread::ScheduleSaveAbilityState()
  */
 void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
 {
-    HILOG_INFO("AbilityThread::ScheduleRestoreAbilityState begin");
+    HILOG_DEBUG("AbilityThread::ScheduleRestoreAbilityState begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::ScheduleRestoreAbilityState abilityImpl_ == nullptr");
         return;
     }
     abilityImpl_->DispatchRestoreAbilityState(state);
-    HILOG_INFO("AbilityThread::ScheduleRestoreAbilityState end");
+    HILOG_DEBUG("AbilityThread::ScheduleRestoreAbilityState end");
 }
 
 /*
@@ -664,7 +664,7 @@ void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
  */
 void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("AbilityThread::ScheduleUpdateConfiguration begin");
+    HILOG_DEBUG("AbilityThread::ScheduleUpdateConfiguration begin");
     wptr<AbilityThread> weak = this;
     auto task = [weak, config]() {
         auto abilityThread = weak.promote();
@@ -689,7 +689,7 @@ void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
     if (!ret) {
         HILOG_ERROR("AbilityThread::ScheduleUpdateConfiguration PostTask error");
     }
-    HILOG_INFO("AbilityThread::ScheduleUpdateConfiguration end");
+    HILOG_DEBUG("AbilityThread::ScheduleUpdateConfiguration end");
 }
 
 /*
@@ -697,26 +697,26 @@ void AbilityThread::ScheduleUpdateConfiguration(const Configuration &config)
  */
 void AbilityThread::HandleUpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("AbilityThread::HandleUpdateConfiguration begin");
+    HILOG_DEBUG("AbilityThread::HandleUpdateConfiguration begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::HandleUpdateConfiguration abilityImpl_ is nullptr");
         return;
     }
 
     abilityImpl_->ScheduleUpdateConfiguration(config);
-    HILOG_INFO("AbilityThread::HandleUpdateConfiguration end");
+    HILOG_DEBUG("AbilityThread::HandleUpdateConfiguration end");
 }
 
 void AbilityThread::HandleExtensionUpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("AbilityThread::HandleExtensionUpdateConfiguration begin");
+    HILOG_DEBUG("AbilityThread::HandleExtensionUpdateConfiguration begin");
     if (!extensionImpl_) {
         HILOG_ERROR("AbilityThread::HandleExtensionUpdateConfiguration extensionImpl_ is nullptr");
         return;
     }
 
     extensionImpl_->ScheduleUpdateConfiguration(config);
-    HILOG_INFO("AbilityThread::HandleExtensionUpdateConfiguration end");
+    HILOG_DEBUG("AbilityThread::HandleExtensionUpdateConfiguration success");
 }
 
 /**
@@ -767,7 +767,7 @@ void AbilityThread::ScheduleAbilityTransaction(const Want &want, const LifeCycle
  */
 void AbilityThread::ScheduleConnectAbility(const Want &want)
 {
-    HILOG_INFO("AbilityThread::ScheduleConnectAbility begin, isExtension_:%{public}d", isExtension_);
+    HILOG_DEBUG("AbilityThread::ScheduleConnectAbility begin, isExtension_:%{public}d", isExtension_);
     wptr<AbilityThread> weak = this;
     auto task = [weak, want]() {
         auto abilityThread = weak.promote();
@@ -791,7 +791,7 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
     if (!ret) {
         HILOG_ERROR("AbilityThread::ScheduleConnectAbility PostTask error");
     }
-    HILOG_INFO("AbilityThread::ScheduleConnectAbility end");
+    HILOG_DEBUG("AbilityThread::ScheduleConnectAbility end");
 }
 
 /**
@@ -801,7 +801,7 @@ void AbilityThread::ScheduleConnectAbility(const Want &want)
 void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Schedule disconnect ability begin, isExtension:%{public}d.", isExtension_);
+    HILOG_DEBUG("Schedule disconnect ability begin, isExtension:%{public}d.", isExtension_);
     wptr<AbilityThread> weak = this;
     auto task = [weak, want]() {
         auto abilityThread = weak.promote();
@@ -841,7 +841,7 @@ void AbilityThread::ScheduleDisconnectAbility(const Want &want)
  */
 void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
+    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility begin. startId:%{public}d", startId);
     wptr<AbilityThread> weak = this;
     auto task = [weak, want, restart, startId]() {
         auto abilityThread = weak.promote();
@@ -865,7 +865,7 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
     if (!ret) {
         HILOG_ERROR("AbilityThread::ScheduleCommandAbility PostTask error");
     }
-    HILOG_INFO("AbilityThread::ScheduleCommandAbility end");
+    HILOG_DEBUG("AbilityThread::ScheduleCommandAbility end");
 }
 
 /**
@@ -881,7 +881,7 @@ void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int s
  */
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_INFO("AbilityThread::SendResult begin");
+    HILOG_DEBUG("AbilityThread::SendResult begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::SendResult abilityImpl_ == nullptr");
         return;
@@ -907,7 +907,7 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
     if (!ret) {
         HILOG_ERROR("AbilityThread::SendResult PostTask error");
     }
-    HILOG_INFO("AbilityThread::SendResult end");
+    HILOG_DEBUG("AbilityThread::SendResult end");
 }
 
 /**
@@ -920,7 +920,7 @@ void AbilityThread::SendResult(int requestCode, int resultCode, const Want &want
  */
 std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
-    HILOG_INFO("AbilityThread::GetFileTypes begin");
+    HILOG_DEBUG("AbilityThread::GetFileTypes begin");
     std::vector<std::string> types;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::GetFileTypes abilityImpl_ is nullptr");
@@ -928,7 +928,7 @@ std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::
     }
 
     types = abilityImpl_->GetFileTypes(uri, mimeTypeFilter);
-    HILOG_INFO("AbilityThread::GetFileTypes end");
+    HILOG_DEBUG("AbilityThread::GetFileTypes end");
     return types;
 }
 
@@ -945,7 +945,7 @@ std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::
  */
 int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("AbilityThread::OpenFile begin");
+    HILOG_DEBUG("AbilityThread::OpenFile begin");
     int fd = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::OpenFile abilityImpl_ is nullptr");
@@ -953,7 +953,7 @@ int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
     }
 
     fd = abilityImpl_->OpenFile(uri, mode);
-    HILOG_INFO("AbilityThread::OpenFile end");
+    HILOG_DEBUG("AbilityThread::OpenFile end");
     return fd;
 }
 
@@ -971,7 +971,7 @@ int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
  */
 int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("AbilityThread::OpenRawFile begin");
+    HILOG_DEBUG("AbilityThread::OpenRawFile begin");
     int fd = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::OpenRawFile abilityImpl_ is nullptr");
@@ -979,7 +979,7 @@ int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
     }
 
     fd = abilityImpl_->OpenRawFile(uri, mode);
-    HILOG_INFO("AbilityThread::OpenRawFile end");
+    HILOG_DEBUG("AbilityThread::OpenRawFile end");
     return fd;
 }
 
@@ -993,7 +993,7 @@ int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
  */
 int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    HILOG_INFO("AbilityThread::Insert begin");
+    HILOG_DEBUG("AbilityThread::Insert begin");
     int index = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Insert abilityImpl_ is nullptr");
@@ -1001,21 +1001,21 @@ int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
     }
 
     index = abilityImpl_->Insert(uri, value);
-    HILOG_INFO("AbilityThread::Insert end");
+    HILOG_DEBUG("AbilityThread::Insert end");
     return index;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
-    HILOG_INFO("AbilityThread::Call begin");
+    HILOG_DEBUG("AbilityThread::Call begin");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Insert abilityImpl_ is nullptr");
         return nullptr;
     }
 
     std::shared_ptr<AppExecFwk::PacMap> result = abilityImpl_->Call(uri, method, arg, pacMap);
-    HILOG_INFO("AbilityThread::Call end");
+    HILOG_DEBUG("AbilityThread::Call end");
     return result;
 }
 
@@ -1031,7 +1031,7 @@ std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
 int AbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityThread::Update begin");
+    HILOG_DEBUG("AbilityThread::Update begin");
     int index = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Update abilityImpl_ is nullptr");
@@ -1039,7 +1039,7 @@ int AbilityThread::Update(
     }
 
     index = abilityImpl_->Update(uri, value, predicates);
-    HILOG_INFO("AbilityThread::Update end");
+    HILOG_DEBUG("AbilityThread::Update end");
     return index;
 }
 
@@ -1053,14 +1053,14 @@ int AbilityThread::Update(
  */
 int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityThread::Delete begin");
+    HILOG_DEBUG("AbilityThread::Delete begin");
     int index = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Delete abilityImpl_ is nullptr");
         return index;
     }
     index = abilityImpl_->Delete(uri, predicates);
-    HILOG_INFO("AbilityThread::Delete end");
+    HILOG_DEBUG("AbilityThread::Delete end");
     return index;
 }
 
@@ -1076,7 +1076,7 @@ int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_INFO("AbilityThread::Query begin");
+    HILOG_DEBUG("AbilityThread::Query begin");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Query abilityImpl_ is nullptr");
@@ -1084,7 +1084,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
     }
 
     resultSet = abilityImpl_->Query(uri, columns, predicates);
-    HILOG_INFO("AbilityThread::Query end");
+    HILOG_DEBUG("AbilityThread::Query end");
     return resultSet;
 }
 
@@ -1098,7 +1098,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
  */
 std::string AbilityThread::GetType(const Uri &uri)
 {
-    HILOG_INFO("AbilityThread::GetType begin");
+    HILOG_DEBUG("AbilityThread::GetType begin");
     std::string type;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::GetType abilityImpl_ is nullptr");
@@ -1106,7 +1106,7 @@ std::string AbilityThread::GetType(const Uri &uri)
     }
 
     type = abilityImpl_->GetType(uri);
-    HILOG_INFO("AbilityThread::GetType end");
+    HILOG_DEBUG("AbilityThread::GetType end");
     return type;
 }
 
@@ -1122,14 +1122,14 @@ std::string AbilityThread::GetType(const Uri &uri)
  */
 bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
 {
-    HILOG_INFO("AbilityThread::Reload begin");
+    HILOG_DEBUG("AbilityThread::Reload begin");
     bool ret = false;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::Reload abilityImpl_ is nullptr");
         return ret;
     }
     ret = abilityImpl_->Reload(uri, extras);
-    HILOG_INFO("AbilityThread::Reload end");
+    HILOG_DEBUG("AbilityThread::Reload end");
     return ret;
 }
 
@@ -1143,7 +1143,7 @@ bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
  */
 int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_INFO("AbilityThread::BatchInsert begin");
+    HILOG_DEBUG("AbilityThread::BatchInsert begin");
     int ret = -1;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::BatchInsert abilityImpl_ is nullptr");
@@ -1151,13 +1151,13 @@ int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Valu
     }
 
     ret = abilityImpl_->BatchInsert(uri, values);
-    HILOG_INFO("AbilityThread::BatchInsert end");
+    HILOG_DEBUG("AbilityThread::BatchInsert end");
     return ret;
 }
 
 void AbilityThread::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("ContinueAbility");
+    HILOG_DEBUG("ContinueAbility");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::ContinueAbility abilityImpl_ is nullptr");
         return;
@@ -1167,7 +1167,7 @@ void AbilityThread::ContinueAbility(const std::string& deviceId, uint32_t versio
 
 void AbilityThread::NotifyContinuationResult(int32_t result)
 {
-    HILOG_INFO("NotifyContinuationResult, result:%{public}d", result);
+    HILOG_DEBUG("NotifyContinuationResult, result:%{public}d", result);
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::NotifyContinuationResult abilityImpl_ is nullptr");
         return;
@@ -1187,7 +1187,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread main start.");
+    HILOG_DEBUG("AbilityThread main start.");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     if (thread == nullptr) {
         HILOG_ERROR("AbilityThread::AbilityThreadMain failed,thread  is nullptr");
@@ -1199,7 +1199,7 @@ void AbilityThread::AbilityThreadMain(std::shared_ptr<OHOSApplication> &applicat
     } else {
         thread->Attach(application, abilityRecord, mainRunner, stageContext);
     }
-    HILOG_INFO("AbilityThread main end.");
+    HILOG_DEBUG("AbilityThread main end.");
 }
 
 /**
@@ -1213,7 +1213,7 @@ void AbilityThread::AbilityThreadMain(
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("AbilityThread main start.");
+    HILOG_DEBUG("AbilityThread main start.");
     sptr<AbilityThread> thread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
     if (thread == nullptr || abilityRecord == nullptr) {
         HILOG_ERROR("AbilityThread::AbilityThreadMain failed, thread is nullptr");
@@ -1225,12 +1225,12 @@ void AbilityThread::AbilityThreadMain(
     } else {
         thread->Attach(application, abilityRecord, stageContext);
     }
-    HILOG_INFO("AbilityThread main end.");
+    HILOG_DEBUG("AbilityThread main end.");
 }
 
 void AbilityThread::InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
-    HILOG_INFO("AbilityThread::InitExtensionFlag start");
+    HILOG_DEBUG("AbilityThread::InitExtensionFlag start");
     if (abilityRecord == nullptr) {
         HILOG_ERROR("AbilityThread::InitExtensionFlag abilityRecord null");
         return;
@@ -1241,7 +1241,7 @@ void AbilityThread::InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> 
         return;
     }
     if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        HILOG_INFO("AbilityThread::InitExtensionFlag true");
+        HILOG_DEBUG("AbilityThread::InitExtensionFlag true");
         isExtension_ = true;
     } else {
         isExtension_ = false;
@@ -1262,7 +1262,7 @@ void AbilityThread::InitExtensionFlag(const std::shared_ptr<AbilityLocalRecord> 
  */
 Uri AbilityThread::NormalizeUri(const Uri &uri)
 {
-    HILOG_INFO("AbilityThread::NormalizeUri begin");
+    HILOG_DEBUG("AbilityThread::NormalizeUri begin");
     Uri urivalue("");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("DataAbilityHelper::normalizeUri failed dataAbility == nullptr");
@@ -1270,7 +1270,7 @@ Uri AbilityThread::NormalizeUri(const Uri &uri)
     }
 
     urivalue = abilityImpl_->NormalizeUri(uri);
-    HILOG_INFO("AbilityThread::NormalizeUri end");
+    HILOG_DEBUG("AbilityThread::NormalizeUri end");
     return urivalue;
 }
 
@@ -1286,7 +1286,7 @@ Uri AbilityThread::NormalizeUri(const Uri &uri)
  */
 Uri AbilityThread::DenormalizeUri(const Uri &uri)
 {
-    HILOG_INFO("AbilityThread::DenormalizeUri begin");
+    HILOG_DEBUG("AbilityThread::DenormalizeUri begin");
     Uri urivalue("");
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("DataAbilityHelper::denormalizeUri failed dataAbility == nullptr");
@@ -1294,7 +1294,7 @@ Uri AbilityThread::DenormalizeUri(const Uri &uri)
     }
 
     urivalue = abilityImpl_->DenormalizeUri(uri);
-    HILOG_INFO("AbilityThread::DenormalizeUri end");
+    HILOG_DEBUG("AbilityThread::DenormalizeUri end");
     return urivalue;
 }
 
@@ -1370,7 +1370,7 @@ bool AbilityThread::HandleNotifyChange(const Uri &uri)
  */
 bool AbilityThread::CheckObsPermission()
 {
-    HILOG_INFO("%{public}s CheckObsPermission() run Permission Checkout", __func__);
+    HILOG_DEBUG("%{public}s CheckObsPermission() run Permission Checkout", __func__);
     return true;
 }
 
@@ -1382,7 +1382,7 @@ bool AbilityThread::CheckObsPermission()
  */
 bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
         HILOG_ERROR("%{public}s CheckObsPermission() return false", __func__);
         return false;
@@ -1418,7 +1418,7 @@ bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::I
  */
 bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
         HILOG_ERROR("%{public}s CheckObsPermission() return false", __func__);
         return false;
@@ -1453,7 +1453,7 @@ bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk:
  */
 bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     if (!CheckObsPermission()) {
         HILOG_ERROR("%{public}s CheckObsPermission() return false", __func__);
         return false;
@@ -1484,7 +1484,7 @@ bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 std::vector<std::shared_ptr<DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_INFO("AbilityThread::ExecuteBatch start");
+    HILOG_DEBUG("AbilityThread::ExecuteBatch start");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("AbilityThread::ExecuteBatch abilityImpl_ is nullptr");
@@ -1492,7 +1492,7 @@ std::vector<std::shared_ptr<DataAbilityResult>> AbilityThread::ExecuteBatch(
         return results;
     }
     results = abilityImpl_->ExecuteBatch(operations);
-    HILOG_INFO("AbilityThread::ExecuteBatch end");
+    HILOG_DEBUG("AbilityThread::ExecuteBatch end");
     return results;
 }
 
@@ -1510,7 +1510,7 @@ std::shared_ptr<AbilityRuntime::AbilityContext> AbilityThread::BuildAbilityConte
 
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (token_ == nullptr) {
         HILOG_ERROR("DumpAbilityInfo::failed, token_  nullptr");
         return;
@@ -1541,9 +1541,9 @@ void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std:
 #ifdef SUPPORT_GRAPHICS
 void AbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (currentAbility_ == nullptr && currentExtension_ == nullptr) {
-        HILOG_INFO("currentAbility and currentExtension_ is nullptr.");
+        HILOG_DEBUG("currentAbility and currentExtension_ is nullptr.");
         return;
     }
     if (currentAbility_ != nullptr) {
@@ -1569,12 +1569,12 @@ void AbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params,
         DumpOtherInfo(info);
         return;
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 #else
 void AbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     if (currentAbility_ != nullptr) {
         currentAbility_->Dump(params, info);
     }
@@ -1591,12 +1591,12 @@ void AbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     std::string dumpInfo = "        event:";
     info.push_back(dumpInfo);
     if (!abilityHandler_) {
-        HILOG_INFO("abilityHandler_ is nullptr.");
+        HILOG_DEBUG("abilityHandler_ is nullptr.");
         return;
     }
     auto runner = abilityHandler_->GetEventRunner();
     if (!runner) {
-        HILOG_INFO("runner_ is nullptr.");
+        HILOG_DEBUG("runner_ is nullptr.");
         return;
     }
     dumpInfo = "";
@@ -1605,12 +1605,12 @@ void AbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     if (currentAbility_ != nullptr) {
         const auto ablityContext = currentAbility_->GetAbilityContext();
         if (!ablityContext) {
-            HILOG_INFO("current ability context is nullptr.");
+            HILOG_DEBUG("current ability context is nullptr.");
             return;
         }
         const auto localCallContainer = ablityContext->GetLocalCallContainer();
         if (!localCallContainer) {
-            HILOG_INFO("current ability context locall call container is nullptr.");
+            HILOG_DEBUG("current ability context locall call container is nullptr.");
             return;
         }
         localCallContainer->DumpCalls(info);
@@ -1619,7 +1619,7 @@ void AbilityThread::DumpOtherInfo(std::vector<std::string> &info)
 
 sptr<IRemoteObject> AbilityThread::CallRequest()
 {
-    HILOG_INFO("AbilityThread::CallRequest begin");
+    HILOG_DEBUG("AbilityThread::CallRequest begin");
 
     if (!currentAbility_) {
         HILOG_ERROR("ability is nullptr.");
@@ -1645,14 +1645,14 @@ sptr<IRemoteObject> AbilityThread::CallRequest()
 
     abilityHandler_->PostSyncTask(syncTask);
 
-    HILOG_INFO("AbilityThread::CallRequest end");
+    HILOG_DEBUG("AbilityThread::CallRequest end");
     return retval;
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityThread::BlockAbility()
 {
-    HILOG_INFO("AbilityThread::BlockAblity begin");
+    HILOG_DEBUG("AbilityThread::BlockAblity begin");
     if (abilityHandler_) {
         auto task = []() {
             while (1) {
@@ -1660,7 +1660,7 @@ int AbilityThread::BlockAbility()
             }
         };
         abilityHandler_->PostTask(task);
-        HILOG_INFO("AbilityThread::BlockAblity end");
+        HILOG_DEBUG("AbilityThread::BlockAblity end");
         return ERR_OK;
     }
     return ERR_NO_INIT;

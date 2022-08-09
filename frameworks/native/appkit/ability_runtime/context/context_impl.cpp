@@ -521,7 +521,7 @@ sptr<IRemoteObject> ContextImpl::GetToken()
 
 void ContextImpl::CreateDirIfNotExist(const std::string& dirPath) const
 {
-    HILOG_INFO("createDir: create directory if not exists.");
+    HILOG_DEBUG("createDir: create directory if not exists.");
     if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
         bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
         if (!createDir) {
