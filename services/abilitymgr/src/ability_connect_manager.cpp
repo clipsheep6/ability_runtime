@@ -1095,6 +1095,8 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         return;
     }
 
+    HILOG_INFO("dujingcheng---------------- ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
+    HILOG_INFO("dujingcheng---------------- bundleName: %{public}s", abilityRecord->GetAbilityInfo().bundleName.c_str());
     if (IsAbilityNeedRestart(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         AbilityRequest requestInfo;
