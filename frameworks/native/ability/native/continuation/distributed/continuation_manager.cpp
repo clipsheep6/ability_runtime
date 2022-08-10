@@ -47,7 +47,7 @@ ContinuationManager::ContinuationManager()
 bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sptr<IRemoteObject> &continueToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ContinuationHandler> &continuationHandler)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::Init failed. ability is nullptr");
         return false;
@@ -74,7 +74,7 @@ bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sp
     continueToken_ = continueToken;
 
     continuationHandler_ = continuationHandler;
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 

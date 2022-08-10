@@ -29,7 +29,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *)
 {
-    HILOG_INFO("AttachAbilityStageContext");
+    HILOG_DEBUG("AttachAbilityStageContext");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -46,7 +46,7 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr ability stage context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr ability stage context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context> *>(data);
         }, nullptr);
     return contextObj;
@@ -130,18 +130,18 @@ void JsAbilityStage::Init(std::shared_ptr<Context> context)
         workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
     obj->SetProperty("context", contextObj);
-    HILOG_INFO("Set ability stage context");
+    HILOG_DEBUG("Set ability stage context");
 
     nativeObj->SetNativePointer(workContext,
         [](NativeEngine*, void* data, void*) {
-            HILOG_INFO("Finalizer for weak_ptr ability stage context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr ability stage context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::Context>*>(data);
         }, nullptr);
 }
 
 void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
 {
-    HILOG_INFO("JsAbilityStage::OnCreate come");
+    HILOG_DEBUG("JsAbilityStage::OnCreate come");
 
     AbilityStage::OnCreate(want);
 
@@ -169,14 +169,14 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
 
     auto delegator = AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator();
     if (delegator) {
-        HILOG_INFO("Call AbilityDelegator::PostPerformStageStart");
+        HILOG_DEBUG("Call AbilityDelegator::PostPerformStageStart");
         delegator->PostPerformStageStart(CreateStageProperty());
     }
 }
 
 std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
 {
-    HILOG_INFO("JsAbilityStage::OnAcceptWant come");
+    HILOG_DEBUG("JsAbilityStage::OnAcceptWant come");
 
     AbilityStage::OnAcceptWant(want);
 
@@ -213,7 +213,7 @@ std::string JsAbilityStage::OnAcceptWant(const AAFwk::Want &want)
 void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     AbilityStage::OnConfigurationUpdated(configuration);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
@@ -235,7 +235,7 @@ void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& con
 void JsAbilityStage::OnMemoryLevel(int32_t level)
 {
     AbilityStage::OnMemoryLevel(level);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     if (!jsAbilityStageObj_) {
         HILOG_WARN("Not found AbilityStage.js");
@@ -257,12 +257,12 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
         jslevel,
     };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 NativeValue* JsAbilityStage::CallObjectMethod(const char* name, NativeValue * const * argv, size_t argc)
 {
-    HILOG_INFO("JsAbilityStage::CallObjectMethod %{public}s", name);
+    HILOG_DEBUG("JsAbilityStage::CallObjectMethod %{public}s", name);
 
     if (!jsAbilityStageObj_) {
         HILOG_WARN("Not found AbilityStage.js");
