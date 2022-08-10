@@ -42,6 +42,9 @@ const std::string STATE_KEY = "ohos.user.grant.permission.state";
 const std::string TOKEN_KEY = "ohos.ability.params.token";
 const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
+std::mutex AbilityContextImpl::mutex_;
+std::map<int, PermissionRequestTask> AbilityContextImpl::permissionRequestCallbacks;
+
 std::string AbilityContextImpl::GetBaseDir() const
 {
     return stageContext_ ? stageContext_->GetBaseDir() : "";
@@ -372,8 +375,8 @@ sptr<IRemoteObject> AbilityContextImpl::GetToken()
     return token_;
 }
 
-void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::string> &permissions,
-    PermissionRequestTask &&task)
+void AbilityContextImpl::RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions,
+    int requestCode, PermissionRequestTask &&task)
 {
     HILOG_INFO("%{public}s called.", __func__);
     if (permissions.empty()) {
@@ -408,23 +411,95 @@ void AbilityContextImpl::RequestPermissionsFromUser(const std::vector<std::strin
         __func__, permissions.size(), permissionsState.size());
 
     if (ret == TypePermissionOper::DYNAMIC_OPER) {
-        AAFwk::Want want;
-        want.SetElementName(GRANT_ABILITY_BUNDLE_NAME, GRANT_ABILITY_ABILITY_NAME);
-        want.SetParam(PERMISSION_KEY, permissions);
-        want.SetParam(STATE_KEY, permissionsState);
-        want.SetParam(TOKEN_KEY, token_);
-        sptr<IRemoteObject> remoteObject = new AuthorizationResult(std::move(task));
-        want.SetParam(CALLBACK_KEY, remoteObject);
-
-        HILOG_DEBUG("%{public}s. Start calling StartExtension.", __func__);
-        ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
-        HILOG_INFO("%{public}s. End calling StartExtension. ret=%{public}d", __func__, err);
+        StartGrantExtension(engine, permissions, permissionsState, requestCode, std::move(task));
     } else {
         HILOG_DEBUG("%{public}s. No dynamic popup required.", __func__);
         if (task) {
             task(permissions, permissionsState);
         }
     }
+}
+
+void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::vector<std::string>& permissions,
+    const std::vector<int>& permissionsState, int requestCode, PermissionRequestTask &&task)
+{
+    AAFwk::Want want;
+    want.SetElementName(GRANT_ABILITY_BUNDLE_NAME, GRANT_ABILITY_ABILITY_NAME);
+    want.SetParam(PERMISSION_KEY, permissions);
+    want.SetParam(STATE_KEY, permissionsState);
+    want.SetParam(TOKEN_KEY, token_);
+
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        permissionRequestCallbacks.insert(make_pair(requestCode, std::move(task)));
+    }
+    auto resultTask =
+        [&engine, requestCode](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
+        ResultCallback* retCB = new ResultCallback();
+        retCB->permissions_ = permissions;
+        retCB->grantResults_ = grantResults;
+        retCB->requestCode_ = requestCode;
+
+        uv_loop_t* loop = engine.GetUVLoop();
+        if (loop == nullptr) {
+            HILOG_ERROR("StartGrantExtension, fail to get uv loop.");
+            return;
+        }
+        uv_work_t *work = new uv_work_t;
+        work->data = (void *)retCB;
+        int rev = uv_queue_work(
+            loop,
+            work,
+            [](uv_work_t *work) {},
+            ResultCallbackJSThreadWorker);
+        if (rev != 0) {
+            if (retCB != nullptr) {
+                delete retCB;
+                retCB = nullptr;
+            }
+            if (work != nullptr) {
+                delete work;
+                work = nullptr;
+            }
+        }
+    };
+
+    sptr<IRemoteObject> remoteObject = new AuthorizationResult(std::move(resultTask));
+    want.SetParam(CALLBACK_KEY, remoteObject);
+
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);
+    HILOG_DEBUG("%{public}s. End calling StartExtension. ret=%{public}d", __func__, err);
+}
+
+void AbilityContextImpl::ResultCallbackJSThreadWorker(uv_work_t* work, int status)
+{
+    HILOG_DEBUG("ResultCallbackJSThreadWorker is called.");
+    if (work == nullptr) {
+        HILOG_ERROR("ResultCallbackJSThreadWorker, uv_queue_work input work is nullptr");
+        return;
+    }
+    ResultCallback *retCB = (ResultCallback *)work->data;
+    if (retCB == nullptr) {
+        HILOG_ERROR("ResultCallbackJSThreadWorker, retCB is nullptr");
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto requestCode = retCB->requestCode_;
+    auto iter = permissionRequestCallbacks.find(requestCode);
+    if (iter != permissionRequestCallbacks.end() && iter->second) {
+        auto task = iter->second;
+        if (task) {
+            HILOG_DEBUG("%{public}s. calling js task.", __func__);
+            task(retCB->permissions_, retCB->grantResults_);
+        }
+        permissionRequestCallbacks.erase(iter);
+    }
+
+    delete retCB;
+    retCB = nullptr;
+    delete work;
+    work = nullptr;
 }
 
 ErrCode AbilityContextImpl::RestoreWindowStage(NativeEngine& engine, NativeValue* contentStorage)
