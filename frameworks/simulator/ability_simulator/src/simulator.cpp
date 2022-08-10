@@ -53,14 +53,14 @@ public:
     bool Initialize(const Options& options);
 
     int64_t StartAbility(const std::string& abilityName, TerminateCallback callback) override;
-    void TerminateAbility(const int64_t abilityId) override;
+    void TerminateAbility(int64_t abilityId) override;
 
     int64_t CreateForm(const std::string& formName, FormUpdateCallback callback) override;
-    void RequestUpdateForm(const int64_t formId) override;
-    void DestroyForm(const int64_t formId) override;
+    void RequestUpdateForm(int64_t formId) override;
+    void DestroyForm(int64_t formId) override;
 
 private:
-    bool OnInit() const;
+    bool OnInit();
     void Run();
 
     Options options_;
@@ -235,7 +235,7 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
     return waiter.WaitForResult();
 }
 
-void SimulatorImpl::TerminateAbility(const int64_t abilityId)
+void SimulatorImpl::TerminateAbility(int64_t abilityId)
 {
     uv_work_t work;
 
@@ -278,15 +278,15 @@ int64_t SimulatorImpl::CreateForm(const std::string& formSrcPath, FormUpdateCall
     return -1;
 }
 
-void SimulatorImpl::RequestUpdateForm(const int64_t formId)
+void SimulatorImpl::RequestUpdateForm(int64_t formId)
 {
 }
 
-void SimulatorImpl::DestroyForm(const int64_t formId)
+void SimulatorImpl::DestroyForm(int64_t formId)
 {
 }
 
-bool SimulatorImpl::OnInit() const
+bool SimulatorImpl::OnInit()
 {
     panda::RuntimeOption pandaOption;
     pandaOption.SetArkProperties(DEFAULT_ARK_PROPERTIES);
