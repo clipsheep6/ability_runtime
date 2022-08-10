@@ -35,11 +35,11 @@ public:
     virtual ~Simulator() = default;
 
     virtual int64_t StartAbility(const std::string& abilitySrcPath, TerminateCallback callback) = 0;
-    virtual void TerminateAbility(int64_t abilityId) = 0;
+    virtual void TerminateAbility(const int64_t abilityId) = 0;
 
     virtual int64_t CreateForm(const std::string& formSrcPath, FormUpdateCallback callback) = 0;
-    virtual void RequestUpdateForm(int64_t formId) = 0;
-    virtual void DestroyForm(int64_t formId) = 0;
+    virtual void RequestUpdateForm(const int64_t formId) = 0;
+    virtual void DestroyForm(const int64_t formId) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -39,7 +39,7 @@ constexpr int32_t DEFAULT_ARK_PROPERTIES = -1;
 constexpr size_t DEFAULT_GC_THREAD_NUM = 7;
 constexpr size_t DEFAULT_LONG_PAUSE_TIME = 40;
 
-int32_t PrintVmLog(int32_t id, int32_t level, const char* tag, const char* fmt, const char* message)
+int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
     HILOG_INFO("ArkLog: %{public}s", message);
     return 0;
@@ -53,14 +53,14 @@ public:
     bool Initialize(const Options& options);
 
     int64_t StartAbility(const std::string& abilityName, TerminateCallback callback) override;
-    void TerminateAbility(int64_t abilityId) override;
+    void TerminateAbility(const int64_t abilityId) override;
 
     int64_t CreateForm(const std::string& formName, FormUpdateCallback callback) override;
-    void RequestUpdateForm(int64_t formId) override;
-    void DestroyForm(int64_t formId) override;
+    void RequestUpdateForm(const int64_t formId) override;
+    void DestroyForm(const int64_t formId) override;
 
 private:
-    bool OnInit();
+    bool OnInit() const;
     void Run();
 
     Options options_;
@@ -166,7 +166,7 @@ void CallObjectMethod(NativeEngine& engine, NativeValue* value, const char *name
 
     NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get Ability object");
+        HILOG_ERROR("%{public}s, Failed to get Ability object", __func__);
         return;
     }
 
@@ -235,7 +235,7 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
     return waiter.WaitForResult();
 }
 
-void SimulatorImpl::TerminateAbility(int64_t abilityId)
+void SimulatorImpl::TerminateAbility(const int64_t abilityId)
 {
     uv_work_t work;
 
@@ -278,15 +278,15 @@ int64_t SimulatorImpl::CreateForm(const std::string& formSrcPath, FormUpdateCall
     return -1;
 }
 
-void SimulatorImpl::RequestUpdateForm(int64_t formId)
+void SimulatorImpl::RequestUpdateForm(const int64_t formId)
 {
 }
 
-void SimulatorImpl::DestroyForm(int64_t formId)
+void SimulatorImpl::DestroyForm(const int64_t formId)
 {
 }
 
-bool SimulatorImpl::OnInit()
+bool SimulatorImpl::OnInit() const
 {
     panda::RuntimeOption pandaOption;
     pandaOption.SetArkProperties(DEFAULT_ARK_PROPERTIES);

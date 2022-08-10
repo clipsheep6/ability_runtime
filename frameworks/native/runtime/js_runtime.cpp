@@ -129,7 +129,7 @@ public:
     }
 
 private:
-    static int32_t PrintVmLog(int32_t id, int32_t level, const char* tag, const char* fmt, const char* message)
+    static int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
     {
         HILOG_INFO("ArkLog: %{public}s", message);
         return 0;

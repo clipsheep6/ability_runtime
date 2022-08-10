@@ -79,13 +79,13 @@ private:
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
-    int32_t hostUid_;
+    int32_t hostUid_ = 0;
     std::string hostBundleName_;
     std::string renderParam_;
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
-    sptr<IRenderScheduler> renderScheduler_;
+    sptr<IRenderScheduler> renderScheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
 };
 
