@@ -181,8 +181,8 @@ public:
      * @param permissions Indicates the list of permissions to be requested. This parameter cannot be null.
      * @param task The callback or promise fo js interface.
      */
-    virtual void RequestPermissionsFromUser(const std::vector<std::string> &permissions,
-        PermissionRequestTask &&task) = 0;
+    virtual void RequestPermissionsFromUser(NativeEngine& engine, const std::vector<std::string> &permissions,
+        int requestCode, PermissionRequestTask &&task) = 0;
 
     /**
      * @brief Get ContentStorage.
