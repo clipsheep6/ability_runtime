@@ -22,7 +22,13 @@ ohos_shared_library("uripermissionmanager_napi") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  include_dirs = []
+  include_dirs = [
+    "//utils/native/base/include/",
+    "//foundation/multimedia/image_standard/mock/native/include/",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//third_party/libuv/include/",
+    "//foundation/arkui/napi/",
+  ]
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -31,10 +37,8 @@ ohos_shared_library("uripermissionmanager_napi") {
 
   external_deps = [
     "ability_base:zuri",
-    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
     "utils_base:utils",
   ]

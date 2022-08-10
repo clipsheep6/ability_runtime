@@ -33,7 +33,6 @@ ohos_shared_library("featureability_napi") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "napi:ace_napi",
     "utils_base:utils",
   ]

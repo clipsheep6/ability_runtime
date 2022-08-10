@@ -31,10 +31,7 @@ ohos_shared_library("napi_common") {
     "napi_common_want.cpp",
   ]
 
-  deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/libuv:uv_static",
-  ]
+  deps = [ "//third_party/libuv:uv_static" ]
 
   external_deps = [
     "ability_base:base",
@@ -42,17 +39,13 @@ ohos_shared_library("napi_common") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
-    "ability_runtime:app_manager",
     "ability_runtime:napi_base_context",
     "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
-    "relational_store:native_dataability",
     "utils_base:utils",
   ]
 
