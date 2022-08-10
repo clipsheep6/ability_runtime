@@ -34,7 +34,7 @@ ContinuationHandler::ContinuationHandler(
 bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObject> &token,
     const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (token == nullptr) {
         HILOG_ERROR("HandleStartContinuationWithStack token is null.");
         return false;
@@ -75,13 +75,13 @@ bool ContinuationHandler::HandleStartContinuationWithStack(const sptr<IRemoteObj
         HILOG_ERROR("startContinuation failed.");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &token, const std::string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (token == nullptr) {
         HILOG_ERROR("ContinuationHandler::HandleStartContinuation token is null.");
         return false;
@@ -102,7 +102,7 @@ bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &tok
 
     // DMS decided to start continuation. Callback to ability.
     if (!continuationManagerTmp->StartContinuation()) {
-        HILOG_INFO("handleStartContinuation: Ability rejected.");
+        HILOG_DEBUG("handleStartContinuation: Ability rejected.");
         HILOG_INFO("ID_ABILITY_SHELL_CONTINUE_ABILITY, BundleName = %{public}s, ClassName= %{public}s",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str());
@@ -111,7 +111,7 @@ bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &tok
 
     WantParams wantParams;
     if (!continuationManagerTmp->SaveData(wantParams)) {
-        HILOG_INFO("handleStartContinuation: ScheduleSaveData failed.");
+        HILOG_DEBUG("handleStartContinuation: ScheduleSaveData failed.");
         HILOG_INFO("ID_ABILITY_SHELL_CONTINUE_ABILITY, BundleName = %{public}s, ClassName= %{public}s",
             abilityInfo_->bundleName.c_str(),
             abilityInfo_->name.c_str());
@@ -126,13 +126,13 @@ bool ContinuationHandler::HandleStartContinuation(const sptr<IRemoteObject> &tok
         HILOG_ERROR("distClient_.startContinuation failed.");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject> &remoteReplica)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (remoteReplica == nullptr) {
         HILOG_ERROR("scheduler is nullptr");
         return;
@@ -157,12 +157,12 @@ void ContinuationHandler::HandleReceiveRemoteScheduler(const sptr<IRemoteObject>
     }
 
     remoteReplicaProxy_->PassPrimary(remotePrimaryStub_);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationHandler::HandleCompleteContinuation(int result)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<ContinuationManager> continuationManagerTmp = nullptr;
     continuationManagerTmp = continuationManager_.lock();
     if (continuationManagerTmp == nullptr) {
@@ -171,39 +171,39 @@ void ContinuationHandler::HandleCompleteContinuation(int result)
     }
 
     continuationManagerTmp->CompleteContinuation(result);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationHandler::SetReversible(bool reversible)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     reversible_ = reversible;
 }
 
 void ContinuationHandler::SetAbilityInfo(std::shared_ptr<AbilityInfo> &abilityInfo)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     abilityInfo_ = std::make_shared<AbilityInfo>(*(abilityInfo.get()));
     ClearDeviceInfo(abilityInfo_);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationHandler::SetPrimaryStub(const sptr<IRemoteObject> &Primary)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     remotePrimaryStub_ = Primary;
 }
 
 void ContinuationHandler::ClearDeviceInfo(std::shared_ptr<AbilityInfo> &abilityInfo)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     abilityInfo->deviceId = "";
     abilityInfo->deviceTypes.clear();
 }
 
 void ContinuationHandler::OnReplicaDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (remoteReplicaProxy_ == nullptr) {
         HILOG_ERROR("BUG: remote death notifies to a unready replica.");
         return;
@@ -229,12 +229,12 @@ void ContinuationHandler::OnReplicaDied(const wptr<IRemoteObject> &remote)
     remoteReplicaProxy_.clear();
 
     NotifyReplicaTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationHandler::NotifyReplicaTerminated()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 
     CleanUpAfterReverse();
 
@@ -244,44 +244,44 @@ void ContinuationHandler::NotifyReplicaTerminated()
         HILOG_ERROR("ContinuationHandler::NotifyReplicaTerminated: get continuationManagerTmp is nullptr");
         return;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     continuationManagerTmp->NotifyRemoteTerminated();
 }
 
 Want ContinuationHandler::SetWantParams(const WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     Want want;
     want.SetParams(wantParams);
     want.AddFlags(want.FLAG_ABILITY_CONTINUATION);
     if (abilityInfo_->launchMode != LaunchMode::STANDARD) {
-        HILOG_INFO("SetWantParams: Clear task.");
+        HILOG_DEBUG("SetWantParams: Clear task.");
     }
     if (reversible_) {
-        HILOG_INFO("SetWantParams: Reversible.");
+        HILOG_DEBUG("SetWantParams: Reversible.");
         want.AddFlags(Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE);
     }
     ElementName element("", abilityInfo_->bundleName, abilityInfo_->name, abilityInfo_->moduleName);
     want.SetElement(element);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return want;
 }
 
 void ContinuationHandler::CleanUpAfterReverse()
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     remoteReplicaProxy_ = nullptr;
 }
 
 void ContinuationHandler::PassPrimary(const sptr<IRemoteObject> &Primary)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     remotePrimaryProxy_ = iface_cast<IReverseContinuationSchedulerPrimary>(Primary);
 }
 
 bool ContinuationHandler::ReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 
     if (remotePrimaryProxy_ == nullptr) {
         HILOG_ERROR("ReverseContinuation:remotePrimaryProxy_ not initialized, can not reverse");
@@ -323,13 +323,13 @@ bool ContinuationHandler::ReverseContinuation()
         HILOG_ERROR("reverseContinuation: ContinuationBack send failed.");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 void ContinuationHandler::NotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("NotifyReverseResult: Start. result = %{public}d", reverseResult);
+    HILOG_DEBUG("NotifyReverseResult: Start. result = %{public}d", reverseResult);
     if (reverseResult == 0) {
         std::shared_ptr<Ability> ability = nullptr;
         ability = ability_.lock();
@@ -339,12 +339,12 @@ void ContinuationHandler::NotifyReverseResult(int reverseResult)
         }
         ability->TerminateAbility();
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationHandler::ContinuationBack(const Want &want)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<ContinuationManager> continuationManagerTmp = nullptr;
     continuationManagerTmp = continuationManager_.lock();
     if (continuationManagerTmp == nullptr) {
@@ -354,7 +354,7 @@ bool ContinuationHandler::ContinuationBack(const Want &want)
 
     int result = 0;
     if (!continuationManagerTmp->RestoreFromRemote(want.GetParams())) {
-        HILOG_INFO("ContinuationBack: RestoreFromRemote failed.");
+        HILOG_DEBUG("ContinuationBack: RestoreFromRemote failed.");
         result = ABILITY_FAILED_RESTORE_DATA;
     }
 
@@ -362,34 +362,34 @@ bool ContinuationHandler::ContinuationBack(const Want &want)
     if (result == 0) {
         CleanUpAfterReverse();
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 void ContinuationHandler::NotifyTerminationToPrimary()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (remotePrimaryProxy_ == nullptr) {
         HILOG_ERROR("NotifyTerminationToPrimary: remotePrimary not initialized, can not notify");
         return;
     }
 
-    HILOG_INFO("NotifyTerminationToPrimary: Start");
+    HILOG_DEBUG("NotifyTerminationToPrimary: Start");
     remotePrimaryProxy_->NotifyReplicaTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationHandler::ReverseContinueAbility()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (remoteReplicaProxy_ == nullptr) {
         HILOG_ERROR("ReverseContinueAbility: remoteReplica not initialized, can not reverse");
         return false;
     }
 
-    HILOG_INFO("ReverseContinueAbility: Start");
+    HILOG_DEBUG("ReverseContinueAbility: Start");
     bool requestSendSuccess = remoteReplicaProxy_->ReverseContinuation();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return requestSendSuccess;
 }
 }  // namespace AppExecFwk

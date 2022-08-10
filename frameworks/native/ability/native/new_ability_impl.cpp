@@ -76,7 +76,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
  */
 bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("NewAbilityImpl::AbilityTransaction begin");
+    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -119,7 +119,7 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
             break;
         }
     }
-    HILOG_INFO("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
+    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", (int)ret);
     return ret;
 }
 }  // namespace AppExecFwk

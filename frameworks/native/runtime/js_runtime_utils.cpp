@@ -148,7 +148,7 @@ void AsyncTask::Schedule(const std::string &name, NativeEngine& engine, std::uni
 
 void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
 {
-    HILOG_INFO("AsyncTask::Resolve is called");
+    HILOG_DEBUG("AsyncTask::Resolve is called");
     if (deferred_) {
         deferred_->Resolve(value);
         deferred_.reset();
@@ -161,7 +161,7 @@ void AsyncTask::Resolve(NativeEngine& engine, NativeValue* value)
         engine.CallFunction(engine.CreateUndefined(), callbackRef_->Get(), argv, ArraySize(argv));
         callbackRef_.reset();
     }
-    HILOG_INFO("AsyncTask::Resolve is called end.");
+    HILOG_DEBUG("AsyncTask::Resolve is called end.");
 }
 
 void AsyncTask::Reject(NativeEngine& engine, NativeValue* error)
