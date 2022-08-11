@@ -76,6 +76,12 @@ private:
     bool CheckSenderAndRecevier(const sptr<IWantSender> &sender, const sptr<IWantReceiver> &receiver);
     bool SendRequest(int32_t operation, const sptr<IRemoteObject> &remoteObject,
         MessageParcel &reply, ErrCode &error);
+    bool SendRequest(int32_t operation, const sptr<IRemoteObject> &remoteObject,
+        const sptr<IRemoteObject> &otherRemoteObject, MessageParcel &reply);
+    bool SendRequest(int32_t operation, const sptr<IRemoteObject> &remoteObject,
+        const sptr<IRemoteObject> &otherRemoteObject);
+    bool SendRequest(int32_t operation, const sptr<IRemoteObject> &remoteObject,
+        const Parcelable* parcelable, MessageParcel &reply, ErrCode &error);
 
     std::recursive_mutex mutex_;
     sptr<IRemoteObject> proxy_;
