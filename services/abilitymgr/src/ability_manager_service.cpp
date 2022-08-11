@@ -168,6 +168,17 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
 };
 
+const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
+        AppExecFwk::SupportWindowMode::FULLSCREEN),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
+        AppExecFwk::SupportWindowMode::FLOATING),
+};
+
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
@@ -797,6 +808,13 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -4989,6 +5007,25 @@ int AbilityManagerService::StartAppgallery(int requestCode, int32_t userId, std:
     want.SetElementName(MARKET_BUNDLE_NAME, "");
     want.SetAction(action);
     return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+}
+
+bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
+    const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
+{
+    HILOG_INFO("Window mode is %{public}d.", windowMode);
+    if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
+        return true;
+    }
+    auto it = windowModeMap.find(windowMode);
+    if (it != windowModeMap.end()) {
+        auto bmsWindowMode = it->second;
+        for (auto mode : windowModes) {
+            if (mode == bmsWindowMode) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
