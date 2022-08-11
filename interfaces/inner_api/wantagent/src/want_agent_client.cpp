@@ -161,7 +161,7 @@ void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, co
     if (!CheckSenderAndRecevier(sender, receiver)) {
         return;
     }
-    SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, sender->AsObject(), receiver->AsObject(), reply);
+    SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, sender->AsObject(), receiver->AsObject());
 }
 
 void WantAgentClient::UnregisterCancelListener(
