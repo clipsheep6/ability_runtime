@@ -12,7 +12,12 @@
   "component": {
       "name": "ability_runtime",
       "subsystem": "ability",
-      "syscap": [],
+      "syscap": [
+        "SystemCapability.Ability.AbilityRuntime.Core",
+        "SystemCapability.Ability.AbilityRuntime.FAModel",
+        "SystemCapability.Ability.AbilityRuntime.AbilityCore",
+        "SystemCapability.Ability.AbilityRuntime.Mission"
+      ],
       "features": [
         "ability_runtime_graphics",
         "ability_runtime_power"
