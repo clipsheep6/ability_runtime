@@ -97,10 +97,10 @@ ohos_shared_library("static_subscriber_ipc") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
@@ -217,6 +217,7 @@ ohos_shared_library("abilitykit_native") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
@@ -227,7 +228,6 @@ ohos_shared_library("abilitykit_native") {
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   defines = []
@@ -302,10 +302,10 @@ ohos_shared_library("data_ability_helper") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
@@ -326,9 +326,9 @@ ohos_shared_library("service_extension_module") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "extensionability/"

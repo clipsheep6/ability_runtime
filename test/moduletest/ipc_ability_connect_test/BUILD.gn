@@ -32,7 +32,6 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
     "${ability_runtime_services_path}/common:perm_verification",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utilsbase",
   ]
 
   if (ability_runtime_graphics) {
@@ -41,6 +40,7 @@ ohos_moduletest("IpcAbilityConnectModuleTest") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utilsbase",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]

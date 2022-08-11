@@ -123,6 +123,7 @@ ohos_shared_library("abilityms") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
@@ -139,7 +140,6 @@ ohos_shared_library("abilityms") {
     "samgr:samgr_proxy",
     "startup_l2:syspara",
     "startup_l2:syspara_watchagent",
-    "utils_base:utils",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

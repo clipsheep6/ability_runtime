@@ -46,10 +46,10 @@ ohos_shared_library("connection_obs_manager") {
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"

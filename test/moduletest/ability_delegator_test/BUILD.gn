@@ -58,10 +58,12 @@ ohos_moduletest("shell_cmd_result_moduletest") {
     "${ability_runtime_native_path}/appkit:appkit_delegator",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
-  external_deps = [ "hiviewdfx_hilog_native:libhilog" ]
+  external_deps = [
+    "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
+  ]
 }
 
 ohos_moduletest("ability_delegator_args_moduletest") {
@@ -128,8 +130,8 @@ ohos_moduletest("ability_delegator_registry_moduletest") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 }
 
@@ -152,9 +154,9 @@ ohos_moduletest("iability_monitor_moduletest") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 
@@ -180,9 +182,9 @@ ohos_moduletest("ability_delegator_moduletest") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 
@@ -208,7 +210,6 @@ ohos_moduletest("js_test_runner_moduletest") {
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -217,6 +218,7 @@ ohos_moduletest("js_test_runner_moduletest") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",

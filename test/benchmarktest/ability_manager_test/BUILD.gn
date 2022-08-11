@@ -34,9 +34,9 @@ ohos_benchmarktest("BenchmarkTestForAbilityManager") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 }
 

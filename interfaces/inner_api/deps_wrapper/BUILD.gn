@@ -38,8 +38,8 @@ ohos_shared_library("ability_deps_wrapper") {
   configs = [ ":ability_deps_wrapper_private_config" ]
 
   external_deps = [
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 
   if (os_account_part_enabled) {

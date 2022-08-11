@@ -43,12 +43,12 @@ ohos_shared_library("amsStDataAbility") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "//utils/native/base:utilsbase",
   ]
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utilsbase",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",

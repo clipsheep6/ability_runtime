@@ -66,11 +66,11 @@ ohos_shared_library("runtime") {
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
     "resource_management:global_resmgr",
-    "utils_base:utils",
   ]
 
   if (is_standard_system) {

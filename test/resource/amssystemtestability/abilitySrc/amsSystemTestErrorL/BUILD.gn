@@ -32,11 +32,11 @@ ohos_shared_library("amsSystemTestErrorL") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utilsbase",
   ]
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utilsbase",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

@@ -50,12 +50,12 @@ ohos_unittest("ability_manager_stub_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/libjpeg:libjpeg_static",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

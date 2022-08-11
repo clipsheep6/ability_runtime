@@ -50,7 +50,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
-    "//utils/native/base:utilsbase",
   ]
 
   if (ability_runtime_graphics) {
@@ -72,6 +71,7 @@ ohos_moduletest("AbilityRecordModuleTest") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utilsbase",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",

@@ -56,13 +56,13 @@ ohos_source_set("appmgr_test_source") {
 
   public_configs = [
     ":appmgr_test_config",
-    "//utils/native/base:utils_config",
+    "//commonlibrary/c_utils/base:utils_config",
   ]
 
   public_deps = [
+    "//commonlibrary/c_utils/base:utils",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -173,7 +173,6 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr:sa_mgr_mock",
     "//base/hiviewdfx/hiview/adapter/utility:hiview_adapter_utility",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -183,6 +182,7 @@ ohos_source_set("abilityms_test_source") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",

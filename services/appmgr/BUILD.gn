@@ -75,6 +75,7 @@ ohos_shared_library("libappms") {
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
@@ -86,7 +87,6 @@ ohos_shared_library("libappms") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "startup_l2:syspara_watchagent",
-    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {
