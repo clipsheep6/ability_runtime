@@ -24,7 +24,29 @@ ohos_shared_library("missionmanager_napi") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits" ]
+  include_dirs = [
+    "//foundation/communication/ipc/ipc/native/src/napi/include/",
+    "//foundation/ability/form_fwk/interfaces/inner_api/include/",
+    "//foundation/ability/form_fwk/interfaces/kits/native/include/",
+    "//foundation/window/window_manager/utils/include/",
+    "//foundation/arkui/ace_engine/frameworks/base/utils/",
+    "//foundation/window/window_manager/interfaces/innerkits/dm/",
+    "//foundation/window/window_manager/interfaces/innerkits/wm/",
+    "//foundation/graphic/ui/interfaces/kits/",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/continuation/kits",
+    "//foundation/arkui/napi",
+    "//third_party/libuv/include",
+    "//foundation/arkui/napi/interfaces/kits",
+    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/continuation/distributed",
+    "//foundation/ability/ability_base/interfaces/inner_api/base/include",
+    "//foundation/graphic/utils/interfaces/kits",
+    "//foundation/arkui/napi/interfaces/inner_api",
+    "//foundation/graphic/ui/interfaces/kits/window",
+    "//foundation/graphic/utils/interfaces/innerkits",
+    "//foundation/ability/ability_runtime/frameworks/js/napi/mission_manager",
+    "//foundation/multimedia/audio_framework/frameworks/native/opensles/include",
+    "//third_party/node/src/",
+  ]
 
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
@@ -61,8 +83,27 @@ ohos_shared_library("missionmanager_napi") {
 
 ohos_shared_library("distributedmissionmanager") {
   include_dirs = [
+    "//foundation/ability/form_fwk/interfaces/inner_api/include/",
+    "//foundation/ability/form_fwk/interfaces/kits/native/include/",
+    "//foundation/ability/form_fwk/interfaces/kits/native/include/",
+    "//foundation/window/window_manager/utils/include/",
+    "//foundation/window/window_manager/interfaces/innerkits/dm/",
+    "//foundation/window/window_manager/interfaces/innerkits/wm/",
+    "//foundation/communication/ipc/ipc/native/src/napi/include/",
+    "//foundation/arkui/ace_engine/frameworks/base/utils/",
+    "//foundation/graphic/graphic_2d/utils/promise/export/",
+    "//foundation/graphic/graphic_2d/utils/buffer_handle/export/",
+    "//drivers/peripheral/display/interfaces/include/",
+    "//foundation/graphic/graphic_2d/interfaces/inner_api/common/",
+    "//foundation/graphic/graphic_2d/interfaces/inner_api/wmclient/",
+    "//drivers/peripheral/base/",
+    "//foundation/graphic/graphic_2d/interfaces/inner_api/surface/",
+    "//third_party/flutter/skia/third_party/externals/icu/source/common/",
+    "//base/global/resource_management/interfaces/inner_api/include/",
     "//third_party/libuv/include",
     "//third_party/node/src",
+    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/continuation/kits",
+    "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/continuation/distributed",
   ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
@@ -82,14 +123,9 @@ ohos_shared_library("distributedmissionmanager") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:app_manager",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
     "utils_base:utils",
   ]

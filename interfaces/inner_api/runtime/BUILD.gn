@@ -28,7 +28,10 @@ config("runtime_config") {
 
 config("runtime_public_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "//base/global/resource_management/interfaces/inner_api/include/",
+  ]
 }
 
 ohos_shared_library("runtime") {
@@ -59,17 +62,13 @@ ohos_shared_library("runtime") {
   ]
 
   external_deps = [
-    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
-    "ability_base:zuri",
     "ability_runtime:ability_manager",
-    "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "resource_management:global_resmgr",
     "utils_base:utils",
   ]
 

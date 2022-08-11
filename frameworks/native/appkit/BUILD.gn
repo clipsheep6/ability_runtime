@@ -55,6 +55,7 @@ config("appkit_public_config") {
     "${ability_base_kits_path}/configuration/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator",
     "${global_path}/resource_management/interfaces/inner_api/include",
+    "//base/notification/common_event_service/interfaces/inner_api/",
   ]
 
   if (ability_runtime_graphics) {
@@ -123,8 +124,6 @@ ohos_shared_library("appkit_native") {
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "faultloggerd:lib_dfx_dump_catcher",
     "faultloggerd:libfaultloggerd",
@@ -133,7 +132,6 @@ ohos_shared_library("appkit_native") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "napi:ace_napi",
     "samgr:samgr_proxy",
     "utils_base:utils",
   ]
@@ -156,6 +154,8 @@ ohos_shared_library("app_context") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
+    "//foundation/arkui/napi",
+    "//third_party/libuv/include",
   ]
 
   configs = [ ":appkit_config" ]
@@ -191,7 +191,6 @@ ohos_shared_library("app_context") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "napi:ace_napi",
     "samgr:samgr_proxy",
     "utils_base:utils",
   ]
@@ -212,8 +211,14 @@ ohos_shared_library("app_context") {
 ohos_shared_library("app_context_utils") {
   cflags_cc = []
   include_dirs = [
+    "//foundation/ability/ability_base/interfaces/inner_api/base/include/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "//foundation/ability/ability_runtime/services/common/include",
+    "//foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/want/include",
+    "//foundation/ability/ability_base/interfaces/kits/native/uri/include",
   ]
 
   configs = [ ":appkit_config" ]
@@ -277,6 +282,7 @@ ohos_shared_library("appkit_delegator") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/ability_delegator/include",
     "${ability_runtime_services_path}/common/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include/",
   ]
 
   configs = [ ":appkit_config" ]

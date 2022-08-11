@@ -46,7 +46,6 @@ ohos_shared_library("perm_verification") {
     "access_token:libaccesstoken_sdk",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"

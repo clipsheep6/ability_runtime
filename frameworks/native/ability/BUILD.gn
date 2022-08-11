@@ -17,6 +17,8 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("ability_context_public_config") {
   visibility = [ ":*" ]
   include_dirs = [
+    "//third_party/libuv/include/",
+    "//foundation/arkui/napi/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/context",
@@ -52,7 +54,6 @@ ohos_shared_library("ability_context_native") {
 
   external_deps = [
     "ability_base:base",
-    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
@@ -63,7 +64,6 @@ ohos_shared_library("ability_context_native") {
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "napi:ace_napi",
     "utils_base:utils",
   ]
 
