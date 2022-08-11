@@ -401,20 +401,25 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const
         if (!it->second) {
             continue;
         }
+        HILOG_DEBUG("fsy00005");
         auto abilityRecord = it->second->GetAbilityRecord();
         if (abilityRecord == Token::GetAbilityRecordByToken(token)) {
             return abilityRecord;
         }
+        HILOG_DEBUG("fsy00004");
     }
     for (auto it = dataAbilityRecordsLoading_.begin(); it != dataAbilityRecordsLoading_.end(); ++it) {
         if (!it->second) {
             continue;
         }
+        HILOG_DEBUG("fsy00003");
         auto abilityRecord = it->second->GetAbilityRecord();
         if (abilityRecord == Token::GetAbilityRecordByToken(token)) {
             return abilityRecord;
         }
+        HILOG_DEBUG("fsy00002");
     }
+    HILOG_DEBUG("fsy00001");
     return nullptr;
 }
 
