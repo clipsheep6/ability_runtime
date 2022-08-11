@@ -27,6 +27,7 @@
 #include "system_ability_definition.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler.h"
+#include "accesstoken_kit.h"
 #include "bundlemgr/mock_bundle_manager.h"
 #include "sa_mgr_client.h"
 #include "mock_ability_connect_callback.h"
@@ -37,6 +38,7 @@
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
+using namespace OHOS::Security::AccessToken;
 namespace OHOS {
 namespace AAFwk {
 static void WaitUntilTaskFinished()
@@ -60,6 +62,9 @@ static void WaitUntilTaskFinished()
 namespace {
 const int32_t USER_ID_U100 = 100;
 const int32_t ERROR_USER_ID_U256 = 256;
+const int32_t TEST_USER_ID = 0;
+const std::string TEST_BUNDLE_NAME = "ohos";
+const std::string TEST_PERMISSION_NAME = "ohos.permission.DISTRIBUTED_DATASYNC";
 }  // namespace
 class AbilityManagerServiceAccountTest : public testing::Test {
 public:
@@ -95,7 +100,48 @@ void AbilityManagerServiceAccountTest::TearDownTestCase()
 }
 
 void AbilityManagerServiceAccountTest::SetUp()
-{}
+{
+    HapInfoParams info = {
+        .userID = TEST_USER_ID,
+        .bundleName = TEST_BUNDLE_NAME,
+        .instIndex = 0,
+        .appIDDesc = "appIDDesc",
+    };
+
+    HapPolicyParams policy = {
+        .apl = APL_NORMAL,
+        .domain = "domain",
+    };
+
+    Security::AccessToken::PermissionDef permissionDef = {
+        .permissionName = TEST_PERMISSION_NAME,
+        .bundleName = TEST_BUNDLE_NAME,
+        .grantMode = GrantMode::USER_GRANT,
+        .availableLevel = APL_NORMAL,
+        .provisionEnable = false,
+        .distributedSceneEnable = false
+    };
+    policy.permList.emplace_back(permissionDef);
+
+    Security::AccessToken::PermissionStateFull permState = {
+        .permissionName = TEST_PERMISSION_NAME,
+        .isGeneral = true,
+        .resDeviceID = {"device"},
+        .grantStatus = {PermissionState::PERMISSION_GRANTED},
+        .grantFlags = {PermissionFlag::PERMISSION_SYSTEM_FIXED}
+    };
+    policy.permStateList.emplace_back(permState);
+
+    AccessTokenKit::AllocHapToken(info, policy);
+    AccessTokenID tokenID = AccessTokenKit::GetHapTokenID(TEST_USER_ID, TEST_BUNDLE_NAME, 0);
+    if (tokenID != 0) {
+        HILOG_INFO("tokenID is %{public}d.", tokenID);
+        auto ret = AccessTokenKit::GrantPermission(tokenID, TEST_PERMISSION_NAME, PERMISSION_USER_FIXED);
+        HILOG_INFO("result of GrantPermission is %{public}d.", ret);
+    } else {
+        HILOG_ERROR("GetHapTokenID failed.");
+    }
+}
 
 void AbilityManagerServiceAccountTest::TearDown()
 {}
