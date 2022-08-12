@@ -134,18 +134,7 @@ void ConnectionStateManager::RemoveConnection(const std::shared_ptr<ConnectionRe
 void ConnectionStateManager::AddDataAbilityConnection(const DataAbilityCaller &caller,
     const std::shared_ptr<DataAbilityRecord> &record)
 {
-    std::shared_ptr<ConnectionObserverController> controller = observerController_;
-    if (!controller) {
-        return;
-    }
-
-    if (!record) {
-        HILOG_ERROR("data ability record is invalid");
-        return;
-    }
-
-    if (caller.callerPid == 0) {
-        HILOG_ERROR("data ability, invalid callerInfo");
+    if (!CheckDataAbilityConnectionParams(caller, record)) {
         return;
     }
 
@@ -154,24 +143,13 @@ void ConnectionStateManager::AddDataAbilityConnection(const DataAbilityCaller &c
         HILOG_WARN("add data ability onnection, no need to notify observers");
         return;
     }
-    controller->NotifyExtensionConnected(connectionData);
+    observerController_->NotifyExtensionConnected(connectionData);
 }
 
 void ConnectionStateManager::RemoveDataAbilityConnection(const DataAbilityCaller &caller,
     const std::shared_ptr<DataAbilityRecord> &record)
 {
-    std::shared_ptr<ConnectionObserverController> controller = observerController_;
-    if (!controller) {
-        return;
-    }
-
-    if (!record) {
-        HILOG_ERROR("data ability record is invalid");
-        return;
-    }
-
-    if (caller.callerPid == 0) {
-        HILOG_ERROR("data ability, invalid caller pid");
+    if (!CheckDataAbilityConnectionParams(caller, record)) {
         return;
     }
 
@@ -180,7 +158,27 @@ void ConnectionStateManager::RemoveDataAbilityConnection(const DataAbilityCaller
         HILOG_WARN("remove data ability, no need to notify observers");
         return;
     }
-    controller->NotifyExtensionDisconnected(connectionData);
+    observerController_->NotifyExtensionDisconnected(connectionData);
+}
+
+bool ConnectionStateManager::CheckDataAbilityConnectionParams(const DataAbilityCaller &caller,
+    const std::shared_ptr<DataAbilityRecord> &record) const
+{
+    if (!observerController_) {
+        return false;
+    }
+
+    if (!record) {
+        HILOG_ERROR("data ability record is invalid");
+        return false;
+    }
+
+    if (caller.callerPid == 0) {
+        HILOG_ERROR("data ability, invalid caller pid");
+        return false;
+    }
+
+    return true;
 }
 
 void ConnectionStateManager::HandleDataAbilityDied(const std::shared_ptr<DataAbilityRecord> &record)

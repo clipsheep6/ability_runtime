@@ -48,9 +48,9 @@ public:
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
-    void HandleOnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
-    void HandleOnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessDied(const std::shared_ptr<RenderRecord> &RenderRecord);
     bool ObserverExist(const sptr<IApplicationStateObserver> &observer);
     void AddObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
@@ -60,6 +60,8 @@ private:
     void OnObserverDied(const wptr<IRemoteObject> &remote);
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state);
+    void HandleOnProcessCreated(const ProcessData &data);
+    void HandleOnProcessDied(const ProcessData &data);
 
 private:
     std::shared_ptr<AppExecFwk::EventHandler> handler_;

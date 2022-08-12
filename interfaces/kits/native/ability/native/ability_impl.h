@@ -455,6 +455,9 @@ private:
     bool needSaveDate_ = false;
     PacMap restoreData_;
 
+private:
+    void AfterFocusedCommon(bool isFocused);
+
 #ifdef SUPPORT_GRAPHICS
 private:
 class WindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
