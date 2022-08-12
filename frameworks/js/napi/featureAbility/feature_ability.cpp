@@ -1054,30 +1054,29 @@ napi_value GetWindowWrapAsync(
         NAPI_CALL(env, napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback));
     }
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
-        [](napi_env env, void *data) {
-            HILOG_INFO("GetWindowWrapAsync, worker pool thread execute.");
-            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-            if (asyncCallbackInfo->ability != nullptr) {
-                asyncCallbackInfo->window = asyncCallbackInfo->ability->GetWindow();
-                auto engine = reinterpret_cast<NativeEngine*>(env);
-                OHOS::Rosen::CreateJsWindowObject(*engine, asyncCallbackInfo->window);
-            } else {
-                HILOG_ERROR("GetWindowWrapAsync, ability == nullptr");
-            }
-            HILOG_INFO("GetWindowWrapAsync, worker pool thread execute end.");
-        },
+        [](napi_env env, void *data) {},
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("GetWindowWrapAsync, main event thread complete.");
-            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-            napi_value callback = 0;
-            napi_value undefined = 0;
-            napi_value result[ARGS_TWO] = {0};
-            napi_value callResult = 0;
-            napi_get_undefined(env, &undefined);
-            result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
-            napi_get_null(env, &result[PARAM1]);
-            napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
-            napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            AsyncCallbackInfo* asyncCallbackInfo = static_cast<AsyncCallbackInfo*>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("GetWindowWrapAsync, asyncCallbackInfo is nullptr");
+                return;
+            }
+            if (asyncCallbackInfo->ability != nullptr) {
+                HILOG_DEBUG("GetWindowWrapAsync, ability is valid.");
+                auto engine = reinterpret_cast<NativeEngine*>(env);
+                asyncCallbackInfo->window = asyncCallbackInfo->ability->GetWindow();
+                auto jsWindow = OHOS::Rosen::CreateJsWindowObject(*engine, asyncCallbackInfo->window);
+                napi_value result[ARGS_TWO] = {0};
+                result[PARAM0] = GetCallbackErrorValue(env, NO_ERROR);
+                result[PARAM1] = reinterpret_cast<napi_value>(jsWindow);
+                napi_value callback = 0;
+                napi_get_reference_value(env, asyncCallbackInfo->cbInfo.callback, &callback);
+                napi_value callResult = 0;
+                napi_value undefined = 0;
+                napi_get_undefined(env, &undefined);
+                napi_call_function(env, undefined, callback, ARGS_TWO, &result[PARAM0], &callResult);
+            }
 
             if (asyncCallbackInfo->cbInfo.callback != nullptr) {
                 napi_delete_reference(env, asyncCallbackInfo->cbInfo.callback);
@@ -1114,24 +1113,26 @@ napi_value GetWindowWrapPromise(napi_env env, AsyncCallbackInfo *asyncCallbackIn
         env,
         nullptr,
         resourceName,
-        [](napi_env env, void *data) {
-            HILOG_INFO("GetWindowWrapPromise, worker pool thread execute.");
-            AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
-            if (asyncCallbackInfo->ability != nullptr) {
-                asyncCallbackInfo->window = asyncCallbackInfo->ability->GetWindow();
-                auto engine = reinterpret_cast<NativeEngine*>(env);
-                OHOS::Rosen::CreateJsWindowObject(*engine, asyncCallbackInfo->window);
-            } else {
-                HILOG_INFO("GetWindowWrapPromise, ability == nullptr");
-            }
-            HILOG_INFO("GetWindowWrapPromise, worker pool thread execute end.");
-        },
+        [](napi_env env, void *data) {},
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("GetWindowWrapPromise, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
+            if (asyncCallbackInfo == nullptr) {
+                HILOG_ERROR("GetWindowWrapPromise, asyncCallbackInfo is nullptr");
+                return;
+            }
             napi_value result = 0;
-            napi_get_null(env, &result);
-            napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+            if (asyncCallbackInfo->ability != nullptr) {
+                auto engine = reinterpret_cast<NativeEngine*>(env);
+                asyncCallbackInfo->window = asyncCallbackInfo->ability->GetWindow();
+                auto jsWindow = OHOS::Rosen::CreateJsWindowObject(*engine, asyncCallbackInfo->window);
+                result = reinterpret_cast<napi_value>(jsWindow);
+                napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+            } else {
+                HILOG_WARN("GetWindowWrapPromise, ability is nullptr.");
+                napi_get_null(env, &result);
+                napi_resolve_deferred(env, asyncCallbackInfo->deferred, result);
+            }
             napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
