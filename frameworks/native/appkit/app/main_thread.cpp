@@ -68,7 +68,6 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
-constexpr int32_t JS_CRASH_DELAY_TIME = 3000;
 constexpr int SIGNAL_JS_HEAP = 39;
 constexpr int SIGNAL_JS_HEAP_PRIV = 40;
 
@@ -410,31 +409,20 @@ void MainThread::ScheduleMemoryLevel(const int level)
  */
 void MainThread::ScheduleProcessSecurityExit()
 {
-    PostProcessSecurityExitTask(false);
-}
-
-void MainThread::PostProcessSecurityExitTask(bool delay)
-{
-    HILOG_DEBUG("PostProcessSecurityExitTask called start");
+    HILOG_DEBUG("ScheduleProcessSecurityExit called");
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
-            HILOG_ERROR("appThread is nullptr, PostProcessSecurityExitTask failed.");
+            HILOG_ERROR("appThread is nullptr, ScheduleProcessSecurityExit failed.");
             return;
         }
         appThread->HandleProcessSecurityExit();
     };
-    bool result;
-    if (delay) {
-        result = mainHandler_->PostTask(task, JS_CRASH_DELAY_TIME);
-    } else {
-        result = mainHandler_->PostTask(task);
-    }
+    bool result = mainHandler_->PostTask(task);
     if (!result) {
-        HILOG_ERROR("PostProcessSecurityExitTask post task failed");
+        HILOG_ERROR("ScheduleProcessSecurityExit post task failed");
     }
-    HILOG_DEBUG("PostProcessSecurityExitTask called end");
 }
 
 /**
@@ -959,12 +947,12 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto versionCode = appInfo.versionCode;
         wptr<MainThread> weak = this;
         auto uncaughtTask = [weak, bundleName, versionCode](NativeValue* v) {
+            HILOG_INFO("Js uncaught exception callback come.");
             NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
             std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
             std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
-            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
@@ -976,6 +964,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_REASON, errorName,
                 EVENT_KEY_JSVM, JSVM_TYPE,
                 EVENT_KEY_SUMMARY, summary);
+            if (ApplicationDataManager::GetInstance().NotifyUnhandledException(summary)) {
+                return;
+            }
             auto appThread = weak.promote();
             if (appThread == nullptr) {
                 HILOG_ERROR("appThread is nullptr, HandleLaunchApplication failed.");
@@ -984,7 +975,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorName.c_str(), summary.c_str());
-            appThread->PostProcessSecurityExitTask(true);
+            appThread->ScheduleProcessSecurityExit();
         };
         jsEngine.RegisterUncaughtExceptionHandler(uncaughtTask);
         application_->SetRuntime(std::move(runtime));

@@ -29,7 +29,7 @@ public:
     ~JsErrorObserver();
     void OnUnhandledException(std::string errMsg) override;
     void AddJsObserverObject(int32_t observerId, NativeValue* jsObserverObject);
-    bool RemoveJsObserverObject(int32_t observerId);
+    bool RemoveJsObserverObject(int32_t observerId, bool &isEmpty);
 
 private:
     void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);

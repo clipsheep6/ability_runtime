@@ -80,9 +80,11 @@ void JsErrorObserver::AddJsObserverObject(int32_t observerId, NativeValue* jsObs
         observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
 }
 
-bool JsErrorObserver::RemoveJsObserverObject(int32_t observerId)
+bool JsErrorObserver::RemoveJsObserverObject(int32_t observerId, bool &isEmpty)
 {
-    return jsObserverObjectMap_.erase(observerId) == 1;
+    bool result = (jsObserverObjectMap_.erase(observerId) == 1);
+    isEmpty = jsObserverObjectMap_.empty();
+    return result;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

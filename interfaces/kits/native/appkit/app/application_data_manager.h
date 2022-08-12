@@ -27,13 +27,14 @@ class ApplicationDataManager {
 public:
     static ApplicationDataManager &GetInstance();
     void AddErrorObserver(const std::shared_ptr<IErrorObserver> &observer);
-    void NotifyUnhandledException(const std::string &errMsg);
+    bool NotifyUnhandledException(const std::string &errMsg);
+    void RemoveErrorObserver();
 
 private:
     ApplicationDataManager();
     ~ApplicationDataManager();
     DISALLOW_COPY_AND_MOVE(ApplicationDataManager);
-    std::weak_ptr<IErrorObserver> errorObserver_;
+    std::shared_ptr<IErrorObserver> errorObserver_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
