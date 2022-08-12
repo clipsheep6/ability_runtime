@@ -29,9 +29,9 @@ namespace OHOS {
 namespace AAFwk {
 const std::u16string DMS_FREE_INSTALL_CALLBACK_TOKEN = u"ohos.DistributedSchedule.IDmsFreeInstallCallback";
 const std::string DMS_MISSION_ID = "dmsMissionId";
-const std::string FREE_INSTLL_CALLING_APP_ID = "freeInstallCallingAppId";
-const std::string FREE_INSTLL_CALLING_BUNDLENAMES = "freeInstallCallingBundleNames";
-const std::string FREE_INSTALL_CALLINGUID = "freeInstallCallingUid";
+const std::string PARAM_FREEINSTALL_APPID = "ohos.freeinstall.params.callingAppId";
+const std::string PARAM_FREEINSTALL_BUNDLENAMES = "ohos.freeinstall.params.callingBundleNames";
+const std::string PARAM_FREEINSTALL_UID = "ohos.freeinstall.params.callingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
 constexpr uint32_t UPDATE_ATOMOIC_SERVICE_TASK_TIMER = 24 * 60 * 60 * 1000; /* 24h */
 
@@ -92,17 +92,17 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
-    info.want.SetParam(FREE_INSTALL_CALLINGUID, IPCSkeleton::GetCallingUid());
+    info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
     if (bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback)) {
         HILOG_INFO("The app has installed.");
     }
-    std::string callingAppId = info.want.GetStringParam(FREE_INSTLL_CALLING_APP_ID);
-    std::vector<std::string> callingBundleNames = info.want.GetStringArrayParam(FREE_INSTLL_CALLING_BUNDLENAMES);
+    std::string callingAppId = info.want.GetStringParam(PARAM_FREEINSTALL_APPID);
+    std::vector<std::string> callingBundleNames = info.want.GetStringArrayParam(PARAM_FREEINSTALL_BUNDLENAMES);
     if (callingAppId.empty() && callingBundleNames.empty()) {
         HILOG_INFO("callingAppId and callingBundleNames are empty");
     }
-    info.want.RemoveParam(FREE_INSTLL_CALLING_APP_ID);
-    info.want.RemoveParam(FREE_INSTLL_CALLING_BUNDLENAMES);
+    info.want.RemoveParam(PARAM_FREEINSTALL_APPID);
+    info.want.RemoveParam(PARAM_FREEINSTALL_BUNDLENAMES);
     auto future = info.promise->get_future();
     std::future_status status = future.wait_for(std::chrono::milliseconds(DELAY_LOCAL_FREE_INSTALL_TIMEOUT));
     if (status == std::future_status::timeout) {
