@@ -81,8 +81,8 @@ void FormJsEventHandler::ProcessRouterEvent(Want &want)
     }
 
     std::string abilityName = want.GetStringParam(Constants::PARAM_FORM_ABILITY_NAME_KEY);
-    want.SetElementName(formJsInfo_.bundleName, abilityName);
-    want.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo_.formId));
+    want.SetElementName(formJsInfo_.formJsRecord.bundleName, abilityName);
+    want.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo_.formJsRecord.formId));
     ability_->StartAbility(want);
 }
 /**
