@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_
-#define RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_
+#ifndef RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H
+#define RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H
 #include "want.h"
 
 namespace OHOS {
@@ -27,4 +27,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H_
+#endif  // RESOURCE_OHOS_ABILITY_RUNTIME_TEST_UTILS_H
