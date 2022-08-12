@@ -73,6 +73,13 @@ foundation/ability/ability_base     # ability_base元能力基础部件
 │   └── inner_api 				    # ability_base的系统内部件间接口 
 └── test							# 测试目录
 
+foundation/ability/dmsfwk                           # dmsfwk分布式组件管理部件
+├── interfaces
+│   ├── inner_api 				    # dmsfwk的系统内部件间接口
+│   └── kits                                        # dmsfwk的对外接口
+├── services                                        # dmsfwk分布式组件管理代码
+└── util					    # 公共方法代码
+
 foundation/ability/form_fwk     # form_fwk卡片运行时部件
 ├── frameworks
 │   └── js
@@ -228,6 +235,8 @@ aa force-stop com.ohos.app
 [ability_base](https://gitee.com/openharmony/ability_ability_base)
 
 [**ability_runtime**](https://gitee.com/openharmony/ability_ability_runtime)
+
+[dmsfwk](https://gitee.com/openharmony/ability_dmsfwk)
 
 [form_fwk](https://gitee.com/openharmony/ability_form_fwk)
 
