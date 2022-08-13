@@ -210,7 +210,7 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
         client->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
-        std::weak_ptr<DataAbilityRecord> thisWeakPtr(shared_from_this());
+        std::weak_ptr<DataAbilityRecord> thisWeakPtr(weak_from_this());
         callerDeathRecipient_ = new DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
             auto dataAbilityRecord = thisWeakPtr.lock();
             if (dataAbilityRecord) {
