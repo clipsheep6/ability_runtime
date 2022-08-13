@@ -31,6 +31,7 @@ constexpr const char* DEVICE_TYPE = "device_type";
 constexpr const char* SYSTEM_CONFIGURATION = "system_configuration";
 constexpr const char* SYSTEM_ORIENTATION = "system_orientation";
 constexpr const char* ROOT_LAUNCHER_RESTART_MAX = "root_launcher_restart_max";
+constexpr const char* BOOT_ANIMATION_TIMEOUT_TIME = "boot_animation_timeout_time";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -53,6 +54,7 @@ public:
      * Get the save time of the current content
      */
     int GetMissionSaveTime() const;
+
     /**
      * Get current system direction parameters, Temporary method.
      */
@@ -62,18 +64,26 @@ public:
      * Get the max number of restart.
      */
     int GetMaxRestartNum() const;
+
     /**
      * get the application not response process timeout time.
      */
     int GetANRTimeOutTime() const;
+
     /**
      * get ability manager service not response process timeout time.
      */
     int GetAMSTimeOutTime() const;
+
     /**
      * get device type.
      */
     std::string GetDeviceType() const;
+
+    /**
+     * get boot animation stared timout time.
+     */
+    int GetBootAnimationTimeoutTime() const;
 
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
@@ -94,6 +104,7 @@ private:
     int missionSaveTime_ {12 * 60 * 60 * 1000};
     int anrTime_ {5000};
     int amsTime_ {5000};
+    int bootAnimationTime_ {5};
     std::string deviceType_ {""};
 };
 }  // namespace AAFwk

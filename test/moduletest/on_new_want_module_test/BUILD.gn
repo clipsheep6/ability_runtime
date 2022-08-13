@@ -86,6 +86,7 @@ ohos_moduletest("on_new_want_module_test") {
     "relational_store:native_appdatafwk",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "startup_l2:syspara",
   ]
 
   if (efficiency_manager) {

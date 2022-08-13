@@ -4,7 +4,8 @@
         "root_launcher_restart_max":15,
         "app_not_response_process_timeout_time" : 1000,
         "ams_timeout_time" : 180,
-        "device_type": "phone"
+        "device_type" : "phone",
+        "boot_animation_timeout_time" : 3
     },
     "system_configuration":{
         "system_orientation": "vertical"

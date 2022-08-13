@@ -123,6 +123,7 @@ const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
 const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
+const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -270,6 +271,8 @@ bool AbilityManagerService::Init()
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     anrListener_ = std::make_shared<ApplicationAnrListener>();
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
+    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+        amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
