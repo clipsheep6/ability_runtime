@@ -417,10 +417,7 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     asyncCallbackInfo->deferred = deferred;
 
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_SetResult, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -589,10 +586,7 @@ napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbac
 
     asyncCallbackInfo->deferred = deferred;
 
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_TerminateAbility, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -781,10 +775,7 @@ napi_value HasWindowFocusPromise(napi_env env, AsyncCallbackInfo *asyncCallbackI
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     asyncCallbackInfo->deferred = deferred;
 
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_HasWindowFocus, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -1109,10 +1100,7 @@ napi_value GetWindowWrapPromise(napi_env env, AsyncCallbackInfo *asyncCallbackIn
     NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
     asyncCallbackInfo->deferred = deferred;
 
-    NAPI_CALL(env, napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {},
         [](napi_env env, napi_status status, void *data) {
             HILOG_INFO("GetWindowWrapPromise, main event thread complete.");
@@ -1482,10 +1470,7 @@ napi_value GetDataAbilityHelperAsync(
     }
 
     NAPI_CALL(env,
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
+        napi_create_async_work(env, nullptr, resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_GetDataAbilityHelper, worker pool thread execute."); },
             GetDataAbilityHelperAsyncCompleteCB,
             (void *)dataAbilityHelperCB,
@@ -1512,10 +1497,7 @@ napi_value GetDataAbilityHelperPromise(napi_env env, DataAbilityHelperCB *dataAb
     dataAbilityHelperCB->cbBase.deferred = deferred;
 
     NAPI_CALL(env,
-        napi_create_async_work(
-            env,
-            nullptr,
-            resourceName,
+        napi_create_async_work(env, nullptr, resourceName,
             [](napi_env env, void *data) { HILOG_INFO("NAPI_GetDataAbilityHelper, worker pool thread execute."); },
             GetDataAbilityHelperPromiseCompleteCB,
             (void *)dataAbilityHelperCB,
@@ -1738,10 +1720,7 @@ napi_value ContinueAbilityAsync(napi_env env, napi_value *args, AsyncCallbackInf
         }
     }
 
-    napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
+    napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_ContinueAbility, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
@@ -1810,8 +1789,7 @@ napi_value ContinueAbilityPromise(napi_env env, napi_value *args, AsyncCallbackI
 
     asyncCallbackInfo->deferred = deferred;
 
-    napi_create_async_work(
-        env, nullptr, resourceName,
+    napi_create_async_work(env, nullptr, resourceName,
         [](napi_env env, void *data) {
             HILOG_INFO("NAPI_ContinueAbility, worker pool thread execute.");
             AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
