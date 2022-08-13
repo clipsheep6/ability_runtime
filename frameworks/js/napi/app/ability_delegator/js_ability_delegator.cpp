@@ -47,11 +47,11 @@ constexpr size_t INDEX_TWO = 2;
 constexpr int ERROR = -1;
 
 using namespace OHOS::AbilityRuntime;
-std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> monitorRecord_;
-std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityStageMonitor>> stageMonitorRecord_;
-std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> ablityRecord_;
-std::mutex mutexAblityRecord_;
-std::mutex mtxStageMonitorRecord_;
+std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> g_monitorRecord;
+std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityStageMonitor>> g_stageMonitorRecord;
+std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> g_ablityRecord;
+std::mutex g_mutexAblityRecord;
+std::mutex g_mtxStageMonitorRecord;
 
 NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
 {
@@ -91,10 +91,10 @@ JSAbilityDelegator::JSAbilityDelegator()
                 return;
             }
 
-            std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-            for (auto it = ablityRecord_.begin(); it != ablityRecord_.end();) {
+            std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+            for (auto it = g_ablityRecord.begin(); it != g_ablityRecord.end();) {
                 if (it->second == property->token_) {
-                    it = ablityRecord_.erase(it);
+                    it = g_ablityRecord.erase(it);
                     continue;
                 }
                 ++it;
@@ -297,10 +297,10 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
         lastParam, nullptr, std::move(complete), &result));
 
     if (AbilityDelegatorRegistry::GetAbilityDelegator()) {
-        for (auto iter = monitorRecord_.begin(); iter != monitorRecord_.end(); ++iter) {
+        for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
             std::shared_ptr<NativeReference> jsMonitor = iter->first;
             if ((info.argv[INDEX_ZERO])->StrictEquals(jsMonitor->Get())) {
-                monitorRecord_.erase(iter);
+                g_monitorRecord.erase(iter);
                 break;
             }
         }
@@ -383,8 +383,8 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
 
         abilityObjectBox->object_ = property->object_;
 
-        std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-        ablityRecord_.emplace(property->object_, property->token_);
+        std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+        g_ablityRecord.emplace(property->object_, property->token_);
     };
 
     AsyncTask::CompleteCallback complete = [abilityObjectBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -647,8 +647,8 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
             task.Reject(engine, CreateJsError(engine, ERROR, "getCurrentTopAbility failed."));
         } else {
             {
-                std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-                ablityRecord_.emplace(property->object_, property->token_);
+                std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+                g_ablityRecord.emplace(property->object_, property->token_);
             }
             task.Resolve(engine, property->object_.lock()->Get());
         }
@@ -780,9 +780,9 @@ NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallba
 NativeValue *JSAbilityDelegator::ParseMonitorPara(
     NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityMonitor> &monitor)
 {
-    HILOG_INFO("enter, monitorRecord size = %{public}zu", monitorRecord_.size());
+    HILOG_INFO("enter, monitorRecord size = %{public}zu", g_monitorRecord.size());
 
-    for (auto iter = monitorRecord_.begin(); iter != monitorRecord_.end(); ++iter) {
+    for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
         if (value->StrictEquals(jsMonitor->Get())) {
             HILOG_ERROR("monitor existed");
@@ -818,7 +818,7 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
 
     std::shared_ptr<NativeReference> reference = nullptr;
     reference.reset(engine.CreateReference(value, 1));
-    monitorRecord_.emplace(reference, monitor);
+    g_monitorRecord.emplace(reference, monitor);
 
     return engine.CreateNull();
 }
@@ -826,10 +826,10 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
 NativeValue *JSAbilityDelegator::ParseStageMonitorPara(
     NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
 {
-    HILOG_INFO("enter, stageMonitorRecord size = %{public}zu", stageMonitorRecord_.size());
+    HILOG_INFO("enter, stageMonitorRecord size = %{public}zu", g_stageMonitorRecord.size());
 
     isExisted = false;
-    for (auto iter = stageMonitorRecord_.begin(); iter != stageMonitorRecord_.end(); ++iter) {
+    for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
         if (value->StrictEquals(jsMonitor->Get())) {
             HILOG_WARN("AbilityStage monitor existed");
@@ -877,10 +877,10 @@ NativeValue *JSAbilityDelegator::ParseAbilityPara(
 {
     HILOG_INFO("enter");
 
-    std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-    for (auto iter = ablityRecord_.begin(); iter != ablityRecord_.end();) {
+    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+    for (auto iter = g_ablityRecord.begin(); iter != g_ablityRecord.end();) {
         if (iter->first.expired()) {
-            iter = ablityRecord_.erase(iter);
+            iter = g_ablityRecord.erase(iter);
             continue;
         }
 
@@ -916,8 +916,8 @@ NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const
     std::shared_ptr<NativeReference> refence = nullptr;
     refence.reset(engine.CreateReference(objValue, 1));
 
-    std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-    ablityRecord_[refence] = remoteObject;
+    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+    g_ablityRecord[refence] = remoteObject;
     return objValue;
 }
 
@@ -1196,10 +1196,10 @@ void JSAbilityDelegator::AddStageMonitorRecord(
     std::shared_ptr<NativeReference> reference = nullptr;
     reference.reset(engine.CreateReference(value, 1));
     {
-        std::unique_lock<std::mutex> lck(mtxStageMonitorRecord_);
-        stageMonitorRecord_.emplace(reference, monitor);
+        std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
+        g_stageMonitorRecord.emplace(reference, monitor);
     }
-    HILOG_INFO("stageMonitorRecord_ added, size = %{public}zu", stageMonitorRecord_.size());
+    HILOG_INFO("g_stageMonitorRecord added, size = %{public}zu", g_stageMonitorRecord.size());
 }
 
 void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
@@ -1212,12 +1212,12 @@ void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
         HILOG_ERROR("AbilityDelegator is null");
         return;
     }
-    std::unique_lock<std::mutex> lck(mtxStageMonitorRecord_);
-    for (auto iter = stageMonitorRecord_.begin(); iter != stageMonitorRecord_.end(); ++iter) {
+    std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
+    for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
         if (value->StrictEquals(jsMonitor->Get())) {
-            stageMonitorRecord_.erase(iter);
-            HILOG_INFO("stageMonitorRecord_ removed, size = %{public}zu", stageMonitorRecord_.size());
+            g_stageMonitorRecord.erase(iter);
+            HILOG_INFO("g_stageMonitorRecord removed, size = %{public}zu", g_stageMonitorRecord.size());
             break;
         }
     }
