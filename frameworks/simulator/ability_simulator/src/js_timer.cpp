@@ -57,7 +57,7 @@ public:
         uv_timer_stop(&timerReq_);
     }
 
-    void Start(int64_t timeout, int64_t repeat)
+    void Start(int64_t timeout, int64_t repeat) const
     {
         uv_timer_start(&timerReq_, [](uv_timer_t* timerReq) {
             auto me = static_cast<JsTimer*>(timerReq->data);
@@ -65,7 +65,7 @@ public:
         }, timeout, repeat);
     }
 
-    void OnTimeout()
+    void OnTimeout() const
     {
 #ifdef SUPPORT_GRAPHICS
         // call js function
@@ -169,6 +169,7 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 
 void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
 {
+    HILOG_DEBUG("InitTimerModule start.");
     BindNativeFunction(engine, globalObject, "setTimeout", StartTimeout);
     BindNativeFunction(engine, globalObject, "setInterval", StartInterval);
     BindNativeFunction(engine, globalObject, "clearTimeout", StopTimeoutOrInterval);

@@ -183,6 +183,7 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 
 void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
 {
+    HILOG_DEBUG("InitTimerModule begin.");
     BindNativeFunction(engine, globalObject, "setTimeout", StartTimeout);
     BindNativeFunction(engine, globalObject, "setInterval", StartInterval);
     BindNativeFunction(engine, globalObject, "clearTimeout", StopTimeoutOrInterval);
