@@ -69,6 +69,10 @@ foundation/ability            #元能力子系统
 │
 ├── ability_lite              # ability_lite轻量化元能力部件
 │
+├── dmsfwk                    # dmsfwk分布式组件管理部件
+│
+├── dmsfwk_lite               # dmsfwk_lite轻量化分布式组件管理部件
+│
 ├── form_fwk                  # form_fwk卡片运行时部件
 │
 ├── idl_tool                  # idl工具部件
@@ -161,6 +165,10 @@ aa force-stop com.ohos.app
 [ability_lite](https://gitee.com/openharmony/ability_ability_lite)
 
 [**ability_runtime**](https://gitee.com/openharmony/ability_ability_runtime)
+
+[dmsfwk](https://gitee.com/openharmony/ability_dmsfwk)
+
+[dmsfwk_lite](https://gitee.com/openharmony/ability_dmsfwk_lite)
 
 [form_fwk](https://gitee.com/openharmony/ability_form_fwk)
 
