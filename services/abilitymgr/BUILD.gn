@@ -50,7 +50,6 @@ config("abilityms_config") {
     "//base/account/os_account/frameworks/common/account_error/include",
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${bgtaskmgr_interfaces_path}/innerkits/include",
@@ -132,14 +131,13 @@ ohos_shared_library("abilityms") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "startup_l2:syspara",
-    "startup_l2:syspara_watchagent",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

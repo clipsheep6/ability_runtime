@@ -79,8 +79,6 @@ ohos_shared_library("runtime") {
       "hitrace_native:libhitrace",
       "init:libbegetutil",
     ]
-  } else {
-    external_deps += [ "startup:syspara" ]
   }
 
   if (ability_runtime_graphics) {

@@ -20,7 +20,6 @@ config("appmgr_config") {
     "${ability_runtime_services_path}/common/include",
     "${appspawn_path}/interfaces/innerkits/include",
     "${ability_runtime_path}/tools/aa/include",
-    "${init_path}/interfaces/innerkits/include/syspara/",
   ]
 }
 
@@ -82,11 +81,11 @@ ohos_shared_library("libappms") {
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "startup_l2:syspara_watchagent",
   ]
 
   if (ability_runtime_graphics) {

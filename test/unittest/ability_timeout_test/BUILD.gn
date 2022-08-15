@@ -61,8 +61,8 @@ ohos_unittest("ability_timeout_test") {
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "ipc:ipc_core",
-    "startup_l2:syspara_watchagent",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
