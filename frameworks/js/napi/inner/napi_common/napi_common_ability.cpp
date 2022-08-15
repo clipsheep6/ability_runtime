@@ -3337,7 +3337,7 @@ napi_value StartAbilityWrap(napi_env env, napi_callback_info info, AsyncCallback
  */
 napi_value NAPI_StartAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("[PerformanceTest] %{public}s called.", __func__);
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
         HILOG_ERROR("%{public}s asyncCallbackInfo == nullpter", __func__);
@@ -3712,7 +3712,7 @@ napi_value ConnectAbilityWrap(napi_env env, napi_callback_info info, ConnectAbil
  */
 napi_value NAPI_ConnectAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("[PerformanceTest] %{public}s called.", __func__);
     ConnectAbilityCB *connectAbilityCB = CreateConnectAbilityCBInfo(env);
     if (connectAbilityCB == nullptr) {
         HILOG_ERROR("%{public}s connectAbilityCB == nullptr", __func__);

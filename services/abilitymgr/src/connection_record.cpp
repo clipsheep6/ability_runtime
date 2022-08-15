@@ -128,7 +128,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
         connCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("[PerformanceTest]result: %{public}d. connectstate:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
@@ -144,7 +144,7 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
         connCallback_->OnAbilityDisconnectDone(element, isDied ? (resultCode - 1) : resultCode);
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isDied);
-    HILOG_INFO("result: %{public}d. connectstate:%{public}d.", resultCode, state_);
+    HILOG_INFO("[PerformanceTest]result: %{public}d. connectstate:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::ScheduleDisconnectAbilityDone()
