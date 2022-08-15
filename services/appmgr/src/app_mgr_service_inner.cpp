@@ -1639,10 +1639,11 @@ void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &inf
     }
 
     for (auto &bundle : infos) {
-        auto processName = bundle.applicationInfo.process.empty() ?
-            bundle.applicationInfo.bundleName : bundle.applicationInfo.process;
-        HILOG_INFO("processName = [%{public}s]", processName.c_str());
-
+        HILOG_INFO("processName = [%{public}s]", bundle.applicationInfo.process.c_str());
+        if (bundle.applicationInfo.process.empty()) {
+            continue;
+        }
+        auto processName = bundle.applicationInfo.process;
         // Inspection records
         auto appRecord = appRunningManager_->CheckAppRunningRecordIsExist(
             bundle.applicationInfo.name, processName, bundle.applicationInfo.uid, bundle);

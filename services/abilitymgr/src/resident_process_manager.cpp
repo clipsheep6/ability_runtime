@@ -36,13 +36,14 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
     std::set<uint32_t> needEraseIndexSet;
 
     for (size_t i = 0; i < bundleInfos.size(); i++) {
-        if (!bundleInfos[i].isKeepAlive) {
+        std::string processName = bundleInfos[i].applicationInfo.process;
+        if (!bundleInfos[i].isKeepAlive || processName.empty()) {
             needEraseIndexSet.insert(i);
             continue;
         }
         for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
             std::string mainElement;
-            if (!CheckMainElement(hapModuleInfo, mainElement, needEraseIndexSet, i)) {
+            if (!CheckMainElement(hapModuleInfo, processName, mainElement, needEraseIndexSet, i)) {
                 continue;
             }
 
@@ -61,13 +62,26 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
     }
 }
 
-bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, std::string &mainElement,
+bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo,
+    const std::string &processName, std::string &mainElement,
     std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex)
 {
     if (!hapModuleInfo.isModuleJson) {
         // old application model
         mainElement = hapModuleInfo.mainAbility;
         if (mainElement.empty()) {
+            return false;
+        }
+
+        // old application model, use ability 'process'
+        bool isAbilityKeepAlive = false;
+        for (auto abilityInfo : hapModuleInfo.abilityInfos) {
+            if (abilityInfo.process != processName || abilityInfo.name != mainElement) {
+                continue;
+            }
+            isAbilityKeepAlive = true;
+        }
+        if (!isAbilityKeepAlive) {
             return false;
         }
 
@@ -85,6 +99,11 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
         // new application model
         mainElement = hapModuleInfo.mainElementName;
         if (mainElement.empty()) {
+            return false;
+        }
+
+        // new application model, user model 'process'
+        if (hapModuleInfo.process != processName) {
             return false;
         }
     }

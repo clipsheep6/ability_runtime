@@ -32,8 +32,8 @@ public:
     void StartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void StartResidentProcessWithMainElement(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
 private:
-    bool CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, std::string &mainElement,
-        std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex);
+    bool CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, const std::string &processName,
+        std::string &mainElement, std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex);
 };
 }  // namespace AAFwk
 }  // namespace OHOS
