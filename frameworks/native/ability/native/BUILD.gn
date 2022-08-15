@@ -254,6 +254,7 @@ ohos_shared_library("abilitykit_native") {
       "${ability_runtime_native_path}/ability/native/form_extension.cpp",
       "${ability_runtime_native_path}/ability/native/form_js_event_handler.cpp",
       "${ability_runtime_native_path}/ability/native/form_provider_client.cpp",
+      "${ability_runtime_native_path}/ability/native/form_provider_record.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/form_extension_provider_client.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/js_form_extension.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/js_form_extension_context.cpp",

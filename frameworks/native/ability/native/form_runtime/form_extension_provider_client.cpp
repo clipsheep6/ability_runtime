@@ -30,14 +30,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 
-/**
- * @brief Acquire to give back an ProviderFormInfo. This is sync API.
- * @param formId The Id of the form.
- * @param want The want of the form to create.
- * @param callerToken Caller form extension token.
- * @return Returns ERR_OK on success, others on failure.
- */
-int FormExtensionProviderClient::AcquireProviderFormInfo(const int64_t formId, const Want &want,
+int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -52,7 +45,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const int64_t formId, c
     connectWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
     connectWant.SetParam(Constants::FORM_SUPPLY_INFO, want.GetStringParam(Constants::FORM_SUPPLY_INFO));
     connectWant.SetParam(Constants::PROVIDER_FLAG, true);
-    connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+    connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
 
     if (!FormProviderClient::CheckIsSystemApp()) {
         HILOG_WARN("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
@@ -63,15 +56,15 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const int64_t formId, c
 
     std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     std::function<void()> acquireProviderInfoFunc = [client = sptr<FormExtensionProviderClient>(this),
-        formId, want, callerToken]() {
-        client->AcquireFormExtensionProviderInfo(formId, want, callerToken);
+        formJsInfo, want, callerToken]() {
+        client->AcquireFormExtensionProviderInfo(formJsInfo, want, callerToken);
     };
     mainHandler->PostSyncTask(acquireProviderInfoFunc);
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const int64_t formId, const Want &want,
-    const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo,
+    const Want &want, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
     Want connectWant(want);
@@ -79,7 +72,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const int64_t
     connectWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
     connectWant.SetParam(Constants::FORM_SUPPLY_INFO, want.GetStringParam(Constants::FORM_SUPPLY_INFO));
     connectWant.SetParam(Constants::PROVIDER_FLAG, true);
-    connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+    connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
 
     FormProviderInfo formProviderInfo;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
@@ -88,18 +81,22 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const int64_t
         connectWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
     } else {
         Want createWant(want);
-        createWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+        createWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
         createWant.RemoveParam(Constants::FORM_CONNECT_ID);
         createWant.RemoveParam(Constants::ACQUIRE_TYPE);
         createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
         createWant.SetElement(want.GetElement());
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
-        HILOG_DEBUG("%{public}s, formId: %{public}s, data: %{public}s",
+        HILOG_DEBUG("%{public}s, formJsInfo.formId: %{public}s, data: %{public}s",
             __func__, createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
             formProviderInfo.GetFormDataString().c_str());
     }
-
+    auto remoteObj = want.GetRemoteObject(Constants::PARAM_FORM_HOST_CALLBACK);
+    if (remoteObj != nullptr) {
+        FormProviderClient::HandleRemoteAcquire(formJsInfo, formProviderInfo, want, remoteObj);
+        return;
+    }
     int error = FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
     if (error != ERR_OK) {
         HILOG_ERROR("%{public}s HandleAcquire failed", __func__);
@@ -507,7 +504,7 @@ int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const 
     HILOG_DEBUG("%{public}s called.", __func__);
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
+        HILOG_ERROR("%{public}s warn, AcquireShareFormData caller permission denied.", __func__);
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 

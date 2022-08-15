@@ -21,7 +21,9 @@
 #include <map>
 #include "ability.h"
 #include "form_constants.h"
+#include "form_js_info.h"
 #include "form_provider_info.h"
+#include "form_provider_record.h"
 #include "form_provider_stub.h"
 
 namespace OHOS {
@@ -37,13 +39,13 @@ public:
 
     /**
      * @brief Acquire to give back an ProviderFormInfo. This is sync API.
-     * @param formId The Id of the form.
+     * @param formJsInfo The form js info.
      * @param want Indicates the {@link Want} structure containing form info.
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AcquireProviderFormInfo(
-        const int64_t formId,
+        const FormJsInfo &formJsInfo,
         const Want &want,
         const sptr<IRemoteObject> &callerToken) override;
 
@@ -169,15 +171,19 @@ protected:
         const sptr<IRemoteObject> &callerToken);
     int HandleAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg, const Want &want,
                                  const sptr<IRemoteObject> &callerToken);
-
+    int32_t HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
+        const Want &want, const sptr<IRemoteObject> &callerToken);
 private:
     std::shared_ptr<Ability> GetOwner();
-
+    std::shared_ptr<FormProviderRecord> AllotFormProviderRecord(const FormJsInfo &formJsInfo,
+        const sptr<IRemoteObject> &callerToken);
 private:
     DISALLOW_COPY_AND_MOVE(FormProviderClient);
     mutable std::mutex abilityMutex_;
     std::weak_ptr<Ability> owner_;
+    mutable std::recursive_mutex formProviderRecordMutex_;
+    std::vector<std::shared_ptr<FormProviderRecord>> formProviderRecords_;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_FORM_PROVIDER_CLIENT_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_FORM_PROVIDER_CLIENT_H

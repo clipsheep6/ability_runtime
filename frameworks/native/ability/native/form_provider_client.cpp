@@ -16,6 +16,8 @@
 #include "form_provider_client.h"
 
 #include <cinttypes>
+#include <memory>
+#include <type_traits>
 
 #include "appexecfwk_errors.h"
 #include "form_mgr_errors.h"
@@ -26,15 +28,8 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-/**
- * @brief Acquire to give back an ProviderFormInfo. This is sync API.
- * @param formId The Id of the form.
- * @param want The want of the form to create.
- * @param callerToken Caller ability token.
- * @return Returns ERR_OK on success, others on failure.
- */
 int FormProviderClient::AcquireProviderFormInfo(
-    const int64_t formId,
+    const FormJsInfo &formJsInfo,
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
@@ -45,7 +40,7 @@ int FormProviderClient::AcquireProviderFormInfo(
     newWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
     newWant.SetParam(Constants::FORM_SUPPLY_INFO, want.GetStringParam(Constants::FORM_SUPPLY_INFO));
     newWant.SetParam(Constants::PROVIDER_FLAG, true);
-    newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+    newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
     std::shared_ptr<Ability> ownerAbility = GetOwner();
     if (ownerAbility == nullptr) {
         HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
@@ -64,13 +59,17 @@ int FormProviderClient::AcquireProviderFormInfo(
     }
 
     Want createWant(want);
-    createWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+    createWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
     createWant.RemoveParam(Constants::FORM_CONNECT_ID);
     createWant.RemoveParam(Constants::ACQUIRE_TYPE);
     createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
     FormProviderInfo formProviderInfo = ownerAbility->OnCreate(createWant);
     HILOG_DEBUG("%{public}s, formId: %{public}" PRId64 ", data: %{public}s",
-     __func__, formId, formProviderInfo.GetFormDataString().c_str());
+        __func__, formJsInfo.formId, formProviderInfo.GetFormDataString().c_str());
+    auto remoteObj = want.GetRemoteObject(Constants::PARAM_FORM_HOST_CALLBACK);
+    if (remoteObj != nullptr) {
+        return HandleRemoteAcquire(formJsInfo, formProviderInfo, want, remoteObj);
+    }
     return HandleAcquire(formProviderInfo, newWant, callerToken);
 }
 
@@ -533,7 +532,7 @@ int32_t FormProviderClient::AcquireShareFormData(int64_t formId, const std::stri
     HILOG_DEBUG("%{public}s come, %{public}s.", __func__, ownerAbility->GetAbilityName().c_str());
 
     if (!CheckIsSystemApp()) {
-        HILOG_WARN("%{public}s warn, AcquireProviderFormInfo caller permission denied.", __func__);
+        HILOG_WARN("%{public}s warn, AcquireShareFormData caller permission denied.", __func__);
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
@@ -550,5 +549,36 @@ int32_t FormProviderClient::AcquireShareFormData(int64_t formId, const std::stri
     HILOG_DEBUG("%{public}s, call over", __func__);
     return ERR_OK;
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+int32_t FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
+    const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    auto formProviderRecord = AllotFormProviderRecord(formJsInfo, callerToken);
+    if (formProviderRecord == nullptr) {
+        HILOG_ERROR("%{public}s error, alloc form provider record failed.", __func__);
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    return formProviderRecord->OnAcquire(formProviderInfo, want);
+}
+
+std::shared_ptr<FormProviderRecord> FormProviderClient::AllotFormProviderRecord(const FormJsInfo &formJsInfo,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s called", __func__);
+    std::lock_guard<std::recursive_mutex> lock(formProviderRecordMutex_);
+    for (const auto &formProviderRecord : formProviderRecords_) {
+        if (callerToken == formProviderRecord->GetCallerToken()) {
+            formProviderRecord->AddFormJsInfo(formJsInfo);
+            return formProviderRecord;
+        }
+    }
+
+    std::shared_ptr<FormProviderRecord> record = std::make_shared<FormProviderRecord>(callerToken);
+    record->AddFormJsInfo(formJsInfo);
+    formProviderRecords_.emplace_back(record);
+
+    return record;
+}
+} // namespace AppExecFwk
+} // namespace OHOS

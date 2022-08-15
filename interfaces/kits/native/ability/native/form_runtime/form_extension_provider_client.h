@@ -32,12 +32,12 @@ public:
 
     /**
      * @brief Acquire to give back an ProviderFormInfo. This is sync API.
-     * @param formId The Id of the form.
+     * @param formJsInfo The form js info.
      * @param want Indicates the {@link Want} structure containing form info.
      * @param callerToken Caller form extension token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AcquireProviderFormInfo(const int64_t formId, const Want &want,
+    virtual int AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
         const sptr<IRemoteObject> &callerToken) override;
 
     /**
@@ -149,7 +149,7 @@ private:
     std::shared_ptr<FormExtension> GetOwner();
     std::pair<int, int> CheckParam(const Want &want, const sptr<IRemoteObject> &callerToken);
     int HandleResultCode(int errorCode, const Want &want, const sptr<IRemoteObject> &callerToken);
-    void AcquireFormExtensionProviderInfo(const int64_t formId, const Want &want,
+    void AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionDelete(const int64_t formId, const Want &want,
         const sptr<IRemoteObject> &callerToken);
