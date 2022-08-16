@@ -221,7 +221,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     }
 
     nlohmann::json jsonObject;
-    if(!position.wideScreen) {
+    if (!position.wideScreen) {
         auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
         jsonObject[OFF_SET_X] = position.window_offsetX;
         jsonObject[OFF_SET_Y] = position.window_offsetY;
@@ -344,8 +344,9 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 break;
             case DialogAlign::BOTTOM:
                 position.window_offsetX = LINE_NUMS_ZERO;
-                position.window_offsetY = (display->GetHeight() - position.window_height) / UI_HALF - UI_DEFAULT_BUTTOM_CLIP;
-                position.window_height =  position.window_height/2;
+                position.window_offsetY = 
+                    (display->GetHeight() - position.window_height) / UI_HALF - UI_DEFAULT_BUTTOM_CLIP;
+                position.window_height =  position.window_height / UI_HALF;
                 position.offsetX = LINE_NUMS_ZERO;
                 position.offsetY = LINE_NUMS_ZERO;
                 break;
