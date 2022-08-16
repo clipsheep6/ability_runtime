@@ -54,9 +54,15 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
+    bool isStageBasedModel = false;
     ClipStringContent(rule, bundleInfo.appId, signCode);
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        isStageBasedModel = bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    }
+    HILOG_DEBUG("Create AppRunningRecord, processName: %{public}s, StageBasedModel:%{public}d, recordId: %{public}d",
+        processName.c_str(), isStageBasedModel, recordId);
 
-    HILOG_INFO("Create AppRunningRecord, processName: %{public}s, recordId: %{public}d", processName.c_str(), recordId);
+    appRecord->SetStageModelState(isStageBasedModel);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
     appRunningRecordMap_.emplace(recordId, appRecord);

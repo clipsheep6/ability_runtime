@@ -357,7 +357,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
 
 void AppRunningRecord::AddAbilityStage()
 {
-    if (!isNewMission_) {
+    if (!isStageBasedModel_) {
         HILOG_INFO("Current version than supports !");
         return;
     }
@@ -961,10 +961,20 @@ bool AppRunningRecord::IsKeepAliveApp() const
     return isKeepAliveApp_;
 }
 
-void AppRunningRecord::SetKeepAliveAppState(bool isKeepAlive, bool isNewMission)
+bool AppRunningRecord::IsEmptyKeepAliveApp() const
+{
+    return isEmptyKeepAliveApp_;
+}
+
+void AppRunningRecord::SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp)
 {
     isKeepAliveApp_ = isKeepAlive;
-    isNewMission_ = isNewMission;
+    isEmptyKeepAliveApp_ = isEmptyKeepAliveApp;
+}
+
+void AppRunningRecord::SetStageModelState(bool isStageBasedModel)
+{
+    isStageBasedModel_ = isStageBasedModel;
 }
 
 bool AppRunningRecord::GetTheModuleInfoNeedToUpdated(const std::string bundleName, HapModuleInfo &info)
