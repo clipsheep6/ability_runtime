@@ -39,11 +39,28 @@ constexpr int32_t DEFAULT_ARK_PROPERTIES = -1;
 constexpr size_t DEFAULT_GC_THREAD_NUM = 7;
 constexpr size_t DEFAULT_LONG_PAUSE_TIME = 40;
 
+#if defined(WINDOWS_PLATFORM)
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dll";
+#elif defined(MAC_PLATFORM)
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dylib";
+#else
+#error "Unsupported platform"
+#endif
+
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
     HILOG_INFO("ArkLog: %{public}s", message);
     return 0;
 }
+
+struct DebuggerTask {
+    void OnPostTask(std::function<void()>&& task);
+
+    static void HandleTask(const uv_async_t* req);
+
+    uv_async_t onPostTaskSignal {};
+    std::function<void()> func;
+};
 
 class SimulatorImpl : public Simulator {
 public:
@@ -66,6 +83,7 @@ private:
     Options options_;
     std::thread thread_;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
+    DebuggerTask debuggerTask_;
     std::unique_ptr<NativeEngine> nativeEngine_;
 
     int64_t currentId_ = 0;
@@ -97,9 +115,29 @@ private:
     T result_ = false;
 };
 
+void DebuggerTask::HandleTask(const uv_async_t* req)
+{
+    auto* debuggerTask = reinterpret_cast<DebuggerTask*>(req->data);
+    if (debuggerTask == nullptr) {
+        HILOG_ERROR("HandleTask debuggerTask is null");
+        return;
+    }
+    debuggerTask->func();
+}
+
+void DebuggerTask::OnPostTask(std::function<void()>&& task)
+{
+    if (uv_is_active((uv_handle_t*)&onPostTaskSignal)) {
+        func = std::move(task);
+        onPostTaskSignal.data = static_cast<void*>(this);
+        uv_async_send(&onPostTaskSignal);
+    }
+}
+
 SimulatorImpl::~SimulatorImpl()
 {
     if (nativeEngine_) {
+        uv_close(reinterpret_cast<uv_handle_t*>(&debuggerTask_.onPostTaskSignal), nullptr);
         uv_loop_t* uvLoop = nativeEngine_->GetUVLoop();
         if (uvLoop != nullptr) {
             uv_work_t work;
@@ -139,6 +177,9 @@ bool SimulatorImpl::Initialize(const Options& options)
             waiter.NotifyResult(false);
             return;
         }
+
+        uv_async_init(uvLoop, &debuggerTask_.onPostTaskSignal,
+            reinterpret_cast<uv_async_cb>(DebuggerTask::HandleTask));
 
         uv_timer_t timerReq;
         uv_timer_init(uvLoop, &timerReq);
@@ -303,6 +344,9 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
+    panda::JSNApi::StartDebugger(ARK_DEBUGGER_LIB_PATH, vm_, true, 0,
+        std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
+
     panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(""));
     auto nativeEngine = std::make_unique<ArkNativeEngine>(vm_, nullptr);
 
@@ -328,7 +372,7 @@ bool SimulatorImpl::OnInit()
 
     NativeValue* mockRequireNapi = globalObj->GetProperty("requireNapi");
     globalObj->SetProperty("mockRequireNapi", mockRequireNapi);
-    
+
     BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", [](NativeEngine* engine, NativeCallbackInfo* info) {
         NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
         NativeValue* requireNapi = globalObj->GetProperty("requireNapiPreview");
@@ -354,6 +398,8 @@ void SimulatorImpl::Run()
         uv_run(uvLoop, UV_RUN_DEFAULT);
         HILOG_INFO("Simulator uv loop stopped");
     }
+
+    panda::JSNApi::StopDebugger(vm_);
 
     abilities_.clear();
     nativeEngine_.reset();
