@@ -51,6 +51,10 @@ const std::string EVENT_WAITING_CODE = "0";
 const std::string EVENT_CLOSE_CODE = "1";
 const std::string APP_NAME = "appName";
 const std::string DEVICE_TYPE = "deviceType";
+const std::string OFF_SET_X = "offsetX";
+const std::string OFF_SET_Y = "offsetY";
+const std::string WIDTH = "width";
+const std::string HEIGHT = "height";
 
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
@@ -82,14 +86,12 @@ void SystemDialogScheduler::ScheduleShowDialog(const std::string &name, const Di
 
     HILOG_INFO("Show Dialog:[%{public}s],Dialog position:[%{public}d,%{public}d,%{public}d,%{public}d],str:%{public}s",
         name.data(), position.offsetX, position.offsetY, position.width, position.height, params.data());
-
     Ace::UIServiceMgrClient::GetInstance()->ShowDialog(
         name,
         params,
         OHOS::Rosen::WindowType::WINDOW_TYPE_SYSTEM_ALARM_WINDOW,
         position.offsetX, position.offsetY, position.width, position.height,
         callback);
-
     HILOG_INFO("Show UI Dialog finished.");
 }
 
@@ -99,11 +101,7 @@ int32_t SystemDialogScheduler::ShowANRDialog(const std::string &appName, const C
 
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_ANR, position);
-
-    nlohmann::json jsonObj;
-    jsonObj[APP_NAME] = appName;
-    const std::string params = jsonObj.dump();
-
+    std::string params = GetAnrParams(position, appName);
     auto callback = [anrCallBack] (int32_t id, const std::string& event, const std::string& params) {
         HILOG_INFO("Dialog anr callback: id : %{public}d, event: %{public}s, params: %{public}s",
             id, event.data(), params.data());
@@ -124,6 +122,20 @@ int32_t SystemDialogScheduler::ShowANRDialog(const std::string &appName, const C
 
     HILOG_DEBUG("ShowAnrDialog end");
     return ERR_OK;
+}
+
+const std::string SystemDialogScheduler::GetAnrParams(const DialogPosition position, const std::string &appName) const
+{
+    nlohmann::json anrData;
+    anrData[APP_NAME] = appName;
+    anrData[DEVICE_TYPE] = deviceType_;
+    if (!position.wideScreen) {
+        anrData[OFF_SET_X] = position.window_offsetX;
+        anrData[OFF_SET_Y] = position.window_offsetY;
+        anrData[WIDTH] = position.window_width;
+        anrData[HEIGHT] = position.window_height;
+    }
+    return anrData.dump();
 }
 
 int32_t SystemDialogScheduler::ShowTipsDialog()
@@ -225,14 +237,25 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
 {
     position.wideScreen = (deviceType_ == STR_PC);
     position.align = (deviceType_ == STR_PHONE) ? DialogAlign::BOTTOM : DialogAlign::CENTER;
+    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
 
     switch (type) {
         case DialogType::DIALOG_ANR:
-            position.width = UI_ANR_DIALOG_WIDTH;
-            position.height = UI_ANR_DIALOG_HEIGHT;
-            position.width_narrow = UI_ANR_DIALOG_WIDTH;
-            position.height_narrow = UI_ANR_DIALOG_HEIGHT;
-            position.align = DialogAlign::CENTER;
+            if (position.wideScreen) {
+                position.width = UI_ANR_DIALOG_WIDTH;
+                position.height = UI_ANR_DIALOG_HEIGHT;
+                position.width_narrow = UI_ANR_DIALOG_WIDTH;
+                position.height_narrow = UI_ANR_DIALOG_HEIGHT;
+                position.align = DialogAlign::CENTER;
+            } else {
+                position.width =  display->GetWidth();
+                position.height = display->GetHeight();
+                position.width_narrow =  display->GetWidth();
+                position.height_narrow = display->GetHeight();
+                position.window_width = UI_ANR_DIALOG_WIDTH;
+                position.window_height = UI_ANR_DIALOG_HEIGHT;
+                position.align = DialogAlign::CENTER;
+            }
             break;
         case DialogType::DIALOG_SELECTOR:
             position.width = UI_SELECTOR_DIALOG_WIDTH;
@@ -292,13 +315,21 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
             position.width = position.width_narrow;
             position.height = position.height_narrow;
         }
+        
         if (type == DialogType::DIALOG_SELECTOR) {
             DialogPositionAdaptive(position, lineNums);
         }
         switch (position.align) {
             case DialogAlign::CENTER:
-                position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
-                position.offsetY = (display->GetHeight() - position.height - UI_DEFAULT_BUTTOM_CLIP) / UI_HALF;
+                if (position.wideScreen) {
+                    position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
+                    position.offsetY = (display->GetHeight() - position.height) / UI_HALF;
+                } else {
+                    position.window_width = position.window_width/UI_HALF;
+                    position.window_height = position.window_height/UI_HALF;
+                    position.offsetX = LINE_NUMS_ZERO;
+                    position.offsetY = LINE_NUMS_ZERO;
+                }
                 break;
             case DialogAlign::BOTTOM:
                 position.offsetX = (display->GetWidth() - position.width) / UI_HALF;
