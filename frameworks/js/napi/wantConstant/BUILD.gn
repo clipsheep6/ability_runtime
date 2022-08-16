@@ -12,35 +12,17 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//foundation/ability/ability_runtime/ability_runtime.gni")
-ohos_shared_library("wantconstant") {
-  include_dirs = [
-    "//third_party/node/src",
-    "./",
-  ]
 
+ohos_shared_library("wantconstant") {
   sources = [
     "native_module.cpp",
     "want_constant.cpp",
   ]
 
-  deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/libuv:uv_static",
-  ]
-
   external_deps = [
-    "ability_base:base",
-    "ability_base:want",
     "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:app_manager",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/ability"

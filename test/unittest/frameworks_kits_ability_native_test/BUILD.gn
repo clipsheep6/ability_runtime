@@ -88,7 +88,6 @@ ohos_unittest("ability_test") {
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -98,6 +97,7 @@ ohos_unittest("ability_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -127,12 +127,12 @@ ohos_unittest("ability_lifecycle_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -159,12 +159,12 @@ ohos_unittest("ability_lifecycle_executor_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -194,12 +194,12 @@ ohos_unittest("ability_context_interface_test") {
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -232,12 +232,12 @@ ohos_unittest("ability_context_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
@@ -268,12 +268,12 @@ ohos_unittest("page_ability_impl_test") {
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
       "${multimodalinput_path}/frameworks/proxy:libmmi-common",
       "//third_party/googletest:gtest_main",
-      "//utils/native/base:utils",
     ]
 
     external_deps = [
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
+      "c_utils:utils",
       "hitrace_native:hitrace_meter",
       "hiviewdfx_hilog_native:libhilog",
       "input:libmmi-client",
@@ -299,12 +299,12 @@ ohos_unittest("service_ability_impl_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -332,12 +332,12 @@ ohos_unittest("scene_created_test") {
       "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
       "//third_party/googletest:gtest_main",
-      "//utils/native/base:utils",
     ]
 
     external_deps = [
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
+      "c_utils:utils",
       "hiviewdfx_hilog_native:libhilog",
       "input:libmmi-client",
       "ipc:ipc_core",
@@ -360,13 +360,13 @@ ohos_unittest("data_ability_helper_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -394,7 +394,6 @@ ohos_unittest("data_ability_operation_test") {
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -402,6 +401,7 @@ ohos_unittest("data_ability_operation_test") {
     "ability_base:want",
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -433,7 +433,6 @@ ohos_unittest("ability_impl_active_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -442,6 +441,7 @@ ohos_unittest("ability_impl_active_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -472,7 +472,6 @@ ohos_unittest("ability_impl_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -483,6 +482,7 @@ ohos_unittest("ability_impl_test") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -526,7 +526,6 @@ ohos_unittest("ability_thread_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -537,6 +536,7 @@ ohos_unittest("ability_thread_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -573,9 +573,9 @@ ohos_unittest("ability_thread_call_request_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
-    "utils_base:utils",
   ]
 }
 
@@ -599,7 +599,6 @@ ohos_unittest("form_provider_client_test") {
       "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
       "//third_party/googletest:gtest_main",
-      "//utils/native/base:utils",
     ]
 
     external_deps = [
@@ -607,6 +606,7 @@ ohos_unittest("form_provider_client_test") {
       "access_token:libaccesstoken_sdk",
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
+      "c_utils:utils",
       "eventhandler:libeventhandler",
       "form_fwk:form_manager",
       "hiviewdfx_hilog_native:libhilog",
@@ -639,7 +639,6 @@ ohos_unittest("data_ability_impl_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -649,6 +648,7 @@ ohos_unittest("data_ability_impl_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -685,7 +685,6 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -696,6 +695,7 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -732,7 +732,6 @@ ohos_unittest("data_ability_impl_file_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -743,6 +742,7 @@ ohos_unittest("data_ability_impl_file_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -781,7 +781,6 @@ ohos_unittest("ability_thread_dataability_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -792,6 +791,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -832,12 +832,12 @@ ohos_unittest("data_uri_utils_test") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -854,15 +854,13 @@ ohos_unittest("pac_map_test") {
 
   configs = [ ":module_private_config" ]
 
-  deps = [
-    "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/googletest:gtest_main" ]
 
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -892,13 +890,13 @@ ohos_unittest("ability_permission_test") {
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -917,11 +915,11 @@ ohos_unittest("task_handler_client_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
   ]
   if (ability_runtime_graphics) {
@@ -970,9 +968,9 @@ ohos_unittest("data_ability_result_test") {
 
   external_deps = [
     "ability_base:zuri",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   if (ability_runtime_graphics) {
@@ -1004,7 +1002,6 @@ ohos_unittest("form_host_client_test") {
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
       "//third_party/googletest:gmock_main",
       "//third_party/googletest:gtest_main",
-      "//utils/native/base:utils",
     ]
 
     external_deps = [
@@ -1013,6 +1010,7 @@ ohos_unittest("form_host_client_test") {
       "ability_runtime:runtime",
       "bundle_framework:appexecfwk_base",
       "bundle_framework:appexecfwk_core",
+      "c_utils:utils",
       "eventhandler:libeventhandler",
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
@@ -1042,7 +1040,6 @@ ohos_unittest("continuation_test") {
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gtest_main",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -1052,6 +1049,7 @@ ohos_unittest("continuation_test") {
     "ability_base:zuri",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
@@ -1085,12 +1083,12 @@ ohos_unittest("new_ability_impl_test") {
       "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
       "${multimodalinput_path}/frameworks/proxy:libmmi-common",
       "//third_party/googletest:gtest_main",
-      "//utils/native/base:utils",
     ]
 
     external_deps = [
       "ability_base:want",
       "bundle_framework:appexecfwk_base",
+      "c_utils:utils",
       "hitrace_native:hitrace_meter",
       "hiviewdfx_hilog_native:libhilog",
       "input:libmmi-client",

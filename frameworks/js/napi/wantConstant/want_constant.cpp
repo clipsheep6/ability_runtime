@@ -14,12 +14,7 @@
  */
 #include "want_constant.h"
 
-#include <cstring>
-#include <uv.h>
-#include <vector>
-
 #include "hilog_wrapper.h"
-#include "securec.h"
 
 namespace OHOS {
 namespace AppExecFwk {

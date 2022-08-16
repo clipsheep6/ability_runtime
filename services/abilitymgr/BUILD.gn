@@ -50,12 +50,12 @@ config("abilityms_config") {
     "//base/account/os_account/frameworks/common/account_error/include",
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
-    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara/include",
     "${ability_runtime_innerkits_path}/wantagent/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${bgtaskmgr_interfaces_path}/innerkits/include",
     "${bgtaskmgr_frameworks_path}/common/include",
     "${bgtaskmgr_frameworks_path}/include",
+    "${init_path}/interfaces/innerkits/include/syspara/",
   ]
 
   defines = []
@@ -122,20 +122,22 @@ ohos_shared_library("abilityms") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
     "dsoftbus:softbus_client",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "samgr:samgr_proxy",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

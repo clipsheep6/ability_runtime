@@ -17,6 +17,7 @@
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
+#include "authorization_result.h"
 #include "bundle_constants.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
@@ -25,6 +26,9 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "hitrace_meter.h"
+#include "remote_object_wrapper.h"
+#include "string_wrapper.h"
+#include "want_params_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -34,6 +38,8 @@ const std::string GRANT_ABILITY_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string GRANT_ABILITY_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const std::string PERMISSION_KEY = "ohos.user.grant.permission";
 const std::string STATE_KEY = "ohos.user.grant.permission.state";
+const std::string TOKEN_KEY = "ohos.ability.params.token";
+const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 }
 
 ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
@@ -388,7 +394,7 @@ void AbilityContext::GetPermissionDes(const std::string &permissionName, std::st
 }
 
 void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permissions,
-    std::vector<int> &permissionsState, int requestCode)
+    std::vector<int> &permissionsState, PermissionRequestTask &&task)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
     if (permissions.size() == 0) {
@@ -396,16 +402,14 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
         return;
     }
 
-    if (requestCode < 0) {
-        HILOG_ERROR("AbilityContext::RequestPermissionsFromUser requestCode should be >= 0");
-        return;
-    }
-
     AAFwk::Want want;
     want.SetElementName(GRANT_ABILITY_BUNDLE_NAME, GRANT_ABILITY_ABILITY_NAME);
     want.SetParam(PERMISSION_KEY, permissions);
     want.SetParam(STATE_KEY, permissionsState);
-    StartAbility(want, requestCode);
+    want.SetParam(TOKEN_KEY, token_);
+    sptr<IRemoteObject> remoteObject = new AbilityRuntime::AuthorizationResult(std::move(task));
+    want.SetParam(CALLBACK_KEY, remoteObject);
+    StartAbility(want, -1);
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 

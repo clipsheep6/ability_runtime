@@ -11,10 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//arkcompiler/ets_frontend/ts2panda/ts2abc_config.gni")
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 
-ts2abc_gen_abc("gen_caller_abc") {
+es2abc_gen_abc("gen_caller_abc") {
   src_js = rebase_path("caller.js")
   dst_file = rebase_path(target_out_dir + "/caller.abc")
   in_puts = [ "caller.js" ]

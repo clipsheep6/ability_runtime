@@ -88,8 +88,9 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
         .SetParam(Constants::FORM_CONNECT_ID, 100L)
         .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 100L)
         .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
-    int64_t formId = 1001L;
-    instance_->AcquireProviderFormInfo(formId, want, callerToken);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1001L;
+    instance_->AcquireProviderFormInfo(formJsInfo, want, callerToken);
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0100 end";
 }
@@ -113,8 +114,9 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
         .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 200L)
         .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
 
-    int64_t formId = 1002L;
-    instance_->AcquireProviderFormInfo(formId, want, callerToken);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1002L;
+    instance_->AcquireProviderFormInfo(formJsInfo, want, callerToken);
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0200 end";
 }
@@ -138,8 +140,9 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
         .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 300L)
         .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
 
-    int64_t formId = 1003L;
-    instance_->AcquireProviderFormInfo(formId, want, callerToken);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1003L;
+    instance_->AcquireProviderFormInfo(formJsInfo, want, callerToken);
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0300 end";
 }
@@ -165,8 +168,9 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
         .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 400L)
         .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
 
-    int64_t formId = 1004L;
-    instance_->AcquireProviderFormInfo(formId, want, callerToken);
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1004L;
+    instance_->AcquireProviderFormInfo(formJsInfo, want, callerToken);
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0400 end";
 }
@@ -191,8 +195,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireProviderFormInf
         .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
 
     const sptr<IRemoteObject> callerToken = nullptr;
-    int64_t formId = 1005L;
-    EXPECT_EQ(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED, instance_->AcquireProviderFormInfo(formId, want, callerToken));
+    FormJsInfo formJsInfo;
+    formJsInfo.formId = 1005L;
+    EXPECT_EQ(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED,
+        instance_->AcquireProviderFormInfo(formJsInfo, want, callerToken));
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireProviderFormInfo_0500 end";
 }
 

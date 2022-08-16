@@ -56,7 +56,7 @@ ConnectServerManager& ConnectServerManager::Get()
 
 void ConnectServerManager::StartConnectServer(const std::string& bundleName)
 {
-    HILOG_INFO("ConnectServerManager::StartConnectServer Start connect server");
+    HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
     handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
     if (handlerConnectServerSo_ == nullptr) {
         HILOG_ERROR("ConnectServerManager::StartConnectServer failed to open register library");
@@ -73,7 +73,7 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName)
 
 void ConnectServerManager::StopConnectServer()
 {
-    HILOG_INFO("ConnectServerManager::StopConnectServer Stop connect server");
+    HILOG_DEBUG("ConnectServerManager::StopConnectServer Stop connect server");
     if (handlerConnectServerSo_ == nullptr) {
         HILOG_ERROR("ConnectServerManager::StopConnectServer handlerConnectServerSo_ is nullptr");
         return;
@@ -90,7 +90,7 @@ void ConnectServerManager::StopConnectServer()
 
 bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& instanceName)
 {
-    HILOG_INFO("ConnectServerManager::AddInstance Add instance to connect server");
+    HILOG_DEBUG("ConnectServerManager::AddInstance Add instance to connect server");
     if (handlerConnectServerSo_ == nullptr) {
         HILOG_ERROR("ConnectServerManager::AddInstance handlerConnectServerSo_ is nullptr");
         return false;
@@ -138,7 +138,7 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
 
 void ConnectServerManager::RemoveInstance(int32_t instanceId)
 {
-    HILOG_INFO("ConnectServerManager::RemoveInstance Remove instance to connect server");
+    HILOG_DEBUG("ConnectServerManager::RemoveInstance Remove instance to connect server");
     if (handlerConnectServerSo_ == nullptr) {
         HILOG_ERROR("ConnectServerManager::RemoveInstance handlerConnectServerSo_ is nullptr");
         return;

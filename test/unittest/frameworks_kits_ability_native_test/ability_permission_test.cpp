@@ -118,33 +118,5 @@ HWTEST_F(AbilityPermissionTest, AaFwk_AbilityPermissionTest_VerifyPermission_010
 
     context_->VerifyPermission(permission_name, 0, 10);
 }
-
-/**
- * @tc.number: AaFwk_AbilityPermissionTest_RequestPermissionsFromUser_0100
- * @tc.name: RequestPermissionsFromUser
- * @tc.desc: Verify that requestpermissionsfromuser is called.
- */
-HWTEST_F(
-    AbilityPermissionTest, AaFwk_AbilityPermissionTest_RequestPermissionsFromUser_0100, Function | MediumTest | Level1)
-{
-    if (context_ == nullptr) {
-        EXPECT_EQ(true, context_ != nullptr);
-        return;
-    }
-
-    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-    std::string name = "hello";
-    appInfo->bundleName = name;
-    std::vector<std::string> permissions;
-    permissions.emplace_back("permission_1");
-    permissions.emplace_back("permission_2");
-    permissions.emplace_back("permission_3");
-    std::vector<int> permissionsState(permissions.size(), -1);
-
-    std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
-    deal->SetApplicationInfo(appInfo);
-    context_->AttachBaseContext(deal);
-    context_->RequestPermissionsFromUser(permissions, permissionsState, 1004);
-}
 }  // namespace AppExecFwk
 }  // namespace OHOS

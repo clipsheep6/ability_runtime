@@ -55,7 +55,6 @@
 #include "os_account_manager_wrapper.h"
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
-#include "parameter.h"
 #include "event_report.h"
 #include "hisysevent.h"
 #include "connection_state_manager.h"
@@ -122,6 +121,9 @@ const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.syste
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
+const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
+const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
+const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -165,6 +167,17 @@ const std::map<std::string, AbilityManagerService::DumpsysKey> AbilityManagerSer
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-r", KEY_DUMPSYS_PROCESS),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("--data", KEY_DUMPSYS_DATA),
     std::map<std::string, AbilityManagerService::DumpsysKey>::value_type("-d", KEY_DUMPSYS_DATA),
+};
+
+const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::windowModeMap = {
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FULLSCREEN,
+        AppExecFwk::SupportWindowMode::FULLSCREEN),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_PRIMARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_SECONDARY,
+        AppExecFwk::SupportWindowMode::SPLIT),
+    std::map<int32_t, AppExecFwk::SupportWindowMode>::value_type(MULTI_WINDOW_DISPLAY_FLOATING,
+        AppExecFwk::SupportWindowMode::FLOATING),
 };
 
 const bool REGISTER_RESULT =
@@ -214,6 +227,10 @@ void AbilityManagerService::OnStart()
         return;
     }
 
+    SetParameter(BOOTEVENT_APPFWK_READY.c_str(), "true");
+
+    WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), AAFwk::ApplicationUtil::AppFwkBootEventCallback, nullptr);
+
     HILOG_INFO("AMS start success.");
 }
 
@@ -254,6 +271,8 @@ bool AbilityManagerService::Init()
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     anrListener_ = std::make_shared<ApplicationAnrListener>();
     MMI::InputManager::GetInstance()->SetAnrObserver(anrListener_);
+    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+        amsConfigResolver_->GetBootAnimationTimeoutTime());
 #endif
     anrDisposer_ = std::make_shared<AppNoResponseDisposer>(amsConfigResolver_->GetANRTimeOutTime());
 
@@ -792,6 +811,13 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
             HiSysEventType::FAULT, eventInfo);
         return ERR_INVALID_VALUE;
     }
+
+#ifdef SUPPORT_GRAPHICS
+    if (!CheckWindowMode(startOptions.GetWindowMode(), abilityInfo.windowModes)) {
+        return ERR_AAFWK_INVALID_WINDOW_MODE;
+    }
+#endif
+
     auto ret = missionListManager->StartAbility(abilityRequest);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
@@ -1400,7 +1426,7 @@ int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called.");
+    HILOG_INFO("Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     AAFWK::EventInfo eventInfo;
@@ -3162,7 +3188,7 @@ void AbilityManagerService::OnAbilityDied(std::shared_ptr<AbilityRecord> ability
     CHECK_POINTER(abilityRecord);
 
     auto manager = GetListManagerByUserId(abilityRecord->GetOwnerMissionUserId());
-    if (manager) {
+    if (manager && abilityRecord->GetAbilityInfo().type == AbilityType::PAGE) {
         manager->OnAbilityDied(abilityRecord, GetUserId());
         return;
     }
@@ -4984,6 +5010,25 @@ int AbilityManagerService::StartAppgallery(int requestCode, int32_t userId, std:
     want.SetElementName(MARKET_BUNDLE_NAME, "");
     want.SetAction(action);
     return StartAbilityInner(want, nullptr, requestCode, -1, userId);
+}
+
+bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
+    const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const
+{
+    HILOG_INFO("Window mode is %{public}d.", windowMode);
+    if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED) {
+        return true;
+    }
+    auto it = windowModeMap.find(windowMode);
+    if (it != windowModeMap.end()) {
+        auto bmsWindowMode = it->second;
+        for (auto mode : windowModes) {
+            if (mode == bmsWindowMode) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

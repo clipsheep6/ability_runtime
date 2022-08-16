@@ -146,6 +146,10 @@ public:
     void HandleAppDied(int32_t pid);
 
 private:
+    bool CheckDataAbilityConnectionParams(const DataAbilityCaller &caller,
+        const std::shared_ptr<DataAbilityRecord> &record) const;
+
+private:
     class InnerAppStateObserver : public AppExecFwk::ApplicationStateObserverStub {
     public:
         using ProcessDiedHandler = std::function<void(int32_t)>;

@@ -47,6 +47,7 @@ struct InnerMissionInfo {
     int32_t startMethod;
     std::string bundleName;
     int32_t uid;
+    bool isTemporary;
 
     std::string ToJsonStr() const;
     bool FromJsonStr(const std::string &jsonStr);

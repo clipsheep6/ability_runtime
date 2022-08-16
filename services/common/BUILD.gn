@@ -44,9 +44,9 @@ ohos_shared_library("perm_verification") {
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"

@@ -29,7 +29,7 @@ JsErrorObserver::JsErrorObserver(NativeEngine& engine) : engine_(engine) {}
 
 JsErrorObserver::~JsErrorObserver() = default;
 
-void JsErrorObserver::OnUnhandledException(std::string errMsg)
+void JsErrorObserver::OnUnhandledException(const std::string errMsg)
 {
     HILOG_DEBUG("OnUnhandledException come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
@@ -74,15 +74,17 @@ void JsErrorObserver::CallJsFunction(NativeValue* value, const char* methodName,
     engine_.CallFunction(value, method, argv, argc);
 }
 
-void JsErrorObserver::AddJsObserverObject(int32_t observerId, NativeValue* jsObserverObject)
+void JsErrorObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject)
 {
     jsObserverObjectMap_.emplace(
         observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
 }
 
-bool JsErrorObserver::RemoveJsObserverObject(int32_t observerId)
+bool JsErrorObserver::RemoveJsObserverObject(const int32_t observerId, bool &isEmpty)
 {
-    return jsObserverObjectMap_.erase(observerId) == 1;
+    bool result = (jsObserverObjectMap_.erase(observerId) == 1);
+    isEmpty = jsObserverObjectMap_.empty();
+    return result;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

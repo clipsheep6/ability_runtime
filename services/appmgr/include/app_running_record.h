@@ -79,13 +79,13 @@ private:
 
     pid_t pid_ = 0;
     pid_t hostPid_ = 0;
-    int32_t hostUid_;
+    int32_t hostUid_ = 0;
     std::string hostBundleName_;
     std::string renderParam_;
     int32_t ipcFd_ = 0;
     int32_t sharedFd_ = 0;
     std::weak_ptr<AppRunningRecord> host_; // nweb host
-    sptr<IRenderScheduler> renderScheduler_;
+    sptr<IRenderScheduler> renderScheduler_ = nullptr;
     sptr<AppDeathRecipient> deathRecipient_ = nullptr;
 };
 
@@ -458,8 +458,13 @@ public:
 
     bool IsKeepAliveApp() const;
 
-    // Please use with caution, it may affect the ability to start.
-    void SetKeepAliveAppState(bool isKeepAlive, bool isNewMission);
+    bool IsEmptyKeepAliveApp() const;
+
+    void SetKeepAliveAppState(bool isKeepAlive, bool isEmptyKeepAliveApp);
+
+    void SetEmptyKeepAliveAppState(bool isEmptyKeepAlive);
+
+    void SetStageModelState(bool isStageBasedModel);
 
     std::list<std::shared_ptr<ModuleRunningRecord>> GetAllModuleRecord() const;
 
@@ -565,7 +570,8 @@ private:
 
 private:
     bool isKeepAliveApp_ = false;  // Only resident processes can be set to true, please choose carefully
-    bool isNewMission_ = false;
+    bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
+    bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
 
     std::shared_ptr<ApplicationInfo> appInfo_ = nullptr;  // the application's info of this process

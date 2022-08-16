@@ -43,7 +43,6 @@ using NAPICallOnRequestPermissionsFromUserResult = void (*)(int requestCode,
 
 std::shared_ptr<AbilityProcess> AbilityProcess::instance_ = nullptr;
 std::map<Ability *, std::map<int, CallbackInfo>> AbilityProcess::abilityResultMap_;
-std::map<Ability *, std::map<int, CallbackInfo>> AbilityProcess::abilityRequestPermissionsForUserMap_;
 std::mutex AbilityProcess::mutex_;
 std::shared_ptr<AbilityProcess> AbilityProcess::GetInstance()
 {
@@ -217,66 +216,26 @@ void AbilityProcess::RequestPermissionsFromUser(
     HILOG_DEBUG("%{public}s. permissions size: %{public}zu. permissionsState size: %{public}zu",
         __func__, param.permission_list.size(), permissionsState.size());
 
+    auto requestCode = param.requestCode;
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
         HILOG_DEBUG("%{public}s. No dynamic popup required.", __func__);
-        (void)CaullFunc(param.requestCode, param.permission_list, permissionsState, callbackInfo);
+        (void)CaullFunc(requestCode, param.permission_list, permissionsState, callbackInfo);
         return;
     }
 
-    ability->RequestPermissionsFromUser(param.permission_list, permissionsState, param.requestCode);
-
-    {
-        std::lock_guard<std::mutex> lock_l(mutex_);
-        std::map<int, CallbackInfo> map;
-        auto it = abilityRequestPermissionsForUserMap_.find(ability);
-        if (it == abilityRequestPermissionsForUserMap_.end()) {
-            HILOG_INFO("AbilityProcess::RequestPermissionsFromUser ability: is not in the "
-                "abilityRequestPermissionsForUserMap_");
-        } else {
-            HILOG_INFO("AbilityProcess::RequestPermissionsFromUser ability: is in the "
-                "abilityRequestPermissionsForUserMap_");
-            map = it->second;
+    auto task = [self = GetInstance(), requestCode, callbackInfo]
+        (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
+        if (!self) {
+            HILOG_ERROR("%{public}s: self is nullptr.", __func__);
+            return;
         }
+        if (!self->CaullFunc(requestCode, permissions, grantResults, callbackInfo)) {
+            HILOG_ERROR("%{public}s: call function failed.", __func__);
+            return;
+        }
+    };
 
-        map[param.requestCode] = callbackInfo;
-        abilityRequestPermissionsForUserMap_[ability] = map;
-    }
-}
-
-void AbilityProcess::OnRequestPermissionsFromUserResult(Ability *ability, int requestCode,
-    const std::vector<std::string> &permissions, const std::vector<int> &permissionsState)
-{
-    HILOG_INFO("AbilityProcess::OnRequestPermissionsFromUserResult begin");
-    if (ability == nullptr) {
-        HILOG_ERROR("AbilityProcess::OnRequestPermissionsFromUserResult ability is nullptr");
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock_l(mutex_);
-
-    auto it = abilityRequestPermissionsForUserMap_.find(ability);
-    if (it == abilityRequestPermissionsForUserMap_.end()) {
-        HILOG_ERROR("AbilityProcess::OnRequestPermissionsFromUserResult ability: is not in the "
-            "abilityRequestPermissionsForUserMap_");
-        return;
-    }
-    std::map<int, CallbackInfo> map = it->second;
-
-    auto callback = map.find(requestCode);
-    if (callback == map.end()) {
-        HILOG_ERROR("AbilityProcess::OnRequestPermissionsFromUserResult requestCode: %{public}d is not in the map",
-            requestCode);
-        return;
-    }
-    CallbackInfo callbackInfo = callback->second;
-    if (!CaullFunc(requestCode, permissions, permissionsState, callbackInfo)) {
-        HILOG_ERROR("AbilityProcess::OnRequestPermissionsFromUserResult call function failed.");
-        return;
-    }
-    map.erase(requestCode);
-
-    abilityRequestPermissionsForUserMap_[ability] = map;
-    HILOG_INFO("AbilityProcess::OnRequestPermissionsFromUserResult end");
+    ability->RequestPermissionsFromUser(param.permission_list, permissionsState, std::move(task));
 }
 
 bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &permissions,

@@ -23,6 +23,8 @@
 #include "ability_util.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -62,6 +64,18 @@ static bool IsCrowdtestExpired(const Want &want, int32_t userId)
         return true;
     }
     return false;
+}
+
+[[maybe_unused]] static void AppFwkBootEventCallback(const char *key, const char *value, void *context)
+{
+    if (strcmp(key, "bootevent.boot.completed") == 0 && strcmp(value, "true") == 0) {
+        HILOG_INFO("%{public}s %{public}s is true", __func__, key);
+        Want want;
+        want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_BOOT_COMPLETED);
+        EventFwk::CommonEventData commonData {want};
+        EventFwk::CommonEventManager::PublishCommonEvent(commonData);
+        HILOG_INFO("%{public}s BootEvent completed", __func__);
+    }
 }
 }  // namespace ApplicationlUtil
 }  // namespace AAFwk

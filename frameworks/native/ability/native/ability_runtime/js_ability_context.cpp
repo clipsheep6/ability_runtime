@@ -967,7 +967,7 @@ NativeValue* JsAbilityContext::OnRequestPermissionsFromUser(NativeEngine& engine
         asyncTask->Reject(engine, CreateJsError(engine, 1, "context is released!"));
     } else {
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        context->RequestPermissionsFromUser(permissionList, curRequestCode_, std::move(task));
+        context->RequestPermissionsFromUser(engine, permissionList, curRequestCode_, std::move(task));
     }
     HILOG_INFO("OnRequestPermissionsFromUser is called end");
     return result;

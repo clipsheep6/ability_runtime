@@ -38,6 +38,7 @@ ohos_shared_library("ability_context_native") {
   sources = [
     "ability_runtime/ability_connection.cpp",
     "ability_runtime/ability_context_impl.cpp",
+    "ability_runtime/authorization_result.cpp",
     "ability_runtime/connection_manager.cpp",
     "ability_runtime/js_extension_context.cpp",
     "ability_runtime/local_call_container.cpp",
@@ -50,18 +51,20 @@ ohos_shared_library("ability_context_native") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "access_token:libaccesstoken_sdk",
+    "access_token:libtoken_callback_sdk",
+    "c_utils:utils",
     "faultloggerd:lib_dfx_dump_catcher",
     "hichecker_native:libhichecker",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"

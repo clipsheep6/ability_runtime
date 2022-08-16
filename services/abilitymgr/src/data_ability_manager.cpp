@@ -645,7 +645,7 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
     }
 
     for (size_t i = 0; i < bundleInfos.size(); i++) {
-        if (!bundleInfos[i].isKeepAlive) {
+        if (!bundleInfos[i].isKeepAlive || bundleInfos[i].applicationInfo.process.empty()) {
             continue;
         }
         for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
@@ -655,7 +655,8 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
             }
             // old application model, it maybe a data ability
             std::string mainElement = hapModuleInfo.mainAbility;
-            if (abilityRecord->GetAbilityInfo().name != mainElement) {
+            if (abilityRecord->GetAbilityInfo().name != mainElement ||
+                abilityRecord->GetAbilityInfo().process != bundleInfos[i].applicationInfo.process) {
                 continue;
             }
             std::string uriStr;

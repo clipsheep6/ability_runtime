@@ -65,6 +65,8 @@ const int ONE = 1;
 const int TWO = 2;
 const int64_t TIMEOUT = 50;
 const std::string CMD = "ls -l";
+const std::string PROPERTY_ABILITY_STAGE_MODULE_NAME = "com.example.entry_test";
+const std::string PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE = "./ets/Application/TestAbilityStage.ts";
 }  // namespace
 
 class AbilityDelegatorModuleTest : public ::testing::Test {
@@ -1059,4 +1061,51 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_2500, Function 
     abilityDelegator->FinishUserTest(FINISH_MSG, FINISH_RESULT_CODE);
 
     EXPECT_FALSE(MockAbilityDelegatorStub2::finishFlag_);
+}
+
+/**
+ * @tc.number: Ability_Delegator_Args_Test_2600
+ * @tc.name: AddAbilityStageMonitor and RemoveAbilityStageMonitor and GetStageMonitorsNum
+ * @tc.desc: Verify the AddAbilityStageMonitor and RemoveAbilityStageMonitor and GetMonitorsNum.
+ */
+HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_2600, Function | MediumTest | Level1)
+{
+    HILOG_INFO("Ability_Delegator_Args_Test_2600 is called");
+    std::map<std::string, std::string> paras;
+    paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
+    paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
+    paras.emplace(KEY_TEST_CASE, VALUE_TEST_CASE);
+    paras.emplace(KEY_TEST_WAIT_TIMEOUT, VALUE_TEST_WAIT_TIMEOUT);
+
+    Want want;
+    for (auto para : paras) {
+        want.SetParam(para.first, para.second);
+    }
+    std::shared_ptr<OHOS::AbilityRuntime::Context> context = std::make_shared<OHOS::AbilityRuntime::ContextImpl>();
+    std::unique_ptr<TestRunner> testRunner = TestRunner::Create(
+        std::shared_ptr<OHOSApplication>(ApplicationLoader::GetInstance().GetApplicationByName())->GetRuntime(),
+        std::make_shared<AbilityDelegatorArgs>(want),
+        true);
+    sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new MockAbilityDelegatorStub());
+    AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
+
+    std::shared_ptr<IAbilityStageMonitor> monitor1 = std::make_shared<IAbilityStageMonitor>(
+        PROPERTY_ABILITY_STAGE_MODULE_NAME, PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE);
+    std::shared_ptr<IAbilityStageMonitor> monitor2 = std::make_shared<IAbilityStageMonitor>(
+        PROPERTY_ABILITY_STAGE_MODULE_NAME, PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE);
+
+    abilityDelegator.AddAbilityStageMonitor(monitor1);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ONE);
+    abilityDelegator.AddAbilityStageMonitor(monitor1);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ONE);
+    abilityDelegator.AddAbilityStageMonitor(monitor2);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), TWO);
+    abilityDelegator.RemoveAbilityStageMonitor(monitor1);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ONE);
+    abilityDelegator.RemoveAbilityStageMonitor(monitor1);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ONE);
+    abilityDelegator.RemoveAbilityStageMonitor(monitor2);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ZERO);
+    abilityDelegator.RemoveAbilityStageMonitor(monitor2);
+    EXPECT_EQ((int)(abilityDelegator.GetStageMonitorsNum()), ZERO);
 }

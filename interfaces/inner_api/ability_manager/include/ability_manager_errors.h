@@ -253,6 +253,7 @@ enum {
      * Result(2097198) for parcel fail.
      */
     ERR_AAFWK_PARCEL_FAIL,
+
     /**
      * Result(2097199) for for implicit start ability is failed.
      */
@@ -262,6 +263,11 @@ enum {
      * Result(2097200) for instance reach to upper limit.
      */
     ERR_REACH_UPPER_LIMIT,
+
+    /**
+     * Result(2097201) for window mode.
+     */
+    ERR_AAFWK_INVALID_WINDOW_MODE,
 };
 
 enum {

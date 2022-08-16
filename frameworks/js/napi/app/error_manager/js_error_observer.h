@@ -27,9 +27,9 @@ class JsErrorObserver : public AppExecFwk::IErrorObserver,
 public:
     explicit JsErrorObserver(NativeEngine& engine);
     ~JsErrorObserver();
-    void OnUnhandledException(std::string errMsg) override;
-    void AddJsObserverObject(int32_t observerId, NativeValue* jsObserverObject);
-    bool RemoveJsObserverObject(int32_t observerId);
+    void OnUnhandledException(const std::string errMsg) override;
+    void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject);
+    bool RemoveJsObserverObject(const int32_t observerId, bool &isEmpty);
 
 private:
     void CallJsFunction(NativeValue* value, const char* methodName, NativeValue* const* argv, size_t argc);

@@ -54,9 +54,15 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
+    bool isStageBasedModel = false;
     ClipStringContent(rule, bundleInfo.appId, signCode);
+    if (!bundleInfo.hapModuleInfos.empty()) {
+        isStageBasedModel = bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    }
+    HILOG_DEBUG("Create AppRunningRecord, processName: %{public}s, StageBasedModel:%{public}d, recordId: %{public}d",
+        processName.c_str(), isStageBasedModel, recordId);
 
-    HILOG_INFO("Create AppRunningRecord, processName: %{public}s, recordId: %{public}d", processName.c_str(), recordId);
+    appRecord->SetStageModelState(isStageBasedModel);
     appRecord->SetSignCode(signCode);
     appRecord->SetJointUserId(bundleInfo.jointUserId);
     appRunningRecordMap_.emplace(recordId, appRecord);
@@ -376,7 +382,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     }
     appRecord->TerminateAbility(token, false);
 
-    if (isLastAbilityRecord && !appRecord->IsKeepAliveApp()) {
+    auto isKeepAliveApp = appRecord->IsKeepAliveApp();
+    auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
+    if (isLastAbilityRecord && !isKeepAliveApp && !isLauncherApp) {
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (isClearMission) {

@@ -46,11 +46,11 @@ ohos_shared_library("abilitydelegatorregistry") {
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "ipc_js:rpc",
     "napi:ace_napi",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "module/application"

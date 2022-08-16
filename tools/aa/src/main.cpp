@@ -28,5 +28,6 @@ int main(int argc, char *argv[])
         OHOS::AAFwk::AbilityToolCommand cmd(argc, argv);
         std::cout << cmd.ExecCommand();
     }
+    fflush(stdout);
     _exit(0);
 }

@@ -15,6 +15,7 @@
 
 #include "mission_info_mgr.h"
 
+#include "ability_manager_service.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #ifdef SUPPORT_GRAPHICS
@@ -183,8 +184,10 @@ bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListener
         return false;
     }
 
+    auto abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
+
     for (auto listIter = missionInfoList_.begin(); listIter != missionInfoList_.end();) {
-        if (!(listIter->missionInfo.lockedState)) {
+        if (!((listIter->missionInfo.lockedState) || (abilityMs_->IsBackgroundTaskUid(listIter->uid)))) {
             missionIdMap_.erase(listIter->missionInfo.id);
             taskDataPersistenceMgr_->DeleteMissionInfo(listIter->missionInfo.id);
             if (listenerController) {

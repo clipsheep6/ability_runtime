@@ -37,7 +37,7 @@ HdcRegister& HdcRegister::Get()
 
 void HdcRegister::StartHdcRegister(const std::string& bundleName)
 {
-    HILOG_INFO("HdcRegister::StartHdcRegister begin");
+    HILOG_DEBUG("HdcRegister::StartHdcRegister begin");
 
     registerHandler_ = dlopen("libhdc_register.z.so", RTLD_LAZY);
     if (registerHandler_ == nullptr) {
@@ -50,12 +50,12 @@ void HdcRegister::StartHdcRegister(const std::string& bundleName)
         return;
     }
     startRegister(bundleName);
-    HILOG_INFO("HdcRegister::StartHdcRegister end");
+    HILOG_DEBUG("HdcRegister::StartHdcRegister end");
 }
 
 void HdcRegister::StopHdcRegister()
 {
-    HILOG_INFO("HdcRegister::StopHdcRegister begin");
+    HILOG_DEBUG("HdcRegister::StopHdcRegister begin");
     if (registerHandler_ == nullptr) {
         HILOG_ERROR("HdcRegister::StopHdcRegister registerHandler_ is nullptr");
         return;
@@ -68,6 +68,6 @@ void HdcRegister::StopHdcRegister()
     }
     dlclose(registerHandler_);
     registerHandler_ = nullptr;
-    HILOG_INFO("HdcRegister::StopHdcRegister end");
+    HILOG_DEBUG("HdcRegister::StopHdcRegister end");
 }
 } // namespace OHOS::AbilityRuntime

@@ -105,10 +105,14 @@ private:
                     return;
                 }
                 auto observer = observerWptr.lock();
-                if (observer && observer->RemoveJsObserverObject(observerId)) {
+                bool isEmpty = false;
+                if (observer && observer->RemoveJsObserverObject(observerId, isEmpty)) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
                     task.Reject(engine, CreateJsError(engine, ERROR_CODE, "observer is not exist!"));
+                }
+                if (isEmpty) {
+                    AppExecFwk::ApplicationDataManager::GetInstance().RemoveErrorObserver();
                 }
             };
 

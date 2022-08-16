@@ -267,22 +267,6 @@ public:
     virtual void OnDisconnect(const Want &want);
 
     /**
-     * @brief Called back after permissions are requested by using
-     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int).
-     *
-     * @param requestCode Indicates the request code passed to this method from
-     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int).
-     * @param permissions Indicates the list of permissions requested by using
-     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int). This parameter cannot be null.
-     * @param grantResults Indicates the granting results of the corresponding permissions requested using
-     * AbilityContext.requestPermissionsFromUser(java.lang.String[],int). The value 0 indicates that a
-     * permission is granted, and the value -1 indicates not.
-     *
-     */
-    virtual void OnRequestPermissionsFromUserResult(
-        int requestCode, const std::vector<std::string> &permissions, const std::vector<int> &grantResults);
-
-    /**
      * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
      * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
      *
@@ -1346,6 +1330,8 @@ public:
      * @return Returns the created FormProviderInfo object.
      */
     virtual FormProviderInfo OnCreate(const Want &want);
+
+    virtual bool OnShare(int64_t formId, AAFwk::WantParams &wantParams);
 
     /**
      * @brief Called to notify the form provider that a specified form has been deleted. Override this method if

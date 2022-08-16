@@ -33,6 +33,7 @@ do {                                                        \
     }                                                       \
 } while (0)
 constexpr int32_t BUSINESS_ERROR_CODE_OK = 0;
+constexpr int32_t PARAMETER_ERROR = -1;
 
 TriggerCompleteCallBack::TriggerCompleteCallBack()
 {}
@@ -49,6 +50,18 @@ void TriggerCompleteCallBack::SetCallbackInfo(const napi_env &env, const napi_re
 void TriggerCompleteCallBack::SetWantAgentInstance(const std::shared_ptr<WantAgent> &wantAgent)
 {
     triggerCompleteInfo_.wantAgent = wantAgent;
+}
+
+napi_value JSParaError(const napi_env &env, const bool bCallback)
+{
+    if (bCallback) {
+        return NapiGetNull(env);
+    }
+    napi_value promise = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_create_promise(env, &deferred, &promise);
+    napi_reject_deferred(env, deferred, GetCallbackErrorResult(env, PARAMETER_ERROR));
+    return promise;
 }
 
 auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t *work, int status) {
@@ -325,20 +338,26 @@ napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_INFO("WantAgent napi_unwrap error");
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncGetBundleNameCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetBundleNameCallbackInfo {
@@ -347,7 +366,8 @@ napi_value NAPI_GetBundleName(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 
@@ -464,19 +484,26 @@ napi_value NAPI_GetUid(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncGetUidCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetUidCallbackInfo {
@@ -485,7 +512,8 @@ napi_value NAPI_GetUid(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 
@@ -600,19 +628,26 @@ napi_value NAPI_GetWant(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncGetWantCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetWantCallbackInfo {
@@ -621,7 +656,8 @@ napi_value NAPI_GetWant(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 
@@ -750,19 +786,26 @@ napi_value NAPI_Cancel(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncCancelCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncCancelCallbackInfo {
@@ -771,7 +814,8 @@ napi_value NAPI_Cancel(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 
@@ -844,7 +888,7 @@ napi_value NAPI_GetTriggerInfo(napi_value argv[NUMBER_OF_PARAMETERS_THREE], uint
     // Get triggerInfo code
     int32_t code = -1;
     if (!UnwrapInt32ByPropertyName(env, jsTriggerInfo, "code", code)) {
-        return NapiGetNull(env);
+        return nullptr;
     }
     // Get triggerInfo want
     napi_value jsWant = nullptr;
@@ -853,7 +897,7 @@ napi_value NAPI_GetTriggerInfo(napi_value argv[NUMBER_OF_PARAMETERS_THREE], uint
     if (jsWant != nullptr) {
         want = std::make_shared<AAFwk::Want>();
         if (!UnwrapWant(env, jsWant, *want)) {
-            return NapiGetNull(env);
+            return nullptr;
         }
     }
     // Get triggerInfo permission
@@ -866,7 +910,7 @@ napi_value NAPI_GetTriggerInfo(napi_value argv[NUMBER_OF_PARAMETERS_THREE], uint
     if (jsExtraInfo != nullptr) {
         extraInfo = std::make_shared<AAFwk::WantParams>();
         if (!UnwrapWantParams(env, jsExtraInfo, *extraInfo)) {
-            return NapiGetNull(env);
+            return nullptr;
         }
     }
 
@@ -884,26 +928,34 @@ napi_value NAPI_Trigger(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_THREE) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[NUMBER_OF_PARAMETERS_TWO], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
 
     TriggerInfo triggerInfo;
     napi_value ret = NAPI_GetTriggerInfo(argv, NUMBER_OF_PARAMETERS_THREE, env, info, triggerInfo);
     if (ret == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Get trigger info error");
+        return JSParaError(env, callBackMode);
     }
 
     AsyncTriggerCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncTriggerCallbackInfo {
@@ -912,7 +964,8 @@ napi_value NAPI_Trigger(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     asyncCallbackInfo->triggerInfo = triggerInfo;
@@ -1026,29 +1079,40 @@ napi_value NAPI_Equal(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentFirstType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentFirstType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentFirstType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentFirstType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgentFirst = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgentFirst));
     if (pWantAgentFirst == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     napi_valuetype wantAgentSecondType = napi_valuetype::napi_null;
     napi_typeof(env, argv[1], &wantAgentSecondType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentSecondType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentSecondType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgentSecond = nullptr;
     napi_unwrap(env, argv[1], (void **)&(pWantAgentSecond));
     if (pWantAgentSecond == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_THREE) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[NUMBER_OF_PARAMETERS_TWO], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncEqualCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncEqualCallbackInfo {
@@ -1057,7 +1121,8 @@ napi_value NAPI_Equal(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgentFirst = std::make_shared<WantAgent>(*pWantAgentFirst);
     asyncCallbackInfo->wantAgentSecond = std::make_shared<WantAgent>(*pWantAgentSecond);
@@ -1205,12 +1270,15 @@ napi_value NAPI_GetWantAgentWants(napi_env env, napi_value jsWantAgentInfo, cons
 {
     napi_valuetype jsWantAgentInfoType = napi_valuetype::napi_null;
     NAPI_CALL(env, napi_typeof(env, jsWantAgentInfo, &jsWantAgentInfoType));
-    NAPI_ASSERT_RETURN_NULL(env, jsWantAgentInfoType == napi_object, "param type mismatch!");
+    if (jsWantAgentInfoType != napi_object) {
+        HILOG_ERROR("param type mismatch!");
+        return nullptr;
+    }
 
     napi_value jsWants = GetPropertyValueByPropertyName(env, jsWantAgentInfo, "wants", napi_object);
     bool isArray = false;
     if (jsWants == nullptr || napi_is_array(env, jsWants, &isArray) != napi_ok || !isArray) {
-        return NapiGetNull(env);
+        return nullptr;
     }
 
     uint32_t wantsLen = 0;
@@ -1220,18 +1288,18 @@ napi_value NAPI_GetWantAgentWants(napi_env env, napi_value jsWantAgentInfo, cons
         napi_value jsWant = nullptr;
         napi_get_element(env, jsWants, i, &jsWant);
         if (!UnwrapWant(env, jsWant, *want)) {
-            return NapiGetNull(env);
+            return nullptr;
         }
         paras.wants.emplace_back(want);
     }
 
     // Get operationType
     if (!UnwrapInt32ByPropertyName(env, jsWantAgentInfo, "operationType", paras.operationType)) {
-        return NapiGetNull(env);
+        return nullptr;
     }
     // Get requestCode
     if (!UnwrapInt32ByPropertyName(env, jsWantAgentInfo, "requestCode", paras.requestCode)) {
-        return NapiGetNull(env);
+        return nullptr;
     }
     // Get wantAgentFlags
     napi_value JsWantAgentFlags = GetPropertyValueByPropertyName(env, jsWantAgentInfo, "wantAgentFlags", napi_object);
@@ -1244,7 +1312,10 @@ napi_value NAPI_GetWantAgentWants(napi_env env, napi_value jsWantAgentInfo, cons
             napi_get_element(env, JsWantAgentFlags, i, &napiWantAgentFlags);
             napi_valuetype valuetype0 = napi_valuetype::napi_null;
             NAPI_CALL(env, napi_typeof(env, napiWantAgentFlags, &valuetype0));
-            NAPI_ASSERT_RETURN_NULL(env, valuetype0 == napi_number, "Wrong argument type. Numbers expected.");
+            if (valuetype0 != napi_number) {
+                HILOG_ERROR("Wrong argument type. Numbers expected.");
+                return nullptr;
+            }
             int32_t value0 = 0;
             NAPI_CALL(env, napi_get_value_int32(env, napiWantAgentFlags, &value0));
             paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(value0));
@@ -1254,7 +1325,7 @@ napi_value NAPI_GetWantAgentWants(napi_env env, napi_value jsWantAgentInfo, cons
     napi_value JsExtraInfo = GetPropertyValueByPropertyName(env, jsWantAgentInfo, "extraInfo", napi_object);
     if (JsExtraInfo != nullptr) {
         if (!UnwrapWantParams(env, JsExtraInfo, paras.extraInfo)) {
-            return NapiGetNull(env);
+            return nullptr;
         }
     }
     return NapiGetNull(env);
@@ -1283,14 +1354,18 @@ napi_value NAPI_GetWantAgent(napi_env env, napi_callback_info info)
     };
     napi_value ret = NAPI_GetWantAgentWants(env, jsWantAgentInfo, paras);
     if (ret == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to Get wantAgent wants.");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
 
@@ -1300,7 +1375,8 @@ napi_value NAPI_GetWantAgent(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wants = wants;
     asyncCallbackInfo->operationType =
@@ -1444,20 +1520,26 @@ napi_value NAPI_GetOperationType(napi_env env, napi_callback_info info)
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
-    NAPI_ASSERT_RETURN_NULL(env, wantAgentType == napi_object, "Wrong argument type. Object expected.");
+    if (wantAgentType != napi_object) {
+        HILOG_ERROR("Wrong argument type. Object expected.");
+        return JSParaError(env, false);
+    }
 
     WantAgent *pWantAgent = nullptr;
     napi_unwrap(env, argv[0], (void **)&(pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_INFO("WantAgent napi_unwrap error");
-        return NapiGetNull(env);
+        HILOG_ERROR("WantAgent napi_unwrap error");
+        return JSParaError(env, false);
     }
 
     bool callBackMode = false;
     if (argc >= NUMBER_OF_PARAMETERS_TWO) {
         napi_valuetype valuetype = napi_valuetype::napi_null;
         NAPI_CALL(env, napi_typeof(env, argv[1], &valuetype));
-        NAPI_ASSERT_RETURN_NULL(env, valuetype == napi_function, "Wrong argument type. Function expected.");
+        if (valuetype != napi_function) {
+            HILOG_ERROR("Wrong argument type. Function expected.");
+            return JSParaError(env, false);
+        }
         callBackMode = true;
     }
     AsyncGetOperationTypeCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncGetOperationTypeCallbackInfo {
@@ -1466,7 +1548,8 @@ napi_value NAPI_GetOperationType(napi_env env, napi_callback_info info)
         .deferred = nullptr,
     };
     if (asyncCallbackInfo == nullptr) {
-        return NapiGetNull(env);
+        HILOG_ERROR("Failed to create object.");
+        return JSParaError(env, callBackMode);
     }
     asyncCallbackInfo->wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 

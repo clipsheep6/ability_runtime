@@ -50,6 +50,7 @@ struct AppStateData : public Parcelable {
     int32_t pid = -1;
     int32_t uid = 0;
     int32_t state = 0;
+    int32_t accessTokenId = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

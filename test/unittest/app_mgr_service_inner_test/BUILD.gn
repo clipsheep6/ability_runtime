@@ -34,14 +34,14 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
-    "startup_l2:syspara_watchagent",
-    "utils_base:utils",
+    "samgr:samgr_proxy",
   ]
 }
 

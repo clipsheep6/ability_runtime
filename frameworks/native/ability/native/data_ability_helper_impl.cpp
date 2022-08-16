@@ -632,13 +632,8 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
  */
 void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    if (!CheckUriParam(uri)) {
-        HILOG_ERROR("Check uri param failed.");
-        return;
-    }
-
-    if (dataObserver == nullptr) {
-        HILOG_ERROR("Input param invalid, dataObserver is nullptr.");
+    if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_ERROR("RegisterObserver param is invalid.");
         return;
     }
 
@@ -684,13 +679,8 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
  */
 void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    if (!CheckUriParam(uri)) {
-        HILOG_ERROR("Check uri param failed.");
-        return;
-    }
-
-    if (dataObserver == nullptr) {
-        HILOG_ERROR("Input param invalid, dataObserver is nullptr.");
+    if (!CheckUriAndDataObserver(uri, dataObserver)) {
+        HILOG_ERROR("UnregisterObserver param is invalid.");
         return;
     }
 
@@ -862,6 +852,22 @@ bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
 
     if (uri->GetScheme() != SchemeOhos) {
         HILOG_ERROR("Input param invalid, the uri is not dataability, Scheme: %{public}s.", uri->GetScheme().c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
+    const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
+{
+    if (!CheckUriParam(uri)) {
+        HILOG_ERROR("Check uri param failed.");
+        return false;
+    }
+
+    if (dataObserver == nullptr) {
+        HILOG_ERROR("Input param invalid, dataObserver is nullptr.");
         return false;
     }
 

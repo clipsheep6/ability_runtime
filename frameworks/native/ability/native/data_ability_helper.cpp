@@ -42,9 +42,7 @@ DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareH
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("Creator with context called.");
-
-    HILOG_INFO("Call DataAbilityHelperImpl Creator.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context);
     if (dataAbilityHelperImpl) {
@@ -68,15 +66,13 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with context & uri called.");
-
-    HILOG_INFO("Call DataAbilityHelperImpl Creator.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri.");
     auto sharedPtrDataAbilityHelper = DataAbilityHelper::Creator(context, uri, false);
     if (sharedPtrDataAbilityHelper) {
         return sharedPtrDataAbilityHelper;
     }
 
-    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator with context & uri.");
     if (!uri) {
         HILOG_ERROR("Input param invalid, uri is nullptr.");
         return nullptr;
@@ -110,15 +106,14 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with ability runtime context & uri called.");
-
-    HILOG_INFO("Call DataAbilityHelperImpl Creator.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri.");
     auto sharedPtrDataAbilityHelper = DataAbilityHelper::Creator(context, uri, false);
     if (sharedPtrDataAbilityHelper) {
         return sharedPtrDataAbilityHelper;
     }
 
-    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, "
+        "Call DataShareHelper Creator with ability runtime context & uri.");
     if (!uri) {
         HILOG_ERROR("Input param invalid, uri is nullptr.");
         return nullptr;
@@ -157,7 +152,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("Creator with context & uri & tryBind called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
@@ -185,7 +180,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("Creator with ability runtime context & uri & tryBind called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
@@ -207,7 +202,7 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Creator with token called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with token.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token);
     if (dataAbilityHelperImpl) {
@@ -233,15 +228,13 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with token & uri called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with token & uri.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
-
-    HILOG_INFO("Call DataAbilityHelperImpl Creator.");
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token, uri);
     if (dataAbilityHelperImpl) {
         ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
     } else {
-        HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator.");
+        HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator with token & uri.");
         if (!uri) {
             HILOG_ERROR("Input param invalid, uri is nullptr.");
             return nullptr;

@@ -97,10 +97,10 @@ ohos_shared_library("static_subscriber_ipc") {
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"
@@ -217,6 +217,7 @@ ohos_shared_library("abilitykit_native") {
     "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
@@ -226,8 +227,7 @@ ohos_shared_library("abilitykit_native") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
-    "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "samgr:samgr_proxy",
   ]
 
   defines = []
@@ -254,6 +254,7 @@ ohos_shared_library("abilitykit_native") {
       "${ability_runtime_native_path}/ability/native/form_extension.cpp",
       "${ability_runtime_native_path}/ability/native/form_js_event_handler.cpp",
       "${ability_runtime_native_path}/ability/native/form_provider_client.cpp",
+      "${ability_runtime_native_path}/ability/native/form_provider_record.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/form_extension_provider_client.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/js_form_extension.cpp",
       "${ability_runtime_native_path}/ability/native/form_runtime/js_form_extension_context.cpp",
@@ -302,6 +303,7 @@ ohos_shared_library("data_ability_helper") {
     "ability_base:zuri",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "data_share:datashare_abilitykit",
     "data_share:datashare_common",
     "hitrace_native:hitrace_meter",
@@ -310,7 +312,6 @@ ohos_shared_library("data_ability_helper") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_share_adapter",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
@@ -331,9 +332,9 @@ ohos_shared_library("service_extension_module") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:runtime",
+    "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "utils_base:utils",
   ]
 
   relative_install_dir = "extensionability/"

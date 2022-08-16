@@ -88,7 +88,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_Flow_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -115,7 +115,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_001, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_ALREADY_EXISTS);
 
@@ -136,7 +136,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_002, TestSi
 
     // clear app name
     abilityRequest_.appInfo.name = "";
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_INVALID_VALUE);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_002 end.");
@@ -154,7 +154,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_001, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     std::mutex mutex;
     system_clock::duration timeout = 800ms;
 
@@ -175,7 +175,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_002, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     std::mutex mutex;
     system_clock::duration timeout = 800ms;
 
@@ -197,7 +197,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     std::mutex mutex;
     system_clock::duration timeout = 800ms;
 
@@ -223,7 +223,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_001, TestSize.Lev
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_Attach_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_INVALID_STATE);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_Attach_001 end.");
@@ -241,7 +241,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_002, TestSize.Lev
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_Attach_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->Attach(nullptr), ERR_INVALID_DATA);
 
@@ -260,7 +260,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_003, TestSize.Lev
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_Attach_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
 
     EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
@@ -282,7 +282,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_001, Te
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_001 end.");
@@ -300,7 +300,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_002, Te
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
@@ -319,7 +319,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_003, Te
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
 
     EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
@@ -358,7 +358,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_004, Te
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_004 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
@@ -383,7 +383,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_001, TestSize.
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->AddClient(nullptr, true, false), ERR_INVALID_STATE);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_001 end.");
@@ -401,7 +401,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_002, TestSize.
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->AddClient(abilityRecord_->GetToken(), true, false), ERR_INVALID_STATE);
@@ -421,7 +421,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_003, TestSize.
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -442,7 +442,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_004, TestSize.
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_004 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -465,7 +465,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_005, TestSize.
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_005 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -492,7 +492,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_001, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(nullptr, false), ERR_INVALID_STATE);
 
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_001 end.");
@@ -510,7 +510,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_002, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_INVALID_STATE);
@@ -530,7 +530,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_003, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -551,7 +551,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_004, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_004 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -574,7 +574,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_005, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_005 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -599,7 +599,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_006, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_006 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -629,7 +629,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_007, TestSi
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_007 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -669,7 +669,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_001, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_INVALID_STATE);
@@ -689,7 +689,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_002, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -710,7 +710,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_003, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -733,7 +733,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_005, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_005 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -758,7 +758,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_006, TestS
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_006 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -794,7 +794,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_001, Test
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
@@ -814,7 +814,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_002, Test
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -835,7 +835,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_003, Test
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -859,7 +859,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_001 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
 
@@ -878,7 +878,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_002 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
@@ -898,7 +898,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_003 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);
@@ -920,7 +920,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
 {
     HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_004 start.");
 
-    std::unique_ptr<DataAbilityRecord> dataAbilityRecord = std::make_unique<DataAbilityRecord>(abilityRequest_);
+    auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_CALL(*abilitySchedulerMock_, ScheduleAbilityTransaction(_, _)).Times(1);

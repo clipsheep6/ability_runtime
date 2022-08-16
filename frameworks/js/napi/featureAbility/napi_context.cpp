@@ -778,19 +778,8 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         return;
     }
 
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work==null.", __func__);
-        return;
-    }
-    OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB =
-        new (std::nothrow) OnRequestPermissionsFromUserResultCallback;
-    if (onRequestPermissionCB == nullptr) {
-        HILOG_ERROR("%{public}s, the string vector permissions is empty.", __func__);
-        delete work;
-        work = nullptr;
-        return;
-    }
+    uv_work_t *work = new uv_work_t;
+    OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB = new OnRequestPermissionsFromUserResultCallback;
     onRequestPermissionCB->requestCode = requestCode;
     onRequestPermissionCB->permissions = permissions;
     onRequestPermissionCB->grantResults = grantResults;

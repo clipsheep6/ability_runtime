@@ -31,6 +31,9 @@ namespace AbilityDelegatorJs {
 struct AbilityObjectBox {
     std::weak_ptr<NativeReference> object_;
 };
+struct AbilityStageObjBox {
+    std::weak_ptr<NativeReference> object_;
+};
 
 struct ShellCmdResultBox {
     std::unique_ptr<ShellCmdResult> shellCmdResult_;
@@ -44,9 +47,11 @@ constexpr size_t INDEX_TWO = 2;
 constexpr int ERROR = -1;
 
 using namespace OHOS::AbilityRuntime;
-std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> monitorRecord_;
-std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> ablityRecord_;
-std::mutex mutexAblityRecord_;
+std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityMonitor>> g_monitorRecord;
+std::map<std::shared_ptr<NativeReference>, std::shared_ptr<AbilityStageMonitor>> g_stageMonitorRecord;
+std::map<std::weak_ptr<NativeReference>, sptr<IRemoteObject>, std::owner_less<>> g_ablityRecord;
+std::mutex g_mutexAblityRecord;
+std::mutex g_mtxStageMonitorRecord;
 
 NativeValue *AttachAppContext(NativeEngine *engine, void *value, void *)
 {
@@ -86,10 +91,10 @@ JSAbilityDelegator::JSAbilityDelegator()
                 return;
             }
 
-            std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-            for (auto it = ablityRecord_.begin(); it != ablityRecord_.end();) {
+            std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+            for (auto it = g_ablityRecord.begin(); it != g_ablityRecord.end();) {
                 if (it->second == property->token_) {
-                    it = ablityRecord_.erase(it);
+                    it = g_ablityRecord.erase(it);
                     continue;
                 }
                 ++it;
@@ -122,6 +127,24 @@ NativeValue *JSAbilityDelegator::WaitAbilityMonitor(NativeEngine *engine, Native
 {
     JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
     return (me != nullptr) ? me->OnWaitAbilityMonitor(*engine, *info) : nullptr;
+}
+
+NativeValue *JSAbilityDelegator::AddAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnAddAbilityStageMonitor(*engine, *info) : nullptr;
+}
+
+NativeValue *JSAbilityDelegator::RemoveAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnRemoveAbilityStageMonitor(*engine, *info) : nullptr;
+}
+
+NativeValue *JSAbilityDelegator::WaitAbilityStageMonitor(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    JSAbilityDelegator *me = CheckParamsAndGetThis<JSAbilityDelegator>(engine, info);
+    return (me != nullptr) ? me->OnWaitAbilityStageMonitor(*engine, *info) : nullptr;
 }
 
 NativeValue *JSAbilityDelegator::GetAppContext(NativeEngine *engine, NativeCallbackInfo *info)
@@ -212,6 +235,39 @@ NativeValue *JSAbilityDelegator::OnAddAbilityMonitor(NativeEngine &engine, Nativ
     return result;
 }
 
+NativeValue *JSAbilityDelegator::OnAddAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    bool isExisted = false;
+    std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted)) {
+        HILOG_ERROR("Parse addAbilityStageMonitor parameters failed");
+        return engine.CreateUndefined();
+    }
+
+    AsyncTask::CompleteCallback complete = [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_INFO("OnAddAbilityStageMonitor AsyncTask is called");
+        auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+        if (!delegator) {
+            task.Reject(engine, CreateJsError(engine, ERROR, "addAbilityStageMonitor failed."));
+            return;
+        }
+        delegator->AddAbilityStageMonitor(monitor);
+        task.Resolve(engine, engine.CreateNull());
+    };
+
+    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JSAbilityDelegator::OnAddAbilityStageMonitor",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+
+    if (!isExisted) {
+        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
+    }
+    return result;
+}
+
 NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
@@ -241,13 +297,48 @@ NativeValue *JSAbilityDelegator::OnRemoveAbilityMonitor(NativeEngine &engine, Na
         lastParam, nullptr, std::move(complete), &result));
 
     if (AbilityDelegatorRegistry::GetAbilityDelegator()) {
-        for (auto iter = monitorRecord_.begin(); iter != monitorRecord_.end(); ++iter) {
+        for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
             std::shared_ptr<NativeReference> jsMonitor = iter->first;
             if ((info.argv[INDEX_ZERO])->StrictEquals(jsMonitor->Get())) {
-                monitorRecord_.erase(iter);
+                g_monitorRecord.erase(iter);
                 break;
             }
         }
+    }
+    return result;
+}
+
+NativeValue *JSAbilityDelegator::OnRemoveAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    bool isExisted = false;
+    std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
+    if (!ParseAbilityStageMonitorPara(engine, info, monitor, isExisted)) {
+        HILOG_ERROR("Parse removeAbilityStageMonitor parameters failed");
+        return engine.CreateUndefined();
+    }
+
+    AsyncTask::CompleteCallback complete =
+        [monitor](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_INFO("OnRemoveAbilityStageMonitor AsyncTask is called");
+
+        auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+        if (!delegator) {
+            task.Reject(engine, CreateJsError(engine, ERROR, "removeAbilityStageMonitor failed."));
+            return;
+        }
+        delegator->RemoveAbilityStageMonitor(monitor);
+        task.Resolve(engine, engine.CreateNull());
+    };
+
+    NativeValue *lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JSAbilityDelegator::OnRemoveAbilityStageMonitor", engine,
+        CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+
+    if (isExisted) {
+        RemoveStageMonitorRecord(info.argv[INDEX_ZERO]);
     }
     return result;
 }
@@ -292,8 +383,8 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
 
         abilityObjectBox->object_ = property->object_;
 
-        std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-        ablityRecord_.emplace(property->object_, property->token_);
+        std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+        g_ablityRecord.emplace(property->object_, property->token_);
     };
 
     AsyncTask::CompleteCallback complete = [abilityObjectBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
@@ -312,6 +403,58 @@ NativeValue *JSAbilityDelegator::OnWaitAbilityMonitor(NativeEngine &engine, Nati
 
     NativeValue *result = nullptr;
     AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityMonitor",
+        engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
+NativeValue *JSAbilityDelegator::OnWaitAbilityStageMonitor(NativeEngine &engine, NativeCallbackInfo &info)
+{
+    HILOG_INFO("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+
+    std::shared_ptr<AbilityStageMonitor> monitor = nullptr;
+    TimeoutCallback opt {false, false};
+    int64_t timeout = 0;
+    if (!ParseWaitAbilityStageMonitorPara(engine, info, monitor, opt, timeout)) {
+        HILOG_ERROR("Parse waitAbilityStageMonitor parameters failed");
+        return engine.CreateUndefined();
+    }
+
+    auto abilityStageObjBox = std::make_shared<AbilityStageObjBox>();
+    AsyncTask::ExecuteCallback execute = [monitor, timeout, opt, abilityStageObjBox]() {
+        HILOG_INFO("OnWaitAbilityStageMonitor AsyncTask ExecuteCallback is called");
+        if (!abilityStageObjBox) {
+            HILOG_ERROR("OnWaitAbilityStageMonitor AsyncTask ExecuteCallback, Invalid abilityStageObjBox");
+            return;
+        }
+        auto delegator = AbilityDelegatorRegistry::GetAbilityDelegator();
+        if (!delegator) {
+            HILOG_ERROR("OnWaitAbilityMonitor AsyncTask ExecuteCallback, Invalid delegator");
+            return;
+        }
+        std::shared_ptr<DelegatorAbilityStageProperty> result;
+        result = opt.hasTimeoutPara ?
+            delegator->WaitAbilityStageMonitor(monitor, timeout) : delegator->WaitAbilityStageMonitor(monitor);
+        if (!result || result->object_.expired()) {
+            HILOG_ERROR("WaitAbilityStageMonitor failed");
+            return;
+        }
+        abilityStageObjBox->object_ = result->object_;
+    };
+
+    AsyncTask::CompleteCallback complete = [abilityStageObjBox](NativeEngine &engine, AsyncTask &task, int32_t status) {
+        HILOG_INFO("OnWaitAbilityMonitor AsyncTask CompleteCallback is called");
+        if (abilityStageObjBox && !abilityStageObjBox->object_.expired()) {
+            task.Resolve(engine, abilityStageObjBox->object_.lock()->Get());
+        } else {
+            task.Reject(engine, CreateJsError(engine, ERROR, "waitAbilityStageMonitor failed."));
+        }
+    };
+    NativeValue *lastParam = nullptr;
+    if (opt.hasCallbackPara) {
+        lastParam = opt.hasTimeoutPara ? info.argv[INDEX_TWO] : info.argv[INDEX_ONE];
+    }
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JSAbilityDelegator::OnWaitAbilityStageMonitor",
         engine, CreateAsyncTaskWithLastParam(engine, lastParam, std::move(execute), std::move(complete), &result));
     return result;
 }
@@ -504,8 +647,8 @@ NativeValue *JSAbilityDelegator::OnGetCurrentTopAbility(NativeEngine &engine, Na
             task.Reject(engine, CreateJsError(engine, ERROR, "getCurrentTopAbility failed."));
         } else {
             {
-                std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-                ablityRecord_.emplace(property->object_, property->token_);
+                std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+                g_ablityRecord.emplace(property->object_, property->token_);
             }
             task.Resolve(engine, property->object_.lock()->Get());
         }
@@ -637,9 +780,9 @@ NativeValue *JSAbilityDelegator::OnFinishTest(NativeEngine &engine, NativeCallba
 NativeValue *JSAbilityDelegator::ParseMonitorPara(
     NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityMonitor> &monitor)
 {
-    HILOG_INFO("enter, monitorRecord size = %{public}zu", monitorRecord_.size());
+    HILOG_INFO("enter, monitorRecord size = %{public}zu", g_monitorRecord.size());
 
-    for (auto iter = monitorRecord_.begin(); iter != monitorRecord_.end(); ++iter) {
+    for (auto iter = g_monitorRecord.begin(); iter != g_monitorRecord.end(); ++iter) {
         std::shared_ptr<NativeReference> jsMonitor = iter->first;
         if (value->StrictEquals(jsMonitor->Get())) {
             HILOG_ERROR("monitor existed");
@@ -675,8 +818,57 @@ NativeValue *JSAbilityDelegator::ParseMonitorPara(
 
     std::shared_ptr<NativeReference> reference = nullptr;
     reference.reset(engine.CreateReference(value, 1));
-    monitorRecord_.emplace(reference, monitor);
+    g_monitorRecord.emplace(reference, monitor);
 
+    return engine.CreateNull();
+}
+
+NativeValue *JSAbilityDelegator::ParseStageMonitorPara(
+    NativeEngine &engine, NativeValue *value, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
+{
+    HILOG_INFO("enter, stageMonitorRecord size = %{public}zu", g_stageMonitorRecord.size());
+
+    isExisted = false;
+    for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
+        std::shared_ptr<NativeReference> jsMonitor = iter->first;
+        if (value->StrictEquals(jsMonitor->Get())) {
+            HILOG_WARN("AbilityStage monitor existed");
+            isExisted = true;
+            monitor = iter->second;
+            return monitor ? engine.CreateNull() : nullptr;
+        }
+    }
+    NativeObject *object = ConvertNativeValueTo<NativeObject>(value);
+    if (object == nullptr) {
+        HILOG_ERROR("Failed to get object");
+        return nullptr;
+    }
+    auto moduleNameValue = object->GetProperty("moduleName");
+    if (moduleNameValue == nullptr) {
+        HILOG_ERROR("Failed to get property moduleName");
+        return nullptr;
+    }
+    std::string moduleName;
+    if (!ConvertFromJsValue(engine, moduleNameValue, moduleName)) {
+        HILOG_ERROR("Failed to get moduleName from JsValue");
+        return nullptr;
+    }
+    auto srcEntranceValue = object->GetProperty("srcEntrance");
+    if (srcEntranceValue == nullptr) {
+        HILOG_ERROR("Failed to get property srcEntrance");
+        return nullptr;
+    }
+    std::string srcEntrance;
+    if (!ConvertFromJsValue(engine, srcEntranceValue, srcEntrance)) {
+        HILOG_ERROR("Failed to get srcEntrance from JsValue");
+        return nullptr;
+    }
+
+    monitor = std::make_shared<AbilityStageMonitor>(moduleName, srcEntrance);
+    if (!monitor) {
+        HILOG_ERROR("Failed to create stage monitor");
+        return nullptr;
+    }
     return engine.CreateNull();
 }
 
@@ -685,10 +877,10 @@ NativeValue *JSAbilityDelegator::ParseAbilityPara(
 {
     HILOG_INFO("enter");
 
-    std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-    for (auto iter = ablityRecord_.begin(); iter != ablityRecord_.end();) {
+    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+    for (auto iter = g_ablityRecord.begin(); iter != g_ablityRecord.end();) {
         if (iter->first.expired()) {
-            iter = ablityRecord_.erase(iter);
+            iter = g_ablityRecord.erase(iter);
             continue;
         }
 
@@ -724,8 +916,8 @@ NativeValue *JSAbilityDelegator::CreateAbilityObject(NativeEngine &engine, const
     std::shared_ptr<NativeReference> refence = nullptr;
     refence.reset(engine.CreateReference(objValue, 1));
 
-    std::unique_lock<std::mutex> lck(mutexAblityRecord_);
-    ablityRecord_[refence] = remoteObject;
+    std::unique_lock<std::mutex> lck(g_mutexAblityRecord);
+    g_ablityRecord[refence] = remoteObject;
     return objValue;
 }
 
@@ -775,6 +967,29 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
     return engine.CreateNull();
 }
 
+NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(
+    NativeEngine &engine, NativeCallbackInfo &info, std::shared_ptr<AbilityStageMonitor> &monitor, bool &isExisted)
+{
+    HILOG_INFO("enter");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("Incorrect number of parameters");
+        return nullptr;
+    }
+
+    if (!ParseStageMonitorPara(engine, info.argv[INDEX_ZERO], monitor, isExisted)) {
+        HILOG_ERROR("Parse stage monitor parameters failed");
+        return nullptr;
+    }
+
+    if (info.argc > ARGC_ONE) {
+        if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
+            HILOG_ERROR("Parse callback parameters failed");
+            return nullptr;
+        }
+    }
+    return engine.CreateNull();
+}
+
 NativeValue *JSAbilityDelegator::ParseWaitAbilityMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
     std::shared_ptr<AbilityMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout)
 {
@@ -792,6 +1007,30 @@ NativeValue *JSAbilityDelegator::ParseWaitAbilityMonitorPara(NativeEngine &engin
     if (!ParseTimeoutCallbackPara(engine, info, opt, timeout)) {
         HILOG_ERROR("TimeoutCallback parse parameters failed");
         return nullptr;
+    }
+    return engine.CreateNull();
+}
+
+NativeValue *JSAbilityDelegator::ParseWaitAbilityStageMonitorPara(NativeEngine &engine, NativeCallbackInfo &info,
+    std::shared_ptr<AbilityStageMonitor> &monitor, TimeoutCallback &opt, int64_t &timeout)
+{
+    HILOG_INFO("enter");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("Incorrect number of parameters");
+        return nullptr;
+    }
+
+    bool isExisted = false;
+    if (!ParseStageMonitorPara(engine, info.argv[INDEX_ZERO], monitor, isExisted)) {
+        HILOG_ERROR("Stage monitor parse parameters failed");
+        return nullptr;
+    }
+    if (!ParseTimeoutCallbackPara(engine, info, opt, timeout)) {
+        HILOG_ERROR("TimeoutCallback parse parameters failed");
+        return nullptr;
+    }
+    if (!isExisted) {
+        AddStageMonitorRecord(engine, info.argv[INDEX_ZERO], monitor);
     }
     return engine.CreateNull();
 }
@@ -941,6 +1180,47 @@ NativeValue *JSAbilityDelegator::ParseFinishTestPara(
         }
     }
     return engine.CreateNull();
+}
+
+void JSAbilityDelegator::AddStageMonitorRecord(
+    NativeEngine &engine, NativeValue *value, const std::shared_ptr<AbilityStageMonitor> &monitor)
+{
+    if (!value) {
+        HILOG_ERROR("UpdateStageMonitorRecord value is empty");
+        return;
+    }
+    if (!AbilityDelegatorRegistry::GetAbilityDelegator()) {
+        HILOG_ERROR("AbilityDelegator is null");
+        return;
+    }
+    std::shared_ptr<NativeReference> reference = nullptr;
+    reference.reset(engine.CreateReference(value, 1));
+    {
+        std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
+        g_stageMonitorRecord.emplace(reference, monitor);
+    }
+    HILOG_INFO("g_stageMonitorRecord added, size = %{public}zu", g_stageMonitorRecord.size());
+}
+
+void JSAbilityDelegator::RemoveStageMonitorRecord(NativeValue *value)
+{
+    if (!value) {
+        HILOG_ERROR("UpdateStageMonitorRecord value is empty");
+        return;
+    }
+    if (!AbilityDelegatorRegistry::GetAbilityDelegator()) {
+        HILOG_ERROR("AbilityDelegator is null");
+        return;
+    }
+    std::unique_lock<std::mutex> lck(g_mtxStageMonitorRecord);
+    for (auto iter = g_stageMonitorRecord.begin(); iter != g_stageMonitorRecord.end(); ++iter) {
+        std::shared_ptr<NativeReference> jsMonitor = iter->first;
+        if (value->StrictEquals(jsMonitor->Get())) {
+            g_stageMonitorRecord.erase(iter);
+            HILOG_INFO("g_stageMonitorRecord removed, size = %{public}zu", g_stageMonitorRecord.size());
+            break;
+        }
+    }
 }
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS

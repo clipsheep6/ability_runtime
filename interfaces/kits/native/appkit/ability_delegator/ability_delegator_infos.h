@@ -34,6 +34,12 @@ struct ADelegatorAbilityProperty {
     // ability object in jsruntime
     std::weak_ptr<NativeReference> object_;
 };
+
+struct DelegatorAbilityStageProperty {
+    std::string moduleName_;
+    std::string srcEntrance_;
+    std::weak_ptr<NativeReference> object_;
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

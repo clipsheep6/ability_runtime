@@ -32,12 +32,12 @@ public:
 
     /**
      * @brief Acquire to give back an ProviderFormInfo. This is sync API.
-     * @param formId The Id of the form.
+     * @param formJsInfo The form js info.
      * @param want Indicates the {@link Want} structure containing form info.
      * @param callerToken Caller form extension token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int AcquireProviderFormInfo(const int64_t formId, const Want &want,
+    virtual int AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
         const sptr<IRemoteObject> &callerToken) override;
 
     /**
@@ -134,11 +134,22 @@ public:
      */
     void ClearOwner(const std::shared_ptr<FormExtension> formExtension);
 
+    /**
+     * @brief Acquire to share form information data. This is sync API.
+     * @param formId The Id of the from.
+     * @param remoteDeviceId Indicates the remote device ID.
+     * @param formSupplyCallback Indicates lifecycle callbacks.
+     * @param requestCode Indicates the request code of this share form.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t AcquireShareFormData(int64_t formId, const std::string &remoteDeviceId,
+        const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode) override;
+
 private:
     std::shared_ptr<FormExtension> GetOwner();
     std::pair<int, int> CheckParam(const Want &want, const sptr<IRemoteObject> &callerToken);
     int HandleResultCode(int errorCode, const Want &want, const sptr<IRemoteObject> &callerToken);
-    void AcquireFormExtensionProviderInfo(const int64_t formId, const Want &want,
+    void AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionDelete(const int64_t formId, const Want &want,
         const sptr<IRemoteObject> &callerToken);
@@ -154,6 +165,7 @@ private:
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                          const sptr<IRemoteObject> &callerToken);
+    bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
     mutable std::mutex formExtensionMutex_;

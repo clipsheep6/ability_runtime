@@ -54,7 +54,6 @@ ohos_unittest("AmsServiceStartupTest") {
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_test_path}/unittest:appmgr_test_source",
     "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "//utils/native/base:utils",
   ]
 
   external_deps = [
@@ -62,14 +61,15 @@ ohos_unittest("AmsServiceStartupTest") {
     "access_token:libaccesstoken_sdk",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "hicollie_native:libhicollie",
     "hisysevent_native:libhisysevent",
     "hitrace_native:hitrace_meter",
     "hiviewdfx_hilog_native:libhilog",
+    "init:libbeget_proxy",
     "ipc:ipc_core",
-    "startup_l2:syspara_watchagent",
   ]
 }
 

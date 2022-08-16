@@ -13,17 +13,12 @@
  * limitations under the License.
  */
 
-#include <cstdio>
-#include <cstring>
-#include <pthread.h>
-#include <unistd.h>
-
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "want_constant.h"
+
 namespace OHOS {
 namespace AppExecFwk {
-EXTERN_C_START
 /*
  * The module initialization.
  */
@@ -32,7 +27,6 @@ static napi_value Init(napi_env env, napi_value exports)
     WantConstantInit(env, exports);
     return exports;
 }
-EXTERN_C_END
 
 /*
  * The module definition.

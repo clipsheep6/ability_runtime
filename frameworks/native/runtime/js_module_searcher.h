@@ -22,7 +22,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsModuleSearcher final {
 public:
-    explicit JsModuleSearcher(const std::string& bundleName) : bundleName_(bundleName) {}
+    explicit JsModuleSearcher(const std::string& bundleName,
+        const std::string& bundleInstallPath = "/data/storage/el1/bundle/",
+        const std::string& otherBundleInstallPath = "/data/bundles/")
+        : bundleName_(bundleName), bundleInstallPath_(bundleInstallPath),
+        otherBundleInstallPath_(otherBundleInstallPath)
+    {}
     ~JsModuleSearcher() = default;
 
     JsModuleSearcher(const JsModuleSearcher&) = default;
@@ -34,16 +39,18 @@ public:
 
 private:
     static void FixExtName(std::string& path);
-    static std::string GetInstallPath(const std::string& curJsModulePath, bool module = true);
-    static std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri);
-    static std::string FindNpmPackageInPath(const std::string& npmPath);
-    static std::string FindNpmPackageInTopLevel(
-        const std::string& moduleInstallPath, const std::string& npmPackage, size_t start = 0);
-    static std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage);
 
+    std::string GetInstallPath(const std::string& curJsModulePath, bool module = true) const;
+    std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
+    std::string FindNpmPackageInPath(const std::string& npmPath) const;
+    std::string FindNpmPackageInTopLevel(
+        const std::string& moduleInstallPath, const std::string& npmPackage, size_t start = 0) const;
+    std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage) const;
     std::string ParseOhmUri(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
 
     std::string bundleName_;
+    std::string bundleInstallPath_;
+    std::string otherBundleInstallPath_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

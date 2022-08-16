@@ -46,51 +46,36 @@
 ## 目录
 
 ```
-foundation/ability/ability_runtime  #ability_runtime元能力运行时部件
-├── frameworks
-│   ├── js
-│   │   └── napi					# ability_runtime的napi代码实现
-│   └── native 					    # ability_runtime的核心代码实现
-├── interfaces
-│   ├── inner_api 				    # ability_runtime的系统内部件间接口
-│   └── kits
-│       └── native				    # ability_runtime的对外接口  
-├── services
-│   ├── abilitymgr				    # Ability管理服务框架代码
-│   ├── appmgr					    # Ability管理服务框架代码
-│   ├── common					    # 日志组件目录
-│   ├── dataobsmgr				    # DataAbilityObserver管理服务框架代码
-│   └── uripermmge				    # UriPermission管理服务框架代码
-├── test							# 测试目录
-└── tools						    # aa命令工具代码目录
-
-foundation/ability/ability_base     # ability_base元能力基础部件
-├── frameworks
-│   └── js
-│       └── napi					# ability_base的napi代码实现
-│   └── native 					    # ability_base的核心代码实现
-├── interfaces
-│   └── inner_api 				    # ability_base的系统内部件间接口 
-└── test							# 测试目录
-
-foundation/ability/form_fwk     # form_fwk卡片运行时部件
-├── frameworks
-│   └── js
-│       └── napi					# form_fwk的napi代码实现
-├── interfaces
-│   ├── inner_api 				    # form_fwk的系统内部件间接口 
-│   └── kits
-│       └── native				    # form_fwk的对外接口  
-├── services                        # form管理服务框架代码
-└── test							# 测试目录
-
-foundation/ability/idl_tool         # idl工具部件
-├── ast                             # idl语法解析定义代码
-├── codegen                         # 跨进程通信模板生成模块代码
-├── metadata                        # matedata自定义数据解析模块代码
-├── parser                          # idl解析模块代码
-├── test                            # 测试目录
-└── util					        # 公共方法代码
+foundation/ability            #元能力子系统
+├── ability_runtime           #ability_runtime元能力运行时部件
+│   ├── frameworks
+│   │   ├── js
+│   │   │   └── napi          # ability_runtime的napi代码实现
+│   │   └── native            # ability_runtime的核心代码实现
+│   ├── interfaces
+│   │   ├── inner_api         # ability_runtime的系统内部件间接口
+│   │   └── kits
+│   │       └── native        # ability_runtime的对外接口  
+│   ├── services
+│   │   ├── abilitymgr        # Ability管理服务框架代码
+│   │   ├── appmgr            # App管理服务框架代码
+│   │   ├── common            # 服务公共组件目录
+│   │   ├── dataobsmgr        # DataAbilityObserver管理服务框架代码
+│   │   └── uripermmgr        # UriPermission管理服务框架代码
+│   ├── test                  # 测试目录
+│   └── tools                 # aa命令工具代码目录
+│
+├── ability_base              # ability_base元能力基础部件
+│
+├── ability_lite              # ability_lite轻量化元能力部件
+│
+├── dmsfwk                    # dmsfwk分布式组件管理部件
+│
+├── dmsfwk_lite               # dmsfwk_lite轻量化分布式组件管理部件
+│
+├── form_fwk                  # form_fwk卡片运行时部件
+│
+├── idl_tool                  # idl工具部件
 
 ```
 
@@ -133,57 +118,7 @@ foundation/ability/idl_tool         # idl工具部件
 
 * 示例
 
-```javascript
-import featureAbility from '@ohos.ability.featureAbility'
-function addSlotsCallBack(err) {
-	console.info("==========================>startAbility=======================>");
-}
-featureAbility.startAbility(
-        {
-        want:
-        {
-            action: "",
-            entities: [""],
-            type: "",
-            options: {
-                // indicates the grant to perform read operations on the URI
-                authReadUriPermission: true,
-                // indicates the grant to perform write operations on the URI
-                authWriteUriPermission: true,
-                // support forward want result to origin ability
-                abilityForwardResult: true,
-                // used for marking the ability start-up is triggered by continuation
-                abilityContinuation: true,
-                // specifies whether a component does not belong to ohos
-                notOhosComponent: true,
-                // specifies whether an ability is started
-                abilityFormEnabled: true,
-                // indicates the grant for possible persisting on the URI.
-                authPersistableUriPermission: true,
-                // indicates the grant for possible persisting on the URI.
-                authPrefixUriPermission: true,
-                // support distributed scheduling system start up multiple devices
-                abilitySliceMultiDevice: true,
-                // indicates that an ability using the service template is started regardless of whether the
-                // host application has been started.
-                startForegroundAbility: true,
-                // install the specified ability if it's not installed.
-                installOnDemand: true,
-                // return result to origin ability slice
-                abilitySliceForwardResult: true,
-                // install the specified ability with background mode if it's not installed.
-                installWithBackgroundMode: true
-            },
-            deviceId: "",
-            bundleName: "com.example.startability",
-            abilityName: "com.example.startability.MainAbility",
-            uri: ""
-        },
-    },
-  );
-)
-```
-其他功能开发指导可参考[**示例文档**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/ability/Readme-CN.md)
+  更多开发指导可参考[**示例文档**](https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/ability/Readme-CN.md)
 
 
 ## **aa命令**
@@ -227,7 +162,13 @@ aa force-stop com.ohos.app
 
 [ability_base](https://gitee.com/openharmony/ability_ability_base)
 
+[ability_lite](https://gitee.com/openharmony/ability_ability_lite)
+
 [**ability_runtime**](https://gitee.com/openharmony/ability_ability_runtime)
+
+[dmsfwk](https://gitee.com/openharmony/ability_dmsfwk)
+
+[dmsfwk_lite](https://gitee.com/openharmony/ability_dmsfwk_lite)
 
 [form_fwk](https://gitee.com/openharmony/ability_form_fwk)
 

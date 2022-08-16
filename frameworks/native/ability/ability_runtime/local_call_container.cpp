@@ -76,8 +76,6 @@ int LocalCallContainer::StartAbilityByCallInner(
     sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(this->AsObject());
     HILOG_DEBUG("start ability by call, abilityClient->StartAbilityByCall call");
     return abilityClient->StartAbilityByCall(want, connect, callerToken);
-
-    return ERR_OK;
 }
 
 int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callback)

@@ -60,11 +60,11 @@ ohos_source_set("tools_aa_source_set") {
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
-    "samgr_standard:samgr_proxy",
-    "utils_base:utils",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"

@@ -70,5 +70,11 @@ int MockFormSupplyCallback::OnAcquireStateResult(FormState state, const std::str
     HILOG_INFO("MockFormSupplyCallback::OnAcquireStateResult called.");
     return 1;
 }
+
+void MockFormSupplyCallback::OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
+    const AAFwk::WantParams &wantParams, int64_t requestCode, const bool &result)
+{
+    HILOG_INFO("MockFormSupplyCallback::OnShareAcquire called.");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
