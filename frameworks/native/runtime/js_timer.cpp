@@ -184,10 +184,11 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 
 void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
 {
-    BindNativeFunction(engine, globalObject, "setTimeout", StartTimeout);
-    BindNativeFunction(engine, globalObject, "setInterval", StartInterval);
-    BindNativeFunction(engine, globalObject, "clearTimeout", StopTimeoutOrInterval);
-    BindNativeFunction(engine, globalObject, "clearInterval", StopTimeoutOrInterval);
+    const char *moduleName = "JsTimer";
+    BindNativeFunction(engine, globalObject, "setTimeout", moduleName, StartTimeout);
+    BindNativeFunction(engine, globalObject, "setInterval", moduleName, StartInterval);
+    BindNativeFunction(engine, globalObject, "clearTimeout", moduleName, StopTimeoutOrInterval);
+    BindNativeFunction(engine, globalObject, "clearInterval", moduleName, StopTimeoutOrInterval);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
