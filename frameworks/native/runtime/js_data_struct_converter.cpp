@@ -197,7 +197,6 @@ NativeValue* CreateJsLaunchParam(NativeEngine& engine, const AAFwk::LaunchParam&
 
 NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Configuration& configuration)
 {
-
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
 
