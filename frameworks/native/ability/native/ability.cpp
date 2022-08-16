@@ -197,7 +197,7 @@ void Ability::OnStart(const Want &want)
 
     appIndex_ = want.GetIntParam(DLP_INDEX, 0);
     (const_cast<Want &>(want)).RemoveParam(DLP_INDEX);
-
+    SetWant(want);
     HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
@@ -286,8 +286,6 @@ void Ability::OnStart(const Want &want)
         }
     }
 #endif
-
-    SetWant(want);
     if (abilityLifecycleExecutor_ == nullptr) {
         HILOG_ERROR("Ability::OnStart error. abilityLifecycleExecutor_ == nullptr.");
         return;
