@@ -235,7 +235,7 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
     return waiter.WaitForResult();
 }
 
-void SimulatorImpl::TerminateAbility(const int64_t abilityId)
+void SimulatorImpl::TerminateAbility(int64_t abilityId)
 {
     uv_work_t work;
 
