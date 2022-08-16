@@ -1639,6 +1639,90 @@ void MainThread::HandleDumpHeap(bool isPrivate)
     }
 }
 
+static std::string PrintJsFrame(JsFrames& jsFrame)
+{
+    return "  at " + jsFrame.functionname + " (" + jsFrame.filename + ":" + jsFrame.lines + ")\n";
+}
+
+static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> frame)
+{
+    char buf[1024] = {0};
+
+    std::string mapName = frame->GetFrameMapName();
+    if (mapName.empty()) {
+        mapName = "Unknown";
+    }
+
+#ifdef __LP64__
+    char frameFormatWithMapName[] = "#%02zu pc %016" PRIx64 "(%16" PRIx64 ") %s\n";
+    char frameFormatWithFuncName[] = "#%02zu pc %016" PRIx64 "(%16" PRIx64 ") %s(%s+%" PRIu64 ")\n";
+#else
+    char frameFormatWithMapName[] = "#%02zu pc %08" PRIx64 "(%08" PRIx64 ") %s\n";
+    char frameFormatWithFuncName[] = "#%02zu pc %08" PRIx64 "(%08" PRIx64 ") %s(%s+%" PRIu64 ")\n";
+#endif
+
+    if (frame->GetFrameFuncName().empty()) {
+        int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithMapName, \
+            frame->GetFrameIndex(), frame->GetFrameRelativePc(), frame->GetFramePc(), mapName.c_str());
+        if (ret <= 0) {
+            HILOG_ERROR("MainThread:snprintf_s failed.");
+        }
+        return std::string(buf);
+    }
+
+    int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithFuncName, \
+        frame->GetFrameIndex(), frame->GetFrameRelativePc(), frame->GetFramePc(), \
+        mapName.c_str(), frame->GetFrameFuncName().c_str(), frame->GetFrameFuncOffset());
+    if (ret <= 0) {
+        HILOG_ERROR("MainThread:snprintf_s failed.");
+    }
+    return std::string(buf);
+}
+
+static bool IsJsNativePcEqual(std::string& jsNativePointer, uint64_t nativePc, uint64_t nativeOffset)
+{
+    uint64_t jsPc_;
+    if (sscanf_s(jsNativePointer.c_str(), "%llx", &jsPc_) != 1) {
+        HILOG_ERROR("IsJsNativePcEqual :: Failed to parse jsNativePointer");
+        return false;
+    }
+    if (nativePc - nativeOffset == jsPc_) {
+        return true;
+    }
+    return false;
+}
+
+static void JsNativeStackBuilder(std::vector<JsFrames>& jsFrames,
+    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames, std::string& mixStackStr)
+{
+    uint32_t jsIdx = 0;
+    uint32_t nativeIdx = 0;
+    while (jsFrames[jsIdx].nativepointer.empty()) {
+        HILOG_ERROR("JsNativeStackBuilder :: skip unuseful js frames.");
+        jsIdx++;
+    }
+    while (jsIdx < jsFrames.size() && nativeIdx < nativeFrames.size()) {
+        if (jsFrames[jsIdx].nativepointer.empty()) {
+            mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
+            jsIdx++;
+            continue;
+        }
+        if (IsJsNativePcEqual(jsFrames[jsIdx].nativepointer, nativeFrames[nativeIdx]->GetFramePc(), nativeFrames[nativeIdx]->GetFrameFuncOffset())) {
+            mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+            mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
+            nativeIdx++;
+            jsIdx++;
+        } else {
+            mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+            nativeIdx++;
+        }
+    }
+    while (nativeIdx < nativeFrames.size()) {
+        mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+        nativeIdx++;
+    }
+}
+
 void MainThread::HandleScheduleANRProcess()
 {
     HILOG_DEBUG("MainThread:HandleScheduleANRProcess start.");
@@ -1662,6 +1746,24 @@ void MainThread::HandleScheduleANRProcess()
     }
     if (write(rFD, proStackInfo.c_str(), proStackInfo.size()) != (ssize_t)proStackInfo.size()) {
         HILOG_ERROR("MainThread::HandleScheduleANRProcess write process stack info failed");
+    }
+    std::string mixLabel = "\nJS Native Mix-StackTrace:\n";
+    if (write(rFD, mixLabel.c_str(), mixLabel.size()) != (ssize_t)mixLabel.size()) {
+        HILOG_ERROR("MainThread::HandleScheduleANRProcess write mixLabel failed");
+    }
+    std::vector<JsFrames> jsFrames;
+    if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
+        applicationForAnr_->GetRuntime()->BuildJsStackInfoList(jsFrames);
+    }
+    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
+    std::string nativeFrameStr;
+    if (dumplog.DumpCatchFrame(getpid(), getpid(), nativeFrameStr, nativeFrames) == false) {
+        HILOG_ERROR("MainThread::HandleScheduleANRProcess get process stack info failed");
+    }
+    std::string jsnativeFrameStr = "";
+    JsNativeStackBuilder(jsFrames, nativeFrames, jsnativeFrameStr);
+    if (write(rFD, jsnativeFrameStr.c_str(), jsnativeFrameStr.size()) != (ssize_t)jsnativeFrameStr.size()) {
+        HILOG_ERROR("MainThread::HandleScheduleANRProcess write js native mix stack failed");
     }
     if (rFD != -1) {
         close(rFD);
