@@ -148,7 +148,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     }
 
     if (!CheckUri(uri)) {
-        HILOG_WARN("uri is invalid.");
+        HILOG_ERROR("uri is invalid.");
         return nullptr;
     }
 
@@ -189,7 +189,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     }
 
     if (!CheckUri(uri)) {
-        HILOG_WARN("uri is invalid.");
+        HILOG_ERROR("uri is invalid.");
         return nullptr;
     }
 
@@ -251,7 +251,7 @@ std::shared_ptr<DataAbilityHelperImpl> DataAbilityHelperImpl::Creator(
     }
 
     if (!CheckUri(uri)) {
-        HILOG_WARN("uri is invalid.");
+        HILOG_ERROR("uri is invalid.");
         return nullptr;
     }
 
@@ -333,7 +333,6 @@ std::vector<std::string> DataAbilityHelperImpl::GetFileTypes(Uri &uri, const std
  */
 int DataAbilityHelperImpl::OpenFile(Uri &uri, const std::string &mode)
 {
-    HILOG_INFO("DataAbilityHelperImpl::OpenFile start.");
     int fd = -1;
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = GetDataAbilityProxy(uri);
     if (dataAbilityProxy == nullptr) {
@@ -634,11 +633,12 @@ bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
 void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
-        HILOG_WARN("RegisterObserver param is invalid.");
+        HILOG_ERROR("RegisterObserver param is invalid.");
         return;
     }
 
     Uri tmpUri(uri.ToString());
+
     std::lock_guard<std::mutex> lock_l(oplock_);
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = nullptr;
     if (uri_ == nullptr) {
@@ -680,7 +680,7 @@ void DataAbilityHelperImpl::RegisterObserver(const Uri &uri, const sptr<AAFwk::I
 void DataAbilityHelperImpl::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     if (!CheckUriAndDataObserver(uri, dataObserver)) {
-        HILOG_WARN("UnregisterObserver param is invalid.");
+        HILOG_ERROR("UnregisterObserver param is invalid.");
         return;
     }
 
@@ -890,3 +890,4 @@ DataAbilityDeathRecipient::~DataAbilityDeathRecipient()
 {}
 }  // namespace AppExecFwk
 }  // namespace OHOS
+

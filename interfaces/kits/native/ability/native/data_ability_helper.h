@@ -17,7 +17,11 @@
 #define OHOS_ABILITY_RUNTIME_DATA_ABILITY_HELPER_H
 
 #include "data_ability_helper_impl.h"
+
 namespace OHOS {
+namespace DataShare {
+class DataShareHelper;
+}
 namespace AppExecFwk {
 class DataAbilityHelper final : public std::enable_shared_from_this<DataAbilityHelper> {
 public:
@@ -290,8 +294,12 @@ public:
 
 private:
     DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
+    DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper);
 
-    std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_;
+    static bool TransferScheme(const Uri &uri, Uri &dataShareUri);
+
+    std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_ = nullptr;
+    std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_ = nullptr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
