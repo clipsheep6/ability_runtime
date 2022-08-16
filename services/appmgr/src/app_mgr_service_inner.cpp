@@ -320,10 +320,10 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     appRecord->LaunchApplication(*configuration_);
     appRecord->SetState(ApplicationState::APP_STATE_READY);
 
-    // There is no ability when the resident process starts
+    // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
     // There is no process of switching the foreground, waiting for his first ability to start
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsEmptyKeepAliveApp()) {
         appRecord->AddAbilityStage();
         return;
     }
@@ -823,6 +823,8 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         return nullptr;
     }
 
+    bool isKeepAlive = bundleInfo.isKeepAlive && bundleInfo.singleton;
+    appRecord->SetKeepAliveAppState(isKeepAlive, false);
     appRecord->SetEventHandler(eventHandler_);
     appRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, want);
     if (want) {
@@ -1679,15 +1681,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         return;
     }
 
-    bool isStageBased = false;
-    bool moduelJson = false;
-    if (!info.hapModuleInfos.empty()) {
-        isStageBased = info.hapModuleInfos.back().isStageBasedModel;
-        moduelJson = info.hapModuleInfos.back().isModuleJson;
-    }
-    HILOG_INFO("StartEmptyResidentProcess stage:%{public}d moduel:%{public}d size:%{public}d",
-        isStageBased, moduelJson, (int32_t)info.hapModuleInfos.size());
-    appRecord->SetKeepAliveAppState(true, isStageBased);
+    appRecord->SetKeepAliveAppState(true, true);
 
     if (restartCount > 0) {
         HILOG_INFO("StartEmptyResidentProcess restartCount : [%{public}d], ", restartCount);
