@@ -1331,6 +1331,20 @@ public:
      */
     virtual FormProviderInfo OnCreate(const Want &want);
 
+    /**
+     * @brief Called to return a FormProviderInfo object.
+     *
+     * <p>You must override this method if your ability will serve as a form provider to change the form size.
+     * Only when the isResizeable is true, this way can be called.
+     * The default implementation returns nullptr. </p>
+     *
+     * @param formId   Indicates the Id of the form want to change size.
+     * @param dimensionId Indicates the dimensionId that the form want to change.
+     *
+     * @return Returns the created FormProviderInfo object.
+     */
+    virtual FormProviderInfo OnSizeChanged(const int64_t formId, const int32_t dimensionId);
+
     virtual bool OnShare(int64_t formId, AAFwk::WantParams &wantParams);
 
     /**

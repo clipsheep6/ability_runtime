@@ -402,6 +402,67 @@ int FormProviderClient::AcquireState(const Want &wantArg, const std::string &pro
 }
 
 /**
+ * @brief Notify provider when the form want to change the size.
+ * @param formId The Id of the form to update.
+ * @param want Indicates the structure containing form info.
+ * @param callerToken Caller ability token.
+ * @return Returns ERR_OK on success, others on failure.
+ */
+int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+
+    // The error code for operation.
+    int errorCode = ERR_OK;
+    FormProviderInfo formProviderInfo;
+    do {
+        HILOG_INFO("%{public}s called.", __func__);
+        std::shared_ptr<Ability> ownerAbility = GetOwner();
+        if (ownerAbility == nullptr) {
+            HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
+            errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
+            break;
+        }
+        if (!CheckIsSystemApp()) {
+            HILOG_WARN("%{public}s caller permission denied", __func__);
+            errorCode = ERR_APPEXECFWK_FORM_PERMISSION_DENY;
+            break;
+        }
+
+        int dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, -1);
+        if(dimensionId == -1) {
+            HILOG_WARN("%{public}s, the form dimension isn't valid", __func__);
+            errorCode = ERR_APPEXECFWK_FORM_INVALID_PARAM;
+            break;
+        }
+        
+        HILOG_INFO("%{public}s come, %{public}s", __func__, ownerAbility->GetAbilityName().c_str());
+        formProviderInfo = ownerAbility->OnSizeChanged(formId, dimensionId);
+    } while (false);
+
+    Want newWant(want);
+    newWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
+    newWant.SetParam(Constants::FORM_SUPPLY_INFO, want.GetStringParam(Constants::FORM_SUPPLY_INFO));
+    newWant.SetParam(Constants::PROVIDER_FLAG, true);
+    newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
+    newWant.SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_RESIZE_FORM);
+
+    //The error code for size change.
+    int sizeChangedErrorCode = HandleSizeChanged(formProviderInfo, newWant, callerToken);
+    if (errorCode != ERR_OK) {
+        // If errorCode is not ERR_OK，return errorCode.
+        return errorCode;
+    } else {
+        // If errorCode is ERR_OK，return sizeChangedErrorCode.
+        if (sizeChangedErrorCode != ERR_OK) {
+            HILOG_ERROR("%{public}s, disconnect error.", __func__);
+        }
+        return sizeChangedErrorCode;
+    }
+
+}
+
+/**
  * @brief Set the owner ability of the form provider client.
  *
  * @param ability The owner ability of the form provider client.
@@ -481,6 +542,22 @@ int FormProviderClient::HandleAcquire(
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
     formSupplyClient->OnAcquire(formProviderInfo, newWant);
+    HILOG_INFO("%{public}s end", __func__);
+    return ERR_OK;
+}
+
+int FormProviderClient::HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
+                                          const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_INFO("%{public}s start, image state is %{public}d",
+        __func__, formProviderInfo.GetFormData().GetImageDataState());
+
+    sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
+    if (formSupplyClient == nullptr) {
+        HILOG_WARN("%{public}s warn, IFormSupply is nullptr", __func__);
+        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    }
+    formSupplyClient->OnAcquire(formProviderInfo, want);
     HILOG_INFO("%{public}s end", __func__);
     return ERR_OK;
 }

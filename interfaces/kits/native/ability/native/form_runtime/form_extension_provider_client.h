@@ -116,8 +116,18 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
-                             const sptr<IRemoteObject> &callerToken) override;
+        const sptr<IRemoteObject> &callerToken) override;
 
+    /**
+     * @brief Notify provider when the form want to change the size.
+     * @param formId The Id of the form to update.
+     * @param want Indicates the structure containing form info.
+     * @param callerToken Caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int NotifyFormSizeChanged(const int64_t formId, const Want &want,
+        const sptr<IRemoteObject> &callerToken) override;
+    
     /**
      * @brief Set the owner form extension of the form provider client.
      *
@@ -164,7 +174,9 @@ private:
     void FireFormExtensionEvent(const int64_t formId, const std::string &message, const Want &want,
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
-                                         const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken);
+    void NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want, const int32_t dimensionId,
+        const sptr<IRemoteObject> &callerToken);
     bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 
 private:
