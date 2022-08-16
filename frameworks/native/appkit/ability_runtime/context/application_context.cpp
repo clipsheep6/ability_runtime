@@ -81,7 +81,9 @@ void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeRef
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityCreate(ability);
+        if (callback != nullptr) {
+            callback->OnAbilityCreate(ability);
+        }
     }
 }
 
@@ -93,7 +95,9 @@ void ApplicationContext::DispatchOnWindowStageCreate(const std::shared_ptr<Nativ
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnWindowStageCreate(ability, windowStage);
+        if (callback != nullptr) {
+            callback->OnWindowStageCreate(ability, windowStage);
+        }
     }
 }
 
@@ -105,7 +109,9 @@ void ApplicationContext::DispatchOnWindowStageDestroy(const std::shared_ptr<Nati
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnWindowStageDestroy(ability, windowStage);
+        if (callback != nullptr) {
+            callback->OnWindowStageDestroy(ability, windowStage);
+        }
     }
 }
 
@@ -118,7 +124,9 @@ void ApplicationContext::DispatchWindowStageFocus(const std::shared_ptr<NativeRe
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnWindowStageActive(ability, windowStage);
+        if (callback != nullptr) {
+            callback->OnWindowStageActive(ability, windowStage);
+        }
     }
 }
 
@@ -131,7 +139,9 @@ void ApplicationContext::DispatchWindowStageUnfocus(const std::shared_ptr<Native
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnWindowStageInactive(ability, windowStage);
+        if (callback != nullptr) {
+            callback->OnWindowStageInactive(ability, windowStage);
+        }
     }
 }
 
@@ -142,7 +152,9 @@ void ApplicationContext::DispatchOnAbilityDestroy(const std::shared_ptr<NativeRe
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityDestroy(ability);
+        if (callback != nullptr) {
+            callback->OnAbilityDestroy(ability);
+        }
     }
 }
 
@@ -153,7 +165,9 @@ void ApplicationContext::DispatchOnAbilityForeground(const std::shared_ptr<Nativ
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityForeground(ability);
+        if (callback != nullptr) {
+            callback->OnAbilityForeground(ability);
+        }
     }
 }
 
@@ -164,7 +178,9 @@ void ApplicationContext::DispatchOnAbilityBackground(const std::shared_ptr<Nativ
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityBackground(ability);
+        if (callback != nullptr) {
+            callback->OnAbilityBackground(ability);
+        }
     }
 }
 
@@ -175,7 +191,9 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
         return;
     }
     for (auto callback : callbacks_) {
-        callback->OnAbilityContinue(ability);
+        if (callback != nullptr) {
+            callback->OnAbilityContinue(ability);
+        }
     }
 }
 
