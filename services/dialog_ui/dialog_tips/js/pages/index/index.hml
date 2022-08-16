@@ -13,15 +13,31 @@
     limitations under the License.
 -->
 
-<div class="container">
-    <div class="div-title">
-        <text class="title">
-            {{$t('message.title')}}
-        </text>
+<div class="outermost-layer">
+    <div id="black-overlay" class = "black-overlay" style="display:{{phoneDisplay}};">
+        <div class="container" style="width:{{labelwidth}}vp;height:{{labelheight}}vp;margin-left:{{labeloffsetX}}vp;margin-top:{{labeloffsetY}}vp">
+            <div class="div-title">
+                <text class="title">
+                    {{$t('message.title')}}
+                </text>
+            </div>
+            <div class="but">
+                <div class="but-close" onclick="onCloseApp" style="background-color: {{btn.color}};">
+                    <text class="text-close">{{$t('message.close')}}</text>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="but">
-        <div class="but-close" onclick="onCloseApp" style="background-color: {{btn.color}};">
-            <text class="text-close">{{$t('message.close')}}</text>
+    <div class="container" style="display:{{pcDisplay}};">
+        <div class="div-title">
+            <text class="title">
+                {{$t('message.title')}}
+            </text>
+        </div>
+        <div class="but">
+            <div class="but-close" onclick="onCloseApp" style="background-color: {{btn.color}};">
+                <text class="text-close">{{$t('message.close')}}</text>
+            </div>
         </div>
     </div>
 </div>
