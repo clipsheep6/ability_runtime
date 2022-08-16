@@ -67,15 +67,15 @@ private:
 class JsTimer final {
 public:
     JsTimer(JsRuntime& jsRuntime, const std::shared_ptr<NativeReference>& jsFunction, const std::string &name,
-        int64_t interval)
-        : jsRuntime_(jsRuntime), jsFunction_(jsFunction), name_(name), interval_(interval)
+        int64_t interval, bool isInterval)
+        : jsRuntime_(jsRuntime), jsFunction_(jsFunction), name_(name), interval_(interval), isInterval_(isInterval)
     {}
 
     ~JsTimer() = default;
 
     void operator()() const
     {
-        if (interval_ > 0) {
+        if (isInterval_) {
             jsRuntime_.PostTask(*this, name_, interval_);
         }
 #ifdef SUPPORT_GRAPHICS
@@ -108,6 +108,7 @@ private:
     std::vector<std::shared_ptr<NativeReference>> jsArgs_;
     std::string name_;
     int64_t interval_ = 0;
+    bool isInterval_ = false;
 #ifdef SUPPORT_GRAPHICS
     int32_t containerScopeId_ = ContainerScope::CurrentId();
 #endif
@@ -138,7 +139,7 @@ NativeValue* StartTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* in
 
     // create timer task
     JsRuntime& jsRuntime = *reinterpret_cast<JsRuntime*>(engine->GetJsEngine());
-    JsTimer task(jsRuntime, jsFunction, name, isInterval ? delayTime : 0);
+    JsTimer task(jsRuntime, jsFunction, name, delayTime, isInterval);
     for (size_t index = 2; index < info->argc; ++index) {
         task.PushArgs(std::shared_ptr<NativeReference>(engine->CreateReference(info->argv[index], 1)));
     }
