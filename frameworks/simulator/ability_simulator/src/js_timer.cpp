@@ -57,7 +57,7 @@ public:
         uv_timer_stop(&timerReq_);
     }
 
-    void Start(int64_t timeout, int64_t repeat) const
+    void Start(int64_t timeout, int64_t repeat)
     {
         uv_timer_start(&timerReq_, [](uv_timer_t* timerReq) {
             auto me = static_cast<JsTimer*>(timerReq->data);
@@ -65,7 +65,7 @@ public:
         }, timeout, repeat);
     }
 
-    void OnTimeout() const
+    void OnTimeout()
     {
 #ifdef SUPPORT_GRAPHICS
         // call js function
