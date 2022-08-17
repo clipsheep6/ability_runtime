@@ -505,11 +505,12 @@ NativeValue* CreateJsBaseContext(NativeEngine& engine, std::shared_ptr<Context> 
     BindNativeProperty(*object, "preferencesDir", JsBaseContext::GetPreferencesDir);
     BindNativeProperty(*object, "bundleCodeDir", JsBaseContext::GetBundleCodeDir);
     BindNativeProperty(*object, "area", JsBaseContext::GetArea);
-    BindNativeFunction(engine, *object, "createBundleContext", JsBaseContext::CreateBundleContext);
-    BindNativeFunction(engine, *object, "getApplicationContext", JsBaseContext::GetApplicationContext);
-    BindNativeFunction(engine, *object, "switchArea", JsBaseContext::SwitchArea);
-    BindNativeFunction(engine, *object, "getArea", JsBaseContext::GetArea);
-    BindNativeFunction(engine, *object, "createModuleContext", JsBaseContext::CreateModuleContext);
+    const char *moduleName = "JsBaseContext";
+    BindNativeFunction(engine, *object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);
+    BindNativeFunction(engine, *object, "getApplicationContext", moduleName, JsBaseContext::GetApplicationContext);
+    BindNativeFunction(engine, *object, "switchArea", moduleName, JsBaseContext::SwitchArea);
+    BindNativeFunction(engine, *object, "getArea", moduleName, JsBaseContext::GetArea);
+    BindNativeFunction(engine, *object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
 
     return objValue;
 }

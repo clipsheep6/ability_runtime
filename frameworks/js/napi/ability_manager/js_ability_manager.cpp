@@ -214,10 +214,13 @@ NativeValue* JsAbilityManagerInit(NativeEngine* engine, NativeValue* exportObj)
     object->SetProperty("AbilityState", AbilityStateInit(engine));
 
     HILOG_INFO("JsAbilityManagerInit BindNativeFunction called");
-    BindNativeFunction(*engine, *object, "getAbilityRunningInfos", JsAbilityManager::GetAbilityRunningInfos);
-    BindNativeFunction(*engine, *object, "getExtensionRunningInfos", JsAbilityManager::GetExtensionRunningInfos);
-    BindNativeFunction(*engine, *object, "updateConfiguration", JsAbilityManager::UpdateConfiguration);
-    BindNativeFunction(*engine, *object, "getTopAbility", JsAbilityManager::GetTopAbility);
+    const char *moduleName = "JsAbilityManager";
+    BindNativeFunction(*engine, *object, "getAbilityRunningInfos", moduleName,
+        JsAbilityManager::GetAbilityRunningInfos);
+    BindNativeFunction(*engine, *object, "getExtensionRunningInfos", moduleName,
+        JsAbilityManager::GetExtensionRunningInfos);
+    BindNativeFunction(*engine, *object, "updateConfiguration", moduleName, JsAbilityManager::UpdateConfiguration);
+    BindNativeFunction(*engine, *object, "getTopAbility", moduleName, JsAbilityManager::GetTopAbility);
     HILOG_INFO("JsAbilityManagerInit end");
     return engine->CreateUndefined();
 }
