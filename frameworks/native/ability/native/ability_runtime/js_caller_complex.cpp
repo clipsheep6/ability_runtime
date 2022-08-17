@@ -416,8 +416,9 @@ NativeValue* CreateJsCallerComplex(
 
     object->SetNativePointer(jsCaller.release(), JsCallerComplex::Finalizer, nullptr);
     object->SetProperty("callee", CreateJsCalleeRemoteObject(engine, remoteObj));
-    BindNativeFunction(engine, *object, "release", JsCallerComplex::JsReleaseCall);
-    BindNativeFunction(engine, *object, "onRelease", JsCallerComplex::JsSetOnReleaseCallBack);
+    const char *moduleName = "JsCallerComplex";
+    BindNativeFunction(engine, *object, "release", moduleName, JsCallerComplex::JsReleaseCall);
+    BindNativeFunction(engine, *object, "onRelease", moduleName, JsCallerComplex::JsSetOnReleaseCallBack);
 
     HILOG_DEBUG("JsCallerComplex::%{public}s, end", __func__);
     return objValue;

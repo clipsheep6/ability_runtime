@@ -220,7 +220,8 @@ NativeValue* CanIUse(NativeEngine* engine, NativeCallbackInfo* info)
 
 void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
 {
-    BindNativeFunction(engine, globalObject, "canIUse", CanIUse);
+    const char *moduleName = "JsRuntime";
+    BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
 
 bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName)
@@ -399,7 +400,8 @@ bool JsRuntime::Initialize(const Options& options)
         InitSyscapModule(*nativeEngine_, *globalObj);
 
         // Simple hook function 'isSystemplugin'
-        BindNativeFunction(*nativeEngine_, *globalObj, "isSystemplugin",
+        const char *moduleName = "JsRuntime";
+        BindNativeFunction(*nativeEngine_, *globalObj, "isSystemplugin", moduleName,
             [](NativeEngine* engine, NativeCallbackInfo* info) -> NativeValue* {
                 return engine->CreateUndefined();
             });
