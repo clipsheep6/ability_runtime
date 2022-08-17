@@ -109,6 +109,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
+    application_ = application;
     abilityInfo_ = abilityInfo;
     handler_ = handler;
     AbilityContext::token_ = token;
@@ -156,7 +157,6 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         HILOG_ERROR("%{public}s abilityLifecycleExecutor_ make failed.", __func__);
     }
 
-    application_ = application;
     if (abilityContext_ != nullptr) {
         abilityContext_->RegisterAbilityCallback(weak_from_this());
     }
