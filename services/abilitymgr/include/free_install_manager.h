@@ -117,6 +117,7 @@ private:
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
     std::map<std::string, std::time_t> timeStampMap_;
+    std::mutex distributedFreeInstallLock_;
 
     /**
      * Start remote free install.
