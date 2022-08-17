@@ -114,7 +114,8 @@ NativeValue* CreateJsUriPermMgr(NativeEngine* engine, NativeValue* exportObj)
     std::unique_ptr<JsUriPermMgr> jsUriPermMgr = std::make_unique<JsUriPermMgr>();
     object->SetNativePointer(jsUriPermMgr.release(), JsUriPermMgr::Finalizer, nullptr);
 
-    BindNativeFunction(*engine, *object, "verifyUriPermission", JsUriPermMgr::VerifyUriPermission);
+    const char *moduleName = "JsUriPermMgr";
+    BindNativeFunction(*engine, *object, "verifyUriPermission", moduleName, JsUriPermMgr::VerifyUriPermission);
     return engine->CreateUndefined();
 }
 }  // namespace AbilityRuntime

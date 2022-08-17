@@ -184,8 +184,9 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     std::unique_ptr<JsFormExtensionContext> jsContext = std::make_unique<JsFormExtensionContext>(context);
     object->SetNativePointer(jsContext.release(), JsFormExtensionContext::Finalizer, nullptr);
 
-    BindNativeFunction(engine, *object, "updateForm", JsFormExtensionContext::UpdateForm);
-    BindNativeFunction(engine, *object, "startAbility", JsFormExtensionContext::StartAbility);
+    const char *moduleName = "JsFormExtensionContext";
+    BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
+    BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
 
     HILOG_INFO("%{public}s called end.", __func__);
     return objValue;

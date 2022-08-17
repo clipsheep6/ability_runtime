@@ -562,27 +562,28 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         std::make_unique<JsAppManager>(GetAppManagerInstance(), GetAbilityManagerInstance());
     object->SetNativePointer(jsAppManager.release(), JsAppManager::Finalizer, nullptr);
 
-    BindNativeFunction(*engine, *object, "registerApplicationStateObserver",
+    const char *moduleName = "JsAppManager";
+    BindNativeFunction(*engine, *object, "registerApplicationStateObserver", moduleName,
         JsAppManager::RegisterApplicationStateObserver);
-    BindNativeFunction(*engine, *object, "unregisterApplicationStateObserver",
+    BindNativeFunction(*engine, *object, "unregisterApplicationStateObserver", moduleName,
         JsAppManager::UnregisterApplicationStateObserver);
-    BindNativeFunction(*engine, *object, "getForegroundApplications",
+    BindNativeFunction(*engine, *object, "getForegroundApplications", moduleName,
         JsAppManager::GetForegroundApplications);
-    BindNativeFunction(*engine, *object, "getProcessRunningInfos",
+    BindNativeFunction(*engine, *object, "getProcessRunningInfos", moduleName,
         JsAppManager::GetProcessRunningInfos);
-    BindNativeFunction(*engine, *object, "getProcessRunningInformation",
+    BindNativeFunction(*engine, *object, "getProcessRunningInformation", moduleName,
         JsAppManager::GetProcessRunningInfos);
-    BindNativeFunction(*engine, *object, "isRunningInStabilityTest",
+    BindNativeFunction(*engine, *object, "isRunningInStabilityTest", moduleName,
         JsAppManager::IsRunningInStabilityTest);
-    BindNativeFunction(*engine, *object, "killProcessWithAccount",
+    BindNativeFunction(*engine, *object, "killProcessWithAccount", moduleName,
         JsAppManager::KillProcessWithAccount);
-    BindNativeFunction(*engine, *object, "killProcessesByBundleName",
+    BindNativeFunction(*engine, *object, "killProcessesByBundleName", moduleName,
         JsAppManager::KillProcessesByBundleName);
-    BindNativeFunction(*engine, *object, "clearUpApplicationData",
+    BindNativeFunction(*engine, *object, "clearUpApplicationData", moduleName,
         JsAppManager::ClearUpApplicationData);
-    BindNativeFunction(*engine, *object, "getAppMemorySize",
+    BindNativeFunction(*engine, *object, "getAppMemorySize", moduleName,
         JsAppManager::GetAppMemorySize);
-    BindNativeFunction(*engine, *object, "isRamConstrainedDevice",
+    BindNativeFunction(*engine, *object, "isRamConstrainedDevice", moduleName,
         JsAppManager::IsRamConstrainedDevice);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
