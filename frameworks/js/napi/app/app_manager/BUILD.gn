@@ -25,6 +25,7 @@ ohos_shared_library("appmanager_napi") {
     "app_manager_module.cpp",
     "js_app_manager.cpp",
     "js_app_manager_utils.cpp",
+    "js_app_state_observer.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]

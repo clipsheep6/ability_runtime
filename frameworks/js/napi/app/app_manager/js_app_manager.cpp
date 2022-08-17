@@ -30,6 +30,7 @@
 #include "js_app_manager_utils.h"
 #include "event_runner.h"
 #include "napi_common_util.h"
+#include "js_app_state_observer.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -45,7 +46,7 @@ constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERR_NOT_OK = -1;
 
 std::mutex g_observerMutex;
-std::map<int64_t, sptr<JSApplicationStateObserver>> g_observerIds;
+std::map<int64_t, sptr<JSAppStateObserver>> g_observerIds;
 
 class JsAppManager final {
 public:
@@ -122,6 +123,7 @@ public:
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
+    sptr<JSAppStateObserver> observer_ = nullptr;
 
     NativeValue* OnRegisterApplicationStateObserver(NativeEngine& engine, NativeCallbackInfo& info)
     {
@@ -138,18 +140,20 @@ private:
         static int64_t serialNumber = 0;
         std::vector<std::string> bundleNameList;
         // unwarp observer
-        sptr<JSApplicationStateObserver> observer = new JSApplicationStateObserver(engine);
-        observer->SetJsObserverObject(info.argv[INDEX_ZERO]);
+        if (observer_ == nullptr) {
+            observer_ = new JSAppStateObserver(engine);
+        }
         if (info.argc == ARGC_TWO) {
             AppExecFwk::UnwrapArrayStringFromJS(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_ONE]), bundleNameList);
         }
-        int32_t ret = appManager_->RegisterApplicationStateObserver(observer, bundleNameList);
+        int32_t ret = appManager_->RegisterApplicationStateObserver(observer_, bundleNameList);
         if (ret == 0) {
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
             std::lock_guard<std::mutex> lock(g_observerMutex);
             int64_t observerId = serialNumber;
-            g_observerIds.emplace(observerId, observer);
+            g_observerIds.emplace(observerId, observer_);
+            observer_->SetJsObserverObject(info.argv[INDEX_ZERO]);
             if (serialNumber < INT32_MAX) {
                 serialNumber++;
             } else {
@@ -167,7 +171,6 @@ private:
         HILOG_INFO("%{public}s is called", __FUNCTION__);
         int32_t errCode = 0;
         int64_t observerId = -1;
-        sptr<JSApplicationStateObserver> observer = nullptr;
 
         // only support 1 or 2 params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
@@ -181,7 +184,7 @@ private:
             auto item = g_observerIds.find(observerId);
             if (item != g_observerIds.end()) {
                 // match id
-                observer = item->second;
+                observer_ = item->second;
                 HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, (int32_t)observerId);
             } else {
                 HILOG_INFO("%{public}s not find observer, observer:%{public}d", __func__, (int32_t)observerId);
@@ -190,7 +193,7 @@ private:
         }
 
         AsyncTask::CompleteCallback complete =
-            [appManager = appManager_, observer, observerId, errCode](
+            [appManager = appManager_, observer = observer_, observerId, errCode](
                 NativeEngine& engine, AsyncTask& task, int32_t status) {
                 if (errCode != 0) {
                     task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
@@ -586,170 +589,6 @@ NativeValue* JsAppManagerInit(NativeEngine* engine, NativeValue* exportObj)
         JsAppManager::IsRamConstrainedDevice);
     HILOG_INFO("JsAppManagerInit end");
     return engine->CreateUndefined();
-}
-
-JSApplicationStateObserver::JSApplicationStateObserver(NativeEngine& engine) : engine_(engine) {}
-
-JSApplicationStateObserver::~JSApplicationStateObserver() = default;
-
-void JSApplicationStateObserver::OnForegroundApplicationChanged(const AppStateData &appStateData)
-{
-    HILOG_DEBUG("onForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
-        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
-    wptr<JSApplicationStateObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, appStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            sptr<JSApplicationStateObserver> jsObserverSptr = jsObserver.promote();
-            if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
-                return;
-            }
-            jsObserverSptr->HandleOnForegroundApplicationChanged(appStateData);
-        });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSApplicationStateObserver::OnForegroundApplicationChanged",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
-
-void JSApplicationStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
-{
-    HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
-        appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
-    NativeValue* argv[] = {CreateJsAppStateData(engine_, appStateData)};
-    CallJsFunction("onForegroundApplicationChanged", argv, ARGC_ONE);
-}
-
-void JSApplicationStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
-{
-    HILOG_INFO("OnAbilityStateChanged begin");
-    wptr<JSApplicationStateObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            sptr<JSApplicationStateObserver> jsObserverSptr = jsObserver.promote();
-            if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
-                return;
-            }
-            jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
-        });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSApplicationStateObserver::OnAbilityStateChanged",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
-
-void JSApplicationStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
-{
-    HILOG_INFO("HandleOnAbilityStateChanged begin");
-    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
-    CallJsFunction("onAbilityStateChanged", argv, ARGC_ONE);
-}
-
-void JSApplicationStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
-{
-    HILOG_INFO("OnExtensionStateChanged begin");
-    wptr<JSApplicationStateObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, abilityStateData](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            sptr<JSApplicationStateObserver> jsObserverSptr = jsObserver.promote();
-            if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
-                return;
-            }
-            jsObserverSptr->HandleOnExtensionStateChanged(abilityStateData);
-        });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSApplicationStateObserver::OnExtensionStateChanged",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
-
-void JSApplicationStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
-{
-    HILOG_INFO("HandleOnExtensionStateChanged begin");
-    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
-    CallJsFunction("onAbilityStateChanged", argv, ARGC_ONE);
-}
-
-void JSApplicationStateObserver::OnProcessCreated(const ProcessData &processData)
-{
-    HILOG_INFO("OnProcessCreated begin");
-    wptr<JSApplicationStateObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            sptr<JSApplicationStateObserver> jsObserverSptr = jsObserver.promote();
-            if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
-                return;
-            }
-            jsObserverSptr->HandleOnProcessCreated(processData);
-        });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSApplicationStateObserver::OnProcessCreated",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
-
-void JSApplicationStateObserver::HandleOnProcessCreated(const ProcessData &processData)
-{
-    HILOG_INFO("HandleOnProcessCreated begin");
-    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
-    CallJsFunction("onProcessCreated", argv, ARGC_ONE);
-}
-
-void JSApplicationStateObserver::OnProcessDied(const ProcessData &processData)
-{
-    HILOG_INFO("OnProcessDied begin");
-    wptr<JSApplicationStateObserver> jsObserver = this;
-    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
-        ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
-            sptr<JSApplicationStateObserver> jsObserverSptr = jsObserver.promote();
-            if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
-                return;
-            }
-            jsObserverSptr->HandleOnProcessDied(processData);
-        });
-    NativeReference* callback = nullptr;
-    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
-    AsyncTask::Schedule("JSApplicationStateObserver::OnProcessCreated",
-        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
-}
-
-void JSApplicationStateObserver::HandleOnProcessDied(const ProcessData &processData)
-{
-    HILOG_INFO("HandleOnProcessDied begin");
-    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
-    CallJsFunction("onProcessDied", argv, ARGC_ONE);
-}
-
-void JSApplicationStateObserver::CallJsFunction(const char* methodName, NativeValue* const* argv, size_t argc)
-{
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
-    if (jsObserverObject_ == nullptr) {
-        HILOG_ERROR("jsObserverObject_ nullptr");
-        return;
-    }
-    NativeValue* value = jsObserverObject_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
-        return;
-    }
-
-    NativeValue* method = obj->GetProperty(methodName);
-    if (method == nullptr) {
-        HILOG_ERROR("Failed to get from object");
-        return;
-    }
-    engine_.CallFunction(value, method, argv, argc);
-    HILOG_INFO("CallJsFunction end");
-}
-
-void JSApplicationStateObserver::SetJsObserverObject(NativeValue* jsObserverObject)
-{
-    jsObserverObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
