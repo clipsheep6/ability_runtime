@@ -370,7 +370,7 @@ void SystemDialogScheduler::GetDialogPositionAndSize(DialogType type, DialogPosi
                 break;
             case DialogAlign::BOTTOM:
                 position.window_offsetX = LINE_NUMS_ZERO;
-                position.window_offsetY = 
+                position.window_offsetY =
                     (display->GetHeight() - position.window_height) / UI_HALF - UI_DEFAULT_BUTTOM_CLIP;
                 position.window_height =  position.window_height / UI_HALF;
                 position.offsetX = LINE_NUMS_ZERO;
