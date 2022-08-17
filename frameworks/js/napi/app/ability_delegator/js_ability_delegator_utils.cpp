@@ -38,22 +38,26 @@ NativeValue *CreateJsAbilityDelegator(NativeEngine &engine)
     std::unique_ptr<JSAbilityDelegator> jsAbilityDelegator = std::make_unique<JSAbilityDelegator>();
     object->SetNativePointer(jsAbilityDelegator.release(), JSAbilityDelegator::Finalizer, nullptr);
 
-    BindNativeFunction(engine, *object, "addAbilityMonitor", JSAbilityDelegator::AddAbilityMonitor);
-    BindNativeFunction(engine, *object, "addAbilityStageMonitor", JSAbilityDelegator::AddAbilityStageMonitor);
-    BindNativeFunction(engine, *object, "removeAbilityMonitor", JSAbilityDelegator::RemoveAbilityMonitor);
-    BindNativeFunction(engine, *object, "removeAbilityStageMonitor", JSAbilityDelegator::RemoveAbilityStageMonitor);
-    BindNativeFunction(engine, *object, "waitAbilityMonitor", JSAbilityDelegator::WaitAbilityMonitor);
-    BindNativeFunction(engine, *object, "waitAbilityStageMonitor", JSAbilityDelegator::WaitAbilityStageMonitor);
-    BindNativeFunction(engine, *object, "getAppContext", JSAbilityDelegator::GetAppContext);
-    BindNativeFunction(engine, *object, "getAbilityState", JSAbilityDelegator::GetAbilityState);
-    BindNativeFunction(engine, *object, "getCurrentTopAbility", JSAbilityDelegator::GetCurrentTopAbility);
-    BindNativeFunction(engine, *object, "startAbility", JSAbilityDelegator::StartAbility);
-    BindNativeFunction(engine, *object, "doAbilityForeground", JSAbilityDelegator::DoAbilityForeground);
-    BindNativeFunction(engine, *object, "doAbilityBackground", JSAbilityDelegator::DoAbilityBackground);
-    BindNativeFunction(engine, *object, "print", JSAbilityDelegator::Print);
-    BindNativeFunction(engine, *object, "printSync", JSAbilityDelegator::PrintSync);
-    BindNativeFunction(engine, *object, "executeShellCommand", JSAbilityDelegator::ExecuteShellCommand);
-    BindNativeFunction(engine, *object, "finishTest", JSAbilityDelegator::FinishTest);
+    const char *moduleName = "JSAbilityDelegator";
+    BindNativeFunction(engine, *object, "addAbilityMonitor", moduleName, JSAbilityDelegator::AddAbilityMonitor);
+    BindNativeFunction(engine, *object, "addAbilityStageMonitor",
+        moduleName, JSAbilityDelegator::AddAbilityStageMonitor);
+    BindNativeFunction(engine, *object, "removeAbilityMonitor", moduleName, JSAbilityDelegator::RemoveAbilityMonitor);
+    BindNativeFunction(engine, *object, "removeAbilityStageMonitor",
+        moduleName, JSAbilityDelegator::RemoveAbilityStageMonitor);
+    BindNativeFunction(engine, *object, "waitAbilityMonitor", moduleName, JSAbilityDelegator::WaitAbilityMonitor);
+    BindNativeFunction(engine, *object, "waitAbilityStageMonitor",
+        moduleName, JSAbilityDelegator::WaitAbilityStageMonitor);
+    BindNativeFunction(engine, *object, "getAppContext", moduleName, JSAbilityDelegator::GetAppContext);
+    BindNativeFunction(engine, *object, "getAbilityState", moduleName, JSAbilityDelegator::GetAbilityState);
+    BindNativeFunction(engine, *object, "getCurrentTopAbility", moduleName, JSAbilityDelegator::GetCurrentTopAbility);
+    BindNativeFunction(engine, *object, "startAbility", moduleName, JSAbilityDelegator::StartAbility);
+    BindNativeFunction(engine, *object, "doAbilityForeground", moduleName, JSAbilityDelegator::DoAbilityForeground);
+    BindNativeFunction(engine, *object, "doAbilityBackground", moduleName, JSAbilityDelegator::DoAbilityBackground);
+    BindNativeFunction(engine, *object, "print", moduleName, JSAbilityDelegator::Print);
+    BindNativeFunction(engine, *object, "printSync", moduleName, JSAbilityDelegator::PrintSync);
+    BindNativeFunction(engine, *object, "executeShellCommand", moduleName, JSAbilityDelegator::ExecuteShellCommand);
+    BindNativeFunction(engine, *object, "finishTest", moduleName, JSAbilityDelegator::FinishTest);
     return objValue;
 }
 

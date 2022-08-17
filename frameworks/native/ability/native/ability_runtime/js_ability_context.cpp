@@ -1137,30 +1137,37 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
         object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
     }
 
-    BindNativeFunction(engine, *object, "startAbility", JsAbilityContext::StartAbility);
-    BindNativeFunction(engine, *object, "startAbilityWithAccount", JsAbilityContext::StartAbilityWithAccount);
-    BindNativeFunction(engine, *object, "startAbilityByCall", JsAbilityContext::StartAbilityByCall);
-    BindNativeFunction(engine, *object, "startAbilityForResult", JsAbilityContext::StartAbilityForResult);
-    BindNativeFunction(engine, *object, "startAbilityForResultWithAccount",
+    const char *moduleName = "JsAbilityContext";
+    BindNativeFunction(engine, *object, "startAbility", moduleName, JsAbilityContext::StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityWithAccount", moduleName,
+        JsAbilityContext::StartAbilityWithAccount);
+    BindNativeFunction(engine, *object, "startAbilityByCall", moduleName, JsAbilityContext::StartAbilityByCall);
+    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, JsAbilityContext::StartAbilityForResult);
+    BindNativeFunction(engine, *object, "startAbilityForResultWithAccount", moduleName,
         JsAbilityContext::StartAbilityForResultWithAccount);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbility", JsAbilityContext::StartServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount",
+    BindNativeFunction(engine, *object, "startServiceExtensionAbility", moduleName,
+        JsAbilityContext::StartServiceExtensionAbility);
+    BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StartServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbility", JsAbilityContext::StopServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount",
+    BindNativeFunction(engine, *object, "stopServiceExtensionAbility", moduleName,
+        JsAbilityContext::StopServiceExtensionAbility);
+    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StopServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "connectAbility", JsAbilityContext::ConnectAbility);
-    BindNativeFunction(engine, *object, "connectAbilityWithAccount", JsAbilityContext::ConnectAbilityWithAccount);
-    BindNativeFunction(engine, *object, "disconnectAbility", JsAbilityContext::DisconnectAbility);
-    BindNativeFunction(engine, *object, "terminateSelf", JsAbilityContext::TerminateSelf);
-    BindNativeFunction(engine, *object, "terminateSelfWithResult", JsAbilityContext::TerminateSelfWithResult);
-    BindNativeFunction(engine, *object, "requestPermissionsFromUser", JsAbilityContext::RequestPermissionsFromUser);
-    BindNativeFunction(engine, *object, "restoreWindowStage", JsAbilityContext::RestoreWindowStage);
-    BindNativeFunction(engine, *object, "isTerminating", JsAbilityContext::IsTerminating);
+    BindNativeFunction(engine, *object, "connectAbility", moduleName, JsAbilityContext::ConnectAbility);
+    BindNativeFunction(engine, *object, "connectAbilityWithAccount", moduleName,
+        JsAbilityContext::ConnectAbilityWithAccount);
+    BindNativeFunction(engine, *object, "disconnectAbility", moduleName, JsAbilityContext::DisconnectAbility);
+    BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsAbilityContext::TerminateSelf);
+    BindNativeFunction(engine, *object, "terminateSelfWithResult", moduleName,
+        JsAbilityContext::TerminateSelfWithResult);
+    BindNativeFunction(engine, *object, "requestPermissionsFromUser", moduleName,
+        JsAbilityContext::RequestPermissionsFromUser);
+    BindNativeFunction(engine, *object, "restoreWindowStage", moduleName, JsAbilityContext::RestoreWindowStage);
+    BindNativeFunction(engine, *object, "isTerminating", moduleName, JsAbilityContext::IsTerminating);
 
 #ifdef SUPPORT_GRAPHICS
-    BindNativeFunction(engine, *object, "setMissionLabel", JsAbilityContext::SetMissionLabel);
-    BindNativeFunction(engine, *object, "setMissionIcon", JsAbilityContext::SetMissionIcon);
+    BindNativeFunction(engine, *object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
+    BindNativeFunction(engine, *object, "setMissionIcon", moduleName, JsAbilityContext::SetMissionIcon);
 #endif
     return objValue;
 }

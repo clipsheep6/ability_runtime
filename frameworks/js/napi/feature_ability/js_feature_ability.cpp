@@ -478,17 +478,19 @@ NativeValue* JsFeatureAbility::CreateJsFeatureAbility(NativeEngine &engine)
     std::unique_ptr<JsFeatureAbility> jsFeatureAbility = std::make_unique<JsFeatureAbility>();
     object->SetNativePointer(jsFeatureAbility.release(), JsFeatureAbility::Finalizer, nullptr);
 
-    BindNativeFunction(engine, *object, "startAbility", JsFeatureAbility::StartAbility);
-    BindNativeFunction(engine, *object, "startAbilityForResult", JsFeatureAbility::StartAbilityForResult);
-    BindNativeFunction(engine, *object, "finishWithResult", JsFeatureAbility::FinishWithResult);
-    BindNativeFunction(engine, *object, "getDeviceList", JsFeatureAbility::GetDeviceList);
-    BindNativeFunction(engine, *object, "callAbility", JsFeatureAbility::CallAbility);
-    BindNativeFunction(engine, *object, "continueAbility", JsFeatureAbility::ContinueAbility);
-    BindNativeFunction(engine, *object, "subscribeAbilityEvent", JsFeatureAbility::SubscribeAbilityEvent);
-    BindNativeFunction(engine, *object, "unsubscribeAbilityEvent", JsFeatureAbility::UnsubscribeAbilityEvent);
-    BindNativeFunction(engine, *object, "sendMsg", JsFeatureAbility::SendMsg);
-    BindNativeFunction(engine, *object, "subscribeMsg", JsFeatureAbility::SubscribeMsg);
-    BindNativeFunction(engine, *object, "unsubscribeMsg", JsFeatureAbility::UnsubscribeMsg);
+    const char *moduleName = "JsFeatureAbility";
+    BindNativeFunction(engine, *object, "startAbility", moduleName, JsFeatureAbility::StartAbility);
+    BindNativeFunction(engine, *object, "startAbilityForResult", moduleName, JsFeatureAbility::StartAbilityForResult);
+    BindNativeFunction(engine, *object, "finishWithResult", moduleName, JsFeatureAbility::FinishWithResult);
+    BindNativeFunction(engine, *object, "getDeviceList", moduleName, JsFeatureAbility::GetDeviceList);
+    BindNativeFunction(engine, *object, "callAbility", moduleName, JsFeatureAbility::CallAbility);
+    BindNativeFunction(engine, *object, "continueAbility", moduleName, JsFeatureAbility::ContinueAbility);
+    BindNativeFunction(engine, *object, "subscribeAbilityEvent", moduleName, JsFeatureAbility::SubscribeAbilityEvent);
+    BindNativeFunction(engine, *object, "unsubscribeAbilityEvent", moduleName,
+        JsFeatureAbility::UnsubscribeAbilityEvent);
+    BindNativeFunction(engine, *object, "sendMsg", moduleName, JsFeatureAbility::SendMsg);
+    BindNativeFunction(engine, *object, "subscribeMsg", moduleName, JsFeatureAbility::SubscribeMsg);
+    BindNativeFunction(engine, *object, "unsubscribeMsg", moduleName, JsFeatureAbility::UnsubscribeMsg);
 
     return objValue;
 }
