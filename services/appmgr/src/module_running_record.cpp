@@ -248,9 +248,6 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     terminateAbilitys_.emplace(token, abilityRecord);
     abilities_.erase(token);
 
-    SendEvent(
-        AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
-
     if (!isForce) {
         auto curAbilityState = abilityRecord->GetState();
         if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND) {
@@ -260,6 +257,8 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     }
 
     if (appLifeCycleDeal_) {
+        SendEvent(
+            AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
         appLifeCycleDeal_->ScheduleCleanAbility(token);
     } else {
         HILOG_WARN("appLifeCycleDeal_ is null");
