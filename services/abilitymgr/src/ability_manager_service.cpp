@@ -3036,6 +3036,10 @@ int AbilityManagerService::GenerateAbilityRequest(
     }
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
         request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
+    if (!request.abilityInfo.isStageBasedModel && appIndex != 0) {
+        HILOG_ERROR("FA mode, start sandbox is not allowed");
+        return ERR_FA_MODE_NOT_SUPPORT_SANDBOX;
+    }
     if (request.abilityInfo.type == AppExecFwk::AbilityType::SERVICE && request.abilityInfo.isStageBasedModel) {
         HILOG_INFO("Stage mode, abilityInfo SERVICE type reset EXTENSION.");
         request.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
