@@ -48,7 +48,7 @@ void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &app
 bool ApplicationImpl::PerformAppReady()
 {
     HILOG_DEBUG("ApplicationImpl::PerformAppReady called");
-    if (curState_ == APP_STATE_CREATE) {
+    if (curState_ == APP_STATE_CREATE && application_ != nullptr) {
         application_->OnStart();
         curState_ = APP_STATE_READY;
         return true;
@@ -66,7 +66,7 @@ bool ApplicationImpl::PerformAppReady()
 bool ApplicationImpl::PerformForeground()
 {
     HILOG_DEBUG("ApplicationImpl::performForeground called");
-    if ((curState_ == APP_STATE_READY) || (curState_ == APP_STATE_BACKGROUND)) {
+    if (((curState_ == APP_STATE_READY) || (curState_ == APP_STATE_BACKGROUND)) && application_ != nullptr) {
         application_->OnForeground();
         curState_ = APP_STATE_FOREGROUND;
         return true;
@@ -84,7 +84,7 @@ bool ApplicationImpl::PerformForeground()
 bool ApplicationImpl::PerformBackground()
 {
     HILOG_DEBUG("ApplicationImpl::performBackground called");
-    if (curState_ == APP_STATE_FOREGROUND) {
+    if (curState_ == APP_STATE_FOREGROUND && application_ != nullptr) {
         application_->OnBackground();
         curState_ = APP_STATE_BACKGROUND;
         return true;
@@ -102,7 +102,7 @@ bool ApplicationImpl::PerformBackground()
 bool ApplicationImpl::PerformTerminate()
 {
     HILOG_DEBUG("ApplicationImpl::PerformTerminate called");
-    if (curState_ == APP_STATE_BACKGROUND) {
+    if (curState_ == APP_STATE_BACKGROUND && application_ != nullptr) {
         application_->OnTerminate();
         curState_ = APP_STATE_TERMINATED;
         RemoveUriPermission();
@@ -121,12 +121,21 @@ bool ApplicationImpl::PerformTerminate()
 void ApplicationImpl::PerformTerminateStrong()
 {
     HILOG_DEBUG("ApplicationImpl::PerformTerminateStrong called");
+    if (application_ == nullptr) {
+        HILOG_ERROR("ApplicationImpl::PerformTerminateStrong: invalid application_.");
+        return;
+    }
     application_->OnTerminate();
     RemoveUriPermission();
 }
 
 void ApplicationImpl::RemoveUriPermission()
 {
+    if (application_ == nullptr) {
+        HILOG_ERROR("ApplicationImpl::RemoveUriPermission: invalid application_.");
+        return;
+    }
+
     auto appContext = application_->GetAppContext();
     if (!appContext) {
         HILOG_ERROR("ApplicationImpl::RemoveUriPermission: Get appliction context failed.");
@@ -150,7 +159,9 @@ void ApplicationImpl::RemoveUriPermission()
 void ApplicationImpl::PerformMemoryLevel(int level)
 {
     HILOG_DEBUG("ApplicationImpl::PerformMemoryLevel called");
-    application_->OnMemoryLevel(level);
+    if (application_ != nullptr) {
+        application_->OnMemoryLevel(level);
+    }
 }
 
 /**
@@ -162,7 +173,9 @@ void ApplicationImpl::PerformMemoryLevel(int level)
 void ApplicationImpl::PerformConfigurationUpdated(const Configuration &config)
 {
     HILOG_DEBUG("ApplicationImpl::PerformConfigurationUpdated called");
-    application_->OnConfigurationUpdated(config);
+    if (application_ != nullptr) {
+        application_->OnConfigurationUpdated(config);
+    }
 }
 
 /**
