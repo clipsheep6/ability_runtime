@@ -373,7 +373,9 @@ bool SimulatorImpl::OnInit()
     NativeValue* mockRequireNapi = globalObj->GetProperty("requireNapi");
     globalObj->SetProperty("mockRequireNapi", mockRequireNapi);
 
-    BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", [](NativeEngine* engine, NativeCallbackInfo* info) {
+    const char *moduleName = "SimulatorImpl";
+    BindNativeFunction(*nativeEngine, *globalObj, "requireNapi", moduleName,
+        [](NativeEngine* engine, NativeCallbackInfo* info) {
         NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(engine->GetGlobal());
         NativeValue* requireNapi = globalObj->GetProperty("requireNapiPreview");
 

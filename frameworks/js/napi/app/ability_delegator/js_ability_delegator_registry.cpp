@@ -101,8 +101,10 @@ NativeValue *JsAbilityDelegatorRegistryInit(NativeEngine *engine, NativeValue *e
         std::make_unique<JsAbilityDelegatorRegistry>();
     object->SetNativePointer(jsDelegatorManager.release(), JsAbilityDelegatorRegistry::Finalizer, nullptr);
 
-    BindNativeFunction(*engine, *object, "getAbilityDelegator", JsAbilityDelegatorRegistry::GetAbilityDelegator);
-    BindNativeFunction(*engine, *object, "getArguments", JsAbilityDelegatorRegistry::GetArguments);
+    const char *moduleName = "JsAbilityDelegatorRegistry";
+    BindNativeFunction(*engine, *object, "getAbilityDelegator", moduleName,
+        JsAbilityDelegatorRegistry::GetAbilityDelegator);
+    BindNativeFunction(*engine, *object, "getArguments", moduleName, JsAbilityDelegatorRegistry::GetArguments);
 
     object->SetProperty("AbilityLifecycleState", AbilityLifecycleStateInit(engine));
 

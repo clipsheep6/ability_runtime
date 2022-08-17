@@ -43,9 +43,13 @@ NativeValue* CreateJsError(NativeEngine& engine, int32_t errCode, const std::str
     return engine.CreateError(CreateJsValue(engine, errCode), CreateJsValue(engine, message));
 }
 
-void BindNativeFunction(NativeEngine& engine, NativeObject& object, const char* name, NativeCallback func)
+void BindNativeFunction(NativeEngine& engine, NativeObject& object, const char* name,
+    const char* moduleName, NativeCallback func)
 {
-    object.SetProperty(name, engine.CreateFunction(name, strlen(name), func, nullptr));
+    std::string fullName(moduleName);
+    fullName += ".";
+    fullName += name;
+    object.SetProperty(name, engine.CreateFunction(fullName.c_str(), fullName.length(), func, nullptr));
 }
 
 void BindNativeProperty(NativeObject& object, const char* name, NativeCallback getter)
