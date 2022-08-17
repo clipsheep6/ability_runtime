@@ -65,10 +65,6 @@ const std::string STR_PC = "pc";
 const std::string DIALOG_NAME_ANR = "dialog_anr_service";
 const std::string DIALOG_NAME_TIPS = "dialog_tips_service";
 const std::string DIALOG_SELECTOR_NAME = "dialog_selector_service";
-const std::string OFF_SET_X = "offsetX";
-const std::string OFF_SET_Y = "offsetY";
-const std::string WIDTH = "width";
-const std::string HEIGHT = "height";
 
 const int32_t LINE_NUMS_ZERO = 0;
 const int32_t LINE_NUMS_TWO = 2;
