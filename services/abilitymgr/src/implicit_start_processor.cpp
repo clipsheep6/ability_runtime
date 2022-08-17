@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,10 +26,12 @@ namespace OHOS {
 namespace AAFwk {
 const std::string BLACK_ACTION_SEND_DATA = "ohos.want.action.sendData";
 const std::string BLACK_ACTION_SEND_MULTIPLE_DATA = "ohos.want.action.sendMultipleData";
+const std::string BLACK_ACTION_SELECT = "ohos.want.action.select";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SEND_DATA),
-    std::vector<std::string>::value_type(BLACK_ACTION_SEND_MULTIPLE_DATA)
+    std::vector<std::string>::value_type(BLACK_ACTION_SEND_MULTIPLE_DATA),
+    std::vector<std::string>::value_type(BLACK_ACTION_SELECT)
 };
 
 bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
