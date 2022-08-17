@@ -34,12 +34,14 @@ const std::string KEY_WANT = "Want";
 const std::string KEY_START_METHOD = "StartMethod";
 const std::string KEY_BUNDLE_NAME = "BundleName";
 const std::string KEY_UID = "Uid";
+const std::string KEY_IS_TEMPORARY = "IsTemporary";
 }
 std::string InnerMissionInfo::ToJsonStr() const
 {
     nlohmann::json value;
     value[KEY_MISSION_NAME] = missionName;
     value[KEY_IS_SINGLETON] = isSingletonMode;
+    value[KEY_IS_TEMPORARY] = isTemporary;
     value[KEY_BUNDLE_NAME] = bundleName;
     value[KEY_START_METHOD] = startMethod;
     value[KEY_UID] = uid;
@@ -89,6 +91,10 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
     isSingletonMode = value[KEY_IS_SINGLETON].get<bool>();
+    if (!CheckJsonNode(KEY_IS_TEMPORARY, JsonType::BOOLEAN)) {
+        return false;
+    }
+    isTemporary = value[KEY_IS_TEMPORARY].get<bool>();
     if (!CheckJsonNode(KEY_START_METHOD, JsonType::NUMBER)) {
         return false;
     }

@@ -12,22 +12,44 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+<div class="outermost-layer">
+    <div id="black-overlay" class = "black-overlay" style="display:{{phoneDisplay}};">
+        <div id="container" class="container" style="width:{{labelwidth}}vp;height:{{labelheight}}vp;margin-left:{{labeloffsetX}}vp;margin-top:{{labeloffsetY}}vp">
+            <div id="div-title" class="div-title">
+                <text id="title" class="title">
+                {{labelAppName}}{{$t('message.title')}}
+                </text>
+                <text id="title-list" class="title-list">
+                {{$t('message.titleList')}}
+                </text>
+            </div>  
+            <div id= "but" class="but">
+                <div id = "but-waiting" class="but-waiting" onclick="onWaiting">
+                    <text class="text-waiting">{{$t('message.waiting')}}</text>
+                </div>
+                <div id = "but-close" class="but-close" onclick="onCloseApp">
+                    <text class="text-close">{{$t('message.close')}}</text>
+                </div>
+            </div> 
+        </div>
+    </div>
 
-<div class="container">
-    <div class="div-title">
-        <text class="title">
-            {{labelAppName}}{{$t('message.title')}}
-        </text>
-        <text class="title-list">
-            {{$t('message.titleList')}}
-        </text>
-    </div>  
-    <div class="but">
-        <div class="but-waiting" onclick="onWaiting">
-            <text class="text-waiting">{{$t('message.waiting')}}</text>
+    <div id="container" class="container" style="display:{{pcDisplay}};border: 1px solid #000">
+        <div id="div-title" class="div-title">
+            <text id="title" class="title">
+                {{labelAppName}}{{$t('message.title')}}
+            </text>
+            <text id="title-list" class="title-list">
+                {{$t('message.titleList')}}
+            </text>
+        </div>  
+        <div id= "but" class="but">
+            <div id = "but-waiting" class="but-waiting" onclick="onWaiting">
+                <text class="text-waiting">{{$t('message.waiting')}}</text>
+            </div>
+            <div id = "but-close" class="but-close" onclick="onCloseApp">
+                <text class="text-close">{{$t('message.close')}}</text>
+            </div>
         </div>
-        <div class="but-close" onclick="onCloseApp">
-            <text class="text-close">{{$t('message.close')}}</text>
-        </div>
-    </div>   
+    </div>
 </div>

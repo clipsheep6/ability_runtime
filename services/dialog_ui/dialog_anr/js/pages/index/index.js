@@ -22,10 +22,28 @@ var EVENT_CLOSE_CODE = "1";
 export default {
     data: {
         labelAppName: "",
+        labeloffsetX: 16,
+        labeloffsetY: 190,
+        labelwidth: 328,
+        labelheight: 192,
+        pcDisplay: 'flex',
+        phoneDisplay: 'none',
     },
+    
     onInit() {
         console.info('onInit');
         this.labelAppName = this.appName;
+        this.labeloffsetX = parseInt(this.offsetX);
+        this.labeloffsetY = parseInt(this.offsetY);
+        this.labelwidth = parseInt(this.width);
+        this.labelheight = parseInt(this.height);
+        if (this.deviceType === "phone") {
+            this.phoneDisplay = 'flex';
+            this.pcDisplay = 'none';
+        } else if (this.deviceType === "pc") {
+            this.phoneDisplay = 'none';
+            this.pcDisplay = 'flex';
+        }
     },
     onShow() {
         console.info('onshow');

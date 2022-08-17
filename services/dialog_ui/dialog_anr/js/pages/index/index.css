@@ -12,15 +12,26 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+.black-overlay{
+    width: 100%;
+    height: 100%;
+    margin-left: 0vp;
+    margin-bottom: 0vp;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: rgba(51, 24, 36, 0.2);
+}
 
 .container {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 16vp;
+    border-radius: 24vp;
     background-color: #FFFFFF;
-    border-width: 1vp;
-    border-color: #e9e9e9;
+    border-color: #FFFFFF;
+    overflow: hidden;
 }
 
 .div-title {
@@ -30,20 +41,20 @@
 
 .title {
     font-size: 20vp;
-    font-weight: Medium;
+    font-weight: "HwChinese-medium";
     height: 29%;
+    margin-top: 16vp;
     text-align: left;
-    margin-left: 5%;
+    margin-left: 16vp;
     text-overflow: ellipsis;
 }
 
 .title-list {
     font-size: 16fp;
-    height: 38%;
+    height: 72vp;
     margin-left: 5%;
     margin-right: 5%;
-    margin-bottom: 8%;
-    font-weight: regular;
+    font-weight: "sans-serif";
 }
 
 .but {
@@ -51,23 +62,23 @@
 }
 
 .but-close {
-    width: 44%;
-    height: 21%; 
-    margin-right: 5%;
-    margin-bottom: 8%;
+    width: 144vp;
+    height: 40vp; 
+    margin-right: 16vp;
+    margin-bottom: 16vp;
     align-items: center;
     flex-direction: column;
     justify-content: center;
     line-height: 21%;
-    background-color: #0A59F7;
+    background-color: #ff007dff;
     border-radius: 50%;
 }
 
 .but-waiting {
-    width: 44%;
-    height: 21%;
-    margin-left: 5%;
-    margin-bottom: 8%;
+    width: 144vp;
+    height: 40vp;
+    margin-left: 16vp;
+    margin-bottom: 16vp;
     align-items: center;
     flex-direction: column;
     justify-content: center;
@@ -78,12 +89,12 @@
 
 .text-waiting {
     font-size: 16fp;
-    color: #0A59F7;
-    font-weight: regular;
+    color:  #ff007dff;
+    font-weight: "sans-serif";
 }
 
 .text-close {
     font-size: 16fp;
-    color: #FFFFFF;
-    font-weight: regular;
+    color: #ffffffff;
+    font-weight: "sans-serif";
 }
