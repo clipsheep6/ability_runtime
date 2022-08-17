@@ -115,7 +115,7 @@ inline std::string StripString(const std::string& str, const char* charSet = " \
 
 std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
 {
-    HILOG_INFO("Search JS module (%{public}s, %{public}s) begin",
+    HILOG_DEBUG("Search JS module (%{public}s, %{public}s) begin",
         curJsModulePath.c_str(), newJsModuleUri.c_str());
 
     std::string newJsModulePath;
@@ -147,7 +147,7 @@ std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, con
 
     FixExtName(newJsModulePath);
 
-    HILOG_INFO("Search JS module (%{public}s, %{public}s) => %{public}s end",
+    HILOG_DEBUG("Search JS module (%{public}s, %{public}s) => %{public}s end",
         curJsModulePath.c_str(), normalizeUri.c_str(), newJsModulePath.c_str());
 
     return newJsModulePath;
