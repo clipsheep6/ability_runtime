@@ -29,7 +29,7 @@
 }
 .title {
     font-size: 20vp;
-    font-weight: medium;
+    font-weight: "HwChinese-medium";
     text-align: left;
     margin-top: 8vp;
     margin-left: 15vp;
@@ -98,8 +98,8 @@
 }
 .text-cancel {
     font-size: 16fp;
-    color: #0A59F7;
-    font-weight: regular;
+    color: #ff007dff;
+    font-weight: "sans-serif";
 }
 
 .selector-listback {
