@@ -40,17 +40,15 @@ public:
     void HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData);
     void HandleOnProcessCreated(const ProcessData &processData);
     void HandleOnProcessDied(const ProcessData &processData);
-    void SetJsObserverObject(NativeValue* jsObserverObject);
-    void CallJsFunction(const char *methodName, NativeValue *const *argv, size_t argc);
-
-    inline void Uninit()
-    {
-        jsObserverObject_.reset();
-    }
+    void CallJsFunction(NativeValue* value, const char *methodName, NativeValue *const *argv, size_t argc);
+    void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject);
+    bool RemoveJsObserverObject(const int32_t observerId);
+    bool FindObserverByObserverId(const int32_t observerId);
+    int32_t GetJsObserverMapSize();
 
 private:
     NativeEngine& engine_;
-    std::unique_ptr<NativeReference> jsObserverObject_ = nullptr;
+    std::map<int32_t, std::shared_ptr<NativeReference>> jsObserverObjectMap_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

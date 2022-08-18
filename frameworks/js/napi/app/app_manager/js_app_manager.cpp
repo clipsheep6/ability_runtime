@@ -46,7 +46,6 @@ constexpr size_t ARGC_THREE = 3;
 constexpr int32_t ERR_NOT_OK = -1;
 
 std::mutex g_observerMutex;
-std::map<int64_t, sptr<JSAppStateObserver>> g_observerIds;
 
 class JsAppManager final {
 public:
@@ -152,8 +151,7 @@ private:
             HILOG_DEBUG("RegisterApplicationStateObserver success.");
             std::lock_guard<std::mutex> lock(g_observerMutex);
             int64_t observerId = serialNumber;
-            g_observerIds.emplace(observerId, observer_);
-            observer_->SetJsObserverObject(info.argv[INDEX_ZERO]);
+            observer_->AddJsObserverObject(observerId, info.argv[INDEX_ZERO]);
             if (serialNumber < INT32_MAX) {
                 serialNumber++;
             } else {
@@ -181,10 +179,9 @@ private:
             napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
                 reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &observerId);
             std::lock_guard<std::mutex> lock(g_observerMutex);
-            auto item = g_observerIds.find(observerId);
-            if (item != g_observerIds.end()) {
+            bool isExist = observer_->FindObserverByObserverId(observerId);
+            if (isExist) {
                 // match id
-                observer_ = item->second;
                 HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, (int32_t)observerId);
             } else {
                 HILOG_INFO("%{public}s not find observer, observer:%{public}d", __func__, (int32_t)observerId);
@@ -205,12 +202,11 @@ private:
                     return;
                 }
                 int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
-                if (ret == 0) {
+                if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
                     task.Resolve(engine, engine.CreateUndefined());
                     std::lock_guard<std::mutex> lock(g_observerMutex);
-                    g_observerIds.erase(observerId);
-                    observer->Uninit();
-                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu", g_observerIds.size());
+                    HILOG_DEBUG("UnregisterApplicationStateObserver success size:%{public}zu",
+                        observer->GetJsObserverMapSize());
                 } else {
                     HILOG_ERROR("UnregisterApplicationStateObserver failed error:%{public}d", ret);
                     task.Reject(engine, CreateJsError(engine, ret, "UnregisterApplicationStateObserver failed"));

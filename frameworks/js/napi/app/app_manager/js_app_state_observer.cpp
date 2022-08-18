@@ -50,8 +50,12 @@ void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData
 {
     HILOG_DEBUG("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
-    NativeValue* argv[] = {CreateJsAppStateData(engine_, appStateData)};
-    CallJsFunction("onForegroundApplicationChanged", argv, ARGC_ONE);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsAppStateData(engine_, appStateData)};
+        CallJsFunction(value, "onForegroundApplicationChanged", argv, ARGC_ONE);
+    }
 }
 
 void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
@@ -76,8 +80,12 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("HandleOnAbilityStateChanged begin");
-    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
-    CallJsFunction("onAbilityStateChanged", argv, ARGC_ONE);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
+        CallJsFunction(value, "onAbilityStateChanged", argv, ARGC_ONE);
+    }
 }
 
 void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
@@ -102,8 +110,12 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
     HILOG_INFO("HandleOnExtensionStateChanged begin");
-    NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
-    CallJsFunction("onAbilityStateChanged", argv, ARGC_ONE);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsAbilityStateData(engine_, abilityStateData)};
+        CallJsFunction(value, "onAbilityStateChanged", argv, ARGC_ONE);
+    }
 }
 
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
@@ -128,8 +140,12 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
     HILOG_INFO("HandleOnProcessCreated begin");
-    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
-    CallJsFunction("onProcessCreated", argv, ARGC_ONE);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
+        CallJsFunction(value, "onProcessCreated", argv, ARGC_ONE);
+    }
 }
 
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
@@ -154,18 +170,18 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
     HILOG_INFO("HandleOnProcessDied begin");
-    NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
-    CallJsFunction("onProcessDied", argv, ARGC_ONE);
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
+        CallJsFunction(value, "onProcessDied", argv, ARGC_ONE);
+    }
 }
 
-void JSAppStateObserver::CallJsFunction(const char *methodName, NativeValue *const *argv, size_t argc)
+void JSAppStateObserver::CallJsFunction(
+    NativeValue* value, const char *methodName, NativeValue *const *argv, size_t argc)
 {
     HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
-    if (jsObserverObject_ == nullptr) {
-        HILOG_ERROR("jsObserverObject_ nullptr");
-        return;
-    }
-    NativeValue* value = jsObserverObject_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");
@@ -181,9 +197,29 @@ void JSAppStateObserver::CallJsFunction(const char *methodName, NativeValue *con
     HILOG_INFO("CallJsFunction end");
 }
 
-void JSAppStateObserver::SetJsObserverObject(NativeValue* jsObserverObject)
+void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject)
 {
-    jsObserverObject_ = std::unique_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1));
+    jsObserverObjectMap_.emplace(
+        observerId, std::shared_ptr<NativeReference>(engine_.CreateReference(jsObserverObject, 1)));
+}
+
+bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
+{
+    bool result = (jsObserverObjectMap_.erase(observerId) == 1);
+    return result;
+}
+
+bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
+{
+    auto item = jsObserverObjectMap_.find(observerId);
+    bool isExist = (item != jsObserverObjectMap_.end());
+    return isExist;
+}
+
+int32_t JSAppStateObserver::GetJsObserverMapSize()
+{
+    int32_t length = jsObserverObjectMap_.size();
+    return length;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
