@@ -112,7 +112,8 @@ NativeValue* CreateNativeArray(NativeEngine& engine, const std::vector<T>& data)
 }
 
 NativeValue* CreateJsError(NativeEngine& engine, int32_t errCode, const std::string& message = std::string());
-void BindNativeFunction(NativeEngine& engine, NativeObject& object, const char* name, NativeCallback func);
+void BindNativeFunction(NativeEngine& engine, NativeObject& object, const char* name,
+    const char* moduleName, NativeCallback func);
 void BindNativeProperty(NativeObject& object, const char* name, NativeCallback getter);
 void* GetNativePointerFromCallbackInfo(NativeEngine* engine, NativeCallbackInfo* info, const char* name);
 

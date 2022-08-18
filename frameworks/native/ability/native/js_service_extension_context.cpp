@@ -808,21 +808,25 @@ NativeValue* CreateJsServiceExtensionContext(NativeEngine& engine, std::shared_p
     // make handler
     handler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
 
-    BindNativeFunction(engine, *object, "startAbility", JsServiceExtensionContext::StartAbility);
-    BindNativeFunction(engine, *object, "terminateSelf", JsServiceExtensionContext::TerminateAbility);
-    BindNativeFunction(engine, *object, "connectAbility", JsServiceExtensionContext::ConnectAbility);
-    BindNativeFunction(engine, *object, "disconnectAbility", JsServiceExtensionContext::DisconnectAbility);
-    BindNativeFunction(engine, *object, "startAbilityWithAccount", JsServiceExtensionContext::StartAbilityWithAccount);
-    BindNativeFunction(engine, *object, "startAbilityByCall", JsServiceExtensionContext::StartAbilityByCall);
+    const char *moduleName = "JsServiceExtensionContext";
+    BindNativeFunction(engine, *object, "startAbility", moduleName, JsServiceExtensionContext::StartAbility);
+    BindNativeFunction(engine, *object, "terminateSelf", moduleName, JsServiceExtensionContext::TerminateAbility);
+    BindNativeFunction(engine, *object, "connectAbility", moduleName, JsServiceExtensionContext::ConnectAbility);
+    BindNativeFunction(engine, *object, "disconnectAbility",
+        moduleName, JsServiceExtensionContext::DisconnectAbility);
+    BindNativeFunction(engine, *object, "startAbilityWithAccount",
+        moduleName, JsServiceExtensionContext::StartAbilityWithAccount);
+    BindNativeFunction(engine, *object, "startAbilityByCall",
+        moduleName, JsServiceExtensionContext::StartAbilityByCall);
     BindNativeFunction(
-        engine, *object, "connectAbilityWithAccount", JsServiceExtensionContext::ConnectAbilityWithAccount);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbility",
+        engine, *object, "connectAbilityWithAccount", moduleName, JsServiceExtensionContext::ConnectAbilityWithAccount);
+    BindNativeFunction(engine, *object, "startServiceExtensionAbility", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount",
+    BindNativeFunction(engine, *object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsServiceExtensionContext::StartServiceExtensionAbilityWithAccount);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbility",
+    BindNativeFunction(engine, *object, "stopServiceExtensionAbility", moduleName,
         JsServiceExtensionContext::StopServiceExtensionAbility);
-    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount",
+    BindNativeFunction(engine, *object, "stopServiceExtensionAbilityWithAccount", moduleName,
         JsServiceExtensionContext::StopServiceExtensionAbilityWithAccount);
 
     return objValue;

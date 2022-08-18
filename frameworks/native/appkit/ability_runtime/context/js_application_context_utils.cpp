@@ -622,18 +622,19 @@ NativeValue *CreateJsApplicationContext(NativeEngine &engine, std::shared_ptr<Ap
     BindNativeProperty(*object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);
     BindNativeProperty(*object, "preferencesDir", JsApplicationContextUtils::GetPreferencesDir);
     BindNativeProperty(*object, "bundleCodeDir", JsApplicationContextUtils::GetBundleCodeDir);
-    BindNativeFunction(engine, *object, "registerAbilityLifecycleCallback",
+    const char *mdName = "JsApplicationContextUtils";
+    BindNativeFunction(engine, *object, "registerAbilityLifecycleCallback", mdName,
         JsApplicationContextUtils::RegisterAbilityLifecycleCallback);
-    BindNativeFunction(engine, *object, "unregisterAbilityLifecycleCallback",
+    BindNativeFunction(engine, *object, "unregisterAbilityLifecycleCallback", mdName,
         JsApplicationContextUtils::UnregisterAbilityLifecycleCallback);
-    BindNativeFunction(engine, *object, "registerEnvironmentCallback",
+    BindNativeFunction(engine, *object, "registerEnvironmentCallback", mdName,
         JsApplicationContextUtils::RegisterEnvironmentCallback);
-    BindNativeFunction(engine, *object, "unregisterEnvironmentCallback",
+    BindNativeFunction(engine, *object, "unregisterEnvironmentCallback", mdName,
         JsApplicationContextUtils::UnregisterEnvironmentCallback);
-    BindNativeFunction(engine, *object, "createBundleContext", JsApplicationContextUtils::CreateBundleContext);
-    BindNativeFunction(engine, *object, "switchArea", JsApplicationContextUtils::SwitchArea);
-    BindNativeFunction(engine, *object, "getArea", JsApplicationContextUtils::GetArea);
-    BindNativeFunction(engine, *object, "createModuleContext", JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(engine, *object, "createBundleContext", mdName, JsApplicationContextUtils::CreateBundleContext);
+    BindNativeFunction(engine, *object, "switchArea", mdName, JsApplicationContextUtils::SwitchArea);
+    BindNativeFunction(engine, *object, "getArea", mdName, JsApplicationContextUtils::GetArea);
+    BindNativeFunction(engine, *object, "createModuleContext", mdName, JsApplicationContextUtils::CreateModuleContext);
 
     HILOG_INFO("CreateJsApplicationContext end");
     return objValue;
