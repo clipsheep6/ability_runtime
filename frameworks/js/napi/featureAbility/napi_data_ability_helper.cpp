@@ -1016,9 +1016,55 @@ void NAPIDataAbilityObserver::ReleaseJSCallback()
         return;
     }
 
-    napi_delete_reference(env_, ref_);
-    ref_ = nullptr;
+    SafeReleaseJSCallback();
     HILOG_INFO("NAPIDataAbilityObserver::%{public}s, called. end", __func__);
+}
+
+void NAPIDataAbilityObserver::SafeReleaseJSCallback()
+{
+    uv_loop_s* loop = nullptr;
+    napi_get_uv_event_loop(env_, &loop);
+    if (loop == nullptr) {
+        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        return;
+    }
+
+    struct DelRefCallbackInfo {
+        napi_env env_;
+        napi_ref ref_;
+    };
+
+    DelRefCallbackInfo* delRefCallbackInfo = new DelRefCallbackInfo {
+        .env_ = env_,
+        .ref_ = ref_,
+    };
+
+    uv_work_t* work = new uv_work_t;
+    work->data = (void*)delRefCallbackInfo;
+    int ret = uv_queue_work(
+        loop, work, [](uv_work_t* work) {},
+        [](uv_work_t* work, int status) {
+            // JS Thread
+            DelRefCallbackInfo* delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
+            napi_delete_reference(delRefCallbackInfo->env_, delRefCallbackInfo->ref_);
+            if (delRefCallbackInfo != nullptr) {
+                delete delRefCallbackInfo;
+                delRefCallbackInfo = nullptr;
+            }
+            if (work != nullptr) {
+                delete work;
+                work = nullptr;
+            }
+        });
+    if (ret != 0) {
+        if (delRefCallbackInfo != nullptr) {
+            delete delRefCallbackInfo;
+        }
+        if (work != nullptr) {
+            delete work;
+        }
+    }
+    ref_ = nullptr;
 }
 
 void NAPIDataAbilityObserver::SetEnv(const napi_env &env)
