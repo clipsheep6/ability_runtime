@@ -16,6 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 module_output_path = "ability_delegator/"
 
 ability_delegator_mock_sources = [
+  "${ability_runtime_path}/tools/aa/src/shell_command_executor.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer.cpp",
   "${ability_runtime_path}/tools/aa/src/test_observer_stub.cpp",
   "${ability_runtime_test_path}/mock/frameworks_kits_appkit_native_test/ability_delegator/mock_ability_delegator_stub.cpp",
@@ -136,6 +137,7 @@ ohos_unittest("ability_delegator_unittest") {
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
     "c_utils:utils",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
@@ -188,6 +190,7 @@ ohos_unittest("ability_delegator_registry_unittest") {
     "ability_runtime:runtime",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
   ]
 }
 
