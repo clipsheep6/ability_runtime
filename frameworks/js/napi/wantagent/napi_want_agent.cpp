@@ -924,7 +924,7 @@ napi_value NAPI_Trigger(napi_env env, napi_callback_info info)
     size_t argc = NUMBER_OF_PARAMETERS_THREE;
     napi_value argv[NUMBER_OF_PARAMETERS_THREE] = {};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
+    HILOG_DEBUG("argc = [%{public}zu]", argc);
 
     napi_valuetype wantAgentType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentType);
@@ -1075,7 +1075,7 @@ napi_value NAPI_Equal(napi_env env, napi_callback_info info)
     size_t argc = NUMBER_OF_PARAMETERS_THREE;
     napi_value argv[NUMBER_OF_PARAMETERS_THREE] = {};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, NULL, NULL));
-    HILOG_INFO("argc = [%{public}zu]", argc);
+    HILOG_DEBUG("argc = [%{public}zu]", argc);
 
     napi_valuetype wantAgentFirstType = napi_valuetype::napi_null;
     napi_typeof(env, argv[0], &wantAgentFirstType);

@@ -85,17 +85,17 @@ ErrCode WantAgentClient::SendWantSender(const sptr<IWantSender> &target, const S
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        HILOG_ERROR("SendWantSender, target write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&senderInfo)) {
-        HILOG_ERROR("senderInfo write failed.");
+        HILOG_ERROR("SendWantSender, senderInfo write failed.");
         return INNER_ERR;
     }
 
     auto error = abms->SendRequest(IAbilityManager::SEND_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("SendWantSender, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -191,7 +191,7 @@ void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, co
     }
     auto abms = GetAbilityManager();
     if (!abms) {
-        HILOG_ERROR("ability proxy is nullptr.");
+        HILOG_ERROR("RegisterCancelListener, ability proxy is nullptr.");
         return;
     }
     MessageParcel data;
@@ -201,16 +201,16 @@ void WantAgentClient::RegisterCancelListener(const sptr<IWantSender> &sender, co
         return;
     }
     if (!data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
+        HILOG_ERROR("RegisterCancelListener, sender write failed.");
         return;
     }
     if (!data.WriteRemoteObject(receiver->AsObject())) {
-        HILOG_ERROR("receiver write failed.");
+        HILOG_ERROR("RegisterCancelListener, receiver write failed.");
         return;
     }
     auto error = abms->SendRequest(IAbilityManager::REGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("RegisterCancelListener, Send request error: %{public}d", error);
         return;
     }
 }
@@ -223,7 +223,7 @@ void WantAgentClient::UnregisterCancelListener(
     }
     auto abms = GetAbilityManager();
     if (!abms) {
-        HILOG_ERROR("ability proxy is nullptr.");
+        HILOG_ERROR("UnregisterCancelListener, ability proxy is nullptr.");
         return;
     }
     MessageParcel data;
@@ -233,16 +233,16 @@ void WantAgentClient::UnregisterCancelListener(
         return;
     }
     if (!data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
+        HILOG_ERROR("UnregisterCancelListener, sender write failed.");
         return;
     }
     if (!data.WriteRemoteObject(receiver->AsObject())) {
-        HILOG_ERROR("receiver write failed.");
+        HILOG_ERROR("UnregisterCancelListener, receiver write failed.");
         return;
     }
     auto error = abms->SendRequest(IAbilityManager::UNREGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("UnregisterCancelListener, Send request error: %{public}d", error);
         return;
     }
 }
@@ -260,21 +260,21 @@ ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, 
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        HILOG_ERROR("GetPendingRequestWant, target write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(want.get())) {
-        HILOG_ERROR("want write failed.");
+        HILOG_ERROR("GetPendingRequestWant, want write failed.");
         return INNER_ERR;
     }
     auto error = abms->SendRequest(IAbilityManager::GET_PENDING_REQUEST_WANT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("GetPendingRequestWant, Send request error: %{public}d", error);
         return error;
     }
     std::unique_ptr<Want> wantInfo(reply.ReadParcelable<Want>());
     if (!wantInfo) {
-        HILOG_ERROR("readParcelableInfo failed");
+        HILOG_ERROR("GetPendingRequestWant, readParcelableInfo failed");
         return INNER_ERR;
     }
     want = std::move(wantInfo);
@@ -295,21 +295,21 @@ ErrCode WantAgentClient::GetWantSenderInfo(const sptr<IWantSender> &target, std:
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        HILOG_ERROR("GetWantSenderInfo, target write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(info.get())) {
-        HILOG_ERROR("info write failed.");
+        HILOG_ERROR("GetWantSenderInfo, info write failed.");
         return INNER_ERR;
     }
     auto error = abms->SendRequest(IAbilityManager::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("GetWantSenderInfo, Send request error: %{public}d", error);
         return error;
     }
     std::unique_ptr<WantSenderInfo> wantSenderInfo(reply.ReadParcelable<WantSenderInfo>());
     if (!wantSenderInfo) {
-        HILOG_ERROR("readParcelable Info failed");
+        HILOG_ERROR("GetWantSenderInfo, readParcelable Info failed");
         return INNER_ERR;
     }
     info = std::move(wantSenderInfo);
