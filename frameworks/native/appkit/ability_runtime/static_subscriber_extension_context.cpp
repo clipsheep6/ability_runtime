@@ -15,13 +15,39 @@
 
 #include "static_subscriber_extension_context.h"
 
+#include "ability_connection.h"
+#include "ability_manager_client.h"
+#include "hilog_wrapper.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 const size_t StaticSubscriberExtensionContext::CONTEXT_TYPE_ID(
     std::hash<const char*> {} ("StaticSubscriberExtensionContext"));
+int StaticSubscriberExtensionContext::ILLEGAL_REQUEST_CODE(-1);
 
 StaticSubscriberExtensionContext::StaticSubscriberExtensionContext() {}
 
 StaticSubscriberExtensionContext::~StaticSubscriberExtensionContext() {}
+
+ErrCode StaticSubscriberExtensionContext::StartAbility(const AAFwk::Want &want) const
+{
+    HILOG_DEBUG("Start ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, ILLEGAL_REQUEST_CODE);
+    if (err != ERR_OK) {
+        HILOG_ERROR("StaticSubscriberExtensionContext::StartAbility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode StaticSubscriberExtensionContext::StartAbility(const AAFwk::Want &want, const AAFwk::StartOptions &startOptions) const
+{
+    HILOG_DEBUG("Start ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_,
+        ILLEGAL_REQUEST_CODE);
+    if (err != ERR_OK) {
+        HILOG_ERROR("StaticSubscriberExtensionContext::StartAbility is failed %{public}d", err);
+    }
+    return err;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
