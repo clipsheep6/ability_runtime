@@ -1031,7 +1031,6 @@ private:
     std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
     std::shared_ptr<AbilityConnectManager> connectManager_;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
-    std::shared_ptr<AppScheduler> appScheduler_;
     std::unordered_map<int, std::shared_ptr<DataAbilityManager>> dataAbilityManagers_;
     std::shared_ptr<DataAbilityManager> dataAbilityManager_;
     std::shared_ptr<DataAbilityManager> systemDataAbilityManager_;

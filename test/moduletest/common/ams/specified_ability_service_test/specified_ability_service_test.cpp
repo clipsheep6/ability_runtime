@@ -116,12 +116,7 @@ bool SpecifiedAbilityServiceTest::MockAppClient() const
         return false;
     }
 
-    if (!abilityMgrServ_->appScheduler_) {
-        GTEST_LOG_(INFO) << "MockAppClient::2";
-        return false;
-    }
-
-    abilityMgrServ_->appScheduler_->appMgrClient_.reset(mockAppMgrClient_.get());
+    OHOS::DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_.reset(mockAppMgrClient_.get());
     return true;
 }
 

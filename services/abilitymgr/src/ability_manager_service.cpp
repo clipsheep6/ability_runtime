@@ -191,9 +191,6 @@ AbilityManagerService::AbilityManagerService()
       state_(ServiceRunningState::STATE_NOT_START),
       iBundleManager_(nullptr)
 {
-    std::shared_ptr<AppScheduler> appScheduler(
-        DelayedSingleton<AppScheduler>::GetInstance().get(), [](AppScheduler *x) { x->DecStrongRef(x); });
-    appScheduler_ = appScheduler;
     DumpFuncInit();
     DumpSysFuncInit();
 }
@@ -2537,9 +2534,7 @@ void AbilityManagerService::DumpSysProcess(
             "  uid #" + std::to_string(ProcessInfo.uid_);
         info.push_back(dumpInfo);
         auto appState = static_cast<AppState>(ProcessInfo.state_);
-        if (appScheduler_) {
-            dumpInfo = "      state #" + appScheduler_->ConvertAppState(appState);
-        }
+        dumpInfo = "      state #" + DelayedSingleton<AppScheduler>::GetInstance()->ConvertAppState(appState);
         info.push_back(dumpInfo);
     }
 }
@@ -3594,9 +3589,8 @@ void AbilityManagerService::ConnectBmsService()
 {
     HILOG_DEBUG("%{public}s", __func__);
     HILOG_INFO("Waiting AppMgr Service run completed.");
-    CHECK_POINTER(appScheduler_);
-    while (!appScheduler_->Init(shared_from_this())) {
-        HILOG_ERROR("failed to init appScheduler_");
+    while (!DelayedSingleton<AppScheduler>::GetInstance()->Init(shared_from_this())) {
+        HILOG_ERROR("failed to init AppScheduler");
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
 
