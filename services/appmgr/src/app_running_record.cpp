@@ -786,12 +786,12 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     }
     moduleRecord->AbilityTerminated(token);
 
-    if (moduleRecord->GetAbilities().empty()) {
+    if (moduleRecord->GetAbilities().empty() && !IsKeepAliveApp()) {
         RemoveModuleRecord(moduleRecord);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
-    if (moduleRecordList.empty()) {
+    if (moduleRecordList.empty() && !IsKeepAliveApp()) {
         ScheduleTerminate();
     }
 }
