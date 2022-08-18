@@ -187,7 +187,6 @@ void AbilityTimeoutModuleTest::MockOnStop()
     abilityMs_->connectManagers_.clear();
     abilityMs_->connectManager_.reset();
     abilityMs_->iBundleManager_.clear();
-    abilityMs_->appScheduler_.reset();
     abilityMs_->dataAbilityManagers_.clear();
     abilityMs_->dataAbilityManager_.reset();
     abilityMs_->systemDataAbilityManager_.reset();

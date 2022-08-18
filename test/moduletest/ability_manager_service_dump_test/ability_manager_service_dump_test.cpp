@@ -55,13 +55,11 @@ void AbilityManagerServiceDumpTest::SetUp()
 {
     abilityMs_ = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance();
     EXPECT_NE(abilityMs_, nullptr);
-    EXPECT_NE(abilityMs_->appScheduler_, nullptr);
 
     mockAppMgrClient_ = std::make_unique<MockAppMgrClient>();
     EXPECT_NE(mockAppMgrClient_, nullptr);
 
-    abilityMs_->appScheduler_->appMgrClient_ = std::move(mockAppMgrClient_);
-    EXPECT_NE(abilityMs_->appScheduler_->appMgrClient_, nullptr);
+    OHOS::DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(mockAppMgrClient_);
 }
 
 void AbilityManagerServiceDumpTest::TearDown()
