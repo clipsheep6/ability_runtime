@@ -806,6 +806,8 @@ public:
 
     bool CanRestartRootLauncher();
 
+    std::string GetLabel();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 

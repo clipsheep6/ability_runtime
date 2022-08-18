@@ -389,7 +389,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
     }
 
     if (!findReusedMissionInfo) {
-        info.missionInfo.label = abilityRequest.appInfo.label;
         if (!DelayedSingleton<MissionInfoMgr>::GetInstance()->GenerateMissionId(info.missionInfo.id)) {
             HILOG_DEBUG("failed to generate mission id.");
             return;
@@ -410,6 +409,10 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
                 startMethod);
         }
         HILOG_DEBUG("Update MissionId UpdateMissionId(%{public}d, %{public}d) end", info.missionInfo.id, startMethod);
+    }
+
+    if (!findReusedMissionInfo && targetRecord) {
+        info.missionInfo.label = targetRecord->GetLabel();
     }
 
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED) {
