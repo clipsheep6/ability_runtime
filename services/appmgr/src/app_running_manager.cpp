@@ -331,7 +331,7 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token)) {
+    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         appRecord->SetTerminating();
     }
 
@@ -356,7 +356,7 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         return;
     }
 
-    if (appRecord->IsLastAbilityRecord(token)) {
+    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
