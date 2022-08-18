@@ -43,7 +43,7 @@ ohos_shared_library("particleability") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/jsoncpp:jsoncpp",
-    "//third_party/libuv:uv_static",
+    "//third_party/libuv:uv",
   ]
 
   external_deps = [
