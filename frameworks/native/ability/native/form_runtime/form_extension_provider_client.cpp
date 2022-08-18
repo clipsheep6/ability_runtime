@@ -447,6 +447,7 @@ void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t f
     newWant.SetParam(Constants::PROVIDER_FLAG, true);
     newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
     newWant.SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_RESIZE_FORM);
+    newWant.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
     FormProviderInfo formProviderInfo;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {

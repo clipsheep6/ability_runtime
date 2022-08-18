@@ -414,6 +414,7 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
 
     // The error code for operation.
     int errorCode = ERR_OK;
+    int dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, -1);
     FormProviderInfo formProviderInfo;
     do {
         HILOG_INFO("%{public}s called.", __func__);
@@ -429,7 +430,6 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
             break;
         }
 
-        int dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, -1);
         if(dimensionId == -1) {
             HILOG_WARN("%{public}s, the form dimension isn't valid", __func__);
             errorCode = ERR_APPEXECFWK_FORM_INVALID_PARAM;
@@ -446,6 +446,7 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
     newWant.SetParam(Constants::PROVIDER_FLAG, true);
     newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formId));
     newWant.SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_RESIZE_FORM);
+    newWant.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
 
     //The error code for size change.
     int sizeChangedErrorCode = HandleSizeChanged(formProviderInfo, newWant, callerToken);
