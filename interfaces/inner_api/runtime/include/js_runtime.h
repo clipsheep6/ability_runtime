@@ -63,6 +63,7 @@ public:
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
     std::string BuildJsStackTrace() override;
+    void BuildJsStackInfoList(std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
 
     bool RunSandboxScript(const std::string& path);
