@@ -44,7 +44,7 @@ public:
     void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject);
     bool RemoveJsObserverObject(const int32_t observerId);
     bool FindObserverByObserverId(const int32_t observerId);
-    int32_t GetJsObserverMapSize();
+    size_t GetJsObserverMapSize();
 
 private:
     NativeEngine& engine_;

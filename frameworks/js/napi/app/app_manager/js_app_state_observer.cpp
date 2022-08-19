@@ -216,9 +216,9 @@ bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
     return isExist;
 }
 
-int32_t JSAppStateObserver::GetJsObserverMapSize()
+size_t JSAppStateObserver::GetJsObserverMapSize()
 {
-    int32_t length = jsObserverObjectMap_.size();
+    size_t length = jsObserverObjectMap_.size();
     return length;
 }
 }  // namespace AbilityRuntime
