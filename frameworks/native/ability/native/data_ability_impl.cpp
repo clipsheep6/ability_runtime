@@ -16,13 +16,21 @@
 #include "data_ability_impl.h"
 
 #include "abs_shared_result_set.h"
+#include "accesstoken_kit.h"
+#include "data_ability_operation.h"
 #include "data_ability_predicates.h"
 #include "hilog_wrapper.h"
+#include "ipc_skeleton.h"
 #include "values_bucket.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const std::string READ = "r";
+const std::string WRITE = "w";
+}
 using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
+using OHOS::Security::AccessToken::AccessTokenKit;
 /**
  * @brief Handling the life cycle switching of PageAbility.
  *
@@ -100,6 +108,10 @@ int DataAbilityImpl::OpenFile(const Uri &uri, const std::string &mode)
         return fd;
     }
 
+    if (!CheckOpenFilePermission(mode)) {
+        return fd;
+    }
+
     fd = ability_->OpenFile(uri, mode);
     return fd;
 }
@@ -124,6 +136,10 @@ int DataAbilityImpl::OpenRawFile(const Uri &uri, const std::string &mode)
         return fd;
     }
 
+    if (!CheckOpenFilePermission(mode)) {
+        return fd;
+    }
+
     fd = ability_->OpenRawFile(uri, mode);
     return fd;
 }
@@ -141,6 +157,11 @@ int DataAbilityImpl::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value
     int index = -1;
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::Insert ability_ is nullptr");
+        return index;
+    }
+
+    if (!CheckReadAndWritePermission(WRITE)) {
+        HILOG_WARN("DataAbilityImpl::Insert failed, do not have write permission");
         return index;
     }
 
@@ -166,6 +187,11 @@ int DataAbilityImpl::Update(
         return index;
     }
 
+    if (!CheckReadAndWritePermission(WRITE)) {
+        HILOG_WARN("DataAbilityImpl::Update failed, do not have write permission");
+        return index;
+    }
+
     index = ability_->Update(uri, value, predicates);
     return index;
 }
@@ -183,6 +209,11 @@ int DataAbilityImpl::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicat
     int index = -1;
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::Delete ability_ is nullptr");
+        return index;
+    }
+
+    if (!CheckReadAndWritePermission(WRITE)) {
+        HILOG_WARN("DataAbilityImpl::Delete failed, do not have write permission");
         return index;
     }
 
@@ -204,6 +235,11 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityImpl::Query(
 {
     if (ability_ == nullptr) {
         HILOG_ERROR("DataAbilityImpl::Query ability_ is nullptr");
+        return nullptr;
+    }
+
+    if (!CheckReadAndWritePermission(READ)) {
+        HILOG_WARN("DataAbilityImpl::Query failed, do not have read permission");
         return nullptr;
     }
 
@@ -276,6 +312,12 @@ int DataAbilityImpl::BatchInsert(const Uri &uri, const std::vector<NativeRdb::Va
         HILOG_ERROR("DataAbilityImpl::BatchInsert​ ability_ is nullptr");
         return ret;
     }
+
+    if (!CheckReadAndWritePermission(WRITE)) {
+        HILOG_WARN("DataAbilityImpl::BatchInsert failed, do not have write permission");
+        return ret;
+    }
+
     ret = ability_->BatchInsert(uri, values);
     return ret;
 }
@@ -298,6 +340,12 @@ Uri DataAbilityImpl::NormalizeUri(const Uri &uri)
         HILOG_ERROR("DataAbilityImpl::NormalizeUri ability_ is nullptr");
         return urivalue;
     }
+
+    if (!CheckReadAndWritePermission(READ)) {
+        HILOG_WARN("DataAbilityImpl::NormalizeUri failed, do not have read permission");
+        return urivalue;
+    }
+
     urivalue = ability_->NormalizeUri(uri);
     return urivalue;
 }
@@ -321,6 +369,12 @@ Uri DataAbilityImpl::DenormalizeUri(const Uri &uri)
         HILOG_ERROR("DataAbilityImpl::DenormalizeUri ability_ is nullptr");
         return urivalue;
     }
+
+    if (!CheckReadAndWritePermission(READ)) {
+        HILOG_ERROR("DataAbilityImpl::DenormalizeUri failed, do not have read permission");
+        return urivalue;
+    }
+
     urivalue = ability_->DenormalizeUri(uri);
     return urivalue;
 }
@@ -336,9 +390,104 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityImpl::ExecuteBatch(
         return results;
     }
 
+    if (!CheckExecuteBatchPermission(operations)) {
+        results.clear();
+        return results;
+    }
+
     results = ability_->ExecuteBatch(operations);
     HILOG_INFO("DataAbilityImpl::ExecuteBatch end, results size:%{public}zu", results.size());
     return results;
+}
+
+bool DataAbilityImpl::CheckExecuteBatchPermission(
+    const std::vector<std::shared_ptr<DataAbilityOperation>> &operations) const
+{
+    bool needCheckReadPermission = false;
+    bool needCheckWritePermission = false;
+
+    size_t size = operations.size();
+    for (size_t i = 0; i < size; i++) {
+        std::shared_ptr<DataAbilityOperation> operation = operations[i];
+        if (operation->IsInsertOperation() || operation->IsUpdateOperation() || operation->IsDeleteOperation()) {
+            needCheckWritePermission = true;
+        } else if (operation->IsAssertOperation()) {
+            needCheckReadPermission = true;
+        }
+        if (needCheckReadPermission && needCheckWritePermission) {
+            break;
+        }
+    }
+
+    if (needCheckReadPermission) {
+        if (!CheckReadAndWritePermission(READ)) {
+            HILOG_WARN("DataAbilityImpl::ExecuteBatch failed, do not have read permission");
+            return false;
+        }
+    }
+
+    if (needCheckWritePermission) {
+        if (!CheckReadAndWritePermission(WRITE)) {
+            HILOG_WARN("DataAbilityImpl::ExecuteBatch failed, do not have write permission");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
+{
+    if (mode.find(READ) != string::npos) {
+        if (!CheckReadAndWritePermission(READ)) {
+            HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have read permission");
+            return false;
+        }
+    } else if (mode.find(WRITE) != string::npos) {
+        if (!CheckReadAndWritePermission(WRITE)) {
+            HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have write permission");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool DataAbilityImpl::CheckReadAndWritePermission(const std::string &permissionType) const
+{
+    std::string permission = GetPermissionInfo(permissionType);
+    if (permission.empty()) {
+        HILOG_DEBUG("%{public}s, permission is empty", __func__);
+        return true;
+    }
+
+    auto tokenId = IPCSkeleton::GetCallingTokenID();
+    int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, permission);
+    if (checkReadPermission != ERR_OK) {
+        std::shared_ptr<AbilityInfo> abilityInfo = ability_->GetAbilityInfo();
+        HILOG_DEBUG("%{public}s do not have permission, bundleName: %{public}s",
+            __func__, abilityInfo->bundleName.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+std::string DataAbilityImpl::GetPermissionInfo(const std::string &permissionType) const
+{
+    HILOG_DEBUG("%{public}s begin, permissionType:%{public}s", __func__, permissionType.c_str());
+    std::shared_ptr<AbilityInfo> abilityInfo = ability_->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        HILOG_WARN("%{public}s abilityInfo is nullptr", __func__);
+        return "";
+    }
+    if (permissionType == READ) {
+        return abilityInfo->readPermission;
+    } else if (permissionType == WRITE) {
+        return abilityInfo->writePermission;
+    } else {
+        return "";
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

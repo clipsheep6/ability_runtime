@@ -207,6 +207,13 @@ public:
      */
     std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
         const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
+
+private:
+    bool CheckExecuteBatchPermission(
+        const std::vector<std::shared_ptr<DataAbilityOperation>> &operations) const;
+    bool CheckOpenFilePermission(const std::string &mode) const;
+    bool CheckReadAndWritePermission(const std::string &permissionType) const;
+    std::string GetPermissionInfo(const std::string &permissionType) const;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
