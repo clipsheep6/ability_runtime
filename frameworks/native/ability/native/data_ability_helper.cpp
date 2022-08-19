@@ -14,14 +14,23 @@
  */
 
 #include "data_ability_helper.h"
+#include "abs_shared_result_set.h"
+#include "datashare_helper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "rdb_data_ability_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::RdbDataAbilityAdapter;
 DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl)
 {
     dataAbilityHelperImpl_ = helperImpl;
+}
+
+DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper)
+{
+    dataShareHelper_ = dataShareHelper;
 }
 
 /**
@@ -33,15 +42,11 @@ DataAbilityHelper::DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_ptr<Context> &context)
 {
-    HILOG_INFO("Creator with context called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
-    }
-    if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("Create DataAbilityHelper failed.");
-        return nullptr;
+        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -57,8 +62,27 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with context & uri called.");
-    return DataAbilityHelper::Creator(context, uri, false);
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri.");
+    if (!context || !uri) {
+        HILOG_ERROR("Input param invalid, context or uri is nullptr.");
+        return nullptr;
+    }
+    auto sharedPtrDataAbilityHelper = DataAbilityHelper::Creator(context, uri, false);
+    if (sharedPtrDataAbilityHelper) {
+        return sharedPtrDataAbilityHelper;
+    }
+
+    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator with context & uri.");
+    Uri dataShareUri("");
+    if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+        return nullptr;
+    }
+    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
+    if (dataShareHelper) {
+        ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+    }
+    return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
 /**
@@ -72,8 +96,28 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with ability runtime context & uri called.");
-    return DataAbilityHelper::Creator(context, uri, false);
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri.");
+    if (!context || !uri) {
+        HILOG_ERROR("Input param invalid, ability runtime context or uri is nullptr.");
+        return nullptr;
+    }
+    auto sharedPtrDataAbilityHelper = DataAbilityHelper::Creator(context, uri, false);
+    if (sharedPtrDataAbilityHelper) {
+        return sharedPtrDataAbilityHelper;
+    }
+
+    HILOG_INFO("Call DataAbilityHelperImpl Creator failed, "
+        "Call DataShareHelper Creator with ability runtime context & uri.");
+    Uri dataShareUri("");
+    if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+        return nullptr;
+    }
+    DataAbilityHelper *ptrDataAbilityHelper = nullptr;
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
+    if (dataShareHelper) {
+        ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+    }
+    return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
 
 /**
@@ -91,15 +135,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("Creator with context & uri & tryBind called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
-    }
-    if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("Create DataAbilityHelper failed.");
-        return nullptr;
+        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -119,15 +159,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const std::shared_ptr<OHOS::AbilityRuntime::Context> &context, const std::shared_ptr<Uri> &uri, const bool tryBind)
 {
-    HILOG_INFO("Creator with ability runtime context & uri & tryBind called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with ability runtime context & uri & tryBind.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
-    }
-    if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("Create DataAbilityHelper failed.");
-        return nullptr;
+        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -141,15 +177,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
  */
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Creator with token called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with token.");
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
-    }
-    if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("Create DataAbilityHelper failed.");
-        return nullptr;
+        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -167,15 +199,25 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
 std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     const sptr<IRemoteObject> &token, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("Creator with token & uri called.");
+    HILOG_INFO("Call DataAbilityHelperImpl Creator with token & uri.");
+    if (!token || !uri) {
+        HILOG_ERROR("Input param invalid, token or uri is nullptr.");
+        return nullptr;
+    }
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token, uri);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
-    }
-    if (ptrDataAbilityHelper == nullptr) {
-        HILOG_ERROR("Create DataAbilityHelper failed.");
-        return nullptr;
+        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+    } else {
+        HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator with token & uri.");
+        Uri dataShareUri("");
+        if (!DataAbilityHelper::TransferScheme(*uri, dataShareUri)) {
+            return nullptr;
+        }
+        auto dataShareHelper = DataShare::DataShareHelper::Creator(token, dataShareUri.ToString());
+        if (dataShareHelper) {
+            ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -191,8 +233,14 @@ bool DataAbilityHelper::Release()
     HILOG_INFO("Release called.");
     bool ret = false;
     if (dataAbilityHelperImpl_) {
+        HILOG_INFO("Call DataAbilityHelperImpl Release.");
         ret = dataAbilityHelperImpl_->Release();
         dataAbilityHelperImpl_.reset();
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper Release.");
+        ret = dataShareHelper_->Release();
+        dataShareHelper_.reset();
     }
     return ret;
 }
@@ -211,7 +259,15 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
     HILOG_INFO("GetFileTypes called.");
     std::vector<std::string> matchedMIMEs;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->GetFileTypes(uri, mimeTypeFilter);
+        HILOG_INFO("Call DataAbilityHelperImpl GetFileTypes.");
+        matchedMIMEs = dataAbilityHelperImpl_->GetFileTypes(uri, mimeTypeFilter);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper GetFileTypes.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            matchedMIMEs = dataShareHelper_->GetFileTypes(dataShareUri, mimeTypeFilter);
+        }
     }
     return matchedMIMEs;
 }
@@ -232,7 +288,15 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
     HILOG_INFO("OpenFile Called.");
     int fd = -1;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->OpenFile(uri, mode);
+        HILOG_INFO("Call DataAbilityHelperImpl OpenFile.");
+        fd = dataAbilityHelperImpl_->OpenFile(uri, mode);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper OpenFile.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            fd = dataShareHelper_->OpenFile(dataShareUri, mode);
+        }
     }
     return fd;
 }
@@ -254,7 +318,15 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
     HILOG_INFO("OpenRawFile called.");
     int fd = -1;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->OpenRawFile(uri, mode);
+        HILOG_INFO("Call DataAbilityHelperImpl OpenRawFile.");
+        fd = dataAbilityHelperImpl_->OpenRawFile(uri, mode);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper OpenFile.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            fd = dataShareHelper_->OpenRawFile(dataShareUri, mode);
+        }
     }
     return fd;
 }
@@ -273,7 +345,16 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     HILOG_INFO("Insert called.");
     int index = -1;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Insert(uri, value);
+        HILOG_INFO("Call DataAbilityHelperImpl Insert.");
+        index = dataAbilityHelperImpl_->Insert(uri, value);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper Insert.");
+        DataShare::DataShareValuesBucket dataShareValue = RdbDataAbilityUtils::ToDataShareValuesBucket(value);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Insert(dataShareUri, dataShareValue);
+        }
     }
     return index;
 }
@@ -284,7 +365,11 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
     HILOG_INFO("Call called.");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Call(uri, method, arg, pacMap);
+        HILOG_INFO("Call DataAbilityHelperImpl Call.");
+        result = dataAbilityHelperImpl_->Call(uri, method, arg, pacMap);
+    }
+    if (dataShareHelper_) {
+        HILOG_ERROR("Call DataShareHelper Call, DataShareHelper no this interface.");
     }
     return result;
 }
@@ -305,7 +390,17 @@ int DataAbilityHelper::Update(
     HILOG_INFO("Update called.");
     int index = -1;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Update(uri, value, predicates);
+        HILOG_INFO("Call DataAbilityHelperImpl Update.");
+        index = dataAbilityHelperImpl_->Update(uri, value, predicates);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper Update.");
+        DataShare::DataShareValuesBucket dataShareValue = RdbDataAbilityUtils::ToDataShareValuesBucket(value);
+        DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Update(dataShareUri, dataSharePredicates, dataShareValue);
+        }
     }
     return index;
 }
@@ -324,7 +419,16 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
     HILOG_INFO("Delete called.");
     int index = -1;
     if (dataAbilityHelperImpl_) {
+        HILOG_INFO("Call DataAbilityHelperImpl Delete.");
         return dataAbilityHelperImpl_->Delete(uri, predicates);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper Delete.");
+        DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            index = dataShareHelper_->Delete(dataShareUri, dataSharePredicates);
+        }
     }
     return index;
 }
@@ -343,11 +447,25 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Query called.");
-    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> resultSet = nullptr;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Query(uri, columns, predicates);
+        HILOG_INFO("Call DataAbilityHelperImpl Query.");
+        resultSet = dataAbilityHelperImpl_->Query(uri, columns, predicates);
     }
-    return resultset;
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper Query.");
+        DataShare::DataSharePredicates dataSharePredicates = RdbDataAbilityUtils::ToDataSharePredicates(predicates);
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            std::shared_ptr<DataShare::DataShareResultSet> dataShareResultSet
+                = dataShareHelper_->Query(dataShareUri, dataSharePredicates, columns);
+            resultSet = RdbDataAbilityUtils::ToAbsSharedResultSet(dataShareResultSet);
+            if (!resultSet) {
+                HILOG_ERROR("Transfer to AbsSharedResultSet failed.");
+            }
+        }
+    }
+    return resultSet;
 }
 
 /**
@@ -364,7 +482,15 @@ std::string DataAbilityHelper::GetType(Uri &uri)
     HILOG_INFO("GetType called.");
     std::string type;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->GetType(uri);
+        HILOG_INFO("Call DataAbilityHelperImpl GetType.");
+        type = dataAbilityHelperImpl_->GetType(uri);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper GetType.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            type = dataShareHelper_->GetType(dataShareUri);
+        }
     }
     return type;
 }
@@ -384,7 +510,11 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
     HILOG_INFO("Reload called.");
     bool ret = false;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Reload(uri, extras);
+        HILOG_INFO("Call DataAbilityHelperImpl Reload.");
+        ret = dataAbilityHelperImpl_->Reload(uri, extras);
+    }
+    if (dataShareHelper_) {
+        HILOG_ERROR("Call DataShareHelper Reload, DataShareHelper no this interface.");
     }
     return ret;
 }
@@ -403,7 +533,20 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
     HILOG_INFO("BatchInsert called.");
     int ret = -1;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->BatchInsert(uri, values);
+        HILOG_INFO("Call DataAbilityHelperImpl BatchInsert.");
+        ret = dataAbilityHelperImpl_->BatchInsert(uri, values);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper BatchInsert.");
+        std::vector<DataShare::DataShareValuesBucket> dataShareValues;
+        for (auto value : values) {
+            DataShare::DataShareValuesBucket dataShareValue = RdbDataAbilityUtils::ToDataShareValuesBucket(value);
+            dataShareValues.push_back(dataShareValue);
+        }
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            ret = dataShareHelper_->BatchInsert(dataShareUri, dataShareValues);
+        }
     }
     return ret;
 }
@@ -418,7 +561,15 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
 {
     HILOG_INFO("RegisterObserver called.");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->RegisterObserver(uri, dataObserver);
+        HILOG_INFO("Call DataAbilityHelperImpl RegisterObserver.");
+        dataAbilityHelperImpl_->RegisterObserver(uri, dataObserver);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper RegisterObserver.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->RegisterObserver(dataShareUri, dataObserver);
+        }
     }
 }
 
@@ -432,7 +583,15 @@ void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDa
 {
     HILOG_INFO("UnregisterObserver called.");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->UnregisterObserver(uri, dataObserver);
+        HILOG_INFO("Call DataAbilityHelperImpl UnregisterObserver.");
+        dataAbilityHelperImpl_->UnregisterObserver(uri, dataObserver);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper UnregisterObserver.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->UnregisterObserver(dataShareUri, dataObserver);
+        }
     }
 }
 
@@ -446,7 +605,15 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("NotifyChange called.");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->NotifyChange(uri);
+        HILOG_INFO("Call DataAbilityHelperImpl NotifyChange.");
+        dataAbilityHelperImpl_->NotifyChange(uri);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper NotifyChange.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->NotifyChange(dataShareUri);
+        }
     }
 }
 
@@ -468,7 +635,15 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
     HILOG_INFO("NormalizeUri called.");
     Uri urivalue("");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->NormalizeUri(uri);
+        HILOG_INFO("Call DataAbilityHelperImpl NormalizeUri.");
+        dataAbilityHelperImpl_->NormalizeUri(uri);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper NormalizeUri.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            dataShareHelper_->NormalizeUri(dataShareUri);
+        }
     }
     return urivalue;
 }
@@ -489,7 +664,15 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
     HILOG_INFO("DenormalizeUri called.");
     Uri urivalue("");
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->DenormalizeUri(uri);
+        HILOG_INFO("Call DataAbilityHelperImpl DenormalizeUri.");
+        urivalue = dataAbilityHelperImpl_->DenormalizeUri(uri);
+    }
+    if (dataShareHelper_) {
+        HILOG_INFO("Call DataShareHelper DenormalizeUri.");
+        Uri dataShareUri("");
+        if (TransferScheme(uri, dataShareUri)) {
+            urivalue = dataShareHelper_->DenormalizeUri(dataShareUri);
+        }
     }
     return urivalue;
 }
@@ -500,9 +683,38 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
     HILOG_INFO("ExecuteBatch called.");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->ExecuteBatch(uri, operations);
+        HILOG_INFO("Call DataAbilityHelperImpl ExecuteBatch.");
+        results = dataAbilityHelperImpl_->ExecuteBatch(uri, operations);
+    }
+    if (dataShareHelper_) {
+        HILOG_ERROR("Call DataShareHelper ExecuteBatch, DataShareHelper no this interface.");
     }
     return results;
+}
+
+bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
+{
+    const std::string dataAbilityScheme = "dataability";
+    const std::string dataShareScheme = "datashare";
+
+    Uri inputUri = uri;
+    if (inputUri.GetScheme() == dataShareScheme) {
+        dataShareUri = Uri(inputUri.ToString());
+        HILOG_INFO("input uri is data share uri, uri: %{public}s, no need transfer.", inputUri.ToString().c_str());
+        return true;
+    }
+
+    if (inputUri.GetScheme() == dataAbilityScheme) {
+        string uriStr = inputUri.ToString();
+        uriStr.replace(0, dataAbilityScheme.length(), dataShareScheme);
+        dataShareUri = Uri(uriStr);
+        HILOG_INFO("data ability uri: %{public}s transfer to data share uri: %{public}s.",
+            inputUri.ToString().c_str(), dataShareUri.ToString().c_str());
+        return true;
+    }
+
+    HILOG_ERROR("Input param invalid, uri: %{public}s", inputUri.ToString().c_str());
+    return false;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
