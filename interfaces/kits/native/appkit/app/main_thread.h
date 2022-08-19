@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_MAIN_THREAD_H
 #define OHOS_ABILITY_RUNTIME_MAIN_THREAD_H
 
+#include <signal.h>
 #include <string>
 #include <mutex>
 #include "event_handler.h"
@@ -426,8 +427,10 @@ private:
      * @param sigMessage Recieve the sig message.
      *
      */
+    static void HandleMixDumpRequest();
     static void HandleScheduleANRProcess();
     static void HandleDumpHeap(bool isPrivate);
+    static void Dump_SignalHandler(int sig, siginfo_t *si, void *context);
     static void HandleSignal(int signal);
 
     class MainHandler : public EventHandler {
