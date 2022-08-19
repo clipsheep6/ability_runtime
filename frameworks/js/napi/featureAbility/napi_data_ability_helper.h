@@ -30,6 +30,8 @@ public:
     void CallJsMethod();
 
 private:
+    void SafeReleaseJSCallback();
+
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
     bool isCallingback_ = false;
