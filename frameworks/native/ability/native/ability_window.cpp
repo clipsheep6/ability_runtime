@@ -63,8 +63,9 @@ bool AbilityWindow::InitWindow(Rosen::WindowType winType,
         return false;
     }
     winType_ = winType;
-
-    window->SetPrivacyMode(isPrivacy);
+    if (isPrivacy) {
+        window->SetSystemPrivacyMode(true);
+    }
 
     isWindowAttached = true;
     HILOG_DEBUG("%{public}s end.", __func__);

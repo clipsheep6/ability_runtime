@@ -435,7 +435,9 @@ void JsAbility::DoOnForeground(const Want &want)
         std::weak_ptr<Ability> weakAbility = shared_from_this();
         abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-        window->SetPrivacyMode(securityFlag_);
+        if (securityFlag_) {
+            window->SetSystemPrivacyMode(true);
+        }
     }
 
     HILOG_DEBUG("%{public}s begin scene_->GoForeground, sceneFlag_:%{public}d.", __func__, Ability::sceneFlag_);
