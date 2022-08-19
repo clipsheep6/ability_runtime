@@ -22,6 +22,7 @@
 #include "appmgr/app_mgr_constants.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -255,7 +256,7 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
     CHECK_POINTER(appMgrClient_);
-    appMgrClient_->GetRunningProcessInfoByToken(token, info);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }
 
 void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
