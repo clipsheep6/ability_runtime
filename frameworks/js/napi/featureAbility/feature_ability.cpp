@@ -407,7 +407,7 @@ napi_value SetResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("SetResultPromise, param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -575,7 +575,7 @@ napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbac
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("TerminateAbilityPromise, param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -765,7 +765,7 @@ napi_value HasWindowFocusPromise(napi_env env, AsyncCallbackInfo *asyncCallbackI
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("HasWindowFocusPromise, param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = 0;
@@ -1090,7 +1090,7 @@ napi_value GetWindowWrapPromise(napi_env env, AsyncCallbackInfo *asyncCallbackIn
 {
     HILOG_INFO("%{public}s, promise.", __func__);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("GetWindowWrapPromise, param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = 0;

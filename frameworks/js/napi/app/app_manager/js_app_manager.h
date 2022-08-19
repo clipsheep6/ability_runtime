@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "native_engine/native_engine.h"
 
 #ifndef OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_H
+
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

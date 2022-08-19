@@ -59,17 +59,8 @@ struct AbilityTransitionInfo : public Parcelable {
             return false;
         }
 
-        if (!abilityToken_) {
-            if (!parcel.WriteBool(false)) {
-                return false;
-            }
-        } else {
-            if (!parcel.WriteBool(true)) {
-                return false;
-            }
-            if (!parcel.WriteObject(abilityToken_)) {
-                return false;
-            }
+        if (!WriteAbilityToken(parcel)) {
+            return false;
         }
 
         if (!(parcel.WriteUint64(displayId_) && parcel.WriteBool(isShowWhenLocked_) && parcel.WriteBool(isRecent_))) {
@@ -99,6 +90,24 @@ struct AbilityTransitionInfo : public Parcelable {
         if (!parcel.WriteInt32(missionId_)) {
             return false;
         }
+        return true;
+    }
+
+    bool WriteAbilityToken(Parcel& parcel) const
+    {
+        if (!abilityToken_) {
+            if (!parcel.WriteBool(false)) {
+                return false;
+            }
+        } else {
+            if (!parcel.WriteBool(true)) {
+                return false;
+            }
+            if (!parcel.WriteObject(abilityToken_)) {
+                return false;
+            }
+        }
+
         return true;
     }
 

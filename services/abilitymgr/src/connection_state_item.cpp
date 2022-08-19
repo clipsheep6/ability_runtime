@@ -252,19 +252,19 @@ bool ConnectionStateItem::AddConnection(const std::shared_ptr<ConnectionRecord> 
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        HILOG_ERROR("invalid connection record.");
+        HILOG_ERROR("AddConnection, invalid connection record.");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        HILOG_ERROR("invalid token.");
+        HILOG_ERROR("AddConnection, invalid token.");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        HILOG_ERROR("no connection callback for this connect.");
+        HILOG_ERROR("AddConnection, no connection callback for this connect.");
         return false;
     }
 
@@ -280,7 +280,7 @@ bool ConnectionStateItem::AddConnection(const std::shared_ptr<ConnectionRecord> 
     }
 
     if (!connectedExtension) {
-        HILOG_ERROR("connectedExtension is invalid");
+        HILOG_ERROR("AddConnection, connectedExtension is invalid");
         return false;
     }
 
@@ -296,31 +296,31 @@ bool ConnectionStateItem::RemoveConnection(const std::shared_ptr<ConnectionRecor
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        HILOG_ERROR("invalid connection record.");
+        HILOG_ERROR("RemoveConnection, invalid connection record.");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        HILOG_ERROR("invalid token.");
+        HILOG_ERROR("RemoveConnection, invalid token.");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        HILOG_ERROR("no connection callback for this connect.");
+        HILOG_ERROR("RemoveConnection, no connection callback for this connect.");
         return false;
     }
 
     auto it = connectionMap_.find(token);
     if (it == connectionMap_.end()) {
-        HILOG_ERROR("no such connectedExtension.");
+        HILOG_ERROR("RemoveConnection, no such connectedExtension.");
         return false;
     }
 
     auto connectedExtension = it->second;
     if (!connectedExtension) {
-        HILOG_ERROR("can not find such connectedExtension");
+        HILOG_ERROR("RemoveConnection, can not find such connectedExtension");
         return false;
     }
 
@@ -375,25 +375,25 @@ bool ConnectionStateItem::RemoveDataAbilityConnection(const DataAbilityCaller &c
     const std::shared_ptr<DataAbilityRecord> &dataAbility, AbilityRuntime::ConnectionData &data)
 {
     if (!dataAbility) {
-        HILOG_ERROR("invalid data ability record.");
+        HILOG_ERROR("RemoveDataAbilityConnection, invalid data ability record.");
         return false;
     }
 
     auto token = dataAbility->GetToken();
     if (!token) {
-        HILOG_ERROR("invalid data ability token.");
+        HILOG_ERROR("RemoveDataAbilityConnection, invalid data ability token.");
         return false;
     }
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        HILOG_ERROR("no such connected data ability.");
+        HILOG_ERROR("RemoveDataAbilityConnection, no such connected data ability.");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        HILOG_ERROR("can not find such connectedDataAbility");
+        HILOG_ERROR("RemoveDataAbilityConnection, can not find such connectedDataAbility");
         return false;
     }
 
@@ -415,13 +415,13 @@ bool ConnectionStateItem::HandleDataAbilityDied(const sptr<IRemoteObject> &token
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        HILOG_ERROR("no such connected data ability.");
+        HILOG_ERROR("HandleDataAbilityDied, no such connected data ability.");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        HILOG_ERROR("can not find such connectedDataAbility");
+        HILOG_ERROR("HandleDataAbilityDied, can not find such connectedDataAbility");
         return false;
     }
 

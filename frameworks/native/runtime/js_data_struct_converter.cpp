@@ -16,6 +16,7 @@
 #include "js_data_struct_converter.h"
 
 #include "configuration_convertor.h"
+#include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 
@@ -222,6 +223,7 @@ NativeValue* CreateJsConfiguration(NativeEngine& engine, const AppExecFwk::Confi
 
 NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk::ExtensionAbilityInfo& info)
 {
+    HILOG_DEBUG("CreateJsExtensionAbilityInfo begin");
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
     if (object == nullptr) {
@@ -249,6 +251,7 @@ NativeValue* CreateJsExtensionAbilityInfo(NativeEngine& engine, const AppExecFwk
     object->SetProperty("enabled", CreateJsValue(engine, info.enabled));
     object->SetProperty("readPermission", CreateJsValue(engine, info.readPermission));
     object->SetProperty("writePermission", CreateJsValue(engine, info.writePermission));
+    HILOG_DEBUG("CreateJsExtensionAbilityInfo end");
     return objValue;
 }
 }  // namespace AbilityRuntime

@@ -960,7 +960,7 @@ NativeValue *JSAbilityDelegator::ParseAbilityMonitorPara(
 
     if (info.argc > ARGC_ONE) {
         if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("Parse callback parameters failed");
+            HILOG_ERROR("ParseAbilityMonitorPara, Parse callback parameters failed");
             return nullptr;
         }
     }
@@ -983,7 +983,7 @@ NativeValue *JSAbilityDelegator::ParseAbilityStageMonitorPara(
 
     if (info.argc > ARGC_ONE) {
         if (info.argv[INDEX_ONE]->TypeOf() != NativeValueType::NATIVE_FUNCTION) {
-            HILOG_ERROR("Parse callback parameters failed");
+            HILOG_ERROR("ParseAbilityStageMonitorPara, Parse callback parameters failed");
             return nullptr;
         }
     }
