@@ -87,7 +87,6 @@ ohos_moduletest("PandingWantMgrTest") {
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
       "${global_path}/i18n/frameworks/intl:intl_util",
-      "//third_party/libjpeg:libjpeg_static",
     ]
 
     external_deps += [ "multimedia_image_standard:image_native" ]

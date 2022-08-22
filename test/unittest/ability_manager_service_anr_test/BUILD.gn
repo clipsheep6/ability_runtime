@@ -54,7 +54,6 @@ ohos_unittest("ability_manager_service_anr_test") {
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
     "//third_party/icu/icu4c:shared_icuuc",
-    "//third_party/libjpeg:libjpeg_static",
   ]
 
   external_deps = [

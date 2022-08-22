@@ -70,7 +70,6 @@ config("abilityms_config") {
       "${multimedia_path}/interfaces/innerkits/include",
       "${graphic_path}/interfaces/inner_api/wmservice",
       "${global_path}/i18n/frameworks/intl/include",
-      "//third_party/libjpeg",
     ]
 
     defines += [ "SUPPORT_GRAPHICS" ]
