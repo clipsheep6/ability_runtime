@@ -43,6 +43,7 @@ struct AbilityTransitionInfo : public Parcelable {
     uint32_t minWindowWidth_;
     uint32_t maxWindowHeight_;
     uint32_t minWindowHeight_;
+    int32_t missionId_;
 
     virtual bool Marshalling(Parcel& parcel) const override
     {
@@ -95,6 +96,9 @@ struct AbilityTransitionInfo : public Parcelable {
             return false;
         }
 
+        if (!parcel.WriteInt32(missionId_)) {
+            return false;
+        }
         return true;
     }
 
@@ -129,6 +133,7 @@ struct AbilityTransitionInfo : public Parcelable {
         info->minWindowWidth_ = parcel.ReadUint32();
         info->maxWindowHeight_ = parcel.ReadUint32();
         info->minWindowHeight_ = parcel.ReadUint32();
+        info->missionId_ = parcel.ReadInt32();
         return info;
     }
 };
