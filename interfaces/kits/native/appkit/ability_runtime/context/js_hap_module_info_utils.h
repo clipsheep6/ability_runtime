@@ -24,8 +24,6 @@ class NativeObject;
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsRuntime;
-
 NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleInfo& hapModuleInfo);
 void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> properties,
     const std::string &proName);

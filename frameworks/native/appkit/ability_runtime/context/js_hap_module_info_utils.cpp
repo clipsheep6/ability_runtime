@@ -24,6 +24,9 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
 {
     NativeValue* objValue = engine.CreateObject();
     NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    if (object == nullptr) {
+        return objValue;
+    }
 
     object->SetProperty("name", CreateJsValue(engine, hapModuleInfo.name));
     object->SetProperty("moduleName", CreateJsValue(engine, hapModuleInfo.moduleName));
@@ -83,8 +86,8 @@ void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<
     NativeArray *array = ConvertNativeValueTo<NativeArray>(arrayValue);
     if (array != nullptr) {
         int index = 0;
-        for (auto propertie : properties) {
-            array->SetElement(index++, CreateJsValue(engine, propertie));
+        for (auto property : properties) {
+            array->SetElement(index++, CreateJsValue(engine, property));
         }
     }
     object->SetProperty(proName.c_str(), arrayValue);

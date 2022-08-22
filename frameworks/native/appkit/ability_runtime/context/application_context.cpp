@@ -39,6 +39,9 @@ void ApplicationContext::RegisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
     HILOG_DEBUG("ApplicationContext RegisterAbilityLifecycleCallback");
+    if (abilityLifecycleCallback == nullptr) {
+        return;
+    }
     callbacks_.push_back(abilityLifecycleCallback);
 }
 
@@ -52,15 +55,18 @@ void ApplicationContext::UnregisterAbilityLifecycleCallback(
     }
 }
 
-bool ApplicationContext::isAbilityLifecycleCallbackEmpty()
+bool ApplicationContext::IsAbilityLifecycleCallbackEmpty() const
 {
-    return (callbacks_.size() == 0);
+    return callbacks_.empty();
 }
 
 void ApplicationContext::RegisterEnvironmentCallback(
     const std::shared_ptr<EnvironmentCallback> &environmentCallback)
 {
     HILOG_DEBUG("ApplicationContext RegisterEnvironmentCallback");
+    if (environmentCallback == nullptr) {
+        return;
+    }
     envCallbacks_.push_back(environmentCallback);
 }
 

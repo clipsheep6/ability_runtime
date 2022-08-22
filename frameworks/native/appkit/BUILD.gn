@@ -71,6 +71,7 @@ config("appkit_public_config") {
 ohos_shared_library("appkit_native") {
   include_dirs = [
     "native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",

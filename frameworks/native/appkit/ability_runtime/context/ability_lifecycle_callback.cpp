@@ -187,7 +187,6 @@ int32_t JsAbilityLifecycleCallback::Register(NativeValue *jsCallback)
         serialNumber_++;
     } else {
         serialNumber_ = 0;
-        return -1;
     }
     callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(engine_->CreateReference(jsCallback, 1)));
     return callbackId;
@@ -198,13 +197,13 @@ bool JsAbilityLifecycleCallback::UnRegister(int32_t callbackId)
     HILOG_INFO("UnRegister called, callbackId : %{public}d", callbackId);
     auto it = callbacks_.find(callbackId);
     if (it == callbacks_.end()) {
-        HILOG_ERROR("UnRegister callbackId: %{publid}d is not in callbacks_", callbackId);
+        HILOG_ERROR("UnRegister callbackId: %{public}d is not in callbacks_", callbackId);
         return false;
     }
     return callbacks_.erase(callbackId) == 1;
 }
 
-bool JsAbilityLifecycleCallback::IsEmpty()
+bool JsAbilityLifecycleCallback::IsEmpty() const
 {
     return callbacks_.empty();
 }

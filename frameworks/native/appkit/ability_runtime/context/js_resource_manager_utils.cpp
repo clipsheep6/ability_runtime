@@ -20,9 +20,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-NativeValue* CreateJsResourceManager(
-    NativeEngine& engine, std::shared_ptr<Global::Resource::ResourceManager> resourceManager,
-    std::shared_ptr<AbilityRuntime::Context> context)
+NativeValue* CreateJsResourceManager(NativeEngine& engine,
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager, std::shared_ptr<Context> context)
 {
     napi_env env = reinterpret_cast<napi_env>(&engine);
     napi_value result = Global::Resource::ResourceManagerAddon::Create(env, "", resourceManager, context);

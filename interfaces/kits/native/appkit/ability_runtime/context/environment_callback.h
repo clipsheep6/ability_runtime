@@ -49,11 +49,11 @@ public:
     void OnConfigurationUpdated(const AppExecFwk::Configuration &config) override;
     int32_t Register(NativeValue *jsCallback);
     bool UnRegister(int32_t callbackId);
-    bool IsEmpty();
+    bool IsEmpty() const;
     static int32_t serialNumber_;
 
 private:
-    NativeEngine* engine_;
+    NativeEngine* engine_ = nullptr;
     std::shared_ptr<NativeReference> jsCallback_;
     std::map<int32_t, std::shared_ptr<NativeReference>> callbacks_;
     void CallJsMethod(const std::string &methodName, const AppExecFwk::Configuration &config);

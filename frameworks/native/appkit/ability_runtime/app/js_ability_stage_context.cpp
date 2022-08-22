@@ -15,6 +15,7 @@
 
 #include "js_ability_stage_context.h"
 
+#include "ability_runtime/context/context.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
@@ -27,7 +28,7 @@ void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shar
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
     HILOG_INFO("%{public}s called.", __func__);
-    if ((!jsContext) || (!config)) {
+    if (!jsContext || !config) {
         HILOG_INFO("jsContext or config is nullptr.");
         return;
     }
@@ -46,22 +47,24 @@ void JsAbilityStageContext::ConfigurationUpdated(NativeEngine* engine, std::shar
     }
 
     HILOG_INFO("JsAbilityStageContext call onUpdateConfiguration.");
-    NativeValue* argv[] = {CreateJsConfiguration(*engine, *config)};
+    NativeValue* argv[] = { CreateJsConfiguration(*engine, *config) };
     engine->CallFunction(value, method, argv, 1);
 }
 
-NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context,
-                                         DetachCallback detach, AttachCallback attach)
+NativeValue* CreateJsAbilityStageContext(NativeEngine& engine,
+    std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, AttachCallback attach)
 {
     HILOG_INFO("%{public}s called.", __func__);
     NativeValue* objValue = CreateJsBaseContext(engine, context, nullptr, nullptr);
-    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
-
-    auto configuration = context->GetConfiguration();
-    if (configuration) {
-        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+    if (context == nullptr) {
+        return objValue;
     }
 
+    NativeObject* object = ConvertNativeValueTo<NativeObject>(objValue);
+    auto configuration = context->GetConfiguration();
+    if (configuration != nullptr && object != nullptr) {
+        object->SetProperty("config", CreateJsConfiguration(engine, *configuration));
+    }
     return objValue;
 }
 }  // namespace AbilityRuntime

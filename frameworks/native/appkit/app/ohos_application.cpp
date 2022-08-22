@@ -602,7 +602,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
         auto abilityStage = iterator->second;
         abilityStage->RemoveAbility(token);
         if (!abilityStage->ContainsAbility()) {
-            abilityStage->OnDestory();
+            abilityStage->OnDestroy();
             abilityStages_.erase(moduleName);
         }
     }

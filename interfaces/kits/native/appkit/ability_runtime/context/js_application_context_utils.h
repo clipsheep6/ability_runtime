@@ -18,10 +18,8 @@
 
 #include <memory>
 
-#include "application_context.h"
-#include "native_engine/native_engine.h"
-#include "event_handler.h"
 #include "ability_lifecycle_callback.h"
+#include "application_context.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {

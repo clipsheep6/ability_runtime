@@ -16,31 +16,31 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H
 
-#include "foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/context/context.h"
 #include "configuration.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+class Context;
 class JsAbilityStageContext final {
 public:
-    explicit JsAbilityStageContext(const std::shared_ptr<AbilityRuntime::Context>& context) : context_(context) {}
+    explicit JsAbilityStageContext(const std::shared_ptr<Context>& context) : context_(context) {}
     ~JsAbilityStageContext() = default;
 
     static void ConfigurationUpdated(NativeEngine* engine, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
 
-    std::shared_ptr<AbilityRuntime::Context> GetContext()
+    std::shared_ptr<Context> GetContext()
     {
         return context_.lock();
     }
 
 private:
-    std::weak_ptr<AbilityRuntime::Context> context_;
+    std::weak_ptr<Context> context_;
 };
 
-NativeValue* CreateJsAbilityStageContext(NativeEngine& engine, std::shared_ptr<AbilityRuntime::Context> context,
-                                         DetachCallback detach, AttachCallback attach);
+NativeValue* CreateJsAbilityStageContext(NativeEngine& engine,
+    std::shared_ptr<Context> context, DetachCallback detach, AttachCallback attach);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_CONTEXT_H

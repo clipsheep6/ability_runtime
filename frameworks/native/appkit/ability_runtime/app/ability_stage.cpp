@@ -15,6 +15,7 @@
 
 #include "ability_stage.h"
 
+#include "ability_runtime/context/context.h"
 #include "hilog_wrapper.h"
 #include "js_ability_stage.h"
 #include "runtime.h"
@@ -42,9 +43,9 @@ void AbilityStage::OnCreate(const AAFwk::Want &want) const
     HILOG_DEBUG("AbilityStage OnCreate come.");
 }
 
-void AbilityStage::OnDestory() const
+void AbilityStage::OnDestroy() const
 {
-    HILOG_DEBUG("AbilityStage::OnDestory come");
+    HILOG_DEBUG("AbilityStage::OnDestroy come");
 }
 
 std::shared_ptr<Context> AbilityStage::GetContext() const
@@ -52,9 +53,9 @@ std::shared_ptr<Context> AbilityStage::GetContext() const
     return context_;
 }
 
-void AbilityStage::Init(std::shared_ptr<Context> context)
+void AbilityStage::Init(const std::shared_ptr<Context>& context)
 {
-    this->context_ = context;
+    context_ = context;
 }
 
 void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
@@ -82,9 +83,9 @@ void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
     abilityRecords_.erase(token);
 }
 
-bool AbilityStage::ContainsAbility()
+bool AbilityStage::ContainsAbility() const
 {
-    return abilityRecords_.size() > 0;
+    return !abilityRecords_.empty();
 }
 
 std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)

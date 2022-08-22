@@ -139,8 +139,7 @@ public:
     /**
      * @brief set the ResourceManager.
      *
-     * @param the ResourceManager has been inited.
-     *
+     * @param the ResourceManager has been initialized.
      */
     void SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
 
