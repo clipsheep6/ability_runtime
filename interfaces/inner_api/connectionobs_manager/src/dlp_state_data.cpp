@@ -15,6 +15,7 @@
 
 #include "dlp_state_data.h"
 
+#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -83,14 +84,17 @@ bool DlpStateData::ReadFromParcel(Parcel &parcel)
     targetAbilityName = Str16ToStr8(strValue);
 
     if (!parcel.ReadInt32(callerUid)) {
+        HILOG_WARN("DlpStateData::ReadFromParcel read callerUid failed");
         return false;
     }
 
     if (!parcel.ReadInt32(callerPid)) {
+        HILOG_WARN("DlpStateData::ReadFromParcel read callerPid failed");
         return false;
     }
 
     if (!parcel.ReadString16(strValue)) {
+        HILOG_WARN("DlpStateData::ReadFromParcel read strValue failed");
         return false;
     }
     callerName = Str16ToStr8(strValue);
@@ -100,11 +104,7 @@ bool DlpStateData::ReadFromParcel(Parcel &parcel)
 
 DlpStateData *DlpStateData::Unmarshalling(Parcel &parcel)
 {
-    DlpStateData *data = new (std::nothrow) DlpStateData();
-    if (data == nullptr) {
-        return nullptr;
-    }
-
+    DlpStateData *data = new DlpStateData();
     if (!data->ReadFromParcel(parcel)) {
         delete data;
         data = nullptr;

@@ -15,6 +15,7 @@
 
 #include "connection_data.h"
 
+#include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -94,14 +95,17 @@ bool ConnectionData::ReadFromParcel(Parcel &parcel)
     extensionType = static_cast<ExtensionAbilityType>(type);
 
     if (!parcel.ReadInt32(callerUid)) {
+        HILOG_WARN("ConnectionData::ReadFromParcel read callerUid failed");
         return false;
     }
 
     if (!parcel.ReadInt32(callerPid)) {
+        HILOG_WARN("ConnectionData::ReadFromParcel read callerPid failed");
         return false;
     }
 
     if (!parcel.ReadString16(strValue)) {
+        HILOG_WARN("ConnectionData::ReadFromParcel read strValue failed");
         return false;
     }
     callerName = Str16ToStr8(strValue);
@@ -111,11 +115,7 @@ bool ConnectionData::ReadFromParcel(Parcel &parcel)
 
 ConnectionData *ConnectionData::Unmarshalling(Parcel &parcel)
 {
-    ConnectionData *data = new (std::nothrow) ConnectionData();
-    if (data == nullptr) {
-        return nullptr;
-    }
-
+    ConnectionData *data = new ConnectionData();
     if (!data->ReadFromParcel(parcel)) {
         delete data;
         data = nullptr;
