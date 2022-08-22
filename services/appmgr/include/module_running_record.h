@@ -177,6 +177,8 @@ public:
 
     const std::shared_ptr<ApplicationInfo> GetAppInfo();
 
+    bool RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
+
 private:
     void SendEvent(uint32_t msg, int64_t timeOut, const std::shared_ptr<AbilityRunningRecord> &abilityRecord);
 

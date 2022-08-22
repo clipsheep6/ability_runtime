@@ -1148,5 +1148,15 @@ bool AppRunningRecord::IsKilling() const
 {
     return isKilling_;
 }
+
+void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const
+{
+    auto moduleRecord = GetModuleRunningRecordByToken(token);
+    if (!moduleRecord) {
+        HILOG_ERROR("can not find module record");
+        return;
+    }
+    (void)moduleRecord->RemoveTerminateAbilityTimeoutTask(token);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
