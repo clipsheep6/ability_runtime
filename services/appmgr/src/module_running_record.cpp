@@ -157,7 +157,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
         bool flag = ability->GetName() == abilityName;
         if (ability->GetAbilityInfo() && ability->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE &&
             ability->GetAbilityInfo()->launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-            flag = flag && (ability->GetOwnerUserId() == ownerUserId);
+            flag = flag && (ability->GetOwnerUserId() == ownerUserId) && !ability->IsTerminating();
         }
         return flag;
     });
