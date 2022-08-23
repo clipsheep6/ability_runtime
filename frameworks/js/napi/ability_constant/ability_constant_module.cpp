@@ -93,9 +93,12 @@ static napi_value InitMemoryLevelObject(napi_env env)
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE", OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_MODERATE));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW", OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_LOW));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL", OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_CRITICAL));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE",
+        OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_MODERATE));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW",
+        OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_LOW));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL",
+        OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_CRITICAL));
 
     return object;
 }
