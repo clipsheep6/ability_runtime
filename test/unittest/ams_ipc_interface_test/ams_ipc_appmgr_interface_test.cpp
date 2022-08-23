@@ -241,11 +241,10 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, GetAllRunningProcesses_010, TestSize.Level1)
 }
 
 /*
- * Feature: AMS
- * Function: IPC
- * SubFunction: appmgr interface
- * FunctionPoints: KillApplication interface
- * CaseDescription: test IPC can transact data
+ * @tc.name: RegisterApplicationStateObserver_001
+ * @tc.desc: Register application state observer test.
+ * @tc.type: FUNC
+ * @tc.require: issueI5822Q
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSize.Level0)
 {
