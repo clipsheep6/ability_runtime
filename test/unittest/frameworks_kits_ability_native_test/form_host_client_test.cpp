@@ -15,21 +15,26 @@
 
 #include <gtest/gtest.h>
 
-#include "ability.h"
-#include "ability_handler.h"
-#include "ability_info.h"
-#include "ability_local_record.h"
-#include "ability_start_setting.h"
-#include "context_deal.h"
+#include "form_callback_interface.h"
 #include "form_host_client.h"
-#include "mock_page_ability.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
-using namespace OHOS;
-using namespace OHOS::AppExecFwk;
-using OHOS::Parcel;
+
+class FormCallbackInterfaceTest : public FormCallbackInterface {
+public:
+    FormCallbackInterfaceTest()
+    {}
+    virtual ~FormCallbackInterfaceTest()
+    {}
+    void ProcessFormUpdate(const FormJsInfo &formJsInfo)override
+    {}
+    void ProcessFormUninstall(const int64_t formId) override
+    {}
+    void OnDeathReceived() override
+    {}
+};
 
 class FormHostClientTest : public testing::Test {
 public:
@@ -68,13 +73,13 @@ void FormHostClientTest::TearDown(void)
 HWTEST_F(FormHostClientTest, AaFwk_formHostClientAddForm_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_AddForm_0100 start";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
     int64_t formId = 0;
-    instance_->AddForm(ability, formId);
+    instance_->AddForm(callback, formId);
     formId = 1;
-    instance_->AddForm(ability, formId);
+    instance_->AddForm(callback, formId);
     formId = 2;
-    instance_->AddForm(ability, formId);
+    instance_->AddForm(callback, formId);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_AddForm_0100 end";
 }
@@ -87,11 +92,11 @@ HWTEST_F(FormHostClientTest, AaFwk_formHostClientAddForm_0100, Function | Medium
 HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_RemoveForm_0100, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveForm_0100 start";
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
     int64_t formId = 0;
-    instance_->RemoveForm(ability, formId);
-    instance_->AddForm(ability, formId);
-    instance_->RemoveForm(ability, formId);
+    instance_->RemoveForm(callback, formId);
+    instance_->AddForm(callback, formId);
+    instance_->RemoveForm(callback, formId);
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_RemoveForm_0100 end";
 }
@@ -106,9 +111,9 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_ContainsForm_0100, Function | 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_ContainsForm_0100 start";
     int64_t formId = 0;
     EXPECT_EQ(false, instance_->ContainsForm(formId));
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
     formId = 1;
-    instance_->AddForm(ability, formId);
+    instance_->AddForm(callback, formId);
     EXPECT_EQ(true, instance_->ContainsForm(formId));
 
     GTEST_LOG_(INFO) << "AaFwk_FormHostClient_ContainsForm_0100 end";
@@ -126,8 +131,8 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnAcquired_0100, Function | Me
     formInfo.formId = -1;
     instance_->OnAcquired(formInfo);
     int64_t formId = 1;
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    instance_->AddForm(ability, formId);
+    std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    instance_->AddForm(callback, formId);
     formInfo.formId = 1;
     formInfo.jsFormCodePath = "/data/test";
     formInfo.formData = "test";
@@ -148,8 +153,8 @@ HWTEST_F(FormHostClientTest, AaFwk_FormHostClient_OnUpdate_0100, Function | Medi
     formInfo.formId = -1;
     instance_->OnUpdate(formInfo);
     int64_t formId = 1;
-    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-    instance_->AddForm(ability, formId);
+    std::shared_ptr<FormCallbackInterfaceTest> callback = std::make_shared<FormCallbackInterfaceTest>();
+    instance_->AddForm(callback, formId);
     formInfo.formId = 1;
     instance_->OnUpdate(formInfo);
 

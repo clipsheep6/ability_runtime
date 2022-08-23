@@ -57,8 +57,6 @@
 #include "inttypes.h"
 #endif
 
-using Uri = OHOS::Uri;
-
 namespace OHOS {
 namespace NativeRdb {
 class AbsSharedResultSet;
@@ -88,9 +86,6 @@ class IContinuationRegisterManager;
 class Ability : public IAbilityEvent,
                 public ILifeCycle,
                 public AbilityContext,
-#ifdef SUPPORT_GRAPHICS
-                public FormCallbackInterface,
-#endif
                 public IAbilityContinuation,
                 public IAbilityCallback,
                 public std::enable_shared_from_this<Ability> {
@@ -107,48 +102,17 @@ public:
      *
      * @return Returns the AbilityContext object of the ability.
      */
-    inline std::shared_ptr<AbilityRuntime::AbilityContext> GetAbilityContext()
+    std::shared_ptr<AbilityRuntime::AbilityContext> GetAbilityContext()
     {
         return abilityContext_;
     }
-
-    /**
-     * @brief Destroys ability.
-     *
-     * @param want Indicates the want containing information about TerminateAbility
-     *
-     * @return Returns the result of TerminateAbility
-     */
-    using AbilityContext::TerminateAbility;
-    int TerminateAbility(Want &want);
-
-    /**
-     * @brief By binding an action, you can set different action parameters in want to present different initial
-     * pages. You must register actions in the profile file.
-     *
-     * @param action Indicates the action to bind.
-     *
-     * @param entry Indicates the entry, which is the fully qualified name of your AbilitySlice class.
-     *
-     * @return Returns the result of AddActionRoute
-     */
-    virtual void AddActionRoute(const std::string &action, const std::string &entry) final;
-
-    /**
-     * @brief Destroys this Page or Service ability.
-     * After a Page or Service ability performs all operations, it can use this method to destroy itself
-     * to free up memory. This method can be called only after the ability is initialized.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    virtual ErrCode TerminateAbility() final;
 
     /**
      * @brief Obtains the Lifecycle object of the current ability.
      *
      * @return Returns the Lifecycle object.
      */
-    virtual std::shared_ptr<LifeCycle> GetLifecycle() override final;
+    std::shared_ptr<LifeCycle> GetLifecycle() override final;
 
     /**
      * @brief Obtains a resource manager.
@@ -156,13 +120,6 @@ public:
      * @return Returns a ResourceManager object.
      */
     std::shared_ptr<Global::Resource::ResourceManager> GetResourceManager() const override;
-
-    /**
-     * @brief Checks whether the configuration of this ability is changing.
-     *
-     * @return Returns true if the configuration of this ability is changing and false otherwise.
-     */
-    bool IsUpdatingConfigurations() override;
 
     /**
      * Start other ability for result.
@@ -202,11 +159,22 @@ public:
      *
      * @return errCode ERR_OK on success, others on failure.
      */
+    using AbilityContext::StartAbility;
     ErrCode StartAbility(const Want &want, AbilityStartSetting abilityStartSetting);
+
+    /**
+     * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
+     * ability from installed abilities based on the value of the want parameter and then starts it. You can specify
+     * the ability to start using the want parameter.
+     *
+     * @param want Indicates the ability to start.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbility(const Want &want) final;
 
     ErrCode StartFeatureAbilityForResult(const Want &want, int requestCode, FeatureAbilityTask &&task);
 
-    // lifecycle callback
     virtual void Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
         const sptr<IRemoteObject> &token);
@@ -266,28 +234,21 @@ public:
      */
     virtual void OnDisconnect(const Want &want);
 
-    /**
-     * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
-     * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
-     *
-     * @param uri Indicates the URI of the data.
-     *
-     * @return Returns the MIME type that matches the data specified by uri.
-     */
-    virtual std::string GetType(const Uri &uri);
-
-    /**
-     * @brief Inserts a data record into the database. This method should be implemented by a Data ability.
-     *
-     * @param uri Indicates the position where the data is to insert.
-     * @param value Indicates the data to insert.
-     *
-     * @return Returns the index of the newly inserted data record.
-     */
-    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
-
     virtual std::shared_ptr<AppExecFwk::PacMap> Call(
         const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap);
+
+    /**
+     * @brief Called to set caller information for the application. The default implementation returns null.
+     *
+     * @return Returns the caller information.
+     */
+    virtual Uri OnSetCaller();
+
+    /**
+     * @brief request a remote object of callee from this ability.
+     * @return Returns the remote object of callee.
+     */
+    virtual sptr<IRemoteObject> CallRequest();
 
     /**
      * @brief Called when the system configuration is updated.
@@ -307,7 +268,14 @@ public:
      * @brief Update context.config when configuration is updated.
      *
      */
-    virtual void UpdateContextConfiguration() {};
+    virtual void UpdateContextConfiguration() {}
+
+    /**
+     * @brief Checks whether the configuration of this ability is changing.
+     *
+     * @return Returns true if the configuration of this ability is changing and false otherwise.
+     */
+    bool IsUpdatingConfigurations() override;
 
     /**
      * @brief Called when the system configuration is updated.
@@ -389,7 +357,7 @@ public:
      * The default implementation destroys the ability. You can override this method.
      *
      */
-    virtual void OnBackPressed() override;
+    void OnBackPressed() override;
 
     /**
      * @brief Called when the launch mode of an ability is set to singleInstance. This happens when you re-launch an
@@ -491,23 +459,24 @@ public:
     virtual void Dump(const std::vector<std::string> &params, std::vector<std::string> &info);
 
     /**
-     * @brief Keeps this Service ability in the background and displays a notification bar.
-     * To use this method, you need to request the ohos.permission.KEEP_BACKGROUND_RUNNING permission from the system.
-     * The ohos.permission.KEEP_BACKGROUND_RUNNING permission is of the normal level.
-     * This method can be called only by Service abilities after the onStart(ohos.aafwk.content.Want) method is called.
+     * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
+     * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
      *
-     * @param id Identifies the notification bar information.
-     * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
-     * notification bar.
+     * @param uri Indicates the URI of the data.
+     *
+     * @return Returns the MIME type that matches the data specified by uri.
      */
-    virtual void KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest) final;
+    virtual std::string GetType(const Uri &uri);
 
     /**
-     * @brief Cancels background running of this ability to free up system memory.
-     * This method can be called only by Service abilities when the onStop() method is called.
+     * @brief Inserts a data record into the database. This method should be implemented by a Data ability.
      *
+     * @param uri Indicates the position where the data is to insert.
+     * @param value Indicates the data to insert.
+     *
+     * @return Returns the index of the newly inserted data record.
      */
-    virtual void CancelBackgroundRunning() final;
+    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
 
     /**
      * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
@@ -523,6 +492,18 @@ public:
      * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
      */
     virtual Uri NormalizeUri(const Uri &uri);
+
+    /**
+     * @brief Converts the given normalized uri generated by normalizeUri(ohos.utils.net.Uri) into a denormalized one.
+     * The default implementation of this method returns the original URI passed to it.
+     *
+     * @param uri uri Indicates the Uri object to denormalize.
+     *
+     * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed
+     * to this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found
+     * in the current environment.
+     */
+    virtual Uri DenormalizeUri(const Uri &uri);
 
     /**
      * @brief Deletes one or more data records. This method should be implemented by a Data ability.
@@ -577,17 +558,61 @@ public:
         const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates);
 
     /**
-     * @brief Sets the main route for this ability.
+     * @brief Reloads data in the database.
      *
-     * The main route, also called main entry, refers to the default <b>AbilitySlice</b> to present for this ability.
-     * This function should be called only on Feature Abilities. If this function is not called in the
-     * {@link OnStart(const Want &want)} function for a Feature Ability, the Feature Ability will fail to start.
+     * @param uri Indicates the position where the data is to reload. This parameter is mandatory.
+     * @param extras Indicates the PacMap object containing the additional parameters to be passed in this call. This
+     * parameter can be null. If a custom Sequenceable object is put in the PacMap object and will be transferred across
+     * processes, you must call BasePacMap.setClassLoader(ClassLoader) to set a class loader for the custom object.
      *
-     * @param entry Indicates the main entry, which is the class name of the <b>AbilitySlice</b> instance to start.
-     *
-     * @return Returns the result of SetMainRoute
+     * @return Returns true if the data is successfully reloaded; returns false otherwise.
      */
-    virtual void SetMainRoute(const std::string &entry) final;
+    virtual bool Reload(const Uri &uri, const PacMap &extras);
+
+    /**
+     * @brief Inserts multiple data records into the database.
+     *
+     * @param uri Indicates the path of the data to operate.
+     * @param values Indicates the data records to insert.
+     *
+     * @return Returns the number of data records inserted.
+     */
+    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values);
+
+    /**
+     * @brief Performs batch operations on the database.
+     *
+     * @param operations Indicates a list of database operations on the database.
+     * @return Returns the result of each operation, in array.
+     */
+    virtual std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
+        const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
+
+    /**
+     * @brief Executes an operation among the batch operations to be executed.
+     *
+     * @param operation Indicates the operation to execute.
+     * @param results Indicates a set of results of the batch operations.
+     * @param index Indicates the index of the current operation result in the batch operation results.
+     */
+    void ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
+        std::vector<std::shared_ptr<DataAbilityResult>> &results, int index);
+
+    /**
+     * @brief Save user data of local Ability generated at runtime.
+     *
+     * @param saveData Indicates the user data to be saved.
+     * @return If the data is saved successfully, it returns true; otherwise, it returns false.
+     */
+    bool OnSaveData(WantParams &saveData) override;
+
+    /**
+     * @brief After creating the Ability on the remote device,
+     *      immediately restore the user data saved during the migration of the Ability on the remote device.
+     * @param restoreData Indicates the user data to be restored.
+     * @return If the data is restored successfully, it returns true; otherwise, it returns false .
+     */
+    bool OnRestoreData(WantParams &restoreData) override;
 
     /**
      * @brief Migrates this ability to the given device on the same distributed network in a reversible way that allows
@@ -615,97 +640,11 @@ public:
     virtual ContinuationState GetContinuationState() final;
 
     /**
-     * @brief Obtains the singleton AbilityPackage object to which this ability belongs.
-     *
-     * @return Returns the singleton AbilityPackage object to which this ability belongs.
-     */
-    virtual std::shared_ptr<AbilityPackage> GetAbilityPackage();
-
-    /**
-     * @brief Converts the given normalized uri generated by normalizeUri(ohos.utils.net.Uri) into a denormalized one.
-     * The default implementation of this method returns the original URI passed to it.
-     *
-     * @param uri uri Indicates the Uri object to denormalize.
-     *
-     * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed
-     * to this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found
-     * in the current environment.
-     */
-    virtual Uri DenormalizeUri(const Uri &uri);
-
-    /**
-     * @brief Reloads data in the database.
-     *
-     * @param uri Indicates the position where the data is to reload. This parameter is mandatory.
-     * @param extras Indicates the PacMap object containing the additional parameters to be passed in this call. This
-     * parameter can be null. If a custom Sequenceable object is put in the PacMap object and will be transferred across
-     * processes, you must call BasePacMap.setClassLoader(ClassLoader) to set a class loader for the custom object.
-     *
-     * @return Returns true if the data is successfully reloaded; returns false otherwise.
-     */
-    virtual bool Reload(const Uri &uri, const PacMap &extras);
-
-    /**
-     * @brief Inserts multiple data records into the database.
-     *
-     * @param uri Indicates the path of the data to operate.
-     * @param values Indicates the data records to insert.
-     *
-     * @return Returns the number of data records inserted.
-     */
-    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values);
-
-    /**
      * @brief Obtains the lifecycle state of this ability.
      *
      * @return Returns the lifecycle state of this ability.
      */
     virtual AbilityLifecycleExecutor::LifecycleState GetState() final;
-
-    /**
-     * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
-     * ability from installed abilities based on the value of the want parameter and then starts it. You can specify
-     * the ability to start using the want parameter.
-     *
-     * @param want Indicates the ability to start.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    using AbilityContext::StartAbility;
-    virtual ErrCode StartAbility(const Want &want) final;
-
-    /**
-     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
-     *
-     * @param want Indicates the want containing information about the ability to connect
-     *
-     * @param conn Indicates the callback object when the target ability is connected.
-     *
-     * @return True means success and false means failure
-     */
-    bool ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn) override;
-
-    /**
-     * @brief Disconnects the current ability from an ability
-     *
-     * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
-     *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
-     *
-     * @return errCode ERR_OK on success, others on failure.
-     */
-    ErrCode DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn) override;
-
-    /**
-     * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
-     * The current ability using either the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE
-     * template can call this method to destroy another ability that uses the AbilityInfo.AbilityType.SERVICE
-     * template. The current ability itself can be destroyed by calling the terminateAbility() method.
-     *
-     * @param want Indicates the Want containing information about the ability to destroy.
-     *
-     * @return Returns true if the ability is destroyed successfully; returns false otherwise.
-     */
-    bool StopAbility(const AAFwk::Want &want) override;
 
     /**
      * @brief Release the ability instance.
@@ -733,18 +672,30 @@ public:
     void PostTask(std::function<void()> task, long delayTime);
 
     /**
-     * @brief Called to set caller information for the application. The default implementation returns null.
-     *
-     * @return Returns the caller information.
-     */
-    virtual Uri OnSetCaller();
-
-    /**
      * @brief Create a PostEvent timeout task. The default delay is 5000ms
      *
      * @return Return a smart pointer to a timeout object
      */
     std::shared_ptr<AbilityPostEventTimeout> CreatePostEventTimeouter(std::string taskstr);
+
+    /**
+     * @brief Keeps this Service ability in the background and displays a notification bar.
+     * To use this method, you need to request the ohos.permission.KEEP_BACKGROUND_RUNNING permission from the system.
+     * The ohos.permission.KEEP_BACKGROUND_RUNNING permission is of the normal level.
+     * This method can be called only by Service abilities after the onStart(ohos.aafwk.content.Want) method is called.
+     *
+     * @param id Identifies the notification bar information.
+     * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
+     * notification bar.
+     */
+    virtual void KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest) final;
+
+    /**
+     * @brief Cancels background running of this ability to free up system memory.
+     * This method can be called only by Service abilities when the onStop() method is called.
+     *
+     */
+    virtual void CancelBackgroundRunning() final;
 
     /**
      * @brief Keep this Service ability in the background and displays a notification bar.
@@ -760,13 +711,6 @@ public:
      * @return the method result code, 0 means succeed
      */
     virtual int StopBackgroundRunning() final;
-
-    /**
-     * @brief Get the error message by error code.
-     * @param errorCode the error code return form fms.
-     * @return Returns the error message detail.
-     */
-    std::string GetErrorMsg(const ErrCode errorCode);
 
     /**
      * @brief Acquire a bundle manager, if it not existed,
@@ -825,41 +769,6 @@ public:
     virtual bool OnStartContinuation() override;
 
     /**
-     * @brief Performs batch operations on the database.
-     *
-     * @param operations Indicates a list of database operations on the database.
-     * @return Returns the result of each operation, in array.
-     */
-    virtual std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
-        const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
-
-    /**
-     * @brief Executes an operation among the batch operations to be executed.
-     *
-     * @param operation Indicates the operation to execute.
-     * @param results Indicates a set of results of the batch operations.
-     * @param index Indicates the index of the current operation result in the batch operation results.
-     */
-    void ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
-        std::vector<std::shared_ptr<DataAbilityResult>> &results, int index);
-
-    /**
-     * @brief Save user data of local Ability generated at runtime.
-     *
-     * @param saveData Indicates the user data to be saved.
-     * @return If the data is saved successfully, it returns true; otherwise, it returns false.
-     */
-    virtual bool OnSaveData(WantParams &saveData) override;
-
-    /**
-     * @brief After creating the Ability on the remote device,
-     *      immediately restore the user data saved during the migration of the Ability on the remote device.
-     * @param restoreData Indicates the user data to be restored.
-     * @return If the data is restored successfully, it returns true; otherwise, it returns false .
-     */
-    virtual bool OnRestoreData(WantParams &restoreData) override;
-
-    /**
      * @brief This function can be used to implement the processing logic after the migration is completed.
      *
      * @param result Migration result code. 0 means the migration was successful, -1 means the migration failed.
@@ -873,12 +782,6 @@ public:
      * @return None.
      */
     virtual void OnRemoteTerminated() override;
-
-	/**
-     * @brief request a remote object of callee from this ability.
-     * @return Returns the remote object of callee.
-     */
-    virtual sptr<IRemoteObject> CallRequest();
 
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -919,6 +822,26 @@ public:
      * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
      */
     virtual void SetUIContent(int layoutRes) final;
+
+    /**
+     * @brief Inflates UI controls by using ComponentContainer.
+     * You can create a ComponentContainer instance that contains multiple components.
+     *
+     * @param componentContainer Indicates the component layout defined by the user.
+     * @param context Indicates the context to use.
+     * @param typeFlag Indicates the window type.
+     */
+    virtual void SetUIContent(
+        const ComponentContainer &componentContainer, std::shared_ptr<Context> &context, int typeFlag);
+
+    /**
+     * @brief Inflates layout resources by using the layout resource ID.
+     *
+     * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
+     * @param context Indicates the context to use.
+     * @param typeFlag Indicates the window type.
+     */
+    virtual void SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag);
 
     /**
      * @brief Called after instantiating WindowScene.
@@ -997,26 +920,6 @@ public:
      * @return Returns true if the event is handled; returns false otherwise.
      */
     virtual void OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent);
-
-    /**
-     * @brief Inflates UI controls by using ComponentContainer.
-     * You can create a ComponentContainer instance that contains multiple components.
-     *
-     * @param componentContainer Indicates the component layout defined by the user.
-     * @param context Indicates the context to use.
-     * @param typeFlag Indicates the window type.
-     */
-    virtual void SetUIContent(
-        const ComponentContainer &componentContainer, std::shared_ptr<Context> &context, int typeFlag);
-
-    /**
-     * @brief Inflates layout resources by using the layout resource ID.
-     *
-     * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
-     * @param context Indicates the context to use.
-     * @param typeFlag Indicates the window type.
-     */
-    virtual void SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag);
 
     /**
      * @brief Called when this ability gains or loses window focus.
@@ -1117,204 +1020,6 @@ public:
     int GetVolumeTypeAdjustedByKey();
 
     /**
-     * Releases an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application, but the Form Manager
-     * Service still keeps the cache information about the form, so that the application can quickly obtain it based on
-     * the {@code formId}.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be released by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode ReleaseForm(const int64_t formId);
-
-    /**
-     * @brief Releases an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application, if isReleaseCache is
-     * false, this method is same as {@link #releaseForm(int)}, otherwise the Form Manager Service still store this
-     * form in the cache.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @param isReleaseCache Indicates whether to clear cache in service.
-     * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be released by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode ReleaseForm(const int64_t formId, const bool isReleaseCache);
-
-    /**
-     * @brief Deletes an obtained form by its ID.
-     *
-     * <p>After this method is called, the form won't be available for use by the application and the Form Manager
-     * Service no longer keeps the cache information about the form.</p>
-     * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
-     *
-     * @param formId Indicates the form ID.
-     * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
-     *
-     * <ul>
-     * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
-     * <li>The specified form has not been added by the application.</li>
-     * <li>An error occurred when connecting to the Form Manager Service.</li>
-     * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
-     * <li>The form has been obtained by another application and cannot be deleted by the current application.</li>
-     * <li>The form is being restored.</li>
-     * </ul>
-     */
-    ErrCode DeleteForm(const int64_t formId);
-
-    /**
-     * @brief The form callback.
-     */
-    class FormCallback {
-    public:
-        static const int32_t OHOS_FORM_ACQUIRE_SUCCESS = 0;
-        static const int32_t OHOS_FORM_UPDATE_SUCCESS = 0;
-        static const int32_t OHOS_FORM_PREVIEW_FAILURE = 1;
-        static const int32_t OHOS_FORM_RESTORE_FAILURE = 2;
-
-        /**
-         * @brief Called to notify the application that the {@code FormJsInfo} instance has been obtained after
-         * the application called the asynchronous method {@link Ability#acquireForm(Want, FormCallback)}.
-         * The application must present the form information on a specific page in this callback.
-         *
-         * @param result Specifies whether the asynchronous form acquisition process is successful.
-         *               {@link FormCallback#OHOS_FORM_ACQUIRE_SUCCESS} indicates that the form
-         *               is successfully obtained, and other values indicate that the process fails.
-         * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-         */
-        virtual void OnAcquired(const int32_t result, const FormJsInfo &formJsInfo) const = 0;
-
-        /**
-         * @brief Called to notify the application that the {@code FormJsInfo} instance has been obtained after
-         * the application called the asynchronous method {@link Ability#acquireForm(Want, FormCallback)}.
-         * The application must present the form information on a specific page in this callback.
-         *
-         * @param result Specifies whether the asynchronous form acquisition process is successful.
-         *               {@link FormCallback#OHOS_FORM_UPDATE_SUCCESS} indicates that the form is
-         *               successfully obtained, and other values indicate that the process fails.
-         * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-         */
-        virtual void OnUpdate(const int32_t result, const FormJsInfo &formJsInfo) const = 0;
-
-        /**
-         * @brief Called to notify the application that the {@code Form} provider has been uninstalled and the
-         * corresponding
-         * {@code Form} instance is no longer available.
-         *
-         * @param formId Indicates the ID of the {@code Form} instance provided by the uninstalled form provider.
-         */
-        virtual void OnFormUninstall(const int64_t formId) const = 0;
-    };
-
-    /**
-     * @brief Obtains a specified form that matches the application bundle name, module name, form name, and
-     * other related information specified in the passed {@code Want}.
-     *
-     * <p>This method is asynchronous. After the {@link FormJsInfo} instance is obtained.
-     *
-     * @param formId Indicates the form ID.
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    bool AcquireForm(const int64_t formId, const Want &want, const std::shared_ptr<FormCallback> callback);
-
-    /**
-     * @brief Updates the content of a specified JS form.
-     *
-     * <p>This method is called by a form provider to update JS form data as needed.
-     *
-     * @param formId Indicates the form ID.
-     * @param formProviderData The data used to update the JS form displayed on the client.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode UpdateForm(const int64_t formId, const FormProviderData &formProviderData);
-
-    /**
-     * @brief Cast temp form with formId.
-     *
-     * @param formId Indicates the form's ID.
-     *
-     * @return Returns {@code true} if the form is successfully casted; returns {@code false} otherwise.
-     */
-    ErrCode CastTempForm(const int64_t formId);
-
-    /**
-     * @brief Sends a notification to the form framework to make the specified forms visible.
-     *
-     * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
-     * will be called to notify the form provider of the form visibility change event.</p>
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode NotifyVisibleForms(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Sends a notification to the form framework to make the specified forms invisible.
-     *
-     * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
-     * will be called to notify the form provider of the form visibility change event.</p>
-     *
-     * @param formIds Indicates the IDs of the forms to be made invisible.
-     * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
-     */
-    ErrCode NotifyInvisibleForms(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Set form next refresh time.
-     *
-     * <p>This method is called by a form provider to set refresh time.
-     *
-     * @param formId Indicates the ID of the form to set refresh time.
-     * @param nextTime Indicates the next time gap now in seconds, can not be litter than 300 seconds.
-     * @return Returns {@code true} if seting succeed; returns {@code false} otherwise.
-     */
-
-    ErrCode SetFormNextRefreshTime(const int64_t formId, const int64_t nextTime);
-
-    /**
-     * @brief Update form.
-     *
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     */
-    void ProcessFormUpdate(const FormJsInfo &formJsInfo) override;
-
-    /**
-     * @brief Uninstall form.
-     *
-     * @param formId Indicates the ID of the form to uninstall.
-     */
-    void ProcessFormUninstall(const int64_t formId) override;
-
-    /**
-     * @brief Called to reacquire form and update the form host after the death callback is received.
-     *
-     */
-    void OnDeathReceived() override;
-
-    /**
      * @brief Called to return a FormProviderInfo object.
      *
      * <p>You must override this method if your ability will serve as a form provider to provide a form for clients.
@@ -1383,115 +1088,6 @@ public:
      *             the bundle name, module name, ability name, form name and form dimension.
      */
     virtual FormState OnAcquireFormState(const Want &want);
-    /**
-     * @brief Requests for form data update.
-     *
-     * This method must be called when the application has detected that a system setting item (such as the language,
-     * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
-     * provider automatically updates the form data (if there is any update) through the form framework, with the update
-     * process being unperceivable by the application.
-     *
-     * @param formId Indicates the ID of the form to update.
-     * @return Returns true if the update request is successfully initiated, returns false otherwise.
-     */
-    ErrCode RequestForm(const int64_t formId);
-
-    /**
-     * @brief Requests for form data update, by passing a set of parameters (using Want) to the form provider.
-     *
-     * This method must be called when the application has detected that a system setting item (such as the language,
-     * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
-     * provider automatically updates the form data (if there is any update) through the form framework, with the update
-     * process being unperceivable by the application.
-     *
-     * @param formId Indicates the ID of the form to update.
-     * @param want Indicates a set of parameters to be transparently passed to the form provider.
-     * @return Returns true if the update request is successfully initiated, returns false otherwise.
-     */
-    ErrCode RequestForm(const int64_t formId, const Want &want);
-    /**
-     * @brief Enable form update.
-     *
-     * @param formIds formIds of hostclient.
-     */
-    ErrCode EnableUpdateForm(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Disable form update.
-     *
-     * @param formIds formIds of hostclient.
-     */
-    ErrCode DisableUpdateForm(const std::vector<int64_t> &formIds);
-
-    /**
-     * @brief Check form manager service ready.
-     *
-     * @return Returns true if form manager service ready; returns false otherwise.
-     */
-    bool CheckFMSReady();
-
-    /**
-     * @brief Delete the invalid forms.
-     *
-     * @param formIds Indicates the ID of the valid forms.
-     * @param numFormsDeleted Returns the number of the deleted forms.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode DeleteInvalidForms(const std::vector<int64_t> &formIds, int32_t &numFormsDeleted);
-
-    /**
-     * @brief Acquire form state info by passing a set of parameters (using Want) to the form provider.
-     *
-     * @param want Indicates a set of parameters to be transparently passed to the form provider.
-     * @param stateInfo Returns the form's state info of the specify.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode AcquireFormState(const Want &want, FormStateInfo &stateInfo);
-
-    /**
-     * @brief Notify the forms is visible to FMS.
-     *
-     * @param formIds Indicates the ID of the forms.
-     * @param isVisible Visible or not.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode NotifyFormsVisible(const std::vector<int64_t> &formIds, bool isVisible);
-
-    /**
-     * @brief Notify the forms is enable update to FMS.
-     *
-     * @param formIds Indicates the ID of the forms.
-     * @param isEnableUpdate enable update or not.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode NotifyFormsEnableUpdate(const std::vector<int64_t> &formIds, bool isEnableUpdate);
-
-    /**
-     * @brief Get All FormsInfo.
-     *
-     * @param formInfos Returns the forms' information of all forms provided.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetAllFormsInfo(std::vector<FormInfo> &formInfos);
-
-    /**
-     * @brief Get forms info by application name.
-     *
-     * @param bundleName Application name.
-     * @param formInfos Returns the forms' information of the specify application name.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos);
-
-    /**
-     * @brief Get forms info by application name and module name.
-     *
-     * @param bundleName Application name.
-     * @param moduleName Module name of hap.
-     * @param formInfos Returns the forms' information of the specify application name and module name.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    ErrCode GetFormsInfoByModule(std::string &bundleName, std::string &moduleName, std::vector<FormInfo> &formInfos);
 
     /**
      * @brief Get page ability stack info.
@@ -1597,7 +1193,7 @@ protected:
     virtual void DoOnForeground(const Want& want);
 
     /**
-     * @brief requeset focus for current window.
+     * @brief request focus for current window.
      *
      * You can override this function to implement your own processing logic
      */
@@ -1629,8 +1225,8 @@ protected:
     const AAFwk::LaunchParam& GetLaunchParam() const;
 
     /**
-     * @brief judge where invoke resoreWindowStage in continuation
-     * @return true if invoked resoreWindowStage in continuation.
+     * @brief judge where invoke restoreWindowStage in continuation
+     * @return true if invoked restoreWindowStage in continuation.
      */
     bool IsRestoredInContinuation() const;
 
@@ -1647,7 +1243,7 @@ protected:
      * @param want the want param.
      * @param success whether continuation success.
      */
-    void NotityContinuationResult(const Want& want, bool success);
+    void NotifyContinuationResult(const Want& want, bool success);
 
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
@@ -1717,101 +1313,13 @@ private:
 
     // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
-    std::map<int64_t, Want> userReqParams_;
     sptr<IBundleMgr> iBundleMgr_;
-    static const int64_t MIN_NEXT_TIME = 5;
 
 #ifdef SUPPORT_GRAPHICS
 private:
-    /**
-     * @brief Delete or release form with formId.
-     *
-     * @param formId Indicates the form's ID.
-     * @param deleteType Indicates the type of delete or release.
-     * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
-     */
-    ErrCode DeleteForm(const int64_t formId, const int32_t deleteType);
-
-    /**
-     * @brief Clean form resource with formId.
-     *
-     * @param formId Indicates the form's ID.
-     */
-    void CleanFormResource(const int64_t formId);
-
-    /**
-     * @brief Handle acquire result of the obtained form instance.
-     *
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
-     */
-    void HandleAcquireResult(
-        const Want &want,
-        const FormJsInfo &formJsInfo,
-        const std::shared_ptr<FormCallback> callback
-        );
-
-    /**
-     * @brief Handle acquire message of the obtained form instance.
-     *
-     * @param msgCode Indicates the code of message type.
-     * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
-     */
-    void HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsInfo);
-
-    /**
-     * @brief Notify the forms visibility change event.
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible or invisible.
-     * @param eventType Indicates the form events occurred. FORM_VISIBLE means that the form becomes visible,
-     *                  and FORM_INVISIBLE means that the form becomes invisible.
-     * @return none.
-     */
-    ErrCode NotifyWhetherVisibleForms(const std::vector<int64_t> &formIds, int32_t eventType);
-
-    /**
-     * @brief Check the param of want.
-     *
-     * @param formId Indicates the form's ID.
-     * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
-     *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
-     * @return Returns {@code true} if the check result is ok; returns {@code false} ng.
-     */
-    bool CheckWantValid(const int64_t formId, const Want &want);
-
-    /**
-     * @brief Handle enable/disable form update.
-     *
-     * @param formIds Indicates the IDs of the forms to be made visible.
-     * @param updateType Update type.
-     * @return Returns true if the result is ok; returns false otherwise.
-     */
-    ErrCode LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType);
-
-    /**
-     * @brief Reacquire a specified form when the death callback is received.
-     *
-     * @param formId Indicates the form ID.
-     * @param want Indicates the detailed information about the form to be obtained.
-     * @return Returns true if the request is successfully initiated; returns false otherwise.
-     */
-    bool ReAcquireForm(const int64_t formId, const Want &want);
-
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     bool bWindowFocus_ = false;
     bool showOnLockScreen_ = false;
-    std::vector<int64_t> lostedByReconnectTempForms_;
-    std::map<int64_t, std::shared_ptr<FormCallback>> appCallbacks_;
-    static const int32_t OHOS_FORM_ACQUIRE_FORM = 0;
-    static const int32_t OHOS_FORM_UPDATE_FORM = 1;
-
-    static const int32_t DELETE_FORM = 3;
-    static const int32_t ENABLE_FORM_UPDATE = 5;
-    static const int32_t DISABLE_FORM_UPDATE = 6;
-    static const int32_t RELEASE_FORM = 8;
-    static const int32_t RELEASE_CACHED_FORM = 9;
 #endif
 };
 }  // namespace AppExecFwk

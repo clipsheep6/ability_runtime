@@ -168,21 +168,11 @@ void Ability::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::Ability
     abilityContext_ = abilityContext;
 }
 
-/**
- * @brief Obtains a resource manager.
- *
- * @return Returns a ResourceManager object.
- */
 std::shared_ptr<Global::Resource::ResourceManager> Ability::GetResourceManager() const
 {
     return AbilityContext::GetResourceManager();
 }
 
-/**
- * @brief Checks whether the configuration of this ability is changing.
- *
- * @return Returns true if the configuration of this ability is changing and false otherwise.
- */
 bool Ability::IsUpdatingConfigurations()
 {
     return AbilityContext::IsUpdatingConfigurations();
@@ -307,12 +297,6 @@ void Ability::OnStart(const Want &want)
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
-/**
- * @brief Called when this ability enters the <b>STATE_STOP</b> state.
- *
- * The ability in the <b>STATE_STOP</b> is being destroyed.
- * You can override this function to implement your own processing logic.
- */
 void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -338,9 +322,6 @@ void Ability::OnStop()
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
-/**
- * @brief Release the window and ability.
- */
 void Ability::DestroyInstance()
 {
     HILOG_DEBUG("%{public}s begin", __func__);
@@ -353,14 +334,6 @@ void Ability::DestroyInstance()
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
-/**
- * @brief Called when this ability enters the <b>STATE_ACTIVE</b> state.
- *
- * The ability in the <b>STATE_ACTIVE</b> state is visible and has focus.
- * You can override this function to implement your own processing logic.
- *
- * @param Want Indicates the {@link Want} structure containing activation information about the ability.
- */
 void Ability::OnActive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -385,12 +358,6 @@ void Ability::OnActive()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-/**
- * @brief Called when this ability enters the <b>STATE_INACTIVE</b> state.
- *
- * <b>STATE_INACTIVE</b> is an instantaneous state. The ability in this state may be visible but does not have
- * focus.You can override this function to implement your own processing logic.
- */
 void Ability::OnInactive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -466,13 +433,13 @@ void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
         handler_->PostTask(timeout, "Waiting_Sync_Timeout", DISTRIBUTED_OBJECT_TIMEOUT);
     }
 #else
-    NotityContinuationResult(want, true);
+    NotifyContinuationResult(want, true);
 #endif
 }
 
-void Ability::NotityContinuationResult(const Want& want, bool success)
+void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_DEBUG("NotityContinuationResult begin");
+    HILOG_DEBUG("NotifyContinuationResult begin");
     std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> ReplicaHandler = continuationHandler_;
     reverseContinuationSchedulerReplica_ = sptr<ReverseContinuationSchedulerReplica>(
         new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
@@ -488,14 +455,6 @@ void Ability::NotityContinuationResult(const Want& want, bool success)
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
 
-/**
- * @brief Called when this Service ability is connected for the first time.
- *
- * You can override this function to implement your own processing logic.
- *
- * @param want Indicates the {@link Want} structure containing connection information about the Service ability.
- * @return Returns a pointer to the <b>sid</b> of the connected Service ability.
- */
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -515,26 +474,12 @@ sptr<IRemoteObject> Ability::OnConnect(const Want &want)
     return nullptr;
 }
 
-/**
- * @brief Called when all abilities connected to this Service ability are disconnected.
- *
- * You can override this function to implement your own processing logic.
- *
- */
 void Ability::OnDisconnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s come", __func__);
 }
 
-/**
- * Start other ability for result.
- *
- * @param want information of other ability
- * @param requestCode request code for abilityMS to return result
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -552,19 +497,6 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
     return err;
 }
 
-/**
- * Starts an ability with specific start settings and returns the execution result when the ability is destroyed.
- * When the ability is destroyed, onAbilityResult(int,int,ohos.aafwk.content.Want) is called and the returned
- * requestCode is transferred to the current method. The given requestCode is customized and cannot be a negative
- * number.
- *
- * @param want Indicates the ability to start.
- * @param requestCode Indicates the request code returned after the ability is started. You can define the request
- * code to identify the results returned by abilities. The value ranges from 0 to 65535.
- * @param abilityStartSetting Indicates the setting ability used to start.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -582,18 +514,6 @@ ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, Abilit
     return err;
 }
 
-/**
- * Starts a new ability with specific start settings.
- * A Page or Service ability uses this method to start a specific ability.
- * The system locates the target ability from installed abilities based on
- * the value of the want parameter and then starts it. You can specify the
- * ability to start using the want parameter.
- *
- * @param want Indicates the ability to start.
- * @param abilityStartSetting Indicates the setting ability used to start.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
 {
     HILOG_DEBUG("%{public}s beign.", __func__);
@@ -611,27 +531,11 @@ ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStart
     return err;
 }
 
-/**
- * @brief Obtains the MIME type matching the data specified by the URI of the Data ability. This method should be
- * implemented by a Data ability. Data abilities supports general data types, including text, HTML, and JPEG.
- *
- * @param uri Indicates the URI of the data.
- *
- * @return Returns the MIME type that matches the data specified by uri.
- */
 std::string Ability::GetType(const Uri &uri)
 {
     return "";
 }
 
-/**
- * @brief Inserts a data record into the database. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the position where the data is to insert.
- * @param value Indicates the data to insert.
- *
- * @return Returns the index of the newly inserted data record.
- */
 int Ability::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
     return 0;
@@ -643,11 +547,6 @@ std::shared_ptr<AppExecFwk::PacMap> Ability::Call(
     return nullptr;
 }
 
-/**
- * @brief Called when the system configuration is updated.
- *
- * @param configuration Indicates the updated configuration information.
- */
 void Ability::OnConfigurationUpdated(const Configuration &configuration)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
@@ -718,12 +617,6 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
     }
 }
 
-/**
- * @brief Called when the system configuration is updated.
- *
- * @param level Indicates the memory trim level, which shows the current memory usage status.
- *
- */
 void Ability::OnMemoryLevel(int level)
 {
     HILOG_INFO("%{public}s start.", __func__);
@@ -734,44 +627,17 @@ void Ability::OnMemoryLevel(int level)
     scene_->NotifyMemoryLevel(level);
 }
 
-/**
- * @brief This is like openFile, open a file that need to be able to return sub-sections of files，often assets
- * inside of their .hap.
- *
- * @param uri Indicates the path of the file to open.
- * @param mode Indicates the file open mode, which can be "r" for read-only access, "w" for write-only access
- * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
- * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing
- * data, or "rwt" for read and write access that truncates any existing file.
- *
- * @return Returns the RawFileDescriptor object containing file descriptor.
- */
 int Ability::OpenRawFile(const Uri &uri, const std::string &mode)
 {
     return -1;
 }
 
-/**
- * @brief Updates one or more data records in the database. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the database table storing the data to update.
- * @param value Indicates the data to update. This parameter can be null.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be updated by
- * default.
- *
- * @return Returns the number of data records updated.
- */
 int Ability::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
     return 0;
 }
 
-/**
- * @brief get application witch the ability belong
- *
- * @return Returns the application ptr
- */
 std::shared_ptr<OHOSApplication> Ability::GetApplication()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -783,11 +649,6 @@ std::shared_ptr<OHOSApplication> Ability::GetApplication()
     return application_;
 }
 
-/**
- * @brief Obtains the class name in this ability name, without the prefixed bundle name.
- *
- * @return Returns the class name of this ability.
- */
 std::string Ability::GetAbilityName()
 {
     if (abilityInfo_ == nullptr) {
@@ -798,39 +659,14 @@ std::string Ability::GetAbilityName()
     return abilityInfo_->name;
 }
 
-/**
- * @brief OChecks whether the current ability is being destroyed.
- * An ability is being destroyed if you called terminateAbility() on it or someone else requested to destroy it.
- *
- * @return Returns true if the current ability is being destroyed; returns false otherwise.
- */
 bool Ability::IsTerminating()
 {
     return false;
 }
 
-/**
- * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an ability and the
- * result is returned. This method is called only on Page abilities. You can start a new ability to perform some
- * calculations and use setResult (int,ohos.aafwk.content.Want) to return the calculation result. Then the system
- * calls back the current method to use the returned data to execute its own logic.
- *
- * @param requestCode Indicates the request code returned after the ability is started. You can define the request
- * code to identify the results returned by abilities. The value ranges from 0 to 65535.
- * @param resultCode Indicates the result code returned after the ability is started. You can define the result code
- * to identify an error.
- * @param resultData Indicates the data returned after the ability is started. You can define the data returned. The
- * value can be null.
- *
- */
 void Ability::OnAbilityResult(int requestCode, int resultCode, const Want &want)
 {}
 
-/**
- * @brief Called back when the Back key is pressed.
- * The default implementation destroys the ability. You can override this method.
- *
- */
 void Ability::OnBackPressed()
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -846,88 +682,34 @@ void Ability::OnBackPressed()
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-/**
- * @brief Called when the launch mode of an ability is set to singleInstance. This happens when you re-launch an
- * ability that has been at the top of the ability stack.
- *
- * @param want Indicates the new Want containing information about the ability.
- */
 void Ability::OnNewWant(const Want &want)
 {
     HILOG_DEBUG("Ability::OnNewWant called");
 }
 
-/**
- * @brief Restores data and states of an ability when it is restored by the system. This method should be
- * implemented by a Page ability. This method is called if an ability was destroyed at a certain time due to
- * resource reclaim or was unexpectedly destroyed and the onSaveAbilityState(ohos.utils.PacMap) method was called to
- * save its user data and states. Generally, this method is called after the onStart(ohos.aafwk.content.Want)
- * method.
- *
- *  @param inState Indicates the PacMap object used for storing data and states. This parameter can not be null.
- *
- */
 void Ability::OnRestoreAbilityState(const PacMap &inState)
 {
     HILOG_DEBUG("Ability::OnRestoreAbilityState called");
 }
 
-/**
- * @brief Saves temporary data and states of this ability. This method should be implemented by a Page ability.
- * This method is called when the system determines that the ability may be destroyed in an unexpected situation,
- * for example, when the screen orientation changes or the user touches the Home key. Generally, this method is used
- * only to save temporary states.
- *
- *  @param outState Indicates the PacMap object used for storing user data and states. This parameter cannot be
- * null.
- *
- */
 void Ability::OnSaveAbilityState(PacMap &outState)
 {
     HILOG_DEBUG("Ability::OnSaveAbilityState called");
 }
 
-/**
- * @brief Called every time a key, touch, or trackball event is dispatched to this ability.
- * You can override this callback method if you want to know that the user has interacted with
- * the device in a certain way while this ability is running. This method, together with onLeaveForeground(),
- * is designed to help abilities intelligently manage status bar notifications. Specifically, they help
- * abilities determine when to cancel a notification.
- *
- */
 void Ability::OnEventDispatch()
 {}
 
-/**
- * @brief Sets the want object that can be obtained by calling getWant().
- * @param Want information of other ability
- */
 void Ability::SetWant(const AAFwk::Want &want)
 {
     setWant_ = std::make_shared<AAFwk::Want>(want);
 }
 
-/**
- * @brief Obtains the Want object that starts this ability.
- *
- * @return Returns the Want object that starts this ability.
- */
 std::shared_ptr<AAFwk::Want> Ability::GetWant()
 {
     return setWant_;
 }
 
-/**
- * @brief Sets the result code and data to be returned by this Page ability to the caller.
- * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want) method to
- * receive the result set in the current method. This method can be called only after the ability has been
- * initialized.
- *
- * @param resultCode Indicates the result code returned after the ability is destroyed. You can define the result
- * code to identify an error.
- * @param resultData Indicates the data returned after the ability is destroyed. You can define the data returned.
- * This parameter can be null.
- */
 void Ability::SetResult(int resultCode, const Want &resultData)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -943,19 +725,6 @@ void Ability::SetResult(int resultCode, const Want &resultData)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-/**
- * @brief Called back when Service is started.
- * This method can be called only by Service. You can use the StartAbility(ohos.aafwk.content.Want) method to start
- * Service. Then the system calls back the current method to use the transferred want parameter to execute its own
- * logic.
- *
- * @param want Indicates the want of Service to start.
- * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
- * destroyed, and the value false indicates a normal startup.
- * @param startId Indicates the number of times the Service ability has been started. The startId is incremented by
- * 1 every time the ability is started. For example, if the ability has been started for six times, the value of
- * startId is 6.
- */
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -975,11 +744,6 @@ void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-/**
- * @brief dump ability info
- *
- * @param extra dump ability info
- */
 void Ability::Dump(const std::string &extra)
 {
     HILOG_DEBUG("Ability::Dump called");
@@ -1032,141 +796,46 @@ void Ability::Dump(const std::string &extra)
     }
 }
 
-/**
- * @brief dump ability info
- *
- * @param params dump params that indicate different dump targets
- * @param info dump ability info
-*/
 void Ability::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {}
 
-/**
- * @brief Keeps this Service ability in the background and displays a notification bar.
- * To use this method, you need to request the ohos.permission.KEEP_BACKGROUND_RUNNING permission from the system.
- * The ohos.permission.KEEP_BACKGROUND_RUNNING permission is of the normal level.
- * This method can be called only by Service abilities after the onStart(ohos.aafwk.content.Want) method is called.
- *
- * @param id Identifies the notification bar information.
- * @param notificationRequest Indicates the NotificationRequest instance containing information for displaying a
- * notification bar.
- */
 void Ability::KeepBackgroundRunning(int id, const NotificationRequest &notificationRequest)
 {}
 
-/**
- * @brief Cancels background running of this ability to free up system memory.
- * This method can be called only by Service abilities when the onStop() method is called.
- *
- */
 void Ability::CancelBackgroundRunning()
 {}
 
-/**
- * @brief Converts the given uri that refer to the Data ability into a normalized URI. A normalized URI can be used
- * across devices, persisted, backed up, and restored. It can refer to the same item in the Data ability even if the
- * context has changed. If you implement URI normalization for a Data ability, you must also implement
- * denormalizeUri(ohos.utils.net.Uri) to enable URI denormalization. After this feature is enabled, URIs passed to
- * any method that is called on the Data ability must require normalization verification and denormalization. The
- * default implementation of this method returns null, indicating that this Data ability does not support URI
- * normalization.
- *
- * @param uri Indicates the Uri object to normalize.
- *
- * @return Returns the normalized Uri object if the Data ability supports URI normalization; returns null otherwise.
- */
 Uri Ability::NormalizeUri(const Uri &uri)
 {
     return uri;
 }
 
-/**
- * @brief Deletes one or more data records. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the database table storing the data to delete.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be deleted by
- * default.
- *
- * @return Returns the number of data records deleted.
- */
 int Ability::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
     return 0;
 }
 
-/**
- * @brief Obtains the MIME type of files. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the path of the files to obtain.
- * @param mimeTypeFilter Indicates the MIME type of the files to obtain. This parameter cannot be set to null.
- * 1. * / *: Obtains all types supported by a Data ability.
- * 2. image/ *: Obtains files whose main type is image of any subtype.
- * 3. * /jpg: Obtains files whose subtype is JPG of any main type.
- *
- * @return Returns the MIME type of the matched files; returns null if there is no type that matches the Data
- * ability.
- */
 std::vector<std::string> Ability::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
     return types_;
 }
 
-/**
- * @brief Opens a file. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the path of the file to open.
- * @param mode Indicates the open mode, which can be "r" for read-only access, "w" for write-only access
- * (erasing whatever data is currently in the file), "wt" for write access that truncates any existing file,
- * "wa" for write-only access to append to any existing data, "rw" for read and write access on any existing data,
- * or "rwt" for read and write access that truncates any existing file.
- *
- * @return Returns the FileDescriptor object of the file descriptor.
- */
 int Ability::OpenFile(const Uri &uri, const std::string &mode)
 {
     return -1;
 }
 
-/**
- * @brief Queries one or more data records in the database. This method should be implemented by a Data ability.
- *
- * @param uri Indicates the database table storing the data to query.
- * @param columns Indicates the columns to be queried, in array, for example, {"name","age"}. You should define the
- * processing logic when this parameter is null.
- * @param predicates Indicates filter criteria. If this parameter is null, all data records will be queried by
- * default.
- *
- * @return Returns the queried data.
- */
 std::shared_ptr<NativeRdb::AbsSharedResultSet> Ability::Query(
     const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
     return nullptr;
 }
 
-/**
- * @brief Reloads data in the database.
- * The default implementation of this method returns false. You must implement this method in the child class
- * of your Data Ability if you want to use it.
- *
- * @param uri Indicates the position where the data is to reload.
- * @param extras Indicates the additional parameters contained in the PacMap object to be passed in this call.
- *
- * @return Returns true if the data is successfully reloaded; returns false otherwise.
- */
 bool Ability::Reload(const Uri &uri, const PacMap &extras)
 {
     return false;
 }
 
-/**
- * @brief Inserts multiple data records into the database.
- *
- * @param uri Indicates the path of the data to operate.
- * @param values Indicates the data records to insert.
- *
- * @return Returns the number of data records inserted.
- */
 int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -1180,16 +849,6 @@ int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBuck
     return amount;
 }
 
-/**
- * @brief Migrates this ability to the given device on the same distributed network in a reversible way that allows
- * this ability to be migrated back to the local device through reverseContinueAbility(). The ability to migrate and
- * its ability slices must implement the IAbilityContinuation interface. Otherwise, an exception is thrown,
- * indicating that the ability does not support migration.
- *
- * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter
- * is null, this method has the same effect as ContinueAbilityReversibly().
- *
- */
 void Ability::ContinueAbilityReversibly(const std::string &deviceId)
 {
     if (!VerifySupportForContinuation()) {
@@ -1199,23 +858,11 @@ void Ability::ContinueAbilityReversibly(const std::string &deviceId)
     continuationManager_->ContinueAbility(true, deviceId);
 }
 
-/**
- * @brief  public final String getOriginalDeviceId​() throws UnsupportedOperationException
- * Obtains the ID of the source device from which this ability is migrated.
- *
- * @return Returns the source device ID.
- */
 std::string Ability::GetOriginalDeviceId()
 {
     return "";
 }
 
-/**
- * @brief Obtains the migration state of this ability.
- * @return Returns the migration state.
- *
- * @return Returns the source device ID.
- */
 ContinuationState Ability::GetContinuationState()
 {
     if (!VerifySupportForContinuation()) {
@@ -1225,47 +872,17 @@ ContinuationState Ability::GetContinuationState()
     return continuationManager_->GetContinuationState();
 }
 
-/**
- * @brief Obtains the singleton AbilityPackage object to which this ability belongs.
- *
- * @return Returns the singleton AbilityPackage object to which this ability belongs.
- */
-std::shared_ptr<AbilityPackage> Ability::GetAbilityPackage()
-{
-    return nullptr;
-}
-
-/**
- * @brief Converts the given normalized uri generated by normalizeUri(ohos.utils.net.Uri) into a denormalized one.
- * The default implementation of this method returns the original URI passed to it.
- *
- * @param uri uri Indicates the Uri object to denormalize.
- *
- * @return Returns the denormalized Uri object if the denormalization is successful; returns the original Uri passed
- * to this method if there is nothing to do; returns null if the data identified by the original Uri cannot be found
- * in the current environment.
- */
 Uri Ability::DenormalizeUri(const Uri &uri)
 {
     return uri;
 }
 
-/**
- * @brief Obtains the Lifecycle object of the current ability.
- *
- * @return Returns the Lifecycle object.
- */
 std::shared_ptr<LifeCycle> Ability::GetLifecycle()
 {
     HILOG_DEBUG("Ability::GetLifecycle called");
     return lifecycle_;
 }
 
-/**
- * @brief Obtains the lifecycle state of this ability.
- *
- * @return Returns the lifecycle state of this ability.
- */
 AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 {
     HILOG_DEBUG("Ability::GetState called");
@@ -1278,127 +895,12 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
     return (AbilityLifecycleExecutor::LifecycleState)abilityLifecycleExecutor_->GetState();
 }
 
-/**
- * @brief A Page or Service ability uses this method to start a specific ability. The system locates the target
- * ability from installed abilities based on the value of the want parameter and then starts it. You can specify
- * the ability to start using the want parameter.
- *
- * @param want Indicates the ability to start.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
 ErrCode Ability::StartAbility(const Want &want)
 {
     HILOG_DEBUG("%{public}s begin Ability::StartAbility", __func__);
     return AbilityContext::StartAbility(want, -1);
 }
 
-/**
- * @brief Destroys this Page or Service ability.
- * After a Page or Service ability performs all operations, it can use this method to destroy itself
- * to free up memory. This method can be called only after the ability is initialized.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
-ErrCode Ability::TerminateAbility()
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("%{public}s begin.", __func__);
-    return AbilityContext::TerminateAbility();
-}
-
-/**
- * @brief Destroys ability.
- *
- * @param want Indicates the want containing information about TerminateAbility
- *
- * @return Returns the result of TerminateAbility
- */
-int Ability::TerminateAbility(Want &want)
-{
-    return -1;
-}
-
-/**
- * @brief Sets the main route for this ability.
- *
- * The main route, also called main entry, refers to the default <b>AbilitySlice</b> to present for this ability.
- * This function should be called only on Feature Abilities. If this function is not called in the
- * {@link OnStart(const Want &want)} function for a Feature Ability, the Feature Ability will fail to start.
- *
- * @param entry Indicates the main entry, which is the class name of the <b>AbilitySlice</b> instance to start.
- *
- * @return Returns the result of SetMainRouter
- */
-void Ability::SetMainRoute(const std::string &entry)
-{}
-
-/**
- * @brief By binding an action, you can set different action parameters in Want to present different initial
- * pages. You must register actions in the profile file.
- *
- * @param action Indicates the action to bind.
- *
- * @param entry Indicates the entry, which is the fully qualified name of your AbilitySlice class.
- *
- * @return Returns the result of AddActionRoute
- */
-void Ability::AddActionRoute(const std::string &action, const std::string &entry)
-{}
-
-/**
- * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
- *
- * @param want Indicates the want containing information about the ability to connect
- *
- * @param conn Indicates the callback object when the target ability is connected.
- *
- * @return True means success and false means failure
- */
-bool Ability::ConnectAbility(const Want &want, const sptr<AAFwk::IAbilityConnection> &conn)
-{
-    return AbilityContext::ConnectAbility(want, conn);
-}
-
-/**
- * @brief Disconnects the current ability from an ability
- *
- * @param conn Indicates the IAbilityConnection callback object passed by connectAbility after the connection
- *              is set up. The IAbilityConnection object uniquely identifies a connection between two abilities.
- *
- * @return errCode ERR_OK on success, others on failure.
- */
-ErrCode Ability::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> &conn)
-{
-    return AbilityContext::DisconnectAbility(conn);
-}
-
-/**
- * @brief Destroys another ability that uses the AbilityInfo.AbilityType.SERVICE template.
- * The current ability using either the AbilityInfo.AbilityType.SERVICE or AbilityInfo.AbilityType.PAGE
- * template can call this method to destroy another ability that uses the AbilityInfo.AbilityType.SERVICE
- * template. The current ability itself can be destroyed by calling the terminateAbility() method.
- *
- * @param want Indicates the Want containing information about the ability to destroy.
- *
- * @return Returns true if the ability is destroyed successfully; returns false otherwise.
- */
-bool Ability::StopAbility(const AAFwk::Want &want)
-{
-    return AbilityContext::StopAbility(want);
-}
-
-/**
- * @brief Posts a scheduled Runnable task to a new non-UI thread.
- * The task posted via this method will be executed in a new thread, which allows you to perform certain
- * time-consuming operations. To use this method, you must also override the supportHighPerformanceUI() method.
- *
- * @param task Indicates the Runnable task to post.
- *
- * @param delayTime Indicates the number of milliseconds after which the task will be executed.
- *
- * @return -
- */
 void Ability::PostTask(std::function<void()> task, long delayTime)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
@@ -1406,13 +908,6 @@ void Ability::PostTask(std::function<void()> task, long delayTime)
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
-/**
- * @brief You can use the IContinuationRegisterManager object to interact with the Device+ control center,
- * including registering and unregistering the ability to migrate, updating the device connection state, and
- * showing the list of devices that can be selected for ability migration.
- *
- * @return Returns true if the migration request is successful; returns false otherwise.
- */
 std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterManager()
 {
     if (abilityInfo_ != nullptr) {
@@ -1429,24 +924,11 @@ std::weak_ptr<IContinuationRegisterManager> Ability::GetContinuationRegisterMana
     return continuationRegisterManager;
 }
 
-/**
- * @brief Callback function to ask the user to prepare for the migration .
- *
- * @return If the user allows migration and saves data suscessfully, it returns 0; otherwise, it returns errcode.
- */
 int32_t Ability::OnContinue(WantParams &wantParams)
 {
     return ContinuationManager::OnContinueResult::Reject;
 }
 
-/**
- * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
- * ability slices must implement the IAbilityContinuation interface.
- *
- * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter
- * is null, this method has the same effect as continueAbility().
- *
- */
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
     if (deviceId.empty()) {
@@ -1461,14 +943,6 @@ void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t ver
     continuationManager_->ContinueAbilityWithStack(deviceId, versionCode);
 }
 
-/**
- * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
- * ability slices must implement the IAbilityContinuation interface.
- *
- * @param deviceId Indicates the ID of the target device where this ability will be migrated to. If this parameter
- * is null, this method has the same effect as continueAbility().
- *
- */
 void Ability::ContinueAbility(const std::string &deviceId)
 {
     if (deviceId.empty()) {
@@ -1483,55 +957,27 @@ void Ability::ContinueAbility(const std::string &deviceId)
     continuationManager_->ContinueAbility(false, deviceId);
 }
 
-/**
- * @brief Callback function to ask the user whether to start the migration .
- *
- * @return If the user allows migration, it returns true; otherwise, it returns false.
- */
 bool Ability::OnStartContinuation()
 {
     return false;
 }
 
-/**
- * @brief Save user data of local Ability generated at runtime.
- *
- * @param saveData Indicates the user data to be saved.
- * @return If the data is saved successfully, it returns true; otherwise, it returns false.
- */
 bool Ability::OnSaveData(WantParams &saveData)
 {
     return false;
 }
 
-/**
- * @brief After creating the Ability on the remote device,
- *      immediately restore the user data saved during the migration of the Ability on the remote device.
- * @param restoreData Indicates the user data to be restored.
- * @return If the data is restored successfully, it returns true; otherwise, it returns false .
- */
 bool Ability::OnRestoreData(WantParams &restoreData)
 {
     return false;
 }
 
-/**
- * @brief This function can be used to implement the processing logic after the migration is completed.
- *
- * @param result Migration result code. 0 means the migration was successful, -1 means the migration failed.
- * @return None.
- */
 void Ability::OnCompleteContinuation(int result)
 {
     HILOG_DEBUG("Ability::OnCompleteContinuation change continuation state to initial");
     continuationManager_->ChangeProcessStateToInit();
 }
 
-/**
- * @brief Used to notify the local Ability that the remote Ability has been destroyed.
- *
- * @return None.
- */
 void Ability::OnRemoteTerminated()
 {}
 
@@ -1602,32 +1048,16 @@ bool Ability::IsFlagExists(unsigned int flag, unsigned int flagSet)
     return (flag & flagSet) == flag;
 }
 
-/**
- * @brief Called to set caller information for the application. The default implementation returns null.
- *
- * @return Returns the caller information.
- */
 Uri Ability::OnSetCaller()
 {
     return Uri("");
 }
 
-/**
- * @brief Create a PostEvent timeout task. The default delay is 5000ms
- *
- * @return Return a smart pointer to a timeout object
- */
 std::shared_ptr<AbilityPostEventTimeout> Ability::CreatePostEventTimeouter(std::string taskstr)
 {
     return std::make_shared<AbilityPostEventTimeout>(taskstr, handler_);
 }
 
-/**
- * @brief Keep this Service ability in the background and displays a notification bar.
- *
- * @param wantAgent Indicates which ability to start when user click the notification bar.
- * @return the method result code, 0 means succeed
- */
 int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &wantAgent)
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -1656,11 +1086,6 @@ int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &
 #endif
 }
 
-/**
- * @brief Cancel background running of this ability to free up system memory.
- *
- * @return the method result code, 0 means succeed
- */
 int Ability::StopBackgroundRunning()
 {
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -1670,24 +1095,6 @@ int Ability::StopBackgroundRunning()
 #endif
 }
 
-/**
- * @brief Get the error message by error code.
- * @param errorCode the error code return form fms.
- * @return Returns the error message detail.
- */
-std::string Ability::GetErrorMsg(const ErrCode errorCode)
-{
-#ifdef SUPPORT_GRAPHICS
-    return FormMgr::GetInstance().GetErrorMessage(errorCode);
-#else
-    return nullptr;
-#endif
-}
-
-/**
- * @brief Acquire a bundle manager, if it not existed.
- * @return returns the bundle manager ipc object, or nullptr for failed.
- */
 sptr<IBundleMgr> Ability::GetBundleMgr()
 {
     HILOG_DEBUG("%{public}s called.", __func__);
@@ -1710,10 +1117,6 @@ sptr<IBundleMgr> Ability::GetBundleMgr()
     return iBundleMgr_;
 }
 
-/**
- * @brief Add the bundle manager instance for debug.
- * @param bundleManager the bundle manager ipc object.
- */
 void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
@@ -1721,21 +1124,12 @@ void Ability::SetBundleManager(const sptr<IBundleMgr> &bundleManager)
     iBundleMgr_ = bundleManager;
 }
 
-/**
- * @brief Set the start ability setting.
- * @param setting the start ability setting.
- */
 void Ability::SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
     setting_ = setting;
 }
 
-/**
- * @brief Set the launch param.
- *
- * @param launchParam the launch param.
- */
 void Ability::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
@@ -2080,10 +1474,6 @@ bool Ability::CheckAssertQueryResult(std::shared_ptr<NativeRdb::AbsSharedResultS
     return true;
 }
 
-/**
- * @brief request a remote object of callee from this ability.
- * @return Returns the remote object of callee.
- */
 sptr<IRemoteObject> Ability::CallRequest()
 {
     return nullptr;
@@ -2112,60 +1502,26 @@ void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want
 }
 
 #ifdef SUPPORT_GRAPHICS
-static std::mutex formLock;
-constexpr int64_t SEC_TO_MILLISEC = 1000;
-constexpr int64_t MILLISEC_TO_NANOSEC = 1000000;
-
-/**
- * @brief Informs the system of the time required for drawing this Page ability.
- *
- * @return Returns the notification is successful or fail
- */
 bool Ability::PrintDrawnCompleted()
 {
     return AbilityContext::PrintDrawnCompleted();
 }
 
-/**
- * @brief Called after instantiating WindowScene.
- *
- *
- * You can override this function to implement your own processing logic.
- */
 void Ability::OnSceneCreated()
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 }
 
-/**
- * @brief Called after restore WindowScene.
- *
- *
- * You can override this function to implement your own processing logic.
- */
 void Ability::OnSceneRestored()
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 }
 
-/**
- * @brief Called after ability stoped.
- *
- *
- * You can override this function to implement your own processing logic.
- */
 void Ability::onSceneDestroyed()
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 }
 
-/**
- * @brief Called when this ability enters the <b>STATE_FOREGROUND</b> state.
- *
- *
- * The ability in the <b>STATE_FOREGROUND</b> state is visible.
- * You can override this function to implement your own processing logic.
- */
 void Ability::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2181,13 +1537,6 @@ void Ability::OnForeground(const Want &want)
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
-/**
- * @brief Called when this ability enters the <b>STATE_BACKGROUND</b> state.
- *
- *
- * The ability in the <b>STATE_BACKGROUND</b> state is invisible.
- * You can override this function to implement your own processing logic.
- */
 void Ability::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2235,33 +1584,11 @@ void Ability::OnBackground()
         HiSysEventType::BEHAVIOR, eventInfo);
 }
 
-/**
- * @brief Called when a key is pressed. When any component in the Ability gains focus, the key-down event for
- * the component will be handled first. This callback will not be invoked if the callback triggered for the
- * key-down event of the component returns true. The default implementation of this callback does nothing
- * and returns false.
- *
- * @param keyEvent Indicates the key-down event.
- *
- * @return Returns true if this event is handled and will not be passed further; returns false if this event
- * is not handled and should be passed to other handlers.
- */
 void Ability::OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_DEBUG("Ability::OnKeyDown called");
 }
 
-/**
- * @brief Called when a key is released. When any component in the Ability gains focus, the key-up event for
- * the component will be handled first. This callback will not be invoked if the callback triggered for the
- * key-up event of the component returns true. The default implementation of this callback does nothing and
- * returns false.
- *
- * @param keyEvent Indicates the key-up event.
- *
- * @return Returns true if this event is handled and will not be passed further; returns false if this event
- * is not handled and should be passed to other handlers.
- */
 void Ability::OnKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
     HILOG_DEBUG("Ability::OnKeyUp called");
@@ -2272,63 +1599,24 @@ void Ability::OnKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
     }
 }
 
-/**
- * @brief Called when a touch event is dispatched to this ability. The default implementation of this callback
- * does nothing and returns false.
- *
- * @param event  Indicates information about the touch event.
- *
- * @return Returns true if the event is handled; returns false otherwise.
- */
 void Ability::OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
     HILOG_DEBUG("Ability::OnTouchEvent called");
 }
 
-/**
- * @brief Inflates UI controls by using ComponentContainer.
- * You can create a ComponentContainer instance that contains multiple components.
- *
- * @param componentContainer Indicates a set of customized components.
- */
 void Ability::SetUIContent(const ComponentContainer &componentContainer)
 {}
 
-/**
- * @brief Inflates layout resources by using the layout resource ID.
- *
- * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
- */
 void Ability::SetUIContent(int layoutRes)
 {}
 
-/**
- * @brief Inflates UI controls by using ComponentContainer.
- * You can create a ComponentContainer instance that contains multiple components.
- *
- * @param componentContainer Indicates the component layout defined by the user.
- * @param context Indicates the context to use.
- * @param typeFlag Indicates the window type.
- */
 void Ability::SetUIContent(
     const ComponentContainer &componentContainer, std::shared_ptr<Context> &context, int typeFlag)
 {}
 
-/**
- * @brief Inflates layout resources by using the layout resource ID.
- *
- * @param layoutRes Indicates the layout resource ID, which cannot be a negative number.
- * @param context Indicates the context to use.
- * @param typeFlag Indicates the window type.
- */
 void Ability::SetUIContent(int layoutRes, std::shared_ptr<Context> &context, int typeFlag)
 {}
 
-/**
- * @brief Inflates UI controls by using WindowOption.
- *
- * @param windowOption Indicates the window option defined by the user.
- */
 void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
@@ -2338,11 +1626,6 @@ void Ability::InitWindow(Rosen::WindowType winType, int32_t displayId, sptr<Rose
     abilityWindow_->InitWindow(winType, abilityContext_, sceneListener_, displayId, option, securityFlag_);
 }
 
-/**
- * @brief Get the window belong to the ability.
- *
- * @return Returns a IWindowsManager object pointer.
- */
 const sptr<Rosen::Window> Ability::GetWindow()
 {
     if (abilityWindow_ != nullptr) {
@@ -2353,31 +1636,16 @@ const sptr<Rosen::Window> Ability::GetWindow()
     }
 }
 
-/**
- * @brief get the scene belong to the ability.
- *
- * @return Returns a WindowScene object pointer.
- */
 std::shared_ptr<Rosen::WindowScene> Ability::GetScene()
 {
     return scene_;
 }
 
-/**
- * @brief Obtains the type of audio whose volume is adjusted by the volume button.
- *
- * @return Returns the AudioManager.AudioVolumeType.
- */
 int Ability::GetVolumeTypeAdjustedByKey()
 {
     return 0;
 }
 
-/**
- * @brief Checks whether the main window of this ability has window focus.
- *
- * @return Returns true if this ability currently has window focus; returns false otherwise.
- */
 bool Ability::HasWindowFocus()
 {
     if (abilityInfo_ == nullptr) {
@@ -2409,57 +1677,22 @@ void Ability::SetShowOnLockScreen(bool showOnLockScreen)
     }
 }
 
-/**
- * @brief Called when a key is lone pressed.
- *
- * @param keyCode Indicates the code of the key long pressed.
- * @param keyEvent Indicates the key-long-press event.
- *
- * @return Returns true if this event is handled and will not be passed further; returns false if this event
- * is not handled and should be passed to other handlers.
- */
 bool Ability::OnKeyPressAndHold(int keyCode, const std::shared_ptr<KeyEvent> &keyEvent)
 {
     return false;
 }
 
-/**
- * @brief Called when this ability is about to leave the foreground and enter the background due to a user
- * operation, for example, when the user touches the Home key.
- *
- */
 void Ability::OnLeaveForeground()
 {}
 
-/**
- * @brief Sets the type of audio whose volume will be adjusted by the volume button.
- *
- * @param volumeType Indicates the AudioManager.AudioVolumeType to set.
- */
 void Ability::SetVolumeTypeAdjustedByKey(int volumeType)
 {}
 
-/**
- * @brief Sets the background color of the window in RGB color mode.
- *
- * @param red The value ranges from 0 to 255.
- *
- * @param green The value ranges from 0 to 255.
- *
- * @param blue The value ranges from 0 to 255.
- *
- * @return Returns the result of SetWindowBackgroundColor
- */
 int Ability::SetWindowBackgroundColor(int red, int green, int blue)
 {
     return -1;
 }
 
-/**
- * @brief Get page ability stack info.
- *
- * @return A string represents page ability stack info, empty if failed;
- */
 std::string Ability::GetContentInfo()
 {
     if (scene_ == nullptr) {
@@ -2468,391 +1701,12 @@ std::string Ability::GetContentInfo()
     return scene_->GetContentInfo();
 }
 
-/**
- * @brief Called when this ability gains or loses window focus.
- *
- * @param hasFocus Specifies whether this ability has focus.
- */
 void Ability::OnWindowFocusChanged(bool hasFocus)
 {}
 
-/**
- * @brief Called when this ability is moved to or removed from the top of the stack.
- *
- * @param topActive Specifies whether this ability is moved to or removed from the top of the stack. The value true
- * indicates that it is moved to the top, and false indicates that it is removed from the top of the stack.
- */
 void Ability::OnTopActiveAbilityChanged(bool topActive)
 {}
 
-/**
- * Releases an obtained form by its ID.
- *
- * <p>After this method is called, the form won't be available for use by the application, but the Form Manager
- * Service still keeps the cache information about the form, so that the application can quickly obtain it based on
- * the {@code formId}.</p>
- * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
- *
- * @param formId Indicates the form ID.
- * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
- *
- * <ul>
- * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
- * <li>The specified form has not been added by the application.</li>
- * <li>An error occurred when connecting to the Form Manager Service.</li>
- * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
- * <li>The form has been obtained by another application and cannot be released by the current application.</li>
- * <li>The form is being restored.</li>
- * </ul>
- */
-ErrCode Ability::ReleaseForm(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // release form by formId and do not release cache
-    return ReleaseForm(formId, false);
-}
-
-/**
- * Releases an obtained form by its ID.
- *
- * <p>After this method is called, the form won't be available for use by the application, if isReleaseCache is
- * false, this method is same as {@link #releaseForm(int)}, otherwise the Form Manager Service still store this
- * form in the cache.</p>
- * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
- *
- * @param formId Indicates the form ID.
- * @param isReleaseCache Indicates whether to clear cache in service.
- * @return Returns {@code true} if the form is successfully released; returns {@code false} otherwise.
- *
- * <ul>
- * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
- * <li>The specified form has not been added by the application.</li>
- * <li>An error occurred when connecting to the Form Manager Service.</li>
- * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
- * <li>The form has been obtained by another application and cannot be released by the current application.</li>
- * <li>The form is being restored.</li>
- * </ul>
- */
-ErrCode Ability::ReleaseForm(const int64_t formId, const bool isReleaseCache)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // release form with formId and specifies whether to release the cache
-    return DeleteForm(formId, isReleaseCache ? RELEASE_CACHED_FORM : RELEASE_FORM);
-}
-
-/**
- * Deletes an obtained form by its ID.
- *
- * <p>After this method is called, the form won't be available for use by the application and the Form Manager
- * Service no longer keeps the cache information about the form.</p>
- * <p><b>Permission: </b>{@link ohos.security.SystemPermission#REQUIRE_FORM}</p>
- *
- * @param formId Indicates the form ID.
- * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
- *
- * <ul>
- * <li>The passed {@code formId} is invalid. Its value must be larger than 0.</li>
- * <li>The specified form has not been added by the application.</li>
- * <li>An error occurred when connecting to the Form Manager Service.</li>
- * <li>The application is not granted with the {@link ohos.security.SystemPermission#REQUIRE_FORM} permission.</li>
- * <li>The form has been obtained by another application and cannot be deleted by the current application.</li>
- * <li>The form is being restored.</li>
- * </ul>
- */
-ErrCode Ability::DeleteForm(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // delete form with formId
-    return DeleteForm(formId, DELETE_FORM);
-}
-
-/**
- * @brief Cast temp form with formId.
- *
- * @param formId Indicates the form's ID.
- *
- * @return Returns {@code true} if the form is successfully casted; returns {@code false} otherwise.
- */
-ErrCode Ability::CastTempForm(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s start", __func__);
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, passing in form id can't be negative.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
-    }
-
-    HILOG_DEBUG("%{public}s, castTempForm begin of temp form %{public}" PRId64, __func__, formId);
-    ErrCode result = FormMgr::GetInstance().CastTempForm(formId, FormHostClient::GetInstance());
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s error, some internal server occurs, error code is %{public}d.", __func__, result);
-        return result;
-    }
-
-    userReqParams_[formId].SetParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
-
-    HILOG_DEBUG("%{public}s end", __func__);
-    return result;
-}
-
-/**
- * @brief Obtains a specified form that matches the application bundle name, module name, form name, and
- * other related information specified in the passed {@code Want}.
- *
- * <p>This method is asynchronous. After the {@link FormJsInfo} instance is obtained.
- *
- * @param formId Indicates the form ID.
- * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
- *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
- * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
- * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
- */
-bool Ability::AcquireForm(const int64_t formId, const Want &want, const std::shared_ptr<FormCallback> callback)
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
-    HILOG_DEBUG("%{public}s begin, current time: %{public}ld", __func__, currentTime);
-
-    // check fms recover status
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return false;
-    }
-
-    // check form id
-    HILOG_DEBUG("%{public}s, param of formId %{public}" PRId64 ".", __func__, formId);
-    if (formId < 0) {
-        HILOG_ERROR("%{public}s error, form id should not be negative.", __func__);
-        return false;
-    }
-
-    // check param of want
-    if (!CheckWantValid(formId, want)) {
-        HILOG_ERROR("%{public}s error, failed to check param of want.", __func__);
-        return false;
-    };
-
-    ElementName elementName = want.GetElement();
-    std::string bundleName = elementName.GetBundleName();
-    std::string abilityName = elementName.GetAbilityName();
-    HILOG_DEBUG("%{public}s, begin to acquire form, bundleName is %{public}s, abilityName is %{public}s, formId is "
-             "%{public}" PRId64 ".",
-        __func__,
-        bundleName.c_str(),
-        abilityName.c_str(),
-        formId);
-
-    // hostClient init
-    sptr<FormHostClient> formHostClient = FormHostClient::GetInstance();
-    if (formHostClient == nullptr) {
-        HILOG_ERROR("%{public}s error, formHostClient == nullptr.", __func__);
-        return false;
-    }
-
-    // acquire form request to fms
-    FormJsInfo formJsInfo;
-    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK) {
-        HILOG_ERROR("%{public}s error, acquire form for fms failed.", __func__);
-        return false;
-    }
-    HILOG_DEBUG("%{public}s, end to acquire form, the formId returned from the fms is %{public}" PRId64 ".",
-        __func__,
-        formJsInfo.formId);
-
-    // check for form presence in hostForms
-    if (formHostClient->ContainsForm(formJsInfo.formId)) {
-        HILOG_ERROR("%{public}s error, form has already acquired, do not support acquire twice.", __func__);
-        return false;
-    }
-
-    // add ability of form to hostForms
-    std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-    formHostClient->AddForm(thisAbility, formJsInfo.formId);
-    // post the async task of handleAcquireResult
-    PostTask([this, want, formJsInfo, callback]() { HandleAcquireResult(want, formJsInfo, callback); }, 0L);
-    // the acquire form is successfully
-    return true;
-}
-
-/**
- * @brief Updates the content of a specified JS form.
- *
- * <p>This method is called by a form provider to update JS form data as needed.
- *
- * @param formId Indicates the form ID.
- * @param formProviderData The data used to update the JS form displayed on the client.
- * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
- */
-ErrCode Ability::UpdateForm(const int64_t formId, const FormProviderData &formProviderData)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // check fms recover status
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // check formId
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, the passed in formId can't be negative or zero.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
-    }
-
-    // check formProviderData
-    if (formProviderData.GetDataString().empty()) {
-        HILOG_ERROR("%{public}s error, the formProviderData is null.", __func__);
-        return ERR_APPEXECFWK_FORM_PROVIDER_DATA_EMPTY;
-    }
-
-    // update form request to fms
-    ErrCode result = FormMgr::GetInstance().UpdateForm(formId, formProviderData);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s error, update form for fms failed.", __func__);
-    }
-    return result;
-}
-
-/**
- * @brief Sends a notification to the form framework to make the specified forms visible.
- *
- * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
- * will be called to notify the form provider of the form visibility change event.</p>
- *
- * @param formIds Indicates the IDs of the forms to be made visible.
- * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
- */
-ErrCode Ability::NotifyVisibleForms(const std::vector<int64_t> &formIds)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    return NotifyWhetherVisibleForms(formIds, Constants::FORM_VISIBLE);
-}
-
-/**
- * @brief Sends a notification to the form framework to make the specified forms invisible.
- *
- * <p>After this method is successfully called, {@link Ability#OnVisibilityChanged(std::map<int64_t, int>)}
- * will be called to notify the form provider of the form visibility change event.</p>
- *
- * @param formIds Indicates the IDs of the forms to be made invisible.
- * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
- */
-ErrCode Ability::NotifyInvisibleForms(const std::vector<int64_t> &formIds)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    return NotifyWhetherVisibleForms(formIds, Constants::FORM_INVISIBLE);
-}
-
-/**
- * @brief Set form next refresh time.
- *
- * <p>This method is called by a form provider to set refresh time.
- *
- * @param formId Indicates the ID of the form to set refresh time.
- * @param nextTime Indicates the next time gap now in seconds, can not be litter than 300 seconds.
- * @return Returns {@code true} if seting succeed; returns {@code false} otherwise.
- */
-ErrCode Ability::SetFormNextRefreshTime(const int64_t formId, const int64_t nextTime)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    if (nextTime < MIN_NEXT_TIME) {
-        HILOG_ERROR("next time litte than 300 seconds.");
-        return ERR_APPEXECFWK_FORM_INVALID_REFRESH_TIME;
-    }
-
-    if (FormMgr::GetInstance().GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s, formManager is in recovering", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    ErrCode result = FormMgr::GetInstance().SetNextRefreshTime(formId, nextTime);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s, internal error:[%{public}d]", __func__, result);
-    }
-
-    return result;
-}
-/**
- * @brief Requests for form data update.
- *
- * This method must be called when the application has detected that a system setting item (such as the language,
- * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
- * provider automatically updates the form data (if there is any update) through the form framework, with the update
- * process being unperceivable by the application.
- *
- * @param formId Indicates the ID of the form to update.
- * @return Returns true if the update request is successfully initiated, returns false otherwise.
- */
-ErrCode Ability::RequestForm(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    Want want;
-    return RequestForm(formId, want);
-}
-
-/**
- * @brief Update form.
- *
- * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
- */
-void Ability::ProcessFormUpdate(const FormJsInfo &formJsInfo)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // post the async task of handleFormMessage
-    int32_t msgCode = OHOS_FORM_UPDATE_FORM;
-    PostTask([this, msgCode, formJsInfo]() { HandleFormMessage(msgCode, formJsInfo); }, 0L);
-}
-/**
- * @brief Uninstall form.
- *
- * @param formId Indicates the ID of the form to uninstall.
- */
-void Ability::ProcessFormUninstall(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s start.", __func__);
-    // check formId
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, the passed in formId can't be negative or zero.", __func__);
-        return;
-    }
-
-    std::shared_ptr<FormCallback> formCallback = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(formLock);
-        // get callback iterator by formId
-        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator = appCallbacks_.find(formId);
-        // call the callback function when you need to be notified
-        if (appCallbackIterator == appCallbacks_.end()) {
-            HILOG_ERROR("%{public}s failed, callback not find, formId: %{public}" PRId64 ".", __func__, formId);
-            return;
-        }
-        formCallback = appCallbackIterator->second;
-        CleanFormResource(formId);
-    }
-    if (formCallback == nullptr) {
-        HILOG_ERROR("%{public}s failed, callback is nullptr.", __func__);
-        return;
-    }
-
-    formCallback->OnFormUninstall(formId);
-
-    HILOG_DEBUG("%{public}s end.", __func__);
-}
-
-/**
- * @brief Called to return a FormProviderInfo object.
- *
- * <p>You must override this method if your ability will serve as a form provider to provide a form for clients.
- * The default implementation returns nullptr. </p>
- *
- * @param want   Indicates the detailed information for creating a FormProviderInfo.
- *               The Want object must include the form ID, form name of the form,
- *               which can be obtained from Ability#PARAM_FORM_IDENTITY_KEY,
- *               Ability#PARAM_FORM_NAME_KEY, and Ability#PARAM_FORM_DIMENSION_KEY,
- *               respectively. Such form information must be managed as persistent data for further form
- *               acquisition, update, and deletion.
- *
- * @return Returns the created FormProviderInfo object.
- */
 FormProviderInfo Ability::OnCreate(const Want &want)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
@@ -2866,676 +1720,26 @@ bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
     return false;
 }
 
-/**
- * @brief Called to notify the form provider that a specified form has been deleted. Override this method if
- * you want your application, as the form provider, to be notified of form deletion.
- *
- * @param formId Indicates the ID of the deleted form.
- * @return None.
- */
 void Ability::OnDelete(const int64_t formId)
 {}
 
-/**
- * @brief Called to notify the form provider to update a specified form.
- *
- * @param formId Indicates the ID of the form to update.
- * @return none.
- */
 void Ability::OnUpdate(const int64_t formId)
 {}
 
-/**
- * @brief Called when the form supplier is notified that a temporary form is successfully converted to a normal
- * form.
- *
- * @param formId Indicates the ID of the form.
- * @return None.
- */
 void Ability::OnCastTemptoNormal(const int64_t formId)
 {}
 
-/**
- * @brief Called when the form supplier receives form events from the fms.
- *
- * @param formEventsMap Indicates the form events occurred. The key in the Map object indicates the form ID,
- *                      and the value indicates the event type, which can be either FORM_VISIBLE
- *                      or FORM_INVISIBLE. FORM_VISIBLE means that the form becomes visible,
- *                      and FORM_INVISIBLE means that the form becomes invisible.
- * @return none.
- */
 void Ability::OnVisibilityChanged(const std::map<int64_t, int32_t> &formEventsMap)
 {}
-/**
- * @brief Called to notify the form supplier to update a specified form.
- *
- * @param formId Indicates the ID of the form to update.
- * @param message Form event message.
- */
+
 void Ability::OnTriggerEvent(const int64_t formId, const std::string &message)
 {}
 
-/**
- * @brief Called to notify the form supplier to acquire form state.
- *
- * @param want Indicates the detailed information about the form to be obtained, including
- *             the bundle name, module name, ability name, form name and form dimension.
- */
 FormState Ability::OnAcquireFormState(const Want &want)
 {
     return FormState::DEFAULT;
 }
-/**
- * @brief Delete or release form with formId.
- *
- * @param formId Indicates the form's ID.
- * @param deleteType Indicates the type of delete or release.
- * @return Returns {@code true} if the form is successfully deleted; returns {@code false} otherwise.
- */
-ErrCode Ability::DeleteForm(const int64_t formId, const int32_t deleteType)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // check fms recover status
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-    // check formId
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, the passed in formId can't be negative or zero.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
-    }
 
-    HILOG_DEBUG("%{public}s, delete form begin, formId is %{public}" PRId64 " and deleteType is %{public}d.",
-        __func__,
-        formId,
-        deleteType);
-    {
-        // form lock
-        std::lock_guard<std::mutex> lock(formLock);
-        // clean form resource when form is temp form
-        if (std::find(lostedByReconnectTempForms_.begin(), lostedByReconnectTempForms_.end(), formId) !=
-            lostedByReconnectTempForms_.end()) {
-            CleanFormResource(formId);
-            // the delete temp form is successfully
-            return ERR_OK;
-        }
-    }
-
-    // hostClient init
-    sptr<FormHostClient> formHostClient = FormHostClient::GetInstance();
-    // delete or release request to fms
-    ErrCode result;
-    if (deleteType == DELETE_FORM) {
-        result = FormMgr::GetInstance().DeleteForm(formId, formHostClient);
-    } else {
-        result = FormMgr::GetInstance().ReleaseForm(
-            formId, formHostClient, (deleteType == RELEASE_CACHED_FORM) ? true : false);
-    }
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s error, some internal server occurs, error code is %{public}d.", __func__, result);
-        return result;
-    }
-    {
-        // form lock
-        std::lock_guard<std::mutex> lock(formLock);
-        // clean form resource
-        CleanFormResource(formId);
-    }
-    // the delete form is successfully
-    return result;
-}
-
-/**
- * @brief Clean form resource with formId.
- *
- * @param formId Indicates the form's ID.
- */
-void Ability::CleanFormResource(const int64_t formId)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // compatible with int form id
-    int64_t cleanId {-1L};
-    for (auto param : userReqParams_) {
-        uint64_t unsignedFormId = static_cast<uint64_t>(formId);
-        uint64_t unsignedParamFirst = static_cast<uint64_t>(param.first);
-        if ((unsignedParamFirst & 0x00000000ffffffffL) == (unsignedFormId & 0x00000000ffffffffL)) {
-            cleanId = param.first;
-            break;
-        }
-    }
-    if (cleanId == -1L) {
-        return;
-    }
-
-    HILOG_DEBUG("%{public}s. clean id is %{public}" PRId64 ".", __func__, cleanId);
-    // remove wantParam, callback and lostedByReconnectTempForms
-    appCallbacks_.erase(cleanId);
-    userReqParams_.erase(cleanId);
-    auto tempForm = std::find(lostedByReconnectTempForms_.begin(), lostedByReconnectTempForms_.end(), cleanId);
-    if (tempForm != lostedByReconnectTempForms_.end()) {
-        lostedByReconnectTempForms_.erase(tempForm);
-    }
-
-    // remove ability
-    std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-    FormHostClient::GetInstance()->RemoveForm(thisAbility, cleanId);
-
-    // unregister death callback when appCallbacks is empty
-    if (appCallbacks_.empty()) {
-        std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-        FormMgr::GetInstance().UnRegisterDeathCallback(thisAbility);
-    }
-    HILOG_DEBUG("%{public}s end.", __func__);
-}
-
-/**
- * @brief Handle acquire result of the obtained form instance.
- *
- * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
- *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
- * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
- * @param callback Indicates the callback to be invoked whenever the {@link FormJsInfo} instance is obtained.
- */
-void Ability::HandleAcquireResult(
-    const Want &want, const FormJsInfo &formJsInfo, const std::shared_ptr<FormCallback> callback)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    {
-        // form lock
-        std::lock_guard<std::mutex> lock(formLock);
-
-        // register death when userReqParams is empty
-        if (userReqParams_.empty()) {
-            std::shared_ptr<Ability> thisAbility = this->shared_from_this();
-            FormMgr::GetInstance().RegisterDeathCallback(thisAbility);
-        }
-
-        // save wantParam and callback
-        userReqParams_.insert(std::make_pair(formJsInfo.formId, want));
-        appCallbacks_.insert(std::make_pair(formJsInfo.formId, callback));
-    }
-
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    long currentTime = ts.tv_sec * SEC_TO_MILLISEC + ts.tv_nsec / MILLISEC_TO_NANOSEC;
-    HILOG_DEBUG("%{public}s, AcquireForm end, current time: %{public}ld", __func__, currentTime);
-
-    // handle acquire message of the obtained form instance
-    callback->OnAcquired(FormCallback::OHOS_FORM_ACQUIRE_SUCCESS, formJsInfo);
-}
-
-/**
- * @brief Handle acquire message of the obtained form instance.
- *
- * @param msgCode Indicates the code of message type.
- * @param formJsInfo Indicates the obtained {@code FormJsInfo} instance.
- */
-void Ability::HandleFormMessage(const int32_t msgCode, const FormJsInfo &formJsInfo)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    std::shared_ptr<FormCallback> formCallback = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(formLock);
-        // get callback iterator by formId
-        std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
-            appCallbacks_.find(formJsInfo.formId);
-        // call the callback function when you need to be notified
-        if (appCallbackIterator == appCallbacks_.end()) {
-            HILOG_ERROR(
-                "%{public}s failed, callback not find, formId: %{public}" PRId64 ".", __func__, formJsInfo.formId);
-            return;
-        }
-        formCallback = appCallbackIterator->second;
-    }
-    if (formCallback == nullptr) {
-        HILOG_ERROR("%{public}s failed, callback is nullptr.", __func__);
-        return;
-    }
-
-    HILOG_DEBUG("%{public}s, call user implement of form %{public}" PRId64 ".", __func__, formJsInfo.formId);
-
-    if (msgCode == OHOS_FORM_ACQUIRE_FORM) {
-        formCallback->OnAcquired(FormCallback::OHOS_FORM_ACQUIRE_SUCCESS, formJsInfo);
-    } else {
-        formCallback->OnUpdate(FormCallback::OHOS_FORM_UPDATE_SUCCESS, formJsInfo);
-    }
-}
-
-/**
- * @brief Notify the forms visibility change event.
- *
- * @param formIds Indicates the IDs of the forms to be made visible or invisible.
- * @param eventType Indicates the form events occurred. FORM_VISIBLE means that the form becomes visible,
- *                  and FORM_INVISIBLE means that the form becomes invisible.
- * @return Returns {@code true} if the request is successfully initiated; returns {@code false} otherwise.
- */
-ErrCode Ability::NotifyWhetherVisibleForms(const std::vector<int64_t> &formIds, int32_t eventType)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    if (formIds.empty() || formIds.size() > Constants::MAX_VISIBLE_NOTIFY_LIST) {
-        HILOG_ERROR("%{public}s, formIds is empty or exceed 32.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
-    }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    ErrCode resultCode =
-        FormMgr::GetInstance().NotifyWhetherVisibleForms(formIds, FormHostClient::GetInstance(), eventType);
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("%{public}s error, internal error occurs, error code:%{public}d.", __func__, resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Check the param of want.
- *
- * @param formId Indicates the form's ID.
- * @param want Indicates the detailed information about the form to be obtained, including the bundle name,
- *        module name, ability name, form name, form id, tempForm flag, form dimension, and form customize data.
- * @return Returns {@code true} if the check result is ok; returns {@code false} ng.
- */
-bool Ability::CheckWantValid(const int64_t formId, const Want &want)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    // get want parameters
-    int32_t formDimension = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, 1);
-    std::string moduleName = want.GetStringParam(Constants::PARAM_MODULE_NAME_KEY);
-
-    ElementName elementName = want.GetElement();
-    std::string bundleName = elementName.GetBundleName();
-    std::string abilityName = elementName.GetAbilityName();
-
-    bool tempFormFlg = want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false);
-
-    HILOG_DEBUG("%{public}s, param of formDimension %{public}d in want.", __func__, formDimension);
-    HILOG_DEBUG("%{public}s, param of moduleName %{public}s in want.", __func__, moduleName.c_str());
-    HILOG_DEBUG("%{public}s, param of bundleName %{public}s in want.", __func__, bundleName.c_str());
-    HILOG_DEBUG("%{public}s, param of abilityName %{public}s in want.", __func__, abilityName.c_str());
-    HILOG_DEBUG("%{public}s, param of tempFormFlg %{public}d in want.", __func__, tempFormFlg);
-
-    // check want parameters
-    if (bundleName.empty() || abilityName.empty() || moduleName.empty()) {
-        HILOG_ERROR("%{public}s error, bundleName or abilityName or moduleName is not set in want.", __func__);
-        return false;
-    }
-    if (FormHostClient::GetInstance()->ContainsForm(formId)) {
-        HILOG_ERROR("%{public}s error, form has already acquired, do not support acquire twice.", __func__);
-        return false;
-    }
-    if (formDimension <= 0) {
-        HILOG_ERROR("%{public}s error, dimension should not be zero or negative in want.", __func__);
-        return false;
-    }
-    if (tempFormFlg && formId != 0) {
-        HILOG_ERROR("%{public}s error, can not select form id when acquire temporary form.", __func__);
-        return false;
-    }
-
-    // the check is successfully
-    return true;
-}
-
-/**
- * @brief Enable form update.
- *
- * @param formIds FormIds of hostclient.
- */
-ErrCode Ability::EnableUpdateForm(const std::vector<int64_t> &formIds)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    return LifecycleUpdate(formIds, ENABLE_FORM_UPDATE);
-}
-
-/**
- * @brief Disable form update.
- *
- * @param formIds FormIds of hostclient.
- */
-ErrCode Ability::DisableUpdateForm(const std::vector<int64_t> &formIds)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    return LifecycleUpdate(formIds, DISABLE_FORM_UPDATE);
-}
-
-ErrCode Ability::LifecycleUpdate(std::vector<int64_t> formIds, int32_t updateType)
-{
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // hostClient init
-    sptr<FormHostClient> formHostClient = FormHostClient::GetInstance();
-    if (formHostClient == nullptr) {
-        HILOG_ERROR("%{public}s error, formHostClient == nullptr.", __func__);
-        return ERR_APPEXECFWK_FORM_GET_HOST_FAILED;
-    }
-
-    return FormMgr::GetInstance().LifecycleUpdate(formIds, formHostClient, updateType);
-}
-
-/**
- * @brief Requests for form data update, by passing a set of parameters (using Want) to the form provider.
- *
- * This method must be called when the application has detected that a system setting item (such as the language,
- * resolution, or screen orientation) being listened for has changed. Upon receiving the update request, the form
- * supplier automatically updates the form data (if there is any update) through the form framework, with the update
- * process being unperceivable by the application.
- *
- * @param formId Indicates the ID of the form to update.
- * @param want Indicates a set of parameters to be transparently passed to the form provider.
- * @return Returns true if the update request is successfully initiated, returns false otherwise.
- */
-ErrCode Ability::RequestForm(const int64_t formId, const Want &want)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    if (formId <= 0) {
-        HILOG_ERROR("%{public}s error, The passed formid is invalid. Its value must be larger than 0.", __func__);
-        return ERR_APPEXECFWK_FORM_INVALID_FORM_ID;
-    }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // requestForm request to fms
-    ErrCode resultCode = FormMgr::GetInstance().RequestForm(formId, FormHostClient::GetInstance(), want);
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR(
-            "%{public}s error, failed to notify the form service that the form user's lifecycle is updated, error "
-            "code is %{public}d.",
-            __func__,
-            resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Called to reacquire form and update the form host after the death callback is received.
- *
- */
-void Ability::OnDeathReceived()
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    int64_t formId;
-    std::map<int64_t, Want> &userReqParams = userReqParams_;
-    std::vector<int64_t> &lostedTempForms = lostedByReconnectTempForms_;
-    for (const auto &userReqRaram : userReqParams) {
-        formId = userReqRaram.first;
-        Want want;
-        {
-            std::lock_guard<std::mutex> lock(formLock);
-            want = userReqRaram.second;
-            if (want.GetBoolParam(Constants::PARAM_FORM_TEMPORARY_KEY, false) &&
-                std::find(lostedTempForms.begin(), lostedTempForms.end(), formId) == lostedTempForms.end()) {
-                lostedTempForms.emplace_back(formId);
-                continue;
-            }
-        }
-
-        bool result = ReAcquireForm(formId, want);
-        if (!result) {
-            HILOG_DEBUG("%{public}s error, reacquire form failed, formId:%{public}" PRId64 ".", __func__, formId);
-            std::shared_ptr<FormCallback> formCallback = nullptr;
-            {
-                std::lock_guard<std::mutex> lock(formLock);
-                // get callback iterator by formId
-                std::map<int64_t, std::shared_ptr<FormCallback>>::iterator appCallbackIterator =
-                    appCallbacks_.find(formId);
-                if (appCallbackIterator == appCallbacks_.end()) {
-                    HILOG_WARN("%{public}s error, lack of form callback for form, formId:%{public}" PRId64 ".",
-                        __func__,
-                        formId);
-                    continue;
-                }
-                formCallback = appCallbackIterator->second;
-            }
-            if (formCallback == nullptr) {
-                HILOG_WARN("%{public}s failed, callback is nullptr.", __func__);
-                continue;
-            }
-
-            FormJsInfo formJsInfo;
-            formJsInfo.formId = formId;
-            formCallback->OnAcquired(FormCallback::OHOS_FORM_RESTORE_FAILURE, formJsInfo);
-        }
-    }
-}
-
-/**
- * @brief Reacquire a specified form when the death callback is received.
- *
- * @param formId Indicates the form ID.
- * @param want Indicates the detailed information about the form to be obtained.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
- */
-bool Ability::ReAcquireForm(const int64_t formId, const Want &want)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    // get the form host client
-    sptr<FormHostClient> formHostClient = FormHostClient::GetInstance();
-    if (formHostClient == nullptr) {
-        HILOG_ERROR("%{public}s error, formHostClient is nullptr, formId:%{public}" PRId64 ".", __func__, formId);
-        return false;
-    }
-
-    // reacquire form
-    FormJsInfo formJsInfo;
-    if (FormMgr::GetInstance().AddForm(formId, want, formHostClient, formJsInfo) != ERR_OK || formJsInfo.formId <= 0 ||
-        formJsInfo.formId != formId) {
-        HILOG_ERROR("%{public}s error, fms reacquire form failed, formId:%{public}" PRId64 ".", __func__, formId);
-        return false;
-    }
-
-    // handle update message of the obtained form instance.
-    ProcessFormUpdate(formJsInfo);
-
-    return true;
-}
-
-/**
- * @brief Check form manager service ready.
- *
- * @return Return true if form manager service ready; returns false otherwise.
- */
-bool Ability::CheckFMSReady()
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    sptr<ISystemAbilityManager> systemAbilityManager =
-        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    auto remoteObject = systemAbilityManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
-    if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s, form manager service is not ready.", __func__);
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * @brief Delete the given invalid forms.
- *
- * @param formIds Indicates the ID of the forms to delete.
- * @param numFormsDeleted Returns the number of the deleted forms.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
- */
-ErrCode Ability::DeleteInvalidForms(const std::vector<int64_t> &formIds, int32_t &numFormsDeleted)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // DeleteInvalidForms request to fms
-    int resultCode = FormMgr::GetInstance().DeleteInvalidForms(formIds, FormHostClient::GetInstance(), numFormsDeleted);
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("%{public}s error, failed to DeleteInvalidForms, error code is %{public}d.", __func__, resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Acquire form state info by passing a set of parameters (using Want) to the form provider.
- *
- * @param want Indicates a set of parameters to be transparently passed to the form provider.
- * @param stateInfo Returns the form's state info of the specify.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
- */
-ErrCode Ability::AcquireFormState(const Want &want, FormStateInfo &stateInfo)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // AcquireFormState request to fms
-    int resultCode = FormMgr::GetInstance().AcquireFormState(want, FormHostClient::GetInstance(), stateInfo);
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("%{public}s error, failed to AcquireFormState, error code is %{public}d.", __func__, resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Notify the forms is visible to FMS.
- *
- * @param formIds Indicates the ID of the forms.
- * @param isVisible Visible or not.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
- */
-ErrCode Ability::NotifyFormsVisible(const std::vector<int64_t> &formIds, bool isVisible)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // NotifyFormsVisible request to fms
-    int resultCode = FormMgr::GetInstance().NotifyFormsVisible(formIds, isVisible, FormHostClient::GetInstance());
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("%{public}s error, failed to NotifyFormsVisible, error code is %{public}d.", __func__, resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Notify the forms is enable update to FMS.
- *
- * @param formIds Indicates the ID of the forms.
- * @param isEnableUpdate enable update or not.
- * @return Returns true if the request is successfully initiated; returns false otherwise.
- */
-ErrCode Ability::NotifyFormsEnableUpdate(const std::vector<int64_t> &formIds, bool isEnableUpdate)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // NotifyFormsEnableUpdate request to fms
-    int resultCode = FormMgr::GetInstance().NotifyFormsEnableUpdate(formIds, isEnableUpdate,
-        FormHostClient::GetInstance());
-    if (resultCode != ERR_OK) {
-        HILOG_ERROR("%{public}s error, failed to NotifyFormsEnableUpdate, error code is %{public}d.", __func__,
-            resultCode);
-    }
-    return resultCode;
-}
-
-/**
- * @brief Get All FormsInfo.
- *
- * @param formInfos Return the forms' information of all forms provided.
- * @return Return true if the request is successfully initiated; return false otherwise.
- */
-ErrCode Ability::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // GetAllFormsInfo request to fms
-    return FormMgr::GetInstance().GetAllFormsInfo(formInfos);
-}
-
-/**
- * @brief Get forms info by bundle name .
- *
- * @param bundleName Application name.
- * @param formInfos Return the forms' information of the specify application name.
- * @return Return true if the request is successfully initiated; return false otherwise.
- */
-ErrCode Ability::GetFormsInfoByApp(std::string &bundleName, std::vector<FormInfo> &formInfos)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    if (bundleName.empty()) {
-        HILOG_WARN("Failed to Get forms info, because empty bundle name");
-        return ERR_APPEXECFWK_FORM_INVALID_BUNDLENAME;
-    }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // GetFormsInfoByApp request to fms
-    return FormMgr::GetInstance().GetFormsInfoByApp(bundleName, formInfos);
-}
-
-/**
- * @brief Get forms info by bundle name and module name.
- *
- * @param bundleName bundle name.
- * @param moduleName Module name of hap.
- * @param formInfos Return the forms' information of the specify bundle name and module name.
- * @return Return true if the request is successfully initiated; return false otherwise.
- */
-ErrCode Ability::GetFormsInfoByModule(std::string &bundleName, std::string &moduleName,
-    std::vector<FormInfo> &formInfos)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    if (bundleName.empty()) {
-        HILOG_WARN("Failed to Get forms info, because empty bundleName");
-        return ERR_APPEXECFWK_FORM_INVALID_BUNDLENAME;
-    }
-
-    if (moduleName.empty()) {
-        HILOG_WARN("Failed to Get forms info, because empty moduleName");
-        return ERR_APPEXECFWK_FORM_INVALID_MODULENAME;
-    }
-
-    if (FormMgr::GetRecoverStatus() == Constants::IN_RECOVERING) {
-        HILOG_ERROR("%{public}s error, form is in recover status, can't do action on form.", __func__);
-        return ERR_APPEXECFWK_FORM_SERVER_STATUS_ERR;
-    }
-
-    // GetFormsInfoByModule request to fms
-    return FormMgr::GetInstance().GetFormsInfoByModule(bundleName, moduleName, formInfos);
-}
-
-/**
- * @brief Acquire a form provider remote object.
- * @return Returns form provider remote object.
- */
 sptr<IRemoteObject> Ability::GetFormRemoteObject()
 {
     HILOG_DEBUG("%{public}s start", __func__);
@@ -3762,12 +1966,11 @@ void Ability::RequestFocus(const Want &want)
 
 void Ability::SetWakeUpScreen(bool wakeUp)
 {
-    HILOG_DEBUG("SetWakeUpScreen wakeUp:%{public}d.", wakeUp);
+    HILOG_DEBUG("FA mode::SetWakeUpScreen wakeUp:%{public}d.", wakeUp);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("SetWakeUpScreen error. abilityWindow_ == nullptr.");
         return;
     }
-    HILOG_DEBUG("FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
         HILOG_ERROR("window nullptr.");
@@ -3778,23 +1981,22 @@ void Ability::SetWakeUpScreen(bool wakeUp)
 
 void Ability::SetDisplayOrientation(int orientation)
 {
-    HILOG_DEBUG("%{public}s called, orientation: %{public}d", __func__, orientation);
+    HILOG_DEBUG("FA mode::%{public}s called, orientation: %{public}d", __func__, orientation);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability::SetDisplayOrientation error. abilityWindow_ == nullptr.");
         return;
     }
-    HILOG_DEBUG("FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
         HILOG_ERROR("window is nullptr.");
         return;
     }
     if (orientation == static_cast<int>(DisplayOrientation::FOLLOWRECENT)) {
-        int defualtOrientation = 0;
+        int defaultOrientation = 0;
         if (setWant_) {
-            orientation = setWant_->GetIntParam("ohos.aafwk.Orientation", defualtOrientation);
+            orientation = setWant_->GetIntParam("ohos.aafwk.Orientation", defaultOrientation);
         } else {
-            orientation = defualtOrientation;
+            orientation = defaultOrientation;
         }
     }
     if (orientation == static_cast<int>(DisplayOrientation::LANDSCAPE)) {

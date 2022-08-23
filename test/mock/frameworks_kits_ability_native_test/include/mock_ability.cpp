@@ -267,11 +267,6 @@ std::shared_ptr<ContinuationState> Ability::GetContinuationState()
     return nullptr;
 }
 
-std::shared_ptr<AbilityPackage> Ability::GetAbilityPackage()
-{
-    return nullptr;
-}
-
 std::shared_ptr<Uri> Ability::DenormalizeUri(const Uri &uri)
 {
     return nullptr;
@@ -310,16 +305,6 @@ void Ability::TerminateAbility()
 int Ability::TerminateAbility(Want &want)
 {
     return -1;
-}
-
-void Ability::SetMainRoute(const std::string &entry)
-{
-    return;
-}
-
-void Ability::AddActionRoute(const std::string &action, const std::string &entry)
-{
-    return;
 }
 
 #ifdef SUPPORT_GRAPHICS
