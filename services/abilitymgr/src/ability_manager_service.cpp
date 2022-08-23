@@ -2999,12 +2999,14 @@ int AbilityManagerService::GenerateAbilityRequest(
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
     HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
     int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
+    HILOG_INFO("QueryAbilityInfo from bms, appIndex is %{public}d.", appIndex);
     if (appIndex == 0) {
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
     } else {
         IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxAbilityInfo(want, appIndex,
             abilityInfoFlag, userId, request.abilityInfo));
     }
+    HILOG_INFO("QueryAbilityInfo from bms, process is %{public}s.", request.abilityInfo.process.c_str());
     if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
         // try to find extension
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
