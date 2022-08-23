@@ -86,7 +86,10 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         return NOT_TOP_ABILITY;
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
-    freeInstallList_.push_back(info);
+    {
+        std::lock_guard<std::mutex> lock(freeInstallListLock_);
+        freeInstallList_.push_back(info);
+    }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
@@ -122,7 +125,10 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
         return NOT_TOP_ABILITY;
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken);
-    freeInstallList_.push_back(info);
+    {
+        std::lock_guard<std::mutex> lock(freeInstallListLock_);
+        freeInstallList_.push_back(info);
+    }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this());
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
@@ -221,6 +227,7 @@ int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 
 void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCode)
 {
+    std::lock_guard<std::mutex> lock(freeInstallListLock_);
     if (freeInstallList_.empty()) {
         HILOG_INFO("Has no app callback.");
         return;
