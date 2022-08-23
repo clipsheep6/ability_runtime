@@ -175,6 +175,7 @@ int FreeInstallManager::StartRemoteFreeInstall(const Want &want, int requestCode
 
 int FreeInstallManager::NotifyDmsCallback(const Want &want, int resultCode)
 {
+    std::lock_guard<std::mutex> autoLock(distributedFreeInstallLock_);
     if (dmsFreeInstallCbs_.empty()) {
         HILOG_ERROR("Has no dms callback.");
         return ERR_INVALID_VALUE;
@@ -264,7 +265,11 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
         .requestCode = requestCode,
         .dmsCallback = callback
     };
-    dmsFreeInstallCbs_.push_back(info);
+
+    {
+        std::lock_guard<std::mutex> autoLock(distributedFreeInstallLock_);
+        dmsFreeInstallCbs_.push_back(info);
+    }
 
     auto freeInstallTask = [manager = shared_from_this(), info]() {
         auto result = manager->StartFreeInstall(info.want, info.userId, info.requestCode, nullptr);
