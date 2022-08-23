@@ -499,9 +499,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormsDelete_0300
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormsDelete_0300 end";
 }
 /**
- * @tc.number: AaFwk_FormProviderClient_AcquireShareFormData_0100
- * @tc.name: Share Form to AcquireShareFormData function
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0100
  * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0100, Function | MediumTest | Level1)
 {
@@ -520,9 +521,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0100 end";
 }
 /**
- * @tc.number: AaFwk_FormProviderClient_AcquireShareFormData_0200
- * @tc.name: Share Form to AcquireShareFormData function
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0200
  * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0200, Function | MediumTest | Level1)
 {
@@ -541,9 +543,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0200 end";
 }
 /**
- * @tc.number: AaFwk_FormProviderClient_AcquireShareFormData_0300
- * @tc.name: Share Form to AcquireShareFormData function
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0300
  * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0300, Function | MediumTest | Level1)
 {
@@ -562,9 +565,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0300 end";
 }
 /**
- * @tc.number: AaFwk_FormProviderClient_AcquireShareFormData_0400
- * @tc.name: Share Form to AcquireShareFormData function
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0400
  * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0400, Function | MediumTest | Level1)
 {
@@ -583,9 +587,10 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0400 end";
 }
 /**
- * @tc.number: AaFwk_FormProviderClient_AcquireShareFormData_0500
- * @tc.name: Share Form to AcquireShareFormData function
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0500
  * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
  */
 HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0500, Function | MediumTest | Level1)
 {
