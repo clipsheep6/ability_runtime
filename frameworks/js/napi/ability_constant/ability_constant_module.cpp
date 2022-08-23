@@ -130,7 +130,7 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
     }
 
     napi_value memoryLevel = InitMemoryLevelObject(env);
-    if (MemoryLevel == nullptr) {
+    if (memoryLevel == nullptr) {
         HILOG_ERROR("failed to create memory level object");
         return nullptr;
     }
