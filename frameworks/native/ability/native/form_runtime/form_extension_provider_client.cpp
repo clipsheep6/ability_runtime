@@ -422,7 +422,7 @@ int FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId, con
     }
 
     int dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, -1);
-    if(dimensionId == -1) {
+    if (dimensionId == -1) {
         HILOG_WARN("%{public}s, the form dimension isn't valid", __func__);
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
@@ -436,8 +436,8 @@ int FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId, con
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want, const int32_t dimensionId,
-    const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want,
+    const int32_t dimensionId, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
 

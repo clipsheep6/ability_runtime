@@ -408,7 +408,8 @@ int FormProviderClient::AcquireState(const Want &wantArg, const std::string &pro
  * @param callerToken Caller ability token.
  * @return Returns ERR_OK on success, others on failure.
  */
-int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
+int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want,
+                                              const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
@@ -430,7 +431,7 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
             break;
         }
 
-        if(dimensionId == -1) {
+        if (dimensionId == -1) {
             HILOG_WARN("%{public}s, the form dimension isn't valid", __func__);
             errorCode = ERR_APPEXECFWK_FORM_INVALID_PARAM;
             break;
@@ -448,7 +449,7 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
     newWant.SetParam(Constants::ACQUIRE_TYPE, Constants::ACQUIRE_TYPE_RESIZE_FORM);
     newWant.SetParam(Constants::PARAM_FORM_DIMENSION_KEY, dimensionId);
 
-    //The error code for size change.
+    // The error code for size change.
     int sizeChangedErrorCode = HandleSizeChanged(formProviderInfo, newWant, callerToken);
     if (errorCode != ERR_OK) {
         // If errorCode is not ERR_OK，return errorCode.
@@ -460,7 +461,6 @@ int FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &
         }
         return sizeChangedErrorCode;
     }
-
 }
 
 /**
