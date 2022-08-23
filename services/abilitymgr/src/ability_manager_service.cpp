@@ -474,14 +474,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             return ERR_INVALID_VALUE;
         }
         HILOG_DEBUG("Start service or extension, name is %{public}s.", abilityInfo.name.c_str());
-#ifdef EFFICIENCY_MANAGER_ENABLE
-        auto bms = AbilityUtil::GetBundleManager();
-        if (bms) {
-            SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-                bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
-                abilityInfo.bundleName, "THAW_BY_START_NOT_PAGE_ABILITY");
-        }
-#endif // EFFICIENCY_MANAGER_ENABLE
+        ReportEventToSuspendManager(abilityInfo);
         return connectManager->StartAbility(abilityRequest);
     }
 
@@ -495,14 +488,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ERR_INVALID_VALUE;
     }
     ReportAbilitStartInfoToRSS(abilityInfo);
-#ifdef EFFICIENCY_MANAGER_ENABLE
-    auto bms = AbilityUtil::GetBundleManager();
-    if (bms) {
-        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-            bms->GetUidByBundleName(abilityInfo.bundleName, validUserId),
-            abilityInfo.bundleName, "THAW_BY_START_PAGE_ABILITY");
-    }
-#endif // EFFICIENCY_MANAGER_ENABLE
+    ReportEventToSuspendManager(abilityInfo);
     HILOG_DEBUG("Start ability, name is %{public}s.", abilityInfo.name.c_str());
     return missionListManager->StartAbility(abilityRequest);
 }
@@ -901,6 +887,17 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
             ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, 0, eventParams);
     }
 #endif
+}
+
+void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo)
+{
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    std::string reason = (abilityInfo.type == AppExecFwk::AbilityType::PAGE) ?
+        "THAW_BY_START_PAGE_ABILITY" : "THAW_BY_START_NOT_PAGE_ABILITY";
+    SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+        abilityInfo.applicationInfo.uid,
+        abilityInfo.applicationInfo.bundleName, reason);
+#endif // EFFICIENCY_MANAGER_ENABLE
 }
 
 int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -1588,6 +1585,8 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
+
+    ReportEventToSuspendManager(abilityInfo);
     return connectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken);
 }
 
@@ -3761,7 +3760,7 @@ int AbilityManagerService::StartAbilityByCall(
         HILOG_ERROR("currentMissionListManager_ is Null. curentUserId=%{public}d", GetUserId());
         return ERR_INVALID_VALUE;
     }
-
+    ReportEventToSuspendManager(abilityRequest.abilityInfo);
     return currentMissionListManager_->ResolveLocked(abilityRequest);
 }
 
