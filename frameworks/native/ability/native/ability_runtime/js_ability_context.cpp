@@ -1167,7 +1167,59 @@ NativeValue* CreateJsAbilityContext(NativeEngine& engine, std::shared_ptr<Abilit
 
 JSAbilityConnection::JSAbilityConnection(NativeEngine& engine) : engine_(engine) {}
 
-JSAbilityConnection::~JSAbilityConnection() = default;
+JSAbilityConnection::~JSAbilityConnection()
+{
+    uv_loop_t *loop = engine_.GetUVLoop();
+    if (loop == nullptr) {
+        HILOG_ERROR("~JSAbilityConnection: failed to get uv loop.");
+        return;
+    }
+
+    ConnectCallback *cb = new (std::nothrow) ConnectCallback();
+    if (cb == nullptr) {
+        HILOG_ERROR("~JSAbilityConnection: failed to create cb.");
+        return;
+    }
+
+    cb->jsConnectionObject_ = std::move(jsConnectionObject_);
+
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("~JSAbilityConnection: failed to create work.");
+        delete cb;
+        cb = nullptr;
+        return;
+    }
+    work->data = reinterpret_cast<void *>(cb);
+    int ret = uv_queue_work(loop, work, [](uv_work_t *work) {},
+    [](uv_work_t *work, int status) {
+        if (work == nullptr) {
+            HILOG_ERROR("~JSAbilityConnection: work is nullptr.");
+            return;
+        }
+        if (work->data == nullptr) {
+            HILOG_ERROR("~JSAbilityConnection: data is nullptr.");
+            delete work;
+            work = nullptr;
+            return;
+        }
+        ConnectCallback *cb = reinterpret_cast<ConnectCallback *>(work->data);
+        delete cb;
+        cb = nullptr;
+        delete work;
+        work = nullptr;
+    });
+    if (ret != 0) {
+        if (cb != nullptr) {
+            delete cb;
+            cb = nullptr;
+        }
+        if (work != nullptr) {
+            delete work;
+            work = nullptr;
+        }
+    }
+}
 
 void JSAbilityConnection::SetConnectionId(int64_t id)
 {
