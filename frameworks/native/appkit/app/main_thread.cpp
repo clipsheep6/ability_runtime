@@ -1220,6 +1220,10 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         bool isFaJsModel = bundleInfo.hapModuleInfos.front().abilityInfos.front().srcLanguage == "js" ? true : false;
         static auto runtime = AbilityRuntime::Runtime::Create(options);
         auto testRunner = TestRunner::Create(runtime, args, isFaJsModel);
+        if (testRunner == nullptr) {
+            HILOG_ERROR("Failed to Create testRunner");
+            return false;
+        }
         if (!testRunner->Initialize()) {
             HILOG_ERROR("Failed to Initialize testRunner");
             return false;
