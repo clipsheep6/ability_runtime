@@ -17,7 +17,7 @@
     <process>foundation</process>
     <systemability>
         <name>183</name>
-        <libpath>/system/lib64/libupms.z.so</libpath>
+        <libpath>libupms.z.so</libpath>
         <!--<depend></depend> --> <!-- Declare the name of system abilities which the system ability depends on. Note that one dependency uses 1 line. If there are dependencies, it needs to check if all those dependencies are available in service manager before starting the system ability. -->
         <!--<depend-time-out></depend-time-out> --> <!-- Check all dependencies are available before the timeout period ended. The MAX_DEPENDENCY_TIMEOUT is 60s. -->
         <run-on-create>true</run-on-create>
