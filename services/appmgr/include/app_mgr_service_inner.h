@@ -49,6 +49,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+const int32_t DEFAULT_UID = -1;
 using OHOS::AAFwk::Want;
 class AppMgrServiceInner : public std::enable_shared_from_this<AppMgrServiceInner> {
 public:
@@ -523,7 +524,7 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission();
+    int VerifyProcessPermission(int uid = DEFAULT_UID);
 
     int VerifyAccountPermission(const std::string &permissionName, const int userId);
 
