@@ -146,7 +146,7 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
     AbilityStage::OnCreate(want);
 
     if (!jsAbilityStageObj_) {
-        HILOG_WARN("Not found AbilityStage.js");
+        HILOG_WARN("OnCreate, Not found AbilityStage.js");
         return;
     }
 
@@ -156,7 +156,7 @@ void JsAbilityStage::OnCreate(const AAFwk::Want &want) const
     NativeValue* value = jsAbilityStageObj_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
+        HILOG_ERROR("OnCreate, Failed to get AbilityStage object");
         return;
     }
 
@@ -238,7 +238,7 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     HILOG_DEBUG("%{public}s called.", __func__);
 
     if (!jsAbilityStageObj_) {
-        HILOG_WARN("Not found AbilityStage.js");
+        HILOG_WARN("OnMemoryLevel, Not found AbilityStage.js");
         return;
     }
 
@@ -248,7 +248,7 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     NativeValue* value = jsAbilityStageObj_->Get();
     NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
+        HILOG_ERROR("OnMemoryLevel, Failed to get AbilityStage object");
         return;
     }
 
