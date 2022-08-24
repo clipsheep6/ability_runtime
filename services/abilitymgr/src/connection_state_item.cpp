@@ -39,7 +39,10 @@ public:
         return std::make_shared<ConnectedExtension>(targetExtension);
     }
 
-    ConnectedExtension() {}
+    ConnectedExtension()
+    {
+        extensionType_ = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    }
 
     explicit ConnectedExtension(const std::shared_ptr<AbilityRecord> &target)
     {
