@@ -147,5 +147,209 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_SetMissionIcon_0200, Tes
     auto result = client_->SetMissionIcon(abilityToken, icon);
     EXPECT_NE(result, ERR_OK);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_ScheduleConnectAbilityDone_0100
+ * @tc.desc: ScheduleConnectAbilityDone
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, ScheduleConnectAbilityDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> remoteObject = nullptr;
+    auto result = client_->ScheduleConnectAbilityDone(token, remoteObject);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ScheduleDisconnectAbilityDone_0100
+ * @tc.desc: ScheduleDisconnectAbilityDone
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, ScheduleDisconnectAbilityDone_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->ScheduleDisconnectAbilityDone(token);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartExtensionAbility_0100
+ * @tc.desc: StartExtensionAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, StartExtensionAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int32_t userId = DEFAULT_INVAL_VALUE;
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    auto result = client_->StartExtensionAbility(want, callerToken, userId, extensionType);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StopExtensionAbility_0100
+ * @tc.desc: StopExtensionAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, StopExtensionAbility_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int32_t userId = DEFAULT_INVAL_VALUE;
+    AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    auto result = client_->StopExtensionAbility(want, callerToken, userId, extensionType);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_TerminateAbility_0100
+ * @tc.desc: TerminateAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, TerminateAbility_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->TerminateAbility(callerToken, -1);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_TerminateAbilityResult_0100
+ * @tc.desc: TerminateAbilityResult
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, TerminateAbilityResult_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->TerminateAbilityResult(callerToken, 1);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MinimizeAbility_0100
+ * @tc.desc: MinimizeAbility
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, MinimizeAbility_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    bool fromUser = false;
+    auto result = client_->MinimizeAbility(token, fromUser);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DumpState_0100
+ * @tc.desc: DumpState
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, DumpState_0100, TestSize.Level1)
+{
+    std::string myString = "-a";
+    std::vector<std::string> state;
+    auto result = client_->DumpState(myString, state);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ForceTimeoutForTest_0100
+ * @tc.desc: ForceTimeoutForTest
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, ForceTimeoutForTest_0100, TestSize.Level1)
+{
+    std::string abilityName = "abilityName_test";
+    std::string state = "state_test";
+    auto result = client_->ForceTimeoutForTest(abilityName, state);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ClearUpApplicationData_0100
+ * @tc.desc: ClearUpApplicationData
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, ClearUpApplicationData_0100, TestSize.Level1)
+{
+    std::string bundleName = "bundleName_test";
+    auto result = client_->ClearUpApplicationData(bundleName);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SendWantSender_0100
+ * @tc.desc: SendWantSender
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, SendWantSender_0100, TestSize.Level1)
+{
+    sptr<IWantSender> target = nullptr;
+    SenderInfo senderInfo;
+    auto result = client_->SendWantSender(target, senderInfo);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetAppMemorySize_0100
+ * @tc.desc: GetAppMemorySize
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, GetAppMemorySize_0100, TestSize.Level1)
+{
+    auto result = client_->GetAppMemorySize();
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartContinuation_0100
+ * @tc.desc: StartContinuation
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, StartContinuation_0100, TestSize.Level1)
+{
+    Want want;
+    sptr<IRemoteObject> abilityToken = nullptr;
+    auto result = client_->StartContinuation(want, abilityToken, 1);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_NotifyContinuationResult_0100
+ * @tc.desc: NotifyContinuationResult
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, NotifyContinuationResult_0100, TestSize.Level1)
+{
+    auto result = client_->NotifyContinuationResult(1, 1);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_LockMissionForCleanup_0100
+ * @tc.desc: LockMissionForCleanup
+ * @tc.type: FUNC
+ * @tc.require: issueI5NRWT
+ */
+HWTEST_F(AbilityManagerClientTest, LockMissionForCleanup_0100, TestSize.Level1)
+{
+    auto result = client_->LockMissionForCleanup(1);
+    EXPECT_EQ(ERR_OK, result);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
