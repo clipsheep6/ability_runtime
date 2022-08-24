@@ -446,5 +446,95 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_015, TestSize.Level1)
         .WillOnce(Return(ERR_OK));
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ClearUpApplicationData("com.test"));
 }
+
+/**
+ * @tc.name: AppMgrClient_016
+ * @tc.desc: Verify the function when parameter is 2
+ * @tc.type: FUNC
+ * @tc.require: issueI5823X
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_016, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_016 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_016 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_017
+ * @tc.desc: Verify the function when parameter is 1
+ * @tc.type: FUNC
+ * @tc.require: issueI5823X
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_017, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_017 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_017 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_018
+ * @tc.desc: Verify the function when parameter is 0
+ * @tc.type: FUNC
+ * @tc.require: issueI5823X
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_018, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_018 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_018 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_019
+ * @tc.desc: Verify the function when parameter is 2
+ * @tc.type: FUNC
+ * @tc.require: issueI581UZ
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_019, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_019 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_019 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_020
+ * @tc.desc: Verify the function when parameter is 1
+ * @tc.type: FUNC
+ * @tc.require: issueI581UZ
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_020, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_020 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_020 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_021
+ * @tc.desc: Verify the function when parameter is 0
+ * @tc.type: FUNC
+ * @tc.require: issueI581UZ
+ */
+HWTEST_F(AmsAppMgrClientTest, AppMgrClient_021, TestSize.Level1)
+{
+    HILOG_INFO("ams_app_mgr_client_test_021 start");
+    AppMgrClient* ret = new AppMgrClient();
+    auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
+    EXPECT_EQ(ans, 0);
+    HILOG_INFO("ams_app_mgr_client_test_021 end");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
