@@ -1037,7 +1037,7 @@ void MissionListManager::CompleteBackground(const std::shared_ptr<AbilityRecord>
     for (auto terminateAbility : terminateAbilityList_) {
         if (terminateAbility->GetAbilityState() == AbilityState::BACKGROUND) {
             auto timeoutTask = [terminateAbility, self]() {
-                HILOG_WARN("Disconnect ability terminate timeout.");
+                HILOG_WARN("Terminate ability timeout after background.");
                 self->DelayCompleteTerminate(terminateAbility);
             };
             terminateAbility->Terminate(timeoutTask);
@@ -1133,7 +1133,7 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
         auto self(shared_from_this());
         auto task = [abilityRecord, self]() {
-            HILOG_WARN("Disconnect ability terminate timeout.");
+            HILOG_WARN("Terminate ability timeout.");
             self->DelayCompleteTerminate(abilityRecord);
         };
         abilityRecord->Terminate(task);

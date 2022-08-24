@@ -248,9 +248,6 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     terminateAbilitys_.emplace(token, abilityRecord);
     abilities_.erase(token);
 
-    SendEvent(
-        AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
-
     if (!isForce) {
         auto curAbilityState = abilityRecord->GetState();
         if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND) {
@@ -260,6 +257,8 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
     }
 
     if (appLifeCycleDeal_) {
+        SendEvent(
+            AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
         appLifeCycleDeal_->ScheduleCleanAbility(token);
     } else {
         HILOG_WARN("appLifeCycleDeal_ is null");
@@ -295,19 +294,25 @@ void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
         return;
     }
 
-    if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
-        return;
+    if (RemoveTerminateAbilityTimeoutTask(token)) {
+        terminateAbilitys_.erase(token);
     }
+}
 
+bool ModuleRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const
+{
     auto abilityRecord = GetAbilityByTerminateLists(token);
     if (!abilityRecord) {
         HILOG_ERROR("ModuleRunningRecord::AbilityTerminated can not find ability record");
-        return;
+        return false;
+    }
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return false;
     }
 
     eventHandler_->RemoveEvent(AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, abilityRecord->GetEventId());
-    terminateAbilitys_.erase(token);
+    return true;
 }
 
 void ModuleRunningRecord::SetAppMgrServiceInner(const std::weak_ptr<AppMgrServiceInner> &inner)

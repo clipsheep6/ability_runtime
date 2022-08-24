@@ -521,6 +521,7 @@ public:
 
     using Closure = std::function<void()>;
     void PostTask(std::string msg, int64_t timeOut, const Closure &task);
+    void RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
 
 private:
     /**
