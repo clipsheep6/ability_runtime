@@ -26,15 +26,18 @@
 #include "application_impl.h"
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
+#include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/source_map.h"
 #include "ipc_singleton.h"
 #include "watchdog.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
+class ModSourceMap;
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Global;
 using OHOS::AbilityRuntime::Runtime;
+using OHOS::AbilityRuntime::ModSourceMap;
 enum class MainThreadState { INIT, ATTACH, READY, RUNNING };
 struct BundleInfo;
 class ContextDeal;

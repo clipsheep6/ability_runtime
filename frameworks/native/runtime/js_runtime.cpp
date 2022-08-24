@@ -443,6 +443,7 @@ bool JsRuntime::Initialize(const Options& options)
             moduleManager->SetAppLibPath(packagePath.c_str());
         }
 
+        bindSourceMaps_ = std::make_unique<ModSourceMap>(options.bundleCodeDir, options.isStageModel);
         InitTimerModule(*nativeEngine_, *globalObj);
         InitWorkerModule(*nativeEngine_, codePath_);
     }

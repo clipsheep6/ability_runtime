@@ -33,10 +33,12 @@ public:
         Language lang = Language::JS;
         std::string bundleName;
         std::string codePath;
+        std::string bundleCodeDir;
         std::string packagePath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;
+        bool isStageModel = true;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);

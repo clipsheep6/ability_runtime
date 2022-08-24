@@ -40,6 +40,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
+#include "native_engine/impl/ark/ark_native_engine.h"
 #include "ohos_application.h"
 #include "resource_manager.h"
 #include "runtime.h"
@@ -945,14 +946,27 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
         auto bundleName = appInfo.bundleName;
         auto versionCode = appInfo.versionCode;
+        auto vm = const_cast<panda::ecmascript::EcmaVM*>(static_cast<ArkNativeEngine*>(jsEngine)->GetEcmaVm());
         wptr<MainThread> weak = this;
-        auto uncaughtTask = [weak, bundleName, versionCode](NativeValue* v) {
+        auto uncaughtTask = [weak, bundleName, versionCode, vm](NativeValue* v) {
             HILOG_INFO("Js uncaught exception callback come.");
             NativeObject* obj = AbilityRuntime::ConvertNativeValueTo<NativeObject>(v);
             std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
             std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
             std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-            std::string summary = "Error message:" + errorMsg + "\nStacktrace:\n" + errorStack;
+            
+            std::string summary = "Error message:" + errorMsg + "\n";
+            auto& bindSourceMaps = (static_cast<AbilityRuntime::JsRuntime&>(*(weak->application_->GetRuntime()))).GetSourceMap();
+            //  GetNativeStrFromJsTaggedObj 是否支持获取sourcecode待验证，同arkui中
+            panda::Local<panda::JSValueRef> errorFuncValue(vm, obj->GetProperty("errorfunc"));
+            panda::Local<panda::FunctionRef> function(errorFuncValue);
+            auto errorPos = ModSourceMap::GetErrorPos(errorStack);
+            std::string errorCode = ModSourceMap::GetSourceCodeInfo(vm, function, errorPos);
+            errorCode = ModSourceMap::GetOriginalNames(bindSourceMaps, errorCode, errorPos.second);
+            // bindRuntime.bindSourceMaps lazy loading
+            summary += errorCode + "Stacktrace:\n" + OHOS::AbilityRuntime::ModSourceMap::TranslateBySourceMap(errorStack, bindSourceMaps);
+
+            ApplicationDataManager::GetInstance().NotifyUnhandledException(summary);
             time_t timet;
             time(&timet);
             OHOS::HiviewDFX::HiSysEvent::Write(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, "JS_ERROR",
@@ -1213,6 +1227,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = false;
+        options.isStageModel = false;
         if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");
             return false;
