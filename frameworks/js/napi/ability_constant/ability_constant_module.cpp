@@ -18,7 +18,6 @@
 #include "launch_param.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
-#include "app_mem_info.h"
 
 namespace OHOS {
 namespace AAFwk {
