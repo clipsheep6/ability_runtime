@@ -76,6 +76,7 @@ private:
     void GetTimerCfg(const bool updateEnabled, const int updateDuration, const std::string &configUpdateAt,
     FormTimerCfg &cfg);
     void HandleTimerUpdate(const int64_t formId, const FormRecord &record, const FormTimerCfg &timerCfg);
+    void HandleBundleScanFinished(int32_t userId);
 private:
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_ = nullptr;
 };

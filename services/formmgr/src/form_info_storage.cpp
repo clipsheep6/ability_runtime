@@ -36,7 +36,7 @@ FormInfoStorage::FormInfoStorage(int32_t userId, std::vector<AppExecFwk::FormInf
 void FormInfoStorage::GetAllFormsInfo(int32_t userId, std::vector<AppExecFwk::FormInfo> &formInfos) const
 {
     HILOG_INFO("Get all forms infos, current userId is%{public}d, this userId is %{public}d.", userId, this->userId);
-    if (this->userId != userId) {
+    if (this->userId != userId && this->userId != AppExecFwk::Constants::DEFAULT_USERID) {
         return;
     }
     for (const auto &item : this->formInfos) {
@@ -47,7 +47,7 @@ void FormInfoStorage::GetAllFormsInfo(int32_t userId, std::vector<AppExecFwk::Fo
 void FormInfoStorage::GetFormsInfoByModule(int32_t userId, const std::string &moduleName,
     std::vector<AppExecFwk::FormInfo> &formInfos) const
 {
-    if (this->userId != userId) {
+    if (this->userId != userId && this->userId != AppExecFwk::Constants::DEFAULT_USERID) {
         return;
     }
     for (const auto &item : this->formInfos) {
