@@ -2118,6 +2118,11 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return ERR_INVALID_VALUE;
     }
 
+    auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateConfigurationPerm();
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
     uint32_t size = changeKeyV.size();

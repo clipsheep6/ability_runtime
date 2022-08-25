@@ -152,6 +152,17 @@ int PermissionVerification::VerifyAppStateObserverPermission()
     return ERR_PERMISSION_DENIED;
 }
 
+int32_t PermissionVerification::VerifyUpdateConfigurationPerm()
+{
+    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_UPDATE_CONFIGURATION)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
+        return ERR_OK;
+    }
+
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_UPDATE_CONFIGURATION);
+    return ERR_PERMISSION_DENIED;
+}
+
 unsigned int PermissionVerification::GetCallingTokenID()
 {
     auto callerToken = IPCSkeleton::GetCallingTokenID();

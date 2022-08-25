@@ -41,8 +41,10 @@ public:
     int VerifyAccountPermission();
 
     bool VerifyMissionPermission();
-    
+
     int VerifyAppStateObserverPermission();
+
+    int32_t VerifyUpdateConfigurationPerm();
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
