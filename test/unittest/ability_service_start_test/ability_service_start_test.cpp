@@ -18,6 +18,7 @@
 #include "system_ability_definition.h"
 #include "bundlemgr/mock_bundle_manager.h"
 #include "sa_mgr_client.h"
+#include "parameter.h"
 
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
@@ -176,6 +177,26 @@ HWTEST_F(AbilityServiceStartTest, StartUp_005, TestSize.Level1)
         EXPECT_EQ(ServiceRunningState::STATE_NOT_START, aams_->QueryServiceState());
     }
     GTEST_LOG_(INFO) << "ability_manager_service_startup_005 end";
+}
+
+/**
+ * @tc.name: AbilityServiceStartTest_StartUpEvent_001
+ * @tc.desc: OnStart
+ * @tc.type: FUNC
+ * @tc.require: issueI5JZEI
+ */
+HWTEST_F(AbilityServiceStartTest, StartUpEvent_001, TestSize.Level1)
+{
+    aams_->OnStart();
+    const int bufferLen = 128;
+    char paramOutBuf[bufferLen] = {0};
+    const char *hook_mode = "true";
+    int ret = GetParameter("bootevent.bootanimation.started", "", paramOutBuf, bufferLen);
+    EXPECT_TRUE(strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0);
+
+    ret = GetParameter("bootevent.appfwk.ready", "", paramOutBuf, bufferLen);
+    EXPECT_TRUE(strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0);
+    aams_->OnStop();
 }
 }  // namespace AAFwk
 }  // namespace OHOS
