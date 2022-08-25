@@ -515,6 +515,7 @@ void AbilityImpl::AfterFocusedCommon(bool isFocused)
                     jsAbility.GetJsWindowStage());
             }
         }
+        return;
     }
     if (ability_->GetWant() == nullptr) {
         HILOG_WARN("want is nullptr.");
