@@ -15,11 +15,13 @@
 
 #include "mock_bundle_manager.h"
 #include <gtest/gtest.h>
+#include <string>
 #include "ability_info.h"
 #include "application_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+const long int UNEXPIRED_TIME = 1860000000;
 bool BundleMgrProxy::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
 {
@@ -198,6 +200,14 @@ bool BundleMgrService::GetApplicationInfo(
     }
     appInfo.name = "Helloworld";
     appInfo.bundleName = "com.foobar.hiworld";
+    if (strcmp(appName.c_str(), "com.crowdtest.expired") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
+    if (strcmp(appName.c_str(), "com.crowdtest.unexpired") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = UNEXPIRED_TIME;
+    }
     return true;
 }
 bool BundleMgrService::GetApplicationInfos(
