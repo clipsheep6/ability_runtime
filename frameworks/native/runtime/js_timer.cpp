@@ -120,7 +120,7 @@ private:
 NativeValue* StartTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info, bool isInterval)
 {
     if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Start timeout or interval failed with engine or callback info is nullptr.");
+        HILOG_ERROR("StartTimeoutOrInterval, engine or callback info is nullptr.");
         return nullptr;
     }
 

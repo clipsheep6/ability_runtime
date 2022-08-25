@@ -71,27 +71,27 @@ public:
         isServiceDied_ = true;
     }
 
-    bool IsExtensionConnected()
+    bool IsExtensionConnected() const
     {
         return isExtensionConnected_;
     }
 
-    bool IsExtensionDisconnected()
+    bool IsExtensionDisconnected() const
     {
         return isExtensionDisconnected_;
     }
 
-    bool IsDlpAbilityOpened()
+    bool IsDlpAbilityOpened() const
     {
         return isDlpAbilityOpened_;
     }
 
-    bool IsDlpAbilityClosed()
+    bool IsDlpAbilityClosed() const
     {
         return isDlpAbilityClosed_;
     }
 
-    bool IsServiceDied()
+    bool IsServiceDied() const
     {
         return isServiceDied_;
     }

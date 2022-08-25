@@ -406,7 +406,7 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
     NativeValue* value = CreateJsBaseContext(engine, bundleContext, nullptr, nullptr, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.Context", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
+        HILOG_WARN("OnCreateBundleContext, invalid systemModule.");
         return engine.CreateUndefined();
     }
     auto contextObj = systemModule->Get();
@@ -444,7 +444,7 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
     NativeValue* value = CreateJsApplicationContext(engine, applicationContext, nullptr, nullptr, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(&engine, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
+        HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
         return engine.CreateUndefined();
     }
     auto contextObj = systemModule->Get();
@@ -482,13 +482,13 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
     NativeValue* object = CreateJsBaseContext(*engine, ptr, nullptr, nullptr, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(engine, "application.Context", &object, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
+        HILOG_WARN("AttachBaseContext, invalid systemModule.");
         return nullptr;
     }
     auto contextObj = systemModule->Get();
     NativeObject *nObject = ConvertNativeValueTo<NativeObject>(contextObj);
     if (nObject == nullptr) {
-        HILOG_WARN("invalid nObject.");
+        HILOG_WARN("AttachBaseContext, invalid nObject.");
         return nullptr;
     }
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachBaseContext, value, nullptr);

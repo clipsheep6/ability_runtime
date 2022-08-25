@@ -346,8 +346,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         return;
     }
 
-    HILOG_DEBUG(
-        "ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
+    HILOG_DEBUG("ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
     std::vector<std::string> moduleResPaths;
     std::string inner(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
     std::string outer(ABS_CODE_PATH);
