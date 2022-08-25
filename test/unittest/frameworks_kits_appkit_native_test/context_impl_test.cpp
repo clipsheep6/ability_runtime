@@ -181,7 +181,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_CreateModuleContext_001, Functi
  * @tc.name: RegisterAbilityLifecycleCallback
  * @tc.desc: Test whether RegisterAbilityLifecycleCallback is called normally.
  * @tc.type: FUNC
- * @tc.require: I5HQEM
+ * @tc.require: issueI5HQEM
  */
 HWTEST_F(ContextImplTest, AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001, Function | MediumTest | Level1)
 {
@@ -198,7 +198,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_RegisterAbilityLifecycleCallback
  * @tc.name: UnregisterAbilityLifecycleCallback
  * @tc.desc: Test whether UnregisterAbilityLifecycleCallback is called normally.
  * @tc.type: FUNC
- * @tc.require: I5HQEM
+ * @tc.require: issueI5HQEM
  */
 HWTEST_F(ContextImplTest, AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001, Function | MediumTest | Level1)
 {
