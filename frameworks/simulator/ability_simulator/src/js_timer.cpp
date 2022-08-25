@@ -105,13 +105,13 @@ private:
 NativeValue* StartTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info, bool isInterval)
 {
     if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Start timeout or interval failed with engine or callback info is nullptr.");
+        HILOG_ERROR("StartTimeoutOrInterval, engine or callback info is nullptr.");
         return nullptr;
     }
 
     // parameter check, must have at least 2 params
     if (info->argc < 2 || info->argv[0]->TypeOf() != NATIVE_FUNCTION || info->argv[1]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Set callback timer failed with invalid parameter.");
+        HILOG_ERROR("StartTimeoutOrInterval, Set callback timer failed with invalid parameter.");
         return engine->CreateUndefined();
     }
 
@@ -153,13 +153,13 @@ NativeValue* StartInterval(NativeEngine* engine, NativeCallbackInfo* info)
 NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* info)
 {
     if (engine == nullptr || info == nullptr) {
-        HILOG_ERROR("Stop timeout or interval failed with engine or callback info is nullptr.");
+        HILOG_ERROR("StopTimeoutOrInterval, engine or callback info is nullptr.");
         return nullptr;
     }
 
     // parameter check, must have at least 1 param
     if (info->argc < 1 || info->argv[0]->TypeOf() != NATIVE_NUMBER) {
-        HILOG_ERROR("Clear callback timer failed with invalid parameter.");
+        HILOG_ERROR("StopTimeoutOrInterval, Clear callback timer failed with invalid parameter.");
         return engine->CreateUndefined();
     }
 
@@ -174,6 +174,7 @@ NativeValue* StopTimeoutOrInterval(NativeEngine* engine, NativeCallbackInfo* inf
 
 void InitTimerModule(NativeEngine& engine, NativeObject& globalObject)
 {
+    HILOG_DEBUG("InitTimerModule begin.");
     BindNativeFunction(engine, globalObject, "setTimeout", StartTimeout);
     BindNativeFunction(engine, globalObject, "setInterval", StartInterval);
     BindNativeFunction(engine, globalObject, "clearTimeout", StopTimeoutOrInterval);

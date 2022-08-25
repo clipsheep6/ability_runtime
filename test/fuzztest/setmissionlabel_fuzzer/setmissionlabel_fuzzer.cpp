@@ -42,7 +42,7 @@ namespace OHOS {
         return token;
     }
 
-    bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
+    bool DoSomethingInterestingWithMyAPI(const char* data)
     {
         auto abilityMgr = AbilityManagerClient::GetInstance();
         if (!abilityMgr) {
@@ -86,7 +86,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         ch = nullptr;
         return 0;
     }
-    OHOS::DoSomethingInterestingWithMyAPI(ch, size);
+    OHOS::DoSomethingInterestingWithMyAPI(ch);
     free(ch);
     ch = nullptr;
     return 0;

@@ -1067,6 +1067,7 @@ HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_2500, Function 
  * @tc.number: Ability_Delegator_Args_Test_2600
  * @tc.name: AddAbilityStageMonitor and RemoveAbilityStageMonitor and GetStageMonitorsNum
  * @tc.desc: Verify the AddAbilityStageMonitor and RemoveAbilityStageMonitor and GetMonitorsNum.
+ * @tc.require: issueI5801E
  */
 HWTEST_F(AbilityDelegatorModuleTest, Ability_Delegator_Args_Test_2600, Function | MediumTest | Level1)
 {

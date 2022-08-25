@@ -498,5 +498,115 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_NotifyFormsDelete_0300
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_NotifyFormsDelete_0300 end";
 }
+/**
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0100
+ * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0100 start";
+
+    const int64_t formId = 10;
+    const int64_t requestCode = 1;
+    const std::string remoteDeviceId = "15010038475446345206751dbcda572b";
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+
+    const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+
+    EXPECT_TRUE((ERR_OK == instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
+
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0100 end";
+}
+/**
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0200
+ * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0200 start";
+
+    const int64_t formId = 0;
+    const int64_t requestCode = 1;
+    const std::string remoteDeviceId = "15010038475446345206751dbcda572b";
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+
+    const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+
+    EXPECT_TRUE((ERR_OK != instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
+
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0200 end";
+}
+/**
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0300
+ * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0300 start";
+
+    const int64_t formId = 10;
+    const int64_t requestCode = 1;
+    const std::string remoteDeviceId = "";
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+
+    const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+
+    EXPECT_TRUE((ERR_OK != instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
+
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0300 end";
+}
+/**
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0400
+ * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0400 start";
+
+    const int64_t formId = 10;
+    const int64_t requestCode = 1;
+    const std::string remoteDeviceId = "15010038475446345206751dbcda572b";
+    const sptr<IRemoteObject> callerToken = nullptr;
+
+    const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+
+    EXPECT_TRUE((ERR_OK != instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
+
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0400 end";
+}
+/**
+ * @tc.name: AaFwk_FormProviderClient_AcquireShareFormData_0500
+ * @tc.desc: Verify that the return value of AcquireShareFormData is correct.
+ * @tc.type: AcquireShareFormData
+ * @tc.require: issueI581YL
+ */
+HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0500, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0500 start";
+
+    const int64_t formId = 10;
+    const int64_t requestCode = 0;
+    const std::string remoteDeviceId = "15010038475446345206751dbcda572b";
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();;
+
+    const std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    instance_->SetOwner(ability);
+
+    EXPECT_TRUE((ERR_OK != instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
+
+    GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0500 end";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
