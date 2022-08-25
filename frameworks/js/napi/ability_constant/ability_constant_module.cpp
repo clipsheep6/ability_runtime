@@ -98,9 +98,12 @@ static napi_value InitMemoryLevelObject(napi_env env)
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE", static_cast<int>(MemoryLevel::MEMORY_LEVEL_MODERATE)));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW", static_cast<int>(MemoryLevel::MEMORY_LEVEL_LOW)));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL", static_cast<int>(MemoryLevel::MEMORY_LEVEL_CRITICAL)));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_MODERATE)));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_LOW)));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_CRITICAL)));
 
     return object;
 }
