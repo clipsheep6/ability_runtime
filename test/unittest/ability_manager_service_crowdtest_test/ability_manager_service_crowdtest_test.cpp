@@ -87,7 +87,7 @@ void AbilityManagerServiceCrowdtestTest::TearDown()
  * @tc.name: AbilityManagerServiceCrowdtestTest_IsCrowdtestExpired_002
  * @tc.desc: IsCrowtestExpired
  * @tc.type: FUNC
- * @tc.require: issueI510DY
+ * @tc.require: issueI5I0DY
  */
 HWTEST_F(AbilityManagerServiceCrowdtestTest, IsCrowdtestExpired_001, TestSize.Level1)
 {
