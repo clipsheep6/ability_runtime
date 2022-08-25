@@ -23,7 +23,6 @@
 #include "form_constants.h"
 #include "form_js_info.h"
 #include "form_provider_info.h"
-#include "form_provider_record.h"
 #include "form_provider_stub.h"
 
 namespace OHOS {
@@ -171,18 +170,14 @@ protected:
         const sptr<IRemoteObject> &callerToken);
     int HandleAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg, const Want &want,
                                  const sptr<IRemoteObject> &callerToken);
-    int32_t HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
-        const Want &want, const sptr<IRemoteObject> &callerToken);
+    void HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
+        const Want &want, const sptr<IRemoteObject> &token);
 private:
     std::shared_ptr<Ability> GetOwner();
-    std::shared_ptr<FormProviderRecord> AllotFormProviderRecord(const FormJsInfo &formJsInfo,
-        const sptr<IRemoteObject> &callerToken);
 private:
     DISALLOW_COPY_AND_MOVE(FormProviderClient);
     mutable std::mutex abilityMutex_;
     std::weak_ptr<Ability> owner_;
-    mutable std::recursive_mutex formProviderRecordMutex_;
-    std::vector<std::shared_ptr<FormProviderRecord>> formProviderRecords_;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

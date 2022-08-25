@@ -21,6 +21,7 @@
 
 #include "appexecfwk_errors.h"
 #include "form_mgr_errors.h"
+#include "form_caller_mgr.h"
 #include "form_supply_proxy.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -63,12 +64,12 @@ int FormProviderClient::AcquireProviderFormInfo(
     createWant.RemoveParam(Constants::FORM_CONNECT_ID);
     createWant.RemoveParam(Constants::ACQUIRE_TYPE);
     createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
+    createWant.RemoveParam(Constants::PARAM_FORM_HOST_TOKEN);
     FormProviderInfo formProviderInfo = ownerAbility->OnCreate(createWant);
     HILOG_DEBUG("%{public}s, formId: %{public}" PRId64 ", data: %{public}s",
         __func__, formJsInfo.formId, formProviderInfo.GetFormDataString().c_str());
-    auto remoteObj = want.GetRemoteObject(Constants::PARAM_FORM_HOST_CALLBACK);
-    if (remoteObj != nullptr) {
-        return HandleRemoteAcquire(formJsInfo, formProviderInfo, want, remoteObj);
+    if (newWant.HasParameter(Constants::PARAM_FORM_HOST_TOKEN)) {
+        HandleRemoteAcquire(formJsInfo, formProviderInfo, newWant, AsObject());
     }
     return HandleAcquire(formProviderInfo, newWant, callerToken);
 }
@@ -550,35 +551,18 @@ int32_t FormProviderClient::AcquireShareFormData(int64_t formId, const std::stri
     return ERR_OK;
 }
 
-int32_t FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
-    const Want &want, const sptr<IRemoteObject> &callerToken)
+void FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const FormProviderInfo &formProviderInfo,
+    const Want &want, const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("%{public}s called", __func__);
-    auto formProviderRecord = AllotFormProviderRecord(formJsInfo, callerToken);
-    if (formProviderRecord == nullptr) {
-        HILOG_ERROR("%{public}s error, alloc form provider record failed.", __func__);
-        return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
+    auto callerToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
+    FormCallerMgr::GetInstance().SetFormProviderCaller(formJsInfo, callerToken);
+
+    std::vector<std::shared_ptr<FormProviderCaller>> formProviderCallers;
+    FormCallerMgr::GetInstance().GetFormProviderCaller(formJsInfo.formId, formProviderCallers);
+    for (const auto &formProviderCaller : formProviderCallers) {
+        formProviderCaller->OnAcquire(formProviderInfo, want, token);
     }
-    return formProviderRecord->OnAcquire(formProviderInfo, want);
-}
-
-std::shared_ptr<FormProviderRecord> FormProviderClient::AllotFormProviderRecord(const FormJsInfo &formJsInfo,
-    const sptr<IRemoteObject> &callerToken)
-{
-    HILOG_INFO("%{public}s called", __func__);
-    std::lock_guard<std::recursive_mutex> lock(formProviderRecordMutex_);
-    for (const auto &formProviderRecord : formProviderRecords_) {
-        if (callerToken == formProviderRecord->GetCallerToken()) {
-            formProviderRecord->AddFormJsInfo(formJsInfo);
-            return formProviderRecord;
-        }
-    }
-
-    std::shared_ptr<FormProviderRecord> record = std::make_shared<FormProviderRecord>(callerToken);
-    record->AddFormJsInfo(formJsInfo);
-    formProviderRecords_.emplace_back(record);
-
-    return record;
 }
 } // namespace AppExecFwk
 } // namespace OHOS

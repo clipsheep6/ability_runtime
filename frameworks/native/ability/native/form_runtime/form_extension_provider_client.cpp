@@ -85,6 +85,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         createWant.RemoveParam(Constants::FORM_CONNECT_ID);
         createWant.RemoveParam(Constants::ACQUIRE_TYPE);
         createWant.RemoveParam(Constants::FORM_SUPPLY_INFO);
+        createWant.RemoveParam(Constants::PARAM_FORM_HOST_TOKEN);
         createWant.SetElement(want.GetElement());
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
@@ -92,10 +93,9 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
             __func__, createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
             formProviderInfo.GetFormDataString().c_str());
     }
-    auto remoteObj = want.GetRemoteObject(Constants::PARAM_FORM_HOST_CALLBACK);
-    if (remoteObj != nullptr) {
-        FormProviderClient::HandleRemoteAcquire(formJsInfo, formProviderInfo, want, remoteObj);
-        return;
+
+    if (connectWant.HasParameter(Constants::PARAM_FORM_HOST_TOKEN)) {
+        FormProviderClient::HandleRemoteAcquire(formJsInfo, formProviderInfo, connectWant, AsObject());
     }
     int error = FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
     if (error != ERR_OK) {
