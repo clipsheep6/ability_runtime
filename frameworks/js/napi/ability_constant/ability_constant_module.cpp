@@ -21,6 +21,12 @@
 
 namespace OHOS {
 namespace AAFwk {
+enum class MemoryLevel {
+    MEMORY_LEVEL_MODERATE = 0,
+    MEMORY_LEVEL_LOW = 1,
+    MEMORY_LEVEL_CRITICAL = 2,
+};
+
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
@@ -87,6 +93,21 @@ static napi_value InitWindowModeObject(napi_env env)
     return object;
 }
 
+static napi_value InitMemoryLevelObject(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_MODERATE)));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_LOW)));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL",
+        static_cast<int>(MemoryLevel::MEMORY_LEVEL_CRITICAL)));
+
+    return object;
+}
+
 /*
  * The module initialization.
  */
@@ -116,11 +137,18 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
         return nullptr;
     }
 
+    napi_value memoryLevel = InitMemoryLevelObject(env);
+    if (memoryLevel == nullptr) {
+        HILOG_ERROR("failed to create memory level object");
+        return nullptr;
+    }
+
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("LaunchReason", launchReason),
         DECLARE_NAPI_PROPERTY("LastExitReason", lastExitReason),
         DECLARE_NAPI_PROPERTY("OnContinueResult", onContinueResult),
         DECLARE_NAPI_PROPERTY("WindowMode", windowMode),
+        DECLARE_NAPI_PROPERTY("MemoryLevel", memoryLevel),
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
     if (status != napi_ok) {
