@@ -21,6 +21,13 @@
 
 namespace OHOS {
 namespace AAFwk {
+
+enum MemoryLevel {
+    MEMORY_LEVEL_MODERATE = 0,
+    MEMORY_LEVEL_LOW = 1,
+    MEMORY_LEVEL_CRITICAL = 2,
+};
+
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
@@ -92,9 +99,9 @@ static napi_value InitMemoryLevelObject(napi_env env)
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE", 0));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW", 1));
-    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL", 2));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_MODERATE", MEMORY_LEVEL_MODERATE));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_LOW", MEMORY_LEVEL_LOW));
+    NAPI_CALL(env, SetEnumItem(env, object, "MEMORY_LEVEL_CRITICAL", MEMORY_LEVEL_CRITICAL));
 
     return object;
 }
