@@ -17,6 +17,7 @@
 #include <singleton.h>
 
 #include "ability_local_record.h"
+#include "application_context.h"
 #include "context_impl.h"
 #include "context.h"
 #include "iremote_object.h"
@@ -173,6 +174,40 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_CreateModuleContext_001, Functi
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
     EXPECT_EQ(contextImpl_->CreateModuleContext("module_name"), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001
+ * @tc.name: RegisterAbilityLifecycleCallback
+ * @tc.desc: Test whether RegisterAbilityLifecycleCallback is called normally.
+ * @tc.type: FUNC
+ * @tc.require: I5HQEM
+ */
+HWTEST_F(ContextImplTest, AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001 start";
+    std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    applicationContext->RegisterAbilityLifecycleCallback(nullptr);
+    EXPECT_NE(applicationContext, nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_AppContext_RegisterAbilityLifecycleCallback_001 end";
+}
+
+/**
+ * @tc.number: AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001
+ * @tc.name: UnregisterAbilityLifecycleCallback
+ * @tc.desc: Test whether UnregisterAbilityLifecycleCallback is called normally.
+ * @tc.type: FUNC
+ * @tc.require: I5HQEM
+ */
+HWTEST_F(ContextImplTest, AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001 start";
+    std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
+        std::make_shared<AbilityRuntime::ApplicationContext>();
+    applicationContext->UnregisterAbilityLifecycleCallback(nullptr);
+    EXPECT_NE(applicationContext, nullptr);
+    GTEST_LOG_(INFO) << "AppExecFwk_AppContext_UnregisterAbilityLifecycleCallback_001 end";
 }
 }  // namespace AppExecFwk
 }
