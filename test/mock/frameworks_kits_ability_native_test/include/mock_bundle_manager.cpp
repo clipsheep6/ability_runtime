@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+const long int UNEXPIRED_TIME = 1860000000;
 bool BundleMgrProxy::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
 {
@@ -198,6 +199,14 @@ bool BundleMgrService::GetApplicationInfo(
     }
     appInfo.name = "Helloworld";
     appInfo.bundleName = "com.foobar.hiworld";
+    if (appName == "com.crowdtest.expired") {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
+    if (appName == "com.crowdtest.unexpired") {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = UNEXPIRED_TIME;
+    }
     return true;
 }
 bool BundleMgrService::GetApplicationInfos(
