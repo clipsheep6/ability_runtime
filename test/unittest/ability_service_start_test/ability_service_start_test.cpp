@@ -189,12 +189,12 @@ HWTEST_F(AbilityServiceStartTest, StartUpEvent_001, TestSize.Level1)
     aams_->OnStart();
     const int bufferLen = 128;
     char paramOutBuf[bufferLen] = {0};
-    const char *hook_mode = "true";
+    const char *hookMode = "true";
     int ret = GetParameter("bootevent.bootanimation.started", "", paramOutBuf, bufferLen);
-    EXPECT_TRUE(strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0);
+    EXPECT_TRUE(strncmp(paramOutBuf, hookMode, strlen(hookMode)) == 0);
 
     ret = GetParameter("bootevent.appfwk.ready", "", paramOutBuf, bufferLen);
-    EXPECT_FALSE(strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0);
+    EXPECT_FALSE(strncmp(paramOutBuf, hookMode, strlen(hookMode)) == 0);
     aams_->OnStop();
 }
 }  // namespace AAFwk
