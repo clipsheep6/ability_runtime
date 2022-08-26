@@ -56,6 +56,7 @@ enum AppMgrResultCode {
     RESULT_OK = 0,
     ERROR_SERVICE_NOT_READY,
     ERROR_SERVICE_NOT_CONNECTED,
+    ERROR_KILL_APPLICATION
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

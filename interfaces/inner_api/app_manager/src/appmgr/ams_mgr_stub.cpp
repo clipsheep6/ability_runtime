@@ -55,6 +55,8 @@ AmsMgrStub::AmsMgrStub()
         &AmsMgrStub::HandlePrepareTerminate;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_BYUID)] =
         &AmsMgrStub::HandleKillApplicationByUid;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF)] =
+        &AmsMgrStub::HandleKillApplicationSelf;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_RUNNING_PROCESS_INFO_BY_TOKEN)] =
         &AmsMgrStub::HandleGetRunningProcessInfoByToken;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::START_SPECIFIED_ABILITY)] =
@@ -230,6 +232,17 @@ ErrCode AmsMgrStub::HandleKillApplicationByUid(MessageParcel &data, MessageParce
     int uid = data.ReadInt32();
     int32_t result = KillApplicationByUid(bundleName, uid);
     reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t result = KillApplicationSelf();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("result write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

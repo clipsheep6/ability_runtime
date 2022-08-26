@@ -411,6 +411,28 @@ int32_t AmsMgrProxy::KillApplicationByUid(const std::string &bundleName, const i
     return reply.ReadInt32();
 }
 
+int32_t AmsMgrProxy::KillApplicationSelf()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is NULL");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t ret =
+        remote->SendRequest(static_cast<uint32_t>(IAmsMgr::Message::KILL_APPLICATION_SELF), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 void AmsMgrProxy::AbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("start");

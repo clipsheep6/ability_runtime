@@ -210,6 +210,14 @@ int32_t AmsMgrScheduler::KillApplicationByUid(const std::string &bundleName, con
     return amsMgrServiceInner_->KillApplicationByUid(bundleName, uid);
 }
 
+int32_t AmsMgrScheduler::KillApplicationSelf()
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->KillApplicationSelf();
+}
+
 bool AmsMgrScheduler::IsReady() const
 {
     if (!amsMgrServiceInner_) {

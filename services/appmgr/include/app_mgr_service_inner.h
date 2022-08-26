@@ -214,6 +214,8 @@ public:
      */
     virtual int32_t KillApplicationByUid(const std::string &bundleName, const int uid);
 
+    virtual int32_t KillApplicationSelf();
+
     /**
      * KillApplicationByUserId, kill the application by user ID.
      *

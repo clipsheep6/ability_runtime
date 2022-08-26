@@ -56,6 +56,7 @@ private:
     int32_t HandleAbilityAttachTimeOut(MessageParcel &data, MessageParcel &reply);
     int32_t HandlePrepareTerminate(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplicationByUid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleKillApplicationSelf(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetRunningProcessInfoByToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartSpecifiedAbility(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterStartSpecifiedAbilityResponse(MessageParcel &data, MessageParcel &reply);

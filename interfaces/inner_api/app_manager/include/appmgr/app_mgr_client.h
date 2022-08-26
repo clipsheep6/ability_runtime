@@ -137,6 +137,13 @@ public:
     virtual AppMgrResultCode KillApplicationByUid(const std::string &bundleName, const int uid);
 
     /**
+     * Kill the application self.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode KillApplicationSelf();
+
+    /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
      * clear the application data.
      *

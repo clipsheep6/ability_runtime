@@ -536,6 +536,32 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
     return result;
 }
 
+int32_t AppMgrServiceInner::KillApplicationSelf()
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    if (!appRunningManager_->ProcessExitByPid(callerPid)) {
+        HILOG_INFO("The callerPid is invalid");
+        return ERR_OK;
+    }
+    std::list<pid_t> pids;
+    pids.push_back(callerPid);
+    int64_t startTime = SystemTimeMillis();
+    if (WaitForRemoteProcessExit(pids, startTime)) {
+        HILOG_INFO("The remote process exited successfully");
+        return ERR_OK;
+    }
+    int result = KillProcessByPid(callerPid);
+    if (result < 0) {
+        HILOG_ERROR("KillApplication is fail, pid: %{public}d", callerPid);
+    }
+    return result;
+}
+
 int32_t AppMgrServiceInner::KillApplicationByUserId(const std::string &bundleName, const int userId)
 {
     if (!appRunningManager_) {

@@ -208,6 +208,24 @@ bool AppRunningManager::ProcessExitByBundleNameAndUid(
     return (pids.empty() ? false : true);
 }
 
+bool AppRunningManager::ProcessExitByPid(pid_t pid)
+{
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord) {
+            pid_t appPid = appRecord->GetPriorityObject()->GetPid();
+            if (appPid == pid) {
+                appRecord->SetKilling();
+                appRecord->ScheduleProcessSecurityExit();
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
