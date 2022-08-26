@@ -102,6 +102,15 @@ Token::~Token()
 std::shared_ptr<AbilityRecord> Token::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
 {
     CHECK_POINTER_AND_RETURN(token, nullptr);
+    // Double check if token is valid
+    sptr<IAbilityToken> theToken = iface_cast<IAbilityToken>(token);
+    if (!theToken) {
+        return nullptr;
+    }
+    if (theToken->GetDescriptor() != u"ohos.aafwk.AbilityToken") {
+        return nullptr;
+    }
+
     return (static_cast<Token *>(token.GetRefPtr()))->GetAbilityRecord();
 }
 

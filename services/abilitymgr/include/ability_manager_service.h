@@ -937,7 +937,6 @@ private:
     void DumpFuncInit();
     bool IsExistFile(const std::string &path);
 
-    int CheckCallPermissions(const AbilityRequest &abilityRequest);
     bool JudgeMultiUserConcurrency(const int32_t userId);
     /**
      * dumpsys info
@@ -984,7 +983,6 @@ private:
 
     bool VerificationAllToken(const sptr<IRemoteObject> &token);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManager(const sptr<IAbilityScheduler> &scheduler);
-    bool CheckDataAbilityRequest(AbilityRequest &abilityRequest);
     std::shared_ptr<MissionListManager> GetListManagerByUserId(int32_t userId);
     std::shared_ptr<AbilityConnectManager> GetConnectManagerByUserId(int32_t userId);
     std::shared_ptr<DataAbilityManager> GetDataAbilityManagerByUserId(int32_t userId);
@@ -1031,6 +1029,54 @@ private:
     int CheckCrowdtestForeground(const Want &want, int requestCode, int32_t userId);
 
     int StartAppgallery(int requestCode, int32_t userId, std::string action);
+
+    /**
+     * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage)
+     *
+     */
+    int CheckCallServicePermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start DataAbility(FA)
+     *
+     */
+    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage)
+     *
+     */
+    int CheckCallServiceExtensionPermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start other Extension(Stage)
+     *
+     */
+    int CheckCallOtherExtensionPermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start ServiceAbility(FA)
+     *
+     */
+    int CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start PageAbility(FA) or Ability(Stage)
+     *
+     */
+    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Check if Caller is allowed to start Ability(Stage) by call
+     *
+     */
+    int CheckStartByCallPermission(const AbilityRequest &abilityRequest);
+
+    /**
+     * Judge if CallerApp is in background state
+     *
+     */
+    int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

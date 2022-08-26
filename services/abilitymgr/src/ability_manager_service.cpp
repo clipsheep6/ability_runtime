@@ -447,16 +447,27 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
     GrantUriPermission(want, validUserId);
-    result = JudgeAbilityVisibleControl(abilityInfo, callerUid);
-    if (result != ERR_OK) {
-        HILOG_ERROR("JudgeAbilityVisibleControl error, result is %{public}d.", result);
-        return result;
-    }
+
     auto type = abilityInfo.type;
     if (type == AppExecFwk::AbilityType::DATA) {
         HILOG_ERROR("Cannot start data ability, use 'AcquireDataAbility()' instead.");
         return ERR_INVALID_VALUE;
+    } else if (type == AppExecFwk::AbilityType::SERVICE || type == AppExecFwk::AbilityType::EXTENSION) {
+        HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
+        result = CheckCallServicePermission(abilityRequest);
+        if (result != ERR_OK) {
+            HILOG_ERROR("Check permission failed");
+            return result;
+        }
+    } else {
+        HILOG_DEBUG("Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
+        result = CheckCallAbilityPermission(abilityRequest);
+        if (result != ERR_OK) {
+            HILOG_ERROR("Check permission failed");
+            return result;
+        }
     }
+
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
         HILOG_DEBUG("PreLoadAppDataAbilities:%{public}s.", abilityInfo.bundleName.c_str());
         result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
@@ -584,14 +595,15 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
 
     result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
         return result;
     }
-    result = JudgeAbilityVisibleControl(abilityInfo);
+    result = CheckCallAbilityPermission(abilityRequest);
     if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
@@ -743,14 +755,15 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
 
     result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
         return result;
     }
-    result = JudgeAbilityVisibleControl(abilityInfo);
+    result = CheckCallAbilityPermission(abilityRequest);
     if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
+        HILOG_ERROR("%{public}s CheckCallAbilityPermission error.", __func__);
         eventInfo.errCode = result;
         AAFWK::EventReport::SendAbilityEvent(AAFWK::START_ABILITY_ERROR,
             HiSysEventType::FAULT, eventInfo);
@@ -824,30 +837,38 @@ int AbilityManagerService::CheckOptExtensionAbility(const Want &want, AbilityReq
     int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType)
 {
     auto abilityInfo = abilityRequest.abilityInfo;
-    auto result = CheckStaticCfgPermission(abilityInfo);
-    if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
-        HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
-        return result;
-    }
-    GrantUriPermission(want, validUserId);
-    result = JudgeAbilityVisibleControl(abilityInfo);
-    if (result != ERR_OK) {
-        HILOG_ERROR("JudgeAbilityVisibleControl error, result is %{public}d.", result);
-        return result;
-    }
-
     auto type = abilityInfo.type;
     if (type != AppExecFwk::AbilityType::EXTENSION) {
         HILOG_ERROR("Not extension ability, not allowed.");
         return ERR_INVALID_VALUE;
     }
-
     if (extensionType != AppExecFwk::ExtensionAbilityType::UNSPECIFIED &&
         extensionType != abilityInfo.extensionAbilityType) {
         HILOG_ERROR("Extension ability type not match, set type: %{public}d, real type: %{public}d",
             static_cast<int32_t>(extensionType), static_cast<int32_t>(abilityInfo.extensionAbilityType));
         return ERR_INVALID_VALUE;
     }
+
+    auto result = CheckStaticCfgPermission(abilityInfo);
+    if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
+        return result;
+    }
+
+    if (extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE ||
+        extensionType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        result = CheckCallServiceExtensionPermission(abilityRequest);
+        if (result != ERR_OK) {
+            return result;
+        }
+    } else {
+        result = CheckCallOtherExtensionPermission(abilityRequest);
+        if (result != ERR_OK) {
+            return result;
+        }
+    }
+
+    GrantUriPermission(want, validUserId);
 
     UpdateCallerInfo(abilityRequest.want);
     return ERR_OK;
@@ -1583,6 +1604,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
 
     result = CheckStaticCfgPermission(abilityInfo);
     if (result != AppExecFwk::Constants::PERMISSION_GRANTED) {
+        HILOG_ERROR("CheckStaticCfgPermission error, result is %{public}d.", result);
         return result;
     }
 
@@ -1591,15 +1613,15 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return ERR_INVALID_OPERATION;
     }
 
-    result = JudgeAbilityVisibleControl(abilityInfo);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return result;
-    }
     auto type = abilityInfo.type;
     if (type != AppExecFwk::AbilityType::SERVICE && type != AppExecFwk::AbilityType::EXTENSION) {
         HILOG_ERROR("Connect ability failed, target ability is not Service.");
         return TARGET_ABILITY_NOT_SERVICE;
+    }
+    result = CheckCallServicePermission(abilityRequest);
+    if (result != ERR_OK) {
+        HILOG_ERROR("%{public}s CheckCallServicePermission error.", __func__);
+        return result;
     }
     result = PreLoadAppDataAbilities(abilityInfo.bundleName, validUserId);
     if (result != ERR_OK) {
@@ -2222,7 +2244,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         return nullptr;
     }
 
-    if (!CheckDataAbilityRequest(abilityRequest)) {
+    if (CheckCallDataAbilityPermission(abilityRequest) != ERR_OK) {
         HILOG_ERROR("Invalid ability request info for data ability acquiring.");
         return nullptr;
     }
@@ -2249,26 +2271,6 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     bool isNotHap = isSaCall || isShellCall;
     return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
-}
-
-bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
-{
-    int result = JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
-    if (result != ERR_OK) {
-        HILOG_ERROR("%{public}s JudgeAbilityVisibleControl error.", __func__);
-        return false;
-    }
-    abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
-    if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
-        HILOG_ERROR("Invalid app info for data ability acquiring.");
-        return false;
-    }
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("BMS query result is not a data ability.");
-        return false;
-    }
-    abilityRequest.uid = abilityRequest.appInfo.uid;
-    return true;
 }
 
 int AbilityManagerService::ReleaseDataAbility(
@@ -3749,6 +3751,12 @@ int AbilityManagerService::StartAbilityByCall(
         return StartRemoteAbilityByCall(want, connect->AsObject());
     }
 
+    int32_t callerUserId = GetValidUserId(DEFAULT_INVAL_VALUE);
+    if (!JudgeMultiUserConcurrency(callerUserId)) {
+        HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
+        return ERR_INVALID_VALUE;
+    }
+
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();
@@ -3767,9 +3775,9 @@ int AbilityManagerService::StartAbilityByCall(
         return RESOLVE_CALL_ABILITY_VERSION_ERR;
     }
 
-    result = CheckCallPermissions(abilityRequest);
+    result = CheckStartByCallPermission(abilityRequest);
     if (result != ERR_OK) {
-        HILOG_ERROR("CheckCallPermissions fail, result: %{public}d", result);
+        HILOG_ERROR("CheckStartByCallPermission fail, result: %{public}d", result);
         return RESOLVE_CALL_NO_PERMISSIONS;
     }
 
@@ -3802,29 +3810,6 @@ int AbilityManagerService::ReleaseCall(
     }
 
     return currentMissionListManager_->ReleaseCallLocked(connect, element);
-}
-
-int AbilityManagerService::CheckCallPermissions(const AbilityRequest &abilityRequest)
-{
-    HILOG_DEBUG("%{public}s begin", __func__);
-    auto abilityInfo = abilityRequest.abilityInfo;
-    auto callerUid = abilityRequest.callerUid;
-
-    if (!CheckCallerEligibility(abilityInfo, callerUid)) {
-        HILOG_ERROR("called ability has no permission.");
-        return RESOLVE_CALL_NO_PERMISSIONS;
-    }
-
-    HILOG_DEBUG("the caller has permission to resolve the call proxy of common ability.");
-    // check whether the target ability is singleton mode and page type.
-    if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
-        abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
-        HILOG_DEBUG("called ability is common ability and singleton.");
-    } else {
-        HILOG_ERROR("called ability is not common ability or singleton.");
-        return RESOLVE_CALL_ABILITY_TYPE_ERR;
-    }
-    return ERR_OK;
 }
 
 int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityInfo &abilityInfo, int callerUid)
@@ -4582,6 +4567,10 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();
+    if (abilityInfo.applicationInfo.accessTokenId == tokenId) {
+        return ERR_OK;
+    }
+
     if ((abilityInfo.type == AppExecFwk::AbilityType::EXTENSION &&
         abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) ||
         (abilityInfo.type == AppExecFwk::AbilityType::DATA)) {
@@ -5044,6 +5033,166 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
         }
     }
     return false;
+}
+
+int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
+{
+    if (abilityRequest.abilityInfo.isStageBasedModel) {
+        auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+        if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE ||
+            extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
+            return CheckCallServiceExtensionPermission(abilityRequest);
+        } else {
+            return CheckCallOtherExtensionPermission(abilityRequest);
+        }
+    } else {
+        return CheckCallServiceAbilityPermission(abilityRequest);
+    }
+}
+
+int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
+    abilityRequest.uid = abilityRequest.appInfo.uid;
+
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Do not have permission to start DataAbility");
+        return result;
+    }
+
+    if (abilityRequest.appInfo.name.empty() || abilityRequest.appInfo.bundleName.empty()) {
+        HILOG_ERROR("Invalid app info for data ability acquiring.");
+        return ERR_INVALID_VALUE;
+    }
+    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+        HILOG_ERROR("BMS query result is not a data ability.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return ERR_OK;
+}
+
+int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Do not have permission to start ServiceExtension or DataShareExtension");
+    }
+    return result;
+}
+
+int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Do not have permission to start OtherExtension");
+    }
+    return result;
+}
+
+
+int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Do not have permission to start ServiceAbility");
+    }
+    return result;
+}
+
+int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Do not have permission to start PageAbility(FA) or Ability(Stage)");
+    }
+    return result;
+}
+
+int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abilityRequest)
+{
+    HILOG_DEBUG("%{public}s begin", __func__);
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
+    verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
+        return ERR_INVALID_VALUE;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->CheckStartByCallPermission(verificationInfo) != ERR_OK) {
+        HILOG_ERROR("Do not have permission to StartAbilityByCall.");
+        return RESOLVE_CALL_NO_PERMISSIONS;
+    }
+
+    HILOG_DEBUG("The caller has permission to resolve the call proxy of common ability.");
+    // check whether the target ability is singleton mode and page type.
+    if (abilityRequest.abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+        abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
+        HILOG_DEBUG("Called ability is common ability and singleton.");
+    } else {
+        HILOG_ERROR("Called ability is not common ability or singleton.");
+        return RESOLVE_CALL_ABILITY_TYPE_ERR;
+    }
+    return ERR_OK;
+}
+
+int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall)
+{
+    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        return ERR_OK;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        isBackgroundCall = true;
+        return ERR_OK;
+    }
+
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
+    isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS;
+
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
