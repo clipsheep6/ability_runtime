@@ -351,5 +351,163 @@ HWTEST_F(AbilityManagerClientTest, LockMissionForCleanup_0100, TestSize.Level1)
     auto result = client_->LockMissionForCleanup(1);
     EXPECT_EQ(ERR_OK, result);
 }
+
+/**
+ * @tc.name: AbilityManagerClient_UnlockMissionForCleanup_0100
+ * @tc.desc: UnlockMissionForCleanup
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, UnlockMissionForCleanup_0100, TestSize.Level1)
+{
+    auto result = client_->UnlockMissionForCleanup(5);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterMissionListener_0100
+ * @tc.desc: RegisterMissionListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterMissionListener_0100, TestSize.Level1)
+{
+    sptr<IMissionListener> listener = nullptr;
+    auto result = client_->RegisterMissionListener(listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterMissionListener_0200
+ * @tc.desc: RegisterMissionListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, RegisterMissionListener_0200, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    sptr<IRemoteMissionListener> listener = nullptr;
+    auto result = client_->RegisterMissionListener(deviceId, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnRegisterMissionListener_0100
+ * @tc.desc: UnRegisterMissionListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, UnRegisterMissionListener_0100, TestSize.Level1)
+{
+    sptr<IMissionListener> listener = nullptr;
+    auto result = client_->UnRegisterMissionListener(listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnRegisterMissionListener_0200
+ * @tc.desc: UnRegisterMissionListener
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, UnRegisterMissionListener_0200, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    sptr<IRemoteMissionListener> listener = nullptr;
+    auto result = client_->UnRegisterMissionListener(deviceId, listener);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetMissionInfos_0100
+ * @tc.desc: GetMissionInfos
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, GetMissionInfos_0100, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    std::vector<MissionInfo> missionInfos;
+    auto result = client_->GetMissionInfos(deviceId, 10, missionInfos);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetMissionSnapshot_0100
+ * @tc.desc: GetMissionSnapshot
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, GetMissionSnapshot_0100, TestSize.Level1)
+{
+    std::string deviceId = "123";
+    MissionSnapshot snapshot;
+    bool isLowResolution = false;
+    auto result = client_->GetMissionSnapshot(deviceId, 10, snapshot, isLowResolution);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CleanMission_0100
+ * @tc.desc: CleanMission
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, CleanMission_0100, TestSize.Level1)
+{
+    auto result = client_->CleanMission(10);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_CleanAllMissions_0100
+ * @tc.desc: CleanAllMissions
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, CleanAllMissions_0100, TestSize.Level1)
+{
+    auto result = client_->CleanAllMissions();
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MoveMissionToFront_0100
+ * @tc.desc: MoveMissionToFront
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, MoveMissionToFront_0100, TestSize.Level1)
+{
+    auto result = client_->MoveMissionToFront(10);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_MoveMissionToFront_0200
+ * @tc.desc: MoveMissionToFront
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, MoveMissionToFront_0200, TestSize.Level1)
+{
+    StartOptions startOptions;
+    auto result = client_->MoveMissionToFront(1, startOptions);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityRunningInfos_0100
+ * @tc.desc: GetAbilityRunningInfos
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(AbilityManagerClientTest, GetAbilityRunningInfos_0100, TestSize.Level1)
+{
+    std::vector<AbilityRunningInfo> myInfo;
+    auto result = client_->GetAbilityRunningInfos(myInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
