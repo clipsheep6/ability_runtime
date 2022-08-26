@@ -160,7 +160,7 @@ ohos_shared_library("abilityms") {
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
       "//third_party/icu/icu4c:shared_icuuc",
-      "//third_party/libjpeg:libjpeg_static",
+      "//third_party/libjpeg-turbo:turbojpeg_static",
     ]
     public_deps =
         [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]

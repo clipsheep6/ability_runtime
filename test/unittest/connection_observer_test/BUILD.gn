@@ -34,7 +34,7 @@ ohos_unittest("connection_observer_test") {
   deps = [
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
-    "//third_party/libjpeg:libjpeg_static",
+    "//third_party/libjpeg-turbo:turbojpeg_static",
   ]
 
   external_deps = [
