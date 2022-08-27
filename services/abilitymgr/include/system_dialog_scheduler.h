@@ -39,6 +39,10 @@ struct DialogPosition {
     int32_t offsetY = 0;
     int32_t width = 0;
     int32_t height = 0;
+    int32_t window_width = 0;
+    int32_t window_height = 0;
+    int32_t window_offsetX = 0;
+    int32_t window_offsetY = 0;
     int32_t width_narrow = 0;
     int32_t height_narrow = 0;
     bool wideScreen = true;
@@ -75,12 +79,13 @@ public:
     }
 
 private:
-    const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
-    
+    const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos, DialogPosition position) const;
+    const std::string GetTipParams(DialogPosition position) const;
+
     void InitDialogPosition(DialogType type, DialogPosition &position) const;
     void GetDialogPositionAndSize(DialogType type, DialogPosition &position, int lineNums = 0) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
-    
+
     void ScheduleShowDialog(const std::string &name, const DialogPosition &position,
         const std::string &params, DialogCallback callback) const;
 

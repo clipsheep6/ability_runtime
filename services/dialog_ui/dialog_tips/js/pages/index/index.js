@@ -19,12 +19,27 @@ export default {
     data: {
         btn: {
             color: "#FFFFFF",
-        }
+        },
+        labeloffsetX: 16,
+        labeloffsetY: 190,
+        labelwidth: 328,
+        labelheight: 192,
+        pcDisplay: 'flex',
+        phoneDisplay: 'none',
     },
     onInit() {
         console.info('onInit');
-        if (this.deviceType == "pc") {
+        this.labeloffsetX = parseInt(this.offsetX);
+        this.labeloffsetY = parseInt(this.offsetY);
+        this.labelwidth = parseInt(this.width);
+        this.labelheight = parseInt(this.height);
+        if (this.deviceType === "phone") {
+            this.phoneDisplay = 'flex';
+            this.pcDisplay = 'none';
+        } else if (this.deviceType === "pc") {
             this.btn.color = "#F2F2F2";
+            this.phoneDisplay = 'none';
+            this.pcDisplay = 'flex';
         }
     },
     onShow() {
