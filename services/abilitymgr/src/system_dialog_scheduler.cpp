@@ -51,6 +51,10 @@ const std::string EVENT_WAITING_CODE = "0";
 const std::string EVENT_CLOSE_CODE = "1";
 const std::string APP_NAME = "appName";
 const std::string DEVICE_TYPE = "deviceType";
+const std::string OFF_SET_X = "offsetX";
+const std::string OFF_SET_Y = "offsetY";
+const std::string WIDTH = "width";
+const std::string HEIGHT = "height";
 
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
@@ -132,8 +136,7 @@ int32_t SystemDialogScheduler::ShowTipsDialog()
     
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_TIPS, position);
-
-    std::string params = GetTipParams(position);std::string params = GetTipParams(position);
+    std::string params = GetTipParams(position);
 
     auto callback = [] (int32_t id, const std::string& event, const std::string& params) {
         HILOG_INFO("Dialog tips callback: id : %{public}d, event: %{public}s, params: %{public}s",
@@ -238,6 +241,7 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
 {
     position.wideScreen = (deviceType_ == STR_PC);
     position.align = (deviceType_ == STR_PHONE) ? DialogAlign::BOTTOM : DialogAlign::CENTER;
+    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
 
     switch (type) {
         case DialogType::DIALOG_ANR:
