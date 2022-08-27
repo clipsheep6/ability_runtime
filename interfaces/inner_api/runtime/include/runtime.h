@@ -34,6 +34,7 @@ public:
         std::string bundleName;
         std::string codePath;
         std::string packagePath;
+        std::string hapPath;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;

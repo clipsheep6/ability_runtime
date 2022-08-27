@@ -930,6 +930,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         AbilityRuntime::Runtime::Options options;
         options.bundleName = appInfo.bundleName;
         options.codePath = LOCAL_CODE_PATH;
+        options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
         options.eventRunner = mainHandler_->GetEventRunner();
         options.loadAce = true;
         std::string nativeLibraryPath = appInfo.nativeLibraryPath;
@@ -1217,6 +1218,7 @@ bool MainThread::PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &
         AbilityRuntime::Runtime::Options options;
         options.codePath = LOCAL_CODE_PATH;
         options.eventRunner = mainHandler_->GetEventRunner();
+        options.hapPath = bundleInfo.hapModuleInfos.back().hapPath;
         options.loadAce = false;
         if (bundleInfo.hapModuleInfos.empty() || bundleInfo.hapModuleInfos.front().abilityInfos.empty()) {
             HILOG_ERROR("Failed to abilityInfos");

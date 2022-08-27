@@ -70,6 +70,8 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
     }
     auto& jsRuntime = static_cast<JsRuntime&>(*runtime);
     std::string srcPath(hapModuleInfo.name);
+    std::string moduleName(hapModuleInfo.moduleName);
+    moduleName.append("::").append("AbilityStage");
 
     /* temporary compatibility api8 + config.json */
     if (!hapModuleInfo.isModuleJson) {
@@ -80,9 +82,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
             srcPath.append(hapModuleInfo.srcPath);
             srcPath.append("/AbilityStage.abc");
         }
-        std::string moduleName(hapModuleInfo.moduleName);
-        moduleName.append("::").append("AbilityStage");
-        auto moduleObj = jsRuntime.LoadModule(moduleName, srcPath,
+        auto moduleObj = jsRuntime.LoadModule(moduleName, srcPath, hapModuleInfo.hapPath,
             hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE);
         return std::make_shared<JsAbilityStage>(jsRuntime, std::move(moduleObj));
     }
@@ -93,9 +93,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
         srcPath.append(hapModuleInfo.srcEntrance);
         srcPath.erase(srcPath.rfind("."));
         srcPath.append(".abc");
-        std::string moduleName(hapModuleInfo.moduleName);
-        moduleName.append("::").append("AbilityStage");
-        moduleObj = jsRuntime.LoadModule(moduleName, srcPath,
+        moduleObj = jsRuntime.LoadModule(moduleName, srcPath, hapModuleInfo.hapPath,
             hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE);
         HILOG_INFO("JsAbilityStage srcPath is %{public}s", srcPath.c_str());
     }

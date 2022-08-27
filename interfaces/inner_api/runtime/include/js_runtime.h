@@ -33,6 +33,7 @@ class EventHandler;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
 class TimerTask;
+class RuntimeExtractor;
 
 void *DetachCallbackFunc(NativeEngine *engine, void *value, void *hint);
 
@@ -55,8 +56,8 @@ public:
         return Language::JS;
     }
 
-    std::unique_ptr<NativeReference> LoadModule(
-        const std::string& moduleName, const std::string& modulePath, bool esmodule = false);
+    std::unique_ptr<NativeReference> LoadModule(const std::string& moduleName, const std::string& modulePath,
+        const std::string& hapPath, bool esmodule = false);
     std::unique_ptr<NativeReference> LoadSystemModule(
         const std::string& moduleName, NativeValue* const* argv = nullptr, size_t argc = 0);
     void PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime);
@@ -65,8 +66,8 @@ public:
     std::string BuildJsStackTrace() override;
     void NotifyApplicationState(bool isBackground) override;
 
-    bool RunSandboxScript(const std::string& path);
-    virtual bool RunScript(const std::string& path) = 0;
+    bool RunSandboxScript(const std::string& path, const std::string& hapPath);
+    virtual bool RunScript(const std::string& path, const std::string& hapPath) = 0;
 
     void PreloadSystemModule(const std::string& moduleName) override;
 
@@ -76,8 +77,8 @@ protected:
     virtual bool Initialize(const Options& options);
     void Deinitialize();
 
-    virtual NativeValue* LoadJsBundle(const std::string& path);
-    virtual NativeValue* LoadJsModule(const std::string& path) = 0;
+    virtual NativeValue* LoadJsBundle(const std::string& path, const std::string& hapPath);
+    virtual NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) = 0;
 
     bool isArkEngine_ = false;
     bool debugMode_ = false;
@@ -87,6 +88,7 @@ protected:
     std::unique_ptr<NativeReference> methodRequireNapiRef_;
     std::shared_ptr<AppExecFwk::EventHandler> eventHandler_;
     std::unordered_map<std::string, NativeReference*> modules_;
+    std::shared_ptr<RuntimeExtractor> runtimeExtractor_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

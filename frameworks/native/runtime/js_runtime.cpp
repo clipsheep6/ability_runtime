@@ -24,15 +24,18 @@
 
 #include "connect_server_manager.h"
 #include "event_handler.h"
+#include "extractor_utils.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
+#include "js_module_reader.h"
 #include "js_module_searcher.h"
 #include "js_runtime_utils.h"
 #include "js_timer.h"
 #include "js_worker.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "parameters.h"
+#include "runtime_extractor.h"
 #include "systemcapability.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -106,15 +109,34 @@ public:
         debugMode_ = true;
     }
 
-    bool RunScript(const std::string& path) override
+    bool RunScript(const std::string& srcPath, const std::string& hapPath) override
     {
-        return nativeEngine_->RunScriptPath(path.c_str()) != nullptr;
+        bool result = false;
+        if (!hapPath.empty()) {
+            std::ostringstream outStream;
+            if (runtimeExtractor_ == nullptr) {
+                runtimeExtractor_ = InitRuntimeExtractor(hapPath);
+            }
+            if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+                HILOG_ERROR("Get abc file failed");
+                return result;
+            }
+
+            const auto& outStr = outStream.str();
+            std::vector<uint8_t> buffer;
+            buffer.assign(outStr.begin(), outStr.end());
+
+            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
+        } else {
+            result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
+        }
+        return result;
     }
 
-    NativeValue* LoadJsModule(const std::string& path) override
+    NativeValue* LoadJsModule(const std::string& path, const std::string& hapPath) override
     {
-        if (!RunScript(path)) {
-            HILOG_ERROR("Failed to run script: %{public}s", path.c_str());
+        if (!RunScript(path, hapPath)) {
+            HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
             return nullptr;
         }
 
@@ -177,7 +199,13 @@ private:
 
         if (!options.preload) {
             bundleName_ = options.bundleName;
-            panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
+            runtimeExtractor_ = InitRuntimeExtractor(options.hapPath);
+            if (!options.hapPath.empty()) {
+                panda::JSNApi::SetHostResolveBufferTracker(
+                    vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
+            } else {
+                panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
+            }
         }
         return JsRuntime::Initialize(options);
     }
@@ -223,46 +251,6 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
     const char *moduleName = "JsRuntime";
     BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
-
-bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName)
-{
-    std::string path(codePath);
-    path.append("/").append(modulePath);
-    if (path.length() > PATH_MAX) {
-        HILOG_ERROR("Path length(%{public}d) longer than MAX(%{public}d)", (int32_t)path.length(), PATH_MAX);
-        return false;
-    }
-    char resolvedPath[PATH_MAX + 1] = { 0 };
-    if (realpath(path.c_str(), resolvedPath) != nullptr) {
-        fileName = resolvedPath;
-        return true;
-    }
-
-    auto start = path.find_last_of('/');
-    auto end = path.find_last_of('.');
-    if (end == std::string::npos || end == 0) {
-        HILOG_ERROR("No secondary file path");
-        return false;
-    }
-
-    auto pos = path.find_last_of('.', end - 1);
-    if (pos == std::string::npos) {
-        HILOG_ERROR("No secondary file path");
-        return false;
-    }
-
-    path.erase(start + 1, pos - start);
-    HILOG_INFO("Try using secondary file path: %{public}s", path.c_str());
-
-    if (realpath(path.c_str(), resolvedPath) == nullptr) {
-        HILOG_ERROR("Failed to call realpath, errno = %{public}d", errno);
-        return false;
-    }
-
-    fileName = resolvedPath;
-    return true;
-}
-
 class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
 public:
     explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
@@ -470,26 +458,26 @@ void JsRuntime::Deinitialize()
     nativeEngine_.reset();
 }
 
-NativeValue* JsRuntime::LoadJsBundle(const std::string& path)
+NativeValue* JsRuntime::LoadJsBundle(const std::string& path, const std::string& hapPath)
 {
     NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
     NativeValue* exports = nativeEngine_->CreateObject();
     globalObj->SetProperty("exports", exports);
 
-    if (!RunScript(path)) {
-        HILOG_ERROR("Failed to run script: %{public}s", path.c_str());
+    if (!RunScript(path, hapPath)) {
+        HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
 
     NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
     if (exportsObj == nullptr) {
-        HILOG_ERROR("Failed to get exports objcect: %{public}s", path.c_str());
+        HILOG_ERROR("Failed to get exports objcect: %{private}s", path.c_str());
         return nullptr;
     }
 
     NativeValue* exportObj = exportsObj->GetProperty("default");
     if (exportObj == nullptr) {
-        HILOG_ERROR("Failed to get default objcect: %{public}s", path.c_str());
+        HILOG_ERROR("Failed to get default objcect: %{private}s", path.c_str());
         return nullptr;
     }
 
@@ -497,10 +485,10 @@ NativeValue* JsRuntime::LoadJsBundle(const std::string& path)
 }
 
 std::unique_ptr<NativeReference> JsRuntime::LoadModule(
-    const std::string& moduleName, const std::string& modulePath, bool esmodule)
+    const std::string& moduleName, const std::string& modulePath, const std::string& hapPath, bool esmodule)
 {
-    HILOG_INFO("JsRuntime::LoadModule(%{public}s, %{public}s, %{public}s)", moduleName.c_str(), modulePath.c_str(),
-        esmodule ? "true" : "false");
+    HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
+        moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
 
     HandleScope handleScope(*this);
 
@@ -516,7 +504,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
             return std::unique_ptr<NativeReference>();
         }
 
-        classValue = esmodule ? LoadJsModule(fileName) : LoadJsBundle(fileName);
+        classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath);
         if (classValue == nullptr) {
             return std::unique_ptr<NativeReference>();
         }
@@ -552,12 +540,31 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     return std::unique_ptr<NativeReference>(nativeEngine_->CreateReference(instanceValue, 1));
 }
 
-bool JsRuntime::RunScript(const std::string& path)
+bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
 {
-    return nativeEngine_->RunScript(path.c_str()) != nullptr;
+    bool result = false;
+    if (!hapPath.empty()) {
+        std::ostringstream outStream;
+        if (runtimeExtractor_ == nullptr) {
+            runtimeExtractor_ = InitRuntimeExtractor(hapPath);
+        }
+        if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+            HILOG_ERROR("Get abc file failed");
+            return result;
+        }
+
+        const auto& outStr = outStream.str();
+        std::vector<uint8_t> buffer;
+        buffer.assign(outStr.begin(), outStr.end());
+
+        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
+    } else {
+        result = nativeEngine_->RunScript(srcPath.c_str()) != nullptr;
+    }
+    return result;
 }
 
-bool JsRuntime::RunSandboxScript(const std::string& path)
+bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hapPath)
 {
     std::string fileName;
     if (!MakeFilePath(codePath_, path, fileName)) {
@@ -565,7 +572,7 @@ bool JsRuntime::RunSandboxScript(const std::string& path)
         return false;
     }
 
-    if (!RunScript(fileName)) {
+    if (!RunScript(fileName, hapPath)) {
         HILOG_ERROR("Failed to run script: %{public}s", fileName.c_str());
         return false;
     }

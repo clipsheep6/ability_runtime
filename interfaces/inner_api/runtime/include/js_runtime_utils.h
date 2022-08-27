@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <sstream>
 #include <type_traits>
 
 #include "native_engine/native_engine.h"
@@ -185,6 +186,21 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
     nullptr_t, nullptr_t, NativeValue** result);
+
+void FixExtName(std::string& path);
+std::string GetInstallPath(const std::string& curJsModulePath, bool module = true);
+std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri);
+std::string FindNpmPackageInPath(const std::string& npmPath);
+std::string FindNpmPackageInTopLevel(
+    const std::string& moduleInstallPath, const std::string& npmPackage, size_t start = 0);
+std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage);
+std::string ParseOhmUri(
+    const std::string& originBundleName, const std::string& curJsModulePath, const std::string& newJsModuleUri);
+std::string ParseJsModuleUri(const std::string& curJsModulePath, const std::string& newJsModuleUri);
+bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName);
+std::string NormalizeUri(
+    const std::string& bundleName, const std::string& curJsModulePath, const std::string& newJsModuleUri);
+std::string ParseHapPath(const std::string& hapPath);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 

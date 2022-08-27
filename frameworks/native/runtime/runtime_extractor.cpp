@@ -13,16 +13,27 @@
  * limitations under the License.
  */
 
-#include "js_module_searcher.h"
+#include "runtime_extractor.h"
 
 #include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
+RuntimeExtractor::RuntimeExtractor(const std::string& source) : BaseExtractor(source)
+{}
+
+RuntimeExtractor::RuntimeExtractor(
+    const std::string& source, const std::string& hapPath) : BaseExtractor(source)
 {
-    return NormalizeUri(bundleName_, curJsModulePath, newJsModuleUri);
+    hapPath_ = hapPath;
 }
-} // namespace AbilityRuntime
-} // namespace OHOS
+
+RuntimeExtractor::~RuntimeExtractor()
+{}
+
+bool RuntimeExtractor::isSameHap(const std::string& hapPath) const
+{
+    return !hapPath_.empty() && !hapPath.empty() && hapPath_ == hapPath;
+}
+}  // namespace AbilityRuntime
+}  // namespace OHOS

@@ -69,6 +69,7 @@ private:
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> jsTestRunnerObj_;
     std::string srcPath_;
+    std::string hapPath_;
     bool isFaJsModel_ = false;
 };
 }  // namespace RunnerRuntime

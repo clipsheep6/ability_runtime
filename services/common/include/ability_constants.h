@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,19 @@
  * limitations under the License.
  */
 
-#include "js_module_searcher.h"
-
-#include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
-{
-    return NormalizeUri(bundleName_, curJsModulePath, newJsModuleUri);
-}
-} // namespace AbilityRuntime
-} // namespace OHOS
+namespace Constants {
+constexpr const char* ABS_CODE_PATH = "/data/app/el1/bundle/public";
+constexpr const char* LOCAL_CODE_PATH = "/data/storage/el1/bundle";
+constexpr const char* LOCAL_BUNDLES = "/data/bundles";
+constexpr const char* FILE_SEPARATOR = "/";
+
+constexpr const char SYSTEM_APP_PATH[] = "/system/app";
+}  // namespace Constants
+}  // namespace AbilityRuntime
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_CONSTANTS_H
