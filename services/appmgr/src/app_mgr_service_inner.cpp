@@ -499,7 +499,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return ERR_NO_INIT;
     }
 
-    auto errCode = VerifyProcessPermission(uid);
+    auto errCode = VerifyProcessPermission();
     if (errCode != ERR_OK) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return errCode;
@@ -2378,7 +2378,7 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission(int uid)
+int AppMgrServiceInner::VerifyProcessPermission()
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
@@ -2395,10 +2395,6 @@ int AppMgrServiceInner::VerifyProcessPermission(int uid)
     if (!appRecord) {
         HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
         return ERR_INVALID_OPERATION;
-    }
-
-    if (uid != DEFAULT_UID && IPCSkeleton::GetCallingUid() == uid) {
-        return ERR_OK;
     }
 
     auto applicationInfo = appRecord->GetApplicationInfo();
