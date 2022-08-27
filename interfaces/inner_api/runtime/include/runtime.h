@@ -38,6 +38,7 @@ public:
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
         bool loadAce = true;
         bool preload = false;
+        bool isBundle = true;
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
