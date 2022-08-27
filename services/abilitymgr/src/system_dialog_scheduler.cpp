@@ -51,6 +51,10 @@ const std::string EVENT_WAITING_CODE = "0";
 const std::string EVENT_CLOSE_CODE = "1";
 const std::string APP_NAME = "appName";
 const std::string DEVICE_TYPE = "deviceType";
+const std::string OFF_SET_X = "offsetX";
+const std::string OFF_SET_Y = "offsetY";
+const std::string WIDTH = "width";
+const std::string HEIGHT = "height";
 
 const int32_t UI_HALF = 2;
 const int32_t UI_DEFAULT_BUTTOM_CLIP = 100;
@@ -132,8 +136,7 @@ int32_t SystemDialogScheduler::ShowTipsDialog()
     
     DialogPosition position;
     GetDialogPositionAndSize(DialogType::DIALOG_TIPS, position);
-
-    std::string params = GetTipParams(position);std::string params = GetTipParams(position);
+    std::string params = GetTipParams(position);
 
     auto callback = [] (int32_t id, const std::string& event, const std::string& params) {
         HILOG_INFO("Dialog tips callback: id : %{public}d, event: %{public}s, params: %{public}s",
@@ -218,13 +221,6 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     }
 
     nlohmann::json jsonObject;
-    if (!position.wideScreen) {
-        auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
-        jsonObject[OFF_SET_X] = position.window_offsetX;
-        jsonObject[OFF_SET_Y] = position.window_offsetY;
-        jsonObject[WIDTH] = position.window_width;
-        jsonObject[HEIGHT] = position.window_height;
-    }
     jsonObject[DEVICE_TYPE] = deviceType_;
 
     nlohmann::json hapListObj = nlohmann::json::array();
@@ -245,6 +241,7 @@ void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &
 {
     position.wideScreen = (deviceType_ == STR_PC);
     position.align = (deviceType_ == STR_PHONE) ? DialogAlign::BOTTOM : DialogAlign::CENTER;
+    auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
 
     switch (type) {
         case DialogType::DIALOG_ANR:
@@ -308,7 +305,7 @@ void SystemDialogScheduler::DialogPositionAdaptive(DialogPosition &position, int
             position.height = UI_SELECTOR_DIALOG_PC_H0;
         }
     } else {
-        position.window_height  = (lineNums > LINE_NUMS_EIGHT) ? UI_SELECTOR_DIALOG_PHONE_H3 :
+        position.window_height = (lineNums > LINE_NUMS_EIGHT) ? UI_SELECTOR_DIALOG_PHONE_H3 :
             (lineNums > LINE_NUMS_THREE ? UI_SELECTOR_DIALOG_PHONE_H2 :
             (lineNums > LINE_NUMS_ZERO ? UI_SELECTOR_DIALOG_PHONE_H1 : position.window_height));
     }
