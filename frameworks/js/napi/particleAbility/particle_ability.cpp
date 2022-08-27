@@ -209,6 +209,12 @@ napi_value NAPI_PACancelBackgroundRunning(napi_env env, napi_callback_info info)
     return NAPI_CancelBackgroundRunningCommon(env, info);
 }
 
+napi_value NAPI_PATerminateAbility(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("%{public}s,called", __func__);
+    return NAPI_TerminateAbilityCommon(env, info);
+}
+
 /**
  * @brief ParticleAbility NAPI module registration.
  *
@@ -234,6 +240,7 @@ napi_value ParticleAbilityInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("acquireDataAbilityHelper", NAPI_PAAcquireDataAbilityHelper),
         DECLARE_NAPI_FUNCTION("startBackgroundRunning", NAPI_PAStartBackgroundRunning),
         DECLARE_NAPI_FUNCTION("cancelBackgroundRunning", NAPI_PACancelBackgroundRunning),
+        DECLARE_NAPI_FUNCTION("terminateSelf", NAPI_PATerminateAbility),
     };
     napi_define_properties(env, exports, sizeof(properties) / sizeof(properties[0]), properties);
 
