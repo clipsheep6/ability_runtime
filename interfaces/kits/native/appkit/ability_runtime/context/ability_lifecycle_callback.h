@@ -45,7 +45,7 @@ public:
      * @since 9
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
-     * @param windowStage: window stage to create.
+     * @param windowStage: Indicates the window stage to create.
      * @StageModelOnly
      */
     virtual void OnWindowStageCreate(const std::shared_ptr<NativeReference> &ability,
@@ -57,7 +57,7 @@ public:
      * @since 9
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
-     * @param windowStage: window stage to destroy.
+     * @param windowStage: Indicates the window stage to destroy.
      * @StageModelOnly
      */
     virtual void OnWindowStageDestroy(const std::shared_ptr<NativeReference> &ability,
@@ -69,7 +69,7 @@ public:
      * @since 9
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
-     * @param windowStage: window stage to active.
+     * @param windowStage: Indicates the window stage to active.
      * @StageModelOnly
      */
     virtual void OnWindowStageActive(const std::shared_ptr<NativeReference> &ability,
@@ -81,7 +81,7 @@ public:
      * @since 9
      * @syscap SystemCapability.Ability.AbilityRuntime.AbilityCore
      * @param ability: Indicates the ability to register for listening.
-     * @param windowStage: window stage to inactive.
+     * @param windowStage: Indicates the window stage to inactive.
      * @StageModelOnly
      */
     virtual void OnWindowStageInactive(const std::shared_ptr<NativeReference> &ability,
