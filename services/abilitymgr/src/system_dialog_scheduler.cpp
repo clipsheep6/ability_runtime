@@ -211,6 +211,7 @@ int32_t SystemDialogScheduler::ShowSelectorDialog(
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos,
     DialogPosition position) const
+{
     if (infos.empty()) {
         HILOG_WARN("Invalid abilityInfos.");
         return {};
