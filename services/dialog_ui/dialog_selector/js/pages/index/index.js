@@ -35,10 +35,17 @@ export default {
         pcSelectorlist: {},
         pcDisplay: 'none',
         phoneDisplay: 'none',
+        labeloffsetX: 0,
+        labeloffsetY: 0,
+        labelwidth: 320,
+        labelheight: 350,
     },
     onInit() {
         console.log("dialog service selector onInit");
-
+        this.labeloffsetX = parseInt(this.offsetX);
+        this.labeloffsetY = parseInt(this.offsetY);
+        this.labelwidth = parseInt(this.width);
+        this.labelheight = parseInt(this.height);
         if (this.deviceType === "phone") {
             this.phoneDisplay = 'flex';
             this.pcDisplay = 'none';
