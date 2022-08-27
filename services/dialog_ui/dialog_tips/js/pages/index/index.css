@@ -15,7 +15,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 20vp;
+    border-radius: 24vp;
     border-width: 1vp;
     border-color: #e9e9e9;
     background-color: #FFFFFF;
@@ -29,7 +29,7 @@
 
 .title {
     font-size: 16vp;
-    font-weight: medium;
+    font-weight: "HwChinese-medium";
     height: 29%;
     text-overflow: ellipsis;
 }
@@ -52,6 +52,6 @@
 
 .text-close {
     font-size: 16fp;
-    color: #0A59F7;
-    font-weight: regular;
+    color: #ff007dff;
+    font-weight: "sans-serif";
 }
