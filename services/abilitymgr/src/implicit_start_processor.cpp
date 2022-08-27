@@ -70,7 +70,6 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         IPCSkeleton::SetCallingIdentity(oldIdentity);
 
         AAFwk::Want targetWant = request.want;
-        targetWant.SetAction("");
         targetWant.SetElementName(bundle, abilityName);
         auto callBack = [imp, targetWant, request, userId]() -> int32_t {
             return imp->ImplicitStartAbilityInner(targetWant, request, userId);
