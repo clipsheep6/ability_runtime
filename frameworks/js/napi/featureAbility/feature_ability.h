@@ -229,19 +229,6 @@ napi_value HasWindowFocusAsync(
 napi_value HasWindowFocusPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 
 /**
- * @brief TerminateAbility processing function.
- *
- * @param env The environment that the Node-API call is invoked under.
- * @param asyncCallbackInfo Process data asynchronously.
- *
- * @return Return JS data successfully, otherwise return nullptr.
- */
-napi_value TerminateAbilityWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value TerminateAbilityAsync(
-    napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo);
-napi_value TerminateAbilityPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
-
-/**
  * @brief SetResult processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -267,7 +254,7 @@ napi_value StartAbilityForResultAsync(napi_env env, AsyncCallbackInfo *asyncCall
 napi_value StartAbilityForResultPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo);
 
 /**
- * @brief TerminateAbility processing function.
+ * @brief ContinueAbility processing function.
  *
  * @param env The environment that the Node-API call is invoked under.
  * @param asyncCallbackInfo Process data asynchronously.
