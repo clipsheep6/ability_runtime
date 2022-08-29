@@ -420,9 +420,9 @@ ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId,
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
-    std::shared_ptr<EventHandler> mainHandler = EventRunner::GetMainEventRunner();
+    std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     std::function<void()> notifyFormExtensionSizeChangedFunc = [
-        client = sptr<FormExtensionProviderClient>(shared_from_this()),formId, want, dimensionId, callerToken]() {
+        client = sptr<FormExtensionProviderClient>(shared_from_this()), formId, want, dimensionId, callerToken]() {
         client->NotifyFormExtensionSizeChanged(formId, want, dimensionId, callerToken);
     };
     if (mainHandler == nullptr)
