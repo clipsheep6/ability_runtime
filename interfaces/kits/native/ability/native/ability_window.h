@@ -47,12 +47,6 @@ public:
         bool isPrivacy);
 
     /**
-     * @brief Called when this ability is started.
-     *
-     */
-    void OnPostAbilityStart();
-
-    /**
      * @brief Called when this ability is activated.
      *
      */

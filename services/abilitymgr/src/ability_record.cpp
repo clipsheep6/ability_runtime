@@ -229,17 +229,13 @@ bool AbilityRecord::CanRestartRootLauncher()
     return true;
 }
 
-void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Start to foreground ability, name is %{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     SendEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, AbilityManagerService::FOREGROUND_TIMEOUT);
-    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (handler && task) {
-        handler->PostTask(task, "CancelStartingWindow", AbilityManagerService::FOREGROUND_TIMEOUT);
-    }
 
     // schedule active after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
@@ -266,7 +262,10 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
     HILOG_DEBUG("ability record: %{public}s", element.c_str());
 
     if (isReady_) {
-        if (IsAbilityState(AbilityState::BACKGROUND)) {
+        if (IsAbilityState(AbilityState::FOREGROUND)) {
+            HILOG_DEBUG("Activate %{public}s", element.c_str());
+            ForegroundAbility(sceneFlag);
+        } else {
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
@@ -277,9 +276,6 @@ void AbilityRecord::ProcessForegroundAbility(uint32_t sceneFlag)
                 uid, bundleName, "THAW_BY_FOREGROUND_ABILITY");
 #endif // EFFICIENCY_MANAGER_ENABLE
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
-        } else {
-            HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
         HILOG_INFO("To load ability.");
@@ -317,7 +313,10 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     HILOG_INFO("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
-        if (IsAbilityState(AbilityState::BACKGROUND)) {
+        if (IsAbilityState(AbilityState::FOREGROUND)) {
+            HILOG_DEBUG("Activate %{public}s", element.c_str());
+            ForegroundAbility(sceneFlag);
+        } else {
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
@@ -327,9 +326,6 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             CancelStartingWindowHotTask();
 
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
-        } else {
-            HILOG_DEBUG("Activate %{public}s", element.c_str());
-            ForegroundAbility(nullptr, sceneFlag);
         }
     } else {
         HILOG_INFO("SUPPORT_GRAPHICS: to load ability.");

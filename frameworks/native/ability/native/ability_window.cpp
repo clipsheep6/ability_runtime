@@ -73,24 +73,6 @@ bool AbilityWindow::InitWindow(Rosen::WindowType winType,
 }
 
 /**
- * @brief Called when this ability is started.
- *
- */
-void AbilityWindow::OnPostAbilityStart()
-{
-    if (!isWindowAttached) {
-        HILOG_ERROR("AbilityWindow::OnPostAbilityStart window not attached.");
-        return;
-    }
-
-    if (windowScene_) {
-        HILOG_DEBUG("%{public}s begin windowScene_->GoBackground.", __func__);
-        windowScene_->GoBackground();
-        HILOG_DEBUG("%{public}s end windowScene_->GoBackground.", __func__);
-    }
-}
-
-/**
  * @brief Called when this ability is activated.
  *
  */
