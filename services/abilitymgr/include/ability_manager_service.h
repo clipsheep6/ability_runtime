@@ -221,6 +221,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
      * @param userId, Designation User ID.
+     * @param extensionType, type of the extension.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ConnectAbility(
