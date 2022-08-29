@@ -525,9 +525,9 @@ public:
 
     virtual int GetRenderProcessTerminationStatus(pid_t renderPid, int &status);
 
-    int VerifyProcessPermission();
+    int VerifyProcessPermission() const;
 
-    int VerifyAccountPermission(const std::string &permissionName, const int userId);
+    int VerifyAccountPermission(const std::string &permissionName, const int userId) const;
 
     void ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp);
 
@@ -722,6 +722,8 @@ private:
     void OnRenderRemoteDied(const wptr<IRemoteObject> &remote);
 
     void AddWatchParameter();
+
+    bool VerifyAPL() const;
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 

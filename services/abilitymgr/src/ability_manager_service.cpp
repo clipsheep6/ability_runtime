@@ -2168,15 +2168,6 @@ std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRe
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
     const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_INFO("callerToken not SA %{public}s", __func__);
-        if (!VerificationAllToken(callerToken)) {
-            HILOG_INFO("VerificationAllToken fail");
-            return nullptr;
-        }
-    }
-
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, nullptr);
 
@@ -2213,7 +2204,10 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         abilityRequest.abilityInfo.name.c_str());
 
     if (CheckStaticCfgPermission(abilityRequest.abilityInfo) != AppExecFwk::Constants::PERMISSION_GRANTED) {
-        return nullptr;
+        if (!VerificationAllToken(callerToken)) {
+            HILOG_INFO("VerificationAllToken fail");
+            return nullptr;
+        }
     }
 
     if (abilityRequest.abilityInfo.applicationInfo.singleton) {
@@ -2222,7 +2216,10 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
 
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManagerByUserId(userId);
     CHECK_POINTER_AND_RETURN(dataAbilityManager, nullptr);
-    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isSaCall);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    bool isNotHap = isSaCall || isShellCall;
+    return dataAbilityManager->Acquire(abilityRequest, tryBind, callerToken, isNotHap);
 }
 
 bool AbilityManagerService::CheckDataAbilityRequest(AbilityRequest &abilityRequest)
@@ -2254,22 +2251,16 @@ int AbilityManagerService::ReleaseDataAbility(
         return ERR_INVALID_VALUE;
     }
 
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_INFO("callerToken not SA %{public}s", __func__);
-        if (!VerificationAllToken(callerToken)) {
-            HILOG_ERROR("VerificationAllToken fail");
-            return ERR_INVALID_STATE;
-        }
-    }
-
     std::shared_ptr<DataAbilityManager> dataAbilityManager = GetDataAbilityManager(dataAbilityScheduler);
     if (!dataAbilityManager) {
         HILOG_ERROR("dataAbilityScheduler is not exists");
         return ERR_INVALID_VALUE;
     }
 
-    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isSaCall);
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    bool isNotHap = isSaCall || isShellCall;
+    return dataAbilityManager->Release(dataAbilityScheduler, callerToken, isNotHap);
 }
 
 int AbilityManagerService::AttachAbilityThread(
@@ -4556,7 +4547,7 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
         // do not need check static config permission when start ability by SA
-        return ERR_OK;
+        return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
     auto tokenId = IPCSkeleton::GetCallingTokenID();

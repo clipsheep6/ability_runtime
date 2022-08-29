@@ -2378,48 +2378,51 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     return ERR_OK;
 }
 
-int AppMgrServiceInner::VerifyProcessPermission()
+int AppMgrServiceInner::VerifyProcessPermission() const
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
         return ERR_OK;
     }
 
+    if (VerifyAPL()) {
+        return ERR_OK;
+    }
+
+    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+        AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
+    return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
+}
+
+bool AppMgrServiceInner::VerifyAPL() const
+{
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is nullptr");
-        return ERR_NO_INIT;
+        return false;
     }
 
     auto callerPid = IPCSkeleton::GetCallingPid();
     auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callerPid);
     if (!appRecord) {
         HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
-        return ERR_INVALID_OPERATION;
+        return false;
     }
 
     auto applicationInfo = appRecord->GetApplicationInfo();
     if (!applicationInfo) {
         HILOG_ERROR("Get application info failed.");
-        return ERR_INVALID_OPERATION;
+        return false;
     }
 
     auto apl = applicationInfo->appPrivilegeLevel;
     if (apl != SYSTEM_BASIC && apl != SYSTEM_CORE) {
         HILOG_ERROR("caller is not system_basic or system_core.");
-        return ERR_INVALID_OPERATION;
+        return false;
     }
-
-    auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
-    if (isCallingPerm) {
-        HILOG_INFO("%{public}s: Permission verification succeeded", __func__);
-        return ERR_OK;
-    }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-    return ERR_PERMISSION_DENIED;
+    return true;
 }
 
-int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionName, const int userId)
+int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionName, const int userId) const
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
@@ -2436,12 +2439,7 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
         }
     }
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(permissionName);
-    if (isCallingPerm) {
-        HILOG_DEBUG("%{public}s: Permission verification succeeded", __func__);
-        return ERR_OK;
-    }
-    HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-    return ERR_PERMISSION_DENIED;
+    return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
 }
 
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,

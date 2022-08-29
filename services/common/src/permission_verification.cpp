@@ -26,7 +26,7 @@ namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string DMS_PROCESS_NAME = "distributedsched";
-bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName)
+bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName) const
 {
     HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
     auto callerToken = GetCallingTokenID();
@@ -39,9 +39,9 @@ bool PermissionVerification::VerifyCallingPermission(const std::string &permissi
     return true;
 }
 
-bool PermissionVerification::IsSACall()
+bool PermissionVerification::IsSACall() const
 {
-    HILOG_DEBUG("AmsMgrScheduler::IsSACall is called.");
+    HILOG_DEBUG("%{public}s: is called.", __func__);
     auto callerToken = GetCallingTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
@@ -49,6 +49,19 @@ bool PermissionVerification::IsSACall()
         return true;
     }
     HILOG_DEBUG("Not SA called.");
+    return false;
+}
+
+bool PermissionVerification::IsShellCall() const
+{
+    HILOG_DEBUG("%{public}s: is called.", __func__);
+    auto callerToken = GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+        HILOG_DEBUG("caller tokenType is shell, verify success");
+        return true;
+    }
+    HILOG_DEBUG("Not shell called.");
     return false;
 }
 
@@ -69,7 +82,7 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission()
     return true;
 }
 
-bool PermissionVerification::VerifyRunningInfoPerm()
+bool PermissionVerification::VerifyRunningInfoPerm() const
 {
     if (IsSACall()) {
         HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
@@ -83,7 +96,7 @@ bool PermissionVerification::VerifyRunningInfoPerm()
     return false;
 }
 
-bool PermissionVerification::VerifyControllerPerm()
+bool PermissionVerification::VerifyControllerPerm() const
 {
     if (IsSACall()) {
         HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
@@ -163,7 +176,7 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm()
     return ERR_PERMISSION_DENIED;
 }
 
-unsigned int PermissionVerification::GetCallingTokenID()
+unsigned int PermissionVerification::GetCallingTokenID() const
 {
     auto callerToken = IPCSkeleton::GetCallingTokenID();
     HILOG_DEBUG("callerToken : %{private}u", callerToken);

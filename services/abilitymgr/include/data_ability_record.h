@@ -39,8 +39,8 @@ public:
     sptr<IAbilityScheduler> GetScheduler();
     int Attach(const sptr<IAbilityScheduler> &scheduler);
     int OnTransitionDone(int state);
-    int AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isSaCall);
-    int RemoveClient(const sptr<IRemoteObject> &client, bool isSaCall);
+    int AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap);
+    int RemoveClient(const sptr<IRemoteObject> &client, bool isNotHap);
     int RemoveClients(const std::shared_ptr<AbilityRecord> &client = nullptr);
     size_t GetClientCount(const sptr<IRemoteObject> &client = nullptr) const;
     int KillBoundClientProcesses();
@@ -57,7 +57,7 @@ private:
     struct ClientInfo {
         IRemoteObjectPtr client;
         bool tryBind;
-        bool isSaCall;
+        bool isNotHap;
         int32_t clientPid = 0;
     };
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);

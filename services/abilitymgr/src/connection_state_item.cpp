@@ -138,20 +138,20 @@ public:
 
     bool AddCaller(const DataAbilityCaller &caller)
     {
-        if (!caller.isSaCall && !caller.callerToken) {
+        if (!caller.isNotHap && !caller.callerToken) {
             return false;
         }
 
         bool needNotify = callers_.empty();
         auto it = find_if(callers_.begin(), callers_.end(), [&caller](const std::shared_ptr<CallerInfo> &info) {
-            if (caller.isSaCall) {
-                return info && info->IsSACall() && info->GetCallerPid() == caller.callerPid;
+            if (caller.isNotHap) {
+                return info && info->isNotHap() && info->GetCallerPid() == caller.callerPid;
             } else {
                 return info && info->GetCallerToken() == caller.callerToken;
             }
         });
         if (it == callers_.end()) {
-            callers_.emplace_back(std::make_shared<CallerInfo>(caller.isSaCall, caller.callerPid, caller.callerToken));
+            callers_.emplace_back(std::make_shared<CallerInfo>(caller.isNotHap, caller.callerPid, caller.callerToken));
         }
 
         return needNotify;
@@ -159,13 +159,13 @@ public:
 
     bool RemoveCaller(const DataAbilityCaller &caller)
     {
-        if (!caller.isSaCall && !caller.callerToken) {
+        if (!caller.isNotHap && !caller.callerToken) {
             return false;
         }
 
         auto it = find_if(callers_.begin(), callers_.end(), [&caller](const std::shared_ptr<CallerInfo> &info) {
-            if (caller.isSaCall) {
-                return info && info->IsSACall() && info->GetCallerPid() == caller.callerPid;
+            if (caller.isNotHap) {
+                return info && info->isNotHap() && info->GetCallerPid() == caller.callerPid;
             } else {
                 return info && info->GetCallerToken() == caller.callerToken;
             }
@@ -190,12 +190,12 @@ public:
 private:
     class CallerInfo : public std::enable_shared_from_this<CallerInfo> {
     public:
-        CallerInfo(bool isSaCall, int32_t callerPid, const sptr<IRemoteObject> &callerToken)
-            : isSaCall_(isSaCall), callerPid_(callerPid), callerToken_(callerToken) {}
+        CallerInfo(bool isNotHap, int32_t callerPid, const sptr<IRemoteObject> &callerToken)
+            : isNotHap_(isNotHap), callerPid_(callerPid), callerToken_(callerToken) {}
 
-        bool IsSACall() const
+        bool isNotHap() const
         {
-            return isSaCall_;
+            return isNotHap_;
         }
 
         int32_t GetCallerPid() const
@@ -209,7 +209,7 @@ private:
         }
 
     private:
-        bool isSaCall_ = false;
+        bool isNotHap_ = false;
         int32_t callerPid_ = 0;
         sptr<IRemoteObject> callerToken_ = nullptr;
     };

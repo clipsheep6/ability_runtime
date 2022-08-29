@@ -44,7 +44,7 @@ DataAbilityManager::~DataAbilityManager()
 }
 
 sptr<IAbilityScheduler> DataAbilityManager::Acquire(
-    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isSaCall)
+    const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
@@ -61,7 +61,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     std::shared_ptr<AbilityRecord> clientAbilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
 
-    if (client && !isSaCall) {
+    if (client && !isNotHap) {
         clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         if (!clientAbilityRecord) {
             HILOG_ERROR("Data ability manager acquire: invalid client token.");
@@ -108,20 +108,20 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     }
 
     if (client) {
-        dataAbilityRecord->AddClient(client, tryBind, isSaCall);
+        dataAbilityRecord->AddClient(client, tryBind, isNotHap);
     }
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
     }
 
-    ReportDataAbilityAcquired(client, isSaCall, dataAbilityRecord);
+    ReportDataAbilityAcquired(client, isNotHap, dataAbilityRecord);
 
     return scheduler;
 }
 
 int DataAbilityManager::Release(
-    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isSaCall)
+    const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isNotHap)
 {
     HILOG_DEBUG("%{public}s(%{public}d)", __PRETTY_FUNCTION__, __LINE__);
 
@@ -165,13 +165,13 @@ int DataAbilityManager::Release(
         return ERR_UNKNOWN_OBJECT;
     }
 
-    dataAbilityRecord->RemoveClient(client, isSaCall);
+    dataAbilityRecord->RemoveClient(client, isNotHap);
 
     if (DEBUG_ENABLED) {
         DumpLocked(__func__, __LINE__);
     }
 
-    ReportDataAbilityReleased(client, isSaCall, dataAbilityRecord);
+    ReportDataAbilityReleased(client, isNotHap, dataAbilityRecord);
 
     return ERR_OK;
 }
@@ -673,15 +673,15 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
     }
 }
 
-void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &client, bool isSaCall,
+void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &client, bool isNotHap,
     std::shared_ptr<DataAbilityRecord> &record)
 {
     DataAbilityCaller caller;
-    caller.isSaCall = isSaCall;
+    caller.isNotHap = isNotHap;
     caller.callerPid = IPCSkeleton::GetCallingPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
-    if (client && !isSaCall) {
+    if (client && !isNotHap) {
         auto abilityRecord = Token::GetAbilityRecordByToken(client);
         if (abilityRecord) {
             caller.callerName = abilityRecord->GetAbilityInfo().bundleName;
@@ -693,11 +693,11 @@ void DataAbilityManager::ReportDataAbilityAcquired(const sptr<IRemoteObject> &cl
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddDataAbilityConnection(caller, record);
 }
 
-void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isSaCall,
+void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isNotHap,
     std::shared_ptr<DataAbilityRecord> &record)
 {
     DataAbilityCaller caller;
-    caller.isSaCall = isSaCall;
+    caller.isNotHap = isNotHap;
     caller.callerPid = IPCSkeleton::GetCallingPid();
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;

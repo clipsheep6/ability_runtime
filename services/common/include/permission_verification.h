@@ -26,15 +26,17 @@ public:
     PermissionVerification() = default;
     ~PermissionVerification() = default;
 
-    bool VerifyCallingPermission(const std::string &permissionName);
+    bool VerifyCallingPermission(const std::string &permissionName) const;
 
-    bool IsSACall();
+    bool IsSACall() const;
+
+    bool IsShellCall() const;
 
     bool CheckSpecificSystemAbilityAccessPermission();
 
-    bool VerifyRunningInfoPerm();
+    bool VerifyRunningInfoPerm() const;
 
-    bool VerifyControllerPerm();
+    bool VerifyControllerPerm() const;
 
     bool VerifyDlpPermission(Want &want);
 
@@ -48,7 +50,7 @@ public:
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
-    unsigned int GetCallingTokenID();
+    unsigned int GetCallingTokenID() const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
