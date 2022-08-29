@@ -189,7 +189,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
 FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int32_t dimensionId)
 {
-    HILOG_INFO("OnSizeChanged called.");
+    HILOG_DEBUG("OnSizeChanged called.");
     FormExtension::OnSizeChanged(formId, dimensionId);
 
     HandleScope handleScope(jsRuntime_);
@@ -212,19 +212,19 @@ FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int3
 
     FormProviderInfo formProviderInfo;
     if (nativeObject == nullptr) {
-        HILOG_ERROR("%{public}s, nativeObject is nullptr", __func__);
+        HILOG_ERROR("nativeObject is nullptr");
         return formProviderInfo;
     }
 
     NativeValue* nativeDataValue = nativeObject->GetProperty("data");
     if (nativeDataValue == nullptr) {
-        HILOG_ERROR("%{public}s, nativeObject get data is nullptr", __func__);
+        HILOG_ERROR("nativeObject get data is nullptr");
         return formProviderInfo;
     }
 
     std::string formDataStr;
     if (!ConvertFromJsValue(*nativeEngine, nativeDataValue, formDataStr)) {
-        HILOG_ERROR("%{public}s, convert formDataStr failed", __func__);
+        HILOG_ERROR("convert formDataStr failed");
         return formProviderInfo;
     }
 
@@ -239,7 +239,7 @@ FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int3
         }
     }
     formProviderInfo.SetFormData(formData);
-    HILOG_INFO("OnSizeChanged called end.");
+    HILOG_DEBUG("OnSizeChanged called end.");
     return formProviderInfo;
 }
 

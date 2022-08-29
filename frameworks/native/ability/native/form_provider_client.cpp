@@ -496,9 +496,9 @@ ErrCode FormProviderClient::HandleSizeChanged(const FormProviderInfo &formProvid
         HILOG_WARN("HandleSizeChanged warn, IFormSupply is nullptr");
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
-    formSupplyClient->OnAcquire(formProviderInfo, want);
-    HILOG_INFO("HandleSizeChanged end");
-    return ERR_OK;
+    ErrCode errCode = formSupplyClient->OnAcquire(formProviderInfo, want);
+    HILOG_DEBUG("HandleSizeChanged end");
+    return errCode;
 }
 
 int  FormProviderClient::HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken)

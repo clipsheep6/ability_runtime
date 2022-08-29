@@ -407,7 +407,7 @@ int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::st
 ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("NotifyFormSizeChanged called.");
+    HILOG_DEBUG("NotifyFormSizeChanged called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
         HILOG_ERROR("NotifyFormSizeChanged CheckParam failed");
@@ -416,13 +416,13 @@ ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId,
 
     int dimensionId = want.GetIntParam(Constants::PARAM_FORM_DIMENSION_KEY, -1);
     if (dimensionId == -1) {
-        HILOG_WARN("NotifyFormSizeChanged, the form dimension isn't valid");
+        HILOG_ERROR("NotifyFormSizeChanged, the form dimension isn't valid");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
     std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     std::function<void()> notifyFormExtensionSizeChangedFunc = [
-        client = sptr<FormExtensionProviderClient>(shared_from_this()), formId, want, dimensionId, callerToken]() {
+        client = sptr<FormExtensionProviderClient>(this), formId, want, dimensionId, callerToken]() {
         client->NotifyFormExtensionSizeChanged(formId, want, dimensionId, callerToken);
     };
     if (mainHandler == nullptr)
@@ -434,7 +434,7 @@ ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId,
 void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want,
     const int32_t dimensionId, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("NotifyFormExtensionSizeChanged called.");
+    HILOG_DEBUG("NotifyFormExtensionSizeChanged called.");
 
     Want newWant;
     newWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
@@ -450,8 +450,8 @@ void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t f
         newWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
     } else {
         formProviderInfo = ownerFormExtension->OnSizeChanged(formId, dimensionId);
-        HILOG_DEBUG("%{public}s, formId: %{public}s, data: %{public}s",
-            __func__, newWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
+        HILOG_DEBUG("formId: %{public}s, data: %{public}s",
+            newWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
             formProviderInfo.GetFormDataString().c_str());
     }
 
@@ -460,7 +460,7 @@ void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t f
         HILOG_ERROR("NotifyFormExtensionSizeChanged HandleAcquire failed");
         HandleResultCode(error, want, callerToken);
     }
-    HILOG_INFO("NotifyFormExtensionSizeChanged called end.");
+    HILOG_DEBUG("NotifyFormExtensionSizeChanged called end.");
 }
 
 void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider,

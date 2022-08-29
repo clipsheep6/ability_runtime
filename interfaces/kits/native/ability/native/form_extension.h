@@ -97,7 +97,7 @@ public:
      *
      * @return Returns the created FormProviderInfo object.
      */
-    virtual OHOS::AppExecFwk::FormProviderInfo OnSizeChanged(const int64_t formId, const int32_t dimensionId);
+    virtual AppExecFwk::FormProviderInfo OnSizeChanged(const int64_t formId, const int32_t dimensionId);
 
     /**
      * @brief Called to notify the form provider that a specified form has been destroyed. Override this method if
