@@ -15,11 +15,9 @@
 
 #include "ability_record.h"
 
-#include <regex>
 #include <singleton.h>
 #include <vector>
 
-#include "ability_constants.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
@@ -589,20 +587,8 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     const AppExecFwk::AbilityInfo &abilityInfo) const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
-    std::string loadPath;
-    if (!abilityInfo.hapPath.empty()) {
-        loadPath = abilityInfo.hapPath;
-    } else {
-        loadPath = abilityInfo.resourcePath;
-    }
-
-    if (loadPath.empty()) {
-        HILOG_ERROR("CreateResourceManager get loadPath failed");
-    } else {
-        HILOG_DEBUG("CreateResourceManager loadPath: %{public}s", loadPath.c_str());
-        if (!resourceMgr->AddResource(loadPath.c_str())) {
-            HILOG_WARN("%{public}s AddResource failed.", __func__);
-        }
+    if (!resourceMgr->AddResource(abilityInfo.resourcePath.c_str())) {
+        HILOG_WARN("%{public}s AddResource failed.", __func__);
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());

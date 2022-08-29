@@ -201,12 +201,10 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         return nullptr;
     }
 
-    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     std::vector<std::string> moduleResPaths;
     for (auto &info : bundleInfo.hapModuleInfos) {
         if (info.moduleName == moduleName) {
             moduleResPaths.emplace_back(info.resourcePath);
-            appContext->InitHapModuleInfo(info);
             break;
         }
     }
@@ -217,6 +215,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
 
     bundleInfo.moduleResPaths.swap(moduleResPaths);
+    std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
@@ -347,30 +346,28 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         return;
     }
 
-    HILOG_DEBUG("ContextImpl::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
-    std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
-    std::regex outer_pattern(ABS_CODE_PATH);
-    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        if (hapModuleInfo.resourcePath.empty() && hapModuleInfo.hapPath.empty()) {
+    HILOG_DEBUG("ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
+    std::vector<std::string> moduleResPaths;
+    std::string inner(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
+    std::string outer(ABS_CODE_PATH);
+    for (auto item : bundleInfo.moduleResPaths) {
+        if (item.empty()) {
             continue;
         }
-        std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
-
         if (currentBundle) {
-            loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+            item.replace(0, inner.size(), LOCAL_CODE_PATH);
         } else {
-            loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
+            item.replace(0, outer.size(), LOCAL_BUNDLES);
         }
-        HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+        moduleResPaths.emplace_back(item);
+    }
 
-        if (!resourceManager->AddResource(loadPath.c_str())) {
-            HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
-                loadPath.c_str());
+    for (auto moduleResPath : moduleResPaths) {
+        if (!moduleResPath.empty()) {
+            if (!resourceManager->AddResource(moduleResPath.c_str())) {
+                HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
+                    moduleResPath.c_str());
+            }
         }
     }
 

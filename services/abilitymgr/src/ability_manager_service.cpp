@@ -23,6 +23,8 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <thread>
 #include <unistd.h>
 #include <csignal>
@@ -2621,6 +2623,20 @@ void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<
     } else {
         info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
     }
+}
+
+bool AbilityManagerService::IsExistFile(const std::string &path)
+{
+    HILOG_INFO("%{public}s", __func__);
+    if (path.empty()) {
+        return false;
+    }
+    struct stat buf = {};
+    if (stat(path.c_str(), &buf) != 0) {
+        return false;
+    }
+    HILOG_INFO("%{public}s  :file exists", __func__);
+    return S_ISREG(buf.st_mode);
 }
 
 void AbilityManagerService::DataDumpStateInner(const std::string &args, std::vector<std::string> &info)
