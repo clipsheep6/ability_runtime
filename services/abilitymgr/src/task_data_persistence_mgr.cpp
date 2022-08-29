@@ -140,7 +140,7 @@ bool TaskDataPersistenceMgr::SaveMissionSnapshot(int missionId, const MissionSna
 }
 
 #ifdef SUPPORT_GRAPHICS
-sptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int missionId) const
+std::shared_ptr<Media::PixelMap> TaskDataPersistenceMgr::GetSnapshot(int missionId) const
 {
     if (!currentMissionDataStorage_) {
         HILOG_ERROR("snapshot: currentMissionDataStorage_ is nullptr");

@@ -111,8 +111,9 @@ int WindowManagerServiceHandlerStub::StartingWindowCold(MessageParcel &data, Mes
         HILOG_ERROR("To read info failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
-    sptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
-    if (!pixelMap) {
+    std::shared_ptr<Media::PixelMap> pixelMap
+        = std::shared_ptr<Media::PixelMap>(data.ReadParcelable<Media::PixelMap>());
+    if (pixelMap == nullptr) {
         HILOG_ERROR("To read pixelMap failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
@@ -129,8 +130,9 @@ int WindowManagerServiceHandlerStub::StartingWindowHot(MessageParcel &data, Mess
         HILOG_ERROR("To read info failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
-    sptr<Media::PixelMap> pixelMap(data.ReadParcelable<Media::PixelMap>());
-    if (!pixelMap) {
+    std::shared_ptr<Media::PixelMap> pixelMap
+        = std::shared_ptr<Media::PixelMap>(data.ReadParcelable<Media::PixelMap>());
+    if (pixelMap == nullptr) {
         HILOG_ERROR("To read pixelMap failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }

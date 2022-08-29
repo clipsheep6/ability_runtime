@@ -613,7 +613,7 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResource
     return resourceMgr;
 }
 
-sptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
+std::shared_ptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const
 {
     std::string iconPath;
@@ -639,7 +639,7 @@ sptr<Media::PixelMap> AbilityRecord::GetPixelMap(const uint32_t windowIconId,
         return nullptr;
     }
     HILOG_DEBUG("%{public}s OUT.", __func__);
-    return sptr<Media::PixelMap>(pixelMapPtr.release());
+    return std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
 }
 
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(

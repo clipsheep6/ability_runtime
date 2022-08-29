@@ -82,7 +82,7 @@ public:
      * @param missionId Indicates this mission id.
      * @return Returns PixelMap of snapshot.
      */
-    sptr<Media::PixelMap> GetSnapshot(int missionId) const;
+    std::shared_ptr<Media::PixelMap> GetSnapshot(int missionId) const;
 #endif
 
     /**

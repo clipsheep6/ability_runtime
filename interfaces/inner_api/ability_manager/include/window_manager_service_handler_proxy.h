@@ -32,10 +32,10 @@ public:
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken) override;
 
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap,
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap,
         uint32_t bgColor) override;
 
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap) override;
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap) override;
 
     virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken) override;
 

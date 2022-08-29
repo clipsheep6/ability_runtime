@@ -464,7 +464,7 @@ bool MissionInfoMgr::UpdateMissionSnapshot(int32_t missionId, const sptr<IRemote
 }
 
 #ifdef SUPPORT_GRAPHICS
-sptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
+std::shared_ptr<Media::PixelMap> MissionInfoMgr::GetSnapshot(int32_t missionId) const
 {
     HILOG_INFO("mission_list_info GetSnapshot, missionId:%{public}d", missionId);
     auto it = find_if(missionInfoList_.begin(), missionInfoList_.end(), [missionId](const InnerMissionInfo &info) {

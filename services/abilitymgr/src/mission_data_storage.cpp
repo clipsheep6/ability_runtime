@@ -342,14 +342,14 @@ void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId, bool isLowReso
     }
 }
 
-sptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, bool isLowResolution) const
+std::shared_ptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, bool isLowResolution) const
 {
     auto pixelMapPtr = GetPixelMap(missionId, isLowResolution);
     if (!pixelMapPtr) {
         HILOG_ERROR("%{public}s: GetPixelMap failed.", __func__);
         return nullptr;
     }
-    return sptr<Media::PixelMap>(pixelMapPtr.release());
+    return std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
 }
 
 std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, bool isLowResolution) const

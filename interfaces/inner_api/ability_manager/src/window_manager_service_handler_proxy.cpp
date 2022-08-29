@@ -73,8 +73,8 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     return ret;
 }
 
-void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap,
-    uint32_t bgColor)
+void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
+    std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor)
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     MessageParcel data;
@@ -86,7 +86,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
         HILOG_ERROR("Write info failed.");
         return;
     }
-    if (!data.WriteParcelable(pixelMap.GetRefPtr())) {
+    if (!data.WriteParcelable(pixelMap.get())) {
         HILOG_ERROR("Write pixelMap failed.");
         return;
     }
@@ -102,7 +102,8 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
     }
 }
 
-void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap)
+void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
+    std::shared_ptr<Media::PixelMap> pixelMap)
 {
     HILOG_DEBUG("%{public}s is called.", __func__);
     MessageParcel data;
@@ -114,7 +115,7 @@ void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo
         HILOG_ERROR("Write info failed.");
         return;
     }
-    if (!data.WriteParcelable(pixelMap.GetRefPtr())) {
+    if (!data.WriteParcelable(pixelMap.get())) {
         HILOG_ERROR("Write pixelMap failed.");
         return;
     }

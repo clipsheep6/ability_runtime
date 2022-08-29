@@ -35,9 +35,10 @@ public:
 
     virtual int32_t GetFocusWindow(sptr<IRemoteObject>& abilityToken) = 0;
 
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap, uint32_t bgColor) = 0;
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info,
+        std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor) = 0;
 
-    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, sptr<Media::PixelMap> pixelMap) = 0;
+    virtual void StartingWindow(sptr<AbilityTransitionInfo> info, std::shared_ptr<Media::PixelMap> pixelMap) = 0;
 
     virtual void CancelStartingWindow(sptr<IRemoteObject> abilityToken) = 0;
 
