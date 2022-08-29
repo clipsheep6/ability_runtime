@@ -345,6 +345,7 @@ int32_t AppMgrStub::HandleScheduleAcceptWantDone(MessageParcel &data, MessagePar
     auto flag = data.ReadString();
 
     ScheduleAcceptWantDone(recordId, *want, flag);
+    delete want;
     return NO_ERROR;
 }
 
