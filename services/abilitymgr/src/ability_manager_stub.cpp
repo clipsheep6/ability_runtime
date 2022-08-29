@@ -452,7 +452,8 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
         token = data.ReadRemoteObject();
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = ConnectAbility(*want, callback, token, userId);
+    AppExecFwk::ExtensionAbilityType extensionType = static_cast<AppExecFwk::ExtensionAbilityType>(data.ReadInt32());
+    int32_t result = ConnectAbility(*want, callback, token, userId, extensionType);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;

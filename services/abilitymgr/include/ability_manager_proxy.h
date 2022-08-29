@@ -187,7 +187,8 @@ public:
         const Want &want,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType  = AppExecFwk::ExtensionAbilityType::SERVICE) override;
 
     /**
      * DisconnectAbility, connect session with service ability.

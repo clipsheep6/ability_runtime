@@ -250,12 +250,20 @@ public:
      * @param want, Special want for service type's ability.
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
+     * @param extensionType, type of the extension.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectAbility(
         const Want &want,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::SERVICE);
+
+    ErrCode ConnectDataShareExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    ErrCode ConnectExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
