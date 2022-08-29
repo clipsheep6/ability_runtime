@@ -198,12 +198,9 @@ private:
         if (!options.preload) {
             bundleName_ = options.bundleName;
             runtimeExtractor_ = InitRuntimeExtractor(options.hapPath);
-            if (!options.hapPath.empty()) {
-                panda::JSNApi::SetHostResolveBufferTracker(
-                    vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
-            } else {
-                panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
-            }
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
+            panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
         }
         return JsRuntime::Initialize(options);
     }
