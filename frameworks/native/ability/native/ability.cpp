@@ -2860,25 +2860,6 @@ FormProviderInfo Ability::OnCreate(const Want &want)
     return formProviderInfo;
 }
 
-/**
- * @brief Called to return a FormProviderInfo object.
- *
- * <p>You must override this method if your ability will serve as a form provider to change the form size.
- * Only when the isResizeable is true, this way can be called.
- * The default implementation returns nullptr. </p>
- *
- * @param formId   Indicates the Id of the form want to change size.
- * @param dimensionId Indicates the dimensionId that the form want to change.
- *
- * @return Returns the created FormProviderInfo object.
- */
-FormProviderInfo Ability::OnSizeChanged(const int64_t formId, const int32_t dimensionId)
-{
-    HILOG_DEBUG("%{public}s called.", __func__);
-    FormProviderInfo formProviderInfo;
-    return formProviderInfo;
-}
-
 bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("%{public}s called.", __func__);

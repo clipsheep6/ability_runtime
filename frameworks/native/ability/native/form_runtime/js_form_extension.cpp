@@ -187,9 +187,9 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     return formProviderInfo;
 }
 
-OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int32_t dimensionId)
+FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int32_t dimensionId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("OnSizeChanged called.");
     FormExtension::OnSizeChanged(formId, dimensionId);
 
     HandleScope handleScope(jsRuntime_);
@@ -206,10 +206,11 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t 
         NAPI_AUTO_LENGTH, &napiDimensionId);
     NativeValue* nativeDimensionId = reinterpret_cast<NativeValue*>(napiDimensionId);
     NativeValue* argv[] = {nativeFormId, nativeDimensionId};
+    // the number of the params is two
     NativeValue* nativeResult = CallObjectMethod("onSizeChanged", argv, 2);
     NativeObject* nativeObject = ConvertNativeValueTo<NativeObject>(nativeResult);
 
-    OHOS::AppExecFwk::FormProviderInfo formProviderInfo;
+    FormProviderInfo formProviderInfo;
     if (nativeObject == nullptr) {
         HILOG_ERROR("%{public}s, nativeObject is nullptr", __func__);
         return formProviderInfo;
@@ -227,7 +228,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t 
         return formProviderInfo;
     }
 
-    AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
+    AppExecFwk::FormProviderData formData(formDataStr);
     nativeDataValue = nativeObject->GetProperty("image");
     if (nativeDataValue != nullptr) {
         std::map<std::string, int> rawImageDataMap;
@@ -238,7 +239,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t 
         }
     }
     formProviderInfo.SetFormData(formData);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_INFO("OnSizeChanged called end.");
     return formProviderInfo;
 }
 

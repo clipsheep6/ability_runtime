@@ -143,7 +143,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int NotifyFormSizeChanged(const int64_t formId, const Want &want,
-                                      const sptr<IRemoteObject> &callerToken) override;
+                                      const sptr<IRemoteObject> &callerToken);
 
     /**
      * @brief Acquire to share form information data. This is sync API.
@@ -175,7 +175,7 @@ public:
 protected:
     bool CheckIsSystemApp() const;
     int HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken);
-    int HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
+    ErrCode HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
                           const sptr<IRemoteObject> &callerToken);
     int HandleAcquire(const FormProviderInfo &formProviderInfo, const Want &newWant,
         const sptr<IRemoteObject> &callerToken);
