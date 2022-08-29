@@ -114,9 +114,7 @@ public:
         bool result = false;
         if (!hapPath.empty()) {
             std::ostringstream outStream;
-            if (runtimeExtractor_ == nullptr) {
-                runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-            }
+            runtimeExtractor_ = InitRuntimeExtractor(hapPath);
             if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
                 return result;
@@ -545,9 +543,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     bool result = false;
     if (!hapPath.empty()) {
         std::ostringstream outStream;
-        if (runtimeExtractor_ == nullptr) {
-            runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-        }
+        runtimeExtractor_ = InitRuntimeExtractor(hapPath);
         if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
             HILOG_ERROR("Get abc file failed");
             return result;
