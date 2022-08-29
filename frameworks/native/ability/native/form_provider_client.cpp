@@ -486,7 +486,7 @@ int FormProviderClient::HandleAcquire(
 }
 
 ErrCode FormProviderClient::HandleSizeChanged(const FormProviderInfo &formProviderInfo, const Want &want,
-                                          const sptr<IRemoteObject> &callerToken)
+    const sptr<IRemoteObject> &callerToken)
 {
     HILOG_INFO("HandleSizeChanged start, image state is %{public}d",
         formProviderInfo.GetFormData().GetImageDataState());

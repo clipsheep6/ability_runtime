@@ -421,11 +421,11 @@ ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId,
     }
 
     std::shared_ptr<EventHandler> mainHandler = EventRunner::GetMainEventRunner();
-    std::function<void()> notifyFormExtensionSizeChangedFunc = [client = sptr<FormExtensionProviderClient>(shared_from_this()),
-        formId, want, dimensionId, callerToken]() {
+    std::function<void()> notifyFormExtensionSizeChangedFunc = [
+        client = sptr<FormExtensionProviderClient>(shared_from_this()),formId, want, dimensionId, callerToken]() {
         client->NotifyFormExtensionSizeChanged(formId, want, dimensionId, callerToken);
     };
-    if(mainHandler == nullptr)
+    if (mainHandler == nullptr)
         return ERR_APPEXECFWK_FORM_GET_BMS_FAILED;
     mainHandler->PostSyncTask(notifyFormExtensionSizeChangedFunc);
     return ERR_OK;
