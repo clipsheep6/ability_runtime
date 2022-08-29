@@ -168,6 +168,13 @@ int FormProviderClient::NotifyFormsDelete(
     }
 }
 
+ErrCode FormProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want,
+    const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("NotifyFormSizeChanged called.");
+    return ERR_OK;
+}
+
 /**
  * @brief Notify provider when the form need update.
  *

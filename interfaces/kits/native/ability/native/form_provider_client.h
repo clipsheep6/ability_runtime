@@ -142,7 +142,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int NotifyFormSizeChanged(const int64_t formId, const Want &want,
+    virtual ErrCode NotifyFormSizeChanged(const int64_t formId, const Want &want,
                                       const sptr<IRemoteObject> &callerToken) override;
 
     /**
