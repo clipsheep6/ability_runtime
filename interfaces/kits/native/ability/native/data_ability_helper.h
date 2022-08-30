@@ -292,6 +292,8 @@ public:
     std::vector<std::shared_ptr<DataAbilityResult>> ExecuteBatch(
         const Uri &uri, const std::vector<std::shared_ptr<DataAbilityOperation>> &operations);
 
+    void SetCallFromJs();
+
 private:
     DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
     DataAbilityHelper(const std::shared_ptr<DataShare::DataShareHelper> &dataShareHelper);
@@ -300,6 +302,8 @@ private:
 
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_ = nullptr;
     std::shared_ptr<DataShare::DataShareHelper> dataShareHelper_ = nullptr;
+
+    bool callFromJs_ = false; // true: call from js, false: call from native
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

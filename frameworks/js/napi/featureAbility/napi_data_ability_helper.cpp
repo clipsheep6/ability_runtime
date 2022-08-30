@@ -144,6 +144,7 @@ napi_value DataAbilityHelperConstructor(napi_env env, napi_callback_info info)
         dataAbilityHelperStatus = false;
         return nullptr;
     }
+    dataAbilityHelper->SetCallFromJs();
     g_dataAbilityHelperList.emplace_back(dataAbilityHelper);
     HILOG_INFO("dataAbilityHelperList.size = %{public}zu", g_dataAbilityHelperList.size());
 
