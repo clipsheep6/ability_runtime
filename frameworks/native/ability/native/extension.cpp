@@ -69,6 +69,13 @@ void Extension::OnDisconnect(const AAFwk::Want &want)
     HILOG_INFO("OnDisconnect end, extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
+void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
+    bool &isAsyncCallback)
+{
+    isAsyncCallback = false;
+    OnDisconnect(want);
+}
+
 void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     HILOG_INFO("%{public}s begin restart=%{public}s,startId=%{public}d.",

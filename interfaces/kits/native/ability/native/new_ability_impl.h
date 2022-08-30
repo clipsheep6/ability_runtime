@@ -45,7 +45,13 @@ public:
      * @param targetState The life cycle state to switch to.
      *
      */
-    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
+    void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState) override;
+
+    /**
+     * @brief The life cycle callback of NewAbility.
+     * @param state The life cycle state to switch to.
+     */
+    void AbilityTransactionCallback(const AbilityLifeCycleState &state) override;
 
     /**
      * @brief Handling the life cycle switching of NewAbility in switch.

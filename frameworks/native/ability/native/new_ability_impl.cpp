@@ -61,9 +61,14 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     bool ret = false;
     ret = AbilityTransaction(want, targetState);
     if (ret) {
-        HILOG_INFO("Handle ability transaction done, notify ability manager service.");
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
+        AbilityTransactionCallback(targetState.state);
     }
+}
+
+void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
+{
+    HILOG_INFO("Handle ability transaction done, notify ability manager service.");
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 
 /**
@@ -86,7 +91,12 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
                 Background();
             }
 #endif
-            Stop();
+            bool isAsyncCallback = false;
+            Stop(isAsyncCallback);
+            if (isAsyncCallback) {
+                // AMS will be notified after async callback
+                ret = false;
+            }
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {

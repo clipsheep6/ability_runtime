@@ -17,6 +17,7 @@
 
 #include "ability_manager_client.h"
 #include "ability_local_record.h"
+#include "ability_transaction_callback_info.h"
 #include "hitrace_meter.h"
 #include "extension_context.h"
 #include "hilog_wrapper.h"
@@ -203,6 +204,48 @@ void ExtensionImpl::DisconnectExtension(const Want &want)
 
     extension_->OnDisconnect(want);
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (extension_ == nullptr) {
+        HILOG_ERROR("Failed to disconnect, extension_ is nullptr");
+        isAsyncCallback = false;
+        return;
+    }
+
+    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo::Create();
+    if (callbackInfo == nullptr) {
+        extension_->OnDisconnect(want);
+        isAsyncCallback = false;
+        return;
+    }
+    std::weak_ptr<ExtensionImpl> weakPtr = shared_from_this();
+    auto asyncCallback = [extensionImplWeakPtr = weakPtr]() {
+        auto extensionImpl = extensionImplWeakPtr.lock();
+        if (extensionImpl == nullptr) {
+            HILOG_ERROR("extensionImpl is nullptr.");
+            return;
+        }
+        extensionImpl->DisconnectExtensionCallback();
+    };
+    callbackInfo->Push(asyncCallback);
+
+    extension_->OnDisconnect(want, callbackInfo, isAsyncCallback);
+    if (!isAsyncCallback) {
+        AppExecFwk::AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    }
+    // else: callbackInfo will be destroyed after the async callback
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void ExtensionImpl::DisconnectExtensionCallback()
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ScheduleDisconnectAbilityDone(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ExtensionImpl::DisconnectExtensionCallback failed err = %{public}d", err);
+    }
 }
 
 /**

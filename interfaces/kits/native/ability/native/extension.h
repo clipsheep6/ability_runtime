@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "ability_transaction_callback_info.h"
 #include "iremote_object.h"
 #include "want.h"
 
@@ -92,6 +93,16 @@ public:
      *
      */
     virtual void OnDisconnect(const AAFwk::Want &want);
+
+    /**
+     * @brief Called when all abilities connected to this Service extension are disconnected.
+     *
+     * You can override this function to implement your own processing logic.
+     * @param callbackInfo Indicates the lifecycle transaction callback information
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    virtual void OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
+        bool &isAsyncCallback);
 
     /**
      * @brief Called back when Service is started.

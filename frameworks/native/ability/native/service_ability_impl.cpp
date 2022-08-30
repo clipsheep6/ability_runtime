@@ -66,9 +66,14 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
     }
 
     if (ret) {
-        HILOG_INFO("Handle service transaction done, notify ability manager service.");
-        AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
+        AbilityTransactionCallback(targetState.state);
     }
+}
+
+void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
+{
+    HILOG_INFO("Handle service transaction done, notify ability manager service.");
+    AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

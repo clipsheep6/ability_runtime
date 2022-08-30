@@ -98,6 +98,12 @@ public:
     virtual void HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState);
 
     /**
+     * @brief The life cycle callback.
+     * @param state The life cycle state to switch to.
+     */
+    virtual void AbilityTransactionCallback(const AbilityLifeCycleState &state);
+
+    /**
      * @brief Send the result code and data to be returned by this Page ability to the caller.
      * When a Page ability is destroyed, the caller overrides the AbilitySlice#onAbilityResult(int, int, Want)
      * method to receive the result set in the current method. This method can be called only after the ability has
@@ -389,6 +395,19 @@ protected:
      *
      */
     void Stop();
+
+    /**
+     * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
+     * that it belongs to of the lifecycle status.
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    void Stop(bool &isAsyncCallback);
+
+    /**
+     * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
+     * that it belongs to of the lifecycle status.
+     */
+    void StopCallback();
 
     /**
      * @brief Toggles the lifecycle status of Ability to AAFwk::ABILITY_STATE_ACTIVE. And notifies the application

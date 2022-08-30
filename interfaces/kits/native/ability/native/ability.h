@@ -25,6 +25,7 @@
 #include "ability_event_interface.h"
 #include "ability_lifecycle_executor.h"
 #include "ability_lifecycle_interface.h"
+#include "ability_transaction_callback_info.h"
 #include "appexecfwk_errors.h"
 #include "configuration.h"
 #include "context.h"
@@ -197,6 +198,22 @@ public:
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop();
+
+    /**
+     * @brief Called when this ability enters the <b>STATE_STOP</b> state.
+     *
+     * The ability in the <b>STATE_STOP</b> is being destroyed.
+     * You can override this function to implement your own processing logic.
+     *
+     * @param callbackInfo Indicates the lifecycle transaction callback information
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    virtual void OnStop(AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback);
+
+    /**
+     * @brief The callback of OnStop.
+     */
+    virtual void OnStopCallback();
 
     /**
      * @brief Called when this ability enters the <b>STATE_ACTIVE</b> state.

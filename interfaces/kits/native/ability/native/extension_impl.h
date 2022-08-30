@@ -92,6 +92,19 @@ public:
     void DisconnectExtension(const Want &want);
 
     /**
+     * @brief Disconnects the connected object.
+     *
+     * @param want The Want object to disconnect to.
+     * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     */
+    void DisconnectExtension(const Want &want, bool &isAsyncCallback);
+
+    /**
+     * @brief The callback of disconnect.
+     */
+    void DisconnectExtensionCallback();
+
+    /**
      * @brief Command the Extension. and Calling information back to Extension.
      *
      * @param want The Want object to command to.

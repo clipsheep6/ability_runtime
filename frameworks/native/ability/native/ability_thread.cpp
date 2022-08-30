@@ -583,10 +583,11 @@ void AbilityThread::HandleDisconnectExtension(const Want &want)
         HILOG_ERROR("AbilityThread::HandleDisconnectExtension extensionImpl_ == nullptr");
         return;
     }
-    extensionImpl_->DisconnectExtension(want);
-    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleDisconnectAbilityDone(token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("AbilityThread:: HandleDisconnectExtension failed err = %{public}d", err);
+
+    bool isAsyncCallback = false;
+    extensionImpl_->DisconnectExtension(want, isAsyncCallback);
+    if (!isAsyncCallback) {
+        extensionImpl_->DisconnectExtensionCallback();
     }
     HILOG_DEBUG("AbilityThread::HandleDisconnectExtension end");
 }

@@ -46,6 +46,8 @@ public:
 
     void OnStart(const Want &want) override;
     void OnStop() override;
+    void OnStop(AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback) override;
+    void OnStopCallback() override;
     int32_t OnContinue(WantParams &wantParams) override;
     void OnConfigurationUpdated(const Configuration &configuration) override;
     void UpdateContextConfiguration() override;
@@ -88,7 +90,10 @@ private:
 #endif
 
 private:
-    void CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0);
+    NativeValue *CallObjectMethod(const char *name, NativeValue *const *argv = nullptr, size_t argc = 0,
+        bool withResult = false);
+    bool CheckPromise(NativeValue* result);
+    bool CallPromise(NativeValue* result, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo);
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
 

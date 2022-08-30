@@ -35,6 +35,22 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
 
+namespace {
+NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
+{
+    if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
+        HILOG_ERROR("Invalid input info.");
+        return nullptr;
+    }
+    void *data = info->functionInfo->data;
+    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo *>(data);
+    callbackInfo->Call();
+    AppExecFwk::AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    info->functionInfo->data = nullptr;
+    return nullptr;
+}
+}
+
 using namespace OHOS::AppExecFwk;
 
 NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, void *)
@@ -213,31 +229,32 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnDisconnect(want);
-    HILOG_INFO("%{public}s begin.", __func__);
-    HandleScope handleScope(jsRuntime_);
-    NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
-    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
-    NativeValue* nativeWant = reinterpret_cast<NativeValue*>(napiWant);
-    NativeValue* argv[] = {nativeWant};
-    if (!jsObj_) {
-        HILOG_WARN("Not found ServiceExtension.js");
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    CallOnDisconnect(want, false);
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void JsServiceExtension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
+    bool &isAsyncCallback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    Extension::OnDisconnect(want);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    NativeValue *result = CallOnDisconnect(want, true);
+    bool isPromise = CheckPromise(result);
+    if (!isPromise) {
+        isAsyncCallback = false;
         return;
+    }
+    bool callResult = CallPromise(result, callbackInfo);
+    if (!callResult) {
+        HILOG_ERROR("Failed to call promise.");
+        isAsyncCallback = false;
+    } else {
+        isAsyncCallback = true;
     }
 
-    NativeValue* value = jsObj_->Get();
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
-    if (obj == nullptr) {
-        HILOG_ERROR("Failed to get ServiceExtension object");
-        return;
-    }
-
-    NativeValue* method = obj->GetProperty("onDisconnect");
-    if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from ServiceExtension object");
-        return;
-    }
-    nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
@@ -308,6 +325,77 @@ void JsServiceExtension::GetSrcPath(std::string &srcPath)
         srcPath.erase(srcPath.rfind('.'));
         srcPath.append(".abc");
     }
+}
+
+NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool withResult)
+{
+    HandleScope handleScope(jsRuntime_);
+    NativeEngine *nativeEngine = &jsRuntime_.GetNativeEngine();
+    napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
+    NativeValue *nativeWant = reinterpret_cast<NativeValue *>(napiWant);
+    NativeValue *argv[] = { nativeWant };
+    if (!jsObj_) {
+        HILOG_WARN("Not found ServiceExtension.js");
+        return nullptr;
+    }
+
+    NativeValue *value = jsObj_->Get();
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
+    if (obj == nullptr) {
+        HILOG_ERROR("Failed to get ServiceExtension object");
+        return nullptr;
+    }
+
+    NativeValue *method = obj->GetProperty("onDisconnect");
+    if (method == nullptr) {
+        HILOG_ERROR("Failed to get onDisconnect from ServiceExtension object");
+        return nullptr;
+    }
+
+    if (withResult) {
+        return handleScope.Escape(nativeEngine->CallFunction(value, method, argv, ARGC_ONE));
+    } else {
+        nativeEngine->CallFunction(value, method, argv, ARGC_ONE);
+        return nullptr;
+    }
+}
+
+bool JsServiceExtension::CheckPromise(NativeValue *result)
+{
+    if (result == nullptr) {
+        HILOG_DEBUG("result is null, no need to call promise.");
+        return false;
+    }
+    if (!result->IsPromise()) {
+        HILOG_DEBUG("result is not promise, no need to call promise.");
+        return false;
+    }
+    return true;
+}
+
+bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo)
+{
+    auto *retObj = ConvertNativeValueTo<NativeObject>(result);
+    if (retObj == nullptr) {
+        HILOG_ERROR("Failed to convert native value to NativeObject.");
+        return false;
+    }
+    NativeValue *then = retObj->GetProperty("then");
+    if (then == nullptr) {
+        HILOG_ERROR("Failed to get property: then.");
+        return false;
+    }
+    if (!then->IsCallable()) {
+        HILOG_ERROR("property then is not callable.");
+        return false;
+    }
+    HandleScope handleScope(jsRuntime_);
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
+    auto promiseCallback = nativeEngine.CreateFunction("promiseCallback", strlen("promiseCallback"), PromiseCallback,
+        callbackInfo);
+    NativeValue *argv[1] = { promiseCallback };
+    nativeEngine.CallFunction(result, then, argv, 1);
+    return true;
 }
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)

@@ -321,6 +321,16 @@ void Ability::OnStop()
     HILOG_DEBUG("%{public}s end", __func__);
 }
 
+void Ability::OnStop(AbilityTransactionCallbackInfo *callbackInfo, bool &isAsyncCallback)
+{
+    isAsyncCallback = false;
+    OnStop();
+}
+
+void Ability::OnStopCallback()
+{
+}
+
 void Ability::DestroyInstance()
 {
     HILOG_DEBUG("%{public}s begin", __func__);

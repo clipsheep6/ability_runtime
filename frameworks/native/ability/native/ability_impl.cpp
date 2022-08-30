@@ -16,6 +16,7 @@
 #include "ability_impl.h"
 
 #include "ability_runtime/js_ability.h"
+#include "ability_transaction_callback_info.h"
 #include "data_ability_predicates.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -103,6 +104,53 @@ void AbilityImpl::Stop()
     }
 
     ability_->OnStop();
+    StopCallback();
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void AbilityImpl::Stop(bool &isAsyncCallback)
+{
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        isAsyncCallback = false;
+        return;
+    }
+
+    auto *callbackInfo = AbilityTransactionCallbackInfo::Create();
+    if (callbackInfo == nullptr) {
+        ability_->OnStop();
+        StopCallback();
+        isAsyncCallback = false;
+        return;
+    }
+    std::weak_ptr<AbilityImpl> weakPtr = shared_from_this();
+    auto asyncCallback = [abilityImplWeakPtr = weakPtr, state = ABILITY_STATE_INITIAL]() {
+        auto abilityImpl = abilityImplWeakPtr.lock();
+        if (abilityImpl == nullptr) {
+            HILOG_ERROR("abilityImpl is nullptr.");
+            return;
+        }
+        abilityImpl->StopCallback();
+        abilityImpl->AbilityTransactionCallback(state);
+    };
+    callbackInfo->Push(asyncCallback);
+
+    ability_->OnStop(callbackInfo, isAsyncCallback);
+    if (!isAsyncCallback) {
+        StopCallback();
+        AbilityTransactionCallbackInfo::Destroy(callbackInfo);
+    }
+    // else: callbackInfo will be destroyed after the async callback
+    HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+void AbilityImpl::StopCallback()
+{
+    if (ability_ == nullptr || ability_->GetAbilityInfo() == nullptr || abilityLifecycleCallbacks_ == nullptr) {
+        HILOG_ERROR("AbilityImpl::Stop ability_ or abilityLifecycleCallbacks_ is nullptr");
+        return;
+    }
 #ifdef SUPPORT_GRAPHICS
     if ((ability_->GetAbilityInfo()->type == AppExecFwk::AbilityType::PAGE) &&
         (ability_->GetAbilityInfo()->isStageBasedModel)) {
@@ -116,7 +164,6 @@ void AbilityImpl::Stop()
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
     ability_->DestroyInstance(); // Release window and ability.
     ability_ = nullptr;
-    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void AbilityImpl::Active()
@@ -190,6 +237,9 @@ void AbilityImpl::DispatchRestoreAbilityState(const PacMap &inState)
 }
 
 void AbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
+{}
+
+void AbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
 {}
 
 sptr<IRemoteObject> AbilityImpl::ConnectAbility(const Want &want)
