@@ -195,12 +195,12 @@ FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int3
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
 
-    // wrap formId
-    napi_value napiFormId = nullptr;
+    // formId
+    napi_value napiFormIdValue = nullptr;
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(formId).c_str(),
-        NAPI_AUTO_LENGTH, &napiFormId);
-    NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormId);
-    // wrap dimensionId
+        NAPI_AUTO_LENGTH, &napiFormIdValue);
+    NativeValue* nativeFormId = reinterpret_cast<NativeValue*>(napiFormIdValue);
+    // dimensionId
     napi_value napiDimensionId = nullptr;
     napi_create_string_utf8(reinterpret_cast<napi_env>(nativeEngine), std::to_string(dimensionId).c_str(),
         NAPI_AUTO_LENGTH, &napiDimensionId);
@@ -231,10 +231,10 @@ FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int3
     AppExecFwk::FormProviderData formData(formDataStr);
     nativeDataValue = nativeObject->GetProperty("image");
     if (nativeDataValue != nullptr) {
-        std::map<std::string, int> rawImageDataMap;
-        UnwrapRawImageDataMap(*nativeEngine, nativeDataValue, rawImageDataMap);
-        HILOG_INFO("Image number is %{public}zu", rawImageDataMap.size());
-        for (auto entry : rawImageDataMap) {
+        std::map<std::string, int> rawImageDataMaps;
+        UnwrapRawImageDataMap(*nativeEngine, nativeDataValue, rawImageDataMaps);
+        HILOG_INFO("Image number is %{public}zu", rawImageDataMaps.size());
+        for (auto entry : rawImageDataMaps) {
             formData.AddImageData(entry.first, entry.second);
         }
     }
