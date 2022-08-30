@@ -221,13 +221,15 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @param callerToken, caller ability token.
      * @param userId, Designation User ID.
+     * @param extensionType, type of the extension.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ConnectAbility(
         const Want &want,
         const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::SERVICE) override;
 
     /**
      * ContinueMission, continue ability from mission center.
@@ -898,7 +900,8 @@ private:
         const Want &want,
         const int32_t userId,
         const sptr<IAbilityConnection> &connect,
-        const sptr<IRemoteObject> &callerToken);
+        const sptr<IRemoteObject> &callerToken,
+        AppExecFwk::ExtensionAbilityType extensionType);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
     int ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
