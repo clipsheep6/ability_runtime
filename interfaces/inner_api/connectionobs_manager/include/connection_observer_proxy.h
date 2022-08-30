@@ -18,8 +18,8 @@
 
 #include <string>
 
-#include "iremote_proxy.h"
 #include "iconnection_observer.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -32,13 +32,13 @@ public:
 
     virtual ~ConnectionObserverProxy() = default;
 
-    virtual void OnExtensionConnected(const ConnectionData& data) override;
+    virtual void OnExtensionConnected(const ConnectionData &data) override;
 
-    virtual void OnExtensionDisconnected(const ConnectionData& data) override;
+    virtual void OnExtensionDisconnected(const ConnectionData &data) override;
 
-    virtual void OnDlpAbilityOpened(const DlpStateData& data) override;
+    virtual void OnDlpAbilityOpened(const DlpStateData &data) override;
 
-    virtual void OnDlpAbilityClosed(const DlpStateData& data) override;
+    virtual void OnDlpAbilityClosed(const DlpStateData &data) override;
 
 private:
     static inline BrokerDelegator<ConnectionObserverProxy> delegator_;

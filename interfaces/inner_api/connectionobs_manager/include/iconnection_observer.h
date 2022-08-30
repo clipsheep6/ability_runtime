@@ -16,9 +16,9 @@
 #ifndef OHOS_ABILITYRUNTIME_ICONNECTION_OBSERVER_H
 #define OHOS_ABILITYRUNTIME_ICONNECTION_OBSERVER_H
 
-#include "iremote_broker.h"
 #include "connection_data.h"
 #include "dlp_state_data.h"
+#include "iremote_broker.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

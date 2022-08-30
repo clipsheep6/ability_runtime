@@ -18,8 +18,8 @@
 
 #include <vector>
 
-#include "iremote_stub.h"
 #include "iconnection_observer.h"
+#include "iremote_stub.h"
 #include "nocopyable.h"
 
 namespace OHOS {

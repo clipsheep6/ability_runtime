@@ -16,8 +16,8 @@
 #ifndef OHOS_ABILITYRUNTIME_CONNECTION_OBSERVER_STUB_IMPL_H
 #define OHOS_ABILITYRUNTIME_CONNECTION_OBSERVER_STUB_IMPL_H
 
-#include "connection_observer_stub.h"
 #include "connection_observer_client_impl.h"
+#include "connection_observer_stub.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

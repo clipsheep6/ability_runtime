@@ -211,7 +211,10 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     auto serviceMapIter = serviceMap_.find(element.GetURI());
     if (serviceMapIter == serviceMap_.end()) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        targetService->SetOwnerMissionUserId(userId_);
+        if (targetService) {
+            targetService->SetOwnerMissionUserId(userId_);
+        }
+
         if (isCreatedByConnect && targetService != nullptr) {
             targetService->SetCreateByConnectMode();
         }

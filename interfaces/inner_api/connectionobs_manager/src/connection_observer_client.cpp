@@ -15,8 +15,8 @@
 
 #include "connection_observer_client.h"
 
-#include "connection_observer_errors.h"
 #include "connection_observer_client_impl.h"
+#include "connection_observer_errors.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

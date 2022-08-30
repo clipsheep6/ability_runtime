@@ -112,7 +112,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
                    connectReceiver.GetAbilityName() == obj.first.connectReceiver.GetAbilityName();
         });
     if (item != abilityConnections_.end()) {
-        HILOG_DEBUG("%{public}s begin remove callback, Size:%{public}d.", __func__, (int32_t)item->second.size());
+        HILOG_DEBUG("%{public}s begin remove callback, Size:%{public}zu.", __func__, item->second.size());
         auto iter = item->second.begin();
         while (iter != item->second.end()) {
             if (*iter == connectCallback) {

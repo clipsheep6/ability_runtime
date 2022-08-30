@@ -25,7 +25,7 @@ struct ConnectionData : public Parcelable {
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
-     * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
+     * @param parcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      * @return Returns true if read successed; returns false otherwise.
      */
     bool ReadFromParcel(Parcel &parcel);
@@ -33,14 +33,14 @@ struct ConnectionData : public Parcelable {
     /**
      * @brief Marshals this Sequenceable object into a Parcel.
      *
-     * @param outParcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
+     * @param parcel Indicates the Parcel object to which the Sequenceable object will be marshaled.
      */
     virtual bool Marshalling(Parcel &parcel) const override;
 
     /**
      * @brief Unmarshals this Sequenceable object from a Parcel.
      *
-     * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
+     * @param parcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      */
     static ConnectionData *Unmarshalling(Parcel &parcel);
 
