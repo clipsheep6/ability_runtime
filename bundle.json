@@ -205,8 +205,17 @@
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
               ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:data_ability_helper"
           },
-          "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:data_ability_helper"
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/appkit/ability_runtime/",
+              "header_files": [
+                "extension_context.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context"
           }
         ],
         "test": [
