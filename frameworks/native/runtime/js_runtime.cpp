@@ -178,6 +178,8 @@ private:
             pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
             pandaOption.SetLogBufPrint(PrintVmLog);
+            pandaOption.SetIsBundle(options.isBundle);
+            pandaOption.SetBundleName(options.bundleName);
             // Fix a problem that if vm will crash if preloaded
             if (options.preload) {
                 pandaOption.SetEnableAsmInterpreter(false);
