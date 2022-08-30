@@ -268,6 +268,11 @@ enum {
      * Result(2097201) for window mode.
      */
     ERR_AAFWK_INVALID_WINDOW_MODE,
+
+    /**
+     * Result(2097201) for fa mode not support sandbox.
+     */
+    ERR_FA_MODE_NOT_SUPPORT_SANDBOX,
 };
 
 enum {
