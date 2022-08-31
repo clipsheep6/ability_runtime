@@ -17,6 +17,7 @@
 
 #include <new>
 #include <regex>
+#include <securec.h>
 #include <unistd.h>
 
 #include "ability_constants.h"
@@ -50,6 +51,7 @@
 #include "task_handler_client.h"
 #include "faultloggerd_client.h"
 #include "dfx_dump_catcher.h"
+#include "dfx_dump_res.h"
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
@@ -68,8 +70,12 @@ namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t UNSPECIFIED_USERID = -2;
+constexpr int SIGDUMP = 35;
 constexpr int SIGNAL_JS_HEAP = 39;
 constexpr int SIGNAL_JS_HEAP_PRIV = 40;
+constexpr int NATIVE_DUMP = -1000;
+constexpr int MIX_DUMP = -2000;
+constexpr int FRAME_BUF_LEN = 1024;
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_VERSION[] = "VERSION";
@@ -94,6 +100,9 @@ constexpr char EXTENSION_PARAMS_NAME[] = "name";
     const std::string acelibdir("/system/lib/libace.z.so");
 #endif
 #endif
+
+typedef void (*DumpSignalHandlerFunc) (int sig, siginfo_t *si, void *context);
+static DumpSignalHandlerFunc dumpSignalHandlerFunc_ = nullptr;
 
 /**
  *
@@ -1636,12 +1645,162 @@ void MainThread::HandleSignal(int signal)
     }
 }
 
+void MainThread::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
+{
+    switch (si->si_code) {
+        case NATIVE_DUMP: {
+            if (dumpSignalHandlerFunc_ != nullptr) {
+                dumpSignalHandlerFunc_(sig, si, context);
+            }
+            break;
+        }
+        case MIX_DUMP: {
+            dfxHandler_->PostTask(&MainThread::HandleMixDumpRequest);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 void MainThread::HandleDumpHeap(bool isPrivate)
 {
     HILOG_DEBUG("Dump heap start.");
     if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
         HILOG_DEBUG("Send dump heap to ark start.");
         applicationForAnr_->GetRuntime()->DumpHeapSnapshot(isPrivate);
+    }
+}
+
+static std::string PrintJsFrame(JsFrames& jsFrame)
+{
+    return "  at " + jsFrame.functionName + " (" + jsFrame.fileName + ":" + jsFrame.pos + ")\n";
+}
+
+static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> frame)
+{
+    char buf[FRAME_BUF_LEN] = {0};
+
+    std::string mapName = frame->GetFrameMapName();
+    if (mapName.empty()) {
+        mapName = "Unknown";
+    }
+
+#ifdef __LP64__
+    char frameFormatWithMapName[] = "#%02zu pc %016" PRIx64 "(%16" PRIx64 ") %s\n";
+    char frameFormatWithFuncName[] = "#%02zu pc %016" PRIx64 "(%16" PRIx64 ") %s(%s+%" PRIu64 ")\n";
+#else
+    char frameFormatWithMapName[] = "#%02zu pc %08" PRIx64 "(%08" PRIx64 ") %s\n";
+    char frameFormatWithFuncName[] = "#%02zu pc %08" PRIx64 "(%08" PRIx64 ") %s(%s+%" PRIu64 ")\n";
+#endif
+
+    if (frame->GetFrameFuncName().empty()) {
+        int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithMapName, \
+            frame->GetFrameIndex(), frame->GetFrameRelativePc(), frame->GetFramePc(), mapName.c_str());
+        if (ret <= 0) {
+            HILOG_ERROR("MainThread:snprintf_s failed.");
+        }
+        return std::string(buf);
+    }
+
+    int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithFuncName, \
+        frame->GetFrameIndex(), frame->GetFrameRelativePc(), frame->GetFramePc(), \
+        mapName.c_str(), frame->GetFrameFuncName().c_str(), frame->GetFrameFuncOffset());
+    if (ret <= 0) {
+        HILOG_ERROR("MainThread:snprintf_s failed.");
+    }
+    return std::string(buf);
+}
+
+static bool IsJsNativePcEqual(uintptr_t *jsNativePointer, uint64_t nativePc, uint64_t nativeOffset)
+{
+    uint64_t jsPc_ = (uint64_t)jsNativePointer;
+    if (nativePc - nativeOffset == jsPc_) {
+        return true;
+    }
+    return false;
+}
+
+static void BuildJsNativeMixStack(std::vector<JsFrames>& jsFrames,
+    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames, std::string& mixStackStr)
+{
+    uint32_t jsIdx = 0;
+    uint32_t nativeIdx = 0;
+    while (jsIdx < jsFrames.size() && jsFrames[jsIdx].nativePointer == nullptr) {
+        HILOG_ERROR("JsNativeStackBuilder :: skip unuseful js frames.");
+        jsIdx++;
+    }
+    while (jsIdx < jsFrames.size() && nativeIdx < nativeFrames.size()) {
+        if (jsFrames[jsIdx].nativePointer == nullptr) {
+            mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
+            jsIdx++;
+            continue;
+        }
+        if (IsJsNativePcEqual(jsFrames[jsIdx].nativePointer, nativeFrames[nativeIdx]->GetFramePc(),
+            nativeFrames[nativeIdx]->GetFrameFuncOffset())) {
+            mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+            mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
+            nativeIdx++;
+            jsIdx++;
+        } else {
+            mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+            nativeIdx++;
+        }
+    }
+    while (nativeIdx < nativeFrames.size()) {
+        mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
+        nativeIdx++;
+    }
+}
+
+void MainThread::HandleMixDumpRequest()
+{
+    int fd = -1;
+    int resFd = -1;
+    int dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_ESUCCESS;
+    do {
+        if ((fd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF)) < 0) {
+            HILOG_ERROR("MainThread::HandleMixDumpRequest request pipe write descriptor failed(%{public}d)", fd);
+            dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_EGETFD;
+            break;
+        }
+        if ((resFd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES)) < 0) {
+            HILOG_ERROR("MainThread::HandleMixDumpRequest request pipe res descriptor failed(%{public}d)", resFd);
+            dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_EGETFD;
+            break;
+        }
+        std::vector<JsFrames> jsFrames;
+        if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
+            applicationForAnr_->GetRuntime()->BuildJsStackInfoList(getpid(), jsFrames);
+        }
+        OHOS::HiviewDFX::DfxDumpCatcher dumplog;
+        std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
+        std::string nativeFrameStr;
+        if (dumplog.DumpCatchFrame(getpid(), getpid(), nativeFrameStr, nativeFrames) == false) {
+            HILOG_ERROR("MainThread::HandleMixDumpRequest get process stack info failed");
+        }
+        std::string jsnativeFrameStr = "JS Native Mix-StackTrace:\n";
+        BuildJsNativeMixStack(jsFrames, nativeFrames, jsnativeFrameStr);
+        if (jsnativeFrameStr.empty()) {
+            dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_ENOINFO;
+            break;
+        }
+        if (write(fd, jsnativeFrameStr.c_str(), jsnativeFrameStr.size()) != (ssize_t)jsnativeFrameStr.size()) {
+            HILOG_ERROR("MainThread::HandleMixDumpRequest write js native mix stack failed");
+        }
+    } while (false);
+    OHOS::HiviewDFX::DumpResMsg dumpResMsg;
+    dumpResMsg.res = dumpRes;
+    const char* strRes = OHOS::HiviewDFX::DfxDumpRes::GetInstance().GetResStr(dumpRes);
+    if (strncpy_s(dumpResMsg.strRes, sizeof(dumpResMsg.strRes), strRes, sizeof(dumpResMsg.strRes) - 1) != 0) {
+        HILOG_ERROR("MainThread::HandleMixDumpRequest strncpy_s failed.");
+    }
+    if (resFd != -1) {
+        write(resFd, &dumpResMsg, sizeof(struct OHOS::HiviewDFX::DumpResMsg));
+        close(resFd);
+    }
+    if (fd != -1) {
+        close(fd);
     }
 }
 
@@ -1668,6 +1827,20 @@ void MainThread::HandleScheduleANRProcess()
     }
     if (write(rFD, proStackInfo.c_str(), proStackInfo.size()) != (ssize_t)proStackInfo.size()) {
         HILOG_ERROR("MainThread::HandleScheduleANRProcess write process stack info failed");
+    }
+    std::vector<JsFrames> jsFrames;
+    if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
+        applicationForAnr_->GetRuntime()->BuildJsStackInfoList(getpid(), jsFrames);
+    }
+    std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
+    std::string nativeFrameStr;
+    if (dumplog.DumpCatchFrame(getpid(), getpid(), nativeFrameStr, nativeFrames) == false) {
+        HILOG_ERROR("MainThread::HandleScheduleANRProcess get process stack info failed");
+    }
+    std::string jsnativeFrameStr = "\nJS Native Mix-StackTrace:\n";
+    BuildJsNativeMixStack(jsFrames, nativeFrames, jsnativeFrameStr);
+    if (write(rFD, jsnativeFrameStr.c_str(), jsnativeFrameStr.size()) != (ssize_t)jsnativeFrameStr.size()) {
+        HILOG_ERROR("MainThread::HandleScheduleANRProcess write js native mix stack failed");
     }
     if (rFD != -1) {
         close(rFD);
@@ -1701,6 +1874,18 @@ void MainThread::Start()
     sigaction(SIGUSR1, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
+
+    struct sigaction newDumpAction;
+    struct sigaction oldDumpAction;
+    (void)memset_s(&newDumpAction, sizeof(newDumpAction), 0, sizeof(newDumpAction));
+    (void)memset_s(&oldDumpAction, sizeof(oldDumpAction), 0, sizeof(oldDumpAction));
+    sigfillset(&newDumpAction.sa_mask);
+    newDumpAction.sa_sigaction = Dump_SignalHandler;
+    newDumpAction.sa_flags = SA_RESTART | SA_SIGINFO | SA_ONSTACK;
+    sigaction(SIGDUMP, &newDumpAction, &oldDumpAction);
+    if (oldDumpAction.sa_sigaction != nullptr) {
+        dumpSignalHandlerFunc_ = oldDumpAction.sa_sigaction;
+    }
 
     thread->Init(runner, runnerWatchDog);
 

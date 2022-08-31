@@ -594,6 +594,20 @@ std::string JsRuntime::BuildJsStackTrace()
     return straceStr;
 }
 
+void JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
+{
+    std::vector<JsFrameInfo> jsFrameInfo;
+    nativeEngine_->BuildJsStackInfoList(tid, jsFrameInfo);
+    for (auto jf : jsFrameInfo) {
+        struct JsFrames jsFrame;
+        jsFrame.functionName = jf.functionName;
+        jsFrame.fileName = jf.fileName;
+        jsFrame.pos = jf.pos;
+        jsFrame.nativePointer = jf.nativePointer;
+        jsFrames.emplace_back(jsFrame);
+    }
+}
+
 void JsRuntime::NotifyApplicationState(bool isBackground)
 {
     if (nativeEngine_ == nullptr) {
