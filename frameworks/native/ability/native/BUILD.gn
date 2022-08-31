@@ -312,7 +312,6 @@ ohos_shared_library("data_ability_helper") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
-    "utils_base:utils",
   ]
 
   subsystem_name = "ability"
