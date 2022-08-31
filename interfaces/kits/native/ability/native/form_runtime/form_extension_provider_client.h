@@ -125,7 +125,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode NotifyFormSizeChanged(const int64_t formId, const Want &want,
+    ErrCode NotifyFormSizeChanged(int64_t formId, const Want &want,
         const sptr<IRemoteObject> &callerToken) override;
     
     /**
@@ -175,7 +175,7 @@ private:
         const sptr<IRemoteObject> &callerToken);
     void NotifyFormExtensionAcquireState(const Want &wantArg, const std::string &provider, const Want &want,
         const sptr<IRemoteObject> &callerToken);
-    void NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want, const int32_t dimensionId,
+    void NotifyFormExtensionSizeChanged(int64_t formId, const Want &want, int32_t dimensionId,
         const sptr<IRemoteObject> &callerToken);
     bool AcquireFormExtensionProviderShareFormInfo(int64_t formId, AAFwk::WantParams &wantParams);
 

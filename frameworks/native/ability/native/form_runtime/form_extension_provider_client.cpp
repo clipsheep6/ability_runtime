@@ -404,7 +404,7 @@ int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::st
     return ERR_OK;
 }
 
-ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId, const Want &want,
+ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("NotifyFormSizeChanged called.");
@@ -431,8 +431,8 @@ ErrCode FormExtensionProviderClient::NotifyFormSizeChanged(const int64_t formId,
     return ERR_OK;
 }
 
-void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(const int64_t formId, const Want &want,
-    const int32_t dimensionId, const sptr<IRemoteObject> &callerToken)
+void FormExtensionProviderClient::NotifyFormExtensionSizeChanged(int64_t formId, const Want &want,
+    int32_t dimensionId, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("NotifyFormExtensionSizeChanged called.");
 

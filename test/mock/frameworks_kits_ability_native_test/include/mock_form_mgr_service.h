@@ -236,7 +236,7 @@ public:
      * @param callerToken Caller ability token.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int NotifyFormSizeChanged(const int64_t formId, const int32_t dimensionNum, const sptr<IRemoteObject> &callerToken)
+    int NotifyFormSizeChanged(int64_t formId, int32_t dimensionNum, const sptr<IRemoteObject> &callerToken)
     {
         return ERR_OK;
     }

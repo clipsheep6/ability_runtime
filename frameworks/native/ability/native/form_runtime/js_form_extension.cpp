@@ -187,7 +187,7 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     return formProviderInfo;
 }
 
-FormProviderInfo JsFormExtension::OnSizeChanged(const int64_t formId, const int32_t dimensionId)
+FormProviderInfo JsFormExtension::OnSizeChanged(int64_t formId, int32_t dimensionId)
 {
     HILOG_DEBUG("OnSizeChanged called.");
     FormExtension::OnSizeChanged(formId, dimensionId);
