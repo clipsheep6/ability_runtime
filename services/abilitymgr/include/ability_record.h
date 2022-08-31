@@ -289,7 +289,7 @@ public:
      * foreground the ability.
      *
      */
-    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
+    void ForegroundAbility(uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.

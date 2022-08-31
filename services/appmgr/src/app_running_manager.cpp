@@ -380,10 +380,10 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         HILOG_ERROR("appRecord is nullptr.");
         return;
     }
-    appRecord->TerminateAbility(token, false);
-
     auto isLastAbilityRecord =
         clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+    appRecord->TerminateAbility(token, false);
+
     auto isKeepAliveApp = appRecord->IsKeepAliveApp();
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbilityRecord && !isKeepAliveApp && !isLauncherApp) {

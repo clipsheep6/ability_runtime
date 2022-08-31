@@ -238,10 +238,10 @@ void Ability::OnStart(const Want &want)
         InitWindow(winType, displayId, option);
 
         if (abilityWindow_ != nullptr) {
-            HILOG_DEBUG("%{public}s begin abilityWindow_->OnPostAbilityStart.", __func__);
-            abilityWindow_->OnPostAbilityStart();
+            HILOG_DEBUG("%{public}s get window from abilityWindow.", __func__);
             auto window = abilityWindow_->GetWindow();
             if (window) {
+                HILOG_DEBUG("%{public}s get window id from window.", __func__);
                 auto windowId = window->GetWindowId();
                 if (winType == Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW) {
                     HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", windowId);
@@ -250,7 +250,6 @@ void Ability::OnStart(const Want &want)
                     window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
                 }
             }
-            HILOG_DEBUG("%{public}s end abilityWindow_->OnPostAbilityStart.", __func__);
         }
 
         // Update resMgr, Configuration
