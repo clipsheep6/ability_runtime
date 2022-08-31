@@ -1453,7 +1453,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
     }
 
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsEmptyKeepAliveApp()) {
         appRecord->DecRestartResidentProcCount();
         if (appRecord->CanRestartResidentProc()) {
             auto restartProcss = [appRecord, innerService = shared_from_this()]() {
