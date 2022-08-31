@@ -587,13 +587,6 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine_->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
 }
 
-std::string JsRuntime::BuildJsStackTrace()
-{
-    std::string straceStr = "";
-    [[maybe_unused]]bool temp = nativeEngine_->BuildJsStackTrace(straceStr);
-    return straceStr;
-}
-
 void JsRuntime::NotifyApplicationState(bool isBackground)
 {
     if (nativeEngine_ == nullptr) {

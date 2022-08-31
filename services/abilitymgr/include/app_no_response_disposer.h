@@ -43,7 +43,6 @@ public:
 #endif
 
 private:
-    int ExcuteANRSaveStackInfoTask(int pid, const SetMissionClosure &task) const;
     int PostTimeoutTask(int pid, std::string bundleName = "") const;
 
 private:

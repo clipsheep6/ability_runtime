@@ -419,14 +419,6 @@ private:
     bool PrepareAbilityDelegator(const std::shared_ptr<UserTestRecord> &record, bool isStageBased,
         BundleInfo& bundleInfo);
 
-    /**
-     *
-     * @brief The handle of application not response process.
-     *
-     * @param sigMessage Recieve the sig message.
-     *
-     */
-    static void HandleScheduleANRProcess();
     static void HandleDumpHeap(bool isPrivate);
     static void HandleSignal(int signal);
 

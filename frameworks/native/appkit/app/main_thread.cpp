@@ -1617,10 +1617,6 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
 void MainThread::HandleSignal(int signal)
 {
     switch (signal) {
-        case SIGUSR1: {
-            dfxHandler_->PostTask(&MainThread::HandleScheduleANRProcess);
-            break;
-        }
         case SIGNAL_JS_HEAP: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
             dfxHandler_->PostTask(heapFunc);
@@ -1642,35 +1638,6 @@ void MainThread::HandleDumpHeap(bool isPrivate)
     if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
         HILOG_DEBUG("Send dump heap to ark start.");
         applicationForAnr_->GetRuntime()->DumpHeapSnapshot(isPrivate);
-    }
-}
-
-void MainThread::HandleScheduleANRProcess()
-{
-    HILOG_DEBUG("MainThread:HandleScheduleANRProcess start.");
-    int rFD = -1;
-    std::string mainThreadStackInfo;
-    if ((rFD = RequestFileDescriptor(int32_t(FaultLoggerType::JS_STACKTRACE))) < 0) {
-        HILOG_ERROR("MainThread::HandleScheduleANRProcess request file eescriptor failed");
-        return;
-    }
-    if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
-        mainThreadStackInfo = applicationForAnr_->GetRuntime()->BuildJsStackTrace();
-        if (write(rFD, mainThreadStackInfo.c_str(), mainThreadStackInfo.size()) !=
-          (ssize_t)mainThreadStackInfo.size()) {
-            HILOG_ERROR("MainThread::HandleScheduleANRProcess write main thread stack info failed");
-        }
-    }
-    OHOS::HiviewDFX::DfxDumpCatcher dumplog;
-    std::string proStackInfo;
-    if (dumplog.DumpCatch(getpid(), 0, proStackInfo) == false) {
-        HILOG_ERROR("MainThread::HandleScheduleANRProcess get process stack info failed");
-    }
-    if (write(rFD, proStackInfo.c_str(), proStackInfo.size()) != (ssize_t)proStackInfo.size()) {
-        HILOG_ERROR("MainThread::HandleScheduleANRProcess write process stack info failed");
-    }
-    if (rFD != -1) {
-        close(rFD);
     }
 }
 
