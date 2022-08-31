@@ -1707,7 +1707,12 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         return;
     }
 
-    appRecord->SetKeepAliveAppState(true, true);
+    if (appRecord->IsEmptyKeepAliveApp()) {
+        appRecord->SetKeepAliveAppState(true, true);
+    } else {
+        appRecord->SetKeepAliveAppState(true, false);
+    }
+    
 
     if (restartCount > 0) {
         HILOG_INFO("StartEmptyResidentProcess restartCount : [%{public}d], ", restartCount);
