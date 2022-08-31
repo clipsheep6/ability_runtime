@@ -635,8 +635,8 @@ void MainThread::HandleTerminateApplicationLocal()
         return;
     }
 
-    if (watchDogHandler_ != nullptr) {
-        watchDogHandler_->Stop();
+    if (watchdog_ != nullptr) {
+        watchdog_->Stop();
     }
 
     int ret = runner->Stop();
@@ -722,8 +722,8 @@ bool MainThread::InitCreate(
         return false;
     }
 
-    if (watchDogHandler_ != nullptr) {
-        watchDogHandler_->SetApplicationInfo(applicationInfo_);
+    if (watchdog_ != nullptr) {
+        watchdog_->SetApplicationInfo(applicationInfo_);
     }
 
     contextDeal->SetProcessInfo(processInfo_);
@@ -1475,8 +1475,8 @@ void MainThread::HandleTerminateApplication()
         return;
     }
 
-    if (watchDogHandler_ != nullptr) {
-        watchDogHandler_->Stop();
+    if (watchdog_ != nullptr) {
+        watchdog_->Stop();
     }
 
     int ret = runner->Stop();
@@ -1582,12 +1582,12 @@ void MainThread::TaskTimeoutDetected(const std::shared_ptr<EventRunner> &runner)
     HILOG_DEBUG("MainThread::TaskTimeoutDetected called end.");
 }
 
-void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::shared_ptr<EventRunner> &watchDogRunner)
+void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("MainThread:Init Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
-    watchDogHandler_ = std::make_shared<WatchDog>(watchDogRunner);
+    watchdog_ = std::make_shared<Watchdog>();
     dfxHandler_ = std::make_shared<EventHandler>(EventRunner::Create(DFX_THREAD_NAME));
     wptr<MainThread> weak = this;
     auto task = [weak]() {
@@ -1598,18 +1598,13 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner, const std::sha
         }
         appThread->SetRunnerStarted(true);
     };
-    auto taskWatchDog = []() {
-        HILOG_DEBUG("MainThread:WatchDogHandler Start");
-    };
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::Init PostTask task failed");
     }
-    if (!watchDogHandler_->PostTask(taskWatchDog)) {
-        HILOG_ERROR("MainThread::Init WatchDog postTask task failed");
-    }
     TaskTimeoutDetected(runner);
+    
+    watchdog_->Init(mainHandler_);
 
-    watchDogHandler_->Init(mainHandler_, watchDogHandler_);
     TaskHandlerClient::GetInstance()->CreateRunner();
     HILOG_DEBUG("MainThread:Init end.");
 }
@@ -1650,11 +1645,6 @@ void MainThread::Start()
         HILOG_ERROR("MainThread::main failed, runner is nullptr");
         return;
     }
-    std::shared_ptr<EventRunner> runnerWatchDog = EventRunner::Create("WatchDogRunner");
-    if (runnerWatchDog == nullptr) {
-        HILOG_ERROR("MainThread::Start runnerWatchDog is nullptr");
-        return;
-    }
     sptr<MainThread> thread = sptr<MainThread>(new (std::nothrow) MainThread());
     if (thread == nullptr) {
         HILOG_ERROR("MainThread::static failed. new MainThread failed");
@@ -1669,7 +1659,7 @@ void MainThread::Start()
     sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
     sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
 
-    thread->Init(runner, runnerWatchDog);
+    thread->Init(runner);
 
     thread->Attach();
 
@@ -1697,9 +1687,8 @@ void MainThread::MainHandler::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::P
 {
     auto eventId = event->GetInnerEventId();
     if (eventId == CHECK_MAIN_THREAD_IS_ALIVE) {
-        auto watchDogHanlder = WatchDog::GetCurrentHandler();
-        if (watchDogHanlder != nullptr) {
-            watchDogHanlder->SendEvent(MAIN_THREAD_IS_ALIVE);
+        if (mainThreadObj_ != nullptr) {
+            mainThreadObj_->CheckMainThreadIsAlive();
         }
     }
 }
@@ -1917,6 +1906,12 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
         HILOG_ERROR("PostTask task failed");
     }
     HILOG_DEBUG("end.");
+}
+
+void MainThread::CheckMainThreadIsAlive()
+{
+    watchdog_->SetAppMainThreadState(true);
+    watchdog_->AllowReportEvent();
 }
 #endif  // ABILITY_LIBRARY_LOADER
 }  // namespace AppExecFwk

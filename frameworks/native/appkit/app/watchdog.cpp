@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
+#include "xcollie/watchdog.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -29,142 +30,99 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 }
-std::shared_ptr<EventHandler> WatchDog::appMainHandler_ = nullptr;
-std::shared_ptr<WatchDog> WatchDog::currentHandler_ = nullptr;
-bool WatchDog::appMainThreadIsAlive_ = false;
+std::shared_ptr<EventHandler> Watchdog::appMainHandler_ = nullptr;
 
-WatchDog::WatchDog(const std::shared_ptr<EventRunner> &runner)
-    : AppExecFwk::EventHandler(runner), watchDogRunner_(runner)
+Watchdog::Watchdog()
 {}
 
-/**
- *
- * @brief Process the event.
- *
- * @param event the event want to be processed.
- *
- */
-void WatchDog::ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event)
+void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
-    auto eventId = event->GetInnerEventId();
-    if (eventId == MAIN_THREAD_IS_ALIVE) {
-        WatchDog::appMainThreadIsAlive_ = true;
-        if (currentHandler_ != nullptr) {
-            currentHandler_->RemoveTask(MAIN_THREAD_TIMEOUT_TASK);
-        }
-        needReport_.store(true);
-        isSixSecondEvent_.store(false);
+    Watchdog::appMainHandler_ = mainHandler;
+    if (appMainHandler_ != nullptr) {
+        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
+    auto watchdogTask = std::bind(&Watchdog::Timer, this);
+    OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
+        CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
 }
 
-void WatchDog::Init(const std::shared_ptr<EventHandler> &mainHandler, const std::shared_ptr<WatchDog> &watchDogHandler)
-{
-    WatchDog::appMainHandler_ = mainHandler;
-    WatchDog::currentHandler_ = watchDogHandler;
-    if (watchDogThread_ == nullptr) {
-        watchDogThread_ = std::make_shared<std::thread>(&WatchDog::Timer, this);
-        HILOG_DEBUG("Watchdog is running!");
-    }
-}
-
-void WatchDog::Stop()
+void Watchdog::Stop()
 {
     HILOG_DEBUG("Watchdog is stop !");
-    stopWatchDog_.store(true);
-    cvWatchDog_.notify_all();
+    stopWatchdog_.store(true);
+    cvWatchdog_.notify_all();
+    OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
 
-    if (watchDogThread_ != nullptr && watchDogThread_->joinable()) {
-        watchDogThread_->join();
-        watchDogThread_ = nullptr;
-    }
-    if (watchDogRunner_) {
-        watchDogRunner_.reset();
-        watchDogRunner_ = nullptr;
-    }
-    if (currentHandler_) {
-        currentHandler_.reset();
-        currentHandler_ = nullptr;
-    }
     if (appMainHandler_) {
         appMainHandler_.reset();
         appMainHandler_ = nullptr;
     }
 }
 
-void WatchDog::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applicationInfo)
+void Watchdog::SetApplicationInfo(const std::shared_ptr<ApplicationInfo> &applicationInfo)
 {
     applicationInfo_ = applicationInfo;
 }
 
-std::shared_ptr<WatchDog> WatchDog::GetCurrentHandler()
+void Watchdog::SetAppMainThreadState(const bool appMainThreadState)
 {
-    return currentHandler_;
+    appMainThreadIsAlive_.store(appMainThreadState);
 }
 
-bool WatchDog::GetAppMainThreadState()
+
+void Watchdog::AllowReportEvent()
 {
-    return appMainThreadIsAlive_;
+    needReport_.store(true);
+    isSixSecondEvent_.store(false);
 }
 
-bool WatchDog::IsStopWatchDog()
+bool Watchdog::IsReportEvent()
 {
-    return stopWatchDog_;
+    if (appMainThreadIsAlive_) {
+        appMainThreadIsAlive_.store(false);
+        return false;
+    }
+    return true;
 }
 
-bool WatchDog::WaitForDuration(uint32_t duration)
+bool Watchdog::IsStopWatchdog()
 {
-    std::unique_lock<std::mutex> lck(cvMutex_);
-    auto condition = [wp = WatchDog::weak_from_this()] {
-        auto sp = wp.lock();
-        if (!sp) {
-            return true;
-        }
-        auto self = std::static_pointer_cast<WatchDog>(sp);
-        if (!self) {
-            return true;
-        }
-        return self->IsStopWatchDog();
+    return stopWatchdog_;
+}
+
+bool Watchdog::WaitForDuration(uint32_t duration)
+{
+    std::unique_lock<std::mutex> lock(cvMutex_);
+    auto condition = [this] {
+        return this->IsStopWatchdog();
     };
-    if (cvWatchDog_.wait_for(lck, std::chrono::milliseconds(duration), condition)) {
+    if (cvWatchdog_.wait_for(lock, std::chrono::milliseconds(duration), condition)) {
         return true;
     }
     return false;
 }
 
-bool WatchDog::Timer()
+void Watchdog::Timer()
 {
-    if (WaitForDuration(INI_TIMER_FIRST_SECOND)) {
-        HILOG_DEBUG("cvWatchDog1 is stopped");
-        return true;
+    if (!needReport_) {
+        HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
+        return;
     }
-    while (!stopWatchDog_) {
-        if (WaitForDuration(CHECK_INTERVAL_TIME)) {
-            HILOG_DEBUG("cvWatchDog2 is stopped");
-            return true;
-        }
-        if (!needReport_) {
-            HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
-            continue;
-        }
-        if (currentHandler_ != nullptr) {
-            // check libc.hook_mode
-            const int bufferLen = 128;
-            char paramOutBuf[bufferLen] = {0};
-            const char *hook_mode = "startup:";
-            int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
-            if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
-                auto timeoutTask = std::bind(&WatchDog::reportEvent, this);
-                currentHandler_->PostTask(timeoutTask, MAIN_THREAD_TIMEOUT_TASK, CHECK_INTERVAL_TIME);
-            }
-        }
-        if (appMainHandler_ != nullptr) {
-            appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
+    if (IsReportEvent()) {
+        const int bufferLen = 128;
+        char paramOutBuf[bufferLen] = {0};
+        const char *hook_mode = "startup:";
+        int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
+        if (ret <= 0 || strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) != 0) {
+            reportEvent();
         }
     }
-    return true;
+    if (appMainHandler_ != nullptr) {
+        appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
+    }
 }
 
-void WatchDog::reportEvent()
+void Watchdog::reportEvent()
 {
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
@@ -175,7 +133,6 @@ void WatchDog::reportEvent()
         return;
     }
 
-    appMainThreadIsAlive_ = false;
     std::string eventType;
     if (isSixSecondEvent_) {
         eventType = "THREAD_BLOCK_6S";
