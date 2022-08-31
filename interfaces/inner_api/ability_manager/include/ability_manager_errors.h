@@ -268,6 +268,11 @@ enum {
      * Result(2097201) for window mode.
      */
     ERR_AAFWK_INVALID_WINDOW_MODE,
+
+    /**
+     * Result(2097202) for wrong interface call.
+     */
+    ERR_WRONG_INTERFACE_CALL,
 };
 
 enum {

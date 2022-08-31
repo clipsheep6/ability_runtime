@@ -1431,6 +1431,13 @@ int AbilityManagerService::MinimizeAbility(const sptr<IRemoteObject> &token, boo
 int AbilityManagerService::ConnectAbility(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
+    return ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
+}
+
+int AbilityManagerService::ConnectAbilityCommon(
+    const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
+    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId)
+{
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
@@ -1509,14 +1516,14 @@ int AbilityManagerService::ConnectAbility(
 
     if (callerToken != nullptr && callerToken->GetObjectDescriptor() != u"ohos.aafwk.AbilityToken") {
         HILOG_INFO("%{public}s invalid Token.", __func__);
-        eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, nullptr);
+        eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, nullptr, extensionType);
         if (eventInfo.errCode != ERR_OK) {
             AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
                 HiSysEventType::FAULT, eventInfo);
         }
         return eventInfo.errCode;
     }
-    eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, callerToken);
+    eventInfo.errCode = ConnectLocalAbility(abilityWant, validUserId, connect, callerToken, extensionType);
     if (eventInfo.errCode != ERR_OK) {
         AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
             HiSysEventType::FAULT, eventInfo);
@@ -1544,7 +1551,8 @@ int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &con
 }
 
 int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t userId,
-    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken)
+    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
+    AppExecFwk::ExtensionAbilityType extensionType)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Connect local ability begin.");
@@ -1558,6 +1566,14 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
+    }
+
+    if (abilityRequest.abilityInfo.isStageBasedModel) {
+        bool isService = (abilityRequest.abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE);
+        if (isService && extensionType != AppExecFwk::ExtensionAbilityType::SERVICE) {
+            HILOG_ERROR("Service extension type, please use ConnectAbility.");
+            return ERR_WRONG_INTERFACE_CALL;
+        }
     }
     auto abilityInfo = abilityRequest.abilityInfo;
     int32_t validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : userId;

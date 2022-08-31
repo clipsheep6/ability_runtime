@@ -224,7 +224,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_005, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res1 = proxy_->ConnectAbility(want, connect, callerToken);
     EXPECT_EQ(res1, NO_ERROR);
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY, mock_->code_);
+    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
 }
 
 /*
@@ -245,7 +245,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_006, TestSize.Level1)
     sptr<IAbilityConnection> connect = new AbilityConnectCallback();
     int res = proxy_->ConnectAbility(want, connect, callerToken);
 
-    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY, mock_->code_);
+    EXPECT_EQ(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, mock_->code_);
     EXPECT_NE(res, NO_ERROR);
 }
 

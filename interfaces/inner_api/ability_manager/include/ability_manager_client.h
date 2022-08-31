@@ -259,6 +259,28 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
+     * Connect data share extension ability.
+     *
+     * @param want, special want for the data share extension ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ConnectDataShareExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Connect extension ability.
+     *
+     * @param want, special want for the extension ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode ConnectExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
      * DisconnectAbility, disconnect session with service ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.

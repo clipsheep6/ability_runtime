@@ -76,6 +76,7 @@ void AbilityManagerStub::FirstStepInit()
     requestFuncMap_[FORCE_TIMEOUT] = &AbilityManagerStub::ForceTimeoutForTestInner;
 #endif
     requestFuncMap_[FREE_INSTALL_ABILITY_FROM_REMOTE] = &AbilityManagerStub::FreeInstallAbilityFromRemoteInner;
+    requestFuncMap_[CONNECT_ABILITY_WITH_TYPE] = &AbilityManagerStub::ConnectAbilityWithTypeInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -452,9 +453,36 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
         token = data.ReadRemoteObject();
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = ConnectAbility(*want, callback, token, userId);
+    int32_t result = ConnectAbilityCommon(*want, callback, token, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
     reply.WriteInt32(result);
-    delete want;
+    if (want != nullptr) {
+        delete want;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IAbilityConnection> callback = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    if (data.ReadBool()) {
+        callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    }
+    if (data.ReadBool()) {
+        token = data.ReadRemoteObject();
+    }
+    int32_t userId = data.ReadInt32();
+    AppExecFwk::ExtensionAbilityType extensionType = static_cast<AppExecFwk::ExtensionAbilityType>(data.ReadInt32());
+    int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId);
+    reply.WriteInt32(result);
+    if (want != nullptr) {
+        delete want;
+    }
     return NO_ERROR;
 }
 

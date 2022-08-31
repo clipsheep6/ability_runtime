@@ -242,6 +242,26 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE) = 0;
 
     /**
+     * Connect ability common method.
+     *
+     * @param want, special want for service type's ability.
+     * @param connect, callback used to notify caller the result of connecting or disconnecting.
+     * @param callerToken, caller ability token.
+     * @param extensionType, type of the extension.
+     * @param userId, the service user ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int ConnectAbilityCommon(
+        const Want &want,
+        const sptr<IAbilityConnection> &connect,
+        const sptr<IRemoteObject> &callerToken,
+        AppExecFwk::ExtensionAbilityType extensionType,
+        int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
      * DisconnectAbility, disconnect session with service ability.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
@@ -903,6 +923,8 @@ public:
         START_CALL_ABILITY,
 
         RELEASE_CALL_ABILITY,
+
+        CONNECT_ABILITY_WITH_TYPE,
 
         // ipc id for continue ability(1101)
         START_CONTINUATION = 1101,
