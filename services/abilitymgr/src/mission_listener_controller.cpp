@@ -214,6 +214,24 @@ void MissionListenerController::NotifyMissionIconChanged(int32_t missionId,
 }
 #endif
 
+void MissionListenerController::NotifyMissionClosed(int32_t missionId)
+{
+    if (!handler_) {
+        HILOG_ERROR("handler not init");
+        return;
+    }
+    auto task = [weak = weak_from_this(), missionId]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, NotifyMissionClosed failed.");
+            return;
+        }
+        HILOG_INFO("notify listeners mission is closed, missionId:%{public}d.", missionId);
+        self->CallListeners(&IMissionListener::OnMissionClosed, missionId);
+    };
+    handler_->PostTask(task);
+}
+
 void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("On mission listener died.");

@@ -51,6 +51,10 @@ public:
     void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
     {
     }
+
+    void OnMissionClosed(int32_t missionId) override
+    {
+    }
 };
 
 class MissionManagerTest : public benchmark::Fixture {

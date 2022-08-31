@@ -68,6 +68,13 @@ public:
     virtual void OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
 #endif
 
+    /**
+     * @brief When a mission is closed, AbilityMs notifies the listener of the mission id
+     *
+     * @param missionId, mission Id.
+     */
+    virtual void OnMissionClosed(int32_t missionId) override;
+
 private:
     void SendRequestCommon(int32_t missionId, IMissionListener::MissionListenerCmd cmd);
 

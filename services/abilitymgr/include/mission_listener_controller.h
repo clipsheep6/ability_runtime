@@ -92,6 +92,13 @@ public:
     void NotifyMissionIconChanged(int32_t missionId, const std::shared_ptr<OHOS::Media::PixelMap> &icon);
 #endif
 
+    /**
+     * notify listeners that mission was closed.
+     *
+     * @param missionId target mission id.
+     */
+    void NotifyMissionClosed(int32_t missionId);
+
     void HandleUnInstallApp(const std::list<int32_t> &missions);
 
 private:
