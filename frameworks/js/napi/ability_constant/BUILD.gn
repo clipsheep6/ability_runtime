@@ -15,14 +15,16 @@ import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("abilityconstant_napi") {
-  include_dirs = []
+  include_dirs = [
+    "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_services_path}/common/include",
+  ]
 
   sources = [ "ability_constant_module.cpp" ]
 
   deps = []
 
   external_deps = [
-    "ability_runtime:ability_manager",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",

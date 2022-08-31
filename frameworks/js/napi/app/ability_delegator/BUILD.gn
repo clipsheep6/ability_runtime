@@ -18,6 +18,9 @@ ohos_shared_library("abilitydelegatorregistry") {
   include_dirs = [
     "./",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/tools/aa/include",
+    "//foundation/communication/ipc/ipc/native/src/napi/include",
   ]
 
   sources = [
@@ -33,23 +36,16 @@ ohos_shared_library("abilitydelegatorregistry") {
 
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
-    "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
   ]
 
   external_deps = [
-    "ability_base:base",
     "ability_base:want",
-    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "ipc_js:rpc",
     "napi:ace_napi",
   ]
 

@@ -51,8 +51,6 @@ ohos_shared_library("ability_context_native") {
   ]
 
   external_deps = [
-    "ability_base:base",
-    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:runtime",
