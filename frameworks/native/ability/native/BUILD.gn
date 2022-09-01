@@ -164,6 +164,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/ability/native/extension.cpp",
     "${ability_runtime_native_path}/ability/native/extension_impl.cpp",
     "${ability_runtime_native_path}/ability/native/extension_module_loader.cpp",
+    "${ability_runtime_native_path}/ability/native/js_extension_common.cpp",
     "${ability_runtime_native_path}/ability/native/js_service_extension.cpp",
     "${ability_runtime_native_path}/ability/native/js_service_extension_context.cpp",
     "${ability_runtime_native_path}/ability/native/js_static_subscriber_extension.cpp",
