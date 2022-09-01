@@ -468,7 +468,7 @@ private:
     std::string aceApplicationName_ = "AceApplication";
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
-    static std::shared_ptr<EventHandler> dfxHandler_;
+    static std::shared_ptr<EventHandler> signalHandler_;
     static std::shared_ptr<OHOSApplication> applicationForAnr_;
 
 #ifdef ABILITY_LIBRARY_LOADER

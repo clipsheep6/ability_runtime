@@ -63,7 +63,7 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
 std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
-std::shared_ptr<EventHandler> MainThread::dfxHandler_ = nullptr;
+std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
@@ -81,7 +81,7 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
-const std::string  DFX_THREAD_NAME = "DfxThreadName";
+const std::string SIGNAL_HANDLER = "SignalHandler";
 constexpr char EXTENSION_PARAMS_TYPE[] = "type";
 constexpr char EXTENSION_PARAMS_NAME[] = "name";
 }
@@ -624,9 +624,9 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     applicationImpl_->PerformTerminateStrong();
 
-    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
-    if (dfxRunner) {
-        dfxRunner->Stop();
+    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
+    if (signalRunner) {
+        signalRunner->Stop();
     }
 
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
@@ -1463,9 +1463,9 @@ void MainThread::HandleTerminateApplication()
         HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
 
-    std::shared_ptr<EventRunner> dfxRunner = dfxHandler_->GetEventRunner();
-    if (dfxRunner) {
-        dfxRunner->Stop();
+    std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
+    if (signalRunner) {
+        signalRunner->Stop();
     }
 
     appMgr_->ApplicationTerminated(applicationImpl_->GetRecordId());
@@ -1588,7 +1588,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     HILOG_DEBUG("MainThread:Init Start");
     mainHandler_ = std::make_shared<MainHandler>(runner, this);
     watchdog_ = std::make_shared<Watchdog>();
-    dfxHandler_ = std::make_shared<EventHandler>(EventRunner::Create(DFX_THREAD_NAME));
+    signalHandler_ = std::make_shared<EventHandler>(EventRunner::Create(SIGNAL_HANDLER));
     wptr<MainThread> weak = this;
     auto task = [weak]() {
         auto appThread = weak.promote();
@@ -1614,12 +1614,12 @@ void MainThread::HandleSignal(int signal)
     switch (signal) {
         case SIGNAL_JS_HEAP: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
-            dfxHandler_->PostTask(heapFunc);
+            signalHandler_->PostTask(heapFunc);
             break;
         }
         case SIGNAL_JS_HEAP_PRIV: {
             auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
-            dfxHandler_->PostTask(privateHeapFunc);
+            signalHandler_->PostTask(privateHeapFunc);
             break;
         }
         default:

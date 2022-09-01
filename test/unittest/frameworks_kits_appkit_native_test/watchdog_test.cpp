@@ -65,24 +65,26 @@ void WatchdogTest::TearDown(void)
  * @tc.number: AppExecFwk_Watchdog_IsReportEvent_0001
  * @tc.name: IsReportEvent
  * @tc.desc: Test the abnormal state of IsReportEvent.
+ * @tc.require: issueI5MGFU
  */
 HWTEST_F(WatchdogTest, AppExecFwk_Watchdog_IsReportEvent_0001, Function | MediumTest | Level3)
 {
     bool ret = watchdog_->IsReportEvent();
-    EXPECT_FALSE(ret);
+    EXPECT_TRUE(ret);
 }
 
 /**
  * @tc.number: AppExecFwk_Watchdog_IsReportEvent_0002
  * @tc.name: IsReportEvent
  * @tc.desc: Test the change state of IsReportEvent.
+ * @tc.require: issueI5MGFU
  */
 HWTEST_F(WatchdogTest, AppExecFwk_Watchdog_IsReportEvent_0002, Function | MediumTest | Level3)
 {
     watchdog_->SetAppMainThreadState(true);
     watchdog_->AllowReportEvent();
     bool ret = watchdog_->IsReportEvent();
-    EXPECT_TRUE(ret);
+    EXPECT_FALSE(ret);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
