@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include "ability_thread.h"
 #include "context_deal.h"
 #include "hilog_wrapper.h"
 #include "mock_service_ability.h"
@@ -75,7 +76,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockServiceAbility>();
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
@@ -115,7 +116,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockServiceAbility>();
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
@@ -150,8 +151,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockServiceAbility>();
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
@@ -187,8 +187,7 @@ HWTEST_F(ServiceAbilityImplTest, AaFwk_ServiceAbilityImpl_HandleAbilityTransacti
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockServiceAbility>();
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();

@@ -65,7 +65,7 @@ AbilityThread::AbilityThread()
     : abilityImpl_(nullptr), token_(nullptr), currentAbility_(nullptr), abilityHandler_(nullptr), runner_(nullptr)
 {
     abilityImpl_ = std::make_shared<AbilityImpl>();
-    abilityHandler_ = std::make_shared<AbilityHandler>(EventRunner::Create("AbilityTest"), this);
+    abilityHandler_ = std::make_shared<AbilityHandler>(EventRunner::Create("AbilityTest"));
 
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<Ability> ability = AbilityTest::GetInstance();

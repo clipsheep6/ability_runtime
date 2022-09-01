@@ -27,6 +27,7 @@
 #include "values_bucket.h"
 #include "data_ability_operation.h"
 #include "data_ability_result.h"
+#include "ohos_application.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -74,8 +75,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_Name_0100, Function | MediumTest | Level
     abilityInfo->name = "ability";
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -96,8 +96,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_GetLifecycle_0100, Function | MediumTest
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -120,8 +119,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_GetState_0100, Function | MediumTest | L
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -161,8 +159,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_Dump_0100, Function | MediumTest | Level
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -185,8 +182,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnNewWant_0100, Function | MediumTest | 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -209,8 +205,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnRestoreAbilityState_0100, Function | M
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -233,8 +228,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_GetAbilityName_0100, Function | MediumTe
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     std::string name = "LOL";
@@ -258,8 +252,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_GetApplication_0100, Function | MediumTe
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -280,8 +273,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_GetApplication_0200, Function | MediumTe
 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, nullptr, handler, token);
@@ -303,8 +295,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnSaveAbilityState_0100, Function | Medi
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
 
     ability_->Init(abilityInfo, application, handler, token);
@@ -886,8 +877,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_StartAbilitySetting_0200, Function | Med
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     Want want;
@@ -909,8 +899,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_PostTask_0100, Function | MediumTest | L
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     auto task = []() { GTEST_LOG_(INFO) << "AaFwk_Ability_PostTask_001 task called"; };
@@ -931,8 +920,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_ExecuteBatch_0100, Function | MediumTest
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::DATA;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     abilityInfo->isNativeAbility = true;
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
@@ -989,8 +977,7 @@ HWTEST_F(AbilityBaseTest, AaFwk_Ability_OnBackPressed_0100, Function | MediumTes
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(abilityInfo, nullptr, handler, nullptr);
     ability->OnBackPressed();
     EXPECT_TRUE(ability->onBackPressed_);

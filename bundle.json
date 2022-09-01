@@ -192,6 +192,30 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:form_extension"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
                 "extension.h",
                 "extension_base.h",
                 "service_extension.h",

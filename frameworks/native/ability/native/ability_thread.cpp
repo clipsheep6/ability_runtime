@@ -222,7 +222,7 @@ void AbilityThread::Attach(std::shared_ptr<OHOSApplication> &application,
         return;
     }
     HILOG_DEBUG("Attach ability begin, ability:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
-    abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner, this);
+    abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("Attach ability failed, abilityHandler_ is nullptr.");
         return;
@@ -286,7 +286,7 @@ void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &applicatio
         return;
     }
     HILOG_DEBUG("Attach extension begin, extension:%{public}s.", abilityRecord->GetAbilityInfo()->name.c_str());
-    abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner, this);
+    abilityHandler_ = std::make_shared<AbilityHandler>(mainRunner);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("Attach extension failed, abilityHandler_ is nullptr");
         return;
@@ -342,7 +342,7 @@ void AbilityThread::AttachExtension(std::shared_ptr<OHOSApplication> &applicatio
         HILOG_ERROR("AbilityThread::AttachExtension failed,create runner failed");
         return;
     }
-    abilityHandler_ = std::make_shared<AbilityHandler>(runner_, this);
+    abilityHandler_ = std::make_shared<AbilityHandler>(runner_);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("AbilityThread::AttachExtension failed,abilityHandler_ is nullptr");
         return;
@@ -398,7 +398,7 @@ void AbilityThread::Attach(
         HILOG_ERROR("AbilityThread::ability attach failed,create runner failed");
         return;
     }
-    abilityHandler_ = std::make_shared<AbilityHandler>(runner_, this);
+    abilityHandler_ = std::make_shared<AbilityHandler>(runner_);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("AbilityThread::ability attach failed,abilityHandler_ is nullptr");
         return;

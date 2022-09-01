@@ -87,33 +87,29 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001, Tes
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            std::shared_ptr<Ability> ability = pMocKPageAbility ;
-            if (pMocKPageAbility != nullptr) {
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
-                    Global::Resource::CreateResourceManager());
-                if (resourceManager == nullptr) {
-                    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001 resourceManager is nullptr";
-                }
-                contextDeal->initResourceManager(resourceManager);
-                contextDeal->SetApplicationContext(application);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-
-                Configuration config;
-                auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify1, 0);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify2, 0);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        std::shared_ptr<Ability> ability = pMocKPageAbility ;
+        if (pMocKPageAbility != nullptr) {
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                Global::Resource::CreateResourceManager());
+            if (resourceManager == nullptr) {
+                GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001 resourceManager is nullptr";
             }
+            contextDeal->initResourceManager(resourceManager);
+            contextDeal->SetApplicationContext(application);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+
+            Configuration config;
+            auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify1, 0);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify2, 0);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_001 end";
@@ -139,41 +135,37 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002, Tes
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            std::shared_ptr<Ability> ability = pMocKPageAbility;
-            if (pMocKPageAbility != nullptr) {
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
-                    Global::Resource::CreateResourceManager());
-                if (resourceManager == nullptr) {
-                    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 resourceManager is nullptr";
-                }
-                contextDeal->initResourceManager(resourceManager);
-                contextDeal->SetApplicationContext(application);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-
-                Configuration config;
-                auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify1, 0);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify2, 0);
-                auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
-                GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 : " << language;
-                config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
-                Want want; // Trigger Ability LifeCycle to Active
-                mockAbilityimpl->CommandAbility(want, 0, 0);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify3 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify3, 1);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        std::shared_ptr<Ability> ability = pMocKPageAbility;
+        if (pMocKPageAbility != nullptr) {
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                Global::Resource::CreateResourceManager());
+            if (resourceManager == nullptr) {
+                GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 resourceManager is nullptr";
             }
+            contextDeal->initResourceManager(resourceManager);
+            contextDeal->SetApplicationContext(application);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+
+            Configuration config;
+            auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify1, 0);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify2, 0);
+            auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
+            GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 : " << language;
+            config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
+            Want want; // Trigger Ability LifeCycle to Active
+            mockAbilityimpl->CommandAbility(want, 0, 0);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify3 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify3, 1);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_002 end";
@@ -200,46 +192,42 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003, Tes
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            std::shared_ptr<Ability> ability = pMocKPageAbility;
-            if (pMocKPageAbility != nullptr) {
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
-                    Global::Resource::CreateResourceManager());
-                if (resourceManager == nullptr) {
-                    GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 resourceManager is nullptr";
-                }
-                contextDeal->initResourceManager(resourceManager);
-                contextDeal->SetApplicationContext(application);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-
-                Configuration config;
-                auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify1, 0);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify2, 0);
-                auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
-                GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 : " << language;
-                config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
-                Want want; // Trigger Ability LifeCycle to Active
-                mockAbilityimpl->CommandAbility(want, 0, 0);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify3 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify3, 1);
-                mockAbilityimpl->ScheduleUpdateConfiguration(config);
-                auto testNotify4 = pMocKPageAbility->OnConfigurationUpdated_;
-                EXPECT_EQ(testNotify4, 2);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<MockPageAbility> pMocKPageAbility = std::make_shared<MockPageAbility>();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        std::shared_ptr<Ability> ability = pMocKPageAbility;
+        if (pMocKPageAbility != nullptr) {
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            std::shared_ptr<Global::Resource::ResourceManager> resourceManager(
+                Global::Resource::CreateResourceManager());
+            if (resourceManager == nullptr) {
+                GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 resourceManager is nullptr";
             }
+            contextDeal->initResourceManager(resourceManager);
+            contextDeal->SetApplicationContext(application);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+
+            Configuration config;
+            auto testNotify1 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify1, 0);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify2 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify2, 0);
+            auto language = OHOS::Global::I18n::LocaleConfig::GetSystemLanguage();
+            GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 : " << language;
+            config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
+            Want want; // Trigger Ability LifeCycle to Active
+            mockAbilityimpl->CommandAbility(want, 0, 0);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify3 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify3, 1);
+            mockAbilityimpl->ScheduleUpdateConfiguration(config);
+            auto testNotify4 = pMocKPageAbility->OnConfigurationUpdated_;
+            EXPECT_EQ(testNotify4, 2);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ScheduleUpdateConfiguration_003 end";
@@ -266,17 +254,13 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Init_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-            EXPECT_EQ(mockAbilityimpl->GetToken(), record->GetToken());
-            EXPECT_EQ(mockAbilityimpl->GetAbility(), ability);
-            EXPECT_EQ(mockAbilityimpl->GetCurrentState(), AAFwk::ABILITY_STATE_INITIAL);
-        }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+        mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        EXPECT_EQ(mockAbilityimpl->GetToken(), record->GetToken());
+        EXPECT_EQ(mockAbilityimpl->GetAbility(), ability);
+        EXPECT_EQ(mockAbilityimpl->GetCurrentState(), AAFwk::ABILITY_STATE_INITIAL);
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Init_001 end";
 }
@@ -302,24 +286,20 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Start_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                contextDeal->SetAbilityInfo(abilityInfo);
-                ability->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplStart(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_START, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_INACTIVE, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetAbilityInfo(abilityInfo);
+            ability->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplStart(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_START, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_INACTIVE, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Start_001 end";
@@ -345,25 +325,21 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Stop_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                contextDeal->SetAbilityInfo(abilityInfo);
-                ability->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            contextDeal->SetAbilityInfo(abilityInfo);
+            ability->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                mockAbilityimpl->ImplStop();
+            mockAbilityimpl->ImplStop();
 
-                EXPECT_EQ(MockPageAbility::Event::ON_STOP, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_INITIAL, mockAbilityimpl->GetCurrentState());
-            }
+            EXPECT_EQ(MockPageAbility::Event::ON_STOP, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_INITIAL, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Stop_001 end";
@@ -389,26 +365,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Active_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                mockAbilityimpl->ImplActive();
-                EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            mockAbilityimpl->ImplActive();
+            EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Active_001 end";
@@ -434,26 +406,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Inactive_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                mockAbilityimpl->ImplInactive();
-                EXPECT_EQ(MockPageAbility::Event::ON_INACTIVE, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_INACTIVE, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            mockAbilityimpl->ImplInactive();
+            EXPECT_EQ(MockPageAbility::Event::ON_INACTIVE, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_INACTIVE, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Inactive_001 end";
@@ -479,22 +447,18 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Foreground_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            Want want;
-            pMocKPageAbility->OnForeground(want);
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_INITIAL, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        Want want;
+        pMocKPageAbility->OnForeground(want);
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_INITIAL, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Foreground_001 end";
@@ -520,26 +484,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Background_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                mockAbilityimpl->ImplBackground();
-                EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            mockAbilityimpl->ImplBackground();
+            EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Background_001 end";
@@ -567,27 +527,23 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplForeground(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_001 end";
@@ -615,29 +571,25 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_002, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplForeground(want);
-                mockAbilityimpl->ImplForeground(want);
-                mockAbilityimpl->ImplForeground(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_002 end";
@@ -663,26 +615,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                mockAbilityimpl->ImplBackground();
-                EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            mockAbilityimpl->ImplBackground();
+            EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Background_001 end";
@@ -710,28 +658,24 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Background_002, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                mockAbilityimpl->ImplBackground();
-                mockAbilityimpl->ImplBackground();
-                mockAbilityimpl->ImplBackground();
-                EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplBackground();
+            EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Background_002 end";
@@ -759,28 +703,24 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_001, TestS
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplForeground(want);
-                mockAbilityimpl->ImplBackground();
-                EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplBackground();
+            EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_Background_001 end";
@@ -808,29 +748,25 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_002, TestS
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplForeground(want);
-                mockAbilityimpl->ImplBackground();
-                mockAbilityimpl->ImplForeground(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_Background_002 end";
@@ -858,28 +794,24 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_003, TestS
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplBackground();
-                mockAbilityimpl->ImplForeground(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_Background_003 end";
@@ -907,29 +839,25 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_New_Foreground_Background_004, TestS
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
-                contextDeal->SetApplicationInfo(applicationInfo);
-                contextDeal->SetAbilityInfo(abilityInfo);
-                pMocKPageAbility->AttachBaseContext(contextDeal);
-                application->AttachBaseContext(contextDeal);
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ImplBackground();
-                mockAbilityimpl->ImplForeground(want);
-                mockAbilityimpl->ImplBackground();
-                EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            std::shared_ptr<ApplicationInfo> applicationInfo = std::make_shared<ApplicationInfo>();
+            contextDeal->SetApplicationInfo(applicationInfo);
+            contextDeal->SetAbilityInfo(abilityInfo);
+            pMocKPageAbility->AttachBaseContext(contextDeal);
+            application->AttachBaseContext(contextDeal);
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplBackground();
+            EXPECT_EQ(MockPageAbility::Event::ON_BACKGROUND, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_BACKGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_New_Foreground_Background_004 end";
@@ -955,15 +883,11 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchSaveAbilityState_001, TestSi
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-            mockAbilityimpl->DispatchSaveAbilityState();
-        }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+        mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        mockAbilityimpl->DispatchSaveAbilityState();
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_001 end";
 }
@@ -988,15 +912,11 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchSaveAbilityState_002, TestSi
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-            mockAbilityimpl->DispatchSaveAbilityState();
-        }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+        mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        mockAbilityimpl->DispatchSaveAbilityState();
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchSaveAbilityState_002 end";
 }
@@ -1021,18 +941,14 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchRestoreAbilityState_001, Tes
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = std::make_shared<Ability>();
-            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+        std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+        mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-            PacMap inState;
+        PacMap inState;
 
-            mockAbilityimpl->DispatchRestoreAbilityState(inState);
-        }
+        mockAbilityimpl->DispatchRestoreAbilityState(inState);
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchRestoreAbilityState_001 end";
 }
@@ -1057,17 +973,13 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_DispatchRestoreAbilityState_002, Tes
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability = nullptr;
-            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability = nullptr;
+        std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+        mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-            PacMap inState;
-            mockAbilityimpl->DispatchRestoreAbilityState(inState);
-        }
+        PacMap inState;
+        mockAbilityimpl->DispatchRestoreAbilityState(inState);
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_DispatchRestoreAbilityState_002 end";
 }
@@ -1092,23 +1004,19 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_ConnectAbility_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                mockAbilityimpl->ConnectAbility(want);
-                EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
-                EXPECT_EQ(nullptr, mockAbilityimpl->ConnectAbility(want));
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            mockAbilityimpl->ConnectAbility(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
+            EXPECT_EQ(nullptr, mockAbilityimpl->ConnectAbility(want));
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_ConnectAbility_001 end";
@@ -1135,24 +1043,20 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CommandAbility_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                Want want;
-                bool restart = true;
-                int startId = 1;
-                mockAbilityimpl->CommandAbility(want, restart, startId);
-                EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
-                EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            Want want;
+            bool restart = true;
+            int startId = 1;
+            mockAbilityimpl->CommandAbility(want, restart, startId);
+            EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_ACTIVE, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CommandAbility_001 end";
@@ -1245,26 +1149,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_SendResult_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
 
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                int requestCode = 0;
-                int resultCode = 0;
-                Want resultData;
+            int requestCode = 0;
+            int resultCode = 0;
+            Want resultData;
 
-                mockAbilityimpl->SendResult(requestCode, resultCode, resultData);
-                EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
-            }
+            mockAbilityimpl->SendResult(requestCode, resultCode, resultData);
+            EXPECT_EQ(MockPageAbility::Event::ON_ACTIVE, pMocKPageAbility->state_);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_SendResult_001 end";
@@ -1291,24 +1191,20 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_NewWant_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
 
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Want want;
-                mockAbilityimpl->NewWant(want);
-                EXPECT_EQ(1, pMocKPageAbility->onNewWantCalled_);
-                EXPECT_EQ(1, pMocKPageAbility->continueRestoreCalled_);
-            }
+            Want want;
+            mockAbilityimpl->NewWant(want);
+            EXPECT_EQ(1, pMocKPageAbility->onNewWantCalled_);
+            EXPECT_EQ(1, pMocKPageAbility->continueRestoreCalled_);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_NewWant_001 end";
@@ -1334,26 +1230,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_GetFileTypes_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("nullptr");
+            Uri uri("nullptr");
 
-                std::string mimeTypeFilter("string1");
+            std::string mimeTypeFilter("string1");
 
-                std::vector<std::string> result = mockAbilityimpl->GetFileTypes(uri, mimeTypeFilter);
-                int count = result.size();
-                EXPECT_EQ(count, 0);
-            }
+            std::vector<std::string> result = mockAbilityimpl->GetFileTypes(uri, mimeTypeFilter);
+            int count = result.size();
+            EXPECT_EQ(count, 0);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_GetFileTypes_001 end";
@@ -1379,24 +1271,20 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_OpenFile_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("\nullptr");
-                std::string mode;
-                int index = mockAbilityimpl->OpenFile(uri, mode);
+            Uri uri("\nullptr");
+            std::string mode;
+            int index = mockAbilityimpl->OpenFile(uri, mode);
 
-                EXPECT_EQ(-1, index);
-            }
+            EXPECT_EQ(-1, index);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_OpenFile_001 end";
@@ -1422,25 +1310,21 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Insert_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("\nullptr");
+            Uri uri("\nullptr");
 
-                NativeRdb::ValuesBucket numerical;
-                int index = mockAbilityimpl->Insert(uri, numerical);
+            NativeRdb::ValuesBucket numerical;
+            int index = mockAbilityimpl->Insert(uri, numerical);
 
-                EXPECT_EQ(-1, index);
-            }
+            EXPECT_EQ(-1, index);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Insert_001 end";
@@ -1466,26 +1350,22 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Update_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("\nullptr");
+            Uri uri("\nullptr");
 
-                NativeRdb::ValuesBucket numerical;
-                NativeRdb::DataAbilityPredicates predicates;
-                int index = mockAbilityimpl->Update(uri, numerical, predicates);
+            NativeRdb::ValuesBucket numerical;
+            NativeRdb::DataAbilityPredicates predicates;
+            int index = mockAbilityimpl->Update(uri, numerical, predicates);
 
-                EXPECT_EQ(-1, index);
-            }
+            EXPECT_EQ(-1, index);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Update_001 end";
@@ -1511,25 +1391,21 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Delete_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("\nullptr");
+            Uri uri("\nullptr");
 
-                NativeRdb::DataAbilityPredicates predicates;
-                int index = mockAbilityimpl->Delete(uri, predicates);
+            NativeRdb::DataAbilityPredicates predicates;
+            int index = mockAbilityimpl->Delete(uri, predicates);
 
-                EXPECT_EQ(-1, index);
-            }
+            EXPECT_EQ(-1, index);
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Delete_001 end";
@@ -1555,27 +1431,23 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_Query_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                Uri uri("\nullptr");
-                std::vector<std::string> columns;
-                columns.push_back("string1");
-                columns.push_back("string2");
-                columns.push_back("string3");
-                NativeRdb::DataAbilityPredicates predicates;
+            Uri uri("\nullptr");
+            std::vector<std::string> columns;
+            columns.push_back("string1");
+            columns.push_back("string2");
+            columns.push_back("string3");
+            NativeRdb::DataAbilityPredicates predicates;
 
-                EXPECT_EQ(nullptr, mockAbilityimpl->Query(uri, columns, predicates));
-            }
+            EXPECT_EQ(nullptr, mockAbilityimpl->Query(uri, columns, predicates));
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_Query_001 end";
@@ -1601,22 +1473,18 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndSave_001, TestSize.Level1)
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
 
-                EXPECT_FALSE(mockAbilityimpl->CheckAndSave());
-                mockAbilityimpl->DispatchSaveAbilityState();
-                EXPECT_TRUE(mockAbilityimpl->CheckAndSave());
-            }
+            EXPECT_FALSE(mockAbilityimpl->CheckAndSave());
+            mockAbilityimpl->DispatchSaveAbilityState();
+            EXPECT_TRUE(mockAbilityimpl->CheckAndSave());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndSave_001 end";
@@ -1642,22 +1510,18 @@ HWTEST_F(AbilityImplTest, AaFwk_AbilityImpl_CheckAndRestore_001, TestSize.Level1
     if (token != nullptr) {
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-        sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-        EXPECT_NE(abilityThread, nullptr);
-        if (abilityThread != nullptr) {
-            std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
-            std::shared_ptr<Ability> ability;
-            MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
-            EXPECT_NE(pMocKPageAbility, nullptr);
-            if (pMocKPageAbility != nullptr) {
-                ability.reset(pMocKPageAbility);
-                std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-                mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
-                EXPECT_FALSE(mockAbilityimpl->CheckAndRestore());
-                PacMap inState;
-                mockAbilityimpl->DispatchRestoreAbilityState(inState);
-                EXPECT_TRUE(mockAbilityimpl->CheckAndRestore());
-            }
+        std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+        std::shared_ptr<Ability> ability;
+        MockPageAbility *pMocKPageAbility = new (std::nothrow) MockPageAbility();
+        EXPECT_NE(pMocKPageAbility, nullptr);
+        if (pMocKPageAbility != nullptr) {
+            ability.reset(pMocKPageAbility);
+            std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
+            mockAbilityimpl->Init(application, record, ability, handler, token, contextDeal);
+            EXPECT_FALSE(mockAbilityimpl->CheckAndRestore());
+            PacMap inState;
+            mockAbilityimpl->DispatchRestoreAbilityState(inState);
+            EXPECT_TRUE(mockAbilityimpl->CheckAndRestore());
         }
     }
     GTEST_LOG_(INFO) << "AaFwk_AbilityImpl_CheckAndRestore_001 end";

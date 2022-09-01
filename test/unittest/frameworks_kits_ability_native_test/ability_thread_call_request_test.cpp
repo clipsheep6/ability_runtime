@@ -85,7 +85,7 @@ HWTEST_F(AbilityThreadCallRequestTest, AaFwk_AbilityThread_CallRequest_0100, Fun
         abilitythread->currentAbility_ = std::make_shared<CurrentAbilityTest>();
         EXPECT_NE(abilitythread->currentAbility_, nullptr);
         auto runner = EventRunner::Create(true);
-        abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(runner, abilitythread);
+        abilitythread->abilityHandler_ = std::make_shared<AbilityHandler>(runner);
         EXPECT_NE(abilitythread->abilityHandler_, nullptr);
         sptr<IRemoteObject> retval = nullptr;
         retval = abilitythread->CallRequest();

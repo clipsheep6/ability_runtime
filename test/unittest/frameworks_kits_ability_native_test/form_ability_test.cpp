@@ -83,8 +83,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0100, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -108,8 +107,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0200, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -143,8 +141,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0300, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -181,8 +178,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0400, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -216,8 +212,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0500, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -251,8 +246,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_AcquireForm_0600, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -287,8 +281,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_UpdateForm_0100, Function | MediumTest |
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -312,8 +305,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_UpdateForm_0200, Function | MediumTest |
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -338,8 +330,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_UpdateForm_0300, Function | MediumTest |
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -364,8 +355,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_UpdateForm_0400, Function | MediumTest |
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -528,8 +518,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_CastTempForm_0100, Function | MediumTest
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -553,8 +542,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_CastTempForm_0200, Function | MediumTest
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -577,8 +565,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_CastTempForm_0300, Function | MediumTest
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -601,8 +588,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_EnableUpdateForm_0100, Function | Medium
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     std::vector<int64_t> formIds;
@@ -623,8 +609,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_EnableUpdateForm_0200, Function | Medium
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -647,8 +632,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_DisableUpdateForm_0100, Function | Mediu
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     std::vector<int64_t> formIds;
@@ -669,8 +653,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_DisableUpdateForm_0200, Function | Mediu
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     std::vector<int64_t> formIds;
@@ -692,8 +675,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_DisableUpdateForm_0300, Function | Mediu
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -796,8 +778,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_RequestForm_0100, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -820,8 +801,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_RequestForm_0200, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -844,8 +824,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_RequestForm_0300, Function | MediumTest 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
     FormMgr::SetRecoverStatus(Constants::IN_RECOVERING);
@@ -927,8 +906,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0100, Function | Medi
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -952,8 +930,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0200, Function | Medi
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -974,8 +951,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0300, Function | Medi
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -1000,8 +976,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_NotifyVisibleForms_0400, Function | Medi
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -1026,8 +1001,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_FmsDeathCallback_OnDeathReceived_0100, F
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -1068,8 +1042,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_FmsDeathCallback_OnDeathReceived_0200, F
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 
@@ -1127,8 +1100,7 @@ HWTEST_F(FormAbilityTest, AaFwk_Ability_FmsDeathCallback_OnDeathReceived_0300, F
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->type = AbilityType::PAGE;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     ability_->Init(abilityInfo, nullptr, handler, nullptr);
 

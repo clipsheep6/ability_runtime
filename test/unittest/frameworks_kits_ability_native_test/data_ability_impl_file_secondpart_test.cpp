@@ -71,8 +71,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_BatchInsert_001, Functio
     abilityInfo->type = AbilityType::DATA;
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);
@@ -121,8 +120,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_HandleAbilityTransaction
     abilityInfo->type = AbilityType::DATA;
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);
@@ -150,8 +148,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_HandleAbilityTransaction
     abilityInfo->type = AbilityType::DATA;
     sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<Ability> ability = std::make_shared<MockDataAbility>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
     dataabilityimpl->Init(application, record, ability, handler, token, contextDeal);

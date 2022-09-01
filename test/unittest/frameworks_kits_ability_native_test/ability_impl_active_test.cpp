@@ -129,7 +129,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_Active_001, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::PAGE;
@@ -169,7 +169,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_Active_002, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::SERVICE;
@@ -209,7 +209,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_Active_003, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::PAGE;
@@ -248,7 +248,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_InActive_001, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::PAGE;
@@ -288,7 +288,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_InActive_002, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::DATA;
@@ -328,7 +328,7 @@ HWTEST_F(AbilityImplActiveTest, AaFwk_AbilityImpl_InActive_003, TestSize.Level1)
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     std::shared_ptr<MockAbilityClass> mockAbility = std::make_shared<MockAbilityClass>();
     std::shared_ptr<Ability> ability = std::static_pointer_cast<Ability>(mockAbility);
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
 
     abilityInfo->type = AbilityType::PAGE;

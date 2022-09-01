@@ -17,6 +17,7 @@
 #include <gtest/gtest.h>
 #include "ability_local_record.h"
 #include "hilog_wrapper.h"
+#include "ohos_application.h"
 
 namespace OHOS {
 namespace AppExecFwk {

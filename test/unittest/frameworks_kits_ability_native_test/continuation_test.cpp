@@ -69,8 +69,7 @@ void ContinuationTest::SetUp(void)
     abilityInfo_->name = "ability";
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo_->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow)AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     ability_ = std::make_shared<MockContinuationAbility>();
     ability_->Init(abilityInfo_, application, handler, continueToken_);
 }

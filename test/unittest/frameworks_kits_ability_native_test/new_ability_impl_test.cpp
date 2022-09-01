@@ -17,6 +17,7 @@
 #include "mock_ability_token.h"
 #include "mock_new_ability.h"
 #include "new_ability_impl.h"
+#include "ohos_application.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -77,8 +78,7 @@ HWTEST_F(NewAbilityImplTest, AaFwk_NewAbilityImpl_HandleAbilityTransaction_0100,
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability;
     MockNewAbility *newAbility = new (std::nothrow) MockNewAbility();

@@ -14,7 +14,9 @@
  */
 
 #include "ability_local_record.h"
+
 #include "ability_impl.h"
+#include "ability_thread.h"
 
 namespace OHOS {
 namespace AppExecFwk {

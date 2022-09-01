@@ -18,6 +18,7 @@
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_ability_token.h"
 #include "page_ability_impl.h"
+#include "ohos_application.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -72,8 +73,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0100, Function | M
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
@@ -105,8 +105,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyDown_0200, Function | M
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
@@ -137,8 +136,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0100, Function | Med
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
@@ -170,8 +168,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoKeyUp_0200, Function | Med
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -203,8 +200,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0100, Function 
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
 
@@ -236,8 +232,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DoTouchEvent_0200, Function 
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -269,8 +264,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_010
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -304,8 +298,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_020
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -336,8 +329,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_030
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -368,8 +360,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_040
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -400,8 +391,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_050
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -434,8 +424,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_060
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -469,8 +458,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_070
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -506,8 +494,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_080
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -542,8 +529,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_HandleAbilityTransaction_090
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -580,8 +566,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchSaveAbilityState_010
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -611,8 +596,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_DispatchRestoreAbilityState_
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -641,8 +625,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_SendResult_0100, Function | 
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
@@ -673,8 +656,7 @@ HWTEST_F(PageAbilityImplTest, AaFwk_PageAbilityImpl_NewWant_0100, Function | Med
     std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
-    sptr<AbilityThread> abilityThread = sptr<AbilityThread>(new (std::nothrow) AbilityThread());
-    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner, abilityThread);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
 
     std::shared_ptr<Ability> ability = std::make_shared<MockPageAbility>();
 
