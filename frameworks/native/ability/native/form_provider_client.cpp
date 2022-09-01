@@ -38,7 +38,7 @@ int FormProviderClient::AcquireProviderFormInfo(
 
     Want newWant(want);
     newWant.SetParam(Constants::ACQUIRE_TYPE, want.GetIntParam(Constants::ACQUIRE_TYPE, 0));
-    newWant.SetParam(Constants::FORM_CONNECT_ID, want.GetLongParam(Constants::FORM_CONNECT_ID, 0));
+    newWant.SetParam(Constants::FORM_CONNECT_ID, want.GetIntParam(Constants::FORM_CONNECT_ID, 0));
     newWant.SetParam(Constants::FORM_SUPPLY_INFO, want.GetStringParam(Constants::FORM_SUPPLY_INFO));
     newWant.SetParam(Constants::PROVIDER_FLAG, true);
     newWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
@@ -88,6 +88,12 @@ int FormProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
     int errorCode = ERR_OK;
     do {
         HILOG_INFO("%{public}s called.", __func__);
+        auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
+        if (hostToken != nullptr) {
+            FormCallerMgr::GetInstance().RemoveFormProviderCaller(formId, hostToken);
+            break;
+        }
+
         std::shared_ptr<Ability> ownerAbility = GetOwner();
         if (ownerAbility == nullptr) {
             HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
@@ -493,8 +499,8 @@ int  FormProviderClient::HandleDisconnect(const Want &want, const sptr<IRemoteOb
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
 
-    HILOG_DEBUG("%{public}s come, connectId: %{public}ld.", __func__,
-        want.GetLongParam(Constants::FORM_CONNECT_ID, 0L));
+    HILOG_DEBUG("%{public}s come, connectId: %{public}d.", __func__,
+        want.GetIntParam(Constants::FORM_CONNECT_ID, 0L));
 
     formSupplyClient->OnEventHandle(want);
     return ERR_OK;
@@ -555,8 +561,11 @@ void FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const
     const Want &want, const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("%{public}s called", __func__);
-    auto callerToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
-    FormCallerMgr::GetInstance().SetFormProviderCaller(formJsInfo, callerToken);
+    auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
+    if (hostToken == nullptr) {
+        return;
+    }
+    FormCallerMgr::GetInstance().AddFormProviderCaller(formJsInfo, hostToken);
 
     std::vector<std::shared_ptr<FormProviderCaller>> formProviderCallers;
     FormCallerMgr::GetInstance().GetFormProviderCaller(formJsInfo.formId, formProviderCallers);

@@ -162,7 +162,6 @@ public:
      * @return none.
      */
     void ClearOwner(const std::shared_ptr<Ability> ability);
-
 protected:
     bool CheckIsSystemApp() const;
     int HandleDisconnect(const Want &want, const sptr<IRemoteObject> &callerToken);
