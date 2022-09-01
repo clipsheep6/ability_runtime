@@ -437,7 +437,7 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
-	
+
     if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return index;
@@ -530,7 +530,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilitySchedulerProxy::Query(
         HILOG_ERROR("fail to WriteStringVector columns");
         return nullptr;
     }
-    
+
     if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return nullptr;
