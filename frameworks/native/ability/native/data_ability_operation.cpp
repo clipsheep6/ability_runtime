@@ -294,7 +294,6 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             return false;
         }
         if (!valuesBucket_->Marshalling(out)) {
-            // if (!out.WriteParcelable(valuesBucket_.get())) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
@@ -326,7 +325,6 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             return false;
         }
         if (!valuesBucketReferences_->Marshalling(out)) {
-        //if (!out.WriteParcelable(valuesBucketReferences_.get())) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
@@ -414,7 +412,6 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
         empty == VALUE_OBJECT ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
         valuesBucket_.reset(NativeRdb::ValuesBucket::Unmarshalling(in));
-        //valuesBucket_.reset(in.ReadParcelable<NativeRdb::ValuesBucket>());
     } else {
         valuesBucket_.reset();
     }
