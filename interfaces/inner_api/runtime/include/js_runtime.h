@@ -82,6 +82,7 @@ protected:
     bool isArkEngine_ = false;
     bool debugMode_ = false;
     bool preloaded_ = false;
+    bool isBundle_ = true;
     std::unique_ptr<NativeEngine> nativeEngine_;
     std::string codePath_;
     std::unique_ptr<NativeReference> methodRequireNapiRef_;

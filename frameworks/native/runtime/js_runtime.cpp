@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <regex>
 
 #include "connect_server_manager.h"
 #include "event_handler.h"
@@ -112,7 +113,7 @@ public:
     bool RunScript(const std::string& srcPath, const std::string& hapPath) override
     {
         bool result = false;
-        if (!hapPath.empty()) {
+        if (isBundle_ && !hapPath.empty()) {
             std::ostringstream outStream;
             runtimeExtractor_ = InitRuntimeExtractor(hapPath);
             if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
@@ -178,6 +179,7 @@ private:
             pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
             pandaOption.SetLogLevel(panda::RuntimeOption::LOG_LEVEL::INFO);
             pandaOption.SetLogBufPrint(PrintVmLog);
+
             // Fix a problem that if vm will crash if preloaded
             if (options.preload) {
                 pandaOption.SetEnableAsmInterpreter(false);
@@ -202,6 +204,8 @@ private:
                 vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
         }
+        isBundle_ = options.isBundle;
+        panda::JSNApi::SetBundle(vm_, options.isBundle);
         return JsRuntime::Initialize(options);
     }
 
@@ -484,7 +488,6 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
 {
     HILOG_DEBUG("JsRuntime::LoadModule(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
-
     HandleScope handleScope(*this);
 
     NativeValue* classValue = nullptr;
@@ -494,9 +497,15 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
         classValue = it->second->Get();
     } else {
         std::string fileName;
-        if (!MakeFilePath(codePath_, modulePath, fileName)) {
-            HILOG_ERROR("Failed to make module file path: %{private}s", modulePath.c_str());
-            return std::unique_ptr<NativeReference>();
+        if (!hapPath.empty()) {
+            fileName.append(codePath_).append("/").append(modulePath);
+            std::regex pattern("\\./");
+            fileName = std::regex_replace(fileName, pattern, "");
+        } else {
+            if (!MakeFilePath(codePath_, modulePath, fileName)) {
+                HILOG_ERROR("Failed to make module file path: %{private}s", modulePath.c_str());
+                return std::unique_ptr<NativeReference>();
+            }
         }
 
         classValue = esmodule ? LoadJsModule(fileName, hapPath) : LoadJsBundle(fileName, hapPath);
@@ -538,7 +547,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
 {
     bool result = false;
-    if (!hapPath.empty()) {
+    if (isBundle_ && !hapPath.empty()) {
         std::ostringstream outStream;
         runtimeExtractor_ = InitRuntimeExtractor(hapPath);
         if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
