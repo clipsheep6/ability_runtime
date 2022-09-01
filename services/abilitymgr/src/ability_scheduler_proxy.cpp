@@ -438,8 +438,7 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 	
-    if (!predicates.Marshalling(data)) {
-    //if (!data.WriteParcelable(&predicates)) {
+    if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return index;
     }
@@ -483,8 +482,7 @@ int AbilitySchedulerProxy::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
         return index;
     }
 
-    if (!predicates.Marshalling(data)) {
-    //if (!data.WriteParcelable(&predicates)) {
+    if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return index;
     }
@@ -533,8 +531,7 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilitySchedulerProxy::Query(
         return nullptr;
     }
     
-    if (!predicates.Marshalling(data)) {
-    //if (!data.WriteParcelable(&predicates)) {
+    if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return nullptr;
     }
