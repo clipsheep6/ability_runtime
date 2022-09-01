@@ -293,8 +293,8 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
-
-        if (!out.WriteParcelable(valuesBucket_.get())) {
+        if (!valuesBucket_->Marshalling(out)) {
+            // if (!out.WriteParcelable(valuesBucket_.get())) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
@@ -310,7 +310,8 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
-        if (!out.WriteParcelable(dataAbilityPredicates_.get())) {
+        if (!dataAbilityPredicates_->Marshalling(out)) {
+        //if (!out.WriteParcelable(dataAbilityPredicates_.get())) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
@@ -325,7 +326,8 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
-        if (!out.WriteParcelable(valuesBucketReferences_.get())) {
+        if (!valuesBucketReferences_->Marshalling(out)) {
+        //if (!out.WriteParcelable(valuesBucketReferences_.get())) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
@@ -412,7 +414,8 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
     HILOG_DEBUG("DataAbilityOperation::ReadFromParcel empty is %{public}s",
         empty == VALUE_OBJECT ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
-        valuesBucket_.reset(in.ReadParcelable<NativeRdb::ValuesBucket>());
+        valuesBucket_.reset(NativeRdb::ValuesBucket::Unmarshalling(in));
+        //valuesBucket_.reset(in.ReadParcelable<NativeRdb::ValuesBucket>());
     } else {
         valuesBucket_.reset();
     }
@@ -425,7 +428,8 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
     HILOG_DEBUG("DataAbilityOperation::ReadFromParcel empty is %{public}s",
         empty == VALUE_OBJECT ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
-        dataAbilityPredicates_.reset(in.ReadParcelable<NativeRdb::DataAbilityPredicates>());
+        dataAbilityPredicates_.reset(NativeRdb::DataAbilityPredicates::Unmarshalling(in));
+        //dataAbilityPredicates_.reset(in.ReadParcelable<NativeRdb::DataAbilityPredicates>());
     } else {
         dataAbilityPredicates_.reset();
     }

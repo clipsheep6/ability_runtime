@@ -333,7 +333,8 @@ int AbilitySchedulerProxy::Insert(const Uri &uri, const NativeRdb::ValuesBucket 
         return index;
     }
 
-    if (!data.WriteParcelable(&value)) {
+    if (!value.Marshalling(data)) {
+    //if (!data.WriteParcelable(&value)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
@@ -430,13 +431,15 @@ int AbilitySchedulerProxy::Update(const Uri &uri, const NativeRdb::ValuesBucket 
         HILOG_ERROR("fail to WriteParcelable uri");
         return index;
     }
-
-    if (!data.WriteParcelable(&value)) {
+	
+    if (!value.Marshalling(data)) {
+    //if (!data.WriteParcelable(&value)) {
         HILOG_ERROR("fail to WriteParcelable value");
         return index;
     }
-
-    if (!data.WriteParcelable(&predicates)) {
+	
+    if (!predicates.Marshalling(data)) {
+    //if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return index;
     }
@@ -480,7 +483,8 @@ int AbilitySchedulerProxy::Delete(const Uri &uri, const NativeRdb::DataAbilityPr
         return index;
     }
 
-    if (!data.WriteParcelable(&predicates)) {
+    if (!predicates.Marshalling(data)) {
+    //if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return index;
     }
@@ -528,8 +532,9 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilitySchedulerProxy::Query(
         HILOG_ERROR("fail to WriteStringVector columns");
         return nullptr;
     }
-
-    if (!data.WriteParcelable(&predicates)) {
+    
+    if (!predicates.Marshalling(data)) {
+    //if (!data.WriteParcelable(&predicates)) {
         HILOG_ERROR("fail to WriteParcelable predicates");
         return nullptr;
     }
@@ -661,7 +666,8 @@ int AbilitySchedulerProxy::BatchInsert(const Uri &uri, const std::vector<NativeR
     }
 
     for (int i = 0; i < count; i++) {
-        if (!data.WriteParcelable(&values[i])) {
+        if (!values[i].Marshalling(data)) {
+        //if (!data.WriteParcelable(&values[i])) {
             HILOG_ERROR("fail to WriteParcelable ret, index = %{public}d", i);
             return ret;
         }
