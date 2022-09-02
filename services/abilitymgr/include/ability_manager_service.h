@@ -1078,6 +1078,20 @@ private:
      */
     int IsCallFromBackground(const AbilityRequest &abilityRequest, bool &isBackgroundCall);
 
+    /**
+     *  Temporary, use old rule to check permission
+     *
+     */
+    int CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall = false);
+
+    /**
+     *  Temporary, judge is use new rule to start ability
+     *
+     */
+    bool IsUseNewStartUpRule(const AbilityRequest &abilityRequest);
+
+    bool CheckNewRuleSwitchState(const std::string &param);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

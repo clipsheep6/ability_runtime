@@ -13,3 +13,5 @@
 
 bootevent.appfwk.ready=false
 compress=false
+component.startup.newRules=false
+component.startup.newRules.except.LauncherSystemUI=true

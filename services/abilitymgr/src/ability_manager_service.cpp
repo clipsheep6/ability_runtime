@@ -86,6 +86,10 @@ const int32_t MIN_ARGS_SIZE = 1;
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
+
+const std::string COMPONENT_STARTUP_NEW_RULES = "component.startup.newRules";
+const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRules.except.LauncherSystemUI";
+constexpr int32_t NEW_RULE_VALUE_SIZE = 6;
 } // namespace
 
 using namespace std::chrono;
@@ -2244,6 +2248,7 @@ sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
         return nullptr;
     }
 
+    abilityRequest.callerToken = callerToken;
     if (CheckCallDataAbilityPermission(abilityRequest) != ERR_OK) {
         HILOG_ERROR("Invalid ability request info for data ability acquiring.");
         return nullptr;
@@ -5037,6 +5042,10 @@ bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
 {
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
+
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
         if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE ||
@@ -5055,6 +5064,9 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     HILOG_DEBUG("%{public}s begin", __func__);
     abilityRequest.appInfo = abilityRequest.abilityInfo.applicationInfo;
     abilityRequest.uid = abilityRequest.appInfo.uid;
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
 
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
@@ -5080,6 +5092,10 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
 int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
+
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
@@ -5097,6 +5113,10 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
 int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
+
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
@@ -5115,6 +5135,10 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
+
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
@@ -5133,6 +5157,10 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
 int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest);
+    }
+
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
@@ -5150,6 +5178,10 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
 int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abilityRequest)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    if (!IsUseNewStartUpRule(abilityRequest)) {
+        return CheckCallerPermissionOldRule(abilityRequest, true);
+    }
+
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
@@ -5190,9 +5222,71 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     AppExecFwk::RunningProcessInfo processInfo;
     DelayedSingleton<AppScheduler>::GetInstance()->
         GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
-    isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS;
+    isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS &&
+                        callerAbility->GetAppState() != AAFwk::AppState::FOREGROUND;
 
     return ERR_OK;
+}
+
+int AbilityManagerService::CheckCallerPermissionOldRule(const AbilityRequest &abilityRequest, const bool isStartByCall)
+{
+    if (IPCSkeleton::GetCallingTokenID() == abilityRequest.abilityInfo.applicationInfo.accessTokenId) {
+        return ERR_OK;
+    }
+    if (isStartByCall) {
+        auto abilityInfo = abilityRequest.abilityInfo;
+        auto callerUid = abilityRequest.callerUid;
+
+        if (!CheckCallerEligibility(abilityInfo, callerUid)) {
+            HILOG_ERROR("called ability has no permission.");
+            return RESOLVE_CALL_NO_PERMISSIONS;
+        }
+
+        HILOG_DEBUG("the caller has permission to resolve the call proxy of common ability.");
+        // check whether the target ability is singleton mode and page type.
+        if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
+            abilityInfo.launchMode == AppExecFwk::LaunchMode::SINGLETON) {
+            HILOG_DEBUG("called ability is common ability and singleton.");
+        } else {
+            HILOG_ERROR("called ability is not common ability or singleton.");
+            return RESOLVE_CALL_ABILITY_TYPE_ERR;
+        }
+        return ERR_OK;
+    } else {
+        return JudgeAbilityVisibleControl(abilityRequest.abilityInfo);
+    }
+}
+
+bool AbilityManagerService::IsUseNewStartUpRule(const AbilityRequest &abilityRequest)
+{
+    if (!CheckNewRuleSwitchState(COMPONENT_STARTUP_NEW_RULES)) {
+        return false;
+    }
+
+    if (CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI)) {
+        // TEMP, caller is Launcher or systemUI, PASS
+        std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (callerAbility) {
+            const std::string &bundleName = callerAbility->GetApplicationInfo().bundleName;
+            HILOG_INFO("IsUseNewStartUpRule, caller bundleName is %{public}s.", bundleName.c_str());
+            if (bundleName == "com.ohos.launcher" || bundleName == "com.ohos.systemui") {
+                return false;
+            }
+        }
+    }
+    HILOG_INFO("Use new startup rule");
+    return true;
+}
+
+bool AbilityManagerService::CheckNewRuleSwitchState(const std::string &param)
+{
+    char value[NEW_RULE_VALUE_SIZE] = "false";
+    int retSysParam = GetParameter(param.c_str(), "false", value, NEW_RULE_VALUE_SIZE);
+    HILOG_INFO("CheckNewRuleSwitchState, %{public}s value is %{public}s.", param.c_str(), value);
+    if (retSysParam > 0 && !std::strcmp(value, "true")) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
