@@ -2410,6 +2410,19 @@ void GetOrCreateLocalDirPromiseCompleteCB(napi_env env, napi_status status, void
 }
 
 /**
+ * @brief Obtains the absolute path to the application-specific cache directory
+ * on the primary external or shared storage device.
+ *
+ * @return Returns the absolute path to the application-specific cache directory on the external or
+ * shared storage device; returns null if the external or shared storage device is temporarily unavailable.
+ */
+napi_value NAPI_GetExternalCacheDir(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    return NAPI_GetExternalCacheDirCommon(env, info, AbilityType::PAGE);
+}
+
+/**
  * @brief GetOrCreateLocalDir Async.
  *
  * @param env The environment that the Node-API call is invoked under.
@@ -3162,6 +3175,7 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setWakeUpScreen", NAPI_SetWakeUpScreen),
         DECLARE_NAPI_FUNCTION("setDisplayOrientation", NAPI_SetDisplayOrientation),
         DECLARE_NAPI_FUNCTION("getDisplayOrientation", NAPI_GetDisplayOrientation),
+        DECLARE_NAPI_FUNCTION("getExternalCacheDir", NAPI_GetExternalCacheDir),
     };
 
     NAPI_CALL(env,
