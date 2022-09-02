@@ -112,6 +112,7 @@ const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
 const int32_t CROWDTEST_EXPIRED_REFUSED = -1;
+const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
 const std::string BUNDLE_NAME_KEY = "bundleName";
@@ -3889,9 +3890,8 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
 int AbilityManagerService::StartUser(int userId)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -3904,9 +3904,8 @@ int AbilityManagerService::StartUser(int userId)
 int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
+        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
         return CHECK_PERMISSION_FAILED;
     }
 
