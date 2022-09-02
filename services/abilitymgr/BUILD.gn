@@ -25,9 +25,11 @@ group("abilityms_target") {
   ]
 }
 
-config("abilityms_config") {
+config("abilityms_exception_config") {
   cflags_cc = [ "-fexceptions" ]
+}
 
+config("abilityms_config") {
   include_dirs = [
     "include/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
@@ -95,8 +97,10 @@ config("abilityms_config") {
 ohos_shared_library("abilityms") {
   sources = abilityms_files
   sources += [ "src/sa_mgr_client.cpp" ]
-  cflags_cc = []
-  configs = [ ":abilityms_config" ]
+  configs = [
+    ":abilityms_config",
+    ":abilityms_exception_config",
+  ]
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/common:event_report",

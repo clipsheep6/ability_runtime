@@ -94,8 +94,11 @@ ohos_source_set("appmgr_test_source") {
   part_name = "ability_runtime"
 }
 
+config("test_exception_config") {
+  cflags_cc = [ "-fexceptions" ]
+}
+
 ohos_source_set("abilityms_test_source") {
-  cflags_cc = []
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_manager.cpp",
@@ -158,6 +161,9 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
   ]
+
+  cflags_cc = []
+  configs = [ ":test_exception_config" ]
 
   public_configs = [
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",

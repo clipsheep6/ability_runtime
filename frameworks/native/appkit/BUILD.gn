@@ -36,8 +36,11 @@ gen_js_obj("delegator_mgmt_abc") {
   dep = ":gen_delegator_mgmt_abc"
 }
 
-config("appkit_config") {
+config("appkit_exception_config") {
   cflags_cc = [ "-fexceptions" ]
+}
+
+config("appkit_config") {
   defines = [ "AMS_LOG_TAG = \"Appkit\"" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
@@ -82,7 +85,10 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_napi_path}/inner/napi_common",
   ]
 
-  configs = [ ":appkit_config" ]
+  configs = [
+    ":appkit_config",
+    ":appkit_exception_config",
+  ]
 
   public_configs = [ ":appkit_public_config" ]
 
@@ -156,7 +162,6 @@ ohos_shared_library("appkit_native") {
 
 # build so
 ohos_shared_library("app_context") {
-  cflags_cc = []
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
@@ -214,7 +219,6 @@ ohos_shared_library("app_context") {
 
 # build so
 ohos_shared_library("app_context_utils") {
-  cflags_cc = []
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
