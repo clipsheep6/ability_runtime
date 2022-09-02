@@ -250,7 +250,9 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
 
     if (!isForce) {
         auto curAbilityState = abilityRecord->GetState();
-        if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND) {
+        auto curAbilityType = abilityRecord->GetAbilityInfo()->type;
+        if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND &&
+            curAbilityType == AppExecFwk::AbilityType::PAGE) {
             HILOG_ERROR("current state(%{public}d) error", static_cast<int32_t>(curAbilityState));
             return;
         }
