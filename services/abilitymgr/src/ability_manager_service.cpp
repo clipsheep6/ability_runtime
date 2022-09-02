@@ -3860,7 +3860,8 @@ bool AbilityManagerService::CheckCallerEligibility(const AppExecFwk::AbilityInfo
             return false;
         }
         AppExecFwk::ApplicationInfo callerAppInfo;
-        result = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+        result = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName,
+            AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
             GetUserId(), callerAppInfo));
         if (!result) {
             HILOG_ERROR("GetApplicationInfo from bms fail.");
