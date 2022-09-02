@@ -2685,6 +2685,12 @@ napi_value NAPI_IsUpdatingConfigurations(napi_env env, napi_callback_info info)
     return NAPI_IsUpdatingConfigurationsCommon(env, info, AbilityType::PAGE);
 }
 
+napi_value NAPI_GetExternalCacheDir(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("%{public}s called", __func__);
+    return NAPI_GetExternalCacheDirCommon(env, info, AbilityType::PAGE);
+}
+
 napi_value NAPI_PrintDrawnCompleted(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s called", __func__);
@@ -2754,6 +2760,7 @@ napi_value ContextPermissionInit(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setWakeUpScreen", NAPI_SetWakeUpScreen),
         DECLARE_NAPI_FUNCTION("setDisplayOrientation", NAPI_SetDisplayOrientation),
         DECLARE_NAPI_FUNCTION("getDisplayOrientation", NAPI_GetDisplayOrientation),
+        DECLARE_NAPI_FUNCTION("getExternalCacheDir", NAPI_GetExternalCacheDir),
     };
 
     NAPI_CALL(env,
