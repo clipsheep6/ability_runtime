@@ -323,8 +323,8 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
     // There is no process of switching the foreground, waiting for his first ability to start
+    appRecord->AddAbilityStage();
     if (appRecord->IsEmptyKeepAliveApp()) {
-        appRecord->AddAbilityStage();
         return;
     }
 
@@ -1427,7 +1427,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
     }
 
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsEmptyKeepAliveApp()) {
         appRecord->DecRestartResidentProcCount();
         if (appRecord->CanRestartResidentProc()) {
             auto restartProcss = [appRecord, innerService = shared_from_this()]() {
@@ -1624,10 +1624,11 @@ void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::Bundl
     }
 
     HILOG_INFO("bundle info size: [%{public}d]", static_cast<int>(infos.size()));
-    StartResidentProcess(infos, -1);
+    StartResidentProcess(infos, -1, true);
 }
 
-void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &infos, int restartCount)
+void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &infos, int restartCount,
+    bool isEmptyKeepAliveApp)
 {
     HILOG_INFO("start resident process");
     if (infos.empty()) {
@@ -1653,12 +1654,12 @@ void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &inf
             HILOG_INFO("processName [%{public}s] Already exists ", processName.c_str());
             continue;
         }
-        StartEmptyResidentProcess(bundle, processName, restartCount);
+        StartEmptyResidentProcess(bundle, processName, restartCount, isEmptyKeepAliveApp);
     }
 }
 
 void AppMgrServiceInner::StartEmptyResidentProcess(
-    const BundleInfo &info, const std::string &processName, int restartCount)
+    const BundleInfo &info, const std::string &processName, int restartCount, bool isEmptyKeepAliveApp)
 {
     HILOG_INFO("start bundle [%{public}s | processName [%{public}s]]", info.name.c_str(), processName.c_str());
     if (!CheckRemoteClient() || !appRunningManager_) {
@@ -1680,6 +1681,8 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
         HILOG_ERROR("start process [%{public}s] failed!", processName.c_str());
         return;
     }
+
+    appRecord->SetKeepAliveAppState(true, isEmptyKeepAliveApp);
 
     if (restartCount > 0) {
         HILOG_INFO("StartEmptyResidentProcess restartCount : [%{public}d], ", restartCount);
@@ -1730,7 +1733,7 @@ void AppMgrServiceInner::RestartResidentProcess(std::shared_ptr<AppRunningRecord
     infos.emplace_back(bundleInfo);
     HILOG_INFO("the resident process [%{public}s] remaining restarts num is [%{public}d]",
         appRecord->GetProcessName().c_str(), (int)appRecord->GetRestartResidentProcCount());
-    StartResidentProcess(infos, appRecord->GetRestartResidentProcCount());
+    StartResidentProcess(infos, appRecord->GetRestartResidentProcCount(), appRecord->IsEmptyKeepAliveApp());
 }
 
 void AppMgrServiceInner::NotifyAppStatus(const std::string &bundleName, const std::string &eventData)

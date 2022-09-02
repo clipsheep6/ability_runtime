@@ -453,7 +453,7 @@ public:
      */
     void LoadResidentProcess(const std::vector<BundleInfo> &infos);
 
-    void StartResidentProcess(const std::vector<BundleInfo> &infos,  int restartCount);
+    void StartResidentProcess(const std::vector<BundleInfo> &infos,  int restartCount, bool isEmptyKeepAliveApp);
 
     bool CheckRemoteClient();
 
@@ -551,7 +551,8 @@ public:
     int32_t KillProcessByPid(const pid_t pid) const;
 private:
 
-    void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount);
+    void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount,
+        bool isEmptyKeepAliveApp);
 
     void RestartResidentProcess(std::shared_ptr<AppRunningRecord> appRecord);
 
