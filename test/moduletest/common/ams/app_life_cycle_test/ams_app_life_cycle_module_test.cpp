@@ -1913,7 +1913,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, LoadResidentProcess_001, TestSize.Level1)
     EXPECT_FALSE(appRecord);
 
     StartAppProcess(pid);
-    serviceInner_->StartResidentProcess(infos, -1);
+    serviceInner_->StartResidentProcess(infos, -1, true);
     appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, info);
     EXPECT_TRUE(appRecord);
     pid_t newPid = appRecord->GetPriorityObject()->GetPid();
@@ -1986,7 +1986,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, LoadResidentProcess_002, TestSize.Level1)
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
 
     // start process
-    serviceInner_->StartResidentProcess(infos, -1);
+    serviceInner_->StartResidentProcess(infos, -1, true);
     auto recordMap = serviceInner_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_TRUE(recordMap.size() == 2);
 }
@@ -2035,7 +2035,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, RestartResidentProcess_001, TestSize.Level1)
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
 
     // start process
-    serviceInner_->StartResidentProcess(infos, -1);
+    serviceInner_->StartResidentProcess(infos, -1, true);
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, info);
     EXPECT_TRUE(appRecord);
 
@@ -2148,7 +2148,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, RestartResidentProcess_003, TestSize.Level1)
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
 
     // start process
-    serviceInner_->StartResidentProcess(infos, -1);
+    serviceInner_->StartResidentProcess(infos, -1, true);
     auto residentRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, info);
     EXPECT_TRUE(residentRecord);
 
