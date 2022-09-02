@@ -19,13 +19,14 @@
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
+#include <regex>
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <regex>
 
+#include "ability_constants.h"
 #include "connect_server_manager.h"
 #include "event_handler.h"
-#include "extractor_utils.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
@@ -115,8 +116,14 @@ public:
         bool result = false;
         if (isBundle_ && !hapPath.empty()) {
             std::ostringstream outStream;
-            runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-            if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+            std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+            if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
+                runtimeExtractor = RuntimeExtractor(hapPath).Create();
+                runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+            } else {
+                runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+            }
+            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
                 return result;
             }
@@ -199,10 +206,11 @@ private:
 
         if (!options.preload) {
             bundleName_ = options.bundleName;
-            runtimeExtractor_ = InitRuntimeExtractor(options.hapPath);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
+            std::shared_ptr<RuntimeExtractor> runtimeExtractor = RuntimeExtractor(options.hapPath).Create();
+            runtimeExtractorMap_.insert(make_pair(options.hapPath, runtimeExtractor));
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor));
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
@@ -250,6 +258,46 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
     const char *moduleName = "JsRuntime";
     BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
+
+bool MakeFilePath(const std::string& codePath, const std::string& modulePath, std::string& fileName)
+{
+    std::string path(codePath);
+    path.append("/").append(modulePath);
+    if (path.length() > PATH_MAX) {
+        HILOG_ERROR("Path length(%{public}zu) longer than MAX(%{public}d)", path.length(), PATH_MAX);
+        return false;
+    }
+    char resolvedPath[PATH_MAX + 1] = { 0 };
+    if (realpath(path.c_str(), resolvedPath) != nullptr) {
+        fileName = resolvedPath;
+        return true;
+    }
+
+    auto start = path.find_last_of('/');
+    auto end = path.find_last_of('.');
+    if (end == std::string::npos || end == 0) {
+        HILOG_ERROR("No secondary file path");
+        return false;
+    }
+
+    auto pos = path.find_last_of('.', end - 1);
+    if (pos == std::string::npos) {
+        HILOG_ERROR("No secondary file path");
+        return false;
+    }
+
+    path.erase(start + 1, pos - start);
+    HILOG_DEBUG("Try using secondary file path: %{private}s", path.c_str());
+
+    if (realpath(path.c_str(), resolvedPath) == nullptr) {
+        HILOG_ERROR("Failed to call realpath, errno = %{public}d", errno);
+        return false;
+    }
+
+    fileName = resolvedPath;
+    return true;
+}
+
 class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
 public:
     explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
@@ -498,8 +546,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
     } else {
         std::string fileName;
         if (!hapPath.empty()) {
-            fileName.append(codePath_).append("/").append(modulePath);
-            std::regex pattern("\\./");
+            fileName.append(codePath_).append(Constants::FILE_SEPARATOR).append(modulePath);
+            std::regex pattern(std::string(Constants::FILE_DOT) + std::string(Constants::FILE_SEPARATOR));
             fileName = std::regex_replace(fileName, pattern, "");
         } else {
             if (!MakeFilePath(codePath_, modulePath, fileName)) {
@@ -549,8 +597,14 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     bool result = false;
     if (isBundle_ && !hapPath.empty()) {
         std::ostringstream outStream;
-        runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-        if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+        std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+        if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
+            runtimeExtractor = RuntimeExtractor(hapPath).Create();
+            runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+        } else {
+            runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+        }
+        if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
             HILOG_ERROR("Get abc file failed");
             return result;
         }

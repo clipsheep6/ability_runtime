@@ -26,11 +26,14 @@ class BaseExtractor {
 public:
     explicit BaseExtractor(const std::string &source);
     virtual ~BaseExtractor();
+    std::shared_ptr<BaseExtractor> Create();
+
     /**
      * @brief Open compressed file.
      * @return Returns true if the file is successfully opened; returns false otherwise.
      */
     virtual bool Init();
+
     /**
      * @brief Extract to dest stream by file name.
      * @param fileName Indicates the file name.
@@ -59,6 +62,10 @@ public:
     bool HasEntry(const std::string &fileName) const;
     bool IsDirExist(const std::string &dir) const;
     bool IsStageBasedModel(std::string abilityName);
+    bool GetFileBuffer(const std::string& srcPath, std::ostringstream& dest);
+    bool GetFileList(const std::string& srcPath, std::vector<std::string>& assetList);
+    std::string GetLoadPath(const std::string& hapPath);
+    std::string GetRelativePath(const std::string& srcPath);
 
 protected:
     const std::string sourceFile_;

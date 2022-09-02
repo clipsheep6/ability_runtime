@@ -206,6 +206,7 @@ public:
      * @return Returns true if file is successfully extracted; returns false otherwise.
      */
     bool ExtractFile(const std::string &file, std::ostream &dest) const;
+    void SetIsRuntime(const bool isRuntime);
 
 private:
     /**
@@ -302,6 +303,7 @@ private:
     // this zip content length in the zip file.
     ZipPos fileLength_ = 0;
     bool isOpen_ = false;
+    bool isRuntime_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

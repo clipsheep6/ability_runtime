@@ -34,7 +34,6 @@ config("runtime_public_config") {
 ohos_shared_library("runtime") {
   sources = [
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
-    "${ability_runtime_native_path}/runtime/extractor_utils.cpp",
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
     "${ability_runtime_native_path}/runtime/js_console_log.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
@@ -58,7 +57,7 @@ ohos_shared_library("runtime") {
   ]
 
   deps = [
-    ":runtime_extractor",
+    "${ability_runtime_native_path}/runtime:runtime_extractor",
     "//arkcompiler/ets_runtime:libark_jsruntime",
     "//foundation/arkui/napi:ace_napi_ark",
   ]
@@ -92,45 +91,6 @@ ohos_shared_library("runtime") {
       "napi:ace_container_scope",
     ]
   }
-
-  subsystem_name = "ability"
-  part_name = "ability_runtime"
-}
-
-config("ability_extractor_config") {
-  include_dirs = [
-    "include",
-    "//third_party/json/include",
-    "//third_party/zlib/contrib/minizip",
-    "//third_party/zlib",
-  ]
-}
-
-ohos_source_set("runtime_extractor") {
-  include_dirs = [ "include" ]
-
-  sources = [
-    "${ability_runtime_native_path}/runtime/base_extractor.cpp",
-    "${ability_runtime_native_path}/runtime/runtime_extractor.cpp",
-    "${ability_runtime_native_path}/runtime/zip_file.cpp",
-  ]
-
-  cflags = []
-  if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
-  }
-
-  public_configs = [
-    ":ability_extractor_config",
-    "${ability_runtime_services_path}/common:common_config",
-  ]
-
-  deps = [ "//third_party/zlib:shared_libz" ]
-
-  external_deps = [
-    "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
-  ]
 
   subsystem_name = "ability"
   part_name = "ability_runtime"

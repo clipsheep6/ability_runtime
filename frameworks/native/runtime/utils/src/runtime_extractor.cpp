@@ -15,17 +15,43 @@
 
 #include "runtime_extractor.h"
 
+#include "ability_constants.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-RuntimeExtractor::RuntimeExtractor(const std::string& source) : BaseExtractor(source)
-{}
-
-RuntimeExtractor::RuntimeExtractor(
-    const std::string& source, const std::string& hapPath) : BaseExtractor(source)
+namespace {
+inline bool StringStartWith(const std::string& str, const char* startStr, size_t startStrLen)
 {
-    hapPath_ = hapPath;
+    return ((str.length() >= startStrLen) && (str.compare(0, startStrLen, startStr) == 0));
+}
+} // namespace
+RuntimeExtractor::RuntimeExtractor(const std::string& source) : BaseExtractor(source)
+{
+    hapPath_ = source;
+    zipFile_.SetIsRuntime(true);
+}
+
+std::shared_ptr<RuntimeExtractor> RuntimeExtractor::Create()
+{
+    if (sourceFile_.empty()) {
+        HILOG_ERROR("source is nullptr");
+        return std::shared_ptr<RuntimeExtractor>();
+    }
+
+    std::string loadPath;
+    if (StringStartWith(sourceFile_, Constants::ABS_CODE_PATH, std::string(Constants::ABS_CODE_PATH).length())) {
+        loadPath = GetLoadPath(sourceFile_);
+    } else {
+        loadPath = sourceFile_;
+    }
+    std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(loadPath);
+    if (!runtimeExtractor->Init()) {
+        HILOG_ERROR("RuntimeExtractor create failed");
+        return std::shared_ptr<RuntimeExtractor>();
+    }
+
+    return runtimeExtractor;
 }
 
 RuntimeExtractor::~RuntimeExtractor()

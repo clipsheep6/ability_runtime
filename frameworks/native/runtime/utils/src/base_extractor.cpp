@@ -16,12 +16,22 @@
 #include "base_extractor.h"
 
 #include <fstream>
+#include <regex>
+#include <sstream>
 
+#include "ability_constants.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+inline bool StringStartWith(const std::string& str, const char* startStr, size_t startStrLen)
+{
+    return ((str.length() >= startStrLen) && (str.compare(0, startStrLen, startStr) == 0));
+}
+} // namespace
+
 BaseExtractor::BaseExtractor(const std::string &source) : sourceFile_(source), zipFile_(source)
 {}
 
@@ -36,6 +46,81 @@ bool BaseExtractor::Init()
     }
     ZipEntry zipEntry;
     initial_ = true;
+    return true;
+}
+
+std::shared_ptr<BaseExtractor> BaseExtractor::Create()
+{
+    if (sourceFile_.empty()) {
+        HILOG_ERROR("source is nullptr");
+        return std::shared_ptr<BaseExtractor>();
+    }
+
+    std::string loadPath;
+    if (StringStartWith(sourceFile_, Constants::ABS_CODE_PATH, std::string(Constants::ABS_CODE_PATH).length())) {
+        loadPath = GetLoadPath(sourceFile_);
+    } else {
+        loadPath = sourceFile_;
+    }
+    std::shared_ptr<BaseExtractor> baseExtractor = std::make_shared<BaseExtractor>(loadPath);
+    if (!baseExtractor->Init()) {
+        HILOG_ERROR("BaseExtractor create failed");
+        return std::shared_ptr<BaseExtractor>();
+    }
+
+    return baseExtractor;
+}
+
+bool BaseExtractor::GetFileBuffer(const std::string& srcPath, std::ostringstream& dest)
+{
+    if (!initial_) {
+        HILOG_ERROR("extractor is not initial");
+        return false;
+    }
+
+    if (srcPath.empty()) {
+        HILOG_ERROR("GetFileBuffer::srcPath is nullptr");
+        return false;
+    }
+
+    std::string relativePath = GetRelativePath(srcPath);
+    if (!ExtractByName(relativePath, dest)) {
+        HILOG_ERROR("GetFileBuffer::Extract file failed");
+        return false;
+    }
+
+    return true;
+}
+
+bool BaseExtractor::GetFileList(const std::string& srcPath, std::vector<std::string>& assetList)
+{
+    if (!initial_) {
+        HILOG_ERROR("extractor is not initial");
+        return false;
+    }
+
+    if (srcPath.empty()) {
+        HILOG_ERROR("GetFileList::srcPath is nullptr");
+        return false;
+    }
+
+    std::vector<std::string> fileList;
+    if (!GetZipFileNames(fileList)) {
+        HILOG_ERROR("GetFileList::Get file list failed");
+        return false;
+    }
+
+    std::regex replacePattern(srcPath);
+    for (auto value : fileList) {
+        if (StringStartWith(value, srcPath.c_str(), sizeof(srcPath.c_str()) - 1)) {
+            std::string realpath = std::regex_replace(value, replacePattern, "");
+            if (realpath.find(Constants::FILE_SEPARATOR) != std::string::npos) {
+                continue;
+            }
+            assetList.emplace_back(value);
+        }
+    }
+
     return true;
 }
 
@@ -115,6 +200,26 @@ bool BaseExtractor::IsStageBasedModel(std::string abilityName)
     std::string entry = "assets/js/" + name + "/" + name + ".js";
     bool isStageBasedModel = entryMap.find(entry) != entryMap.end();
     return isStageBasedModel;
+}
+
+std::string BaseExtractor::GetLoadPath(const std::string& hapPath)
+{
+    std::regex hapPattern(std::string(Constants::ABS_CODE_PATH) + std::string(Constants::FILE_SEPARATOR));
+    std::string loadPath = std::regex_replace(hapPath, hapPattern, "");
+    loadPath = std::string(Constants::LOCAL_CODE_PATH) + std::string(Constants::FILE_SEPARATOR) +
+        loadPath.substr(loadPath.find(std::string(Constants::FILE_SEPARATOR)) + 1);
+    return loadPath;
+}
+
+std::string BaseExtractor::GetRelativePath(const std::string& srcPath)
+{
+    std::regex srcPattern(Constants::LOCAL_CODE_PATH);
+    std::string relativePath = std::regex_replace(srcPath, srcPattern, "");
+    if (relativePath.find(Constants::FILE_SEPARATOR) == 0) {
+        relativePath = relativePath.substr(1);
+        relativePath = relativePath.substr(relativePath.find(std::string(Constants::FILE_SEPARATOR)) + 1);
+    }
+    return relativePath;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
