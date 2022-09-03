@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsModuleSearcher final {
+class JsModuleSearcher {
 public:
     explicit JsModuleSearcher(const std::string& bundleName) : bundleName_(bundleName)
     {}
@@ -32,8 +32,21 @@ public:
     JsModuleSearcher& operator=(JsModuleSearcher&&) = default;
 
     std::string operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
+    std::string NormalizeUri(
+        const std::string& bundleName, const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
 
 private:
+    static void FixExtName(std::string& path);
+
+    std::string GetInstallPath(const std::string& curJsModulePath, bool module = true) const;
+    std::string MakeNewJsModulePath(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
+    std::string FindNpmPackageInPath(const std::string& npmPath) const;
+    std::string FindNpmPackageInTopLevel(
+        const std::string& moduleInstallPath, const std::string& npmPackage, size_t start = 0) const;
+    std::string FindNpmPackage(const std::string& curJsModulePath, const std::string& npmPackage) const;
+    std::string ParseOhmUri(const std::string& originBundleName, const std::string& curJsModulePath,
+        const std::string& newJsModuleUri) const;
+
     std::string bundleName_;
 };
 } // namespace AbilityRuntime

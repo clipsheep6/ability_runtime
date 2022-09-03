@@ -38,6 +38,13 @@ constexpr uint32_t FLAG_DATA_DESC = 0x8;
 constexpr size_t FILE_READ_COUNT = 1;
 constexpr uint8_t INFLATE_ERROR_TIMES = 5;
 const char FILE_SEPARATOR_CHAR = '/';
+constexpr char EXT_NAME_ABC[] = ".abc";
+
+inline bool StringEndWith(const std::string& str, const char* endStr, size_t endStrLen)
+{
+    size_t len = str.length();
+    return ((len >= endStrLen) && (str.compare(len - endStrLen, endStrLen, endStr) == 0));
+}
 }  // namespace
 
 ZipEntry::ZipEntry(const CentralDirEntry &centralEntry)
@@ -144,6 +151,12 @@ bool ZipFile::ParseAllEntries()
             break;
         }
         fileName.resize(fileLength);
+
+        if (isRuntime_ && !StringEndWith(fileName, EXT_NAME_ABC, sizeof(EXT_NAME_ABC) - 1)) {
+            currentPos += sizeof(directoryEntry);
+            currentPos += directoryEntry.nameSize + directoryEntry.extraSize + directoryEntry.commentSize;
+            continue;
+        }
 
         ZipEntry currentEntry(directoryEntry);
         currentEntry.fileName = fileName;
@@ -259,7 +272,7 @@ bool ZipFile::IsDirExist(const std::string &dir) const
             return true;
         }
     }
-    HILOG_ERROR("target dir not found, dir : %{private}s", dir.c_str());
+    HILOG_WARN("target dir not found, dir : %{private}s", dir.c_str());
     return false;
 }
 
@@ -585,6 +598,11 @@ bool ZipFile::ExtractFile(const std::string &file, std::ostream &dest) const
     }
 
     return ret;
+}
+
+void ZipFile::SetIsRuntime(const bool isRuntime)
+{
+    isRuntime_ = isRuntime;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

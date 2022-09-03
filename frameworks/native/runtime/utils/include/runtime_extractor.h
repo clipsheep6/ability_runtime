@@ -13,17 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_EXTRACTOR_UTILS_H
-#define OHOS_ABILITY_RUNTIME_EXTRACTOR_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H
+#define OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H
 
-#include "js_runtime_utils.h"
+#include "base_extractor.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::shared_ptr<RuntimeExtractor> InitRuntimeExtractor(const std::string& hapPath);
-bool GetFileBuffer(
-    const std::shared_ptr<RuntimeExtractor>& runtimeExtractor, const std::string& srcPath, std::ostringstream& dest);
+class RuntimeExtractor final : public BaseExtractor {
+public:
+    explicit RuntimeExtractor(const std::string& source);
+    RuntimeExtractor(const std::string& source, const bool isRuntime);
+    std::shared_ptr<RuntimeExtractor> Create();
+    ~RuntimeExtractor() override;
+
+    bool isSameHap(const std::string& hapPath) const;
+
+private:
+    std::string hapPath_;
+};
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-
-#endif  // OHOS_ABILITY_RUNTIME_EXTRACTOR_UTILS_H
+#endif  // OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H
