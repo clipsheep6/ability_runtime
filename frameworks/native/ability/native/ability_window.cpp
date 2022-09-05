@@ -175,5 +175,43 @@ const sptr<Rosen::Window> AbilityWindow::GetWindow()
     }
     return windowScene_ ? windowScene_->GetMainWindow() : nullptr;
 }
+
+#ifdef SUPPORT_GRAPHICS
+ErrCode AbilityWindow::SetMissionLabel(const std::string &label)
+{
+    HILOG_DEBUG("%{public}s start", __func__);
+    auto window = GetWindow();
+    if (!window) {
+        HILOG_ERROR("get window failed.");
+        return -1;
+    }
+
+    auto ret = window->SetAPPWindowLabel(label);
+    if (ret != OHOS::Rosen::WMError::WM_OK) {
+        HILOG_ERROR("SetAPPWindowLabel failed, errCode:%{public}d.", ret);
+        return -1;
+    }
+
+    return ERR_OK;
+}
+
+ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+{
+    HILOG_DEBUG("%{public}s start", __func__);
+    auto window = GetWindow();
+    if (!window) {
+        HILOG_ERROR("get window failed, will not set mission icon.");
+        return -1;
+    }
+
+    auto ret = window->SetAPPWindowIcon(icon);
+    if (ret != OHOS::Rosen::WMError::WM_OK) {
+        HILOG_ERROR("SetAPPWindowIcon failed, errCode:%{public}d.", ret);
+        return -1;
+    }
+
+    return ERR_OK;
+}
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

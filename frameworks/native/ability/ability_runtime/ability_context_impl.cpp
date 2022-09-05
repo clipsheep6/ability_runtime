@@ -546,6 +546,12 @@ ErrCode AbilityContextImpl::SetMissionLabel(const std::string &label)
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionLabel(token_, label);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContextImpl::SetMissionLabel is failed %{public}d", err);
+    } else {
+        HILOG_INFO("AbilityContextImpl::SetMissionLabel success.");
+        auto abilityCallback = abilityCallback_.lock();
+        if (abilityCallback) {
+            abilityCallback->SetMissionLabel(label);
+        }
     }
     return err;
 }
@@ -556,6 +562,12 @@ ErrCode AbilityContextImpl::SetMissionIcon(const std::shared_ptr<OHOS::Media::Pi
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->SetMissionIcon(token_, icon);
     if (err != ERR_OK) {
         HILOG_ERROR("AbilityContextImpl::SetMissionIcon is failed %{public}d", err);
+    } else {
+        HILOG_INFO("AbilityContextImpl::SetMissionIcon success.");
+        auto abilityCallback = abilityCallback_.lock();
+        if (abilityCallback) {
+            abilityCallback->SetMissionIcon(icon);
+        }
     }
     return err;
 }

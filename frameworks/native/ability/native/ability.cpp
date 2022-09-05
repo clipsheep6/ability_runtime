@@ -1836,6 +1836,76 @@ int Ability::GetCurrentWindowMode()
     return windowMode;
 }
 
+ErrCode Ability::SetMissionLabel(const std::string &label)
+{
+    HILOG_DEBUG("%{public}s start", __func__);
+    if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("invalid ability info.");
+        return -1;
+    }
+
+    // stage mode
+    if (abilityInfo_->isStageBasedModel) {
+        if (scene_ == nullptr) {
+            HILOG_ERROR("get window scene failed.");
+            return -1;
+        }
+        auto window = scene_->GetMainWindow();
+        if (window == nullptr) {
+            HILOG_ERROR("get window scene failed.");
+            return -1;
+        }
+
+        if (window->SetAPPWindowLabel(label) != OHOS::Rosen::WMError::WM_OK) {
+            HILOG_ERROR("SetAPPWindowLabel failed.");
+            return -1;
+        }
+        return ERR_OK;
+    }
+
+    // fa mode
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("abilityWindow is nullptr.");
+        return -1;
+    }
+    return abilityWindow_->SetMissionLabel(label);
+}
+
+ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+{
+    HILOG_DEBUG("%{public}s start", __func__);
+    if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("invalid ability info, can not set mission icon.");
+        return -1;
+    }
+
+    // stage mode
+    if (abilityInfo_->isStageBasedModel) {
+        if (scene_ == nullptr) {
+            HILOG_ERROR("get window scene failed, can not set mission icon.");
+            return -1;
+        }
+        auto window = scene_->GetMainWindow();
+        if (window == nullptr) {
+            HILOG_ERROR("get window scene failed, can not set mission icon.");
+            return -1;
+        }
+
+        if (window->SetAPPWindowIcon(icon) != OHOS::Rosen::WMError::WM_OK) {
+            HILOG_ERROR("SetAPPWindowIcon failed.");
+            return -1;
+        }
+        return ERR_OK;
+    }
+
+    // fa mode
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("abilityWindow is nullptr, can not set mission icon.");
+        return -1;
+    }
+    return abilityWindow_->SetMissionIcon(icon);
+}
+
 void Ability::OnCreate(Rosen::DisplayId displayId)
 {
     HILOG_DEBUG("%{public}s called.", __func__);

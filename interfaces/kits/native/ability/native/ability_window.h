@@ -24,6 +24,10 @@
 #include "window_scene.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 
+#ifdef SUPPORT_GRAPHICS
+#include "pixel_map.h"
+#endif
+
 namespace OHOS {
 namespace AppExecFwk {
 class IAbilityEvent;
@@ -84,6 +88,24 @@ public:
      * @return Returns a Window object pointer.
      */
     const sptr<Rosen::Window> GetWindow();
+
+#ifdef SUPPORT_GRAPHICS
+    /**
+     * @brief Set mission label of this ability.
+     *
+     * @param label the label of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionLabel(const std::string &label);
+
+    /**
+     * @brief Set mission icon of this ability.
+     *
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon);
+#endif
 
 private:
     std::shared_ptr<AbilityHandler> handler_ = nullptr;

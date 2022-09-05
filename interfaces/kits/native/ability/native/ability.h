@@ -1121,10 +1121,30 @@ public:
      */
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Called back at ability context.
+     *
+     * @return current window mode of the ability.
      */
     virtual int GetCurrentWindowMode() override;
+
+    /**
+     * @brief Set mission label of this ability.
+     *
+     * @param label the label of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionLabel(const std::string &label) override;
+
+    /**
+     * @brief Set mission icon of this ability.
+     *
+     * @param icon the icon of this ability.
+     * @return Returns ERR_OK if success.
+     */
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
+#endif
 
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
