@@ -65,9 +65,17 @@ JsTestRunner::JsTestRunner(
     }
     HILOG_DEBUG("JsTestRunner srcPath is %{public}s", srcPath_.c_str());
     if (!isFaJsModel) {
-        std::string moduleName;
-        hapPath_ = bundleInfo.hapModuleInfos.back().hapPath;
+        if (!args->GetTestModuleName().empty()) {
+            for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+                if (hapModuleInfo.name == args->GetTestModuleName()) {
+                    hapPath_ = hapModuleInfo.hapPath;
+                }
+            }
+        } else {
+            hapPath_ = bundleInfo.hapModuleInfos.back().hapPath;
+        }
         HILOG_DEBUG("JsTestRunner hapPath is %{public}s", hapPath_.c_str());
+        std::string moduleName;
         jsTestRunnerObj_ = jsRuntime_.LoadModule(moduleName, srcPath_, hapPath_,
             bundleInfo.hapModuleInfos.back().compileMode == AppExecFwk::CompileMode::ES_MODULE);
     }

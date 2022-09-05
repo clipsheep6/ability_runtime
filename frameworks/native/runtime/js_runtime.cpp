@@ -23,10 +23,11 @@
 #include <unistd.h>
 #include <regex>
 
+#include "ability_constants.h"
 #include "connect_server_manager.h"
 #include "event_handler.h"
+#include "file_path_utils.h"
 #include "ecmascript/napi/include/jsnapi.h"
-#include "extractor_utils.h"
 #include "hdc_register.h"
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
@@ -116,8 +117,15 @@ public:
         bool result = false;
         if (isBundle_ && !hapPath.empty()) {
             std::ostringstream outStream;
-            runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-            if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+            std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+            if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
+                runtimeExtractor = RuntimeExtractor::Create(hapPath);
+                runtimeExtractor->SetRuntimeFlag(true);
+                runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+            } else {
+                runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+            }
+            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
                 HILOG_ERROR("Get abc file failed");
                 return result;
             }
@@ -158,7 +166,7 @@ public:
             return;
         }
 
-        AbilityRuntime::BaseExtractor extractor(hqfFile);
+        AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
             HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
@@ -251,10 +259,12 @@ private:
 
         if (!options.preload) {
             bundleName_ = options.bundleName;
-            runtimeExtractor_ = InitRuntimeExtractor(options.hapPath);
-            panda::JSNApi::SetHostResolveBufferTracker(
-                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor_));
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
+            std::shared_ptr<RuntimeExtractor> runtimeExtractor = RuntimeExtractor::Create(options.hapPath);
+            runtimeExtractor->SetRuntimeFlag(true);
+            runtimeExtractorMap_.insert(make_pair(options.hapPath, runtimeExtractor));
+            panda::JSNApi::SetHostResolveBufferTracker(
+                vm_, JsModuleReader(options.bundleName, options.hapPath, runtimeExtractor));
         }
         isBundle_ = options.isBundle;
         panda::JSNApi::SetBundle(vm_, options.isBundle);
@@ -302,6 +312,7 @@ void InitSyscapModule(NativeEngine& engine, NativeObject& globalObject)
     const char *moduleName = "JsRuntime";
     BindNativeFunction(engine, globalObject, "canIUse", moduleName, CanIUse);
 }
+
 class UvLoopHandler : public AppExecFwk::FileDescriptorListener, public std::enable_shared_from_this<UvLoopHandler> {
 public:
     explicit UvLoopHandler(uv_loop_t* uvLoop) : uvLoop_(uvLoop) {}
@@ -550,8 +561,8 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(
     } else {
         std::string fileName;
         if (!hapPath.empty()) {
-            fileName.append(codePath_).append("/").append(modulePath);
-            std::regex pattern("\\./");
+            fileName.append(codePath_).append(Constants::FILE_SEPARATOR).append(modulePath);
+            std::regex pattern(std::string(Constants::FILE_DOT) + std::string(Constants::FILE_SEPARATOR));
             fileName = std::regex_replace(fileName, pattern, "");
         } else {
             if (!MakeFilePath(codePath_, modulePath, fileName)) {
@@ -601,8 +612,15 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     bool result = false;
     if (isBundle_ && !hapPath.empty()) {
         std::ostringstream outStream;
-        runtimeExtractor_ = InitRuntimeExtractor(hapPath);
-        if (!GetFileBuffer(runtimeExtractor_, srcPath, outStream)) {
+        std::shared_ptr<RuntimeExtractor> runtimeExtractor;
+        if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
+            runtimeExtractor = RuntimeExtractor::Create(hapPath);
+            runtimeExtractor->SetRuntimeFlag(true);
+            runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
+        } else {
+            runtimeExtractor = runtimeExtractorMap_.at(hapPath);
+        }
+        if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
             HILOG_ERROR("Get abc file failed");
             return result;
         }

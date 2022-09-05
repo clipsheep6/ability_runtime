@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_BASE_EXTRACTOR_H
-#define OHOS_ABILITY_RUNTIME_BASE_EXTRACTOR_H
+#ifndef OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H
+#define OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H
 
 #include <string>
 
@@ -22,15 +22,18 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class BaseExtractor {
+class RuntimeExtractor {
 public:
-    explicit BaseExtractor(const std::string &source);
-    virtual ~BaseExtractor();
+    explicit RuntimeExtractor(const std::string &source);
+    virtual ~RuntimeExtractor();
+    static std::shared_ptr<RuntimeExtractor> Create(const std::string& hapPath);
+
     /**
      * @brief Open compressed file.
      * @return Returns true if the file is successfully opened; returns false otherwise.
      */
     virtual bool Init();
+
     /**
      * @brief Extract to dest stream by file name.
      * @param fileName Indicates the file name.
@@ -64,12 +67,17 @@ public:
     bool HasEntry(const std::string &fileName) const;
     bool IsDirExist(const std::string &dir) const;
     bool IsStageBasedModel(std::string abilityName);
+    bool GetFileBuffer(const std::string& srcPath, std::ostringstream& dest);
+    bool GetFileList(const std::string& srcPath, std::vector<std::string>& assetList);
+    bool IsSameHap(const std::string& hapPath) const;
+    void SetRuntimeFlag(bool isRuntime);
 
-protected:
+private:
     const std::string sourceFile_;
     ZipFile zipFile_;
     bool initial_ = false;
+    std::string hapPath_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_BASE_EXTRACTOR_H
+#endif  // OHOS_ABILITY_RUNTIME_RUNTIME_EXTRACTOR_H

@@ -20,7 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsModuleSearcher final {
+class JsModuleSearcher {
 public:
     explicit JsModuleSearcher(const std::string& bundleName) : bundleName_(bundleName)
     {}
@@ -30,6 +30,7 @@ public:
     JsModuleSearcher(JsModuleSearcher&&) = default;
     JsModuleSearcher& operator=(const JsModuleSearcher&) = default;
     JsModuleSearcher& operator=(JsModuleSearcher&&) = default;
+    std::string GetBundleName() const;
 
     std::string operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const;
 

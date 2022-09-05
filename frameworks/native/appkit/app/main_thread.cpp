@@ -32,7 +32,7 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "extension_module_loader.h"
-#include "extractor_utils.h"
+#include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "form_extension.h"

@@ -15,11 +15,16 @@
 
 #include "js_module_searcher.h"
 
+#include "file_path_utils.h"
 #include "hilog_wrapper.h"
-#include "js_runtime_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+std::string JsModuleSearcher::GetBundleName() const
+{
+    return bundleName_;
+}
+
 std::string JsModuleSearcher::operator()(const std::string& curJsModulePath, const std::string& newJsModuleUri) const
 {
     return NormalizeUri(bundleName_, curJsModulePath, newJsModuleUri);
