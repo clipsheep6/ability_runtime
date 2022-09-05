@@ -31,6 +31,7 @@
 #undef private
 #undef protected
 #include "pending_want_record.h"
+#include "remote_native_token.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "want.h"
@@ -102,7 +103,9 @@ std::shared_ptr<OHOS::AbilityRuntime::ApplicationContext> GetAppContext()
 }
 
 void PendingWantTest::SetUpTestCase(void)
-{}
+{
+    RemoteNativeToken::SetNativeToken();
+}
 
 void PendingWantTest::TearDownTestCase(void)
 {}

@@ -25,6 +25,7 @@
 #define private public
 #define protected public
 #include "pending_want.h"
+#include "remote_native_token.h"
 #undef private
 #undef protected
 #include "want.h"
@@ -62,7 +63,9 @@ public:
 };
 
 void WantAgentHelperTest::SetUpTestCase(void)
-{}
+{
+    RemoteNativeToken::SetNativeToken();
+}
 
 void WantAgentHelperTest::TearDownTestCase(void)
 {}
