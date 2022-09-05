@@ -23,12 +23,10 @@
 
 namespace OHOS {
 namespace AAFwk {
-const std::string BLACK_ACTION_SEND_DATA = "ohos.want.action.sendData";
-const std::string BLACK_ACTION_SEND_MULTIPLE_DATA = "ohos.want.action.sendMultipleData";
+const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
-    std::vector<std::string>::value_type(BLACK_ACTION_SEND_DATA),
-    std::vector<std::string>::value_type(BLACK_ACTION_SEND_MULTIPLE_DATA)
+    std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
 };
 
 bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
