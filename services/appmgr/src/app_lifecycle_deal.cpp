@@ -161,5 +161,27 @@ int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
     appThread_->ScheduleConfigurationUpdated(config);
     return ERR_OK;
 }
+
+int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread_->ScheduleNotifyLoadRepairPatch(bundleName);
+}
+
+int32_t AppLifeCycleDeal::NotifyHotReloadPage()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (appThread_ == nullptr) {
+        HILOG_ERROR("appThread_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread_->ScheduleNotifyHotReloadPage();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

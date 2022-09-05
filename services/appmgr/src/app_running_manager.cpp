@@ -22,6 +22,7 @@
 #include "appexecfwk_errors.h"
 #include "common_event_support.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
 
@@ -573,6 +574,54 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
         return renderRecord;
     }
     return nullptr;
+}
+
+bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("Process of [%{public}s] is running, processName: %{public}s.",
+                bundleName.c_str(), appRecord->GetProcessName().c_str());
+            return true;
+        }
+    }
+    return false;
+}
+
+int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
+            result = appRecord->NotifyLoadRepairPatch(bundleName);
+        }
+    }
+    return result;
+}
+
+int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("Notify application [%{public}s] reload page.", appRecord->GetProcessName().c_str());
+            result = appRecord->NotifyHotReloadPage();
+        }
+    }
+    return result;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

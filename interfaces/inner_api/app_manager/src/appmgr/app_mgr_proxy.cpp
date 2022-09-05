@@ -17,6 +17,7 @@
 
 #include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
 
@@ -793,5 +794,104 @@ int AppMgrProxy::BlockAppService()
     return reply.ReadInt32();
 }
 #endif
+
+bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE),
+        data, reply, option);
+    if (ret != 0) {
+        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        return false;
+    }
+
+    return reply.ReadBool();
+}
+
+int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH),
+        data, reply, option);
+    if (ret != 0) {
+        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE),
+        data, reply, option);
+    if (ret != 0) {
+        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

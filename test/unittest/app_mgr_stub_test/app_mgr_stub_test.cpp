@@ -15,6 +15,8 @@
 
 #include <gtest/gtest.h>
 
+#include "app_mgr_stub.h"
+#include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
 
 using namespace testing;
@@ -85,6 +87,87 @@ HWTEST_F(AppMgrStubTest, AppMgrStub_GetProcessRunningInfosByUserId_0100, TestSiz
     EXPECT_EQ(result, NO_ERROR);
 
     GTEST_LOG_(INFO) << "AppMgrStub_GetProcessRunningInfosByUserId_0100 end";
+}
+
+/**
+ * @tc.name: HandleGetAppRunningStateByBundleName_0100
+ * @tc.desc: Handle get app running state by bundle name.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrStubTest, HandleGetAppRunningStateByBundleName_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, GetAppRunningStateByBundleName(_)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleNotifyLoadRepairPatch_0100
+ * @tc.desc: Handle notify load repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, NotifyLoadRepairPatch(_)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleNotifyHotReloadPage_0100
+ * @tc.desc: Handle notify ace hot reload page.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    WriteInterfaceToken(data);
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+
+    EXPECT_CALL(*mockAppMgrService_, NotifyHotReloadPage(_)).Times(1);
+
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+
+    HILOG_INFO("%{public}s end.", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

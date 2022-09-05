@@ -142,6 +142,10 @@ public:
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override;
 
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+
+    int32_t ScheduleNotifyHotReloadPage() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

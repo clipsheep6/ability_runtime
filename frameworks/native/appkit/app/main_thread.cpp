@@ -32,6 +32,7 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "extension_module_loader.h"
+#include "extractor_utils.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "form_extension.h"
@@ -1299,6 +1300,16 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
 #else
     AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
 #endif
+
+    if (runtime) {
+        std::vector<std::pair<std::string, std::string>> hqfFilePair;
+        if (GetHqfFileAndHapPath(appInfo->bundleName, hqfFilePair)) {
+            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+                runtime->LoadRepairPatch(it->first, it->second);
+            }
+        }
+    }
 }
 
 /**
@@ -1603,7 +1614,7 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
         HILOG_ERROR("MainThread::Init PostTask task failed");
     }
     TaskTimeoutDetected(runner);
-    
+
     watchdog_->Init(mainHandler_);
 
     TaskHandlerClient::GetInstance()->CreateRunner();
@@ -1915,5 +1926,103 @@ void MainThread::CheckMainThreadIsAlive()
     watchdog_->AllowReportEvent();
 }
 #endif  // ABILITY_LIBRARY_LOADER
+
+int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    wptr<MainThread> weak = this;
+    auto task = [weak, bundleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr || appThread->application_ == nullptr) {
+            HILOG_ERROR("app thread or application is nullptr.");
+            return;
+        }
+
+        std::vector<std::pair<std::string, std::string>> hqfFilePair;
+        if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
+            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+                appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
+            }
+        } else {
+            HILOG_DEBUG("There's no hqfFile need to load.");
+        }
+    };
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+        HILOG_ERROR("Post task failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
+}
+
+int32_t MainThread::ScheduleNotifyHotReloadPage()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    wptr<MainThread> weak = this;
+    auto task = [weak]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr || appThread->application_ == nullptr) {
+            HILOG_ERROR("app thread or application is nullptr.");
+            return;
+        }
+        appThread->application_->NotifyHotReloadPage();
+    };
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+        HILOG_ERROR("Post task failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
+}
+
+bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
+    std::vector<std::pair<std::string, std::string>> &fileMap)
+{
+    HILOG_DEBUG("function called.");
+    auto bundleObj = DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleObj == nullptr) {
+        HILOG_ERROR("Failed to get bundle manager service.");
+        return false;
+    }
+
+    sptr<IBundleMgr> bundleMgr = iface_cast<IBundleMgr>(bundleObj);
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Bundle manager is nullptr.");
+        return false;
+    }
+
+    BundleInfo bundleInfo;
+    if (!bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo)) {
+        HILOG_ERROR("Get bundle info of %{public}s failed.", bundleName.c_str());
+        return false;
+    }
+
+    std::vector<HqfInfo> hqfInfos = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
+    HILOG_INFO("[%{public}s] has %{public}d hqf.", bundleName.c_str(), hqfInfos.size());
+    for (auto hqfInfo : hqfInfos) {
+        std::string moduleName = hqfInfo.moduleName;
+        std::string resolvedHapPath;
+        for (auto hapInfo : bundleInfo.hapModuleInfos) {
+            if (hapInfo.moduleName == moduleName) {
+                std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
+                auto position = hapPath.rfind('/');
+                if (position != std::string::npos) {
+                    resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + moduleName;
+                }
+                break;
+            }
+        }
+
+        std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hqfInfo.hqfFilePath));
+        HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, hqf file: %{private}s, hap path: %{private}s.",
+            bundleName.c_str(), moduleName.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
+        fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
+    }
+
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

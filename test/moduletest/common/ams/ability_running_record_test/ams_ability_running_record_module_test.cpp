@@ -134,6 +134,16 @@ public:
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) override
     {}
 
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleNotifyHotReloadPage() override
+    {
+        return 0;
+    }
+
     void Reset() override
     {
         MockedSchedulerBase::Reset();

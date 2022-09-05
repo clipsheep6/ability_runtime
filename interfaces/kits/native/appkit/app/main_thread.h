@@ -225,6 +225,10 @@ public:
      */
     void CheckMainThreadIsAlive();
 
+    int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) override;
+
+    int32_t ScheduleNotifyHotReloadPage() override;
+
 private:
     /**
      *
@@ -515,6 +519,10 @@ private:
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, BundleInfo& bundleInfo,
         const Configuration &config);
+
+    bool GetHqfFileAndHapPath(const std::string &bundleName,
+        std::vector<std::pair<std::string, std::string>> &fileMap);
+
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.

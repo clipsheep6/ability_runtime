@@ -2655,5 +2655,41 @@ void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char 
         return;
     }
 }
+
+bool AppMgrServiceInner::GetAppRunningStateByBundleName(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("app running manager is nullptr.");
+        return false;
+    }
+
+    return appRunningManager_->GetAppRunningStateByBundleName(bundleName);
+}
+
+int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appRunningManager_->NotifyLoadRepairPatch(bundleName);
+}
+
+int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appRunningManager_->NotifyHotReloadPage(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

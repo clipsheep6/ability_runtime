@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+std::string GetLoadPath(const std::string& hapPath);
 std::shared_ptr<RuntimeExtractor> InitRuntimeExtractor(const std::string& hapPath);
 bool GetFileBuffer(
     const std::shared_ptr<RuntimeExtractor>& runtimeExtractor, const std::string& srcPath, std::ostringstream& dest);

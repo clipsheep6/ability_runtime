@@ -482,5 +482,35 @@ int AppMgrService::BlockAppService()
     return ERR_OK;
 }
 #endif
+
+bool AppMgrService::GetAppRunningStateByBundleName(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return false;
+    }
+
+    return appMgrServiceInner_->GetAppRunningStateByBundleName(bundleName);
+}
+
+int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName);
+}
+
+int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->NotifyHotReloadPage(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

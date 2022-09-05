@@ -17,6 +17,7 @@
 
 #include "mock_app_mgr_service.h"
 #include "app_mgr_proxy.h"
+#include "hilog_wrapper.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -76,6 +77,72 @@ HWTEST_F(AppMgrProxyTest, AppMgrProxy_GetProcessRunningInfosByUserId_0100, TestS
         mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::APP_GET_RUNNING_PROCESSES_BY_USER_ID));
 
     GTEST_LOG_(INFO) << "AppMgrProxy_GetProcessRunningInfosByUserId_0100 end";
+}
+
+/**
+ * @tc.name: GetAppRunningStateByBundleName_0100
+ * @tc.desc: Get app running state by bundle name.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrProxyTest, GetAppRunningStateByBundleName_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    appMgrProxy_->GetAppRunningStateByBundleName(bundleName);
+
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: NotifyLoadRepairPatch_0100
+ * @tc.desc: Notify load repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrProxyTest, NotifyLoadRepairPatch_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    appMgrProxy_->NotifyLoadRepairPatch(bundleName);
+
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: NotifyHotReloadPage_0100
+ * @tc.desc: Notify ace execute hot reload page.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    appMgrProxy_->NotifyHotReloadPage(bundleName);
+
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE));
+
+    HILOG_INFO("%{public}s end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

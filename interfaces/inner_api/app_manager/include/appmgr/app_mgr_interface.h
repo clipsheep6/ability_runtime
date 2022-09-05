@@ -243,6 +243,30 @@ public:
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;
 
+    /**
+     * @brief Get the running state of application by bundle name.
+     *
+     * @param bundleName Bundle name
+     * @return Returns true if process is running, false if process isn't running.
+     */
+    virtual bool GetAppRunningStateByBundleName(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Notify application load patch.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t NotifyLoadRepairPatch(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Notify application reload page.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t NotifyHotReloadPage(const std::string &bundleName) = 0;
+
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
         APP_APPLICATION_FOREGROUNDED,
@@ -272,6 +296,9 @@ public:
         REGISTER_CONFIGURATION_OBSERVER,
         UNREGISTER_CONFIGURATION_OBSERVER,
         APP_NOTIFY_MEMORY_LEVEL,
+        GET_APP_RUNNING_STATE,
+        NOTIFY_LOAD_REPAIR_PATCH,
+        NOTIFY_HOT_RELOAD_PAGE,
     };
 };
 }  // namespace AppExecFwk

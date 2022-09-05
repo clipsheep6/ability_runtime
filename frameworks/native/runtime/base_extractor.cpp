@@ -106,6 +106,22 @@ bool BaseExtractor::GetZipFileNames(std::vector<std::string> &fileNames)
     return true;
 }
 
+void BaseExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix)
+{
+    auto &entryMap = zipFile_.GetAllEntries();
+    for (auto &entry : entryMap) {
+        std::string fileName = entry.first;
+        auto position = fileName.rfind('.');
+        if (position != std::string::npos) {
+            std::string suffixStr = fileName.substr(position);
+            if (LowerStr(suffixStr) == ".abc") {
+                fileNames.emplace_back(fileName);
+            }
+        }
+    }
+    return;
+}
+
 bool BaseExtractor::IsStageBasedModel(std::string abilityName)
 {
     auto &entryMap = zipFile_.GetAllEntries();

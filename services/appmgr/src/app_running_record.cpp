@@ -1158,5 +1158,27 @@ void AppRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObjec
     }
     (void)moduleRecord->RemoveTerminateAbilityTimeoutTask(token);
 }
+
+int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName);
+}
+
+int32_t AppRunningRecord::NotifyHotReloadPage()
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyHotReloadPage();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

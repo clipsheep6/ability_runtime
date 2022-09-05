@@ -142,7 +142,7 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
-    
+
     // the function about system
     /**
      * CheckPermission, call CheckPermission() through proxy object, check the permission.
@@ -229,6 +229,12 @@ public:
      */
     virtual int BlockAppService() override;
     #endif
+
+    bool GetAppRunningStateByBundleName(const std::string &bundleName) override;
+
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName) override;
+
+    int32_t NotifyHotReloadPage(const std::string &bundleName) override;
 
 private:
     /**

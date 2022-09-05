@@ -90,6 +90,12 @@ AppMgrStub::AppMgrStub()
     memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
 #endif
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::GET_APP_RUNNING_STATE)] =
+        &AppMgrStub::HandleGetAppRunningStateByBundleName;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH)] =
+        &AppMgrStub::HandleNotifyLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(IAppMgr::Message::NOTIFY_HOT_RELOAD_PAGE)] =
+        &AppMgrStub::HandleNotifyHotReloadPage;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -473,5 +479,41 @@ int32_t AppMgrStub::HandleBlockAppServiceDone(MessageParcel &data, MessageParcel
     return result;
 }
 #endif
+
+int32_t AppMgrStub::HandleGetAppRunningStateByBundleName(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::string bundleName = data.ReadString();
+    auto ret = GetAppRunningStateByBundleName(bundleName);
+    if (!reply.WriteBool(ret)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::string bundleName = data.ReadString();
+    auto ret = NotifyLoadRepairPatch(bundleName);
+    if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::string bundleName = data.ReadString();
+    auto ret = NotifyHotReloadPage(bundleName);
+    if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

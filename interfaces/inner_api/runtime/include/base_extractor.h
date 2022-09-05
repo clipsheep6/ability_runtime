@@ -52,6 +52,11 @@ public:
      */
     bool GetZipFileNames(std::vector<std::string> &fileNames);
     /**
+     * @brief Get specified type names in a zip file.
+     * @param fileNames Indicates the obtained file names in zip.
+     */
+    void GetSpecifiedTypeFiles(std::vector<std::string> &fileNames, const std::string &suffix);
+    /**
      * @brief Has entry by name.
      * @param entryName Indicates the entry name.
      * @return Returns true if the ZipEntry is successfully finded; returns false otherwise.

@@ -139,6 +139,21 @@ public:
 
     virtual void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName) = 0;
 
+    /**
+     * @brief Notify application load patch.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Notify application relaod page.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyHotReloadPage() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -154,6 +169,8 @@ public:
         SCHEDULE_ABILITY_STAGE_INFO,
         SCHEDULE_ACCEPT_WANT,
         SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
+        SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
+        SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
     };
 };
 }  // namespace AppExecFwk

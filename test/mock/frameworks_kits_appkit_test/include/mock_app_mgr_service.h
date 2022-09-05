@@ -57,6 +57,9 @@ public:
     MOCK_METHOD1(UpdateConfiguration, int32_t(const Configuration &config));
     MOCK_METHOD1(RegisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
     MOCK_METHOD1(UnregisterConfigurationObserver, int32_t(const sptr<IConfigurationObserver> &observer));
+    MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string &bundleName));
+    MOCK_METHOD1(NotifyLoadRepairPatch, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(NotifyHotReloadPage, int32_t(const std::string &bundleName));
 
     void AttachApplication(const sptr<IRemoteObject> &app)
     {

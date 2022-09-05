@@ -280,6 +280,10 @@ public:
      */
     void SetExtensionTypeMap(std::map<int32_t, std::string> map);
 
+    void NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath);
+
+    void NotifyHotReloadPage();
+
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;

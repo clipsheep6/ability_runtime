@@ -151,6 +151,10 @@ public:
      */
     int32_t UpdateConfiguration(const Configuration &config);
 
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName);
+
+    int32_t NotifyHotReloadPage();
+
 private:
     sptr<IAppScheduler> appThread_ = nullptr;
 };

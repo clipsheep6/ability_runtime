@@ -19,6 +19,8 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AppMgrProxyTest") {
   module_out_path = module_output_path
 
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
   include_dirs =
       [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
 
@@ -34,6 +36,7 @@ ohos_unittest("AppMgrProxyTest") {
     "ability_base:want",
     "ability_runtime:app_manager",
     "c_utils:utils",
+    "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
 }

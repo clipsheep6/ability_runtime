@@ -124,7 +124,7 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
-    
+
     /**
      * Notify that the ability stage has been updated
      * @param recordId, the app record.
@@ -236,6 +236,12 @@ public:
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) override;
+
+    bool GetAppRunningStateByBundleName(const std::string &bundleName) override;
+
+    int32_t NotifyLoadRepairPatch(const std::string &bundleName) override;
+
+    int32_t NotifyHotReloadPage(const std::string &bundleName) override;
 
 private:
     bool SendTransactCmd(IAppMgr::Message code, MessageParcel &data, MessageParcel &reply);
