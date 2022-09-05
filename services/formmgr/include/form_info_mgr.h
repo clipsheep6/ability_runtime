@@ -78,6 +78,7 @@ public:
 
     ErrCode GetFormsInfoByModule(const std::string &bundleName, const std::string &moduleName,
                                  std::vector<FormInfo> &formInfos);
+    ErrCode ReloadFormInfos(int32_t userId);
 
 private:
     std::shared_ptr<BundleFormInfo> GetOrCreateBundleFromInfo(const std::string &bundleName);

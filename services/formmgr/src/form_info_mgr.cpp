@@ -248,13 +248,13 @@ FormInfoMgr::~FormInfoMgr() = default;
 ErrCode FormInfoMgr::Start()
 {
     std::vector<std::pair<std::string, std::string>> formInfoStorages;
+    std::unique_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
     ErrCode errCode = FormInfoStorageMgr::GetInstance().LoadFormInfos(formInfoStorages);
     if (errCode != ERR_OK) {
         HILOG_ERROR("LoadFormData failed.");
         return errCode;
     }
 
-    std::unique_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
     for (const auto &item: formInfoStorages) {
         const std::string &bundleName = item.first;
         const std::string &formInfoStoragesJson = item.second;
@@ -297,7 +297,7 @@ ErrCode FormInfoMgr::Update(const std::string &bundleName, int32_t userId)
 
     std::unique_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
     bundleFormInfoMap_[bundleName] = bundleFormInfoPtr;
-    HILOG_ERROR("update forms info success, bundleName=%{public}s.", bundleName.c_str());
+    HILOG_INFO("update forms info success, bundleName=%{public}s.", bundleName.c_str());
     return ERR_OK;
 }
 
@@ -323,7 +323,7 @@ ErrCode FormInfoMgr::Remove(const std::string &bundleName, int32_t userId)
     if (bundleFormInfoIter->second->Empty()) {
         bundleFormInfoMap_.erase(bundleFormInfoIter);
     }
-    HILOG_ERROR("remove forms info success, bundleName=%{public}s.", bundleName.c_str());
+    HILOG_INFO("remove forms info success, bundleName=%{public}s.", bundleName.c_str());
     return errCode;
 }
 
@@ -456,6 +456,54 @@ bool FormInfoMgr::CheckBundlePermission()
     }
     HILOG_ERROR("Permission verification failed");
     return false;
+}
+ErrCode FormInfoMgr::ReloadFormInfos(const int32_t userId)
+{
+    HILOG_INFO("ReloadFormInfos userId: %{public}d.", userId);
+    sptr<IBundleMgr> iBundleMgr = FormBmsHelper::GetInstance().GetBundleMgr();
+    if (iBundleMgr == nullptr) {
+        HILOG_ERROR("GetBundleMgr, failed to get IBundleMgr.");
+        return ERR_APPEXECFWK_FORM_GET_BMS_FAILED;
+    }
+
+    std::unique_lock<std::shared_timed_mutex> guard(bundleFormInfoMapMutex_);
+    std::vector<ApplicationInfo> appInfos {};
+    if (!IN_PROCESS_CALL(iBundleMgr->GetApplicationInfos(GET_BASIC_APPLICATION_INFO, userId, appInfos))) {
+        HILOG_ERROR("failed to get bundle info.");
+        return ERR_APPEXECFWK_FORM_GET_INFO_FAILED;
+    }
+
+    std::set<std::string> bundleNameSet {};
+    for (auto const &appInfo : appInfos) {
+        bundleNameSet.emplace(appInfo.bundleName);
+    }
+
+    for (auto const &bundleFormInfoPair : bundleFormInfoMap_) {
+        const std::string &bundleName = bundleFormInfoPair.first;
+        auto setFindIter = bundleNameSet.find(bundleName);
+        if (setFindIter == bundleNameSet.end()) {
+            bundleFormInfoPair.second->Remove(userId);
+            HILOG_INFO("remove forms info success, bundleName=%{public}s", bundleName.c_str());
+            continue;
+        }
+        bundleNameSet.erase(setFindIter);
+        bundleFormInfoPair.second->Update(userId);
+        HILOG_INFO("update forms info success, bundleName=%{public}s", bundleName.c_str());
+    }
+
+    for (auto const &bundleName : bundleNameSet) {
+        std::shared_ptr<BundleFormInfo> bundleFormInfoPtr = std::make_shared<BundleFormInfo>(bundleName);
+        ErrCode errCode = bundleFormInfoPtr->Update(userId);
+        if (errCode != ERR_OK) {
+            continue;
+        }
+        if (bundleFormInfoPtr->Empty()) {
+            continue;
+        }
+        bundleFormInfoMap_[bundleName] = bundleFormInfoPtr;
+        HILOG_INFO("add forms info success, bundleName=%{public}s", bundleName.c_str());
+    }
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

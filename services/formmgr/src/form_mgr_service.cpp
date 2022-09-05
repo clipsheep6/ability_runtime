@@ -389,6 +389,7 @@ void FormMgrService::OnStop()
  */
 ErrCode FormMgrService::Init()
 {
+    HILOG_INFO("FormMgrService Init start");
     runner_ = EventRunner::Create(NAME_FORM_MGR_SERVICE);
     if (!runner_) {
         HILOG_ERROR("%{public}s fail, Failed to init due to create runner error", __func__);
@@ -417,6 +418,7 @@ ErrCode FormMgrService::Init()
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_ABILITY_UPDATED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
         matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_REMOVED);
+        matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
         // init TimerReceiver
         EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
         formSysEventReceiver_ = std::make_shared<FormSysEventReceiver>(subscribeInfo);
