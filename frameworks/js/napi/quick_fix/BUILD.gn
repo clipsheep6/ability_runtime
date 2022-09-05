@@ -16,6 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("quickfixmanager_napi") {
   sources = [
+    "js_application_quick_fix_info.cpp",
     "js_quick_fix_manager.cpp",
     "native_module.cpp",
   ]

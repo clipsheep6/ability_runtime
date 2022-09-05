@@ -16,6 +16,7 @@
 #include "js_quick_fix_manager.h"
 
 #include "hilog_wrapper.h"
+#include "js_application_quick_fix_info.h"
 #include "js_runtime_utils.h"
 #include "napi_common_util.h"
 #include "quick_fix_errno_def.h"
@@ -24,6 +25,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 const char *QUICK_FIX_MANAGER_NAME = "JsQuickFixMgr";
 } // namespace
@@ -45,7 +47,54 @@ public:
         return (me != nullptr) ? me->OnApplyQuickFix(*engine, *info) : nullptr;
     }
 
+    static NativeValue *GetApplyedQuickFixInfo(NativeEngine *engine, NativeCallbackInfo *info)
+    {
+        JsQuickFixManager *me = CheckParamsAndGetThis<JsQuickFixManager>(engine, info);
+        return (me != nullptr) ? me->OnGetApplyedQuickFixInfo(*engine, *info) : nullptr;
+    }
+
 private:
+    NativeValue *OnGetApplyedQuickFixInfo(NativeEngine &engine, NativeCallbackInfo &info)
+    {
+        HILOG_DEBUG("%{public}s is called.", __func__);
+        AsyncTask::CompleteCallback complete;
+        do {
+            if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
+                complete = [](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                    task.Reject(engine, CreateJsError(engine, AAFwk::QUICK_FIX_INVALID_PARAM,
+                        "wrong parameter number."));
+                };
+                break;
+            }
+            std::string bundleName;
+            if (!OHOS::AppExecFwk::UnwrapStringFromJS2(reinterpret_cast<napi_env>(&engine),
+                reinterpret_cast<napi_value>(info.argv[0]), bundleName)) {
+                complete = [](NativeEngine& engine, AsyncTask& task, int32_t status) {
+                    task.Reject(engine, CreateJsError(engine, AAFwk::QUICK_FIX_INVALID_PARAM,
+                        "bundle name not a string."));
+                };
+                break;
+            }
+            complete = [bundleName](NativeEngine &engine, AsyncTask &task, int32_t status) {
+                AppExecFwk::ApplicationQuickFixInfo quickFixInfo;
+                auto errCode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->GetApplyedQuickFixInfo(
+                    bundleName, quickFixInfo);
+                if (errCode == 0) {
+                    task.Resolve(engine, CreateJsApplicationQuickFixInfo(engine, quickFixInfo));
+                } else {
+                    task.Reject(engine, CreateJsError(engine, errCode, "get applyed quickfix info failed."));
+                }
+            };
+        } while (0);
+
+        NativeValue *lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[1];
+        NativeValue *result = nullptr;
+        AsyncTask::Schedule("JsQuickFixManager::OnGetApplyedQuickFixInfo", engine,
+            CreateAsyncTaskWithLastParam(engine, lastParam, nullptr, std::move(complete), &result));
+        HILOG_DEBUG("OnGetApplyedQuickFixInfo is finished.");
+        return result;
+    }
+
     NativeValue *OnApplyQuickFix(NativeEngine &engine, NativeCallbackInfo &info)
     {
         HILOG_DEBUG("function called.");
