@@ -94,7 +94,6 @@ ohos_shared_library("app_manager") {
   deps = []
 
   external_deps = [
-    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
