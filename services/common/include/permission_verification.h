@@ -48,6 +48,10 @@ public:
 
     int32_t VerifyUpdateConfigurationPerm();
 
+    bool VerifyInstallBundlePermission();
+
+    bool VerifyGetBundleInfoPrivilegedPermission();
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
     unsigned int GetCallingTokenID() const;

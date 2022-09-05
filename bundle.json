@@ -80,6 +80,7 @@
         "sub_component": [
           "//foundation/ability/ability_runtime/services:ams_target",
           "//foundation/ability/ability_runtime/services/sa_profile:ams_sa_profile",
+          "//foundation/ability/ability_runtime/services/quickfixmgr:quick_fix.cfg",
           "//foundation/ability/ability_runtime/interfaces/inner_api:innerkits_target",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_ipc",
           "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension_module",
@@ -240,6 +241,15 @@
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/appkit:app_context"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix/include/",
+              "header_files": [
+                "quick_fix_manager_client.h"
+              ]
+          },
+          "name": "//foundation/ability/ability_runtime/interfaces/inner_api/quick_fix:quickfix_manager"
           }
         ],
         "test": [

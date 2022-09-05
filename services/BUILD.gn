@@ -18,6 +18,7 @@ group("ams_target") {
     "appmgr:appms_target",
     "common:ams_common_target",
     "dataobsmgr:dataobsms",
+    "quickfixmgr:quickfixms",
     "uripermmgr:libupms",
   ]
 }

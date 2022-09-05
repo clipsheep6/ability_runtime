@@ -176,6 +176,28 @@ int32_t PermissionVerification::VerifyUpdateConfigurationPerm()
     return ERR_PERMISSION_DENIED;
 }
 
+bool PermissionVerification::VerifyInstallBundlePermission()
+{
+    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_INSTALL_BUNDLE)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
+        return true;
+    }
+
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_INSTALL_BUNDLE);
+    return false;
+}
+
+bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission()
+{
+    if (IsSACall() || VerifyCallingPermission(PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
+        return true;
+    }
+
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED);
+    return false;
+}
+
 unsigned int PermissionVerification::GetCallingTokenID() const
 {
     auto callerToken = IPCSkeleton::GetCallingTokenID();

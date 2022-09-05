@@ -2001,7 +2001,7 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     }
 
     std::vector<HqfInfo> hqfInfos = bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
-    HILOG_INFO("[%{public}s] has %{public}d hqf.", bundleName.c_str(), hqfInfos.size());
+    HILOG_INFO("[%{public}s] has %{public}zu hqf.", bundleName.c_str(), hqfInfos.size());
     for (auto hqfInfo : hqfInfos) {
         std::string moduleName = hqfInfo.moduleName;
         std::string resolvedHapPath;
