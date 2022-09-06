@@ -54,7 +54,7 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
 }
 
 struct DebuggerTask {
-    void OnPostTask(std::function<void()>&& task);
+    void OnPostTask(std::function<void()>&& task) const;
 
     static void HandleTask(const uv_async_t* req);
 
@@ -125,7 +125,7 @@ void DebuggerTask::HandleTask(const uv_async_t* req)
     debuggerTask->func();
 }
 
-void DebuggerTask::OnPostTask(std::function<void()>&& task)
+void DebuggerTask::OnPostTask(std::function<void()>&& task) const
 {
     if (uv_is_active((uv_handle_t*)&onPostTaskSignal)) {
         func = std::move(task);
