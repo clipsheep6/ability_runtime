@@ -17,7 +17,6 @@
 #define private public
 #include "local_call_container.h"
 #define protected public
-#include "ability_loader.h"
 #include "ability_thread.h"
 #include "mock_serviceability_manager_service.h"
 #include "system_ability_definition.h"

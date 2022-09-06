@@ -26,7 +26,6 @@
 #include "dummy_hap_module_info.h"
 #include "hap_module_info.h"
 #include "task/task_priority.h"
-#include "mission_information.h"
 
 namespace OHOS {
 namespace DataShare {

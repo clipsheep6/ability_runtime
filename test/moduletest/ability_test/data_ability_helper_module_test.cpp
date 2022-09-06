@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "ability_loader.h"
 #include "abs_shared_result_set.h"
 #include "data_ability_predicates.h"
 #include "values_bucket.h"

@@ -14,7 +14,6 @@
  */
 
 #include <gtest/gtest.h>
-#include "ability_loader.h"
 #include "ability_thread.h"
 #include "mock_serviceability_manager_service.h"
 #define private public

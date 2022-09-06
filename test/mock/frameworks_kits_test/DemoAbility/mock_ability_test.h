@@ -19,7 +19,6 @@
 #include "gmock/gmock.h"
 
 #include "ability.h"
-#include "ability_loader.h"
 #include "want.h"
 
 namespace OHOS {
