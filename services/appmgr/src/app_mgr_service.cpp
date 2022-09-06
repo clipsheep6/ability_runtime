@@ -375,6 +375,45 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
     return ERR_OK;
 }
 
+int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("%{public}s, appms is not ready.", __func__);
+        return ERR_APPEXECFWK_HIDUMP_ERROR;
+    }
+
+    std::string result;
+    Dump(args, result);
+    int ret = dprintf(fd, "%s\n", result.c_str());
+    if (ret < 0) {
+        HILOG_ERROR("%{public}s, dprintf error.", __func__);
+        return ERR_APPEXECFWK_HIDUMP_ERROR;
+    }
+    return ERR_OK;
+}
+
+void AppMgrService::Dump(const std::vector<std::u16string>& args, std::string& result) const
+{
+    auto size = args.size();
+    if (size == 0) {
+        ShowHelp(result);
+        return;
+    }
+
+    std::string optionKey = Str16ToStr8(args[0]);
+    if (optionKey != "-h") {
+        result.append("error: unkown option.\n");
+    }
+    ShowHelp(result);
+}
+
+void AppMgrService::ShowHelp(std::string& result) const
+{
+    result.append("Usage:\n")
+        .append("-h                          ")
+        .append("help text for the tool\n");
+}
+
 void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
 {
     if (!IsReady()) {

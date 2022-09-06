@@ -45,6 +45,7 @@ enum {
     DATAOBS_SERVICE_POST_TASK_FAILED,
     NO_OBS_FOR_URI,
     OBS_EXIST,
+    DATAOBS_HIDUMP_ERROR,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

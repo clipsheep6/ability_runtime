@@ -81,8 +81,6 @@ using OHOS::Security::AccessToken::AccessTokenKit;
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const int32_t MIN_ARGS_SIZE = 1;
-
 const std::string ARGS_USER_ID = "-u";
 const std::string ARGS_CLIENT = "-c";
 const std::string ILLEGAL_INFOMATION = "The arguments are illegal and you can enter '-h' for help.";
@@ -4790,29 +4788,11 @@ AppExecFwk::ElementName AbilityManagerService::GetTopAbility()
     return elementName;
 }
 
-int AbilityManagerService::Dump(int fd, const std::vector<std::u16string> &args)
+int AbilityManagerService::Dump(int fd, const std::vector<std::u16string>& args)
 {
     HILOG_DEBUG("Dump begin fd: %{public}d", fd);
-    std::vector<std::string> argsStr;
-    for (auto arg : args) {
-        argsStr.emplace_back(Str16ToStr8(arg));
-    }
-    int32_t argsSize = static_cast<int32_t>(argsStr.size());
-    if (argsSize < MIN_ARGS_SIZE) {
-        return ERR_AAFWK_HIDUMP_INVALID_ARGS;
-    }
-
-    ErrCode errCode = ERR_OK;
     std::string result;
-    if (argsStr[0] == "-h") {
-        ShowHelp(result);
-    } else {
-        errCode = ProcessMultiParam(argsStr, result);
-        if (errCode == ERR_AAFWK_HIDUMP_INVALID_ARGS) {
-            ShowIllegalInfomation(result);
-        }
-    }
-
+    auto errCode = Dump(args, result);
     int ret = dprintf(fd, "%s\n", result.c_str());
     if (ret < 0) {
         HILOG_ERROR("dprintf error");
@@ -4822,7 +4802,32 @@ int AbilityManagerService::Dump(int fd, const std::vector<std::u16string> &args)
     return errCode;
 }
 
-ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result)
+int AbilityManagerService::Dump(const std::vector<std::u16string>& args, std::string& result)
+{
+    ErrCode errCode = ERR_OK;
+    auto size = args.size();
+    if (size == 0) {
+        ShowHelp(result);
+        return errCode;
+    }
+
+    std::vector<std::string> argsStr;
+    for (auto arg : args) {
+        argsStr.emplace_back(Str16ToStr8(arg));
+    }
+
+    if (argsStr[0] == "-h") {
+        ShowHelp(result);
+    } else {
+        errCode = ProcessMultiParam(argsStr, result);
+        if (errCode == ERR_AAFWK_HIDUMP_INVALID_ARGS) {
+            ShowIllegalInfomation(result);
+        }
+    }
+    return errCode;
+}
+
+ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string>& argsStr, std::string& result)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
     bool isClient = false;
@@ -4870,7 +4875,7 @@ ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string> &argsS
     return ERR_OK;
 }
 
-void AbilityManagerService::ShowHelp(std::string &result)
+void AbilityManagerService::ShowHelp(std::string& result)
 {
     result.append("Usage:\n")
         .append("-h                          ")
@@ -4891,7 +4896,7 @@ void AbilityManagerService::ShowHelp(std::string &result)
         .append("dump all data ability infomation in the system");
 }
 
-void AbilityManagerService::ShowIllegalInfomation(std::string &result)
+void AbilityManagerService::ShowIllegalInfomation(std::string& result)
 {
     result.append(ILLEGAL_INFOMATION);
 }

@@ -55,6 +55,14 @@ public:
     virtual int NotifyChange(const Uri &uri) override;
 
     /**
+     * @brief DataObs hidumper.
+     * @param fd Indicates the fd.
+     * @param args Indicates the params.
+     * @return Returns the dump result.
+     */
+    int Dump(int fd, const std::vector<std::u16string>& args) override;
+
+    /**
      * GetEventHandler, get the dataobs manager service's handler.
      *
      * @return Returns EventHandler ptr.
@@ -63,6 +71,10 @@ public:
 
 private:
     bool Init();
+    void Dump(const std::vector<std::u16string>& args, std::string& result) const;
+    void ShowHelp(std::string& result) const;
+
+private:
     std::shared_ptr<EventRunner> eventLoop_;
     std::shared_ptr<EventHandler> handler_;
     DataObsServiceRunningState state_;
