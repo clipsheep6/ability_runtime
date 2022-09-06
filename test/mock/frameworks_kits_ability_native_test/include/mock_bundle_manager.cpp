@@ -118,9 +118,9 @@ int BundleMgrProxy::CheckPublicKeys(const std::string &firstBundleName, const st
 {
     return 0;
 }
-bool BundleMgrProxy::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
+ErrCode BundleMgrProxy::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
 {
-    return true;
+    return 1;
 }
 bool BundleMgrProxy::HasSystemCapability(const std::string &capName)
 {
@@ -304,9 +304,9 @@ int BundleMgrService::CheckPublicKeys(const std::string &firstBundleName, const 
 {
     return 0;
 }
-bool BundleMgrService::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
+ErrCode BundleMgrService::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
 {
-    return true;
+    return 1;
 }
 bool BundleMgrService::HasSystemCapability(const std::string &capName)
 {

@@ -157,9 +157,9 @@ public:
     {
         return 0;
     };
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
+    virtual ErrCode GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
     {
-        return true;
+        return 1;
     };
     virtual bool GetAllPermissionGroupDefs(std::vector<PermissionDef> &permissionDefs)
     {

@@ -128,9 +128,9 @@ public:
         return 0;
     };
 
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
+    virtual ErrCode GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
     {
-        return true;
+        return 1;
     };
     virtual bool HasSystemCapability(const std::string &capName) override
     {
@@ -249,9 +249,9 @@ public:
         return 0;
     };
     // checks whether a specified bundle has been granted a specific permission.
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
+    virtual ErrCode GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
     {
-        return true;
+        return 1;
     };
     virtual bool HasSystemCapability(const std::string &capName) override
     {

@@ -70,7 +70,7 @@ public:
         const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
     virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override;
     virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override;
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override;
+    virtual ErrCode GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override;
     virtual bool HasSystemCapability(const std::string &capName) override;
     virtual bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override;
     virtual bool IsSafeMode() override;
@@ -142,7 +142,7 @@ public:
         const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
     virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override;
     virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override;
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override;
+    virtual ErrCode GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override;
     virtual bool HasSystemCapability(const std::string &capName) override;
     virtual bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override;
     virtual bool IsSafeMode() override;
