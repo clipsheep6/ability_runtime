@@ -41,6 +41,7 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
+#include "mix_stack_dumper.h"
 #include "ohos_application.h"
 #include "resource_manager.h"
 #include "runtime.h"
@@ -49,8 +50,6 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "task_handler_client.h"
-#include "faultloggerd_client.h"
-#include "dfx_dump_catcher.h"
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
@@ -63,8 +62,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::AbilityRuntime::Constants;
-std::shared_ptr<OHOSApplication> MainThread::applicationForAnr_ = nullptr;
+std::shared_ptr<OHOSApplication> MainThread::applicationForDump_ = nullptr;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
+static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
@@ -866,7 +866,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         HILOG_ERROR("HandleLaunchApplication::application launch failed");
         return;
     }
-    applicationForAnr_ = application_;
+    applicationForDump_ = application_;
+    mixStackDumper_ = std::make_shared<MixStackDumper>();
+    mixStackDumper_->InstallDumpHandler(applicationForDump_);
 
     // init resourceManager.
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
@@ -1642,9 +1644,9 @@ void MainThread::HandleSignal(int signal)
 void MainThread::HandleDumpHeap(bool isPrivate)
 {
     HILOG_DEBUG("Dump heap start.");
-    if (applicationForAnr_ != nullptr && applicationForAnr_->GetRuntime() != nullptr) {
+    if (applicationForDump_ != nullptr && applicationForDump_->GetRuntime() != nullptr) {
         HILOG_DEBUG("Send dump heap to ark start.");
-        applicationForAnr_->GetRuntime()->DumpHeapSnapshot(isPrivate);
+        applicationForDump_->GetRuntime()->DumpHeapSnapshot(isPrivate);
     }
 }
 

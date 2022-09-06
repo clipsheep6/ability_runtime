@@ -473,7 +473,7 @@ private:
     std::string pathSeparator_ = "/";
     std::string abilityLibraryType_ = ".so";
     static std::shared_ptr<EventHandler> signalHandler_;
-    static std::shared_ptr<OHOSApplication> applicationForAnr_;
+    static std::shared_ptr<OHOSApplication> applicationForDump_;
 
 #ifdef ABILITY_LIBRARY_LOADER
     /**

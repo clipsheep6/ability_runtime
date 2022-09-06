@@ -17,6 +17,14 @@
 #define OHOS_ABILITY_RUNTIME_RUNTIME_H
 
 #include <string>
+#include <vector>
+
+struct JsFrames {
+    std::string functionName;
+    std::string fileName;
+    std::string pos;
+    uintptr_t *nativePointer = nullptr;
+};
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -51,6 +59,7 @@ public:
     virtual Language GetLanguage() const = 0;
 
     virtual void StartDebugMode(bool needBreakPoint) = 0;
+    virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
     virtual void PreloadSystemModule(const std::string& moduleName) = 0;
