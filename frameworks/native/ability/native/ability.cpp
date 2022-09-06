@@ -1550,6 +1550,10 @@ void Ability::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
+    if (abilityInfo_ == nullptr) {
+        HILOG_ERROR("abilityInfo_ is nullptr.");
+        return;
+    }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
             if (scene_ == nullptr) {
