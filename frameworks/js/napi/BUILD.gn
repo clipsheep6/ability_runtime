@@ -46,6 +46,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/static_subscriber_extension:staticsubscriberextensionability_napi",
     "${ability_runtime_napi_path}/static_subscriber_extension_context:staticsubscriberextensioncontext_napi",
     "${ability_runtime_napi_path}/uri_permission:uripermissionmanager_napi",
+    "${ability_runtime_napi_path}/want:want",
     "${ability_runtime_napi_path}/wantConstant:wantconstant",
     "${ability_runtime_napi_path}/wantagent:wantagent",
   ]
