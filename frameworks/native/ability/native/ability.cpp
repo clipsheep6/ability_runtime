@@ -404,13 +404,13 @@ bool Ability::IsRestoredInContinuation() const
     return true;
 }
 
-void Ability::NotityContinuationResult(const Want& want, bool success)
+void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_INFO("NotityContinuationResult begin");
+    HILOG_INFO("NotifyContinuationResult begin");
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Ability::NotityContinuationComplete");
+    HILOG_DEBUG("Ability::NotifyContinuationComplete");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
