@@ -4273,7 +4273,8 @@ int AbilityManagerService::SendANRProcessID(int pid)
 {
     HILOG_INFO("SendANRProcessID come, pid is %{public}d", pid);
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isSaCall && !isShellCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }

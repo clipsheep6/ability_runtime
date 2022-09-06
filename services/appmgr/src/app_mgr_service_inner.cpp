@@ -2359,7 +2359,8 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
 int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk::ApplicationInfo &application)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isSaCall && !isShellCall) {
         HILOG_ERROR("no permissions.");
         return ERR_PERMISSION_DENIED;
     }
