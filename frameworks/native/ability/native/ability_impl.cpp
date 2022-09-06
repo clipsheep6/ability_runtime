@@ -115,7 +115,6 @@ void AbilityImpl::Stop()
 #endif
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
     ability_->DestroyInstance(); // Release window and ability.
-    ability_ = nullptr;
     HILOG_DEBUG("%{public}s end.", __func__);
 }
 
