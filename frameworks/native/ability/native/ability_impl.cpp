@@ -164,7 +164,6 @@ void AbilityImpl::StopCallback()
 #endif
     abilityLifecycleCallbacks_->OnAbilityStop(ability_);
     ability_->DestroyInstance(); // Release window and ability.
-    ability_ = nullptr;
 }
 
 void AbilityImpl::Active()
