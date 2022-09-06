@@ -43,7 +43,7 @@ NativeValue *CreateJsHapModuleQuickFixInfoArray(NativeEngine &engine, const std:
         NativeValue *objValue = engine.CreateObject();
         NativeObject *object = ConvertNativeValueTo<NativeObject>(objValue);
         object->SetProperty("moduleName", CreateJsValue(engine, hqfInfo.moduleName));
-        object->SetProperty("moduleSha256", CreateJsValue(engine, hqfInfo.hapSha256));
+        object->SetProperty("originHapHash", CreateJsValue(engine, hqfInfo.hapSha256));
         object->SetProperty("quickFixFilePath", CreateJsValue(engine, hqfInfo.hqfFilePath));
         array->SetElement(index++, objValue);
     }
