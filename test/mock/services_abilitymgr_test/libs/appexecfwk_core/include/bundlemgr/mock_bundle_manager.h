@@ -275,7 +275,7 @@ public:
     MOCK_METHOD3(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo));
     MOCK_METHOD2(GetLaunchWantForBundle, bool(const std::string &bundleName, Want &want));
     MOCK_METHOD2(CheckPublicKeys, int(const std::string &firstBundleName, const std::string &secondBundleName));
-    MOCK_METHOD2(GetPermissionDef, bool(const std::string &permissionName, PermissionDef &permissionDef));
+    MOCK_METHOD2(GetPermissionDef, int32_t(const std::string &permissionName, PermissionDef &permissionDef));
     MOCK_METHOD1(HasSystemCapability, bool(const std::string &capName));
     MOCK_METHOD1(GetSystemAvailableCapabilities, bool(std::vector<std::string> &systemCaps));
     MOCK_METHOD0(IsSafeMode, bool());
@@ -344,7 +344,7 @@ public:
     MOCK_METHOD3(GetHapModuleInfo, bool(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo));
     MOCK_METHOD2(GetLaunchWantForBundle, bool(const std::string &bundleName, Want &want));
     MOCK_METHOD2(CheckPublicKeys, int(const std::string &firstBundleName, const std::string &secondBundleName));
-    MOCK_METHOD2(GetPermissionDef, bool(const std::string &permissionName, PermissionDef &permissionDef));
+    MOCK_METHOD2(GetPermissionDef, int32_t(const std::string &permissionName, PermissionDef &permissionDef));
     MOCK_METHOD1(HasSystemCapability, bool(const std::string &capName));
     MOCK_METHOD1(GetSystemAvailableCapabilities, bool(std::vector<std::string> &systemCaps));
     MOCK_METHOD0(IsSafeMode, bool());
