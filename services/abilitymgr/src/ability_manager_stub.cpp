@@ -465,7 +465,7 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
 {
     Want *want = data.ReadParcelable<Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        HILOG_ERROR("%{public}s, want is nullptr", __func__);
         return ERR_INVALID_VALUE;
     }
     sptr<IAbilityConnection> callback = nullptr;

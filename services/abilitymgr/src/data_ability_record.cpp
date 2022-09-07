@@ -182,8 +182,6 @@ int DataAbilityRecord::OnTransitionDone(int state)
 
 int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind, bool isNotHap)
 {
-    HILOG_INFO("Adding data ability client...");
-
     if (!client) {
         HILOG_ERROR("Data ability add client: invalid param.");
         return ERR_INVALID_STATE;
@@ -232,13 +230,11 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
         auto clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         CHECK_POINTER_AND_RETURN(clientAbilityRecord, ERR_UNKNOWN_OBJECT);
         appScheduler->AbilityBehaviorAnalysis(ability_->GetToken(), clientAbilityRecord->GetToken(), 0, 0, 1);
-        HILOG_INFO("Ability ability '%{public}s|%{public}s'.",
-            clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
+        HILOG_INFO("Ability '%{public}s|%{public}s'.", clientAbilityRecord->GetApplicationInfo().bundleName.c_str(),
             clientAbilityRecord->GetAbilityInfo().name.c_str());
     }
 
-    HILOG_INFO("Data ability '%{public}s|%{public}s'.",
-        ability_->GetApplicationInfo().bundleName.c_str(),
+    HILOG_INFO("Data ability '%{public}s|%{public}s'.", ability_->GetApplicationInfo().bundleName.c_str(),
         ability_->GetAbilityInfo().name.c_str());
 
     return ERR_OK;

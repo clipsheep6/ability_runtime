@@ -250,20 +250,20 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        HILOG_ERROR("StartExtensionAbility, userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("extensionType write failed.");
+        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
         return INNER_ERR;
     }
     if (!Remote()) {
-        HILOG_ERROR("Remote error.");
+        HILOG_ERROR("StartExtensionAbility, Remote error.");
         return INNER_ERR;
     }
     error = Remote()->SendRequest(IAbilityManager::START_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -469,11 +469,11 @@ int AbilityManagerProxy::ConnectAbilityCommon(
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        HILOG_ERROR("%{public}s, userId write failed.", __func__);
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("extensionType write failed.");
+        HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
         return INNER_ERR;
     }
     if (Remote() == nullptr) {
@@ -481,7 +481,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     }
     int error = Remote()->SendRequest(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);
         return error;
     }
     return reply.ReadInt32();

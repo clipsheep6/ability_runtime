@@ -39,8 +39,8 @@ public:
 class MockAbilityStub : public IRemoteStub<IAbilityMock> {
 public:
     MockAbilityStub() = default;
-    virtual ~MockAbilityStub() = default;
-    virtual int OnRemoteRequest(
+    ~MockAbilityStub() = default;
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override
     {
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -50,7 +50,7 @@ public:
 class MockAbilityContextDeal : public ContextDeal {
 public:
     MockAbilityContextDeal();
-    virtual ~MockAbilityContextDeal();
+    ~MockAbilityContextDeal();
 
     std::shared_ptr<HapModuleInfo> GetHapModuleInfo();
 
@@ -79,7 +79,7 @@ namespace AAFwk {
 class MockAbilityManagerClient : public AbilityManagerClient {
 public:
     MockAbilityManagerClient();
-    virtual ~MockAbilityManagerClient();
+    ~MockAbilityManagerClient();
 
     ErrCode GetStartAbility();
     ErrCode GetTerminateAbility();

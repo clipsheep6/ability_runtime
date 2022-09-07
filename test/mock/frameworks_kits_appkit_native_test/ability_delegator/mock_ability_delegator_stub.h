@@ -28,20 +28,20 @@ namespace AAFwk {
 class MockAbilityDelegatorStub : public AbilityManagerStub {
 public:
     MockAbilityDelegatorStub();
-    virtual int StartAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
+    int StartAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
+    int StartAbility(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant));
     MOCK_METHOD2(TerminateAbility, int(const sptr<IRemoteObject> &callerToken, int requestCode));
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override;
-    virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
     MOCK_METHOD4(ConnectAbility, int(const Want &want, const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken, int32_t userId));
     MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &connect));
@@ -56,9 +56,9 @@ public:
         ScheduleConnectAbilityDone, int(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject));
     MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject> &token));
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject> &token));
-    virtual void DumpState(const std::string &args, std::vector<std::string> &state) override;
+    void DumpState(const std::string &args, std::vector<std::string> &state) override;
     MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject> &token, int startId));
-    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
+    int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
@@ -112,49 +112,49 @@ public:
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
-    virtual int StartUser(int userId) override;
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
-    virtual int StopSyncRemoteMissions(const std::string& devId) override;
-    virtual int RegisterMissionListener(const std::string &deviceId,
+    int StartUser(int userId) override;
+    int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+    int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
+    int StopSyncRemoteMissions(const std::string& devId) override;
+    int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
+    int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
-    virtual int StartAbilityByCall(
+    int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
-    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect,
+    int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override;
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+    int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-    virtual int SendANRProcessID(int pid) override;
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
+    int SendANRProcessID(int pid) override;
+    int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override;
-    virtual bool IsRunningInStabilityTest() override;
-    virtual void DumpSysState(
+    bool IsRunningInStabilityTest() override;
+    void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
-    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
-    virtual int FinishUserTest(
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
+    int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
-    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
-    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token);
-    virtual int BlockAmsService();
-    virtual int BlockAbility(int32_t abilityRecordId);
-    virtual int BlockAppService();
+    int GetTopAbility(sptr<IRemoteObject> &token) override;
+    int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
+    int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
+    int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
+    int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
+    int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token);
+    int BlockAmsService();
+    int BlockAbility(int32_t abilityRecordId);
+    int BlockAppService();
 #ifdef ABILITY_COMMAND_FOR_TEST
-    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
+    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 #endif
 #ifdef SUPPORT_GRAPHICS
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
-    virtual int SetMissionIcon(
+    int SetMissionIcon(
         const sptr<IRemoteObject> &token, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
-    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 #endif
 
 public:
@@ -165,19 +165,19 @@ public:
 class MockAbilityDelegatorStub2 : public AbilityManagerStub {
 public:
     MockAbilityDelegatorStub2();
-    virtual int StartAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1) override;
+    int StartAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1) override;
     MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD5(StartAbility, int(const Want &want, const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
-    virtual int StartAbility(const Want &want, const StartOptions &startOptions,
+    int StartAbility(const Want &want, const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken, int requestCode = DEFAULT_INVAL_VALUE,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant));
     MOCK_METHOD2(TerminateAbility, int(const sptr<IRemoteObject> &callerToken, int requestCode));
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override;
-    virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override;
     MOCK_METHOD4(ConnectAbility, int(const Want &want, const sptr<IAbilityConnection> &connect,
         const sptr<IRemoteObject> &callerToken, int32_t userId));
     MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection> &connect));
@@ -192,9 +192,9 @@ public:
         ScheduleConnectAbilityDone, int(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &remoteObject));
     MOCK_METHOD1(ScheduleDisconnectAbilityDone, int(const sptr<IRemoteObject> &token));
     MOCK_METHOD1(ScheduleCommandAbilityDone, int(const sptr<IRemoteObject> &token));
-    virtual void DumpState(const std::string &args, std::vector<std::string> &state) override;
+    void DumpState(const std::string &args, std::vector<std::string> &state) override;
     MOCK_METHOD2(TerminateAbilityResult, int(const sptr<IRemoteObject> &token, int startId));
-    virtual int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
+    int StopServiceAbility(const Want &want, int32_t userId = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD2(TerminateAbilityByCaller, int(const sptr<IRemoteObject> &callerToken, int requestCode));
     MOCK_METHOD1(MoveMissionToTop, int(int32_t missionId));
     MOCK_METHOD1(RemoveMission, int(int id));
@@ -248,49 +248,49 @@ public:
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo> &info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo> &info));
     MOCK_METHOD2(GetWantSenderInfo, int(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info));
-    virtual int StartUser(int userId) override;
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
-    virtual int StopSyncRemoteMissions(const std::string& devId) override;
-    virtual int RegisterMissionListener(const std::string &deviceId,
+    int StartUser(int userId) override;
+    int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+    int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
+    int StopSyncRemoteMissions(const std::string& devId) override;
+    int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
+    int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override;
-    virtual int StartAbilityByCall(
+    int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override;
-    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect,
+    int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override;
-    virtual int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
+    int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
-    virtual void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
-    virtual int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-    virtual int SendANRProcessID(int pid) override;
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    void UpdateMissionSnapShot(const sptr<IRemoteObject>& token) override;
+    int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
+    int SendANRProcessID(int pid) override;
+    int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override;
-    virtual bool IsRunningInStabilityTest() override;
-    virtual void DumpSysState(
+    bool IsRunningInStabilityTest() override;
+    void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override;
-    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
-    virtual int FinishUserTest(
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override;
+    int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override;
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
-    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
-    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token);
-    virtual int BlockAmsService();
-    virtual int BlockAbility(int32_t abilityRecordId);
-    virtual int BlockAppService();
+    int GetTopAbility(sptr<IRemoteObject> &token) override;
+    int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override;
+    int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override;
+    int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag);
+    int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag);
+    int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token);
+    int BlockAmsService();
+    int BlockAbility(int32_t abilityRecordId);
+    int BlockAppService();
 #ifdef ABILITY_COMMAND_FOR_TEST
-    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
+    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override;
 #endif
 #ifdef SUPPORT_GRAPHICS
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject> &token, const std::string &label));
-    virtual int SetMissionIcon(
+    int SetMissionIcon(
         const sptr<IRemoteObject> &token, const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
-    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler);
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 #endif
 
 public:

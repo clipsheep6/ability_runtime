@@ -76,12 +76,12 @@ public:
     {
         return 0;
     }
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override
     {
         return 0;
     }
-    virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override
     {
         return 0;
     }
@@ -95,7 +95,7 @@ public:
         return 0;
     }
 
-    virtual sptr<IAbilityScheduler> AcquireDataAbility(
+    sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) override
     {
         return nullptr;
@@ -163,44 +163,44 @@ public:
         return 0;
     }
 
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override
+    int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int ClearUpApplicationData(const std::string &bundleName) override
+    int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;
     }
 
-    virtual int StartUser(int userId) override
+    int StartUser(int userId) override
     {
         return 0;
     }
 
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
     {
         return 0;
     }
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
     }
-    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    int StopSyncRemoteMissions(const std::string& devId) override
     {
         return 0;
     }
-    virtual int RegisterMissionListener(const std::string &deviceId,
+    int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
+    int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect,
+    int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {
         return 0;
@@ -221,30 +221,30 @@ public:
         return 0;
     }
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
     {
         return 0;
     }
 
-    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
     {
         return 0;
     }
 
-    virtual bool IsRunningInStabilityTest() override
+    bool IsRunningInStabilityTest() override
     {
         return true;
     }
 
-    virtual int SendANRProcessID(int pid) override
+    int SendANRProcessID(int pid) override
     {
         return 0;
     }
 
-    virtual int SetMissionIcon(const sptr<IRemoteObject> &token,
+    int SetMissionIcon(const sptr<IRemoteObject> &token,
         const std::shared_ptr<OHOS::Media::PixelMap> &icon) override
     {
         if (!token || !icon) {
@@ -298,55 +298,55 @@ public:
     MOCK_METHOD1(BlockAbility, int(int32_t abilityRecordId));
     #endif
 
-    virtual int SendResultToAbility(int requestCode, int resultCode, Want &resultWant) override
+    int SendResultToAbility(int requestCode, int resultCode, Want &resultWant) override
     {
         return 0;
     }
 
-    virtual int StartAbilityByCall(
+    int StartAbilityByCall(
         const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken) override
     {
         return 0;
     }
 
-    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
     {
         return 0;
     }
 
-    virtual int FinishUserTest(
+    int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override
     {
         return 0;
     }
 
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override
+    int GetTopAbility(sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override
+    int DoAbilityForeground(const sptr<IRemoteObject> &token, uint32_t flag) override
     {
         return 0;
     }
 
-    virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override
+    int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override
     {
         return 0;
     }
 
     #ifdef ABILITY_COMMAND_FOR_TEST
-    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
+    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {
         return 0;
     }

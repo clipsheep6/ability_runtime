@@ -29,7 +29,7 @@ public:
     MissionContinueStub();
     virtual ~MissionContinueStub();
 
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 private:
     DISALLOW_COPY_AND_MOVE(MissionContinueStub);

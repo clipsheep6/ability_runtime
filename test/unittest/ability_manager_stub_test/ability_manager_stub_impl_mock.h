@@ -113,12 +113,12 @@ public:
         return 0;
     }
 
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override
     {
         return 0;
     }
-    virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser) override
     {
         return 0;
     }
@@ -137,7 +137,7 @@ public:
         return 0;
     }
 
-    virtual sptr<IAbilityScheduler> AcquireDataAbility(
+    sptr<IAbilityScheduler> AcquireDataAbility(
         const Uri &uri, bool tryBind, const sptr<IRemoteObject> &callerToken) override
     {
         return nullptr;
@@ -200,84 +200,84 @@ public:
         return 0;
     }
 
-    virtual int ClearUpApplicationData(const std::string &bundleName) override
+    int ClearUpApplicationData(const std::string &bundleName) override
     {
         return 0;
     }
-    virtual int LockMissionForCleanup(int32_t missionId) override
+    int LockMissionForCleanup(int32_t missionId) override
     {
         return 0;
     }
-    virtual int UnlockMissionForCleanup(int32_t missionId) override
+    int UnlockMissionForCleanup(int32_t missionId) override
     {
         return 0;
     }
-    virtual int RegisterMissionListener(const sptr<IMissionListener> &listener) override
+    int RegisterMissionListener(const sptr<IMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override
+    int UnRegisterMissionListener(const sptr<IMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int CleanMission(int32_t missionId) override
+    int CleanMission(int32_t missionId) override
     {
         return 0;
     }
-    virtual int CleanAllMissions() override
+    int CleanAllMissions() override
     {
         return 0;
     }
-    virtual int MoveMissionToFront(int32_t missionId) override
+    int MoveMissionToFront(int32_t missionId) override
     {
         return 0;
     }
-    virtual int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override
+    int MoveMissionToFront(int32_t missionId, const StartOptions &startOptions) override
     {
         return 0;
     }
-    virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override
+    int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
-    virtual int GetMissionInfos(const std::string& deviceId, int32_t numMax,
+    int GetMissionInfos(const std::string& deviceId, int32_t numMax,
         std::vector<MissionInfo> &missionInfos) override
     {
         return 0;
     }
-    virtual int GetMissionInfo(const std::string& deviceId, int32_t missionId,
+    int GetMissionInfo(const std::string& deviceId, int32_t missionId,
         MissionInfo &missionInfo) override
     {
         return 0;
     }
-    virtual int StartUser(int userId) override
+    int StartUser(int userId) override
     {
         return 0;
     }
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
     {
         return 0;
     }
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
     }
-    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    int StopSyncRemoteMissions(const std::string& devId) override
     {
         return 0;
     }
-    virtual int RegisterMissionListener(const std::string &deviceId,
+    int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
+    int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }
 
-    virtual int ReleaseCall(const sptr<IAbilityConnection> &connect,
+    int ReleaseCall(const sptr<IAbilityConnection> &connect,
         const AppExecFwk::ElementName &element) override
     {
         return 0;
@@ -298,57 +298,57 @@ public:
         return 0;
     }
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
     {
         return 0;
     }
 
-    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
     {
         return 0;
     }
 
-    virtual bool IsRunningInStabilityTest() override
+    bool IsRunningInStabilityTest() override
     {
         return true;
     }
 
-    virtual int SendANRProcessID(int pid) override
+    int SendANRProcessID(int pid) override
     {
         return 0;
     }
 
-    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
     {
         return 0;
     }
 
-    virtual int FinishUserTest(
+    int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override
     {
         return 0;
     }
 
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override
+    int GetTopAbility(sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
     #ifdef ABILITY_COMMAND_FOR_TEST
-    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
+    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {
         return 0;
     }

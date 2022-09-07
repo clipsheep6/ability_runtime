@@ -37,7 +37,7 @@ void MockApplication::OnConfigurationUpdated(const Configuration &config)
     GTEST_LOG_(INFO) << "MockApplication::OnConfigurationUpdated called";
     bool iscalled = true;
     EXPECT_TRUE(iscalled);
-    if (INMOCKAPPLICATION_TWO == GetProcessInfo()->GetPid()) {
+    if (GetProcessInfo()->GetPid() == INMOCKAPPLICATION_TWO) {
         RegisterElementsCallbacks(elementCallBack_);
         OHOSApplication::OnConfigurationUpdated(config);
         UnregisterElementsCallbacks(elementCallBack_);
@@ -52,7 +52,7 @@ void MockApplication::OnMemoryLevel(int level)
     EXPECT_TRUE(iscalled);
     level_ = level;
     EXPECT_EQ(level, level_);
-    if (INMOCKAPPLICATION_TWO == GetProcessInfo()->GetPid()) {
+    if (GetProcessInfo()->GetPid() == INMOCKAPPLICATION_TWO) {
         RegisterElementsCallbacks(elementCallBack_);
         OHOSApplication::OnMemoryLevel(level);
         UnregisterElementsCallbacks(elementCallBack_);
@@ -82,7 +82,7 @@ void MockApplication::OnStart()
     int a = 1;
     EXPECT_EQ(1, a);
 
-    if (INMOCKAPPLICATION_THREE == GetProcessInfo()->GetPid()) {
+    if (GetProcessInfo()->GetPid() == INMOCKAPPLICATION_THREE) {
         EXPECT_STREQ("TestProcess", GetProcessInfo()->GetProcessName().c_str());
         EXPECT_STREQ("/hos/lib/cacheDir", GetCacheDir().c_str());
         EXPECT_STREQ("/hos/lib/cacheDir", GetCodeCacheDir().c_str());
@@ -107,7 +107,7 @@ void MockApplication::OnStart()
         if (GetBundleManager() != nullptr) {
             EXPECT_STREQ("ModuleTestType", GetBundleManager()->GetAppType("test").c_str());
         }
-    } else if (INMOCKAPPLICATION_ONE == GetProcessInfo()->GetPid()) {
+    } else if (GetProcessInfo()->GetPid() == INMOCKAPPLICATION_ONE) {
         RegisterAbilityLifecycleCallbacks(lifecycleCallBack_);
 
         std::shared_ptr<Ability> ability = std::make_shared<Ability>();

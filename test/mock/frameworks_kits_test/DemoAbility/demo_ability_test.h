@@ -23,32 +23,32 @@ namespace OHOS {
 namespace AppExecFwk {
 class DemoAbility : public Ability {
 protected:
-    virtual void OnStart(const Want &want) override;
-    virtual void OnStop() override;
-    virtual void OnActive() override;
-    virtual void OnInactive() override;
-    virtual void OnBackground() override;
-    virtual void OnForeground(const Want &want) override;
-    virtual void OnNewWant(const Want &want) override;
-    virtual sptr<IRemoteObject> OnConnect(const Want &want) override;
-    virtual void OnDisconnect(const Want &want) override;
-    virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
+    void OnStart(const Want &want) override;
+    void OnStop() override;
+    void OnActive() override;
+    void OnInactive() override;
+    void OnBackground() override;
+    void OnForeground(const Want &want) override;
+    void OnNewWant(const Want &want) override;
+    sptr<IRemoteObject> OnConnect(const Want &want) override;
+    void OnDisconnect(const Want &want) override;
+    void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
 
-    virtual void OnRestoreAbilityState(const PacMap &inState);
-    virtual void OnSaveAbilityState(PacMap &outState);
-    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    void OnRestoreAbilityState(const PacMap &inState);
+    void OnSaveAbilityState(PacMap &outState);
+    void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
 
-    virtual std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter);
-    virtual int OpenFile(const Uri &uri, const std::string &mode);
-    virtual int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates);
-    virtual int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
-    virtual int Update(
+    std::vector<std::string> GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter);
+    int OpenFile(const Uri &uri, const std::string &mode);
+    int Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates);
+    int Insert(const Uri &uri, const NativeRdb::ValuesBucket &value);
+    int Update(
         const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates);
-    virtual int OpenRawFile(const Uri &uri, const std::string &mode);
-    virtual bool Reload(const Uri &uri, const PacMap &extras);
-    virtual int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values);
-    virtual std::string GetType(const Uri &uri);
-    virtual std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
+    int OpenRawFile(const Uri &uri, const std::string &mode);
+    bool Reload(const Uri &uri, const PacMap &extras);
+    int BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values);
+    std::string GetType(const Uri &uri);
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> Query(
         const Uri &uri, const std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates);
 };
 }  // namespace AppExecFwk

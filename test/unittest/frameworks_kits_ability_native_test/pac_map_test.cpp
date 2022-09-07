@@ -35,17 +35,17 @@ class TUserObjectTest : public UserObjectBase {
 public:
     TUserObjectTest() : UserObjectBase("TUserObjectTest"), str_data_("用户自定义对象"), int_data_(0)
     {}
-    virtual ~TUserObjectTest()
+    ~TUserObjectTest()
     {}
 
-    virtual std::string ToString() const override
+    std::string ToString() const override
     {
         std::string tostring = str_data_;
         tostring += "#" + std::to_string(int_data_);
         return tostring;
     }
 
-    virtual void Parse(const std::string &str) override
+    void Parse(const std::string &str) override
     {
         std::vector<std::string> elems;
 
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    virtual bool Equals(std::shared_ptr<UserObjectBase> &other) override
+    bool Equals(std::shared_ptr<UserObjectBase> &other) override
     {
         if (other->GetClassName() != GetClassName()) {
             return false;
@@ -78,7 +78,7 @@ public:
         return ((str_data_ == pobject->str_data_) && (int_data_ == pobject->int_data_));
     }
 
-    virtual void DeepCopy(std::shared_ptr<UserObjectBase> &other) override
+    void DeepCopy(std::shared_ptr<UserObjectBase> &other) override
     {
         if (other->GetClassName() != GetClassName()) {
             return;
@@ -91,12 +91,12 @@ public:
         }
     }
 
-    virtual bool Marshalling(Parcel &parcel) const override
+    bool Marshalling(Parcel &parcel) const override
     {
         return true;
     }
 
-    virtual bool Unmarshalling(Parcel &parcel) override
+    bool Unmarshalling(Parcel &parcel) override
     {
         return true;
     }

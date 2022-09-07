@@ -25,12 +25,12 @@ namespace AAFwk {
 class MockTestObserverStub : public TestObserverStub {
 public:
     MockTestObserverStub() = default;
-    virtual ~MockTestObserverStub() override;
-    virtual int OnRemoteRequest(
+    ~MockTestObserverStub() override;
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
-    virtual void TestStatus(const std::string &msg, const int64_t &resultCode) override;
-    virtual void TestFinished(const std::string &msg, const int64_t &resultCode) override;
-    virtual ShellCommandResult ExecuteShellCommand(
+    void TestStatus(const std::string &msg, const int64_t &resultCode) override;
+    void TestFinished(const std::string &msg, const int64_t &resultCode) override;
+    ShellCommandResult ExecuteShellCommand(
         const std::string &cmd, const int64_t timeoutMs) override;
 public:
     bool testStatusFlag;
