@@ -32,7 +32,6 @@ ohos_shared_library("errormanager_napi") {
   deps = [ "${ability_runtime_native_path}/appkit:appkit_native" ]
 
   external_deps = [
-    "ability_base:base",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",

@@ -34,7 +34,6 @@ ohos_shared_library("featureability_napi") {
     "ability_runtime:runtime",
     "c_utils:utils",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "napi:ace_napi",
   ]
 

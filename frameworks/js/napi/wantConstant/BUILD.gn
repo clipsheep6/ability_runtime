@@ -12,15 +12,17 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 ohos_shared_library("wantconstant") {
+  include_dirs = [ "${ability_runtime_services_path}/common/include" ]
+
   sources = [
     "native_module.cpp",
     "want_constant.cpp",
   ]
 
   external_deps = [
-    "ability_runtime:ability_manager",
     "hiviewdfx_hilog_native:libhilog",
     "napi:ace_napi",
   ]

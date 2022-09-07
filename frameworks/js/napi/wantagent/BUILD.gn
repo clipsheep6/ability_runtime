@@ -32,22 +32,16 @@ ohos_shared_library("wantagent") {
   deps = [
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:app_context",
-    "${ability_runtime_native_path}/appkit:appkit_native",
   ]
 
   external_deps = [
     "ability_base:want",
     "ability_runtime:abilitykit_native",
     "ability_runtime:wantagent_innerkits",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   relative_install_dir = "module"
