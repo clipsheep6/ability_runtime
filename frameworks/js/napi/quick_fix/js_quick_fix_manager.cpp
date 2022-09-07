@@ -120,7 +120,7 @@ private:
                 break;
             }
 
-            complete = [&hapQuickFixFiles](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            complete = [hapQuickFixFiles](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto errcode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->ApplyQuickFix(
                     hapQuickFixFiles);
                 if (errcode == 0) {
