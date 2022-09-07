@@ -21,10 +21,15 @@ mock_sources = [ "${ability_runtime_test_path}/mock/services_appmgr_test/src/moc
 ohos_unittest("AmsMgrKillProcessTest") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
 
-  sources = [ "ams_mgr_kill_process_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "ams_mgr_kill_process_test.cpp",
+  ]
   sources += mock_sources
 
   configs = [
@@ -48,6 +53,8 @@ ohos_unittest("AmsMgrKillProcessTest") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

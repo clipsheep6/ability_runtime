@@ -21,6 +21,7 @@
 #include "app_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
+#include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -46,7 +47,9 @@ public:
 };
 
 void AmsMgrKillProcessTest::SetUpTestCase(void)
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsMgrKillProcessTest::TearDownTestCase(void)
 {}
