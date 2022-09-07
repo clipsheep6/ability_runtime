@@ -33,6 +33,7 @@ int32_t QuickFixManagerProxy::ApplyQuickFix(const std::vector<std::string> &quic
         return QUICK_FIX_CONNECT_FAILED;
     }
 
+    HILOG_DEBUG("hqf file number need to apply: %{public}zu.", quickFixFiles.size());
     std::vector<std::string> destFiles;
     if (bundleQuickFixMgr->CopyFiles(quickFixFiles, destFiles) != 0) {
         HILOG_ERROR("Copy files failed.");
