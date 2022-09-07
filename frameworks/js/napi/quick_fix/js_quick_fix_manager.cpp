@@ -120,7 +120,7 @@ private:
                 break;
             }
 
-            complete = [&hapQuickFixFiles](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            complete = [hapQuickFixFiles](NativeEngine &engine, AsyncTask &task, int32_t status) {
                 auto errcode = DelayedSingleton<AAFwk::QuickFixManagerClient>::GetInstance()->ApplyQuickFix(
                     hapQuickFixFiles);
                 if (errcode == 0) {
@@ -158,6 +158,8 @@ NativeValue *CreateJsQuickFixManager(NativeEngine *engine, NativeValue *exportOb
     object->SetNativePointer(quickFixManager.release(), JsQuickFixManager::Finalizer, nullptr);
 
     BindNativeFunction(*engine, *object, "applyQuickFix", QUICK_FIX_MANAGER_NAME, JsQuickFixManager::ApplyQuickFix);
+    BindNativeFunction(*engine, *object, "getApplicationQuickFixInfo", QUICK_FIX_MANAGER_NAME,
+        JsQuickFixManager::GetApplyedQuickFixInfo);
     return engine->CreateUndefined();
 }
 } // namespace AbilityRuntime

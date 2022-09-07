@@ -89,7 +89,7 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
-    if (!AAFwk::PermissionVerification::GetInstance()->VerifyGetBundleInfoPrivilegedPermission()) {
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission()) {
         return QUICK_FIX_VERIFY_PERMISSION_FAILED;
     }
 
