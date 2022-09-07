@@ -19,7 +19,12 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AppMgrServiceInnerTest") {
   module_out_path = module_output_path
 
-  sources = [ "app_mgr_service_inner_test.cpp" ]
+  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "app_mgr_service_inner_test.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
@@ -32,6 +37,8 @@ ohos_unittest("AppMgrServiceInnerTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

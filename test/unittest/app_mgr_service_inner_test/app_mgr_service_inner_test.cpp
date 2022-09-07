@@ -19,6 +19,7 @@
 #include "app_mgr_service_inner.h"
 #undef private
 #include "hilog_wrapper.h"
+#include "mock_native_token.h"
 #include "parameters.h"
 
 using namespace testing;
@@ -35,7 +36,9 @@ public:
 };
 
 void AppMgrServiceInnerTest::SetUpTestCase(void)
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AppMgrServiceInnerTest::TearDownTestCase(void)
 {}
