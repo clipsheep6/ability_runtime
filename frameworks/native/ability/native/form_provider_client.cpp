@@ -18,6 +18,7 @@
 #include <cinttypes>
 #include <memory>
 #include <type_traits>
+#include <unistd.h>
 
 #include "appexecfwk_errors.h"
 #include "form_mgr_errors.h"
@@ -199,7 +200,7 @@ int FormProviderClient::NotifyFormUpdate(
             break;
         }
 
-        if (!CheckIsSystemApp()) {
+        if (!CheckIsSystemApp() && !IsCallBySelfBundle()) {
             HILOG_ERROR("%{public}s warn, caller permission denied.", __func__);
             errorCode = ERR_APPEXECFWK_FORM_PERMISSION_DENY;
             break;
@@ -208,6 +209,10 @@ int FormProviderClient::NotifyFormUpdate(
         HILOG_INFO("%{public}s come, %{public}s.", __func__, ownerAbility->GetAbilityName().c_str());
         ownerAbility->OnUpdate(formId);
     } while (false);
+
+    if (!want.HasParameter(Constants::FORM_CONNECT_ID)) {
+        return errorCode;
+    }
 
     // The error code for disconnect.
     int disconnectErrorCode = HandleDisconnect(want, callerToken);
@@ -347,7 +352,7 @@ int FormProviderClient::FireFormEvent(
             errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
             break;
         }
-        if (!CheckIsSystemApp()) {
+        if (!CheckIsSystemApp() && !IsCallBySelfBundle()) {
             HILOG_WARN("%{public}s caller permission denied", __func__);
             errorCode = ERR_APPEXECFWK_FORM_PERMISSION_DENY;
             break;
@@ -356,6 +361,10 @@ int FormProviderClient::FireFormEvent(
         HILOG_INFO("%{public}s come, %{public}s", __func__, ownerAbility->GetAbilityName().c_str());
         ownerAbility->OnTriggerEvent(formId, message);
     } while (false);
+
+    if (!want.HasParameter(Constants::FORM_CONNECT_ID)) {
+        return errorCode;
+    }
 
     // The error code for disconnect.
     int disconnectErrorCode = HandleDisconnect(want, callerToken);
@@ -572,6 +581,11 @@ void FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const
     for (const auto &formProviderCaller : formProviderCallers) {
         formProviderCaller->OnAcquire(formProviderInfo, want, token);
     }
+}
+
+bool FormProviderClient::IsCallBySelfBundle()
+{
+    return (getuid() == IPCSkeleton::GetCallingUid());
 }
 } // namespace AppExecFwk
 } // namespace OHOS

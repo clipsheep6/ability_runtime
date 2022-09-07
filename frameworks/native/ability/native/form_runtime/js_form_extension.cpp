@@ -19,7 +19,6 @@
 #include "form_provider_data.h"
 #include "form_runtime/form_extension_provider_client.h"
 #include "form_runtime/js_form_extension_context.h"
-#include "form_runtime/js_form_extension_util.h"
 #include "hilog_wrapper.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -174,15 +173,6 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
     }
 
     AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
-    nativeDataValue = nativeObject->GetProperty("image");
-    if (nativeDataValue != nullptr) {
-        std::map<std::string, int> rawImageDataMap;
-        UnwrapRawImageDataMap(*nativeEngine, nativeDataValue, rawImageDataMap);
-        HILOG_INFO("Image number is %{public}zu", rawImageDataMap.size());
-        for (auto entry : rawImageDataMap) {
-            formData.AddImageData(entry.first, entry.second);
-        }
-    }
     formProviderInfo.SetFormData(formData);
     HILOG_INFO("%{public}s called end.", __func__);
     return formProviderInfo;
