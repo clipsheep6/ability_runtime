@@ -24,9 +24,13 @@ ohos_unittest("AmsAppMgrClientTest") {
     "${ability_runtime_innerkits_path}//app_manager/src/appmgr/app_service_manager.cpp",
   ]
 
-  sources += [ "ams_app_mgr_client_test.cpp" ]
+  sources += [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "ams_app_mgr_client_test.cpp",
+  ]
 
   include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include/",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
@@ -46,6 +50,8 @@ ohos_unittest("AmsAppMgrClientTest") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",

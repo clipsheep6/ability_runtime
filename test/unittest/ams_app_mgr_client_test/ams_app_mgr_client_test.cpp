@@ -26,6 +26,7 @@
 #include "mock_app_mgr_service.h"
 #include "mock_app_service_mgr.h"
 #include "mock_iapp_state_callback.h"
+#include "mock_native_token.h"
 #include "running_process_info.h"
 
 using namespace testing::ext;
@@ -55,7 +56,9 @@ protected:
 };
 
 void AmsAppMgrClientTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsAppMgrClientTest::TearDownTestCase()
 {}
