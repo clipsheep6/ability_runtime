@@ -89,7 +89,7 @@ ohos_moduletest("PandingWantMgrTest") {
       "${global_path}/i18n/frameworks/intl:intl_util",
     ]
 
-    external_deps += [ "multimedia_image_standard:image_native" ]
+    external_deps += [ "multimedia_image_framework:image_native" ]
   }
 }
 
