@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #include "bundlemgr/mock_bundle_manager.h"
 #include "mock_ability_connect_callback.h"
+#include "mock_native_token.h"
 #include "ability_manager_errors.h"
 #include "ability_scheduler.h"
 #define private public
@@ -113,6 +114,7 @@ void PendingWantManagerTest::CancelReceiver::PerformReceive(const AAFwk::Want &w
 
 void PendingWantManagerTest::SetUpTestCase()
 {
+    MockNativeToken::SetNativeToken();
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
 }
