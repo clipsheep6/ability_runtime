@@ -239,7 +239,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
     return appRecord;
 }
 
-const std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> &AppRunningManager::GetAppRunningRecordMap()
+std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManager::GetAppRunningRecordMap()
 {
     std::lock_guard<std::recursive_mutex> guard(lock_);
     return appRunningRecordMap_;

@@ -959,7 +959,7 @@ SpawnConnectionState AppMgrServiceInner::QueryAppSpawnConnectionState() const
     return SpawnConnectionState::STATE_NOT_CONNECT;
 }
 
-const std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> &AppMgrServiceInner::GetRecordMap() const
+std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppMgrServiceInner::GetRecordMap() const
 {
     return appRunningManager_->GetAppRunningRecordMap();
 }
@@ -1163,11 +1163,13 @@ void AppMgrServiceInner::AbilityTerminated(const sptr<IRemoteObject> &token)
 
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRecordId(const int32_t recordId) const
 {
-    const auto &iter = appRunningManager_->GetAppRunningRecordMap().find(recordId);
-    if (iter != appRunningManager_->GetAppRunningRecordMap().end()) {
-        return iter->second;
+    if (appRunningManager_ == nullptr) {
+        HILOG_ERROR("appRunningManager is nullptr");
+        return nullptr;
     }
-    return nullptr;
+    const auto&& appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
+    const auto& iter = appRunningRecordMap.find(recordId);
+    return iter != appRunningRecordMap.end() ? iter->second : nullptr;
 }
 
 void AppMgrServiceInner::OnAppStateChanged(
