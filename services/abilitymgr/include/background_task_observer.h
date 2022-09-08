@@ -17,11 +17,16 @@
 #define OHOS_ABILITY_RUNTIME_BACKGROUND_TASK_OBSERVER_H
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+#include "background_task_mgr_helper.h"
 #include "background_task_subscriber.h"
+#include "iremote_object.h"
 
 namespace OHOS {
 namespace AAFwk {
-class BackgroundTaskObserver : public BackgroundTaskMgr::BackgroundTaskSubscriber {
+const int32_t SUBSCRIBE_BACKGROUND_TASK_TRY = 5;
+const int32_t REPOLL_TIME_MICRO_SECONDS = 1000000;
+class BackgroundTaskObserver : public BackgroundTaskMgr::BackgroundTaskSubscriber,
+                               public std::enable_shared_from_this<BackgroundTaskObserver> {
 public:
     BackgroundTaskObserver();
     virtual ~BackgroundTaskObserver();
@@ -33,6 +38,8 @@ private:
 
     void OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
         &continuousTaskCallbackInfo);
+
+    void OnRemoteDied(const wptr<IRemoteObject> &object);
 
 private:
     std::list<int> bgTaskUids_;

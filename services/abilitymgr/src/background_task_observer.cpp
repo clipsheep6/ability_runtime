@@ -14,6 +14,8 @@
  */
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
+#include "hilog_wrapper.h"
+#include <unistd.h>
 
 namespace OHOS {
 namespace AAFwk {
@@ -26,6 +28,7 @@ BackgroundTaskObserver::~BackgroundTaskObserver()
 void BackgroundTaskObserver::OnContinuousTaskStart(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
+    HILOG_DEBUG("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
 }
@@ -33,8 +36,32 @@ void BackgroundTaskObserver::OnContinuousTaskStart(const std::shared_ptr<Backgro
 void BackgroundTaskObserver::OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
+    HILOG_DEBUG("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
+}
+
+void BackgroundTaskObserver::OnRemoteDied(const wptr<IRemoteObject> &object)
+{
+    HILOG_DEBUG("OnRemoteDied");
+    int attemptNums = 0;
+    while ((BackgroundTaskMgr::BackgroundTaskMgrHelper::SubscribeBackgroundTask(
+        *(shared_from_this()))) != ERR_OK) {
+        ++attemptNums;
+        if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
+            HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
+            return;
+        }
+        usleep(REPOLL_TIME_MICRO_SECONDS);
+    }
+
+    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
+    BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    std::lock_guard<std::mutex> lock(bgTaskMutex_);
+    bgTaskUids_.clear();
+    for (size_t index = 0; index < continuousTasks.size(); index++) {
+        bgTaskUids_.push_front(continuousTasks[index]->GetCreatorUid());
+    }
 }
 
 bool BackgroundTaskObserver::IsBackgroundTaskUid(const int uid)

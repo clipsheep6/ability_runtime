@@ -34,7 +34,6 @@
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
-#include "background_task_mgr_helper.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
 #include "distributed_client.h"
@@ -98,9 +97,6 @@ constexpr int32_t NON_ANONYMIZE_LENGTH = 6;
 constexpr uint32_t SCENE_FLAG_NORMAL = 0;
 const int32_t MAX_NUMBER_OF_DISTRIBUTED_MISSIONS = 20;
 const int32_t SWITCH_ACCOUNT_TRY = 3;
-#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
-const int32_t SUBSCRIBE_BACKGROUND_TASK_TRY = 5;
-#endif
 #ifdef ABILITY_COMMAND_FOR_TEST
 const int32_t BLOCK_AMS_SERVICE_TIME = 65;
 #endif
@@ -857,11 +853,11 @@ void AbilityManagerService::SubscribeBackgroundTask()
     bgtaskObserver_ = std::make_shared<BackgroundTaskObserver>();
     auto subscribeBackgroundTask = [aams = shared_from_this()]() {
         int attemptNums = 0;
-        while (!IN_PROCESS_CALL(BackgroundTaskMgrHelper::SubscribeBackgroundTask(
-            *(aams->bgtaskObserver_)))) {
+        while ((BackgroundTaskMgrHelper::SubscribeBackgroundTask(
+            *(aams->bgtaskObserver_))) != ERR_OK) {
             ++attemptNums;
-            if (!(attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY)) {
-                HILOG_ERROR("subscribeBackgroundTask fail");
+            if (attemptNums > SUBSCRIBE_BACKGROUND_TASK_TRY) {
+                HILOG_ERROR("subscribeBackgroundTask fail, attemptNums:%{public}d", attemptNums);
                 return;
             }
             usleep(REPOLL_TIME_MICRO_SECONDS);
