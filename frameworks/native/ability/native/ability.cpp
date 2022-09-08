@@ -111,11 +111,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     if (abilityInfo_->type == AbilityType::PAGE) {
         if (!abilityInfo_->isStageBasedModel) {
             abilityWindow_ = std::make_shared<AbilityWindow>();
-            if (abilityWindow_ != nullptr) {
-                HILOG_DEBUG("%{public}s begin abilityWindow_->Init", __func__);
-                abilityWindow_->Init(handler_, shared_from_this());
-                HILOG_DEBUG("%{public}s end abilityWindow_->Init", __func__);
-            }
+            abilityWindow_->Init(handler_, shared_from_this());
         }
         continuationManager_ = std::make_shared<ContinuationManager>();
         std::weak_ptr<Ability> ability = shared_from_this();
@@ -340,9 +336,6 @@ void Ability::OnActive()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin.", __func__);
 #ifdef SUPPORT_GRAPHICS
-    if (abilityWindow_ != nullptr) {
-        abilityWindow_->OnPostAbilityActive();
-    }
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -364,9 +357,6 @@ void Ability::OnInactive()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("%{public}s begin", __func__);
 #ifdef SUPPORT_GRAPHICS
-    if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        abilityWindow_->OnPostAbilityInactive();
-    }
     bWindowFocus_ = false;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
