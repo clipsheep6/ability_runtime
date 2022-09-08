@@ -1268,13 +1268,6 @@ protected:
     bool IsRestoredInContinuation() const;
 
     /**
-     * @brief wait for distributed object to complete sync
-     *
-     * @param want the want param.
-     */
-    void WaitingDistributedObjectSyncComplete(const Want& want);
-
-    /**
      * @brief Notify continuation
      *
      * @param want the want param.

@@ -54,10 +54,6 @@
 #include "continuous_task_param.h"
 #endif
 
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-#include "distributed_objectstore.h"
-#endif
-
 #ifdef SUPPORT_GRAPHICS
 #include "display_type.h"
 #include "form_host_client.h"
@@ -85,10 +81,6 @@ const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
-
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-constexpr int32_t DISTRIBUTED_OBJECT_TIMEOUT = 10000;
-#endif
 
 Ability* Ability::Create(const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
 {
@@ -412,54 +404,13 @@ bool Ability::IsRestoredInContinuation() const
     return true;
 }
 
-void Ability::WaitingDistributedObjectSyncComplete(const Want& want)
-{
-#ifdef DISTRIBUTED_DATA_OBJECT_ENABLE
-    int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
-    std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-
-    HILOG_DEBUG("continuation WaitingDistributedObjectSyncComplete begin");
-    auto timeout = [self = shared_from_this(), sessionId, originDeviceId]() {
-        HILOG_DEBUG("DistributedObject sync timeout");
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, false, nullptr);
-    };
-
-    // std::shared_ptr<AppExecFwk::EventHandler> handler = handler_;
-    auto callback = [self = shared_from_this(), sessionId, originDeviceId]() {
-        HILOG_DEBUG("DistributedObject sync complete");
-        if (self->handler_ != nullptr) {
-            self->handler_->RemoveTask("Waiting_Sync_Timeout");
-        }
-        self->continuationManager_->NotifyCompleteContinuation(
-            originDeviceId, sessionId, true, nullptr);
-    };
-
-    std::string &bundleName = abilityInfo_->bundleName;
-    ObjectStore::DistributedObjectStore::GetInstance(bundleName)->TriggerRestore(callback);
-
-    if (handler_ != nullptr) {
-        handler_->PostTask(timeout, "Waiting_Sync_Timeout", DISTRIBUTED_OBJECT_TIMEOUT);
-    }
-#else
-    NotifyContinuationResult(want, true);
-#endif
-}
-
 void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_DEBUG("NotifyContinuationResult begin");
-    std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> ReplicaHandler = continuationHandler_;
-    reverseContinuationSchedulerReplica_ = sptr<ReverseContinuationSchedulerReplica>(
-        new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
+    HILOG_INFO("NotifyContinuationResult begin");
 
-    if (reverseContinuationSchedulerReplica_ == nullptr) {
-        HILOG_ERROR("Ability::NotityContinuationComplete failed, create reverseContinuationSchedulerReplica failed");
-        return;
-    }
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Ability::NotityContinuationComplete");
+    HILOG_DEBUG("Ability::NotifyContinuationComplete");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }

@@ -480,7 +480,7 @@ void JsAbility::DoOnForeground(const Want &want)
                 HILOG_ERROR("restore: content storage is nullptr");
             }
             OnSceneRestored();
-            WaitingDistributedObjectSyncComplete(want);
+            NotifyContinuationResult(want, true);
         } else {
             OnSceneCreated();
         }
@@ -543,7 +543,7 @@ void JsAbility::ContinuationRestore(const Want &want)
         HILOG_ERROR("restore: content storage is nullptr");
     }
     OnSceneRestored();
-    WaitingDistributedObjectSyncComplete(want);
+    NotifyContinuationResult(want, true);
 }
 
 std::shared_ptr<NativeReference> JsAbility::GetJsWindowStage()

@@ -225,11 +225,6 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (distributed_data_object_enable) {
-    external_deps += [ "data_object:distributeddataobject_impl" ]
-    defines += [ "DISTRIBUTED_DATA_OBJECT_ENABLE" ]
-  }
-
   public_deps = [
     ":ability_utils",
     "//base/notification/eventhandler/frameworks/eventhandler:libeventhandler",
@@ -418,11 +413,6 @@ ohos_shared_library("continuation_ipc") {
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
-  }
-
-  if (distributed_data_object_enable) {
-    external_deps += [ "data_object:distributeddataobject_impl" ]
-    defines += [ "DISTRIBUTED_DATA_OBJECT_ENABLE" ]
   }
 
   public_deps = []
