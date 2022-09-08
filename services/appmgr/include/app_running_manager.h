@@ -95,7 +95,7 @@ public:
      *
      * @return the application record list.
      */
-    const std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> &GetAppRunningRecordMap();
+    std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> GetAppRunningRecordMap();
 
     /**
      * RemoveAppRunningRecordById, Remove application information through application id.

@@ -334,7 +334,7 @@ public:
      *
      * @return all the ability information in the application record.
      */
-    const std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> &GetRecordMap() const;
+    std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> GetRecordMap() const;
 
     /**
      * GetAppRunningRecordByPid, Get process record by application pid.
