@@ -38,7 +38,6 @@ void MockNativeToken::SetNativeToken()
 
     infoInstance.processName = "SetUpTestCase";
     tokenId = GetAccessTokenId(&infoInstance);
-    HILOG_DEBUG("SetNativeToken tokenId = %{public}llu", tokenId);
     SetSelfTokenID(tokenId);
     delete[] perms;
 }
