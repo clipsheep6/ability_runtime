@@ -13,3 +13,5 @@
 
 bootevent.appfwk.ready = foundation:foundation:0775
 compress = foundation:foundation:0775
+component.startup.newRules = foundation:foundation:0775
+component.startup.newRules.except.LauncherSystemUI = foundation:foundation:0775

@@ -164,29 +164,29 @@ void AbilityManagerServiceTest::TearDown()
 }
 
 /**
- * @tc.name: CheckCallPermissions_001
- * @tc.desc: Verify function CheckCallPermissions return RESOLVE_CALL_NO_PERMISSIONS
+ * @tc.name: CheckStartByCallPermission_001
+ * @tc.desc: Verify function CheckStartByCallPermission return RESOLVE_CALL_NO_PERMISSIONS
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_001, TestSize.Level1)
+HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_001, TestSize.Level1)
 {
     abilityRequest_.callerUid = 0;
-    EXPECT_EQ(RESOLVE_CALL_ABILITY_TYPE_ERR, abilityMs_->CheckCallPermissions(abilityRequest_));
+    EXPECT_EQ(RESOLVE_CALL_ABILITY_TYPE_ERR, abilityMs_->CheckStartByCallPermission(abilityRequest_));
 }
 
 /**
- * @tc.name: CheckCallPermissions_002
- * @tc.desc: Verify function CheckCallPermissions return ERR_OK
+ * @tc.name: CheckStartByCallPermission_002
+ * @tc.desc: Verify function CheckStartByCallPermission return ERR_OK
  * @tc.type: FUNC
  * @tc.require:
  */
-HWTEST_F(AbilityManagerServiceTest, CheckCallPermissions_002, TestSize.Level1)
+HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Level1)
 {
     abilityRequest_.callerUid = 1000;
     abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
     abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
-    EXPECT_EQ(ERR_OK, abilityMs_->CheckCallPermissions(abilityRequest_));
+    EXPECT_EQ(ERR_OK, abilityMs_->CheckStartByCallPermission(abilityRequest_));
 }
 }
 }

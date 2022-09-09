@@ -436,6 +436,7 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.pid_ = appRecord->GetPriorityObject()->GetPid();
     info.uid_ = appRecord->GetUid();
     info.bundleNames.emplace_back(appRecord->GetBundleName());
+    info.state_ = static_cast<AppExecFwk::AppProcessState>(appRecord->GetState());
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
