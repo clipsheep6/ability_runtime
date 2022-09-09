@@ -47,18 +47,6 @@ public:
         bool isPrivacy);
 
     /**
-     * @brief Called when this ability is activated.
-     *
-     */
-    void OnPostAbilityActive();
-
-    /**
-     * @brief Called when this ability is inactivated.
-     *
-     */
-    void OnPostAbilityInactive();
-
-    /**
      * @brief Called when this ability is background.
      *
      * @param sceneFlag flag for screen, lock or unlock, power on or off.
