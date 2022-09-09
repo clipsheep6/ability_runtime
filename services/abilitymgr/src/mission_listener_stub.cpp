@@ -30,6 +30,7 @@ MissionListenerStub::MissionListenerStub()
     vecMemberFunc_[ON_MISSION_MOVED_TO_FRONT] = &MissionListenerStub::OnMissionMovedToFrontInner;
     vecMemberFunc_[ON_MISSION_ICON_UPDATED] = &MissionListenerStub::OnMissionIconUpdatedInner;
     vecMemberFunc_[ON_MISSION_CLOSED] = &MissionListenerStub::OnMissionClosedInner;
+    vecMemberFunc_[ON_MISSION_LABEL_UPDATED] = &MissionListenerStub::OnMissionLabelUpdatedInner;
 }
 
 int MissionListenerStub::OnMissionCreatedInner(MessageParcel &data, MessageParcel &reply)
@@ -76,6 +77,12 @@ int MissionListenerStub::OnMissionIconUpdatedInner(MessageParcel &data, MessageP
 int MissionListenerStub::OnMissionClosedInner(MessageParcel &data, MessageParcel &reply)
 {
     OnMissionClosed(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int MissionListenerStub::OnMissionLabelUpdatedInner(MessageParcel &data, MessageParcel &reply)
+{
+    OnMissionLabelUpdated(data.ReadInt32());
     return NO_ERROR;
 }
 

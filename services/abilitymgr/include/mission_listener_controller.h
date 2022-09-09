@@ -99,6 +99,13 @@ public:
      */
     void NotifyMissionClosed(int32_t missionId);
 
+    /**
+     * notify listeners that mission label was updated.
+     *
+     * @param missionId target mission id.
+     */
+    void NotifyMissionLabelUpdated(int32_t missionId);
+
     void HandleUnInstallApp(const std::list<int32_t> &missions);
 
 private:

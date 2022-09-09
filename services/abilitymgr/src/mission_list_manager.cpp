@@ -2139,7 +2139,12 @@ int MissionListManager::SetMissionLabel(const sptr<IRemoteObject> &token, const 
         return -1;
     }
 
-    return DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionLabel(missionId, label);
+    auto ret = DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionLabel(missionId, label);
+    if (ret == 0 && listenerController_) {
+        listenerController_->NotifyMissionLabelUpdated(missionId);
+    }
+
+    return ret;
 }
 
 int MissionListManager::SetMissionIcon(const sptr<IRemoteObject> &token, const std::shared_ptr<Media::PixelMap> &icon)

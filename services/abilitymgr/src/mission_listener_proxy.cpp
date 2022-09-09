@@ -82,6 +82,11 @@ void MissionListenerProxy::OnMissionClosed(int32_t missionId)
     SendRequestCommon(missionId, IMissionListener::ON_MISSION_CLOSED);
 }
 
+void MissionListenerProxy::OnMissionLabelUpdated(int32_t missionId)
+{
+    SendRequestCommon(missionId, IMissionListener::ON_MISSION_LABEL_UPDATED);
+}
+
 void MissionListenerProxy::SendRequestCommon(int32_t missionId, IMissionListener::MissionListenerCmd cmd)
 {
     MessageParcel data;

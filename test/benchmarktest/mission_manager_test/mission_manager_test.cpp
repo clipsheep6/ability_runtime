@@ -55,6 +55,10 @@ public:
     void OnMissionClosed(int32_t missionId) override
     {
     }
+
+    void OnMissionLabelUpdated(int32_t missionId) override
+    {
+    }
 };
 
 class MissionManagerTest : public benchmark::Fixture {
