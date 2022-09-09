@@ -366,11 +366,12 @@ void AppRunningRecord::AddAbilityStage()
         SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG, AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
         HILOG_INFO("Current Informed module : [%{public}s] | bundle : [%{public}s]",
             abilityStage.moduleName.c_str(), mainBundleName_.c_str());
+        if (appLifeCycleDeal_ == nullptr) {
+            HILOG_WARN("appLifeCycleDeal_ is null");
+            return;
+        }
         appLifeCycleDeal_->AddAbilityStage(abilityStage);
-        return;
     }
-
-    HILOG_INFO("The current process[%{public}s] is updated", processName_.c_str());
 }
 
 void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bundleName)
@@ -378,11 +379,13 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
     HapModuleInfo hapModuleInfo;
     if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
         if (!eventHandler_->HasInnerEvent(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG)) {
+            HILOG_INFO("%{public}s START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG is not exist.", __func__);
             SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
                 AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
-        } else {
-            HILOG_INFO(
-                "%{public}s START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG is exist, don't set new event.", __func__);
+        }
+        if (appLifeCycleDeal_ == nullptr) {
+            HILOG_WARN("appLifeCycleDeal_ is null");
+            return;
         }
         appLifeCycleDeal_->AddAbilityStage(hapModuleInfo);
     }
@@ -432,10 +435,12 @@ void AppRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
 
 void AppRunningRecord::ScheduleTerminate()
 {
-    if (appLifeCycleDeal_) {
-        SendEvent(AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG, AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT);
-        appLifeCycleDeal_->ScheduleTerminate();
+    SendEvent(AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT_MSG, AMSEventHandler::TERMINATE_APPLICATION_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
     }
+    appLifeCycleDeal_->ScheduleTerminate();
 }
 
 void AppRunningRecord::LaunchPendingAbilities()
@@ -1055,6 +1060,10 @@ void AppRunningRecord::ScheduleAcceptWant(const std::string &moduleName)
 {
     SendEvent(
         AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
     appLifeCycleDeal_->ScheduleAcceptWant(SpecifiedWant_, moduleName);
 }
 
