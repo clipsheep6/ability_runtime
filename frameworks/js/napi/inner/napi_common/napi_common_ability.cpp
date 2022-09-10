@@ -18,11 +18,15 @@
 #include <dlfcn.h>
 #include <uv.h>
 
+#include "js_runtime_utils.h"
+#include "js_napi_common_ability.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "napi_base_context.h"
 #include "napi_remote_object.h"
 #include "securec.h"
+#include "napi_context.h"
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -4801,6 +4805,48 @@ napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info)
     }
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
+}
+
+JsNapiCommon::JsNapiCommon() : ability_(nullptr), value_(0)
+{}
+
+NativeValue* JsNapiCommon::JsGetDisplayOrientation(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    HILOG_DEBUG("called");
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+
+    value_ = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
+    auto execute = [obj = this, abilityType] () {
+        if (obj->ability_ == nullptr) {
+            obj->value_ = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+            HILOG_ERROR("task execute error, the ability is nullptr");
+            return;
+        }
+        if (!obj->CheckAbilityType(abilityType)) {
+            obj->value_ = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+            return;
+        }
+        obj->value_ = obj->ability_->GetDisplayOrientation();
+    };
+    auto complete = [obj = this]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (obj->value_ == NAPI_ERR_NO_ERROR) {
+            task.Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "ability is nullptr"));
+        }
+
+        task.Resolve(engine, CreateJsValue(engine, obj->value_));
+    };
+
+    auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsGetDisplayOrientation",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+
+    return result;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
