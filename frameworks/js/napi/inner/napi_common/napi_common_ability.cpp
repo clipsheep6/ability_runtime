@@ -4848,5 +4848,104 @@ NativeValue* JsNapiCommon::JsGetDisplayOrientation(
 
     return result;
 }
+
+bool JsNapiCommon::CheckAbilityType(const AbilityType typeWant)
+{
+    if (ability_ == nullptr) {
+        HILOG_ERROR("input params int error");
+        return false;
+    }
+
+    const std::shared_ptr<AbilityInfo> info = ability_->GetAbilityInfo();
+    if (info == nullptr) {
+        HILOG_ERROR("get ability info error");
+        return false;
+    }
+
+    switch (typeWant) {
+        case AbilityType::PAGE:
+            if (static_cast<AbilityType>(info->type) == AbilityType::PAGE ||
+                static_cast<AbilityType>(info->type) == AbilityType::DATA) {
+                return true;
+            }
+            return false;
+        default:
+            return static_cast<AbilityType>(info->type) != AbilityType::PAGE;
+    }
+    return false;
+}
+
+
+bool JsNapiCommon::UnwarpVerifyPermissionParams(
+    NativeEngine &engine, NativeCallbackInfo &info, JsPermissionOptions &options)
+{
+    bool flagCall = true;
+    if (info.argc == ARGS_ONE) {
+        flagCall = false;
+    } else if (info.argc == ARGS_TWO && info.argv[PARAM1]->TypeOf() != NATIVE_FUNCTION) {
+        if (!GetPermissionOptions(engine, info.argv[PARAM1], options)) {
+            HILOG_WARN("input params string error");
+        }
+        flagCall = false;
+    } else if (info.argc == ARGS_THREE) {
+        if (!GetPermissionOptions(engine, info.argv[PARAM1], options)) {
+            HILOG_WARN("input params string error");
+        }
+    }
+
+    return flagCall;
+}
+
+bool JsNapiCommon::GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList)
+{
+    auto array = ConvertNativeValueTo<NativeArray>(object);
+    if (array == nullptr) {
+        HILOG_ERROR("input params error");
+        return false;
+    }
+
+    for (uint32_t i = 0; i < array->GetLength(); i++) {
+        std::string itemStr("");
+        if (!ConvertFromJsValue(engine, array->GetElement(i), itemStr)) {
+            HILOG_ERROR("GetElement from to array [%{public}u] error", i);
+            return false;
+        }
+        strList.push_back(itemStr);
+    }
+
+    return true;
+}
+
+bool JsNapiCommon::GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options)
+{
+    auto obj = ConvertNativeValueTo<NativeObject>(object);
+    if (obj == nullptr) {
+        HILOG_ERROR("input params error");
+        return false;
+    }
+
+    options.uidFlag = ConvertFromJsValue(engine, obj->GetProperty("uid"), options.uid);
+    options.pidFlag = ConvertFromJsValue(engine, obj->GetProperty("pid"), options.pid);
+
+    return true;
+}
+
+std::string JsNapiCommon::ConvertErrorCode(int32_t errCode)
+{
+    static std::map<int32_t, std::string> errMap = {
+        { static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), std::string("get ability error") },
+        { static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID), std::string("ability call error") },
+        { static_cast<int32_t>(NAPI_ERR_PARAM_INVALID), std::string("input param error") },
+        { static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID), std::string("ability type error") }
+    };
+
+    auto findECode = errMap.find(errCode);
+    if (findECode == errMap.end()) {
+        HILOG_ERROR("convert error code failed");
+        return std::string("execution failed");
+    }
+
+    return findECode->second;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
