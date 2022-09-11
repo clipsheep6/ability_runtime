@@ -18,11 +18,15 @@
 #include <dlfcn.h>
 #include <uv.h>
 
+#include "js_runtime_utils.h"
+#include "js_napi_common_ability.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "napi_base_context.h"
 #include "napi_remote_object.h"
 #include "securec.h"
+#include "napi_context.h"
+using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -4801,6 +4805,147 @@ napi_value NAPI_TerminateAbilityCommon(napi_env env, napi_callback_info info)
     }
     HILOG_INFO("%{public}s,end", __func__);
     return ret;
+}
+
+JsNapiCommon::JsNapiCommon() : ability_(nullptr), value_(0)
+{}
+
+NativeValue* JsNapiCommon::JsGetDisplayOrientation(
+    NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType)
+{
+    HILOG_DEBUG("called");
+    if (info.argc > ARGS_ONE) {
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
+        return engine.CreateUndefined();
+    }
+
+    value_ = static_cast<int32_t>(NAPI_ERR_NO_ERROR);
+    auto execute = [obj = this, abilityType] () {
+        if (obj->ability_ == nullptr) {
+            obj->value_ = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+            HILOG_ERROR("task execute error, the ability is nullptr");
+            return;
+        }
+        if (!obj->CheckAbilityType(abilityType)) {
+            obj->value_ = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+            return;
+        }
+        obj->value_ = obj->ability_->GetDisplayOrientation();
+    };
+    auto complete = [obj = this]
+        (NativeEngine &engine, AsyncTask &task, int32_t status) {
+        if (obj->value_ == NAPI_ERR_NO_ERROR) {
+            task.Reject(engine, CreateJsError(engine, NAPI_ERR_ACE_ABILITY, "ability is nullptr"));
+        }
+
+        task.Resolve(engine, CreateJsValue(engine, obj->value_));
+    };
+
+    auto callback = info.argc == ARGS_ZERO ? nullptr : info.argv[PARAM0];
+    NativeValue *result = nullptr;
+    AsyncTask::Schedule("JsNapiCommon::JsGetDisplayOrientation",
+        engine, CreateAsyncTaskWithLastParam(engine, callback, std::move(execute), std::move(complete), &result));
+
+    return result;
+}
+
+bool JsNapiCommon::CheckAbilityType(const AbilityType typeWant)
+{
+    if (ability_ == nullptr) {
+        HILOG_ERROR("input params int error");
+        return false;
+    }
+
+    const std::shared_ptr<AbilityInfo> info = ability_->GetAbilityInfo();
+    if (info == nullptr) {
+        HILOG_ERROR("get ability info error");
+        return false;
+    }
+
+    switch (typeWant) {
+        case AbilityType::PAGE:
+            if (static_cast<AbilityType>(info->type) == AbilityType::PAGE ||
+                static_cast<AbilityType>(info->type) == AbilityType::DATA) {
+                return true;
+            }
+            return false;
+        default:
+            return static_cast<AbilityType>(info->type) != AbilityType::PAGE;
+    }
+    return false;
+}
+
+
+bool JsNapiCommon::UnwarpVerifyPermissionParams(
+    NativeEngine &engine, NativeCallbackInfo &info, JsPermissionOptions &options)
+{
+    bool flagCall = true;
+    if (info.argc == ARGS_ONE) {
+        flagCall = false;
+    } else if (info.argc == ARGS_TWO && info.argv[PARAM1]->TypeOf() != NATIVE_FUNCTION) {
+        if (!GetPermissionOptions(engine, info.argv[PARAM1], options)) {
+            HILOG_WARN("input params string error");
+        }
+        flagCall = false;
+    } else if (info.argc == ARGS_THREE) {
+        if (!GetPermissionOptions(engine, info.argv[PARAM1], options)) {
+            HILOG_WARN("input params string error");
+        }
+    }
+
+    return flagCall;
+}
+
+bool JsNapiCommon::GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList)
+{
+    auto array = ConvertNativeValueTo<NativeArray>(object);
+    if (array == nullptr) {
+        HILOG_ERROR("input params error");
+        return false;
+    }
+
+    for (uint32_t i = 0; i < array->GetLength(); i++) {
+        std::string itemStr("");
+        if (!ConvertFromJsValue(engine, array->GetElement(i), itemStr)) {
+            HILOG_ERROR("GetElement from to array [%{public}u] error", i);
+            return false;
+        }
+        strList.push_back(itemStr);
+    }
+
+    return true;
+}
+
+bool JsNapiCommon::GetPermissionOptions(NativeEngine &engine, NativeValue *object, JsPermissionOptions &options)
+{
+    auto obj = ConvertNativeValueTo<NativeObject>(object);
+    if (obj == nullptr) {
+        HILOG_ERROR("input params error");
+        return false;
+    }
+
+    options.uidFlag = ConvertFromJsValue(engine, obj->GetProperty("uid"), options.uid);
+    options.pidFlag = ConvertFromJsValue(engine, obj->GetProperty("pid"), options.pid);
+
+    return true;
+}
+
+std::string JsNapiCommon::ConvertErrorCode(int32_t errCode)
+{
+    static std::map<int32_t, std::string> errMap = {
+        { static_cast<int32_t>(NAPI_ERR_ACE_ABILITY), std::string("get ability error") },
+        { static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID), std::string("ability call error") },
+        { static_cast<int32_t>(NAPI_ERR_PARAM_INVALID), std::string("input param error") },
+        { static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID), std::string("ability type error") }
+    };
+
+    auto findECode = errMap.find(errCode);
+    if (findECode == errMap.end()) {
+        HILOG_ERROR("convert error code failed");
+        return std::string("execution failed");
+    }
+
+    return findECode->second;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -19,7 +19,10 @@ config("napi_common_public_config") {
 }
 
 ohos_shared_library("napi_common") {
-  include_dirs = [ "//third_party/node/src" ]
+  include_dirs = [
+    "${ability_runtime_napi_path}/featureAbility",
+    "//third_party/node/src",
+  ]
 
   public_configs = [ ":napi_common_public_config" ]
 
@@ -40,6 +43,7 @@ ohos_shared_library("napi_common") {
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:napi_base_context",
+    "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
