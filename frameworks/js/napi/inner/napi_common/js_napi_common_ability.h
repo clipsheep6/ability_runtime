@@ -82,6 +82,7 @@ public:
         Want want;
     };
 
+    NativeValue* JsGetContext(NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     NativeValue* JsGetDisplayOrientation(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
     bool CheckAbilityType(const AbilityType typeWant);
