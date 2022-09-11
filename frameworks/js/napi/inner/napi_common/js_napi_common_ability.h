@@ -84,6 +84,9 @@ public:
 
     NativeValue* JsGetDisplayOrientation(
         NativeEngine &engine, NativeCallbackInfo &info, const AbilityType abilityType);
+    bool CheckAbilityType(const AbilityType typeWant);
+    bool UnwarpVerifyPermissionParams(NativeEngine &engine, NativeCallbackInfo &info, JsPermissionOptions &options);
+    bool GetStringsValue(NativeEngine &engine, NativeValue *object, std::vector<std::string> &strList);
     std::string ConvertErrorCode(int32_t errCode);
 
     Ability *ability_;
