@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H
 #define OHOS_ABILITY_RUNTIME_PERMISSION_VERIFICATION_H
 
+#include "ipc_skeleton.h"
 #include "singleton.h"
 #include "want.h"
 
@@ -23,20 +24,28 @@ namespace OHOS {
 namespace AAFwk {
 class PermissionVerification : public DelayedSingleton<PermissionVerification> {
 public:
+struct VerificationInfo {
+    bool visible = false;
+    bool isBackgroundCall = false;
+    bool associatedWakeUp = false;
+    uint32_t accessTokenId = 0;
+    int32_t apiTargetVersion = 0;
+};
+
     PermissionVerification() = default;
     ~PermissionVerification() = default;
 
-    bool VerifyCallingPermission(const std::string &permissionName) const;
+    bool VerifyCallingPermission(const std::string &permissionName);
 
-    bool IsSACall() const;
+    bool IsSACall();
 
-    bool IsShellCall() const;
+    bool IsShellCall();
 
     bool CheckSpecificSystemAbilityAccessPermission();
 
-    bool VerifyRunningInfoPerm() const;
+    bool VerifyRunningInfoPerm();
 
-    bool VerifyControllerPerm() const;
+    bool VerifyControllerPerm();
 
     bool VerifyDlpPermission(Want &want);
 
@@ -51,10 +60,39 @@ public:
     bool VerifyInstallBundlePermission();
 
     bool VerifyGetBundleInfoPrivilegedPermission();
+    int CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo);
+
+    int CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo);
+
+    int CheckCallAbilityPermission(const VerificationInfo &verificationInfo);
+
+    /**
+     * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage)
+     *
+     */
+    int CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo);
+
+    int CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo);
+
+    int CheckStartByCallPermission(const VerificationInfo &verificationInfo);
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
-    unsigned int GetCallingTokenID() const;
+
+    constexpr static int32_t API8 = 8;
+
+    unsigned int GetCallingTokenID();
+
+    bool JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible);
+
+    bool JudgeStartAbilityFromBackground(const bool isBackgroundCall);
+
+    bool JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp);
+
+    inline bool IsCallFromSameAccessToken(const uint32_t accessTokenId)
+    {
+        return IPCSkeleton::GetCallingTokenID() == accessTokenId;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -30,6 +30,10 @@ constexpr const char* PERMISSION_SET_ABILITY_CONTROLLER = "ohos.permission.SET_A
 constexpr const char* PERMISSION_UPDATE_CONFIGURATION = "ohos.permission.UPDATE_CONFIGURATION";
 constexpr const char* PERMISSION_INSTALL_BUNDLE = "ohos.permission.INSTALL_BUNDLE";
 constexpr const char* PERMISSION_GET_BUNDLE_INFO_PRIVILEGED = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
+constexpr const char* PERMISSION_START_INVISIBLE_ABILITY = "ohos.permission.START_INVISIBLE_ABILITY";
+constexpr const char* PERMISSION_START_ABILITIES_FROM_BACKGROUND = "ohos.permission.START_ABILITIES_FROM_BACKGROUND";
+constexpr const char* PERMISSION_START_ABILIIES_FROM_BACKGROUND = "ohos.permission.START_ABILIIES_FROM_BACKGROUND";
+constexpr const char* PERMISSION_ABILITY_BACKGROUND_COMMUNICATION = "ohos.permission.ABILITY_BACKGROUND_COMMUNICATION";
 } // namespace PermissionConstants
 } // namespace AAFwk
 } // namespace OHOS
