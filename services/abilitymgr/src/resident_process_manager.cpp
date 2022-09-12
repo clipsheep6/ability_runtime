@@ -117,7 +117,7 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
         }
     }
     if (mainElementIsPageAbility) {
-        HILOG_INFO("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
+        HILOG_DEBUG("%{public}s, %{public}s is page ability", __func__, mainElement.c_str());
         return false;
     }
 

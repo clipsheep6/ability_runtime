@@ -103,7 +103,7 @@ int32_t SystemDialogScheduler::ShowANRDialog(const std::string &appName, const C
     GetDialogPositionAndSize(DialogType::DIALOG_ANR, position);
     std::string params = GetAnrParams(position, appName);
     auto callback = [anrCallBack] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_INFO("Dialog anr callback: id : %{public}d, event: %{public}s, params: %{public}s",
+        HILOG_DEBUG("Dialog anr callback: id : %{public}d, event: %{public}s, params: %{public}s",
             id, event.data(), params.data());
 
         Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
@@ -150,7 +150,7 @@ int32_t SystemDialogScheduler::ShowTipsDialog()
     const std::string params = jsonObj.dump();
 
     auto callback = [] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_INFO("Dialog tips callback: id : %{public}d, event: %{public}s, params: %{public}s",
+        HILOG_DEBUG("Dialog tips callback: id : %{public}d, event: %{public}s, params: %{public}s",
             id, event.data(), params.data());
         Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
         if (event == EVENT_CLOSE) {
@@ -179,7 +179,7 @@ int32_t SystemDialogScheduler::ShowSelectorDialog(
     std::string params = GetSelectorParams(infos);
 
     auto callback = [startAbilityCallBack] (int32_t id, const std::string& event, const std::string& params) {
-        HILOG_INFO("Dialog selector callback: id : %{public}d, event: %{public}s, params: %{public}s",
+        HILOG_DEBUG("Dialog selector callback: id : %{public}d, event: %{public}s, params: %{public}s",
             id, event.data(), params.data());
         Ace::UIServiceMgrClient::GetInstance()->CancelDialog(id);
 

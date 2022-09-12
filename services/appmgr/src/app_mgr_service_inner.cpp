@@ -2451,7 +2451,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 {
     HILOG_INFO("start render process, nweb hostpid:%{public}d", hostPid);
     if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
-        HILOG_ERROR("invalid param, hostPid:%{public}d, renderParam:%{public}s, ipcFd:%{public}d, sharedFd:%{public}d",
+        HILOG_ERROR("invalid param, hostPid:%{public}d, renderParam:%{private}s, ipcFd:%{public}d, sharedFd:%{public}d",
             hostPid, renderParam.c_str(), ipcFd, sharedFd);
         return ERR_INVALID_VALUE;
     }

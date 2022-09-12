@@ -569,7 +569,7 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam, int32_t ipcF
     int32_t sharedFd, pid_t &renderPid)
 {
     if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
-        HILOG_ERROR("Invalid params, renderParam:%{public}s, ipcFd:%{public}d, sharedFd:%{public}d",
+        HILOG_ERROR("Invalid params, renderParam:%{private}s, ipcFd:%{public}d, sharedFd:%{public}d",
             renderParam.c_str(), ipcFd, sharedFd);
         return -1;
     }

@@ -180,7 +180,7 @@ bool LocalCallContainer::GetCallLocalRecord(
     for (auto pair : callProxyRecords_) {
         AppExecFwk::ElementName callElement;
         if (!callElement.ParseURI(pair.first)) {
-            HILOG_ERROR("Parse uri to elementName failed, elementName uri: %{public}s", pair.first.c_str());
+            HILOG_ERROR("Parse uri to elementName failed, elementName uri: %{private}s", pair.first.c_str());
             continue;
         }
         // elementName in callProxyRecords_ has moduleName (sometimes not empty),

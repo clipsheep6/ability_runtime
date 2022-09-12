@@ -320,7 +320,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string element = GetWant().GetElement().GetURI();
-    HILOG_INFO("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
+    HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
         if (IsAbilityState(AbilityState::FOREGROUND)) {
@@ -1147,7 +1147,7 @@ void SystemAbilityCallerRecord::SetResultToSystemAbility(
         return;
     }
     std::string srcDeviceId = data[0];
-    HILOG_INFO("Get srcDeviceId = %{public}s", srcDeviceId.c_str());
+    HILOG_DEBUG("Get srcDeviceId = %{public}s", srcDeviceId.c_str());
     int missionId = atoi(data[1].c_str());
     HILOG_INFO("Get missionId = %{public}d", missionId);
     resultWant.SetParam(DMS_SRC_NETWORK_ID, srcDeviceId);

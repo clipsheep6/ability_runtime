@@ -353,7 +353,7 @@ void RegisterMissionExecuteCB(napi_env env, void *data)
         HILOG_INFO("add registration.");
         registration_[registerMissionCB->deviceId] = registration;
     }
-    HILOG_INFO("%{public}s end.deviceId:%{public}d ", __func__, registerMissionCB->result);
+    HILOG_DEBUG("%{public}s end.deviceId:%{public}d ", __func__, registerMissionCB->result);
 }
 
 void RegisterMissionCallbackCompletedCB(napi_env env, napi_status status, void *data)
@@ -840,7 +840,7 @@ void UnRegisterMissionExecuteCB(napi_env env, void *data)
         HILOG_INFO("remove registration.");
         registration_.erase(registerMissionCB->deviceId);
     }
-    HILOG_INFO("%{public}s end.deviceId:%{public}d ", __func__, registerMissionCB->result);
+    HILOG_DEBUG("%{public}s end.deviceId:%{public}d ", __func__, registerMissionCB->result);
 }
 
 void UnRegisterMissionPromiseCompletedCB(napi_env env, napi_status status, void *data)
@@ -991,7 +991,7 @@ napi_value WrapString(napi_env env, const std::string &param, const std::string 
     napi_create_object(env, &jsObject);
 
     napi_value jsValue = nullptr;
-    HILOG_INFO("%{public}s called. %{public}s = %{public}s", __func__, paramName.c_str(), param.c_str());
+    HILOG_DEBUG("%{public}s called. %{public}s = %{public}s", __func__, paramName.c_str(), param.c_str());
     napi_create_string_utf8(env, param.c_str(), NAPI_AUTO_LENGTH, &jsValue);
     napi_set_named_property(env, jsObject, paramName.c_str(), jsValue);
 
@@ -1006,7 +1006,7 @@ napi_value WrapInt32(napi_env env, int32_t num, const std::string &paramName)
     napi_create_object(env, &jsObject);
 
     napi_value jsValue = nullptr;
-    HILOG_INFO("%{public}s called. %{public}s = %{public}d", __func__, paramName.c_str(), num);
+    HILOG_DEBUG("%{public}s called. %{public}s = %{public}d", __func__, paramName.c_str(), num);
     napi_create_int32(env, num, &jsValue);
     napi_set_named_property(env, jsObject, paramName.c_str(), jsValue);
 

@@ -1312,7 +1312,7 @@ bool AbilityManagerService::CheckIsRemote(const std::string& deviceId)
         HILOG_INFO("CheckIsRemote: deviceId is local.");
         return false;
     }
-    HILOG_INFO("CheckIsRemote, deviceId = %{public}s", AnonymizeDeviceId(deviceId).c_str());
+    HILOG_DEBUG("CheckIsRemote, deviceId = %{public}s", AnonymizeDeviceId(deviceId).c_str());
     return true;
 }
 
@@ -1337,7 +1337,7 @@ bool AbilityManagerService::GetLocalDeviceId(std::string& localDeviceId)
     }
     if (localNode != nullptr) {
         localDeviceId = localNode->networkId;
-        HILOG_INFO("get local deviceId, deviceId = %{public}s",
+        HILOG_DEBUG("get local deviceId, deviceId = %{public}s",
             AnonymizeDeviceId(localDeviceId).c_str());
         return true;
     }
@@ -1466,7 +1466,7 @@ int AbilityManagerService::ConnectAbilityCommon(
     AppExecFwk::ExtensionAbilityType extensionType, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
+    HILOG_DEBUG("Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
     AAFWK::EventInfo eventInfo;

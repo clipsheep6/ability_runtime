@@ -717,7 +717,7 @@ bool DataAbilityHelper::TransferScheme(const Uri &uri, Uri &dataShareUri)
         return true;
     }
 
-    HILOG_ERROR("Input param invalid, uri: %{public}s", inputUri.ToString().c_str());
+    HILOG_ERROR("Input param invalid, uri: %{private}s", inputUri.ToString().c_str());
     return false;
 }
 

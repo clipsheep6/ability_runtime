@@ -231,21 +231,21 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
         globalObj->SetProperty("exports", exports);
 
         if (nativeEngine_->RunScriptPath(abilitySrcPath.c_str()) == nullptr) {
-            HILOG_ERROR("Failed to run script: %{public}s", abilitySrcPath.c_str());
+            HILOG_ERROR("Failed to run script: %{private}s", abilitySrcPath.c_str());
             waiter.NotifyResult(-1);
             return;
         }
 
         NativeObject* exportsObj = ConvertNativeValueTo<NativeObject>(globalObj->GetProperty("exports"));
         if (exportsObj == nullptr) {
-            HILOG_ERROR("Failed to get exports objcect: %{public}s", abilitySrcPath.c_str());
+            HILOG_ERROR("Failed to get exports objcect: %{private}s", abilitySrcPath.c_str());
             waiter.NotifyResult(-1);
             return;
         }
 
         NativeValue* exportObj = exportsObj->GetProperty("default");
         if (exportObj == nullptr) {
-            HILOG_ERROR("Failed to get default objcect: %{public}s", abilitySrcPath.c_str());
+            HILOG_ERROR("Failed to get default objcect: %{private}s", abilitySrcPath.c_str());
             waiter.NotifyResult(-1);
             return;
         }

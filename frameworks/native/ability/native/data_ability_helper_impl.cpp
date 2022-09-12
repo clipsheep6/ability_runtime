@@ -851,7 +851,7 @@ bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
     }
 
     if (uri->GetScheme() != SchemeOhos) {
-        HILOG_ERROR("Input param invalid, the uri is not dataability, Scheme: %{public}s.", uri->GetScheme().c_str());
+        HILOG_ERROR("Input param invalid, the uri is not dataability, Scheme: %{private}s.", uri->GetScheme().c_str());
         return false;
     }
 

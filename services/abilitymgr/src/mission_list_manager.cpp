@@ -841,7 +841,7 @@ int MissionListManager::AbilityTransactionDone(const sptr<IRemoteObject> &token,
     }
 
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
-    HILOG_INFO("ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
+    HILOG_DEBUG("ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     if (targetState == AbilityState::BACKGROUND) {
         abilityRecord->SaveAbilityState(saveData);
@@ -920,7 +920,7 @@ void MissionListManager::CompleteForegroundSuccess(const std::shared_ptr<Ability
     // ability do not save window mode
     abilityRecord->RemoveWindowMode();
     std::string element = abilityRecord->GetWant().GetElement().GetURI();
-    HILOG_INFO("ability: %{public}s", element.c_str());
+    HILOG_DEBUG("ability: %{public}s", element.c_str());
 
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
 
