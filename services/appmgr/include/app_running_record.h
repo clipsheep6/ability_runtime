@@ -612,7 +612,7 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
     bool isKilling_ = false;
-    bool isContinuousTask_ = false;    //Only continuestask processes can be set to true, please choose carefully
+    bool isContinuousTask_ = false;    // Only continuestask processes can be set to true, please choose carefully
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;

@@ -754,7 +754,7 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
     runningProcessInfo.pid_ = appRecord->GetPriorityObject()->GetPid();
     runningProcessInfo.uid_ = appRecord->GetUid();
     runningProcessInfo.state_ = static_cast<AppProcessState>(appRecord->GetState());
-    runningProcessInfo.isContinuounsTask = appRecord->IsContinuousTask();
+    runningProcessInfo.isContinuousTask = appRecord->IsContinuousTask();
     runningProcessInfo.isKeepAlive = appRecord->IsKeepAliveApp();
     appRecord->GetBundleNames(runningProcessInfo.bundleNames);
     info.emplace_back(runningProcessInfo);

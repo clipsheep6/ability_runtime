@@ -41,7 +41,7 @@ bool RunningProcessInfo::ReadFromParcel(Parcel &parcel)
     int32_t stateData;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, stateData);
     state_ = static_cast<AppProcessState>(stateData);
-    isContinuounsTask = parcel.ReadBool();
+    isContinuousTask = parcel.ReadBool();
     isKeepAlive = parcel.ReadBool();
     if (!parcel.ReadStringVector(&bundleNames)) {
         HILOG_ERROR("read bundleNames failed.");

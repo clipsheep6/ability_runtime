@@ -51,7 +51,7 @@ struct ProcessData : public Parcelable {
     int32_t pid = 0;
     int32_t uid = 0;
     AppProcessState state;
-    bool isContinuounsTask = false;
+    bool isContinuousTask = false;
     bool isKeepAlive = false;
 };
 }  // namespace AppExecFwk

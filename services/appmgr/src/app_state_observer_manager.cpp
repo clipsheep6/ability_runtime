@@ -345,7 +345,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.uid = appRecord->GetUid();
     processData.state = static_cast<AppProcessState>(appRecord->GetState());
-    processData.isContinuounsTask = appRecord->IsContinuousTask();
+    processData.isContinuousTask = appRecord->IsContinuousTask();
     processData.isKeepAlive = appRecord->IsKeepAliveApp();
     return processData;
 }
