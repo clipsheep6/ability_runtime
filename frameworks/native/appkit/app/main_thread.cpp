@@ -905,8 +905,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         isStageBased = bundleInfo.hapModuleInfos.back().isStageBasedModel;
     }
 
-    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}d",
-        isStageBased, moduelJson, (int32_t)bundleInfo.hapModuleInfos.size());
+    HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
+        isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 
     if (!InitResourceManager(resourceManager, contextDeal, appInfo, bundleInfo, config)) {
         HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");

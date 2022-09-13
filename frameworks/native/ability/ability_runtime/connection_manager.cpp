@@ -68,8 +68,8 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
         abilityConnections_[item->first] = callbacks;
         abilityConnection = item->first.abilityConnection;
         abilityConnection->SetConnectCallback(connectCallback);
-        HILOG_INFO("%{public}s end, find abilityConnection exist, callbackSize:%{public}d.",
-            __func__, (int32_t)callbacks.size());
+        HILOG_INFO("%{public}s end, find abilityConnection exist, callbackSize:%{public}zu.",
+            __func__, callbacks.size());
         if (abilityConnection->GetResultCode() == ERR_OK) {
             connectCallback->OnAbilityConnectDone(connectReceiver, abilityConnection->GetRemoteObject(),
                 abilityConnection->GetResultCode());
@@ -87,8 +87,8 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
             callbacks.push_back(connectCallback);
             abilityConnections_[connectionInfo] = callbacks;
         }
-        HILOG_DEBUG("%{public}s end, not find connection, abilityConnectionsSize:%{public}d.",
-            __func__, (int32_t)abilityConnections_.size());
+        HILOG_DEBUG("%{public}s end, not find connection, abilityConnectionsSize:%{public}zu.",
+            __func__, abilityConnections_.size());
         return ret;
     }
 }
@@ -127,8 +127,8 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
             abilityConnection->SetConnectCallback(connectCallback);
         }
 
-        HILOG_INFO("%{public}s end, find abilityConnection exist, abilityConnectionsSize:%{public}d.",
-            __func__, (int32_t)abilityConnections_.size());
+        HILOG_INFO("%{public}s end, find abilityConnection exist, abilityConnectionsSize:%{public}zu.",
+            __func__, abilityConnections_.size());
         if (item->second.empty()) {
             abilityConnections_.erase(item);
             HILOG_DEBUG("%{public}s no callback left, so disconnectAbility.", __func__);
@@ -152,8 +152,8 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject> &connectCalle
         return false;
     }
 
-    HILOG_DEBUG("%{public}s, abilityConnectionsSize:%{public}d.",
-        __func__, (int32_t)abilityConnections_.size());
+    HILOG_DEBUG("%{public}s, abilityConnectionsSize:%{public}zu.",
+        __func__, abilityConnections_.size());
 
     bool isDisconnect = false;
     auto iter = abilityConnections_.begin();
@@ -173,14 +173,14 @@ bool ConnectionManager::DisconnectCaller(const sptr<IRemoteObject> &connectCalle
         }
     }
 
-    HILOG_DEBUG("%{public}s end, abilityConnectionsSize:%{public}d.", __func__, (int32_t)abilityConnections_.size());
+    HILOG_DEBUG("%{public}s end, abilityConnectionsSize:%{public}zu.", __func__, abilityConnections_.size());
     return isDisconnect;
 }
 
 bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName &connectReceiver)
 {
-    HILOG_DEBUG("%{public}s begin, abilityConnectionsSize:%{public}d, bundleName:%{public}s, abilityName:%{public}s.",
-        __func__, (int32_t)abilityConnections_.size(), connectReceiver.GetBundleName().c_str(),
+    HILOG_DEBUG("%{public}s begin, abilityConnectionsSize:%{public}zu, bundleName:%{public}s, abilityName:%{public}s.",
+        __func__, abilityConnections_.size(), connectReceiver.GetBundleName().c_str(),
         connectReceiver.GetAbilityName().c_str());
 
     bool isDisconnect = false;
@@ -195,7 +195,7 @@ bool ConnectionManager::DisconnectReceiver(const AppExecFwk::ElementName &connec
         }
     }
 
-    HILOG_DEBUG("%{public}s end, abilityConnectionsSize:%{public}d.", __func__, (int32_t)abilityConnections_.size());
+    HILOG_DEBUG("%{public}s end, abilityConnectionsSize:%{public}zu.", __func__, abilityConnections_.size());
     return isDisconnect;
 }
 

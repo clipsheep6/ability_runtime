@@ -60,7 +60,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
         return ERR_INVALID_VALUE;
     }
     appStateObserverMap_.emplace(observer, bundleNameList);
-    HILOG_DEBUG("%{public}s appStateObserverMap_ size:%{public}d", __func__, (int32_t)appStateObserverMap_.size());
+    HILOG_DEBUG("%{public}s appStateObserverMap_ size:%{public}zu", __func__, appStateObserverMap_.size());
     AddObserverDeathRecipient(observer);
     return ERR_OK;
 }
@@ -81,8 +81,7 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
     for (it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         if (it->first->AsObject() == observer->AsObject()) {
             appStateObserverMap_.erase(it);
-            HILOG_INFO("%{public}s appStateObserverMap_ size:%{public}d", __func__,
-                (int32_t)appStateObserverMap_.size());
+            HILOG_INFO("%{public}s appStateObserverMap_ size:%{public}zu", __func__, appStateObserverMap_.size());
             RemoveObserverDeathRecipient(observer);
             return ERR_OK;
         }
@@ -236,8 +235,8 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
+    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
     HandleOnProcessCreated(data);
 }
 
@@ -248,8 +247,8 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
+    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
     HandleOnProcessCreated(data);
 }
 
@@ -272,8 +271,8 @@ void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRu
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d.",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
+    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu.",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
     HandleOnProcessDied(data);
 }
 
@@ -284,8 +283,8 @@ void AppStateObserverManager::HandleOnRenderProcessDied(const std::shared_ptr<Re
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}d.",
-        data.bundleName.c_str(), data.pid, data.uid, (int32_t)appStateObserverMap_.size());
+    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu.",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
     HandleOnProcessDied(data);
 }
 

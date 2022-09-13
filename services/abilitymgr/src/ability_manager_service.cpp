@@ -3604,7 +3604,7 @@ void AbilityManagerService::StartResidentApps()
         return;
     }
 
-    HILOG_INFO("StartResidentApps GetBundleInfos size: %{public}lu", (unsigned long)bundleInfos.size());
+    HILOG_INFO("StartResidentApps GetBundleInfos size: %{public}zu", bundleInfos.size());
 
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {

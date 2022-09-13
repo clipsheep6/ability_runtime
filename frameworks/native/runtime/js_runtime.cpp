@@ -194,8 +194,6 @@ public:
             const auto &outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
-            HILOG_INFO("patchFile: %{private}s, buffersize: %{public}zu, baseFile: %{private}s.",
-                patchFile.c_str(), buffer.size(), baseFile.c_str());
             bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
             if (!ret) {
                 HILOG_ERROR("LoadPatch failed.");

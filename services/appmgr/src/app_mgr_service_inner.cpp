@@ -1651,7 +1651,7 @@ void AppMgrServiceInner::LoadResidentProcess(const std::vector<AppExecFwk::Bundl
         return;
     }
 
-    HILOG_INFO("bundle info size: [%{public}d]", static_cast<int>(infos.size()));
+    HILOG_INFO("bundle info size: [%{public}zu]", infos.size());
     StartResidentProcess(infos, -1, true);
 }
 
@@ -2154,8 +2154,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
 
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
-    uint32_t size = changeKeyV.size();
-    HILOG_INFO("changeKeyV size :%{public}u", size);
+    HILOG_INFO("changeKeyV size :%{public}zu", changeKeyV.size());
     if (!changeKeyV.empty()) {
         configuration_->Merge(changeKeyV, config);
         // all app
