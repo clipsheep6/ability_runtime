@@ -200,40 +200,6 @@ int DataObsMgrService::NotifyChange(const Uri &uri)
     return NO_ERROR;
 }
 
-int DataObsMgrService::Dump(int fd, const std::vector<std::u16string>& args)
-{
-    std::string result;
-    Dump(args, result);
-    int ret = dprintf(fd, "%s\n", result.c_str());
-    if (ret < 0) {
-        HILOG_ERROR("%{public}s, dprintf error.", __func__);
-        return DATAOBS_HIDUMP_ERROR;
-    }
-    return ERR_OK;
-}
-
-void DataObsMgrService::Dump(const std::vector<std::u16string>& args, std::string& result) const
-{
-    auto size = args.size();
-    if (size == 0) {
-        ShowHelp(result);
-        return;
-    }
-
-    std::string optionKey = Str16ToStr8(args[0]);
-    if (optionKey != "-h") {
-        result.append("error: unkown option.\n");
-    }
-    ShowHelp(result);
-}
-
-void DataObsMgrService::ShowHelp(std::string& result) const
-{
-    result.append("Usage:\n")
-        .append("-h                          ")
-        .append("help text for the tool\n");
-}
-
 std::shared_ptr<EventHandler> DataObsMgrService::GetEventHandler()
 {
     return handler_;

@@ -23,6 +23,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+const bool REGISTER_RESULT =
+    SystemAbility::MakeAndRegisterAbility(DelayedSingleton<UriPermissionManagerService>::GetInstance().get());
+
 UriPermissionManagerService::UriPermissionManagerService() : SystemAbility(URI_PERMISSION_MGR_SERVICE_ID, true) {}
 
 UriPermissionManagerService::~UriPermissionManagerService()

@@ -201,14 +201,6 @@ public:
     virtual int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
 
-    /**
-     * @brief Application hidumper.
-     * @param fd Indicates the fd.
-     * @param args Indicates the params.
-     * @return Returns the dump result.
-     */
-    int Dump(int fd, const std::vector<std::u16string>& args) override;
-
     virtual void ScheduleAcceptWantDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
@@ -312,9 +304,6 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t GetForegroundApplications(std::vector<AppStateData> &list) override;
-
-    void Dump(const std::vector<std::u16string>& args, std::string& result) const;
-    void ShowHelp(std::string& result) const;
 
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;

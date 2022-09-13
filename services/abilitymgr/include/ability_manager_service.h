@@ -389,7 +389,7 @@ public:
      * @param args Indicates the params.
      * @return Returns the dump result.
      */
-    int Dump(int fd, const std::vector<std::u16string>& args) override;
+    int Dump(int fd, const std::vector<std::u16string> &args) override;
 
     /**
      * dump ability stack info, about userID, mission stack info,
@@ -957,10 +957,9 @@ private:
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DataDumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
-    ErrCode ProcessMultiParam(std::vector<std::string>& argsStr, std::string& result);
-    void ShowHelp(std::string& result);
-    void ShowIllegalInfomation(std::string& result);
-    int Dump(const std::vector<std::u16string>& args, std::string& result);
+    ErrCode ProcessMultiParam(std::vector<std::string> &argsStr, std::string &result);
+    void ShowHelp(std::string &result);
+    void ShowIllegalInfomation(std::string &result);
 
     void InitConnectManager(int32_t userId, bool switchUser);
     void InitDataAbilityManager(int32_t userId, bool switchUser);
