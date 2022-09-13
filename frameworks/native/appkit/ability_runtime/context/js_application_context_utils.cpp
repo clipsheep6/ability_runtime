@@ -21,6 +21,7 @@
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
+#include "js_error_utils.h"
 #include "js_hap_module_info_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
@@ -438,11 +439,13 @@ NativeValue *JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
     // only support one params
     if (info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params.");
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
         return engine.CreateUndefined();
     }
 
     if (keepApplicationContext_ == nullptr) {
         HILOG_ERROR("ApplicationContext is nullptr.");
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
         return engine.CreateUndefined();
     }
     if (callback_ != nullptr) {
@@ -460,15 +463,16 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
     NativeEngine &engine, NativeCallbackInfo &info)
 {
     HILOG_INFO("OnUnregisterAbilityLifecycleCallback is called");
-    int32_t errCode = 0;
     if (keepApplicationContext_ == nullptr) {
         HILOG_ERROR("ApplicationContext is nullptr.");
-        errCode = ERROR_CODE_ONE;
+        Throw(engine, ERROR_CODE_CONTEXT_EMPTY, ERROR_MSG_CONTEXT_EMPTY);
+        return engine.CreateUndefined();
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
         HILOG_ERROR("OnUnregisterAbilityLifecycleCallback, Not enough params");
-        errCode = ERROR_CODE_ONE;
+        Throw(engine, ERROR_CODE_PARAM_INVALID, ERROR_MSG_PARAM_INVALID);
+        return engine.CreateUndefined();
     } else {
         napi_get_value_int32(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &callbackId);
@@ -476,12 +480,8 @@ NativeValue *JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
     }
     std::weak_ptr<JsAbilityLifecycleCallback> callbackWeak(callback_);
     AsyncTask::CompleteCallback complete =
-        [&applicationContext = keepApplicationContext_, callbackWeak, callbackId, errCode](
+        [&applicationContext = keepApplicationContext_, callbackWeak, callbackId](
             NativeEngine &engine, AsyncTask &task, int32_t status) {
-            if (errCode != 0) {
-                task.Reject(engine, CreateJsError(engine, errCode, "Invalidate params."));
-                return;
-            }
             auto callback = callbackWeak.lock();
             if (applicationContext == nullptr || callback == nullptr) {
                 HILOG_ERROR("applicationContext or callback nullptr");

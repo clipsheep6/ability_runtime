@@ -186,6 +186,9 @@ std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, Na
 
 std::unique_ptr<AsyncTask> CreateAsyncTaskWithLastParam(NativeEngine& engine, NativeValue* lastParam,
     nullptr_t, nullptr_t, NativeValue** result);
+
+bool Throw(NativeEngine& engine, int32_t errCode, const std::string& message);
+bool Throw(NativeEngine& engine, NativeValue* error);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 
