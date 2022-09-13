@@ -57,6 +57,13 @@ public:
     virtual void OnProcessCreated(const ProcessData &processData) override;
 
     /**
+     * Will be called when the process state change.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnProcessStateChanged(const ProcessData &processData) override;
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.

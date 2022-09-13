@@ -26,6 +26,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+const std::string IS_CONTINUOUS_TASK = "isContinuousTask";
 const std::map<AppState, std::string> appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::BEGIN, "BEGIN"),
     std::map<AppState, std::string>::value_type(AppState::READY, "READY"),
@@ -86,6 +87,11 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     if (ret != ERR_OK) {
         HILOG_ERROR("AppScheduler fail to LoadAbility. ret %d", ret);
         return INNER_ERR;
+    }
+    if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsBackgroundTaskUid(applicationInfo.uid)) {
+        (const_cast<Want &>(want)).SetParam("isContinuousTask", true);
+    } else {
+        (const_cast<Want &>(want)).SetParam("isContinuousTask", false);
     }
     return ERR_OK;
 }

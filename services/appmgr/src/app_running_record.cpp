@@ -1189,5 +1189,15 @@ int32_t AppRunningRecord::NotifyHotReloadPage()
     }
     return appLifeCycleDeal_->NotifyHotReloadPage();
 }
+
+bool AppRunningRecord::IsContinuousTask()
+{
+    return isContinuousTask_;
+}
+
+void AppRunningRecord::SetContinuousTaskAppState(bool isContinuousTask)
+{
+    isContinuousTask_ = isContinuousTask;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -57,6 +57,13 @@ public:
     virtual void OnProcessCreated(const ProcessData &processData) = 0;
 
     /**
+     * Will be called when the process state change.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnProcessStateChanged(const ProcessData &processData) {}
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.
@@ -75,6 +82,7 @@ public:
         TRANSACT_ON_ABILITY_STATE_CHANGED,
         TRANSACT_ON_EXTENSION_STATE_CHANGED,
         TRANSACT_ON_PROCESS_CREATED,
+        TRANSACT_ON_PROCESS_STATE_CHANGED,
         TRANSACT_ON_PROCESS_DIED,
         TRANSACT_ON_APPLICATION_STATE_CHANGED,
     };
