@@ -155,13 +155,13 @@ bool BundleMgrProxy::DumpInfos(
 {
     return true;
 }
-bool BundleMgrProxy::IsApplicationEnabled(const std::string &bundleName)
+ErrCode BundleMgrProxy::IsApplicationEnabled(const std::string &bundleName, bool &isEnable)
 {
-    return true;
+    return ERR_OK;
 }
-bool BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo)
+ErrCode BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable)
 {
-    return true;
+    return ERR_OK;
 }
 bool BundleMgrProxy::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {
@@ -341,13 +341,13 @@ bool BundleMgrService::DumpInfos(
 {
     return true;
 }
-bool BundleMgrService::IsApplicationEnabled(const std::string &bundleName)
+ErrCode BundleMgrService::IsApplicationEnabled(const std::string &bundleName, bool &isEnable)
 {
-    return true;
+    return ERR_OK;
 }
-bool BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo)
+ErrCode BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable)
 {
-    return true;
+    return ERR_OK;
 }
 bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
 {

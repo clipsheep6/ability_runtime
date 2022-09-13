@@ -193,9 +193,10 @@ public:
         }
         return false;
     }
-    bool IsApplicationEnabled(const std::string &bundleName) override
+
+    virtual ErrCode IsApplicationEnabled(const std::string &bundleName, bool &isEnable) override
     {
-        return true;
+        return ERR_OK;
     }
 
     bool GetBundleInfo(
@@ -227,7 +228,7 @@ public:
         bool(const std::string &bundleName, const std::string &permission, const int userId));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
-    MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));
+    MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     bool QueryAbilityInfo(const AAFwk::Want &want, AbilityInfo &abilityInfo) override;
     bool QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo) override;
 
@@ -330,9 +331,10 @@ public:
     {
         return nullptr;
     };
-    bool IsApplicationEnabled(const std::string &bundleName) override
+
+    virtual ErrCode IsApplicationEnabled(const std::string &bundleName, bool &isEnable) override
     {
-        return true;
+        return ERR_OK;
     };
     bool CheckIsSystemAppByUid(const int uid) override
     {

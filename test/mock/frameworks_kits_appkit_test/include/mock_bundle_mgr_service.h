@@ -93,10 +93,10 @@ public:
     }
     MOCK_METHOD0(GetBundleInstaller, sptr<IBundleInstaller>());
     MOCK_METHOD1(GetBundleInstaller, bool(const std::string &));
-    MOCK_METHOD1(IsApplicationEnabled, bool(const std::string &));
+    MOCK_METHOD2(IsApplicationEnabled, ErrCode(const std::string &, bool &isEnable));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
-    MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &));
+    MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     void Wait()
     {
         sem_.Wait();

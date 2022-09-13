@@ -80,8 +80,8 @@ public:
     bool UnregisterBundleStatusCallback() override;
     bool DumpInfos(
         const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override;
-    bool IsApplicationEnabled(const std::string &bundleName) override;
-    bool IsAbilityEnabled(const AbilityInfo &abilityInfo) override;
+    ErrCode IsApplicationEnabled(const std::string &bundleName, bool &isEnable) override;
+    ErrCode IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable) override;
     bool GetAllFormsInfo(std::vector<FormInfo> &formInfos) override;
     bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos) override;
     bool GetFormsInfoByModule(
@@ -152,8 +152,8 @@ public:
     bool UnregisterBundleStatusCallback() override;
     bool DumpInfos(
         const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override;
-    bool IsApplicationEnabled(const std::string &bundleName) override;
-    bool IsAbilityEnabled(const AbilityInfo &abilityInfo) override;
+    ErrCode IsApplicationEnabled(const std::string &bundleName, bool &isEnable) override;
+    ErrCode IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable) override;
     bool GetAllFormsInfo(std::vector<FormInfo> &formInfos) override;
     bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos) override;
     bool GetFormsInfoByModule(

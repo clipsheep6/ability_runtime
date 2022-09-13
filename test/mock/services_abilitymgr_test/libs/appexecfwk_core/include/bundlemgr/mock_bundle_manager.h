@@ -285,14 +285,14 @@ public:
     MOCK_METHOD0(UnregisterBundleStatusCallback, bool());
     MOCK_METHOD4(
         DumpInfos, bool(const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result));
-    MOCK_METHOD1(IsApplicationEnabled, bool(const std::string &bundleName));
+    MOCK_METHOD2(IsApplicationEnabled, ErrCode(const std::string &bundleName, bool &isEnable));
     MOCK_METHOD0(GetBundleInstaller, sptr<IBundleInstaller>());
     MOCK_METHOD0(GetBundleUserMgr, sptr<IBundleUserMgr>());
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
+    MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &abilityInfo, bool &isEnable));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetFormsInfoByApp, bool(const std::string &bundleName, std::vector<FormInfo> &formInfos));
     MOCK_METHOD3(GetFormsInfoByModule,
@@ -357,7 +357,7 @@ public:
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
     MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
-    MOCK_METHOD1(IsAbilityEnabled, bool(const AbilityInfo &abilityInfo));
+    MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &abilityInfo, bool &isEnable));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));
     MOCK_METHOD2(GetFormsInfoByApp, bool(const std::string &bundleName, std::vector<FormInfo> &formInfos));
     MOCK_METHOD3(GetFormsInfoByModule,
@@ -366,7 +366,7 @@ public:
     MOCK_METHOD0(UnregisterBundleStatusCallback, bool());
     MOCK_METHOD4(
         DumpInfos, bool(const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result));
-    MOCK_METHOD1(IsApplicationEnabled, bool(const std::string &bundleName));
+    MOCK_METHOD2(IsApplicationEnabled, ErrCode(const std::string &bundleName, bool &isEnable));
     virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
