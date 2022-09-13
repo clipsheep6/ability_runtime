@@ -5089,6 +5089,11 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility) {
+        verificationInfo.apiTargetVersion = callerAbility->GetApplicationInfo().apiTargetVersion;
+    }
+
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start DataAbility");
@@ -5152,6 +5157,11 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
     verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (callerAbility) {
+        verificationInfo.apiTargetVersion = callerAbility->GetApplicationInfo().apiTargetVersion;
+    }
+
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }

@@ -202,7 +202,7 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
         return ERR_OK;
     }
 
-    if (verificationInfo.apiTargetVersion > API8 &&
+    if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
         return CHECK_PERMISSION_FAILED;
     }
@@ -222,7 +222,7 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
         return ERR_OK;
     }
 
-    if (verificationInfo.apiTargetVersion > API8 &&
+    if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
         return CHECK_PERMISSION_FAILED;
     }
