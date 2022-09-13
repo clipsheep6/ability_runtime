@@ -182,9 +182,11 @@ private:
             bool isExist = observer_->FindObserverByObserverId(observerId);
             if (isExist) {
                 // match id
-                HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__, (int32_t)observerId);
+                HILOG_INFO("%{public}s find observer exist observer:%{public}d", __func__,
+                    static_cast<int32_t>(observerId));
             } else {
-                HILOG_INFO("%{public}s not find observer, observer:%{public}d", __func__, (int32_t)observerId);
+                HILOG_INFO("%{public}s not find observer, observer:%{public}d", __func__,
+                    static_cast<int32_t>(observerId));
                 errCode = ERR_NOT_OK;
             }
         }

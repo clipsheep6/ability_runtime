@@ -127,7 +127,7 @@ public:
                 runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
             if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
+                HILOG_ERROR("RunScript, Get abc file failed");
                 return result;
             }
 

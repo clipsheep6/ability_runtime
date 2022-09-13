@@ -159,7 +159,7 @@ public:
     virtual ~TriggerCompleteCallBack();
 
 public:
-    virtual void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
+    void OnSendFinished(const AAFwk::Want &want, int resultCode, const std::string &resultData,
         const AAFwk::WantParams &resultExtras) override;
     void SetCallbackInfo(const napi_env &env, const napi_ref &ref);
     void SetWantAgentInstance(const std::shared_ptr<WantAgent> &wantAgent);

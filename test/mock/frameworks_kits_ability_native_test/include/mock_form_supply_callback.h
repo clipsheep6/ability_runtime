@@ -36,14 +36,14 @@ public:
      * @param providerFormInfo providerFormInfo
      * @param want data
      */
-    virtual int OnAcquire(const FormProviderInfo &formInfo, const Want& want) override;
+    int OnAcquire(const FormProviderInfo &formInfo, const Want& want) override;
 
     /**
      * onEventHandle
      *
      * @param want data
      */
-    virtual int OnEventHandle(const Want& want) override;
+    int OnEventHandle(const Want& want) override;
 
     /**
      * OnAcquireStateResult
@@ -53,10 +53,10 @@ public:
      * @param wantArg The want of onAcquireFormState.
      * @param want input data
      */
-    virtual int OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
+    int OnAcquireStateResult(FormState state, const std::string &provider, const Want &wantArg,
                                      const Want &want) override;
 
-    virtual void OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
+    void OnShareAcquire(int64_t formId, const std::string &remoteDeviceId,
         const AAFwk::WantParams &wantParams, int64_t requestCode, const bool &result) override;
 
 private:

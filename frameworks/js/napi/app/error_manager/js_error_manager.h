@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "ierror_observer.h"
-#include "native_engine/native_engine.h"
-
 #ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_JS_ERROR_MANAGER_H
+
+#include "ierror_observer.h"
+#include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

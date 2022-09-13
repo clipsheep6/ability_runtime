@@ -141,7 +141,7 @@ public:
     {
         return true;
     };
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
+    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
     {
         return true;
     }
@@ -246,7 +246,7 @@ public:
     {
         return true;
     }
-    virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
+    sptr<IBundleUserMgr> GetBundleUserMgr() override
     {
         return nullptr;
     }

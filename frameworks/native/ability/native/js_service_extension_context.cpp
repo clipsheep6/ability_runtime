@@ -547,7 +547,7 @@ private:
         sptr<JSServiceExtensionConnection> connection = nullptr;
         napi_get_value_int64(reinterpret_cast<napi_env>(&engine),
             reinterpret_cast<napi_value>(info.argv[INDEX_ZERO]), &connectId);
-        HILOG_INFO("OnDisconnectAbility connection:%{public}d", (int32_t)connectId);
+        HILOG_INFO("OnDisconnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
         auto item = std::find_if(connects_.begin(), connects_.end(),
             [&connectId](
                 const std::map<ConnecttionKey, sptr<JSServiceExtensionConnection>>::value_type &obj) {

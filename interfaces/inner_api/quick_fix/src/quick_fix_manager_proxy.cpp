@@ -77,18 +77,18 @@ int32_t QuickFixManagerProxy::GetApplyedQuickFixInfo(const std::string &bundleNa
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(AAFwk::IQuickFixManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("GetApplyedQuickFixInfo, Write interface token failed.");
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write quick fix files failed.");
+        HILOG_ERROR("GetApplyedQuickFixInfo, Write quick fix files failed.");
         return QUICK_FIX_WRITE_PARCEL_FAILED;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        HILOG_ERROR("GetApplyedQuickFixInfo, Remote is nullptr.");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
@@ -96,7 +96,7 @@ int32_t QuickFixManagerProxy::GetApplyedQuickFixInfo(const std::string &bundleNa
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = remote->SendRequest(QuickFixMgrCmd::ON_GET_APPLYED_QUICK_FIX_INFO, data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("Send request failed with error %{public}d.", ret);
+        HILOG_ERROR("GetApplyedQuickFixInfo, Send request failed with error %{public}d.", ret);
         return QUICK_FIX_SEND_REQUEST_FAILED;
     }
 

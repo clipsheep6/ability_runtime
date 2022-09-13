@@ -49,7 +49,7 @@ public:
         return "system";
     }
 
-    virtual bool GetApplicationInfo(
+    bool GetApplicationInfo(
         const std::string &appName,
         const ApplicationFlag flag,
         const int userId,
@@ -57,105 +57,105 @@ public:
     {
         return true;
     }
-    virtual bool GetApplicationInfos(
+    bool GetApplicationInfos(
         const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos) override
     {
         return true;
     }
 
-    virtual bool GetBundleInfos(
+    bool GetBundleInfos(
         const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId) override
     {
         return true;
     }
-    virtual int GetUidByBundleName(const std::string &bundleName, const int userId) override
+    int GetUidByBundleName(const std::string &bundleName, const int userId) override
     {
         if (bundleName.compare("com.form.host.app600") == 0) {
             return 600;
         }
         return 0;
     }
-    virtual std::string GetAppIdByBundleName(const std::string &bundleName, const int userId) override
+    std::string GetAppIdByBundleName(const std::string &bundleName, const int userId) override
     {
         return "";
     }
-    virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
+    bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
         bundleName = "com.form.provider.service";
         return true;
     }
-    virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override
+    bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override
     {
         return true;
     }
-    virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override
+    bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override
     {
         return true;
     }
-    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
+    bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
     {
         return true;
     }
 
-    virtual bool GetBundleArchiveInfo(
+    bool GetBundleArchiveInfo(
         const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo) override
     {
         return true;
     }
 
-    virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
+    bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
     {
         return true;
     }
 
-    virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
+    int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
     {
         return 0;
     }
 
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
+    bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
     {
         return true;
     }
-    virtual bool HasSystemCapability(const std::string &capName) override
+    bool HasSystemCapability(const std::string &capName) override
     {
         return true;
     }
-    virtual bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override
+    bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override
     {
         return true;
     }
-    virtual bool IsSafeMode() override
+    bool IsSafeMode() override
     {
         return true;
     }
-    virtual bool CleanBundleDataFiles(const std::string &bundleName, const int userId) override
+    bool CleanBundleDataFiles(const std::string &bundleName, const int userId) override
     {
         return true;
     }
-    virtual bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
+    bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
     {
         return true;
     }
-    virtual bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
+    bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
     {
         return true;
     }
     // unregister callback of all application
-    virtual bool UnregisterBundleStatusCallback() override
+    bool UnregisterBundleStatusCallback() override
     {
         return true;
     }
-    virtual bool DumpInfos(
+    bool DumpInfos(
         const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override
     {
         return true;
     }
-    virtual sptr<IBundleInstaller> GetBundleInstaller() override
+    sptr<IBundleInstaller> GetBundleInstaller() override
     {
         return nullptr;
     }
-    virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
+    sptr<IBundleUserMgr> GetBundleUserMgr() override
     {
         return nullptr;
     };
@@ -166,7 +166,7 @@ public:
      *  @param form Indicates the callback a list to shortcutinfo.
      *  @return Returns true if shortcutinfo get success
      */
-    virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
+    bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
     {
         return true;
     }
@@ -176,33 +176,33 @@ public:
      * @param hapModuleInfo Indicates the obtained HapModuleInfo object.
      * @return Returns true if the HapModuleInfo is successfully obtained; returns false otherwise.
      */
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override
+    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override
     {
         return true;
     }
 
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
+    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
     {
         return true;
     }
 
-    virtual bool CheckIsSystemAppByUid(const int uid) override
+    bool CheckIsSystemAppByUid(const int uid) override
     {
         if (uid == 600) {
             return true;
         }
         return false;
     }
-    virtual bool IsApplicationEnabled(const std::string &bundleName)override
+    bool IsApplicationEnabled(const std::string &bundleName) override
     {
         return true;
     }
 
-    virtual bool GetBundleInfo(
+    bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    virtual bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
-    virtual bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
-    virtual bool GetFormsInfoByModule(
+    bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
+    bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
+    bool GetFormsInfoByModule(
         const std::string &bundleName,
         const std::string &moduleName,
         std::vector<FormInfo> &formInfo) override;
@@ -211,7 +211,7 @@ public:
 class BundleMgrStub : public IRemoteStub<IBundleMgr> {
 public:
     ~BundleMgrStub() = default;
-    virtual int OnRemoteRequest(
+    int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 };
 
@@ -232,109 +232,109 @@ public:
     bool QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo) override;
 
     std::string GetAppType(const std::string &bundleName) override;
-    virtual int GetUidByBundleName(const std::string &bundleName, const int userId) override;
+    int GetUidByBundleName(const std::string &bundleName, const int userId) override;
 
-    virtual bool GetApplicationInfo(
+    bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo) override;
-    virtual bool GetApplicationInfos(
+    bool GetApplicationInfos(
         const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos) override
     {
         return true;
     };
-    virtual bool GetBundleInfo(
+    bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
-    virtual bool GetBundleInfos(
+    bool GetBundleInfos(
         const BundleFlag flag, std::vector<BundleInfo> &bundleInfos, int32_t userId) override
     {
         return true;
     };
-    virtual bool GetBundleNameForUid(const int uid, std::string &bundleName) override
+    bool GetBundleNameForUid(const int uid, std::string &bundleName) override
     {
         bundleName = "com.form.provider.service";
         return true;
     };
-    virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
-    virtual bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override
+    bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
+    bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override
     {
         return true;
     };
-    virtual bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
+    bool QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos) override
     {
         return true;
     };
     // obtains information about an application bundle contained in an ohos Ability Package (HAP).
-    virtual bool GetBundleArchiveInfo(
+    bool GetBundleArchiveInfo(
         const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo) override
     {
         return true;
     };
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override
+    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override
     {
         return true;
     }
-    virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
+    bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override
     {
         return true;
     }
     // obtains the Want for starting the main ability of an application based on the given bundle name.
-    virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
+    bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
     {
         return true;
     };
     // checks whether the publickeys of two bundles are the same.
-    virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
+    int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
     {
         return 0;
     };
     // checks whether a specified bundle has been granted a specific permission.
-    virtual bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
+    bool GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef) override
     {
         return true;
     };
-    virtual bool HasSystemCapability(const std::string &capName) override
+    bool HasSystemCapability(const std::string &capName) override
     {
         return true;
     };
-    virtual bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override
+    bool GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps) override
     {
         return true;
     };
-    virtual bool IsSafeMode() override
+    bool IsSafeMode() override
     {
         return true;
     };
 
-    virtual bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
+    bool RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
     {
         return true;
     };
-    virtual bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
+    bool ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback) override
     {
         return true;
     };
     // unregister callback of all application
-    virtual bool UnregisterBundleStatusCallback() override
+    bool UnregisterBundleStatusCallback() override
     {
         return true;
     };
-    virtual bool DumpInfos(
+    bool DumpInfos(
         const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result) override
     {
         return true;
     };
-    virtual sptr<IBundleInstaller> GetBundleInstaller() override
+    sptr<IBundleInstaller> GetBundleInstaller() override
     {
         return nullptr;
     };
-    virtual sptr<IBundleUserMgr> GetBundleUserMgr() override
+    sptr<IBundleUserMgr> GetBundleUserMgr() override
     {
         return nullptr;
     };
-    virtual bool IsApplicationEnabled(const std::string &bundleName) override
+    bool IsApplicationEnabled(const std::string &bundleName) override
     {
         return true;
     };
-    virtual bool CheckIsSystemAppByUid(const int uid) override
+    bool CheckIsSystemAppByUid(const int uid) override
     {
         if (uid == 600) {
             return false;
@@ -349,29 +349,29 @@ public:
      *  @param form Indicates the callback a list to shortcutinfo.
      *  @return Returns true if shortcutinfo get success
      */
-    virtual bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
+    bool GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcut) override
     {
         return true;
     }
-    virtual bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
-    virtual bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
-    virtual bool GetFormsInfoByModule(
+    bool GetAllFormsInfo(std::vector<FormInfo> &formInfo) override;
+    bool GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfo) override;
+    bool GetFormsInfoByModule(
         const std::string &bundleName,
         const std::string &moduleName,
         std::vector<FormInfo> &formInfo) override;
-    virtual bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
+    bool QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos) override
     {
         return true;
     };
-    virtual bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
+    bool GetBundleGidsByUid(const std::string &bundleName, const int &uid, std::vector<int> &gids) override
     {
         return true;
     }
-    virtual bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override
+    bool QueryAbilityInfosByUri(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos) override
     {
         return true;
     }
-    virtual bool GetAllCommonEventInfo(const std::string &eventKey,
+    bool GetAllCommonEventInfo(const std::string &eventKey,
         std::vector<CommonEventInfo> &commonEventInfos) override
     {
         return true;

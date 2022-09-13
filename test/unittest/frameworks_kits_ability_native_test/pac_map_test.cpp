@@ -53,14 +53,14 @@ public:
         if (splitPos == std::string::npos) {
             return;
         }
-        std::string str_data = str.substr(0, splitPos);
-        std::string intdata = str.substr(str_data.length() + 1, str.length() - 1);
-        if (str_data.length() + 1 + intdata.length() != str.length()) {
+        std::string strData = str.substr(0, splitPos);
+        std::string intdata = str.substr(strData.length() + 1, str.length() - 1);
+        if (strData.length() + 1 + intdata.length() != str.length()) {
             return;
         }
         bool isNumber = std::regex_match(intdata, INTEGER_REGEX);
         if (isNumber) {
-            str_data_ = str_data;
+            str_data_ = strData;
             int_data_ = std::stoi(intdata);
         }
     }

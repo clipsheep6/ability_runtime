@@ -39,7 +39,7 @@ namespace {
 NativeValue *PromiseCallback(NativeEngine *engine, NativeCallbackInfo *info)
 {
     if (info == nullptr || info->functionInfo == nullptr || info->functionInfo->data == nullptr) {
-        HILOG_ERROR("Invalid input info.");
+        HILOG_ERROR("PromiseCallback, Invalid input info.");
         return nullptr;
     }
     void *data = info->functionInfo->data;
@@ -363,11 +363,11 @@ NativeValue *JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool 
 bool JsServiceExtension::CheckPromise(NativeValue *result)
 {
     if (result == nullptr) {
-        HILOG_DEBUG("result is null, no need to call promise.");
+        HILOG_DEBUG("CheckPromise, result is null, no need to call promise.");
         return false;
     }
     if (!result->IsPromise()) {
-        HILOG_DEBUG("result is not promise, no need to call promise.");
+        HILOG_DEBUG("CheckPromise, result is not promise, no need to call promise.");
         return false;
     }
     return true;
@@ -377,16 +377,16 @@ bool JsServiceExtension::CallPromise(NativeValue *result, AppExecFwk::AbilityTra
 {
     auto *retObj = ConvertNativeValueTo<NativeObject>(result);
     if (retObj == nullptr) {
-        HILOG_ERROR("Failed to convert native value to NativeObject.");
+        HILOG_ERROR("CallPromise, Failed to convert native value to NativeObject.");
         return false;
     }
     NativeValue *then = retObj->GetProperty("then");
     if (then == nullptr) {
-        HILOG_ERROR("Failed to get property: then.");
+        HILOG_ERROR("CallPromise, Failed to get property: then.");
         return false;
     }
     if (!then->IsCallable()) {
-        HILOG_ERROR("property then is not callable.");
+        HILOG_ERROR("CallPromise, property then is not callable.");
         return false;
     }
     HandleScope handleScope(jsRuntime_);

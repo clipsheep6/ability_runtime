@@ -267,12 +267,12 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
     auto deployTask = [thisWeakPtr, quickFixFiles, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
-            HILOG_ERROR("Apply task is nullptr.");
+            HILOG_ERROR("PostDeployQuickFixTask, Apply task is nullptr.");
             return;
         }
 
         if (applyTask->bundleQfMgr_ == nullptr) {
-            HILOG_ERROR("Bundle quick fix manager is nullptr.");
+            HILOG_ERROR("PostDeployQuickFixTask, Bundle quick fix manager is nullptr.");
             applyTask->NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
             applyTask->RemoveSelf();
             return;
@@ -280,7 +280,7 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
 
         auto ret = applyTask->bundleQfMgr_->DeployQuickFix(quickFixFiles, callback);
         if (ret != 0) {
-            HILOG_ERROR("Deploy quick fix failed with %{public}d.", ret);
+            HILOG_ERROR("PostDeployQuickFixTask, Deploy quick fix failed with %{public}d.", ret);
             applyTask->NotifyApplyStatus(QUICK_FIX_DEPLOY_FAILED);
             applyTask->RemoveSelf();
             return;
@@ -299,12 +299,12 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
     auto switchTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
-            HILOG_ERROR("Apply task is nullptr.");
+            HILOG_ERROR("PostSwitchQuickFixTask, Apply task is nullptr.");
             return;
         }
 
         if (applyTask->bundleQfMgr_ == nullptr) {
-            HILOG_ERROR("Bundle quick fix manager is nullptr.");
+            HILOG_ERROR("PostSwitchQuickFixTask, Bundle quick fix manager is nullptr.");
             applyTask->NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
             applyTask->RemoveSelf();
             return;
@@ -312,7 +312,7 @@ void QuickFixManagerApplyTask::PostSwitchQuickFixTask()
 
         auto ret = applyTask->bundleQfMgr_->SwitchQuickFix(applyTask->bundleName_, true, callback);
         if (ret != 0) {
-            HILOG_ERROR("Switch quick fix failed with %{public}d.", ret);
+            HILOG_ERROR("PostSwitchQuickFixTask, Switch quick fix failed with %{public}d.", ret);
             applyTask->NotifyApplyStatus(QUICK_FIX_SWICH_FAILED);
             applyTask->RemoveSelf();
             return;
@@ -331,12 +331,12 @@ void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
     auto deleteTask = [thisWeakPtr, callback]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
-            HILOG_ERROR("Apply task is nullptr.");
+            HILOG_ERROR("PostDeleteQuickFixTask, Apply task is nullptr.");
             return;
         }
 
         if (applyTask->bundleQfMgr_ == nullptr) {
-            HILOG_ERROR("Bundle quick fix manager is nullptr.");
+            HILOG_ERROR("PostDeleteQuickFixTask, Bundle quick fix manager is nullptr.");
             applyTask->NotifyApplyStatus(QUICK_FIX_BUNDLEMGR_INVALID);
             applyTask->RemoveSelf();
             return;
@@ -344,7 +344,7 @@ void QuickFixManagerApplyTask::PostDeleteQuickFixTask()
 
         auto ret = applyTask->bundleQfMgr_->DeleteQuickFix(applyTask->bundleName_, callback);
         if (ret != 0) {
-            HILOG_ERROR("Delete quick fix failed with %{public}d.", ret);
+            HILOG_ERROR("PostDeleteQuickFixTask, Delete quick fix failed with %{public}d.", ret);
             applyTask->NotifyApplyStatus(QUICK_FIX_DELETE_FAILED);
             applyTask->RemoveSelf();
             return;
