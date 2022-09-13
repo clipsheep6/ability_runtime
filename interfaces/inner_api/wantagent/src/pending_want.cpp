@@ -391,7 +391,7 @@ std::shared_ptr<Want> PendingWant::GetWant(const sptr<AAFwk::IWantSender> &targe
 
 bool PendingWant::Marshalling(Parcel &parcel) const
 {
-    if (target_ == nullptr || !parcel.WriteObject<IRemoteObject>(target_->AsObject())) {
+    if (target_ == nullptr || !(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(target_->AsObject())) {
         WANT_AGENT_LOGE("parcel WriteString failed");
         return false;
     }
@@ -406,7 +406,8 @@ PendingWant *PendingWant::Unmarshalling(Parcel &parcel)
         WANT_AGENT_LOGE("read from parcel failed");
         return nullptr;
     }
-    sptr<AAFwk::IWantSender> target = iface_cast<AAFwk::IWantSender>(parcel.ReadObject<IRemoteObject>());
+    sptr<AAFwk::IWantSender> target =
+        iface_cast<AAFwk::IWantSender>((static_cast<MessageParcel*>(&parcel))->ReadRemoteObject());
     if (target == nullptr) {
         delete pendingWant;
         return nullptr;

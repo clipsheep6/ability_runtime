@@ -152,7 +152,7 @@ bool UserTestRecord::Marshalling(Parcel &parcel) const
     }
 
     if (valid) {
-        if (!parcel.WriteObject<IRemoteObject>(observer)) {
+        if (!(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(observer)) {
             HILOG_ERROR("Failed to write observer");
             return false;
         }
@@ -193,7 +193,7 @@ bool UserTestRecord::ReadFromParcel(Parcel &parcel)
 
     auto valid = parcel.ReadBool();
     if (valid) {
-        observer = parcel.ReadObject<IRemoteObject>();
+        observer = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         if (!observer) {
             HILOG_ERROR("observer is nullptr");
             return false;

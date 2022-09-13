@@ -24,7 +24,8 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     return (parcel.WriteString(moduleName) && parcel.WriteString(bundleName) &&
         parcel.WriteString(abilityName) && parcel.WriteInt32(abilityState) &&
         parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
-        parcel.WriteObject<IRemoteObject>(token) && parcel.WriteInt32(abilityType));
+        (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token) &&
+        parcel.WriteInt32(abilityType));
 }
 
 bool AbilityStateData::ReadFromParcel(Parcel &parcel)
@@ -41,7 +42,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
 
     uid = parcel.ReadInt32();
 
-    token = parcel.ReadObject<IRemoteObject>();
+    token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
 
     abilityType = parcel.ReadInt32();
     return true;

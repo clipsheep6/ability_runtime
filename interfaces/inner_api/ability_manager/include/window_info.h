@@ -125,7 +125,7 @@ struct AbilityTransitionInfo : public Parcelable {
         info->abilityName_ = parcel.ReadString();
         info->mode_ = parcel.ReadUint32();
         if (parcel.ReadBool()) {
-            info->abilityToken_ = parcel.ReadObject<IRemoteObject>();
+            info->abilityToken_ = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
         }
         info->displayId_ = parcel.ReadUint64();
         info->isShowWhenLocked_ = parcel.ReadBool();
