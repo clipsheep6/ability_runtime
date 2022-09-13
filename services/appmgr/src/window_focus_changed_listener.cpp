@@ -40,6 +40,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
         return;
     }
 
+    owner->HandleFocused(focusChangeInfo);
 }
 
 void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusChangeInfo)
@@ -54,7 +55,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
         HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
         return;
     }
-
+    owner->HandleUnfocused(focusChangeInfo);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

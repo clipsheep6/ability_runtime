@@ -2670,8 +2670,6 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
         return;
     }
     // set app state to focus and then notify OnAppStateChanged
-
-
 }
 
 void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
