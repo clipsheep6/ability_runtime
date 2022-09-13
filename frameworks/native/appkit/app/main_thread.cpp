@@ -869,7 +869,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
     applicationForDump_ = application_;
     mixStackDumper_ = std::make_shared<MixStackDumper>();
-    mixStackDumper_->InstallDumpHandler(applicationForDump_);
+    mixStackDumper_->InstallDumpHandler(applicationForDump_, signalHandler_);
 
     // init resourceManager.
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
