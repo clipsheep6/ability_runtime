@@ -72,8 +72,10 @@ JsTestRunner::JsTestRunner(
     }
     if (!moduleName.empty()) {
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-            if (hapModuleInfo.name == moduleName) {
+            if ((hapModuleInfo.isModuleJson && hapModuleInfo.name == moduleName) ||
+                hapModuleInfo.package == moduleName) {
                 hapPath_ = hapModuleInfo.hapPath;
+                break;
             }
         }
     } else {
