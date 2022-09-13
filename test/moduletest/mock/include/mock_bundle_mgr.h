@@ -77,7 +77,7 @@ auto HiMusicInfo = [](std::string bundleName, AbilityInfo &abilityInfo, ElementN
     }
     if (elementTemp.GetAbilityName() == "MusicTopAbility") {
         abilityInfo.process = "p1";
-        abilityInfo.launchMode = LaunchMode::SINGLETOP;
+        abilityInfo.launchMode = LaunchMode::STANDARD;
     }
     if (elementTemp.GetAbilityName() == "MusicSAbility") {
         abilityInfo.process = "p2";
