@@ -245,6 +245,7 @@ ohos_source_set("abilityms_test_source") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libdm",
+      "window_manager:libwm",
     ]
   }
 

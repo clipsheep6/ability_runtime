@@ -219,7 +219,19 @@ void AppRunningRecord::SetState(const ApplicationState state)
         HILOG_ERROR("Invalid application state");
         return;
     }
+
+    if (curState_ != ApplicationState::APP_STATE_FOCUS) {
+        lastState_ = curState_;
+    }
     curState_ = state;
+}
+
+void AppRunningRecord::Unfocused()
+{
+    if (curState_ != ApplicationState::APP_STATE_FOCUS) {
+        return;
+    }
+    curState_ = lastState_;
 }
 
 const std::list<std::shared_ptr<ApplicationInfo>> AppRunningRecord::GetAppInfoList()

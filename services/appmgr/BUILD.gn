@@ -45,6 +45,7 @@ ohos_shared_library("libappms") {
     "src/app_state_observer_manager.cpp",
     "src/module_running_record.cpp",
     "src/remote_client_manager.cpp",
+    "src/window_focus_changed_listener.cpp",
   ]
 
   defines = [ "AMS_LOG_TAG = \"AppMgrService\"" ]
@@ -91,7 +92,10 @@ ohos_shared_library("libappms") {
   if (ability_runtime_graphics) {
     defines += [ "SUPPORT_GRAPHICS" ]
     deps += []
-    external_deps += [ "i18n:intl_util" ]
+    external_deps += [
+      "i18n:intl_util",
+      "window_manager:libwm",
+    ]
   }
 
   subsystem_name = "ability"
