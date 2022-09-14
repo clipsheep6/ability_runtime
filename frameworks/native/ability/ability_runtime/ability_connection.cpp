@@ -26,22 +26,29 @@ namespace {
 constexpr int32_t DIED = -1;
 } // namespace
 
-AbilityConnection::AbilityConnection(const sptr<AbilityConnectCallback> &abilityConnectCallback)
-{
-    abilityConnectCallback_ = abilityConnectCallback;
-}
-
 void AbilityConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
-    if (abilityConnectCallback_ == nullptr) {
-        HILOG_ERROR("%{public}s abilityConnectCallback is nullptr.", __func__);
+    mutex_.lock();
+    if (abilityConnectCallbackList_.empty()) {
+        HILOG_ERROR("%{public}s abilityConnectCallbackList is empty.", __func__);
+        mutex_.unlock();
         return;
     }
+
     SetRemoteObject(remoteObject);
     SetResultCode(resultCode);
-    abilityConnectCallback_->OnAbilityConnectDone(element, remoteObject, resultCode);
+    SetConnectionState(CONNECTION_STATE_CONNECTED);
+    
+    std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
+    mutex_.unlock();
+
+    auto item = callbacks.begin();
+    while (item != callbacks.end()) {
+        (*item)->OnAbilityConnectDone(element, remoteObject, resultCode);
+        item++;
+    }
     HILOG_DEBUG("%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
@@ -49,8 +56,11 @@ void AbilityConnection::OnAbilityConnectDone(
 void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("%{public}s begin, resultCode:%{public}d.", __func__, resultCode);
-    if (abilityConnectCallback_ == nullptr) {
-        HILOG_ERROR("%{public}s abilityConnectCallback is nullptr.", __func__);
+    mutex_.lock();
+    SetConnectionState(CONNECTION_STATE_DISCONNECTED);
+    if (abilityConnectCallbackList_.empty()) {
+        HILOG_ERROR("%{public}s abilityConnectCallback is empty.", __func__);
+        mutex_.unlock();
         return;
     }
     // if resultCode < 0 that means the connectReceiver is died
@@ -60,17 +70,46 @@ void AbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &e
             ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
             HILOG_INFO("The service connection is not disconnected.");
         }
-        abilityConnectCallback_->OnAbilityDisconnectDone(element, DIED + 1);
-    } else {
-        abilityConnectCallback_->OnAbilityDisconnectDone(element, resultCode);
+        resultCode = DIED + 1;
+    }
+
+    std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
+    mutex_.unlock();
+
+    auto item = callbacks.begin();
+    while (item != callbacks.end()) {
+        (*item)->OnAbilityDisconnectDone(element, resultCode);
+        item++;
     }
     HILOG_DEBUG("%{public}s end, bundleName:%{public}s, abilityName:%{public}s.",
         __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str());
 }
 
-void AbilityConnection::SetConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
+void AbilityConnection::AddConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
 {
-    abilityConnectCallback_ = abilityConnectCallback;
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto item = abilityConnectCallbackList_.begin();
+    while (item != abilityConnectCallbackList_.end()) {
+        if (*item == abilityConnectCallback) {
+            return;
+        }
+        item++;
+    }
+    abilityConnectCallbackList_.push_back(abilityConnectCallback);
+}
+
+void AbilityConnection::RemoveConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto item = abilityConnectCallbackList_.begin();
+    while (item != abilityConnectCallbackList_.end()) {
+        if (*item == abilityConnectCallback) {
+            abilityConnectCallbackList_.erase(item);
+            break;
+        } else {
+            item++;
+        }
+    }
 }
 
 void AbilityConnection::SetRemoteObject(const sptr<IRemoteObject> &remoteObject)
@@ -83,6 +122,11 @@ void AbilityConnection::SetResultCode(int resultCode)
     resultCode_ = resultCode;
 }
 
+void AbilityConnection::SetConnectionState(int connectionState)
+{
+    connectionState_ = connectionState;
+}
+
 sptr<IRemoteObject> AbilityConnection::GetRemoteObject() const
 {
     return remoteObject_;
@@ -91,6 +135,16 @@ sptr<IRemoteObject> AbilityConnection::GetRemoteObject() const
 int AbilityConnection::GetResultCode() const
 {
     return resultCode_;
+}
+
+int AbilityConnection::GetConnectionState() const
+{
+    return connectionState_;
+}
+
+std::vector<sptr<AbilityConnectCallback>> AbilityConnection::GetCallbackList()
+{
+    return abilityConnectCallbackList_;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
