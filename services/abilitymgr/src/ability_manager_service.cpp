@@ -33,6 +33,8 @@
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
+#include "ability_interceptor_executer.h"
+#include "ability_interceptor.h"
 #include "application_util.h"
 #include "hitrace_meter.h"
 #include "bundle_mgr_client.h"
@@ -381,7 +383,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, true));
+    auto result = executer->DoProcess(); 
     if (result != ERR_OK) {
         return result;
     }
@@ -540,7 +544,9 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, true));
+    auto result = executer->DoProcess(); 
     if (result != ERR_OK) {
         return result;
     }
@@ -699,7 +705,9 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, true));
+    auto result = executer->DoProcess(); 
     if (result != ERR_OK) {
         return result;
     }
@@ -970,9 +978,11 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return ERR_INVALID_VALUE;
     }
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: Crowdtest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, true));
+    auto result = executer->DoProcess(); 
+    if (result != ERR_OK) {
+        return result;
     }
 
     int32_t validUserId = GetValidUserId(userId);
@@ -1487,9 +1497,11 @@ int AbilityManagerService::ConnectAbilityCommon(
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: Crowdtest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, false));
+    auto result = executer->DoProcess(); 
+    if (result != ERR_OK) {
+        return result;
     }
 
     int32_t validUserId = GetValidUserId(userId);
@@ -3748,9 +3760,11 @@ int AbilityManagerService::StartAbilityByCall(
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: CrowdTest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
+    executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>(want, requestCode, userId, false));
+    auto result = executer->DoProcess(); 
+    if (result != ERR_OK) {
+        return result;
     }
 
     if (CheckIfOperateRemote(want)) {
