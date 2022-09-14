@@ -90,6 +90,13 @@ NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &proces
     object->SetProperty("bundleName", CreateJsValue(engine, processData.bundleName));
     object->SetProperty("pid", CreateJsValue(engine, processData.pid));
     object->SetProperty("uid", CreateJsValue(engine, processData.uid));
+    object->SetProperty("state", CreateJsValue(engine, processData.state));
+<<<<<<< HEAD
+    object->SetProperty("isContinuounsTask", CreateJsValue(engine, processData.isContinuounsTask));
+=======
+    object->SetProperty("isContinuousTask", CreateJsValue(engine, processData.isContinuousTask));
+>>>>>>> 41fedc060... IssueNo:#I5PXW4
+    object->SetProperty("isKeepAlive", CreateJsValue(engine, processData.isKeepAlive));
     HILOG_INFO("%{public}s end.", __func__);
     return objValue;
 }
@@ -127,6 +134,9 @@ NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProce
     object->SetProperty("pid", CreateJsValue(engine, info.pid_));
     object->SetProperty("uid", CreateJsValue(engine, info.uid_));
     object->SetProperty("bundleNames", CreateNativeArray(engine, info.bundleNames));
+    object->SetProperty("state", CreateJsValue(engine, info.state_));
+    object->SetProperty("isContinuousTask", CreateJsValue(engine, info.isContinuousTask));
+    object->SetProperty("isKeepAlive", CreateJsValue(engine, info.isKeepAlive));
     return objValue;
 }
 }  // namespace AbilityRuntime

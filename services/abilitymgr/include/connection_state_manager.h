@@ -159,6 +159,7 @@ private:
         void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) {}
         void OnExtensionStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) {}
         void OnProcessCreated(const AppExecFwk::ProcessData &processData) {}
+        void OnProcessStateChanged(const AppExecFwk::ProcessData &processData) {}
         void OnApplicationStateChanged(const AppExecFwk::AppStateData &appStateData) {}
         void OnProcessDied(const AppExecFwk::ProcessData &processData)
         {

@@ -20,6 +20,7 @@
 
 #include "parcel.h"
 #include "iremote_object.h"
+#include "running_process_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -49,6 +50,9 @@ struct ProcessData : public Parcelable {
     std::string bundleName;
     int32_t pid = 0;
     int32_t uid = 0;
+    AppProcessState state;
+    bool isContinuousTask = false;
+    bool isKeepAlive = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
