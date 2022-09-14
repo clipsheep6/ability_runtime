@@ -64,6 +64,13 @@ public:
     virtual void OnProcessCreated(const ProcessData &processData) override;
 
     /**
+     * Will be called when the process state change.
+     *
+     * @param processData Process data.
+     */
+    virtual void OnProcessStateChanged(const ProcessData &processData) override;
+
+    /**
      * Will be called when the process die.
      *
      * @param processData Process data.
@@ -85,6 +92,8 @@ private:
     int32_t HandleOnExtensionStateChanged(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessCreated(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnProcessStateChanged(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnProcessDied(MessageParcel &data, MessageParcel &reply);
 

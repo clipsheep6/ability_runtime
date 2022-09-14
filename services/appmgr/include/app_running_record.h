@@ -527,6 +527,10 @@ public:
 
     int32_t NotifyHotReloadPage();
 
+    bool IsContinuousTask();
+
+    void SetContinuousTaskAppState(bool isContinuousTask);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
@@ -608,6 +612,7 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
     bool isKilling_ = false;
+    bool isContinuousTask_ = false;    // Only continuestask processes can be set to true, please choose carefully
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;

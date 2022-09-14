@@ -155,6 +155,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
+    bool isContinuousTask = (want == nullptr) ? false : want->GetIntParam("isContinuousTask", false);
     if (!appRecord) {
         appRecord =
             CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
@@ -165,9 +166,11 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         }
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
+        appRecord->SetContinuousTaskAppState(isContinuousTask);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex);
     } else {
+        appRecord->SetContinuousTaskAppState(isContinuousTask);
         StartAbility(token, preToken, abilityInfo, appRecord, hapModuleInfo, want);
     }
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
@@ -366,6 +369,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND);
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
             appRecord->GetName().c_str(),
@@ -397,6 +401,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND);
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
             appRecord->GetName().c_str(),
@@ -749,6 +754,8 @@ void AppMgrServiceInner::GetRunningProcesses(const std::shared_ptr<AppRunningRec
     runningProcessInfo.pid_ = appRecord->GetPriorityObject()->GetPid();
     runningProcessInfo.uid_ = appRecord->GetUid();
     runningProcessInfo.state_ = static_cast<AppProcessState>(appRecord->GetState());
+    runningProcessInfo.isContinuousTask = appRecord->IsContinuousTask();
+    runningProcessInfo.isKeepAlive = appRecord->IsKeepAliveApp();
     appRecord->GetBundleNames(runningProcessInfo.bundleNames);
     info.emplace_back(runningProcessInfo);
 }
