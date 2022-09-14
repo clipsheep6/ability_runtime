@@ -129,6 +129,9 @@ void AbilityWindow::OnPostAbilityStop()
         return;
     }
 
+    if (windowScene_) {
+        windowScene_->GoDestroy();
+    }
     isWindowAttached = false;
     HILOG_DEBUG("AbilityWindow::OnPostAbilityStop end.");
 }
