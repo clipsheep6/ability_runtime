@@ -219,14 +219,18 @@ void AppRunningRecord::SetState(const ApplicationState state)
         HILOG_ERROR("Invalid application state");
         return;
     }
-    // if curStatenot equal to focus, set last state.
-    lastState_ = curState_;
+
+    if (curState_ != ApplicationState::APP_STATE_FOCUS) {
+        lastState_ = curState_;
+    }
     curState_ = state;
 }
 
 void AppRunningRecord::Unfocused()
 {
-    // if curstate not equal to focused,just return.
+    if (curState_ != ApplicationState::APP_STATE_FOCUS) {
+        return;
+    }
     curState_ = lastState_;
 }
 

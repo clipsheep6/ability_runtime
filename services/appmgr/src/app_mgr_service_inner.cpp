@@ -366,8 +366,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     }
     appRecord->PopForegroundingAbilityTokens();
     ApplicationState appState = appRecord->GetState();
-    // may focus to foreground
-    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
+    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND ||
+        appState == ApplicationState::APP_STATE_FOCUS) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND);
     } else {
@@ -398,8 +398,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         HILOG_ERROR("get app record failed");
         return;
     }
-    // may focus to background
-    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND ||
+        appState == ApplicationState::APP_STATE_FOCUS) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND);
     } else {
@@ -2669,7 +2669,8 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
         HILOG_ERROR("focused, no such appRecord, pid:%{public}d", focusChangeInfo->pid_);
         return;
     }
-    // set app state to focus and then notify OnAppStateChanged
+    appRecord->SetState(ApplicationState::APP_STATE_FOCUS);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOCUS);
 }
 
 void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
@@ -2685,7 +2686,8 @@ void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo
         HILOG_ERROR("unfocused, no such appRecord, pid:%{public}d", focusChangeInfo->pid_);
         return;
     }
-    // recover to last state and then notify OnAppStateChanged
+    appRecord->Unfocused();
+    OnAppStateChanged(appRecord, appRecord->GetState());
 }
 
 void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char *value, void *context)
