@@ -1456,6 +1456,7 @@ bool Ability::IsUseNewStartUpRule()
 {
     if (!isNewRuleFlagSetted_ && setWant_) {
         startUpNewRule_ = setWant_->GetBoolParam(COMPONENT_STARTUP_NEW_RULES, false);
+        isNewRuleFlagSetted_ = true;
     }
     return startUpNewRule_;
 }
