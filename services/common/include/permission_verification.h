@@ -69,6 +69,8 @@ struct VerificationInfo {
     /**
      * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage)
      *
+     * @param verificationInfo, verificationInfo.
+     * @return Returns ERR_OK on check success, others on check failure.
      */
     int CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo);
 
@@ -88,6 +90,8 @@ private:
     bool JudgeStartAbilityFromBackground(const bool isBackgroundCall);
 
     bool JudgeAssociatedWakeUp(const uint32_t accessTokenId, const bool associatedWakeUp);
+
+    int JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo);
 
     inline bool IsCallFromSameAccessToken(const uint32_t accessTokenId)
     {

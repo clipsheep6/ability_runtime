@@ -745,6 +745,21 @@ sptr<IRemoteObject> JsAbility::CallRequest()
         HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
     }
 
+    NativeObject* calleeObj = ConvertNativeValueTo<NativeObject>(remoteJsObj);
+    if (calleeObj == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest calleeObj is nullptr");
+        return nullptr;
+    }
+    auto setFlagMethod = calleeObj->GetProperty("setNewRuleFlag");
+    if (setFlagMethod == nullptr || !setFlagMethod->IsCallable()) {
+        HILOG_ERROR("JsAbility::CallRequest setFlagMethod is %{public}s",
+            setFlagMethod == nullptr ? "nullptr" : "not func");
+        return nullptr;
+    }
+    auto flag = nativeEngine.CreateBoolean(IsUseNewStartUpRule());
+    NativeValue *argv[1] = { flag };
+    nativeEngine.CallFunction(remoteJsObj, setFlagMethod, argv, 1);
+
     remoteCallee_ = remoteObj;
     HILOG_DEBUG("JsAbility::CallRequest end.");
     return remoteCallee_;
