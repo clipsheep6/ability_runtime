@@ -42,6 +42,7 @@ public:
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
@@ -50,6 +51,7 @@ private:
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
+    void HandleOnAppProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessDied(const std::shared_ptr<RenderRecord> &RenderRecord);
     bool ObserverExist(const sptr<IApplicationStateObserver> &observer);
@@ -61,6 +63,7 @@ private:
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state);
     void HandleOnProcessCreated(const ProcessData &data);
+    void HandleOnProcessStateChanged(const ProcessData &data);
     void HandleOnProcessDied(const ProcessData &data);
 
 private:

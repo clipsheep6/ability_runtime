@@ -122,6 +122,28 @@ void ApplicationStateObserverProxy::OnProcessCreated(const ProcessData &processD
     }
 }
 
+void ApplicationStateObserverProxy::OnProcessStateChanged(const ProcessData &processData)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    data.WriteParcelable(&processData);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote() is NULL");
+        return;
+    }
+    int32_t ret = remote->SendRequest(
+        static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_STATE_CHANGED),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 void ApplicationStateObserverProxy::OnProcessDied(const ProcessData &processData)
 {
     MessageParcel data;

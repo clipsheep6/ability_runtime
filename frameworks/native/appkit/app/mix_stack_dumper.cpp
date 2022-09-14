@@ -28,13 +28,11 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-std::shared_ptr<OHOSApplication> MixStackDumper::application_ = nullptr;
-std::shared_ptr<EventHandler> MixStackDumper::dumpHandler_ = nullptr;
+std::weak_ptr<EventHandler> MixStackDumper::signalHandler_;
+std::weak_ptr<OHOSApplication> MixStackDumper::application_;
 namespace {
-const std::string MIX_DUMP_THREAD_NAME = "DfxMixDumper";
 constexpr int SIGDUMP = 35;
 constexpr int FRAME_BUF_LEN = 1024;
-constexpr int PATH_MAX_LEN = 4096;
 constexpr int NATIVE_DUMP = -1;
 constexpr int MIX_DUMP = -2;
 }
@@ -71,7 +69,7 @@ static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> f
         int ret = snprintf_s(buf, sizeof(buf), sizeof(buf) - 1, frameFormatWithMapName, \
             frame->GetFrameIndex(), frame->GetFrameRelativePc(), mapName.c_str());
         if (ret <= 0) {
-            HILOG_ERROR("MixStackDumper::PrintNativeFrame snprintf_s failed.");
+            HILOG_ERROR("DfxMixStackDumper::PrintNativeFrame snprintf_s failed.");
         }
         return std::string(buf);
     }
@@ -80,7 +78,7 @@ static std::string PrintNativeFrame(std::shared_ptr<OHOS::HiviewDFX::DfxFrame> f
         frame->GetFrameIndex(), frame->GetFrameRelativePc(), mapName.c_str(),\
         frame->GetFrameFuncName().c_str(), frame->GetFrameFuncOffset());
     if (ret <= 0) {
-        HILOG_ERROR("MixStackDumper::PrintNativeFrame snprintf_s failed.");
+        HILOG_ERROR("DfxMixStackDumper::PrintNativeFrame snprintf_s failed.");
     }
     return std::string(buf);
 }
@@ -95,8 +93,12 @@ void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
             break;
         }
         case MIX_DUMP: {
+            auto handler = signalHandler_.lock();
+            if (handler == nullptr) {
+                return;
+            }
             g_targetDumpTid = si->si_value.sival_int;
-            dumpHandler_->PostTask(&MixStackDumper::HandleMixDumpRequest);
+            handler->PostTask(&MixStackDumper::HandleMixDumpRequest);
             break;
         }
         default:
@@ -104,10 +106,10 @@ void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
     }
 }
 
-void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application)
+void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application, std::shared_ptr<EventHandler> handler)
 {
-    dumpHandler_ = std::make_shared<EventHandler>(EventRunner::Create(MIX_DUMP_THREAD_NAME));
-    application_ = application;
+    MixStackDumper::signalHandler_ = handler;
+    MixStackDumper::application_ = application;
     struct sigaction newDumpAction;
     struct sigaction oldDumpAction;
     (void)memset_s(&newDumpAction, sizeof(newDumpAction), 0, sizeof(newDumpAction));
@@ -147,7 +149,7 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
         }
         if (IsJsNativePcEqual(jsFrames[jsIdx].nativePointer, nativeFrames[nativeIdx]->GetFramePc(),
             nativeFrames[nativeIdx]->GetFrameFuncOffset())) {
-            HILOG_DEBUG("MixStackDumper::BuildJsNativeMixStack pc register values matched.");
+            HILOG_DEBUG("DfxMixStackDumper::BuildJsNativeMixStack pc register values matched.");
             mixStackStr += PrintNativeFrame(nativeFrames[nativeIdx]);
             mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
             nativeIdx++;
@@ -178,43 +180,64 @@ std::string MixStackDumper::GetThreadStackTraceLabel(pid_t tid)
     return result.str();
 }
 
+void MixStackDumper::PrintNativeFrames(int fd, std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>>& nativeFrames)
+{
+    for (auto& frame : nativeFrames) {
+        std::string nativeFrameStr = PrintNativeFrame(frame);
+        write(fd, nativeFrameStr.c_str(), nativeFrameStr.size());
+    }
+}
+
 void MixStackDumper::DumpMixFrame(int fd, pid_t tid)
 {
+    if (catcher_ == nullptr) {
+        HILOG_ERROR("No FrameCatcher? call init first.");
+        return;
+    }
+
+    std::string threadComm = GetThreadStackTraceLabel(tid);
+    write(fd, threadComm.c_str(), threadComm.size());
+    if (!catcher_->RequestCatchFrame(tid)) {
+        std::string result = "Failed to suspend thread(" + std::to_string(tid) + ").\n";
+        HILOG_ERROR("%{public}s", result.c_str());
+        write(fd, result.c_str(), result.size());
+        return;
+    }
+
     bool onlyDumpNative = false;
     std::vector<JsFrames> jsFrames;
-    if (application_ != nullptr && application_->GetRuntime() != nullptr) {
-        bool ret = application_->GetRuntime()->BuildJsStackInfoList(tid, jsFrames);
+    auto application = application_.lock();
+    if (application != nullptr && application->GetRuntime() != nullptr) {
+        bool ret = application->GetRuntime()->BuildJsStackInfoList(tid, jsFrames);
         if (!ret || jsFrames.size() == 0) {
             onlyDumpNative = true;
         }
     }
-    OHOS::HiviewDFX::DfxDumpCatcher dumplog;
+
     std::vector<std::shared_ptr<OHOS::HiviewDFX::DfxFrame>> nativeFrames;
-    std::string nativeFrameStr;
-    if (tid != -1 &&
-        dumplog.DumpCatchFrame(getpid(), tid, nativeFrameStr, nativeFrames) == false) {
-        HILOG_ERROR("MixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", tid);
+    if (catcher_->CatchFrame(tid, nativeFrames) == false) {
+        HILOG_ERROR("DfxMixStackDumper::DumpMixFrame Capture thread(%{public}d) native frames failed.", tid);
     }
+
     if (onlyDumpNative) {
-        write(fd, nativeFrameStr.c_str(), nativeFrameStr.size());
+        PrintNativeFrames(fd, nativeFrames);
         return;
     }
-    std::string jsnativeFrameLabel = GetThreadStackTraceLabel(tid);
-    write(fd, jsnativeFrameLabel.c_str(), jsnativeFrameLabel.size());
+
     BuildJsNativeMixStack(fd, jsFrames, nativeFrames);
     write(fd, "\n", 1);
 }
 
 void MixStackDumper::GetThreadList(std::vector<pid_t>& threadList)
 {
-    char realPath[PATH_MAX_LEN] = {'\0'};
+    char realPath[PATH_MAX] = {'\0'};
     if (realpath("/proc/self/task", realPath) == nullptr) {
-        HILOG_ERROR("MixStackDumper::GetThreadList return false as realpath failed.");
+        HILOG_ERROR("DfxMixStackDumper::GetThreadList return false as realpath failed.");
         return;
     }
     DIR *dir = opendir(realPath);
     if (dir == nullptr) {
-        HILOG_ERROR("MixStackDumper::GetThreadList return false as opendir failed.");
+        HILOG_ERROR("DfxMixStackDumper::GetThreadList return false as opendir failed.");
         return;
     }
     struct dirent *ent;
@@ -233,6 +256,20 @@ void MixStackDumper::GetThreadList(std::vector<pid_t>& threadList)
     }
 }
 
+void MixStackDumper::Init()
+{
+    catcher_ = std::make_unique<OHOS::HiviewDFX::DfxDumpCatcher>(getpid());
+    catcher_->InitFrameCatcher();
+}
+
+void MixStackDumper::Destroy()
+{
+    if (catcher_ != nullptr) {
+        catcher_->DestroyFrameCatcher();
+        catcher_ = nullptr;
+    }
+}
+
 void MixStackDumper::HandleMixDumpRequest()
 {
     int fd = -1;
@@ -242,14 +279,16 @@ void MixStackDumper::HandleMixDumpRequest()
         fd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
         resFd = RequestPipeFd(getpid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
         if (fd < 0 || resFd < 0) {
-            HILOG_ERROR("MixStackDumper::HandleProcessMixDumpRequest request pipe fd failed");
+            HILOG_ERROR("DfxMixStackDumper::HandleProcessMixDumpRequest request pipe fd failed");
             dumpRes = OHOS::HiviewDFX::ProcessDumpRes::DUMP_EGETFD;
             break;
         }
         MixStackDumper mixDumper;
+        mixDumper.Init();
         if (g_targetDumpTid > 0) {
             mixDumper.DumpMixFrame(fd, g_targetDumpTid);
             g_targetDumpTid = -1;
+            mixDumper.Destroy();
             break;
         }
         std::vector<pid_t> threads;
@@ -260,12 +299,14 @@ void MixStackDumper::HandleMixDumpRequest()
             }
             mixDumper.DumpMixFrame(fd, tid);
         }
+        mixDumper.Destroy();
     } while (false);
+
     OHOS::HiviewDFX::DumpResMsg dumpResMsg;
     dumpResMsg.res = dumpRes;
     const char* strRes = OHOS::HiviewDFX::DfxDumpRes::GetInstance().GetResStr(dumpRes);
     if (strncpy_s(dumpResMsg.strRes, sizeof(dumpResMsg.strRes), strRes, sizeof(dumpResMsg.strRes) - 1) != 0) {
-        HILOG_ERROR("MixStackDumper::HandleProcessMixDumpRequest strncpy_s failed.");
+        HILOG_ERROR("DfxMixStackDumper::HandleProcessMixDumpRequest strncpy_s failed.");
     }
     if (resFd != -1) {
         write(resFd, &dumpResMsg, sizeof(struct OHOS::HiviewDFX::DumpResMsg));
