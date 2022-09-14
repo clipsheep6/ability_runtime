@@ -399,7 +399,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         return;
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND ||
-        appState == ApplicationState::APP_STATE_FOCUS) {
+        appRecord->GetState() == ApplicationState::APP_STATE_FOCUS) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND);
     } else {
