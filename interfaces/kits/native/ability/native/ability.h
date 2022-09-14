@@ -1275,6 +1275,8 @@ protected:
      */
     void NotifyContinuationResult(const Want& want, bool success);
 
+    bool IsUseNewStartUpRule();
+
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext_ = nullptr;
     std::shared_ptr<AbilityStartSetting> setting_ = nullptr;
     LaunchParam launchParam_;
@@ -1344,6 +1346,9 @@ private:
     // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
     sptr<IBundleMgr> iBundleMgr_;
+
+    bool isNewRuleFlagSetted_ = false;
+    bool startUpNewRule_ = false;
 
 #ifdef SUPPORT_GRAPHICS
 private:

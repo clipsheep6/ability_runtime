@@ -204,12 +204,15 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        HILOG_ERROR("Application can not start DataAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
+        HILOG_ERROR("Target DataAbility is not visible, and caller does not have INVISIBLE permission.");
         return CHECK_PERMISSION_FAILED;
     }
     if (!JudgeAssociatedWakeUp(verificationInfo.accessTokenId, verificationInfo.associatedWakeUp)) {
+        HILOG_ERROR("Target DataAbility's associatedWakeUp is false, reject start it from other application.");
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -224,12 +227,15 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
 
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
         return CHECK_PERMISSION_FAILED;
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
+        HILOG_ERROR("Target ServiceAbility is not visible, and caller does not have INVISIBLE permission.");
         return CHECK_PERMISSION_FAILED;
     }
     if (!JudgeAssociatedWakeUp(verificationInfo.accessTokenId, verificationInfo.associatedWakeUp)) {
+        HILOG_ERROR("Target ServiceAbility's associatedWakeUp is false, reject start it from other application.");
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -238,38 +244,17 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
 
 int PermissionVerification::CheckCallAbilityPermission(const VerificationInfo &verificationInfo)
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-    if (JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible) &&
-        JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
-        return ERR_OK;
-    }
-    return CHECK_PERMISSION_FAILED;
+    return JudgeInvisibleAndBackground(verificationInfo);
 }
 
 int PermissionVerification::CheckCallServiceExtensionPermission(const VerificationInfo &verificationInfo)
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-    if (JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible) &&
-        JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
-        return ERR_OK;
-    }
-    return CHECK_PERMISSION_FAILED;
+    return JudgeInvisibleAndBackground(verificationInfo);
 }
 
 int PermissionVerification::CheckCallOtherExtensionPermission(const VerificationInfo &verificationInfo)
 {
-    if (IsSACall()) {
-        return ERR_OK;
-    }
-    if (JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible) &&
-        JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
-        return ERR_OK;
-    }
-    return CHECK_PERMISSION_FAILED;
+    return JudgeInvisibleAndBackground(verificationInfo);
 }
 
 int PermissionVerification::CheckStartByCallPermission(const VerificationInfo &verificationInfo)
@@ -349,8 +334,21 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
         HILOG_DEBUG("TargetAbility is allowed associatedWakeUp, PASS.");
         return true;
     }
-    HILOG_ERROR("The target ServiceAbility/DataAbility is not allowed associatedWakeUp.");
+    HILOG_ERROR("The target is not allowed associatedWakeUp.");
     return false;
+}
+
+int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo)
+{
+    if (IsSACall()) {
+        return ERR_OK;
+    }
+    if (JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible) &&
+        JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall)) {
+        return ERR_OK;
+    }
+
+    return CHECK_PERMISSION_FAILED;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -745,6 +745,12 @@ sptr<IRemoteObject> JsAbility::CallRequest()
         HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
     }
 
+    NativeObject* calleeObj = ConvertNativeValueTo<NativeObject>(remoteJsObj);
+    auto setFlagMethod = calleeObj->GetProperty("setNewRuleFlag");
+    auto flag = nativeEngine.CreateBoolean(IsUseNewStartUpRule());
+    NativeValue *argv[1] = { flag };
+    nativeEngine.CallFunction(remoteJsObj, setFlagMethod, argv, 1);
+
     remoteCallee_ = remoteObj;
     HILOG_DEBUG("JsAbility::CallRequest end.");
     return remoteCallee_;
