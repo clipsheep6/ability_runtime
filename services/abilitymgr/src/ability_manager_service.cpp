@@ -120,6 +120,8 @@ const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
 const std::string HIGHEST_PRIORITY_ABILITY_ENTITY = "flag.home.intent.from.system";
+const std::string DMS_API_VERSION = "dmsApiVersion";
+const std::string DMS_IS_CAller_BACKGROUND = "dmsIsCallerBackGround";
 const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
@@ -390,19 +392,23 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     int32_t validUserId = oriValidUserId;
 
     if (callerToken != nullptr && CheckIfOperateRemote(want)) {
-        if (AbilityUtil::IsStartFreeInstall(want)) {
-            return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
-                freeInstallManager_->StartRemoteFreeInstall(want, requestCode, validUserId, callerToken);
+        Want remoteWant = want;
+        if (AddStartControlParam(remoteWant, callerToken) != ERR_OK) {
+            HILOG_ERROR("%{public}s AddStartControlParam failed.", __func__);
+            return ERR_INVALID_VALUE;
         }
-        if (!want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
+        if (AbilityUtil::IsStartFreeInstall(remoteWant)) {
+            return freeInstallManager_ == nullptr ? ERR_INVALID_VALUE :
+                freeInstallManager_->StartRemoteFreeInstall(remoteWant, requestCode, validUserId, callerToken);
+        }
+        if (!remoteWant.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
             HILOG_INFO("%{public}s: try to StartAbility", __func__);
-            return StartRemoteAbility(want, requestCode);
+            return StartRemoteAbility(remoteWant, requestCode);
         }
         int32_t missionId = GetMissionIdByAbilityToken(callerToken);
         if (missionId < 0) {
             return ERR_INVALID_VALUE;
         }
-        Want remoteWant = want;
         remoteWant.SetParam(DMS_MISSION_ID, missionId);
         HILOG_INFO("%{public}s: try to StartAbilityForResult", __func__);
         return StartRemoteAbility(remoteWant, requestCode);
@@ -1533,6 +1539,10 @@ int AbilityManagerService::ConnectAbilityCommon(
 
     if (CheckIfOperateRemote(abilityWant)) {
         HILOG_INFO("AbilityManagerService::ConnectAbility. try to ConnectRemoteAbility");
+        if (AddStartControlParam(abilityWant, callerToken) != ERR_OK) {
+            HILOG_ERROR("%{public}s AddStartControlParam failed.", __func__);
+            return ERR_INVALID_VALUE;
+        }
         eventInfo.errCode = ConnectRemoteAbility(abilityWant, connect->AsObject());
         if (eventInfo.errCode != ERR_OK) {
             AAFWK::EventReport::SendExtensionEvent(AAFWK::CONNECT_SERVICE_ERROR,
@@ -5311,6 +5321,25 @@ bool AbilityManagerService::CheckNewRuleSwitchState(const std::string &param)
         return true;
     }
     return false;
+}
+
+int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    int32_t apiVersion = abilityRecord->GetApplicationInfo().apiTargetVersion;
+    want.SetParam(DMS_API_VERSION, apiVersion);
+    bool isCallerBackground;
+    if (backgroundJudgeFlag_) {
+        isCallerBackground = abilityRecord->GetAppState() != AAFwk::AppState::FOREGROUND;
+    } else {
+        AppExecFwk::RunningProcessInfo processInfo;
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
+        isCallerBackground = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS;
+    }
+    want.SetParam(DMS_IS_CAller_BACKGROUND, isCallerBackground);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
