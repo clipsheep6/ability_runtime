@@ -316,7 +316,6 @@ void Ability::OnStop()
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
         scene_->GoDestroy();
-        scene_ = nullptr;
         onSceneDestroyed();
     }
 #endif
