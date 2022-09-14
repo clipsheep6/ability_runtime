@@ -39,7 +39,6 @@ void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &eve
     HILOG_DEBUG("AMSEventHandler::ProcessEvent::inner event id obtained: %u.", event->GetInnerEventId());
     switch (event->GetInnerEventId()) {
         case AppManagerTestService::LOAD_ABILITY_MSG: {
-            HILOG_DEBUG("Load Ability msg.");
             ProcessLoadAbility(event);
             break;
         }
