@@ -48,6 +48,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 #define SLEEP(milli) std::this_thread::sleep_for(std::chrono::seconds(milli))
+const int32_t SEND_COUNT = 100;
+const int32_t PERFORM_RECEIVE_COUNT = 100;
 }  // namespace
 class PendingWantRecordTest : public testing::Test {
 public:
@@ -81,13 +83,13 @@ int PendingWantRecordTest::CancelReceiver::sendCount = 0;
 
 void PendingWantRecordTest::CancelReceiver::Send(const int32_t resultCode)
 {
-    sendCount = 100;
+    sendCount = SEND_COUNT;
 }
 
 void PendingWantRecordTest::CancelReceiver::PerformReceive(const AAFwk::Want &want, int resultCode,
     const std::string &data, const AAFwk::WantParams &extras, bool serialized, bool sticky, int sendingUser)
 {
-    performReceiveCount = 100;
+    performReceiveCount = PERFORM_RECEIVE_COUNT;
 }
 
 void PendingWantRecordTest::SetUpTestCase()

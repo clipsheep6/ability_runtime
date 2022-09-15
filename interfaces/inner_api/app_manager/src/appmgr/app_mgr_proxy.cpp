@@ -831,21 +831,21 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
 int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    HILOG_DEBUG("NotifyLoadRepairPatch, function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("NotifyLoadRepairPatch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        HILOG_ERROR("NotifyLoadRepairPatch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        HILOG_ERROR("NotifyLoadRepairPatch, Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
@@ -854,7 +854,7 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName)
     auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::NOTIFY_LOAD_REPAIR_PATCH),
         data, reply, option);
     if (ret != 0) {
-        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        HILOG_WARN("NotifyLoadRepairPatch, Send request failed with error code %{public}d.", ret);
         return ret;
     }
 

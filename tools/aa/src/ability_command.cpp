@@ -45,7 +45,7 @@ constexpr struct option LONG_OPTIONS[] = {
     {"debug", no_argument, nullptr, 'D'},
     {nullptr, 0, nullptr, 0},
 };
-const std::string SHORT_OPTIONS_ApplicationNotResponding = "hp:";
+const std::string SHORT_OPTIONS_APPLICATION_NOT_RESPONDING = "hp:";
 #ifdef ABILITY_COMMAND_FOR_TEST
 constexpr struct option LONG_OPTIONS_ApplicationNotResponding[] = {
     {"help", no_argument, nullptr, 'h'},
@@ -1118,7 +1118,7 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
     std::string pid = "";
     int option = -1;
     ErrCode result = OHOS::ERR_OK;
-    option = getopt_long(argc_, argv_, SHORT_OPTIONS_ApplicationNotResponding.c_str(),
+    option = getopt_long(argc_, argv_, SHORT_OPTIONS_APPLICATION_NOT_RESPONDING.c_str(),
         LONG_OPTIONS_ApplicationNotResponding, nullptr);
     HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
     if (optind < 0 || optind > argc_) {

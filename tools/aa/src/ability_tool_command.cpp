@@ -85,8 +85,8 @@ const std::string ABILITY_TOOL_HELP_MSG_LACK_VALUE = "error: lack of value of ke
 const std::string ABILITY_TOOL_HELP_MSG_ONLY_NUM = "error: current option only support number";
 const std::string ABILITY_TOOL_HELP_LACK_OPTIONS = "error: lack of essential args";
 
-const std::string shortOptionsForTest = "hb:o:p:m:w:D";
-const struct option longOptionsForTest[] = {
+const std::string SHORT_OPTIONS_FOR_TEST = "hb:o:p:m:w:D";
+const struct option LONG_OPTIONS_FOR_TEST[] = {
     {"help", no_argument, nullptr, 'h'},
     {"bundle", required_argument, nullptr, 'b'},
     {"options", required_argument, nullptr, 'o'},
@@ -419,7 +419,7 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
     int index = 0;
 
     // Parameter parse with conversion
-    while ((option = getopt_long(argc_, argv_, shortOptionsForTest.c_str(), longOptionsForTest, &index)) != EOF) {
+    while ((option = getopt_long(argc_, argv_, SHORT_OPTIONS_FOR_TEST.c_str(), LONG_OPTIONS_FOR_TEST, &index)) != EOF) {
         HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
         switch (option) {
             case 'h':
