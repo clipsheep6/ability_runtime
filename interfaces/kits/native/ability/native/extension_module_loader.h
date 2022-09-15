@@ -43,7 +43,11 @@ public:
      *
      * @return The Extension config params.
      */
-    virtual std::map<std::string, std::string> GetParams();
+    virtual std::map<std::string, std::string> GetParams()
+    {
+        std::map<std::string, std::string> params;
+        return params;
+    }
 };
 } // namespace OHOS::AbilityRuntime
 

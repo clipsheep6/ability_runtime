@@ -84,10 +84,4 @@ Extension *ExtensionModuleLoader::Create(const std::unique_ptr<Runtime>& runtime
 {
     return nullptr;
 }
-
-std::map<std::string, std::string> ExtensionModuleLoader::GetParams()
-{
-    std::map<std::string, std::string> params;
-    return params;
-}
 }
