@@ -25,6 +25,7 @@ class Callee extends rpc.RemoteObject {
         if (typeof des === 'string') {
             super(des);
             this.callList = new Map();
+            this.startUpNewRule = false;
             console.log("Callee constructor is OK " + typeof des);
         } else {
             console.log("Callee constructor error, des is " + typeof des);
@@ -32,16 +33,23 @@ class Callee extends rpc.RemoteObject {
         }
     }
 
+    setNewRuleFlag(flag) {
+        this.startUpNewRule = flag;
+    }
+
     onRemoteRequest(code, data, reply, option) {
         console.log("Callee onRemoteRequest code [" + typeof code + " " + code + "]");
-        let accessManger = accessControl.createAtManager();
-        let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
-        let grantStatus =
-            accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
-        if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
-            console.log(
-                "Callee onRemoteRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION");
-            return false;
+        if (this.startUpNewRule) {
+            console.log("Use new start up rule, check caller permission.");
+            let accessManger = accessControl.createAtManager();
+            let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
+            let grantStatus =
+                accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
+            if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
+                console.log(
+                    "Callee onRemoteRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION");
+                return false;
+            }
         }
 
         if (typeof code !== 'number' || typeof data !== 'object' ||
@@ -78,12 +86,10 @@ class Callee extends rpc.RemoteObject {
                 reply.writeString(typeof result);
                 console.log("Callee onRemoteRequest error, retval is " + REQUEST_FAILED + ", type is " + typeof result);
             }
-
         } else {
             console.log("Callee onRemoteRequest error, code is " + code);
             return false;
         }
-
         console.log("Callee onRemoteRequest code proc success");
         return true;
     }

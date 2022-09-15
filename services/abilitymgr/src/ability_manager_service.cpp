@@ -5312,5 +5312,10 @@ bool AbilityManagerService::CheckNewRuleSwitchState(const std::string &param)
     }
     return false;
 }
+
+bool AbilityManagerService::GetStartUpNewRuleFlag() const
+{
+    return startUpNewRule_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
