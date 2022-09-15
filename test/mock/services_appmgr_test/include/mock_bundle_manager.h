@@ -38,7 +38,6 @@ public:
     {}
     virtual ~BundleMgrProxy()
     {}
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     MOCK_METHOD2(QueryAbilityInfosByUri, bool(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos));
@@ -193,7 +192,6 @@ public:
     MOCK_METHOD2(GetUidByBundleName, int(const std::string &bundleName, const int userId));
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
     MOCK_METHOD2(CleanBundleDataFiles, bool(const std::string &bundleName, const int userId));
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     MOCK_METHOD2(QueryAbilityInfosByUri, bool(const std::string &abilityUri, std::vector<AbilityInfo> &abilityInfos));
