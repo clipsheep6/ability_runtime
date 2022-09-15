@@ -96,6 +96,7 @@ private:
     bool CallPromise(NativeValue* result, AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo);
     std::unique_ptr<NativeReference> CreateAppWindowStage();
     std::shared_ptr<AppExecFwk::ADelegatorAbilityProperty> CreateADelegatorAbilityProperty();
+    sptr<IRemoteObject> SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue *remoteJsObj);
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;

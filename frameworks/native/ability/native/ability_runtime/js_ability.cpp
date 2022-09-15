@@ -714,14 +714,14 @@ sptr<IRemoteObject> JsAbility::CallRequest()
 
     HandleScope handleScope(jsRuntime_);
     HILOG_DEBUG("JsAbility::CallRequest set runtime scope.");
-    auto& nativeEngine = jsRuntime_.GetNativeEngine();
+    auto &nativeEngine = jsRuntime_.GetNativeEngine();
     auto value = jsAbilityObj_->Get();
     if (value == nullptr) {
         HILOG_ERROR("JsAbility::CallRequest value is nullptr");
         return nullptr;
     }
 
-    NativeObject* obj = ConvertNativeValueTo<NativeObject>(value);
+    NativeObject *obj = ConvertNativeValueTo<NativeObject>(value);
     if (obj == nullptr) {
         HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
         return nullptr;
@@ -739,13 +739,7 @@ sptr<IRemoteObject> JsAbility::CallRequest()
         return nullptr;
     }
 
-    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
-        reinterpret_cast<napi_env>(&nativeEngine), reinterpret_cast<napi_value>(remoteJsObj));
-    if (remoteObj == nullptr) {
-        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
-    }
-
-    remoteCallee_ = remoteObj;
+    remoteCallee_ = SetNewRuleFlagToCallee(nativeEngine, remoteJsObj);
     HILOG_DEBUG("JsAbility::CallRequest end.");
     return remoteCallee_;
 }
@@ -885,6 +879,32 @@ std::shared_ptr<NativeReference> JsAbility::GetJsAbility()
         HILOG_ERROR("jsAbility object is nullptr");
     }
     return jsAbilityObj_;
+}
+
+sptr<IRemoteObject> JsAbility::SetNewRuleFlagToCallee(NativeEngine &nativeEngine, NativeValue* remoteJsObj)
+{
+    NativeObject* calleeObj = ConvertNativeValueTo<NativeObject>(remoteJsObj);
+    if (calleeObj == nullptr) {
+        HILOG_ERROR("JsAbility::SetNewRuleFlagToCallee calleeObj is nullptr");
+        return nullptr;
+    }
+    auto setFlagMethod = calleeObj->GetProperty("setNewRuleFlag");
+    if (setFlagMethod == nullptr || !setFlagMethod->IsCallable()) {
+        HILOG_ERROR("JsAbility::SetNewRuleFlagToCallee setFlagMethod is %{public}s",
+            setFlagMethod == nullptr ? "nullptr" : "not func");
+        return nullptr;
+    }
+    auto flag = nativeEngine.CreateBoolean(IsUseNewStartUpRule());
+    NativeValue *argv[1] = { flag };
+    nativeEngine.CallFunction(remoteJsObj, setFlagMethod, argv, 1);
+
+    auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(
+        reinterpret_cast<napi_env>(&nativeEngine), reinterpret_cast<napi_value>(remoteJsObj));
+    if (remoteObj == nullptr) {
+        HILOG_ERROR("JsAbility::CallRequest obj is nullptr");
+        return nullptr;
+    }
+    return remoteObj;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
