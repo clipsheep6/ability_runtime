@@ -45,6 +45,9 @@ bool AbilityWindow::InitWindow(Rosen::WindowType winType,
     bool isPrivacy)
 {
     HILOG_DEBUG("%{public}s begin.", __func__);
+    if (windowScene_ == nullptr) {
+        windowScene_ = std::make_shared<Rosen::WindowScene>();
+    }
     auto ret = windowScene_->Init(displayId, abilityContext, listener, option);
     if (ret != OHOS::Rosen::WMError::WM_OK) {
         HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
@@ -87,34 +90,6 @@ void AbilityWindow::OnPostAbilityStart()
         windowScene_->GoBackground();
         HILOG_DEBUG("%{public}s end windowScene_->GoBackground.", __func__);
     }
-}
-
-/**
- * @brief Called when this ability is activated.
- *
- */
-void AbilityWindow::OnPostAbilityActive()
-{
-    HILOG_DEBUG("AbilityWindow::OnPostAbilityActive called.");
-    if (!isWindowAttached) {
-        HILOG_ERROR("AbilityWindow::OnPostAbilityActive window not attached.");
-        return;
-    }
-    HILOG_DEBUG("AbilityWindow::OnPostAbilityActive end.");
-}
-
-/**
- * @brief Called when this ability is inactivated.
- *
- */
-void AbilityWindow::OnPostAbilityInactive()
-{
-    HILOG_DEBUG("AbilityWindow::OnPostAbilityInactive called.");
-    if (!isWindowAttached) {
-        HILOG_ERROR("AbilityWindow::OnPostAbilityInactive window not attached.");
-        return;
-    }
-    HILOG_DEBUG("AbilityWindow::OnPostAbilityInactive end.");
 }
 
 /**
@@ -172,10 +147,8 @@ void AbilityWindow::OnPostAbilityStop()
     }
 
     if (windowScene_) {
-        windowScene_ = nullptr;
-        HILOG_DEBUG("AbilityWindow::window windowScene_ release end.");
+        windowScene_->GoDestroy();
     }
-
     isWindowAttached = false;
     HILOG_DEBUG("AbilityWindow::OnPostAbilityStop end.");
 }
@@ -189,6 +162,7 @@ const sptr<Rosen::Window> AbilityWindow::GetWindow()
 {
     if (!isWindowAttached) {
         HILOG_ERROR("AbilityWindow::GetWindow window not attached.");
+        return nullptr;
     }
     return windowScene_ ? windowScene_->GetMainWindow() : nullptr;
 }
