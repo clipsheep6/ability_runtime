@@ -39,6 +39,7 @@ using namespace testing::ext;
 using testing::_;
 using testing::Return;
 using testing::SetArgReferee;
+using ::testing::DoAll;
 
 namespace {
 const int32_t ABILITY_NUM = 100;
