@@ -61,6 +61,7 @@ constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
 constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
+constexpr static char PRINT_EXTENSION[] = "PrintExtension";
 
 /**
  * @brief Default constructor used to create a AbilityThread instance.
@@ -141,6 +142,9 @@ std::string AbilityThread::CreateAbilityName(const std::shared_ptr<AbilityLocalR
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::WALLPAPER) {
             abilityName = WALLPAPER_EXTENSION;
+        }
+        if (abilityInfo->extensionAbilityType == ExtensionAbilityType::PRINT) {
+            abilityName = PRINT_EXTENSION;
         }
         if (abilityInfo->extensionAbilityType == ExtensionAbilityType::FILEACCESS_EXTENSION) {
             abilityName = FILEACCESS_EXT_ABILITY;
