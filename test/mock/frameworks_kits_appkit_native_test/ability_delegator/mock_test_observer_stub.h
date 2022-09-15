@@ -33,7 +33,7 @@ public:
     ShellCommandResult ExecuteShellCommand(
         const std::string &cmd, const int64_t timeoutMs) override;
 public:
-    bool testStatusFlag;
+    bool testStatusFlag {false};
 };
 }  // namespace AAFwk
 }  // namespace OHOS
