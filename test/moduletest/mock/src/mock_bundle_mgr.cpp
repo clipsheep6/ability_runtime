@@ -54,11 +54,6 @@ bool BundleMgrProxy::GetBundleInfo(
     return true;
 }
 
-bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &uri, AbilityInfo &abilityInfo)
-{
-    return false;
-}
-
 bool BundleMgrProxy::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int userId, ApplicationInfo &appInfo)
 {

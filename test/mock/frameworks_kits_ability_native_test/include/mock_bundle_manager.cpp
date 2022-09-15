@@ -31,44 +31,13 @@ bool BundleMgrProxy::GetApplicationInfo(
     appInfo.bundleName = "com.ohos.hiworld";
     return true;
 }
-bool BundleMgrProxy::GetApplicationInfos(
-    const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos)
-{
-    return true;
-}
-int BundleMgrProxy::GetUidByBundleName(const std::string &bundleName, const int userId)
-{
-    return 0;
-}
-std::string BundleMgrProxy::GetAppIdByBundleName(const std::string &bundleName, const int userId)
-{
-    return "";
-}
-bool BundleMgrProxy::GetBundleNameForUid(const int uid, std::string &bundleName)
-{
-    return true;
-}
-bool BundleMgrProxy::GetBundlesForUid(const int uid, std::vector<std::string> &bundleNames)
-{
-    return true;
-}
-bool BundleMgrProxy::GetNameForUid(const int uid, std::string &name)
-{
-    return true;
-}
-bool BundleMgrProxy::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
-{
-    return true;
-}
+
 std::string BundleMgrProxy::GetAppType(const std::string &bundleName)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetAppTyp";
     return "system";
 }
-bool BundleMgrProxy::GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos)
-{
-    return true;
-}
+
 bool BundleMgrProxy::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo)
 {
     ElementName eleName = want.GetElement();
@@ -81,108 +50,19 @@ bool BundleMgrProxy::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo
     abilityInfo.applicationName = "Helloworld";
     return true;
 }
-bool BundleMgrProxy::QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos)
-{
-    return true;
-}
-bool BundleMgrProxy::QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo)
-{
-    return false;
-}
-bool BundleMgrProxy::QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos)
-{
-    return true;
-}
-bool BundleMgrProxy::GetBundleArchiveInfo(
-    const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo)
-{
-    return true;
-}
+
 bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
 }
+
 bool BundleMgrProxy::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrProxy::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
-}
-bool BundleMgrProxy::GetLaunchWantForBundle(const std::string &bundleName, Want &want)
-{
-    return true;
-}
-int BundleMgrProxy::CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName)
-{
-    return 0;
-}
-bool BundleMgrProxy::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
-{
-    return true;
-}
-bool BundleMgrProxy::HasSystemCapability(const std::string &capName)
-{
-    return true;
-}
-bool BundleMgrProxy::GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps)
-{
-    return true;
-}
-bool BundleMgrProxy::IsSafeMode()
-{
-    return true;
-}
-bool BundleMgrProxy::CleanBundleDataFiles(const std::string &bundleName, const int userId)
-{
-    return true;
-}
-bool BundleMgrProxy::RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback)
-{
-    return true;
-}
-bool BundleMgrProxy::ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback)
-{
-    return true;
-}
-bool BundleMgrProxy::UnregisterBundleStatusCallback()
-{
-    return true;
-}
-bool BundleMgrProxy::DumpInfos(
-    const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result)
-{
-    return true;
-}
-ErrCode BundleMgrProxy::IsApplicationEnabled(const std::string &bundleName, bool &isEnable)
-{
-    return ERR_OK;
-}
-ErrCode BundleMgrProxy::IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable)
-{
-    return ERR_OK;
-}
-bool BundleMgrProxy::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrProxy::GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrProxy::GetFormsInfoByModule(
-    const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrProxy::GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos)
-{
-    return true;
-}
-sptr<IBundleInstaller> BundleMgrProxy::GetBundleInstaller()
-{
-    return nullptr;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -209,44 +89,13 @@ bool BundleMgrService::GetApplicationInfo(
     }
     return true;
 }
-bool BundleMgrService::GetApplicationInfos(
-    const ApplicationFlag flag, const int userId, std::vector<ApplicationInfo> &appInfos)
-{
-    return true;
-}
-int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const int userId)
-{
-    return 0;
-}
-std::string BundleMgrService::GetAppIdByBundleName(const std::string &bundleName, const int userId)
-{
-    return "";
-}
-bool BundleMgrService::GetBundleNameForUid(const int uid, std::string &bundleName)
-{
-    return true;
-}
-bool BundleMgrService::GetBundlesForUid(const int uid, std::vector<std::string> &bundleNames)
-{
-    return true;
-}
-bool BundleMgrService::GetNameForUid(const int uid, std::string &name)
-{
-    return true;
-}
-bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
-{
-    return true;
-}
+
 std::string BundleMgrService::GetAppType(const std::string &bundleName)
 {
     GTEST_LOG_(INFO) << " BundleMgrService::GetAppType";
     return "system";
 }
-bool BundleMgrService::GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos)
-{
-    return true;
-}
+
 bool BundleMgrService::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo)
 {
     ElementName elementName = want.GetElement();
@@ -267,23 +116,7 @@ bool BundleMgrService::QueryAbilityInfo(const Want &want, AbilityInfo &abilityIn
     }
     return true;
 }
-bool BundleMgrService::QueryAbilityInfos(const Want &want, std::vector<AbilityInfo> &abilityInfos)
-{
-    return true;
-}
-bool BundleMgrService::QueryAbilityInfoByUri(const std::string &abilityUri, AbilityInfo &abilityInfo)
-{
-    return false;
-}
-bool BundleMgrService::QueryKeepAliveBundleInfos(std::vector<BundleInfo> &bundleInfos)
-{
-    return true;
-}
-bool BundleMgrService::GetBundleArchiveInfo(
-    const std::string &hapFilePath, const BundleFlag flag, BundleInfo &bundleInfo)
-{
-    return true;
-}
+
 bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo)
 {
     GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
@@ -295,80 +128,6 @@ bool BundleMgrService::GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t 
     GTEST_LOG_(INFO) << " BundleMgrService::GetHapModuleInfo";
     hapModuleInfo.name = abilityInfo.package;
     return true;
-}
-bool BundleMgrService::GetLaunchWantForBundle(const std::string &bundleName, Want &want)
-{
-    return true;
-}
-int BundleMgrService::CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName)
-{
-    return 0;
-}
-bool BundleMgrService::GetPermissionDef(const std::string &permissionName, PermissionDef &permissionDef)
-{
-    return true;
-}
-bool BundleMgrService::HasSystemCapability(const std::string &capName)
-{
-    return true;
-}
-bool BundleMgrService::GetSystemAvailableCapabilities(std::vector<std::string> &systemCaps)
-{
-    return true;
-}
-bool BundleMgrService::IsSafeMode()
-{
-    return true;
-}
-bool BundleMgrService::CleanBundleDataFiles(const std::string &bundleName, const int userId)
-{
-    return true;
-}
-bool BundleMgrService::RegisterBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback)
-{
-    return true;
-}
-bool BundleMgrService::ClearBundleStatusCallback(const sptr<IBundleStatusCallback> &bundleStatusCallback)
-{
-    return true;
-}
-bool BundleMgrService::UnregisterBundleStatusCallback()
-{
-    return true;
-}
-bool BundleMgrService::DumpInfos(
-    const DumpFlag flag, const std::string &bundleName, int32_t userId, std::string &result)
-{
-    return true;
-}
-ErrCode BundleMgrService::IsApplicationEnabled(const std::string &bundleName, bool &isEnable)
-{
-    return ERR_OK;
-}
-ErrCode BundleMgrService::IsAbilityEnabled(const AbilityInfo &abilityInfo, bool &isEnable)
-{
-    return ERR_OK;
-}
-bool BundleMgrService::GetAllFormsInfo(std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrService::GetFormsInfoByApp(const std::string &bundleName, std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrService::GetFormsInfoByModule(
-    const std::string &bundleName, const std::string &moduleName, std::vector<FormInfo> &formInfos)
-{
-    return true;
-}
-bool BundleMgrService::GetShortcutInfos(const std::string &bundleName, std::vector<ShortcutInfo> &shortcutInfos)
-{
-    return true;
-}
-sptr<IBundleInstaller> BundleMgrService::GetBundleInstaller()
-{
-    return nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
