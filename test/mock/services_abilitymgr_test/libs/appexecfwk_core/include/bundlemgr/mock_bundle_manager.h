@@ -290,7 +290,7 @@ public:
     MOCK_METHOD0(GetBundleUserMgr, sptr<IBundleUserMgr>());
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
+    MOCK_METHOD2(GetNameForUid, ErrCode(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &abilityInfo, bool &isEnable));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));
@@ -355,7 +355,7 @@ public:
     MOCK_METHOD0(GetBundleUserMgr, sptr<IBundleUserMgr>());
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &bundleNames));
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
+    MOCK_METHOD2(GetNameForUid, ErrCode(const int uid, std::string &name));
     MOCK_METHOD2(QueryAbilityInfos, bool(const Want &want, std::vector<AbilityInfo> &abilityInfos));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &abilityInfo, bool &isEnable));
     MOCK_METHOD1(GetAllFormsInfo, bool(std::vector<FormInfo> &formInfos));

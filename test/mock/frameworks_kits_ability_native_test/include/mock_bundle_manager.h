@@ -55,7 +55,7 @@ public:
     std::string GetAppIdByBundleName(const std::string &bundleName, const int userId) override;
     bool GetBundleNameForUid(const int uid, std::string &bundleName) override;
     bool GetBundlesForUid(const int uid, std::vector<std::string> &bundleNames) override;
-    bool GetNameForUid(const int uid, std::string &name) override;
+    ErrCode GetNameForUid(const int uid, std::string &name) override;
     bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
     std::string GetAppType(const std::string &bundleName) override;
     bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;
@@ -127,7 +127,7 @@ public:
     std::string GetAppIdByBundleName(const std::string &bundleName, const int userId) override;
     bool GetBundleNameForUid(const int uid, std::string &bundleName) override;
     bool GetBundlesForUid(const int uid, std::vector<std::string> &bundleNames) override;
-    bool GetNameForUid(const int uid, std::string &name) override;
+    ErrCode GetNameForUid(const int uid, std::string &name) override;
     bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids) override;
     std::string GetAppType(const std::string &bundleName) override;
     bool GetBundleInfosByMetaData(const std::string &metaData, std::vector<BundleInfo> &bundleInfos) override;

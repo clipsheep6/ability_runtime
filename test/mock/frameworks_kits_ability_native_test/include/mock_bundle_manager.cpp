@@ -52,9 +52,9 @@ bool BundleMgrProxy::GetBundlesForUid(const int uid, std::vector<std::string> &b
 {
     return true;
 }
-bool BundleMgrProxy::GetNameForUid(const int uid, std::string &name)
+ErrCode BundleMgrProxy::GetNameForUid(const int uid, std::string &name)
 {
-    return true;
+    return ERR_OK;
 }
 bool BundleMgrProxy::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
 {
@@ -230,9 +230,9 @@ bool BundleMgrService::GetBundlesForUid(const int uid, std::vector<std::string> 
 {
     return true;
 }
-bool BundleMgrService::GetNameForUid(const int uid, std::string &name)
+ErrCode BundleMgrService::GetNameForUid(const int uid, std::string &name)
 {
-    return true;
+    return ERR_OK;
 }
 bool BundleMgrService::GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
 {
