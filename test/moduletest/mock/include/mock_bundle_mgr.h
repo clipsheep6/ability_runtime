@@ -340,7 +340,7 @@ public:
     MOCK_METHOD2(IsApplicationEnabled, ErrCode(const std::string &bundleName, bool &isEnable));
     MOCK_METHOD0(GetBundleInstaller, sptr<IBundleInstaller>());
     MOCK_METHOD0(GetBundleUserMgr, sptr<IBundleUserMgr>());
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
+    MOCK_METHOD2(GetNameForUid, ErrCode(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));
@@ -398,7 +398,7 @@ public:
         CanRequestPermission, bool(const std::string &bundleName, const std::string &permissionName, const int userId));
     MOCK_METHOD3(RequestPermissionFromUser,
         bool(const std::string &bundleName, const std::string &permission, const int userId));
-    MOCK_METHOD2(GetNameForUid, bool(const int uid, std::string &name));
+    MOCK_METHOD2(GetNameForUid, ErrCode(const int uid, std::string &name));
     MOCK_METHOD2(GetBundlesForUid, bool(const int uid, std::vector<std::string> &));
     MOCK_METHOD2(IsAbilityEnabled, ErrCode(const AbilityInfo &, bool &isEnable));
     MOCK_METHOD2(GetAppIdByBundleName, std::string(const std::string &bundleName, const int userId));

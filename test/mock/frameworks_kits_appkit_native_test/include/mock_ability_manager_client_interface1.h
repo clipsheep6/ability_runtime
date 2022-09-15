@@ -105,9 +105,9 @@ public:
     {
         return true;
     };
-    virtual bool GetNameForUid(const int uid, std::string &name)
+    virtual ErrCode GetNameForUid(const int uid, std::string &name)
     {
-        return true;
+        return ERR_OK;
     };
     virtual bool GetBundleGids(const std::string &bundleName, std::vector<int> &gids)
     {
