@@ -529,6 +529,12 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
             HILOG_ERROR("AddAbilityStage:hapModuleInfo is nullptr");
             return nullptr;
         }
+
+        if (abilityInfo->applicationInfo.multiProjects) {
+            auto rm = stageContext->CreateModuleContext(hapModuleInfo->moduleName)->GetResourceManager();
+            stageContext->SetResourceManager(rm);
+        }
+
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
         Want want;
@@ -577,6 +583,12 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
         HILOG_ERROR("OHOSApplication::%{public}s: moduleInfo is nullptr", __func__);
         return false;
     }
+
+    if (abilityRuntimeContext_->GetApplicationInfo() && abilityRuntimeContext_->GetApplicationInfo()->multiProjects) {
+        auto rm = stageContext->CreateModuleContext(hapModuleInfo.moduleName)->GetResourceManager();
+        stageContext->SetResourceManager(rm);
+    }
+
     auto abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *moduleInfo);
     abilityStage->Init(stageContext);
     Want want;
