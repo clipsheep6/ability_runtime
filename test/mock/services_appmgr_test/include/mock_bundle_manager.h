@@ -118,9 +118,9 @@ public:
     virtual bool GetHapModuleInfo(const AbilityInfo &abilityInfo, HapModuleInfo &hapModuleInfo) override;
     virtual bool GetHapModuleInfo(
         const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
-    virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
+    virtual ErrCode GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
     {
-        return true;
+        return ERR_OK;
     };
     virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
     {
@@ -237,9 +237,9 @@ public:
     virtual bool GetHapModuleInfo(
         const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo) override;
     // obtains the Want for starting the main ability of an application based on the given bundle name.
-    virtual bool GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
+    virtual ErrCode GetLaunchWantForBundle(const std::string &bundleName, Want &want) override
     {
-        return true;
+        return ERR_OK;
     };
     // checks whether the publickeys of two bundles are the same.
     virtual int CheckPublicKeys(const std::string &firstBundleName, const std::string &secondBundleName) override
