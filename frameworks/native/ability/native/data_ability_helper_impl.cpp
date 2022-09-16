@@ -25,6 +25,9 @@
 #include "data_ability_result.h"
 #include "hilog_wrapper.h"
 #include "values_bucket.h"
+#ifdef EFFICIENCY_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif // EFFICIENCY_MANAGER_ENABLE
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -807,6 +810,15 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelperImpl::ExecuteBa
     return results;
 }
 
+
+void DataAbilityHelperImpl::ReportEventToSuspendManager(const std::string &uriString) const
+{
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    OHOS::SuspendManager::AppInfo appInfo(-1, -1, uriString, "", "THAW_BY_START_NOT_PAGE_ABILITY");
+    OHOS::SuspendManager::SuspendManagerClient::GetInstance().ThawOneAppByAppInfo(appInfo);
+#endif // EFFICIENCY_MANAGER_ENABLE
+}
+
 sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const Uri &uri, bool addDeathRecipient)
 {
     if (!CheckUriParam(uri)) {
@@ -827,7 +839,7 @@ sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const 
             AddDataAbilityDeathRecipient(dataAbilityProxy->AsObject());
         }
     }
-
+    ReportEventToSuspendManager(uri.ToString());
     return dataAbilityProxy;
 }
 
