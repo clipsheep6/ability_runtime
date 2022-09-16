@@ -585,7 +585,8 @@ void FormProviderClient::HandleRemoteAcquire(const FormJsInfo &formJsInfo, const
 
 bool FormProviderClient::IsCallBySelfBundle()
 {
-    return (getuid() == IPCSkeleton::GetCallingUid());
+    uid_t callingUid = static_cast<uid_t>(IPCSkeleton::GetCallingUid());
+    return (getuid() == callingUid);
 }
 } // namespace AppExecFwk
 } // namespace OHOS
