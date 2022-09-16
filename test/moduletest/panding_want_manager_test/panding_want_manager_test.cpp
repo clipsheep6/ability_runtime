@@ -365,7 +365,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_006, TestSize.Level1)
     EXPECT_NE(code, -1);
 
     // mock CancelListener
-    auto cancalCall = [&](int resultCode) -> void { EXPECT_EQ(resultCode, requsetCode); };
+    auto cancalCall = [requsetCode](int resultCode) -> void { EXPECT_EQ(resultCode, requsetCode); };
 
     std::shared_ptr<MockCancelListener> listener = std::make_shared<MockCancelListener>();
     EXPECT_CALL(*listener, OnCancelled(_)).Times(1).WillOnce(Invoke(cancalCall));
@@ -462,7 +462,7 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
     info = MakeWantAgentInfo(type, requsetCode, flags, wants);
 
     // mock CancelListener
-    auto cancalCall = [&](int resultCode) -> void { EXPECT_EQ(resultCode, requsetCode); };
+    auto cancalCall = [requsetCode](int resultCode) -> void { EXPECT_EQ(resultCode, requsetCode); };
 
     std::shared_ptr<MockCancelListener> listener = std::make_shared<MockCancelListener>();
     EXPECT_CALL(*listener, OnCancelled(_)).Times(1).WillOnce(Invoke(cancalCall));

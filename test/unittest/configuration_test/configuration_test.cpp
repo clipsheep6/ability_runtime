@@ -284,7 +284,7 @@ HWTEST_F(ConfigurationTest, CompareDifferent_001, TestSize.Level1)
 
 
     AppExecFwk::Configuration config2;
-    int displayId2= 1001;
+    int displayId2 = 1001;
     std::string English {"英文"};
     config2.AddItem(displayId2, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, English);
 
@@ -402,7 +402,7 @@ HWTEST_F(ConfigurationTest, GetName_001, TestSize.Level1)
     std::string chinese {"Chinese "};
     config.AddItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, chinese);
 
-    int displayId2= 1002;
+    int displayId2 = 1002;
     std::string english {"English"};
     config.AddItem(displayId2, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, english);
 

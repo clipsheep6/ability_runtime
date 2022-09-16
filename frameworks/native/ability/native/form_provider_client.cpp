@@ -84,11 +84,11 @@ int FormProviderClient::AcquireProviderFormInfo(
  */
 int FormProviderClient::NotifyFormDelete(const int64_t formId, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("NotifyFormDelete called.");
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
-        HILOG_INFO("%{public}s called.", __func__);
+        HILOG_INFO("NotifyFormDelete called.");
         auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
         if (hostToken != nullptr) {
             FormCallerMgr::GetInstance().RemoveFormProviderCaller(formId, hostToken);
@@ -97,17 +97,17 @@ int FormProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
 
         std::shared_ptr<Ability> ownerAbility = GetOwner();
         if (ownerAbility == nullptr) {
-            HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
+            HILOG_ERROR("NotifyFormDelete error, ownerAbility is nullptr.");
             errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
             break;
         }
         if (!CheckIsSystemApp()) {
-            HILOG_WARN("%{public}s caller permission denied", __func__);
+            HILOG_WARN("NotifyFormDelete caller permission denied");
             errorCode = ERR_APPEXECFWK_FORM_PERMISSION_DENY;
             break;
         }
 
-        HILOG_INFO("%{public}s come, %{public}s", __func__, ownerAbility->GetAbilityName().c_str());
+        HILOG_INFO("NotifyFormDelete come, %{public}s", ownerAbility->GetAbilityName().c_str());
         ownerAbility->OnDelete(formId);
     } while (false);
 
@@ -137,25 +137,25 @@ int FormProviderClient::NotifyFormsDelete(
     const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("NotifyFormsDelete called.");
     // The error code for business operation.
     int errorCode = ERR_OK;
     do {
-        HILOG_INFO("%{public}s called.", __func__);
+        HILOG_INFO("NotifyFormsDelete called.");
         std::shared_ptr<Ability> ownerAbility = GetOwner();
         if (ownerAbility == nullptr) {
-            HILOG_ERROR("%{public}s error, ownerAbility is nullptr.", __func__);
+            HILOG_ERROR("NotifyFormsDelete error, ownerAbility is nullptr.");
             errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
             break;
         }
         if (!CheckIsSystemApp()) {
-            HILOG_WARN("%{public}s caller permission denied", __func__);
+            HILOG_WARN("NotifyFormsDelete caller permission denied");
             errorCode = ERR_APPEXECFWK_FORM_PERMISSION_DENY;
             break;
         }
 
-        HILOG_INFO("%{public}s come,formIds size=%{public}zu, abilityName:%{public}s",
-            __func__, formIds.size(), ownerAbility->GetAbilityName().c_str());
+        HILOG_INFO("NotifyFormsDelete come,formIds size=%{public}zu, abilityName:%{public}s",
+            formIds.size(), ownerAbility->GetAbilityName().c_str());
         for (int64_t formId : formIds) {
             ownerAbility->OnDelete(formId);
         }

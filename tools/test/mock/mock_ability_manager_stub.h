@@ -32,12 +32,12 @@ public:
     MOCK_METHOD4(StartAbility, int(const Want &want, const sptr<IRemoteObject> &callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant));
-    virtual int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
+    int CloseAbility(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr) override
     {
         return 0;
     }
-    virtual int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override
+    int MinimizeAbility(const sptr<IRemoteObject> &token, bool fromUser = false) override
     {
         return 0;
     }
@@ -118,29 +118,29 @@ public:
         return 0;
     }
 
-    virtual int StartUser(int userId) override
+    int StartUser(int userId) override
     {
         return 0;
     }
 
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
+    int StopUser(int userId, const sptr<IStopUserCallback> &callback) override
     {
         return 0;
     }
-    virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
+    int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override
     {
         return 0;
     }
-    virtual int StopSyncRemoteMissions(const std::string& devId) override
+    int StopSyncRemoteMissions(const std::string& devId) override
     {
         return 0;
     }
-    virtual int RegisterMissionListener(const std::string &deviceId,
+    int RegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
     }
-    virtual int UnRegisterMissionListener(const std::string &deviceId,
+    int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener) override
     {
         return 0;
@@ -173,59 +173,59 @@ public:
         return 0;
     }
 
-    virtual int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
+    int RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler) override
     {
         return 0;
     }
 
-    virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override {}
 
     virtual int SendANRProcessID(int pid)
     {
         return 0;
     }
 
-    virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
+    int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override
     {
         return 0;
     }
-    virtual bool IsRunningInStabilityTest() override
+    bool IsRunningInStabilityTest() override
     {
         return true;
     }
-    virtual void DumpSysState(
+    void DumpSysState(
         const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int UserID) override
     {}
 
-    virtual int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
+    int StartUserTest(const Want &want, const sptr<IRemoteObject> &observer) override
     {
         return 0;
     }
 
-    virtual int FinishUserTest(
+    int FinishUserTest(
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override
     {
         return 0;
     }
 
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) override
+    int GetTopAbility(sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityForeground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
-    virtual int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
+    int DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token) override
     {
         return 0;
     }
 
     #ifdef ABILITY_COMMAND_FOR_TEST
-    virtual int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
+    int ForceTimeoutForTest(const std::string &abilityName, const std::string &state) override
     {
         return 0;
     }

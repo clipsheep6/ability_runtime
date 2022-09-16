@@ -367,18 +367,18 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr");
+        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Remote is nullptr");
         return ERR_NULL_OBJECT;
     }
 
@@ -387,7 +387,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     int32_t ret = remote->SendRequest(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH),
         data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("Send request failed with errno %{public}d.", ret);
+        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Send request failed with errno %{public}d.", ret);
         return ret;
     }
 

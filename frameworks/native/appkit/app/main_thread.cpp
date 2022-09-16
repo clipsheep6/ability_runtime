@@ -1994,14 +1994,15 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
         std::string moduleName = hqfInfo.moduleName;
         std::string resolvedHapPath;
         for (auto hapInfo : bundleInfo.hapModuleInfos) {
-            if (hapInfo.moduleName == moduleName) {
-                std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
-                auto position = hapPath.rfind('/');
-                if (position != std::string::npos) {
-                    resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + moduleName;
-                }
-                break;
+            if (hapInfo.moduleName != moduleName) {
+                continue;
             }
+            std::string hapPath = AbilityRuntime::GetLoadPath(hapInfo.hapPath);
+            auto position = hapPath.rfind('/');
+            if (position != std::string::npos) {
+                resolvedHapPath = hapPath.erase(position) + FILE_SEPARATOR + moduleName;
+            }
+            break;
         }
 
         std::string resolvedHqfFile(AbilityRuntime::GetLoadPath(hqfInfo.hqfFilePath));
