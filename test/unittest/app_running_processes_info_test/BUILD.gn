@@ -20,6 +20,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
   ]
@@ -32,6 +33,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "${ability_runtime_services_path}/appmgr/src/app_spawn_msg_wrapper.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
   ]
 
@@ -53,6 +55,8 @@ ohos_unittest("AppRunningProcessesInfoTest") {
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "appspawn:appspawn_socket_client",
     "bundle_framework:appexecfwk_core",
     "common_event_service:cesfwk_innerkits",

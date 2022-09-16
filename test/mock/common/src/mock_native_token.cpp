@@ -28,12 +28,12 @@ void MockNativeToken::SetNativeToken()
     perms[3] = "ohos.permission.GET_RUNNING_INFO";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 1,
+        .permsNum = 4,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
         .acls = nullptr,
-        .aplStr = "system_basic",
+        .aplStr = "system_core",
     };
 
     infoInstance.processName = "SetUpTestCase";
