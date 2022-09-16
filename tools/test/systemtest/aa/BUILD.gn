@@ -39,6 +39,9 @@ ohos_systemtest("aa_command_start_system_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/pageAbilityBundleForStart:pageAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStart:serviceAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -50,9 +53,6 @@ ohos_systemtest("aa_command_start_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-
-  resource_config_file =
-      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_stop_service_system_test") {
@@ -72,6 +72,8 @@ ohos_systemtest("aa_command_stop_service_system_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStop:serviceAbilityBundleForStop",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -83,9 +85,6 @@ ohos_systemtest("aa_command_stop_service_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-
-  resource_config_file =
-      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 ohos_systemtest("aa_command_dump_system_test") {
@@ -107,6 +106,10 @@ ohos_systemtest("aa_command_dump_system_test") {
 
   deps = [
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
+    "${ability_runtime_path}/tools/test/resource/aa/dataAbilityBundleForDump:dataAbilityBundleForDump",
+    "${ability_runtime_path}/tools/test/resource/aa/pageAbilityBundleForDump:pageAbilityBundleForDump",
+    "${ability_runtime_path}/tools/test/resource/aa/serviceAbilityBundleForStart:serviceAbilityBundleForStart",
+    "${ability_runtime_path}/tools/test/resource/ohos_test:copy_ohos_test",
     "//third_party/googletest:gtest_main",
     "//third_party/jsoncpp:jsoncpp",
   ]
@@ -118,9 +121,6 @@ ohos_systemtest("aa_command_dump_system_test") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-
-  resource_config_file =
-      "${ability_runtime_path}/tools/test/resource/ohos_test.xml"
 }
 
 group("systemtest") {

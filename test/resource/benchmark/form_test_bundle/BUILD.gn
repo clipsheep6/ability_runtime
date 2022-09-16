@@ -13,26 +13,26 @@
 
 import("//build/ohos.gni")
 
-ohos_hap("pageAbilityBundleForStart") {
+ohos_hap("formTestWidget1") {
   hap_profile = "./src/main/config.json"
-  hap_name = "pageAbilityBundleForStart"
+  hap_name = "formTestWidget1"
   subsystem_name = "ability"
   part_name = "ability_runtime"
-  final_hap_path = "$root_out_dir/tests/systemtest/ability_tools/tools/resource/aa/${hap_name}.hap"
+  final_hap_path = "$root_out_dir/tests/benchmark/ability_runtime/interfaces/resource/form_test_bundle/${hap_name}.hap"
   testonly = true
   deps = [
-    ":pageAbilityBundleForStart_ets_assets",
-    ":pageAbilityBundleForStart_ets_resources",
+    ":formtestwidget1_ets_assets",
+    ":formtestwidget1_ets_resources",
   ]
   ets2abc = true
-  certificate_profile = "../signature/openharmony_sx.p7b"
+  certificate_profile = "./signature/openharmony_sx.p7b"
 }
-ohos_js_assets("pageAbilityBundleForStart_ets_assets") {
-  source_dir = "./src/main/ets/MainAbility"
+ohos_js_assets("formtestwidget1_ets_assets") {
+  source_dir = "./src/main/ets"
   hap_profile = "./src/main/config.json"
   ets2abc = true
 }
-ohos_resources("pageAbilityBundleForStart_ets_resources") {
+ohos_resources("formtestwidget1_ets_resources") {
   sources = [ "./src/main/resources" ]
   hap_profile = "./src/main/config.json"
 }
