@@ -222,7 +222,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
             std::vector<std::string>::iterator iter = std::find(it->second.begin(),
                 it->second.end(), data.bundleName);
             if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
-                it->first->OnApplicationStateChanged(data);
+                it->first->OnAppStateChanged(data);
             }
         }
     }
