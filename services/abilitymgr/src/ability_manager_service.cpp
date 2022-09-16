@@ -5089,6 +5089,7 @@ int AbilityManagerService::CheckCallDataAbilityPermission(AbilityRequest &abilit
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
+    verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
         verificationInfo.apiTargetVersion = callerAbility->GetApplicationInfo().apiTargetVersion;
