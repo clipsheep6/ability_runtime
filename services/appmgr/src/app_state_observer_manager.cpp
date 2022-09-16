@@ -114,7 +114,7 @@ void AppStateObserverManager::OnProcessDied(const std::shared_ptr<AppRunningReco
             return;
         }
         HILOG_INFO("OnProcessDied come.");
-        self->HandleOnAppProcessDied(appRecord);
+    self->HandleOnAppProcessDied(appRecord);
     };
     handler_->PostTask(task);
 }
@@ -129,6 +129,20 @@ void AppStateObserverManager::OnRenderProcessDied(const std::shared_ptr<RenderRe
         }
         HILOG_INFO("OnRenderProcessDied come.");
         self->HandleOnRenderProcessDied(renderRecord);
+    };
+    handler_->PostTask(task);
+}
+
+void AppStateObserverManager::OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    auto task = [weak = weak_from_this(), appRecord]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            HILOG_ERROR("self is nullptr, OnProcessStateChanged failed.");
+            return;
+        }
+        HILOG_INFO("OnProcessStateChanged come.");
+        self->HandleOnAppProcessStateChanged(appRecord);
     };
     handler_->PostTask(task);
 }
@@ -264,6 +278,30 @@ void AppStateObserverManager::HandleOnProcessCreated(const ProcessData &data)
     }
 }
 
+void AppStateObserverManager::HandleOnAppProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (!appRecord) {
+        HILOG_ERROR("app record is null");
+        return;
+    }
+    ProcessData data = WrapProcessData(appRecord);
+    HILOG_DEBUG("Process State Change, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
+    HandleOnProcessStateChanged(data);
+}
+
+void AppStateObserverManager::HandleOnProcessStateChanged(const ProcessData &data)
+{
+    std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
+    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        std::vector<std::string>::iterator iter = std::find(it->second.begin(),
+            it->second.end(), data.bundleName);
+        if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            it->first->OnProcessStateChanged(data);
+        }
+    }
+}
+
 void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (!appRecord) {
@@ -306,6 +344,9 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.bundleName = appRecord->GetBundleName();
     processData.pid = appRecord->GetPriorityObject()->GetPid();
     processData.uid = appRecord->GetUid();
+    processData.state = static_cast<AppProcessState>(appRecord->GetState());
+    processData.isContinuousTask = appRecord->IsContinuousTask();
+    processData.isKeepAlive = appRecord->IsKeepAliveApp();
     return processData;
 }
 

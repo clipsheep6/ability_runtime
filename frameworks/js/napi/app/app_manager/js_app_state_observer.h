@@ -34,11 +34,13 @@ public:
     void OnAbilityStateChanged(const AbilityStateData &abilityStateData) override;
     void OnExtensionStateChanged(const AbilityStateData &abilityStateData) override;
     void OnProcessCreated(const ProcessData &processData) override;
+    void OnProcessStateChanged(const ProcessData &processData) override;
     void OnProcessDied(const ProcessData &processData) override;
     void HandleOnForegroundApplicationChanged(const AppStateData &appStateData);
     void HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData);
     void HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData);
     void HandleOnProcessCreated(const ProcessData &processData);
+    void HandleOnProcessStateChanged(const ProcessData &processData);
     void HandleOnProcessDied(const ProcessData &processData);
     void CallJsFunction(NativeValue* value, const char *methodName, NativeValue *const *argv, size_t argc);
     void AddJsObserverObject(const int32_t observerId, NativeValue* jsObserverObject);

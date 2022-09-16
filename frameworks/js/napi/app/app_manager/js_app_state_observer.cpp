@@ -148,6 +148,36 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
     }
 }
 
+void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
+{
+    HILOG_INFO("OnProcessStateChanged begin");
+    wptr<JSAppStateObserver> jsObserver = this;
+    std::unique_ptr<AsyncTask::CompleteCallback> complete = std::make_unique<AsyncTask::CompleteCallback>
+        ([jsObserver, processData](NativeEngine &engine, AsyncTask &task, int32_t status) {
+            sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
+            if (!jsObserverSptr) {
+                HILOG_WARN("jsObserverSptr nullptr");
+                return;
+            }
+            jsObserverSptr->HandleOnProcessStateChanged(processData);
+        });
+    NativeReference* callback = nullptr;
+    std::unique_ptr<AsyncTask::ExecuteCallback> execute = nullptr;
+    AsyncTask::Schedule("JSAppStateObserver::OnProcessStateChanged",
+        engine_, std::make_unique<AsyncTask>(callback, std::move(execute), std::move(complete)));
+}
+
+void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processData)
+{
+    HILOG_INFO("HandleOnProcessStateChanged begin");
+    auto tmpMap = jsObserverObjectMap_;
+    for (auto &item : tmpMap) {
+        NativeValue* value = (item.second)->Get();
+        NativeValue* argv[] = {CreateJsProcessData(engine_, processData)};
+        CallJsFunction(value, "onProcessStateChanged", argv, ARGC_ONE);
+    }
+}
+
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
     HILOG_INFO("OnProcessDied begin");

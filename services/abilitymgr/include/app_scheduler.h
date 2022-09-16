@@ -30,6 +30,7 @@
 #include "singleton.h"
 #include "system_memory_attr.h"
 #include "running_process_info.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
