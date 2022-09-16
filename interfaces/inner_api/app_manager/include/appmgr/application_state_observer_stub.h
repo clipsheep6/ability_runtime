@@ -84,6 +84,8 @@ public:
      */
     virtual void OnApplicationStateChanged(const AppStateData &appStateData) override;
 
+    virtual void OnAppStateChanged(const AppStateData &appStateData) override;
+
 private:
     int32_t HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply);
 
@@ -98,6 +100,8 @@ private:
     int32_t HandleOnProcessDied(MessageParcel &data, MessageParcel &reply);
 
     int32_t HandleOnApplicationStateChanged(MessageParcel &data, MessageParcel &reply);
+
+    int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
 
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);

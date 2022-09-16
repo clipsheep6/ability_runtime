@@ -46,6 +46,9 @@ ApplicationStateObserverStub::ApplicationStateObserverStub()
     memberFuncMap_[static_cast<uint32_t>(
         IApplicationStateObserver::Message::TRANSACT_ON_APPLICATION_STATE_CHANGED)] =
         &ApplicationStateObserverStub::HandleOnApplicationStateChanged;
+    memberFuncMap_[static_cast<uint32_t>(
+        IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
+        &ApplicationStateObserverStub::HandleOnAppStateChanged;
 }
 
 ApplicationStateObserverStub::~ApplicationStateObserverStub()
@@ -94,6 +97,9 @@ void ApplicationStateObserverStub::OnProcessDied(const ProcessData &processData)
 {}
 
 void ApplicationStateObserverStub::OnApplicationStateChanged(const AppStateData &appStateData)
+{}
+
+void ApplicationStateObserverStub::OnAppStateChanged(const AppStateData &appStateData)
 {}
 
 int32_t ApplicationStateObserverStub::HandleOnForegroundApplicationChanged(MessageParcel &data, MessageParcel &reply)
@@ -193,6 +199,18 @@ int32_t ApplicationStateObserverStub::HandleOnApplicationStateChanged(MessagePar
     }
 
     OnApplicationStateChanged(*processData);
+    return NO_ERROR;
+}
+
+int32_t ApplicationStateObserverStub::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppStateData> processData(data.ReadParcelable<AppStateData>());
+    if (!processData) {
+        HILOG_ERROR("ReadParcelable<AppStateData> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+
+    OnAppStateChanged(*processData);
     return NO_ERROR;
 }
 
