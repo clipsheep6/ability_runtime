@@ -49,7 +49,7 @@ std::shared_ptr<RuntimeExtractor> RuntimeExtractor::Create(const std::string& ha
 {
     if (hapPath.empty()) {
         HILOG_ERROR("source is nullptr");
-        return std::shared_ptr<RuntimeExtractor>();
+        return nullptr;
     }
 
     std::string loadPath;
@@ -61,7 +61,7 @@ std::shared_ptr<RuntimeExtractor> RuntimeExtractor::Create(const std::string& ha
     std::shared_ptr<RuntimeExtractor> runtimeExtractor = std::make_shared<RuntimeExtractor>(loadPath);
     if (!runtimeExtractor->Init()) {
         HILOG_ERROR("RuntimeExtractor create failed");
-        return std::shared_ptr<RuntimeExtractor>();
+        return nullptr;
     }
 
     return runtimeExtractor;

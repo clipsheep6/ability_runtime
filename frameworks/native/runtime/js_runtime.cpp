@@ -121,6 +121,9 @@ public:
             std::shared_ptr<RuntimeExtractor> runtimeExtractor;
             if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
                 runtimeExtractor = RuntimeExtractor::Create(hapPath);
+                if (runtimeExtractor == nullptr) {
+                    return result;
+                }
                 runtimeExtractor->SetRuntimeFlag(true);
                 runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
             } else {
@@ -261,6 +264,9 @@ private:
             bundleName_ = options.bundleName;
             panda::JSNApi::SetHostResolvePathTracker(vm_, JsModuleSearcher(options.bundleName));
             std::shared_ptr<RuntimeExtractor> runtimeExtractor = RuntimeExtractor::Create(options.hapPath);
+            if (runtimeExtractor == nullptr) {
+                return false;
+            }
             runtimeExtractor->SetRuntimeFlag(true);
             runtimeExtractorMap_.insert(make_pair(options.hapPath, runtimeExtractor));
             panda::JSNApi::SetHostResolveBufferTracker(
@@ -615,6 +621,9 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         std::shared_ptr<RuntimeExtractor> runtimeExtractor;
         if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
             runtimeExtractor = RuntimeExtractor::Create(hapPath);
+            if (runtimeExtractor == nullptr) {
+                return result;
+            }
             runtimeExtractor->SetRuntimeFlag(true);
             runtimeExtractorMap_.insert(make_pair(hapPath, runtimeExtractor));
         } else {
