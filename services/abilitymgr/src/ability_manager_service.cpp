@@ -4312,8 +4312,13 @@ bool AbilityManagerService::IsRunningInStabilityTest()
 
 bool AbilityManagerService::IsAbilityControllerStart(const Want &want, const std::string &bundleName)
 {
-    if (abilityController_ != nullptr && controllerIsAStabilityTest_) {
-        HILOG_DEBUG("%{public}s, controllerIsAStabilityTest_: %{public}d", __func__, controllerIsAStabilityTest_);
+    HILOG_DEBUG("method call, controllerIsAStabilityTest_: %{public}d", controllerIsAStabilityTest_);
+    if (abilityController_ == nullptr) {
+        HILOG_DEBUG("abilityController_ is nullptr");
+        return true;
+    }
+
+    if (controllerIsAStabilityTest_) {
         bool isStart = abilityController_->AllowAbilityStart(want, bundleName);
         if (!isStart) {
             HILOG_INFO("Not finishing start ability because controller starting: %{public}s", bundleName.c_str());
@@ -4325,8 +4330,13 @@ bool AbilityManagerService::IsAbilityControllerStart(const Want &want, const std
 
 bool AbilityManagerService::IsAbilityControllerForeground(const std::string &bundleName)
 {
-    if (abilityController_ != nullptr && controllerIsAStabilityTest_) {
-        HILOG_DEBUG("%{public}s, controllerIsAStabilityTest_: %{public}d", __func__, controllerIsAStabilityTest_);
+    HILOG_DEBUG("method call, controllerIsAStabilityTest_: %{public}d", controllerIsAStabilityTest_);
+    if (abilityController_ == nullptr) {
+        HILOG_DEBUG("abilityController_ is nullptr");
+        return true;
+    }
+
+    if (controllerIsAStabilityTest_) {
         bool isResume = abilityController_->AllowAbilityBackground(bundleName);
         if (!isResume) {
             HILOG_INFO("Not finishing terminate ability because controller resuming: %{public}s", bundleName.c_str());
