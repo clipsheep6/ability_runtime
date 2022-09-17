@@ -160,6 +160,8 @@ public:
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByRenderPid(const pid_t pid);
     std::shared_ptr<RenderRecord> OnRemoteRenderDied(const wptr<IRemoteObject> &remote);
+    bool IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord);
+    bool IsApplicationBackground(const std::string &bundleName);
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
 

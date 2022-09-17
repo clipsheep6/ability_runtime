@@ -709,7 +709,7 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
-            serviceInner->OnAppStateChanged(shared_from_this(), curState_);
+            serviceInner->OnAppStateChanged(shared_from_this(), curState_, false);
         }
     } else {
         HILOG_WARN("wrong application state");

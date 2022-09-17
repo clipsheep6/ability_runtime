@@ -92,16 +92,16 @@ int32_t AppStateObserverManager::UnregisterApplicationStateObserver(const sptr<I
 }
 
 void AppStateObserverManager::OnAppStateChanged(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state)
+    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
-    auto task = [weak = weak_from_this(), appRecord, state]() {
+    auto task = [weak = weak_from_this(), appRecord, state, needNotifyApp]() {
         auto self = weak.lock();
         if (self == nullptr) {
             HILOG_ERROR("self is nullptr, OnAppStateChanged failed.");
             return;
         }
         HILOG_INFO("OnAppStateChanged come.");
-        self->HandleAppStateChanged(appRecord, state);
+        self->HandleAppStateChanged(appRecord, state, needNotifyApp);
     };
     handler_->PostTask(task);
 }
@@ -177,8 +177,12 @@ void AppStateObserverManager::StateChangedNotifyObserver(const AbilityStateData 
 }
 
 void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const ApplicationState state)
+    const ApplicationState state, bool needNotifyApp)
 {
+    if (appRecord == nullptr) {
+        return;
+    }
+
     if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
         AppStateData data = WrapAppStateData(appRecord, state);
         HILOG_DEBUG("OnForegroundApplicationChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
@@ -187,8 +191,12 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
             std::vector<std::string>::iterator iter = std::find(it->second.begin(),
                 it->second.end(), data.bundleName);
-            if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            bool valid = (it->second.empty() || iter != it->second.end()) && it->first != nullptr;
+            if (valid) {
                 it->first->OnForegroundApplicationChanged(data);
+            }
+            if (valid && needNotifyApp) {
+                it->first->OnAppStateChanged(data);
             }
         }
     }

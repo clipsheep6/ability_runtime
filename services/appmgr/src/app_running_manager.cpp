@@ -556,5 +556,36 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
     }
     return nullptr;
 }
+
+bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
+{
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()) {
+            continue;
+        }
+        if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND &&
+            appRecord->GetRecordId() != foregroundingRecord.GetRecordId()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
+{
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName &&
+            appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+            return false;
+        }
+    }
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
