@@ -69,7 +69,7 @@ public:
     {
         return ERROR;
     };
-    virtual void SetStringFormatById(std::string &inValue, uint32_t id, ...) {};
+    void SetStringFormatById(std::string &inValue, uint32_t id, ...) override {};
 
     virtual RState GetStringFormatByName(std::string &outValue, const char *name, ...)
     {

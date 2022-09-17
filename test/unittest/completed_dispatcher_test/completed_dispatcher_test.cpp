@@ -35,6 +35,9 @@ using namespace OHOS;
 using OHOS::AppExecFwk::ElementName;
 using namespace OHOS::AppExecFwk;
 using vector_str = std::vector<std::string>;
+namespace {
+    const int32_t SEND_FINISHED_CODE = 100;
+}
 
 namespace OHOS::AbilityRuntime::WantAgent {
 class CompletedDispatcherTest : public testing::Test {
@@ -70,7 +73,7 @@ int CompletedDispatcherTest::CompletedCallbackSon::code = 0;
 void CompletedDispatcherTest::CompletedCallbackSon::OnSendFinished(
     const AAFwk::Want &want, int resultCode, const std::string &resultData, const AAFwk::WantParams &resultExtras)
 {
-    code = 100;
+    code = SEND_FINISHED_CODE;
 }
 
 Want CompletedDispatcherTest::MakeWant(std::string deviceId, std::string abilityName, std::string bundleName)

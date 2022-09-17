@@ -66,76 +66,59 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
         return false;
     }
 
-    auto CheckJsonNode = [&value] (const std::string &node, JsonType jsonType) -> bool {
-        if (value.find(node) == value.end()) {
-            HILOG_ERROR("node %{private}s not exists.", node.c_str());
-            return false;
-        }
-
-        if (jsonType == JsonType::NUMBER) {
-            return value[node].is_number();
-        }
-        if (jsonType == JsonType::STRING) {
-            return value[node].is_string();
-        }
-        if (jsonType == JsonType::BOOLEAN) {
-            return value[node].is_boolean();
-        }
-        return false;
-    };
-    if (!CheckJsonNode(KEY_MISSION_NAME, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_MISSION_NAME, JsonType::STRING)) {
         return false;
     }
     missionName = value[KEY_MISSION_NAME].get<std::string>();
-    if (!CheckJsonNode(KEY_IS_SINGLETON, JsonType::BOOLEAN)) {
+    if (!CheckJsonNode(value, KEY_IS_SINGLETON, JsonType::BOOLEAN)) {
         return false;
     }
     isSingletonMode = value[KEY_IS_SINGLETON].get<bool>();
-    if (!CheckJsonNode(KEY_IS_TEMPORARY, JsonType::BOOLEAN)) {
+    if (!CheckJsonNode(value, KEY_IS_TEMPORARY, JsonType::BOOLEAN)) {
         return false;
     }
     isTemporary = value[KEY_IS_TEMPORARY].get<bool>();
-    if (!CheckJsonNode(KEY_START_METHOD, JsonType::NUMBER)) {
+    if (!CheckJsonNode(value, KEY_START_METHOD, JsonType::NUMBER)) {
         return false;
     }
     startMethod = value[KEY_START_METHOD].get<int32_t>();
-    if (!CheckJsonNode(KEY_BUNDLE_NAME, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_BUNDLE_NAME, JsonType::STRING)) {
         return false;
     }
     bundleName = value[KEY_BUNDLE_NAME].get<std::string>();
-    if (!CheckJsonNode(KEY_UID, JsonType::NUMBER)) {
+    if (!CheckJsonNode(value, KEY_UID, JsonType::NUMBER)) {
         return false;
     }
     uid = value[KEY_UID].get<int32_t>();
-    if (!CheckJsonNode(KEY_MISSION_ID, JsonType::NUMBER)) {
+    if (!CheckJsonNode(value, KEY_MISSION_ID, JsonType::NUMBER)) {
         return false;
     }
     missionInfo.id = value[KEY_MISSION_ID].get<int32_t>();
-    if (!CheckJsonNode(KEY_RUNNING_STATE, JsonType::NUMBER)) {
+    if (!CheckJsonNode(value, KEY_RUNNING_STATE, JsonType::NUMBER)) {
         return false;
     }
     missionInfo.runningState = value[KEY_RUNNING_STATE].get<int32_t>();
-    if (!CheckJsonNode(KEY_LOCKED_STATE, JsonType::BOOLEAN)) {
+    if (!CheckJsonNode(value, KEY_LOCKED_STATE, JsonType::BOOLEAN)) {
         return false;
     }
     missionInfo.lockedState = value[KEY_LOCKED_STATE].get<bool>();
-    if (!CheckJsonNode(KEY_CONTINUABLE, JsonType::BOOLEAN)) {
+    if (!CheckJsonNode(value, KEY_CONTINUABLE, JsonType::BOOLEAN)) {
         return false;
     }
     missionInfo.continuable = value[KEY_CONTINUABLE].get<bool>();
-    if (!CheckJsonNode(KEY_TIME, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_TIME, JsonType::STRING)) {
         return false;
     }
     missionInfo.time = value[KEY_TIME].get<std::string>();
-    if (!CheckJsonNode(KEY_LABEL, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_LABEL, JsonType::STRING)) {
         return false;
     }
     missionInfo.label = value[KEY_LABEL].get<std::string>();
-    if (!CheckJsonNode(KEY_ICON_PATH, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_ICON_PATH, JsonType::STRING)) {
         return false;
     }
     missionInfo.iconPath = value[KEY_ICON_PATH].get<std::string>();
-    if (!CheckJsonNode(KEY_WANT, JsonType::STRING)) {
+    if (!CheckJsonNode(value, KEY_WANT, JsonType::STRING)) {
         return false;
     }
     Want* want = Want::ParseUri(value[KEY_WANT].get<std::string>());
@@ -167,6 +150,25 @@ void InnerMissionInfo::Dump(std::vector<std::string> &info) const
     info.push_back(dumpInfo);
     dumpInfo = "        want [" + missionInfo.want.ToUri() + "]";
     info.push_back(dumpInfo);
+}
+
+bool InnerMissionInfo::CheckJsonNode(nlohmann::json &value, const std::string &node, JsonType jsonType)
+{
+    if (value.find(node) == value.end()) {
+        HILOG_ERROR("node %{private}s not exists.", node.c_str());
+        return false;
+    }
+
+    if (jsonType == JsonType::NUMBER) {
+        return value[node].is_number();
+    }
+    if (jsonType == JsonType::STRING) {
+        return value[node].is_string();
+    }
+    if (jsonType == JsonType::BOOLEAN) {
+        return value[node].is_boolean();
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
