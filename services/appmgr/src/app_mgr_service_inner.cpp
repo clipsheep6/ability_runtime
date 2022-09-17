@@ -368,7 +368,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     ApplicationState appState = appRecord->GetState();
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND);
+        bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -400,7 +401,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     }
     if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND);
+        bool needNotifyApp = appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
+        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
@@ -444,7 +446,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
     appRunningManager_->RemoveAppRunningRecordById(recordId);
     RemoveAppFromRecentListById(recordId);
     AAFWK::EventInfo eventInfo;
@@ -1206,7 +1208,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRe
 }
 
 void AppMgrServiceInner::OnAppStateChanged(
-    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state)
+    const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state, bool needNotifyApp)
 {
     if (!appRecord) {
         HILOG_ERROR("OnAppStateChanged come, app record is null");
@@ -1221,7 +1223,7 @@ void AppMgrServiceInner::OnAppStateChanged(
         }
     }
 
-    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(appRecord, state);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnAppStateChanged(appRecord, state, needNotifyApp);
 }
 
 AppProcessData AppMgrServiceInner::WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
@@ -1345,7 +1347,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     appRecord->SetUid(startMsg.uid);
     appRecord->SetStartMsg(startMsg);
     appRecord->SetAppMgrServiceInner(weak_from_this());
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, false);
     AddAppToRecentList(appName, appRecord->GetProcessName(), pid, appRecord->GetRecordId());
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessCreated(appRecord);
     PerfProfile::GetInstance().SetAppForkEndTime(GetTickCount());
@@ -1588,7 +1590,7 @@ void AppMgrServiceInner::HandleTerminateApplicationTimeOut(const int64_t eventId
     }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
-    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
         auto timeoutTask = [pid, innerService = shared_from_this()]() {
