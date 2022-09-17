@@ -66,6 +66,7 @@ ohos_unittest("AppRunningProcessesInfoTest") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "window_manager:libwm",
   ]
 }
 

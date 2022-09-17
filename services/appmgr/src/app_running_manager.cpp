@@ -633,7 +633,8 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
         if (appRecord == nullptr || appRecord->GetBundleName() != foregroundingRecord.GetBundleName()) {
             continue;
         }
-        if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND &&
+        auto state = appRecord->GetState();
+        if ((state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS) &&
             appRecord->GetRecordId() != foregroundingRecord.GetRecordId()) {
             return false;
         }
@@ -647,8 +648,9 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        auto state = appRecord->GetState();
         if (appRecord && appRecord->GetBundleName() == bundleName &&
-            appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+            (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS)) {
             return false;
         }
     }

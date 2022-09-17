@@ -58,6 +58,7 @@ ohos_unittest("AmsAppMgrClientTest") {
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "window_manager:libwm",
   ]
 }
 

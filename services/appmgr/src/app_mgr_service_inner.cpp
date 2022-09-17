@@ -54,6 +54,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using namespace OHOS::Rosen;
 using namespace OHOS::Security;
 
 namespace {
@@ -65,6 +66,8 @@ constexpr int64_t MICROSECONDS = 1000000;
 constexpr int KILL_PROCESS_TIMEOUT_MICRO_SECONDS = 1000;
 // Kill process delaytime setting
 constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
+// delay regist focus listener to wms
+constexpr int REGISTER_FOCUS_DELAY = 5000;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
 const std::string SO_PATH = "system/lib64/libmapleappkit.z.so";
@@ -121,6 +124,7 @@ void AppMgrServiceInner::Init()
     GetGlobalConfiguration();
     AddWatchParameter();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
+    InitFocusListener();
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -366,7 +370,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     }
     appRecord->PopForegroundingAbilityTokens();
     ApplicationState appState = appRecord->GetState();
-    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
+    if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND ||
+        appState == ApplicationState::APP_STATE_FOCUS) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
@@ -399,7 +404,8 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         HILOG_ERROR("get app record failed");
         return;
     }
-    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+    if (appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND ||
+        appRecord->GetState() == ApplicationState::APP_STATE_FOCUS) {
         appRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         bool needNotifyApp = appRunningManager_->IsApplicationBackground(appRecord->GetBundleName());
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_BACKGROUND, needNotifyApp);
@@ -2630,6 +2636,100 @@ void AppMgrServiceInner::AddWatchParameter()
         HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
             AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, ret);
     }
+}
+
+void AppMgrServiceInner::InitFocusListener()
+{
+    HILOG_INFO("begin initFocus listener.");
+    if (focusListener_) {
+        return;
+    }
+
+    focusListener_ = new WindowFocusChangedListener(shared_from_this());
+    auto registerTask = [innerService = shared_from_this()]() {
+        if (innerService) {
+            HILOG_INFO("RegisterFocusListener task");
+            innerService->RegisterFocusListener();
+        }
+    };
+    if (eventHandler_) {
+        eventHandler_->PostTask(registerTask, "RegisterFocusListenerTask", REGISTER_FOCUS_DELAY);
+    }
+}
+
+void AppMgrServiceInner::RegisterFocusListener()
+{
+    HILOG_INFO("RegisterFocusListener begin");
+    if (!focusListener_) {
+        HILOG_ERROR("no focusListener_");
+        return;
+    }
+    WindowManager::GetInstance().RegisterFocusChangedListener(focusListener_);
+    HILOG_INFO("RegisterFocusListener end");
+}
+
+void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    if (!focusChangeInfo) {
+        HILOG_WARN("focused, invalid focusChangeInfo");
+        return;
+    }
+    HILOG_DEBUG("focused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
+
+    if (focusChangeInfo->pid_ <= 0) {
+        return;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(focusChangeInfo->pid_);
+    if (!appRecord) {
+        HILOG_ERROR("focused, no such appRecord, pid:%{public}d", focusChangeInfo->pid_);
+        return;
+    }
+
+    auto state = appRecord->GetState();
+    if (state < ApplicationState::APP_STATE_FOREGROUND || state > ApplicationState::APP_STATE_BACKGROUND) {
+        HILOG_WARN("invalid state.");
+        return;
+    }
+
+    appRecord->SetState(ApplicationState::APP_STATE_FOCUS);
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOCUS, false);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
+
+    auto abilityRecord = appRecord->GetAbilityRunningRecordByToken(focusChangeInfo->abilityToken_);
+    if (!abilityRecord || abilityRecord->GetAbilityInfo() == nullptr ||
+        abilityRecord->GetAbilityInfo()->type != AbilityType::PAGE) {
+        return;
+    }
+    appRecord->UpdateAbilityState(focusChangeInfo->abilityToken_, AbilityState::ABILITY_STATE_FOCUS);
+}
+
+void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo)
+{
+    if (!focusChangeInfo) {
+        HILOG_WARN("unfocused, invalid focusChangeInfo");
+        return;
+    }
+    HILOG_DEBUG("unfocused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
+
+    if (focusChangeInfo->pid_ <= 0) {
+        return;
+    }
+
+    auto appRecord = GetAppRunningRecordByPid(focusChangeInfo->pid_);
+    if (!appRecord) {
+        HILOG_ERROR("unfocused, no such appRecord, pid:%{public}d", focusChangeInfo->pid_);
+        return;
+    }
+
+    if (appRecord->GetState() != ApplicationState::APP_STATE_FOCUS) {
+        HILOG_WARN("invalid state, not focus, handle nothing.");
+        return;
+    }
+
+    appRecord->Unfocused(focusChangeInfo->abilityToken_);
+    OnAppStateChanged(appRecord, appRecord->GetState(), false);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
 }
 
 void AppMgrServiceInner::PointerDeviceEventCallback(const char *key, const char *value, void *context)

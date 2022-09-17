@@ -46,6 +46,7 @@
 #include "istart_specified_ability_response.h"
 
 #include "want.h"
+#include "window_focus_changed_listener.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -552,6 +553,9 @@ public:
 
     int32_t NotifyHotReloadPage(const std::string &bundleName);
 
+    void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
+    void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
+
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount,
@@ -728,6 +732,9 @@ private:
 
     bool VerifyAPL() const;
 
+    void InitFocusListener();
+    void RegisterFocusListener();
+
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
 private:
@@ -773,6 +780,7 @@ private:
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     std::recursive_mutex confiurtaionObserverLock_;
     std::vector<sptr<IConfigurationObserver>> confiurtaionObservers_;
+    sptr<WindowFocusChangedListener> focusListener_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

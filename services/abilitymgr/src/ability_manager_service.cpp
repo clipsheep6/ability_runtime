@@ -3942,8 +3942,38 @@ int AbilityManagerService::GetAbilityRunningInfos(std::vector<AbilityRunningInfo
     currentMissionListManager_->GetAbilityRunningInfos(info, isPerm);
     connectManager_->GetAbilityRunningInfos(info, isPerm);
     dataAbilityManager_->GetAbilityRunningInfos(info, isPerm);
+    UpdateFocusState(info);
 
     return ERR_OK;
+}
+
+void AbilityManagerService::UpdateFocusState(std::vector<AbilityRunningInfo> &info)
+{
+    if (info.empty()) {
+        return;
+    }
+
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> token;
+    int ret = GetTopAbility(token);
+    if (ret != ERR_OK || token == nullptr) {
+        return;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_WARN("%{public}s abilityRecord is null.", __func__);
+        return;
+    }
+
+    for (auto &item : info) {
+        if (item.uid == abilityRecord->GetUid() && item.pid == abilityRecord->GetPid() &&
+            item.ability == abilityRecord->GetWant().GetElement()) {
+            item.abilityState = static_cast<int>(AbilityState::ACTIVE);
+            break;
+        }
+    }
+#endif
 }
 
 int AbilityManagerService::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info)

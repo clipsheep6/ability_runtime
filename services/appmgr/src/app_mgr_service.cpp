@@ -133,10 +133,11 @@ ErrCode AppMgrService::Init()
         HILOG_ERROR("init failed without inner service");
         return ERR_INVALID_OPERATION;
     }
-    appMgrServiceInner_->Init();
-    handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
 
+    handler_ = std::make_shared<AMSEventHandler>(runner_, appMgrServiceInner_);
     appMgrServiceInner_->SetEventHandler(handler_);
+    appMgrServiceInner_->Init();
+
     ErrCode openErr = appMgrServiceInner_->OpenAppSpawnConnection();
     if (FAILED(openErr)) {
         HILOG_WARN("failed to connect to AppSpawnDaemon! errCode: %{public}08x", openErr);

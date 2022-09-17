@@ -46,6 +46,7 @@ ohos_unittest("app_mgr_service_dump_test") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
   ]
 }
 

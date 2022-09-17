@@ -42,6 +42,7 @@ ohos_unittest("AmsMgrStubTest") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
   ]
 }
 

@@ -174,6 +174,7 @@ public:
     int32_t GetOwnerUserId() const;
     void SetIsSingleUser(bool flag);
     bool IsSingleUser() const;
+    void Unfocused();
 
 private:
     int32_t lastLaunchTime_ = 0;
@@ -183,6 +184,7 @@ private:
     int64_t eventId_ = 0;
     bool isTerminating_ = false;
     AbilityState state_ = AbilityState::ABILITY_STATE_BEGIN;
+    AbilityState lastState_ = AbilityState::ABILITY_STATE_BEGIN;
     std::shared_ptr<AbilityInfo> info_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
     sptr<IRemoteObject> token_;
