@@ -35,6 +35,8 @@ using namespace testing::ext;
 using testing::_;
 using testing::Return;
 using testing::SetArgReferee;
+using ::testing::DoAll;
+
 namespace OHOS {
 namespace AppExecFwk {
 #define CHECK_POINTER_IS_NULLPTR(object) \

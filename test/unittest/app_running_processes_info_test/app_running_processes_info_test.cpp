@@ -45,6 +45,7 @@ using testing::Invoke;
 using testing::InvokeWithoutArgs;
 using testing::Return;
 using testing::SetArgReferee;
+using ::testing::DoAll;
 
 namespace OHOS {
 namespace AppExecFwk {
