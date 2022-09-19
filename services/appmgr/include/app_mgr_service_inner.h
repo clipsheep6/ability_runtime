@@ -425,13 +425,8 @@ public:
 
     void PrepareTerminate(const sptr<IRemoteObject> &token);
 
-    /**
-     * OnAppStateChanged, Application state changed.
-     *
-     * @param appRecord, the app information.
-     * @param state, the app state.
-     */
-    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
+    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
+        bool needNotifyApp);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 

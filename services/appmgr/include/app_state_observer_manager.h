@@ -40,14 +40,16 @@ public:
         const std::vector<std::string> &bundleNameList = {});
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
     void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
-    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
+    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
+        bool needNotifyApp);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void OnProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnRenderProcessDied(const std::shared_ptr<RenderRecord> &renderRecord);
 private:
-    void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
+    void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
+        bool needNotifyApp);
     void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
     void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
