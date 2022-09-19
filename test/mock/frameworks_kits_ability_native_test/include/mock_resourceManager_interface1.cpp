@@ -29,7 +29,7 @@ namespace Resource {
 class ResourceManagerTestInstance : public ResourceManager2 {
 public:
     ResourceManagerTestInstance() {};
-    virtual ~ResourceManagerTestInstance() {};
+    ~ResourceManagerTestInstance() override {};
 
     bool AddResource(const char *path) override
     {

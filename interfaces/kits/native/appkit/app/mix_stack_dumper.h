@@ -31,7 +31,8 @@ class MixStackDumper {
 public:
     MixStackDumper() = default;
     ~MixStackDumper() = default;
-    void InstallDumpHandler(std::shared_ptr<OHOSApplication> application, std::shared_ptr<EventHandler> handler);
+    void InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
+        std::shared_ptr<EventHandler> handler);
 
 private:
     void Init();

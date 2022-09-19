@@ -106,7 +106,8 @@ void MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
     }
 }
 
-void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application, std::shared_ptr<EventHandler> handler)
+void MixStackDumper::InstallDumpHandler(std::shared_ptr<OHOSApplication> application,
+    std::shared_ptr<EventHandler> handler)
 {
     MixStackDumper::signalHandler_ = handler;
     MixStackDumper::application_ = application;

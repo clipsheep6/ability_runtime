@@ -495,7 +495,8 @@ int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &wan
     }
 }
 
-std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &want, const sptr<IRemoteObject> &callerToken)
+std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &want,
+    const sptr<IRemoteObject> &callerToken)
 {
     if (IsCallBySelfBundle()) {
         return std::pair<ErrCode, ErrCode>(ERR_OK, ERR_OK);
@@ -503,7 +504,8 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
         HILOG_ERROR("%{public}s warn, IFormSupply is nullptr", __func__);
-        return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED, ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
+        return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED,
+            ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
     }
     if (!FormProviderClient::CheckIsSystemApp()) {
         HILOG_ERROR("%{public}s warn, caller permission denied.", __func__);
