@@ -893,5 +893,45 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName)
 
     return reply.ReadInt32();
 }
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
+{
+    HILOG_DEBUG("SetContinuousTaskProcess start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("uid write failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteBool(isContinuousTask)) {
+        HILOG_ERROR("isContinuousTask write failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    auto ret = remote->SendRequest(static_cast<uint32_t>(IAppMgr::Message::SET_CONTINUOUSTASK_PROCESS),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

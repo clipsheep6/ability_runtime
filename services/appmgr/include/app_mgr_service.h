@@ -244,6 +244,10 @@ public:
 
     int32_t NotifyHotReloadPage(const std::string &bundleName) override;
 
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;
+#endif
+
 private:
     /**
      * Init, Initialize application services.

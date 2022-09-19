@@ -159,7 +159,6 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
 
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
-    bool isContinuousTask = (want == nullptr) ? false : want->GetIntParam("isContinuousTask", false);
     if (!appRecord) {
         appRecord =
             CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
@@ -170,11 +169,9 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         }
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
-        appRecord->SetContinuousTaskAppState(isContinuousTask);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, appInfo->bundleName, bundleIndex);
     } else {
-        appRecord->SetContinuousTaskAppState(isContinuousTask);
         StartAbility(token, preToken, abilityInfo, appRecord, hapModuleInfo, want);
     }
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
@@ -2802,5 +2799,31 @@ int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName)
 
     return appRunningManager_->NotifyHotReloadPage(bundleName);
 }
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+int32_t AppMgrServiceInner::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
+{
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("callerToken not SA %{public}s", __func__);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!appRunningManager_) {
+        HILOG_ERROR("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    auto appRecord = appRunningManager_->GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        HILOG_ERROR("Get app running record by pid failed. pid: %{public}d", pid);
+        return false;
+    }
+    appRecord->SetContinuousTaskAppState(isContinuousTask);
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
+
+    return ERR_OK;
+}
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

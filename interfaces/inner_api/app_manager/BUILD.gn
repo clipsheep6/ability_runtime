@@ -104,6 +104,10 @@ ohos_shared_library("app_manager") {
     "samgr:samgr_proxy",
   ]
 
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

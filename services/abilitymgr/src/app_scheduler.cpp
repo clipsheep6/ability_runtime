@@ -87,11 +87,6 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
         HILOG_ERROR("AppScheduler fail to LoadAbility. ret %d", ret);
         return INNER_ERR;
     }
-    if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsBackgroundTaskUid(applicationInfo.uid)) {
-        (const_cast<Want &>(want)).SetParam("isContinuousTask", true);
-    } else {
-        (const_cast<Want &>(want)).SetParam("isContinuousTask", false);
-    }
     return ERR_OK;
 }
 
