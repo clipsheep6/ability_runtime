@@ -683,20 +683,8 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
         return;
     }
 
-    uv_work_t *work = new (std::nothrow) uv_work_t;
-    if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work == nullptr.", __func__);
-        return;
-    }
-    OnAbilityCallback *onAbilityCB = new (std::nothrow) OnAbilityCallback;
-    if (onAbilityCB == nullptr) {
-        HILOG_ERROR("%{public}s, onAbilityCB == nullptr.", __func__);
-        if (work != nullptr) {
-            delete work;
-            work = nullptr;
-        }
-        return;
-    }
+    auto work = new uv_work_t;
+    auto onAbilityCB = new OnAbilityCallback;
     onAbilityCB->requestCode = requestCode;
     onAbilityCB->resultCode = resultCode;
     onAbilityCB->resultData = resultData;
@@ -715,9 +703,11 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
                 HILOG_ERROR("%{public}s, uv_queue_work work == nullptr.", __func__);
                 return;
             }
-            OnAbilityCallback *onAbilityCB = static_cast<OnAbilityCallback *>(work->data);
+            auto onAbilityCB = static_cast<OnAbilityCallback *>(work->data);
             if (onAbilityCB == nullptr) {
                 HILOG_ERROR("%{public}s, uv_queue_work onAbilityCB == nullptr.", __func__);
+                delete work;
+                work = nullptr;
                 return;
             }
             napi_value result[ARGS_TWO] = {0};
