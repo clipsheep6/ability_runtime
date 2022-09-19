@@ -13,26 +13,26 @@
 
 import("//build/ohos.gni")
 
-ohos_hap("pageAbilityBundleForStop") {
+ohos_hap("serviceAbilityBundleForStop") {
   hap_profile = "./src/main/config.json"
-  hap_name = "pageAbilityBundleForStop"
+  hap_name = "serviceAbilityBundleForStop"
   subsystem_name = "ability"
   part_name = "ability_runtime"
   final_hap_path = "$root_out_dir/tests/systemtest/ability_tools/tools/resource/aa/${hap_name}.hap"
   testonly = true
   deps = [
-    ":pageAbilityBundleForStop_ets_assets",
-    ":pageAbilityBundleForStop_ets_resources",
+    ":serviceAbilityBundleForStop_ets_assets",
+    ":serviceAbilityBundleForStop_ets_resources",
   ]
   ets2abc = true
   certificate_profile = "../signature/openharmony_sx.p7b"
 }
-ohos_js_assets("pageAbilityBundleForStop_ets_assets") {
+ohos_js_assets("serviceAbilityBundleForStop_ets_assets") {
   source_dir = "./src/main/ets"
   hap_profile = "./src/main/config.json"
   ets2abc = true
 }
-ohos_resources("pageAbilityBundleForStop_ets_resources") {
+ohos_resources("serviceAbilityBundleForStop_ets_resources") {
   sources = [ "./src/main/resources" ]
   hap_profile = "./src/main/config.json"
 }

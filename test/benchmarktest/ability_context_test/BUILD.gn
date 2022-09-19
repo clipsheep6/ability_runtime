@@ -28,6 +28,8 @@ ohos_benchmarktest("BenchmarkTestForAbilityContext") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_path}/test/resource/benchmark/form_test_bundle:formTestWidget1",
+    "${ability_runtime_path}/test/resource/benchmark/ohos_test:copy_ohos_test",
     "//third_party/benchmark:benchmark",
     "//third_party/googletest:gtest_main",
   ]
@@ -39,8 +41,6 @@ ohos_benchmarktest("BenchmarkTestForAbilityContext") {
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
   ]
-  resource_config_file =
-      "${form_fwk_path}/test/resource/benchmark/ohos_test.xml"
 }
 
 group("benchmarktest") {
