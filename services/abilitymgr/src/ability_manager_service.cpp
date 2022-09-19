@@ -94,7 +94,9 @@ const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 using namespace BackgroundTaskMgr;
+#endif
 const bool CONCURRENCY_MODE_FALSE = false;
 const int32_t MAIN_USER_ID = 100;
 const int32_t U0_USER_ID = 0;
