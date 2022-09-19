@@ -214,7 +214,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         }
     }
 
-    if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED) {
+    if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED ||
+        state == ApplicationState::APP_STATE_FOCUS) {
         AppStateData data = WrapAppStateData(appRecord, state);
         HILOG_INFO("OnApplicationStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);

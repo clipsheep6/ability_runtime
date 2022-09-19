@@ -53,6 +53,9 @@ const sptr<IRemoteObject> &AbilityRunningRecord::GetToken() const
 
 void AbilityRunningRecord::SetState(const AbilityState state)
 {
+    if (state_ != AbilityState::ABILITY_STATE_FOCUS) {
+        lastState_ = state_;
+    }
     state_ = state;
 }
 
@@ -149,6 +152,14 @@ void AbilityRunningRecord::SetIsSingleUser(bool flag)
 bool AbilityRunningRecord::IsSingleUser() const
 {
     return isSingleUser_;
+}
+
+void AbilityRunningRecord::Unfocused()
+{
+    if (state_ != AbilityState::ABILITY_STATE_FOCUS) {
+        return;
+    }
+    state_ = lastState_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
