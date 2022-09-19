@@ -51,8 +51,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
     }
 
     AppExecFwk::ElementName connectReceiver = want.GetElement();
-    HILOG_DEBUG("%{public}s begin, connectReceiver: %{public}s.", __func__,
-        (connectReceiver.GetBundleName() + ":" + connectReceiver.GetAbilityName()).c_str());
+    HILOG_DEBUG("%{public}s begin, connectReceiver: %{public}s.", __func__, connectReceiver.GetURI().c_str());
 
     sptr<AbilityConnection> abilityConnection;
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
@@ -68,8 +67,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
         abilityConnections_[item->first] = callbacks;
         abilityConnection = item->first.abilityConnection;
         abilityConnection->AddConnectCallback(connectCallback);
-        HILOG_INFO("%{public}s end, find abilityConnection exist, callbackSize:%{public}zu.",
-            __func__, callbacks.size());
+        HILOG_INFO("find abilityConnection exist, callbackSize:%{public}zu.", callbacks.size());
         if (abilityConnection->GetConnectionState() == CONNECTION_STATE_CONNECTED) {
             connectCallback->OnAbilityConnectDone(connectReceiver, abilityConnection->GetRemoteObject(),
                 abilityConnection->GetResultCode());
@@ -78,8 +76,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
             return ERR_OK;
         } else {
             abilityConnections_.erase(item);
-            HILOG_DEBUG("%{public}s end, not find connection, abilityConnectionsSize:%{public}zu.",
-                __func__, abilityConnections_.size());
+            HILOG_DEBUG("not find connection, abilityConnectionsSize:%{public}zu.", abilityConnections_.size());
             return ERR_INVALID_VALUE;
         }
     } else {
@@ -96,8 +93,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
         } else {
             HILOG_ERROR("%{public}s, Call AbilityManagerService's ConnectAbility error:%{public}d", __func__, ret);
         }
-        HILOG_DEBUG("%{public}s end, not find connection, abilityConnectionsSize:%{public}zu.",
-            __func__, abilityConnections_.size());
+        HILOG_DEBUG("not find connection, abilityConnectionsSize:%{public}zu.", abilityConnections_.size());
         return ret;
     }
 }
@@ -110,8 +106,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("%{public}s begin,, connectReceiver: %{public}s.", __func__,
-        (connectReceiver.GetBundleName() + ":" + connectReceiver.GetAbilityName()).c_str());
+    HILOG_DEBUG("%{public}s begin,, connectReceiver: %{public}s.", __func__, connectReceiver.GetURI().c_str());
 
     auto item = std::find_if(abilityConnections_.begin(), abilityConnections_.end(),
         [&connectCaller, &connectReceiver](
@@ -133,8 +128,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject> &connectC
 
         sptr<AbilityConnection> abilityConnection = item->first.abilityConnection;
 
-        HILOG_INFO("%{public}s end, find abilityConnection exist, abilityConnectionsSize:%{public}zu.",
-            __func__, abilityConnections_.size());
+        HILOG_INFO("find abilityConnection exist, abilityConnectionsSize:%{public}zu.", abilityConnections_.size());
         if (item->second.empty()) {
             abilityConnections_.erase(item);
             HILOG_DEBUG("%{public}s no callback left, so disconnectAbility.", __func__);
