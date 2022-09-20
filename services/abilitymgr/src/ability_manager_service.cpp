@@ -4406,9 +4406,11 @@ int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::Extensio
     abilityInfo.labelId = extensionInfo.labelId;
     abilityInfo.description = extensionInfo.description;
     abilityInfo.descriptionId = extensionInfo.descriptionId;
+    abilityInfo.priority = extensionInfo.priority;
     abilityInfo.permissions = extensionInfo.permissions;
     abilityInfo.readPermission = extensionInfo.readPermission;
     abilityInfo.writePermission = extensionInfo.writePermission;
+    abilityInfo.uri = extensionInfo.uri;
     abilityInfo.extensionAbilityType = extensionInfo.type;
     abilityInfo.visible = extensionInfo.visible;
     abilityInfo.resourcePath = extensionInfo.resourcePath;
