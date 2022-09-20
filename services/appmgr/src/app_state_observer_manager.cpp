@@ -142,7 +142,7 @@ void AppStateObserverManager::OnProcessStateChanged(const std::shared_ptr<AppRun
             return;
         }
         HILOG_INFO("OnProcessStateChanged come.");
-        self->HandleOnAppProcessStateChanged(appRecord);
+        self->HandleOnProcessStateChanged(appRecord);
     };
     handler_->PostTask(task);
 }
@@ -287,20 +287,16 @@ void AppStateObserverManager::HandleOnProcessCreated(const ProcessData &data)
     }
 }
 
-void AppStateObserverManager::HandleOnAppProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     if (!appRecord) {
         HILOG_ERROR("app record is null");
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process State Change, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
-    HandleOnProcessStateChanged(data);
-}
-
-void AppStateObserverManager::HandleOnProcessStateChanged(const ProcessData &data)
-{
+    HILOG_DEBUG("Process State Change, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu,"
+        "isContinuousTask:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size(), data.isContinuousTask);
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),

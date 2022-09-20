@@ -552,5 +552,17 @@ int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName)
 
     return appMgrServiceInner_->NotifyHotReloadPage(bundleName);
 }
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+int32_t AppMgrService::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->SetContinuousTaskProcess(pid, isContinuousTask);
+}
+#endif
 }  // namespace AppExecFwk
 }  // namespace OHOS

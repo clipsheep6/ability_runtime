@@ -556,6 +556,10 @@ public:
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask);
+#endif
+
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount,
