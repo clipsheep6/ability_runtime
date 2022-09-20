@@ -1776,6 +1776,17 @@ int AbilityManagerService::UnregisterObserver(const sptr<AbilityRuntime::IConnec
     return DelayedSingleton<ConnectionStateManager>::GetInstance()->UnregisterObserver(observer);
 }
 
+int AbilityManagerService::GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("can not get dlp connection infos if caller is not sa.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    DelayedSingleton<ConnectionStateManager>::GetInstance()->GetDlpConnectionInfos(infos);
+
+    return ERR_OK;
+}
+
 int AbilityManagerService::RegisterMissionListener(const std::string &deviceId,
     const sptr<IRemoteMissionListener> &listener)
 {
@@ -5042,7 +5053,6 @@ int32_t AbilityManagerService::ShowPickerDialog(
     constexpr char PICKER_DIALOG_ABILITY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
     constexpr char PICKER_DIALOG_ABILITY_NAME[] = "PickerDialog";
     constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
-    
     newWant.SetElementName(PICKER_DIALOG_ABILITY_BUNDLE_NAME, PICKER_DIALOG_ABILITY_NAME);
     newWant.SetParam(TOKEN_KEY, callerToken);
     // note: clear actions

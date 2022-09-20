@@ -22,6 +22,7 @@
 #include "application_state_observer_stub.h"
 #include "connection_state_item.h"
 #include "connection_observer_controller.h"
+#include "dlp_connection_info.h"
 #include "dlp_state_item.h"
 
 namespace OHOS {
@@ -144,6 +145,13 @@ public:
      * @param pid app process pid.
      */
     void HandleAppDied(int32_t pid);
+
+    /**
+     * get exist dlp connection infos.
+     *
+     * @param infos output dlp connection result.
+     */
+    void GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
 
 private:
     bool CheckDataAbilityConnectionParams(const DataAbilityCaller &caller,

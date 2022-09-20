@@ -50,6 +50,9 @@ public:
      */
     bool RemoveDlpConnectionState(const std::shared_ptr<AbilityRecord> &record, AbilityRuntime::DlpStateData &data);
 
+    int32_t GetDlpUid() const;
+    int32_t GetOpenedAbilitySize() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(DlpStateItem);
 

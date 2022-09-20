@@ -21,6 +21,7 @@
 #include <iremote_object.h>
 #include <iremote_stub.h>
 
+#include "dlp_connection_info.h"
 #include "hilog_wrapper.h"
 #include "iconnection_observer.h"
 
@@ -58,6 +59,8 @@ public:
     virtual int RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
 
     virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer);
+
+    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos);
 
 private:
     void FirstStepInit();
@@ -161,6 +164,7 @@ private:
     int UpdateMissionSnapShotInner(MessageParcel &data, MessageParcel &reply);
     int RegisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
     int UnregisterConnectionObserverInner(MessageParcel &data, MessageParcel &reply);
+    int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionIconInner(MessageParcel &data, MessageParcel &reply);

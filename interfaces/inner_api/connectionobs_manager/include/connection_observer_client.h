@@ -17,6 +17,7 @@
 #define ABILITY_RUNTIME_CONNECTION_OBSERVER_CLIENT_H
 
 #include "connection_observer.h"
+#include "dlp_connection_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -50,6 +51,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterObserver(const std::shared_ptr<ConnectionObserver> &observer);
+
+    /**
+     * get exist dlp connection infos.
+     *
+     * @param infos output dlp connection result.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos);
 
 private:
     ConnectionObserverClient();

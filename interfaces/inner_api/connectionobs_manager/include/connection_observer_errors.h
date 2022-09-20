@@ -65,6 +65,11 @@ enum {
      * Result(2228230) for service not init.
      */
     ERR_SERVICE_NOT_INIT,
+
+    /**
+     * Result(2228231) for service invalid info.
+     */
+    ERR_READ_INFO_FAILED,
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -24,6 +24,7 @@ namespace {
 const std::u16string ABILITY_MGR_DESCRIPTOR = u"ohos.aafwk.AbilityManager";
 constexpr uint32_t REGISTER_CONNECTION_OBSERVER = 2502;
 constexpr uint32_t UNREGISTER_CONNECTION_OBSERVER = 2503;
+constexpr uint32_t GET_DLP_CONNECTION_INFOS = 2504;
 }
 int32_t ServiceProxyAdapter::RegisterObserver(const sptr<IConnectionObserver> &observer)
 {
@@ -91,6 +92,47 @@ int32_t ServiceProxyAdapter::UnregisterObserver(const sptr<IConnectionObserver> 
         return error;
     }
     return reply.ReadInt32();
+}
+
+int32_t ServiceProxyAdapter::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
+{
+    if (!remoteObj_) {
+        HILOG_ERROR("GetDlpConnectionInfos, no abilityms proxy.");
+        return ERR_NO_PROXY;
+    }
+
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(ABILITY_MGR_DESCRIPTOR)) {
+        HILOG_ERROR("GetDlpConnectionInfos, write interface token failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    error = remoteObj_->SendRequest(GET_DLP_CONNECTION_INFOS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("GetDlpConnectionInfos, Send request error: %{public}d", error);
+        return error;
+    }
+
+    auto result = reply.ReadInt32();
+    if (result != 0) {
+        HILOG_ERROR("GetDlpConnectionInfos fail, result: %{public}d", result);
+        return result;
+    }
+
+    int32_t infoSize = reply.ReadInt32();
+    for (int32_t i = 0; i < infoSize; i++) {
+        std::unique_ptr<DlpConnectionInfo> info(reply.ReadParcelable<DlpConnectionInfo>());
+        if (info == nullptr) {
+            HILOG_ERROR("Read GetDlpConnectionInfo infos failed");
+            return ERR_READ_INFO_FAILED;
+        }
+        infos.emplace_back(*info);
+    }
+
+    return result;
 }
 
 sptr<IRemoteObject> ServiceProxyAdapter::GetProxyObject() const

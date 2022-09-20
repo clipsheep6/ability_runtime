@@ -491,6 +491,8 @@ public:
 
     virtual int UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer) override;
 
+    virtual int GetDlpConnectionInfos(std::vector<AbilityRuntime::DlpConnectionInfo> &infos) override;
+
     virtual int LockMissionForCleanup(int32_t missionId) override;
 
     virtual int UnlockMissionForCleanup(int32_t missionId) override;
