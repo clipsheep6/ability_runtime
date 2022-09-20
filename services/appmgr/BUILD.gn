@@ -102,6 +102,10 @@ ohos_shared_library("libappms") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
+  if (is_asan) {
+    defines += [ "SUPPORT_ASAN" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

@@ -151,6 +151,11 @@ ohos_shared_library("appkit_native") {
     public_deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
   }
 
+  defines = []
+  if (is_asan) {
+    defines += [ "SUPPORT_ASAN" ]
+  }
+
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
