@@ -588,7 +588,9 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 std::string JsRuntime::BuildJsStackTrace()
 {
     std::string straceStr = "";
+    nativeEngine_->SuspendVM();
     [[maybe_unused]]bool temp = nativeEngine_->BuildJsStackTrace(straceStr);
+    nativeEngine_->ResumeVM();
     return straceStr;
 }
 
