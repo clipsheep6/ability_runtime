@@ -107,6 +107,7 @@ int ConnectionRecord::DisconnectAbility()
         /* schedule disconnect to target ability */
         targetService_->DisconnectAbility();
     } else {
+        targetService_->RemoveConnectRecordFromList(shared_from_this());
         SetConnectState(ConnectionState::DISCONNECTED);
     }
 
