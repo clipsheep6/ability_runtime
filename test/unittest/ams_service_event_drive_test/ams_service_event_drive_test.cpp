@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_app_mgr_service_inner.h"
+#include "mock_native_token.h"
 #include "system_memory_attr.h"
 
 using namespace testing;
@@ -50,7 +51,9 @@ protected:
 };
 
 void AmsServiceEventDriveTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsServiceEventDriveTest::TearDownTestCase()
 {}
