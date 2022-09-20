@@ -328,6 +328,7 @@ group("unittest") {
     "pending_want_manager_test:unittest",
     "pending_want_record_test:unittest",
     "pending_want_test:unittest",
+    "permission_verification_test:unittest",
     "quick_fix:unittest",
     "running_infos_test:unittest",
     "sender_info_test:unittest",
