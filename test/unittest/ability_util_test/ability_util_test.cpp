@@ -83,5 +83,50 @@ HWTEST_F(AbilityUtilTest, HandleDlpApp_0300, TestSize.Level0)
     bool result = AbilityUtil::HandleDlpApp(want);
     EXPECT_TRUE(result);
 }
+
+/**
+ * @tc.name: HandleDlpApp_0400
+ * @tc.desc: HandleDlpApp Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5825N
+ */
+HWTEST_F(AbilityUtilTest, HandleDlpApp_0400, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(AbilityUtil::DLP_PARAMS_SANDBOX, true);
+    want.SetElementName("", "");
+    bool result = AbilityUtil::HandleDlpApp(want);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: HandleDlpApp_0500
+ * @tc.desc: HandleDlpApp Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5826I
+ */
+HWTEST_F(AbilityUtilTest, HandleDlpApp_0500, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(AbilityUtil::DLP_PARAMS_SANDBOX, true);
+    want.SetElementName("", "MainAbility");
+    bool result = AbilityUtil::HandleDlpApp(want);
+    EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: HandleDlpApp_0600
+ * @tc.desc: HandleDlpApp Test
+ * @tc.type: FUNC
+ * @tc.require: issueI583ZA
+ */
+HWTEST_F(AbilityUtilTest, HandleDlpApp_0600, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(AbilityUtil::DLP_PARAMS_SANDBOX, true);
+    want.SetElementName("com.ohos.test", "");
+    bool result = AbilityUtil::HandleDlpApp(want);
+    EXPECT_FALSE(result);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
