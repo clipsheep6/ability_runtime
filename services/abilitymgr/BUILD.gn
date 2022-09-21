@@ -63,6 +63,10 @@ config("abilityms_config") {
 
   defines = []
 
+  if (is_asan) {
+    defines += [ "SUPPORT_ASAN" ]
+  }
+
   if (ability_command_for_test) {
     defines += [ "ABILITY_COMMAND_FOR_TEST" ]
   }

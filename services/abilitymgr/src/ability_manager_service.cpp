@@ -264,9 +264,16 @@ bool AbilityManagerService::Init()
     HILOG_INFO("amsTimeOut is %{public}d", amsTimeOut);
     std::string threadName = std::string(AbilityConfig::NAME_ABILITY_MGR_SERVICE) + "(" +
         std::to_string(eventLoop_->GetThreadId()) + ")";
+#ifdef SUPPORT_ASAN
+    constexpr int32_t timeout = 5 * 60 * 1000; // 5 min
+    if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_, timeout) != 0) {
+        HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
+    }
+#else
     if (HiviewDFX::Watchdog::GetInstance().AddThread(threadName, handler_) != 0) {
         HILOG_ERROR("HiviewDFX::Watchdog::GetInstance AddThread Fail");
     }
+#endif
 #ifdef SUPPORT_GRAPHICS
     DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(amsConfigResolver_->GetDeviceType());
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
