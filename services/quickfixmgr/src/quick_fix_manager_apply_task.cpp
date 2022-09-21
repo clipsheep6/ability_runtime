@@ -35,6 +35,7 @@ constexpr const char *QUICK_FIX_BUNDLE_VERSION_CODE = "bundleVersionCode";
 constexpr const char *QUICK_FIX_PATCH_VERSION_CODE = "patchVersionCode";
 constexpr const char *QUICK_FIX_IS_SO_CONTAINED = "isSoContained";
 constexpr const char *QUICK_FIX_TYPE = "type";
+constexpr const char *QUICK_FIX_MODULE_NAME = "moduleNames";
 
 // common event key
 constexpr const char *APPLY_RESULT = "applyResult";
@@ -391,7 +392,8 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         || (resultJson.find(QUICK_FIX_BUNDLE_VERSION_CODE) == jsonObjectEnd)
         || (resultJson.find(QUICK_FIX_PATCH_VERSION_CODE) == jsonObjectEnd)
         || (resultJson.find(QUICK_FIX_IS_SO_CONTAINED) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_TYPE) == jsonObjectEnd)) {
+        || (resultJson.find(QUICK_FIX_TYPE) == jsonObjectEnd)
+        || (resultJson.find(QUICK_FIX_MODULE_NAME) == jsonObjectEnd)) {
         HILOG_ERROR("Incomplete result.");
         return false;
     }
@@ -405,6 +407,7 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         HILOG_ERROR("Quick fix type is invalid.");
         return false;
     }
+    moduleNames_ = resultJson.at(QUICK_FIX_MODULE_NAME).get<std::vector<std::string>>();
 
     HILOG_INFO("bundleName: %{public}s, bundleVersion: %{public}d, patchVersion: %{public}d, soContained: %{public}d, "
                "type: %{public}d.", bundleName_.c_str(), bundleVersionCode_, patchVersionCode_, isSoContained_,
@@ -436,6 +439,13 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
     want.SetParam(BUNDLE_NAME, bundleName_);
     want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
     want.SetParam(PATCH_VERSION, patchVersionCode_);
+
+    std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
+        [moduleName = moduleNames_](std::string name, const std::string &str) {
+            return (str == moduleName.front()) ? (name + str) : (name + "," + str);
+        });
+    want.SetModuleName(moduleName);
+
     EventFwk::CommonEventData commonData {want};
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
 }
