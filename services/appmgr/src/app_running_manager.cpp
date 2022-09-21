@@ -453,7 +453,12 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_FOREGROUND) {
+        if (!appRecord) {
+            HILOG_ERROR("appRecord is nullptr");
+            return;
+        }
+        auto state = appRecord->GetState();
+        if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
