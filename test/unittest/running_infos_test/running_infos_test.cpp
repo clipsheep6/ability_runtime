@@ -30,6 +30,7 @@
 #include "sa_mgr_client.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
+#include "mock_native_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 
@@ -129,6 +130,7 @@ void RunningInfosTest::SetUpTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+    MockNativeToken::SetNativeToken();
 }
 
 void RunningInfosTest::TearDownTestCase()
