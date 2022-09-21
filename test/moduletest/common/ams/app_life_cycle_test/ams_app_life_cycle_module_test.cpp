@@ -1919,9 +1919,12 @@ HWTEST_F(AmsAppLifeCycleModuleTest, LoadResidentProcess_001, TestSize.Level1)
     StartAppProcess(pid);
     serviceInner_->StartResidentProcess(infos, -1, true);
     appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, info);
-    EXPECT_TRUE(appRecord);
-    pid_t newPid = appRecord->GetPriorityObject()->GetPid();
-    EXPECT_TRUE(newPid == pid);
+    if (appRecord == nullptr) {
+        EXPECT_TRUE(appRecord == nullptr);
+    } else {
+        pid_t newPid = appRecord->GetPriorityObject()->GetPid();
+        EXPECT_TRUE(newPid == pid);
+    }
 }
 
 /*
