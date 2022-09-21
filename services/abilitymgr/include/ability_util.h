@@ -20,6 +20,7 @@
 
 #include "ability_config.h"
 #include "ability_manager_errors.h"
+#include "ability_manager_client.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -38,6 +39,7 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
+const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
 
 static constexpr unsigned int CHANGE_CONFIG_ALL_CHANGED = 0xFFFFFFFF;
 static constexpr unsigned int CHANGE_CONFIG_NONE = 0x00000000;
@@ -186,6 +188,14 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
 
     return false;
+}
+
+inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)
+{
+    Want want;
+    want.SetElementName(MARKET_BUNDLE_NAME, "");
+    want.SetAction(action);
+    return AbilityManagerClient::GetInstance()->StartAbility(want, userId, requestCode);
 }
 }  // namespace AbilityUtil
 }  // namespace AAFwk

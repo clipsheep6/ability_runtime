@@ -26,6 +26,7 @@
 
 #include "ability_connect_manager.h"
 #include "ability_event_handler.h"
+#include "ability_interceptor_executer.h"
 #include "ability_manager_stub.h"
 #include "app_no_response_disposer.h"
 #include "app_scheduler.h"
@@ -1048,10 +1049,6 @@ private:
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
 
-    int CheckCrowdtestForeground(const Want &want, int requestCode, int32_t userId);
-
-    int StartAppgallery(int requestCode, int32_t userId, std::string action);
-
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
      *
@@ -1202,6 +1199,7 @@ private:
     std::shared_ptr<ApplicationAnrListener> anrListener_;
 #endif
     std::shared_ptr<AppNoResponseDisposer> anrDisposer_;
+    std::shared_ptr<AbilityInterceptorExecuter> interceptorExecuter_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

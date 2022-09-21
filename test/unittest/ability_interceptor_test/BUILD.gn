@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("ability_manager_service_crowdtest_test") {
+ohos_unittest("ability_interceptor_test") {
   module_out_path = module_output_path
   cflags_cc = []
   include_dirs = [
@@ -30,7 +30,7 @@ ohos_unittest("ability_manager_service_crowdtest_test") {
   sources = [
     # add mock file
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
-    "ability_manager_service_crowdtest_test.cpp",
+    "ability_interceptor_test.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
@@ -71,5 +71,5 @@ ohos_unittest("ability_manager_service_crowdtest_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_manager_service_crowdtest_test" ]
+  deps = [ ":ability_interceptor_test" ]
 }

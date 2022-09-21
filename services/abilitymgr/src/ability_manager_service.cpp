@@ -31,6 +31,7 @@
 #include <cstdlib>
 
 #include "ability_info.h"
+#include "ability_interceptor.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "application_util.h"
@@ -114,10 +115,7 @@ const int32_t APP_MEMORY_SIZE = 512;
 const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
-const int32_t CROWDTEST_EXPIRED_REFUSED = -1;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
-const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
-const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
@@ -295,6 +293,10 @@ bool AbilityManagerService::Init()
     newRuleExceptLauncherSystemUI_ = CheckNewRuleSwitchState(NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI);
     backgroundJudgeFlag_ = CheckNewRuleSwitchState(BACKGROUND_JUDGE_FLAG);
 
+    interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
+    interceptorExecuter_->AddInterceptor(std::make_shared<DisposedInterceptor>());
+
     HILOG_INFO("Init success.");
     return true;
 }
@@ -390,7 +392,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         return result;
     }
@@ -549,7 +552,8 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_VALUE;
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         return result;
     }
@@ -708,7 +712,8 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
         return ERR_INVALID_VALUE;
     }
 
-    auto result = CheckCrowdtestForeground(want, requestCode, userId);
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         return result;
     }
@@ -979,9 +984,10 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return ERR_INVALID_VALUE;
     }
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: Crowdtest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        return result;
     }
 
     int32_t validUserId = GetValidUserId(userId);
@@ -1009,7 +1015,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return result;
     }
 #endif
-    auto result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
+    result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -1496,9 +1502,10 @@ int AbilityManagerService::ConnectAbilityCommon(
         return CHECK_PERMISSION_FAILED;
     }
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: Crowdtest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        return result;
     }
 
     int32_t validUserId = GetValidUserId(userId);
@@ -3768,9 +3775,10 @@ int AbilityManagerService::StartAbilityByCall(
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_ERROR("%{public}s: CrowdTest expired", __func__);
-        return CROWDTEST_EXPIRED_REFUSED;
+    auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
+        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+    if (result != ERR_OK) {
+        return result;
     }
 
     if (CheckIfOperateRemote(want)) {
@@ -3791,7 +3799,7 @@ int AbilityManagerService::StartAbilityByCall(
     abilityRequest.startSetting = nullptr;
     abilityRequest.want = want;
     abilityRequest.connect = connect;
-    int result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
+    result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
@@ -5069,30 +5077,6 @@ int32_t AbilityManagerService::ShowPickerDialog(
     return StartAbility(newWant, DEFAULT_INVAL_VALUE, userId);
 }
 #endif
-
-int AbilityManagerService::CheckCrowdtestForeground(const Want &want, int requestCode, int32_t userId)
-{
-    if (AAFwk::ApplicationUtil::IsCrowdtestExpired(want, GetUserId())) {
-        HILOG_INFO("%{public}s: Crowdtest expired", __func__);
-#ifdef SUPPORT_GRAPHICS
-        int ret = StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("%{public}s: Crowdtest implicit start appgallery failed", __func__);
-            return ret;
-        }
-#endif
-        return CROWDTEST_EXPIRED_REFUSED;
-    }
-    return ERR_OK;
-}
-
-int AbilityManagerService::StartAppgallery(int requestCode, int32_t userId, std::string action)
-{
-    Want want;
-    want.SetElementName(MARKET_BUNDLE_NAME, "");
-    want.SetAction(action);
-    return StartAbilityInner(want, nullptr, requestCode, -1, userId);
-}
 
 bool AbilityManagerService::CheckWindowMode(int32_t windowMode,
     const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const

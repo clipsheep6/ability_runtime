@@ -27,6 +27,7 @@ ohos_unittest("ability_util_test") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "hiviewdfx_hilog_native:libhilog",
   ]

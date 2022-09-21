@@ -58,7 +58,19 @@ bool BundleMgrProxy::GetApplicationInfo(
     }
     appInfo.name = "Helloworld";
     appInfo.bundleName = "com.ix.hiworld";
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
+}
+
+int32_t BundleMgrProxy::GetDisposedStatus(const std::string &bundleName)
+{
+    if (bundleName.compare("com.test.disposed") == 0) {
+        return -1;
+    }
+    return 0;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -160,6 +172,10 @@ bool BundleMgrService::GetApplicationInfo(
     appInfo.name = appName;
     appInfo.bundleName = appName;
     appInfo.uid = userId * BASE_USER_RANGE;
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
 }
 
