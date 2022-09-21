@@ -32,6 +32,7 @@
 #include "mock_app_spawn_client.h"
 #include "mock_app_spawn_socket.h"
 #include "mock_iapp_state_callback.h"
+#include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -109,7 +110,9 @@ protected:
 };
 
 void AmsAppLifeCycleModuleTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsAppLifeCycleModuleTest::TearDownTestCase()
 {}
@@ -1916,9 +1919,12 @@ HWTEST_F(AmsAppLifeCycleModuleTest, LoadResidentProcess_001, TestSize.Level1)
     StartAppProcess(pid);
     serviceInner_->StartResidentProcess(infos, -1, true);
     appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(appName, proc, uid, info);
-    EXPECT_TRUE(appRecord);
-    pid_t newPid = appRecord->GetPriorityObject()->GetPid();
-    EXPECT_TRUE(newPid == pid);
+    if (appRecord == nullptr) {
+        EXPECT_TRUE(appRecord == nullptr);
+    } else {
+        pid_t newPid = appRecord->GetPriorityObject()->GetPid();
+        EXPECT_TRUE(newPid == pid);
+    }
 }
 
 /*
