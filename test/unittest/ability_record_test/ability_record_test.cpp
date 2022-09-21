@@ -172,6 +172,11 @@ HWTEST_P(AbilityRecordTest, AaFwk_AbilityMS_SetGetAbilityState, TestSize.Level1)
     abilityRecord_->SetAbilityState(state);
     EXPECT_EQ(static_cast<int>(state), static_cast<int>(abilityRecord_->GetAbilityState()));
 }
+INSTANTIATE_TEST_SUITE_P(AbilityRecordTestCaseP, AbilityRecordTest,
+    testing::Values(AbilityState::INITIAL, AbilityState::INACTIVE, AbilityState::ACTIVE, AbilityState::INACTIVATING,
+                    AbilityState::ACTIVATING, AbilityState::TERMINATING, AbilityState::FOREGROUND,
+                    AbilityState::BACKGROUND, AbilityState::FOREGROUNDING, AbilityState::BACKGROUNDING,
+                    AbilityState::FOREGROUND_FAILED, AbilityState::FOREGROUND_INVALID_MODE));
 
 /*
  * Feature: AbilityRecord
