@@ -32,6 +32,7 @@
 #include "mock_app_spawn_client.h"
 #include "mock_app_spawn_socket.h"
 #include "mock_iapp_state_callback.h"
+#include "mock_native_token.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -109,7 +110,9 @@ protected:
 };
 
 void AmsAppLifeCycleModuleTest::SetUpTestCase()
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AmsAppLifeCycleModuleTest::TearDownTestCase()
 {}
