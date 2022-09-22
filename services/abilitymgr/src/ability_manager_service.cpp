@@ -919,14 +919,15 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
     if (abilityInfo.type == AppExecFwk::AbilityType::PAGE &&
         abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         std::vector<AppExecFwk::RunningProcessInfo> runningProcessInfos;
-        int ret = IN_PROCESS_CALL(GetProcessRunningInfos(runningProcessInfos));
-        if (ret != ERR_OK) {
+        if (IN_PROCESS_CALL(GetProcessRunningInfos(runningProcessInfos)) != ERR_OK) {
             return;
         }
         bool isColdStart = true;
+        int32_t pid = 0;
         for (auto const &info : runningProcessInfos) {
             if (info.uid_ == abilityInfo.applicationInfo.uid) {
                 isColdStart = false;
+                pid = info.pid_;
                 break;
             }
         }
@@ -934,7 +935,8 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
             { "name", "ability_start" },
             { "uid", std::to_string(abilityInfo.applicationInfo.uid) },
             { "bundleName", abilityInfo.applicationInfo.bundleName },
-            { "abilityName", abilityInfo.name }
+            { "abilityName", abilityInfo.name },
+            { "pid", std::to_string(pid) }
         };
         ResourceSchedule::ResSchedClient::GetInstance().ReportData(
             ResourceSchedule::ResType::RES_TYPE_APP_ABILITY_START, isColdStart ? 1 : 0, eventParams);
