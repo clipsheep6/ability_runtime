@@ -209,6 +209,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
                 it->first->OnForegroundApplicationChanged(data);
             }
             if (valid && needNotifyApp) {
+                HILOG_DEBUG("notify app, name:%{public}s, uid:%{public}d, state:%{public}d",
+                    data.bundleName.c_str(), data.uid, data.state);
                 it->first->OnAppStateChanged(data);
             }
         }
@@ -223,8 +225,14 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
             std::vector<std::string>::iterator iter = std::find(it->second.begin(),
                 it->second.end(), data.bundleName);
-            if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
+            bool valid = (it->second.empty() || iter != it->second.end()) && it->first != nullptr;
+            if (valid) {
                 it->first->OnApplicationStateChanged(data);
+            }
+            if (valid && needNotifyApp) {
+                HILOG_DEBUG("notify app, name:%{public}s, uid:%{public}d, state:%{public}d",
+                    data.bundleName.c_str(), data.uid, data.state);
+                it->first->OnAppStateChanged(data);
             }
         }
     }
