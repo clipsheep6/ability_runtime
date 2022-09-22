@@ -321,6 +321,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         HILOG_ERROR("wrong app state:%{public}d", appRecord->GetState());
         return;
     }
+
     appRecord->LaunchApplication(*configuration_);
     appRecord->SetState(ApplicationState::APP_STATE_READY);
 
@@ -2253,6 +2254,11 @@ void AppMgrServiceInner::GetGlobalConfiguration()
     std::string hasPointerDevice = system::GetParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
     HILOG_INFO("current hasPointerDevice is %{public}s", hasPointerDevice.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, hasPointerDevice);
+
+    // Get DeviceType
+    std::string deviceType = system::GetParameter(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, ConfigurationInner::DEVICE_TYPE_DEFAULT);
+    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    configuration_->AddItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, deviceType);
 }
 
 std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration()

@@ -31,6 +31,7 @@ public:
     AbilityContextImpl() = default;
     virtual ~AbilityContextImpl() = default;
 
+    Global::Resource::DeviceType GetDeviceType() const override;
     std::string GetBaseDir() const override;
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;

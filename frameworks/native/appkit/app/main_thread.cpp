@@ -751,8 +751,7 @@ bool MainThread::CheckForHandleLaunchApplication(const AppLaunchData &appLaunchD
 }
 
 bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
-    std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, BundleInfo& bundleInfo,
-    const Configuration &config)
+    BundleInfo& bundleInfo, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::vector<std::string> resPaths;
@@ -790,6 +789,9 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     HILOG_DEBUG("hasPointerDevice is %{public}s.", hasPointerDevice.c_str());
     resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
 #endif
+    std::string deviceType = config.GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
+    HILOG_DEBUG("deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(), ConvertDeviceType(deviceType));
+    resConfig->SetDeviceType(ConvertDeviceType(deviceType));
     resourceManager->UpdateResConfig(*resConfig);
     return true;
 }
@@ -909,7 +911,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     HILOG_INFO("stageBased:%{public}d moduleJson:%{public}d size:%{public}zu",
         isStageBased, moduelJson, bundleInfo.hapModuleInfos.size());
 
-    if (!InitResourceManager(resourceManager, contextDeal, appInfo, bundleInfo, config)) {
+    if (!InitResourceManager(resourceManager, bundleInfo, config)) {
         HILOG_ERROR("MainThread::handleLaunchApplication InitResourceManager failed");
         return;
     }

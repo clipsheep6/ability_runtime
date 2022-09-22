@@ -333,5 +333,10 @@ std::string ApplicationContext::GetBaseDir() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetBaseDir() : nullptr;
 }
+
+Global::Resource::DeviceType ApplicationContext::GetDeviceType() const
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
