@@ -59,10 +59,10 @@ private:
             return engine.CreateNull();
         }
 
-        static thread_local std::unique_ptr<NativeReference> reference;
+        static thread_local NativeReference *reference = nullptr;
         if (!reference) {
             auto value = CreateJsAbilityDelegator(engine);
-            reference.reset(engine.CreateReference(value, 1));
+            reference = engine.CreateReference(value, 1);
         }
 
         return reference->Get();
