@@ -232,11 +232,13 @@ void ConnectionObserverClientImpl::ResetStatus()
 {
     std::lock_guard<std::recursive_mutex> guard(observerLock_);
     isRegistered_ = false;
+    userObservers_.clear();
 }
 
 void ConnectionObserverClientImpl::NotifyServiceDiedToObservers()
 {
     auto observers = GetObservers();
+    ResetStatus();
     for (auto it = observers.begin(); it != observers.end(); ++it) {
         auto observer = *it;
         if (observer) {
