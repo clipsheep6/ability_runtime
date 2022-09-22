@@ -285,11 +285,11 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         HILOG_ERROR("no such appRecord");
         return;
     }
-    appRecord->SetApplicationClient(app);
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
     appRecord->RegisterAppDeathRecipient();
+    appRecord->SetApplicationClient(app);
     AAFWK::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
