@@ -29,7 +29,7 @@ constexpr uint32_t MAIN_THREAD_IS_ALIVE = 0;
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 #ifdef SUPPORT_ASAN
-constexpr uint32_t CHECK_INTERVAL_TIME = 15000;
+constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
 #else
 constexpr uint32_t CHECK_INTERVAL_TIME = 3000;
 #endif

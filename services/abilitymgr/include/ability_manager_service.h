@@ -814,20 +814,20 @@ public:
     static constexpr uint32_t BACKGROUND_TIMEOUT_MSG = 6;
 
 #ifdef SUPPORT_ASAN
-    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 50000; // ms
-    static constexpr uint32_t LOAD_TIMEOUT = 50000;            // ms
-    static constexpr uint32_t ACTIVE_TIMEOUT = 25000;          // ms
-    static constexpr uint32_t INACTIVE_TIMEOUT = 2500;         // ms
-    static constexpr uint32_t TERMINATE_TIMEOUT = 50000;      // ms
-    static constexpr uint32_t CONNECT_TIMEOUT = 15000;         // ms
-    static constexpr uint32_t DISCONNECT_TIMEOUT = 2500;       // ms
-    static constexpr uint32_t COMMAND_TIMEOUT = 25000;         // ms
-    static constexpr uint32_t RESTART_TIMEOUT = 25000;         // ms
-    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 2500;  // ms
-    static constexpr uint32_t FOREGROUND_TIMEOUT = 25000;   // ms
-    static constexpr uint32_t BACKGROUND_TIMEOUT = 15000;   // ms
-    static constexpr uint32_t DUMP_TIMEOUT = 5000;            // ms
-    static constexpr uint32_t KILL_TIMEOUT = 15000;           // ms
+    static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 150000; // ms
+    static constexpr uint32_t LOAD_TIMEOUT = 150000;            // ms
+    static constexpr uint32_t ACTIVE_TIMEOUT = 75000;          // ms
+    static constexpr uint32_t INACTIVE_TIMEOUT = 7500;         // ms
+    static constexpr uint32_t TERMINATE_TIMEOUT = 150000;      // ms
+    static constexpr uint32_t CONNECT_TIMEOUT = 45000;         // ms
+    static constexpr uint32_t DISCONNECT_TIMEOUT = 7500;       // ms
+    static constexpr uint32_t COMMAND_TIMEOUT = 75000;         // ms
+    static constexpr uint32_t RESTART_TIMEOUT = 75000;         // ms
+    static constexpr uint32_t RESTART_ABILITY_TIMEOUT = 7500;  // ms
+    static constexpr uint32_t FOREGROUND_TIMEOUT = 75000;   // ms
+    static constexpr uint32_t BACKGROUND_TIMEOUT = 45000;   // ms
+    static constexpr uint32_t DUMP_TIMEOUT = 15000;            // ms
+    static constexpr uint32_t KILL_TIMEOUT = 45000;           // ms
 #else
     static constexpr uint32_t COLDSTART_LOAD_TIMEOUT = 10000; // ms
     static constexpr uint32_t LOAD_TIMEOUT = 10000;            // ms
