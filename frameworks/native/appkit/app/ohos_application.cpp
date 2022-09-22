@@ -571,6 +571,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     auto stageContext = std::make_shared<AbilityRuntime::ContextImpl>();
     stageContext->SetParentContext(abilityRuntimeContext_);
     stageContext->InitHapModuleInfo(hapModuleInfo);
+    stageContext->SetConfiguration(GetConfiguration());
     auto moduleInfo = stageContext->GetHapModuleInfo();
     if (moduleInfo == nullptr) {
         HILOG_ERROR("OHOSApplication::%{public}s: moduleInfo is nullptr", __func__);

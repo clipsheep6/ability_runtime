@@ -221,6 +221,13 @@ public:
     virtual std::string GetBaseDir() const = 0;
 
     /**
+     * @brief Obtains the Device Type.
+     *
+     * @return Returns the Device Type.
+     */
+    virtual Global::Resource::DeviceType GetDeviceType() const = 0;
+
+    /**
      * @brief Getting derived class
      *
      * @tparam T template

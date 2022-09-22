@@ -254,6 +254,13 @@ public:
      */
     std::string GetBaseDir() const override;
 
+    /**
+     * @brief Obtains the Device Type.
+     *
+     * @return Returns the Device Type.
+     */
+    Global::Resource::DeviceType GetDeviceType() const override;
+
     static const int EL_DEFAULT = 1;
 
 protected:
@@ -288,6 +295,7 @@ private:
     int GetCurrentActiveAccountId() const;
     void CreateDirIfNotExist(const std::string& dirPath) const;
 
+    static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
     std::shared_ptr<Context> parentContext_ = nullptr;
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
