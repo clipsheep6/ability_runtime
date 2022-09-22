@@ -19,9 +19,15 @@ module_output_path = "ability_runtime/mstabilitymgrservice"
 ohos_moduletest("app_mgr_client_test") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${ability_runtime_test_path}/moduletest/mock/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/moduletest/mock/include",
+  ]
 
-  sources = [ "app_mgr_client_test.cpp" ]
+  sources = [
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
+    "app_mgr_client_test.cpp",
+  ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 
@@ -35,6 +41,8 @@ ohos_moduletest("app_mgr_client_test") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:app_manager",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",

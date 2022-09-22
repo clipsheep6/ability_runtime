@@ -19,6 +19,7 @@
 #include "configuration.h"
 #include "hilog_wrapper.h"
 #include "mock_configuration_observer.h"
+#include "mock_native_token.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -39,7 +40,9 @@ public:
 };
 
 void AppMgrClientTest::SetUpTestCase(void)
-{}
+{
+    MockNativeToken::SetNativeToken();
+}
 
 void AppMgrClientTest::TearDownTestCase(void)
 {}
