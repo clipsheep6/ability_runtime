@@ -26,13 +26,10 @@
 #include "iremote_stub.h"
 #include "want.h"
 
-namespace {
-const int32_t ERROR_USER_ID_U256 = 256;
-const int32_t USER_ID_U600 = 600;
-}
-
 namespace OHOS {
 namespace AppExecFwk {
+const int32_t ERROR_USER_ID_U256 = 256;
+const int32_t USER_ID_U600 = 600;
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
     explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)

@@ -19,6 +19,9 @@
 #include "ability_info.h"
 #include "application_info.h"
 #include "hilog_wrapper.h"
+namespace {
+const int32_t HQF_VERSION_CODE = 1000;
+}
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -26,7 +29,7 @@ namespace {
 void ConstructHqfInfo(BundleInfo &bundleInfo)
 {
     std::vector<HqfInfo> hqfInfos;
-    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = 1000;
+    bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.versionName = "1.0.0";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.cpuAbi = "armeabi-v7a";
     bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath = "/data/testQuickFix/native-path";
@@ -53,7 +56,7 @@ void ConstructHqfInfo(BundleInfo &bundleInfo)
     hapModuleInfos.push_back(moduleInfo1);
     hapModuleInfos.push_back(moduleInfo2);
     bundleInfo.hapModuleInfos = hapModuleInfos;
-    bundleInfo.versionCode = 1000;
+    bundleInfo.versionCode = HQF_VERSION_CODE;
     bundleInfo.versionName = "1.0.0";
 }
 } // namespace

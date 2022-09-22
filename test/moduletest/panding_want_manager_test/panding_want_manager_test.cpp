@@ -411,7 +411,8 @@ HWTEST_F(PandingWantManagerTest, pending_want_mgr_test_007, TestSize.Level1)
         .WillOnce(Invoke(amsProxyGetWantSenderReturn))
         .WillOnce(Invoke(amsProxyGetWantSenderReturn));
 
-    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender> &sender, const sptr<IWantReceiver> &recevier) {
+    auto amsProxyRegisterCancelListener = [&abilityManager](const sptr<IWantSender> &sender,
+        const sptr<IWantReceiver> &recevier) {
         return abilityManager->RegisterCancelListener(sender, recevier);
     };
     EXPECT_CALL(*amsSerice, RegisterCancelListener(_, _)).Times(1).WillOnce(Invoke(amsProxyRegisterCancelListener));
