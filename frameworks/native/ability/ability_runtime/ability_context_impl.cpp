@@ -45,6 +45,11 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 std::mutex AbilityContextImpl::mutex_;
 std::map<int, PermissionRequestTask> AbilityContextImpl::permissionRequestCallbacks;
 
+Global::Resource::DeviceType AbilityContextImpl::GetDeviceType() const
+{
+    return (stageContext_ != nullptr) ? stageContext_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
+}
+
 std::string AbilityContextImpl::GetBaseDir() const
 {
     return stageContext_ ? stageContext_->GetBaseDir() : "";

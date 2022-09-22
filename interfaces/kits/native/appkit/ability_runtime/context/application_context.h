@@ -73,6 +73,7 @@ public:
     int GetArea() override;
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration() const override;
     std::string GetBaseDir() const override;
+    Global::Resource::DeviceType GetDeviceType() const override;
 
     void InitApplicationContext();
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
