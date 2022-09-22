@@ -21,7 +21,7 @@ namespace OHOS {
 namespace AAFwk {
 using namespace OHOS::AppExecFwk;
 namespace {
-const std::string THREAD_NAME = "mission_listener";
+const std::string THREAD_NAME = "MissionListener";
 }
 using Cmd = IMissionListener::MissionListenerCmd;
 
