@@ -301,6 +301,11 @@ std::string AbilityRecord::GetLabel()
 {
     std::string strLabel = applicationInfo_.label;
 
+    if (abilityInfo_.resourcePath.empty()) {
+        HILOG_WARN("resource path is empty.");
+        return strLabel;
+    }
+
 #ifdef SUPPORT_GRAPHICS
     auto resourceMgr = CreateResourceManager(abilityInfo_);
     if (!resourceMgr) {
