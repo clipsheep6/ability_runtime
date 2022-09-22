@@ -22,8 +22,8 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace OHOS::Rosen;
 
-WindowFocusChangedListener::WindowFocusChangedListener(
-    const std::shared_ptr<AppMgrServiceInner> &owner) : owner_(owner) {}
+WindowFocusChangedListener::WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner> &owner,
+    const std::shared_ptr<AMSEventHandler>& handler) : owner_(owner), eventHandler_(handler) {}
 
 WindowFocusChangedListener::~WindowFocusChangedListener() {}
 
@@ -34,13 +34,17 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
         return;
     }
 
-    auto owner = owner_.lock();
-    if (!owner) {
-        HILOG_WARN("OnFocused failed to get app mgr service inner.");
-        return;
+    if (eventHandler_) {
+        auto task = [inner = owner_, focusChangeInfo] {
+            auto owner = inner.lock();
+            if (!owner) {
+                HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
+                return;
+            }
+            owner->HandleFocused(focusChangeInfo);
+        };
+        eventHandler_->PostTask(task);
     }
-
-    owner->HandleFocused(focusChangeInfo);
 }
 
 void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusChangeInfo)
@@ -50,12 +54,17 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
         return;
     }
 
-    auto owner = owner_.lock();
-    if (!owner) {
-        HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
-        return;
+    if (eventHandler_) {
+        auto task = [inner = owner_, focusChangeInfo] {
+            auto owner = inner.lock();
+            if (!owner) {
+                HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
+                return;
+            }
+            owner->HandleUnfocused(focusChangeInfo);
+        };
+        eventHandler_->PostTask(task);
     }
-    owner->HandleUnfocused(focusChangeInfo);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

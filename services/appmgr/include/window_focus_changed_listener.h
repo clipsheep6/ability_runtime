@@ -22,9 +22,11 @@
 namespace OHOS {
 namespace AppExecFwk {
 class AppMgrServiceInner;
+class AMSEventHandler;
 class WindowFocusChangedListener : public OHOS::Rosen::IFocusChangedListener {
 public:
-    explicit WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner> &owner);
+    WindowFocusChangedListener(const std::shared_ptr<AppMgrServiceInner>& owner,
+        const std::shared_ptr<AMSEventHandler>& handler);
     virtual ~WindowFocusChangedListener();
 
     void OnFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo) override;
@@ -32,6 +34,7 @@ public:
 
 private:
     std::weak_ptr<AppMgrServiceInner> owner_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

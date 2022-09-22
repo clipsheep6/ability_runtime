@@ -2648,7 +2648,7 @@ void AppMgrServiceInner::InitFocusListener()
         return;
     }
 
-    focusListener_ = new WindowFocusChangedListener(shared_from_this());
+    focusListener_ = new WindowFocusChangedListener(shared_from_this(), eventHandler_);
     auto registerTask = [innerService = shared_from_this()]() {
         if (innerService) {
             HILOG_INFO("RegisterFocusListener task");
