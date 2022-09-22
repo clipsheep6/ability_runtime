@@ -120,5 +120,20 @@ HWTEST_F(MainThreadTest, GetHqfFileAndHapPath_0100, TestSize.Level1)
     EXPECT_EQ(fileMap[1].second, "/data/storage/el1/bundle/entry2");
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: ScheduleNotifyUnLoadRepairPatch_0100
+ * @tc.desc: schedule notify unload repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(MainThreadTest, ScheduleNotifyUnLoadRepairPatch_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::string bundleName;
+    auto ret = mainThread_->ScheduleNotifyUnLoadRepairPatch(bundleName);
+    EXPECT_EQ(ret, NO_ERROR);
+    HILOG_INFO("%{public}s end.", __func__);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

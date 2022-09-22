@@ -1938,7 +1938,8 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
         std::vector<std::pair<std::string, std::string>> hqfFilePair;
         if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
             for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
-                HILOG_INFO("hqfFile: %{private}s, hapPath: %{private}s.", it->first.c_str(), it->second.c_str());
+                HILOG_INFO("LoadPatch, hqfFile: %{private}s, hapPath: %{private}s.",
+                    it->first.c_str(), it->second.c_str());
                 appThread->application_->NotifyLoadRepairPatch(it->first, it->second);
             }
         } else {
@@ -2020,6 +2021,36 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
     }
 
     return true;
+}
+
+int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    wptr<MainThread> weak = this;
+    auto task = [weak, bundleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr || appThread->application_ == nullptr) {
+            HILOG_ERROR("app thread or application is nullptr.");
+            return;
+        }
+
+        std::vector<std::pair<std::string, std::string>> hqfFilePair;
+        if (appThread->GetHqfFileAndHapPath(bundleName, hqfFilePair)) {
+            for (auto it = hqfFilePair.begin(); it != hqfFilePair.end(); it++) {
+                HILOG_INFO("UnloadPatch, hqfFile: %{private}s.", it->first.c_str());
+                appThread->application_->NotifyUnLoadRepairPatch(it->first);
+            }
+        } else {
+            HILOG_DEBUG("There's no hqfFile need to unload.");
+        }
+    };
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task)) {
+        HILOG_ERROR("Post task failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

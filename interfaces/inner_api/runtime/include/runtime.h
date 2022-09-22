@@ -66,6 +66,7 @@ public:
     virtual void FinishPreload() = 0;
     virtual void LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) = 0;
     virtual void NotifyHotReloadPage() = 0;
+    virtual void UnLoadRepairPatch(const std::string& patchFile) = 0;
 
     Runtime(const Runtime&) = delete;
     Runtime(Runtime&&) = delete;

@@ -527,6 +527,8 @@ public:
 
     int32_t NotifyHotReloadPage();
 
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+
     bool IsContinuousTask();
 
     void SetContinuousTaskAppState(bool isContinuousTask);

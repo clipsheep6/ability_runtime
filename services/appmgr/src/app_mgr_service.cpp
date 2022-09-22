@@ -564,5 +564,15 @@ int32_t AppMgrService::SetContinuousTaskProcess(int32_t pid, bool isContinuousTa
     return appMgrServiceInner_->SetContinuousTaskProcess(pid, isContinuousTask);
 }
 #endif
+
+int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

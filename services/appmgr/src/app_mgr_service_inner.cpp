@@ -2831,5 +2831,17 @@ int32_t AppMgrServiceInner::SetContinuousTaskProcess(int32_t pid, bool isContinu
     return ERR_OK;
 }
 #endif
+
+int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appRunningManager_->NotifyUnLoadRepairPatch(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -267,6 +267,14 @@ public:
      */
     virtual int32_t NotifyHotReloadPage(const std::string &bundleName) = 0;
 
+    /**
+     * @brief Notify application unload patch.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t NotifyUnLoadRepairPatch(const std::string &bundleName) = 0;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     /**
      * @brief Set whether the process is continuousTask.
@@ -314,6 +322,7 @@ public:
         NOTIFY_LOAD_REPAIR_PATCH,
         NOTIFY_HOT_RELOAD_PAGE,
         SET_CONTINUOUSTASK_PROCESS,
+        NOTIFY_UNLOAD_REPAIR_PATCH,
     };
 };
 }  // namespace AppExecFwk

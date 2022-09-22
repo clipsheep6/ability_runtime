@@ -284,6 +284,8 @@ public:
 
     void NotifyHotReloadPage();
 
+    void NotifyUnLoadRepairPatch(const std::string &hqfFile);
+
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;

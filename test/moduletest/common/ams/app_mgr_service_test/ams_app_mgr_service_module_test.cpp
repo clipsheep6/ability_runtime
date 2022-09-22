@@ -79,6 +79,10 @@ public:
     {
         return 0;
     }
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override
+    {
+        return 0;
+    }
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:

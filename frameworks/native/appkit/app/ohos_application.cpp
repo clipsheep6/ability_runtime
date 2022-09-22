@@ -667,5 +667,15 @@ void OHOSApplication::NotifyHotReloadPage()
 
     runtime_->NotifyHotReloadPage();
 }
+
+void OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
+{
+    if (runtime_ == nullptr) {
+        HILOG_DEBUG("runtime is nullptr.");
+        return;
+    }
+
+    runtime_->UnLoadRepairPatch(hqfFile);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

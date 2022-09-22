@@ -603,14 +603,18 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName)
     HILOG_DEBUG("function called.");
     std::lock_guard<std::recursive_mutex> guard(lock_);
     int32_t result = ERR_OK;
+    bool loadSucceed = false;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Notify application [%{public}s] load patch.", appRecord->GetProcessName().c_str());
             result = appRecord->NotifyLoadRepairPatch(bundleName);
+            if (result == ERR_OK) {
+                loadSucceed = true;
+            }
         }
     }
-    return result;
+    return loadSucceed == true ? ERR_OK : result;
 }
 
 int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
@@ -627,6 +631,26 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName)
         }
     }
     return result;
+}
+
+int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    bool unLoadSucceed = false;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            HILOG_DEBUG("Notify application [%{public}s] unload patch.", appRecord->GetProcessName().c_str());
+            result = appRecord->NotifyUnLoadRepairPatch(bundleName);
+            if (result == ERR_OK) {
+                unLoadSucceed = true;
+            }
+        }
+    }
+    return unLoadSucceed == true ? ERR_OK : result;
 }
 
 bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
