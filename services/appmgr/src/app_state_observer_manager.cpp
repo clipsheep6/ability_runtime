@@ -198,8 +198,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
 
     if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
         AppStateData data = WrapAppStateData(appRecord, state);
-        HILOG_DEBUG("OnForegroundApplicationChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
-            data.bundleName.c_str(), data.uid, data.state);
+        HILOG_DEBUG("HandleAppStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
+            data.bundleName.c_str(), data.uid, data.state, needNotifyApp);
         std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
         for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
             std::vector<std::string>::iterator iter = std::find(it->second.begin(),

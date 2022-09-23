@@ -793,6 +793,11 @@ void AppRunningRecord::AbilityFocused(const std::shared_ptr<AbilityRunningRecord
         return;
     }
 
+    // background to focus, schedule application to foreground.
+    if (lastState_ == ApplicationState::APP_STATE_BACKGROUND) {
+        ScheduleForegroundRunning();
+    }
+
     // change ability state to focus.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
     if (!moduleRecord) {
