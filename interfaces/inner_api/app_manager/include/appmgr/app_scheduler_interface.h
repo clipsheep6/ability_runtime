@@ -148,11 +148,19 @@ public:
     virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName) = 0;
 
     /**
-     * @brief Notify application relaod page.
+     * @brief Notify application reload page.
      *
      * @return Returns 0 on success, error code on failure.
      */
     virtual int32_t ScheduleNotifyHotReloadPage() = 0;
+
+    /**
+     * @brief Notify application unload patch.
+     *
+     * @param bundleName Bundle name
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) = 0;
 
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
@@ -171,6 +179,7 @@ public:
         SCHEDULE_MEMORYLEVEL_APPLICATION_TRANSACTION,
         SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
+        SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
     };
 };
 }  // namespace AppExecFwk

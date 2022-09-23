@@ -144,5 +144,27 @@ HWTEST_F(AppMgrProxyTest, NotifyHotReloadPage_0100, TestSize.Level0)
 
     HILOG_INFO("%{public}s end", __func__);
 }
+
+/**
+ * @tc.name: NotifyUnLoadRepairPatch_0100
+ * @tc.desc: Notify unload repair patch.
+ * @tc.type: FUNC
+ * @tc.require: issueI581VW
+ */
+HWTEST_F(AppMgrProxyTest, NotifyUnLoadRepairPatch_0100, TestSize.Level0)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    appMgrProxy_->NotifyUnLoadRepairPatch(bundleName);
+
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(IAppMgr::Message::NOTIFY_UNLOAD_REPAIR_PATCH));
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

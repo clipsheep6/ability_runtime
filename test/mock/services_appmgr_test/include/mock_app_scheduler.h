@@ -45,6 +45,7 @@ public:
     MOCK_METHOD2(ScheduleAcceptWant, void(const AAFwk::Want &want, const std::string &moduleName));
     MOCK_METHOD1(ScheduleNotifyLoadRepairPatch, int32_t(const std::string &bundleName));
     MOCK_METHOD0(ScheduleNotifyHotReloadPage, int32_t());
+    MOCK_METHOD1(ScheduleNotifyUnLoadRepairPatch, int32_t(const std::string &bundleName));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

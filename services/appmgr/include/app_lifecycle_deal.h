@@ -155,6 +155,8 @@ public:
 
     int32_t NotifyHotReloadPage();
 
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+
 private:
     sptr<IAppScheduler> appThread_ = nullptr;
 };

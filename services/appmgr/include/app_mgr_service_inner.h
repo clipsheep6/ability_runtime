@@ -553,6 +553,8 @@ public:
 
     int32_t NotifyHotReloadPage(const std::string &bundleName);
 
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+
     void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 

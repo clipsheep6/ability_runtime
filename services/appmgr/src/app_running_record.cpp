@@ -1238,6 +1238,17 @@ int32_t AppRunningRecord::NotifyHotReloadPage()
     return appLifeCycleDeal_->NotifyHotReloadPage();
 }
 
+int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appLifeCycleDeal_) {
+        HILOG_ERROR("appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName);
+}
+
 bool AppRunningRecord::IsContinuousTask()
 {
     return isContinuousTask_;

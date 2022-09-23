@@ -144,6 +144,11 @@ public:
         return 0;
     }
 
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override
+    {
+        return 0;
+    }
+
     void Reset() override
     {
         MockedSchedulerBase::Reset();

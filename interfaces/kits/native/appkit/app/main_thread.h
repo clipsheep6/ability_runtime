@@ -229,6 +229,8 @@ public:
 
     int32_t ScheduleNotifyHotReloadPage() override;
 
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+
 private:
     /**
      *

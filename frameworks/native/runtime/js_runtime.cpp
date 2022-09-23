@@ -178,14 +178,12 @@ public:
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
-        if (fileNames.size() == 0) {
+        if (fileNames.empty()) {
             HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
-        HILOG_DEBUG("There's %{public}zu patch file.", fileNames.size());
         for (const auto &fileName : fileNames) {
-            HILOG_DEBUG("Found %{private}s in %{private}s.", fileName.c_str(), hqfFile.c_str());
             std::string patchFile = hqfFile + "/" + fileName;
             std::string baseFile = hapPath + "/" + fileName;
             std::ostringstream outStream;
@@ -197,12 +195,47 @@ public:
             const auto &outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
+            HILOG_DEBUG("LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+                patchFile.c_str(), baseFile.c_str());
             bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
             if (!ret) {
                 HILOG_ERROR("LoadPatch failed.");
                 return;
             }
             HILOG_DEBUG("Load patch %{private}s succeed.", patchFile.c_str());
+        }
+    }
+
+    void UnLoadRepairPatch(const std::string& hqfFile) override
+    {
+        HILOG_DEBUG("function called.");
+        if (vm_ == nullptr) {
+            HILOG_ERROR("vm is nullptr.");
+            return;
+        }
+
+        AbilityRuntime::RuntimeExtractor extractor(hqfFile);
+        if (!extractor.Init()) {
+            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            return;
+        }
+
+        std::vector<std::string> fileNames;
+        extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
+        if (fileNames.empty()) {
+            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            return;
+        }
+
+        for (const auto &fileName : fileNames) {
+            std::string patchFile = hqfFile + "/" + fileName;
+            HILOG_DEBUG("UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
+            bool ret = panda::JSNApi::UnLoadPatch(vm_, patchFile);
+            if (!ret) {
+                HILOG_ERROR("UnLoadPatch failed.");
+                return;
+            }
+            HILOG_DEBUG("UnLoad patch %{private}s succeed.", patchFile.c_str());
         }
     }
 
