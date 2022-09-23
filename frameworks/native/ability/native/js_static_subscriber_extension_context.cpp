@@ -34,7 +34,7 @@ public:
 
     static void Finalizer(NativeEngine* engine, void* data, void* hint)
     {
-        HILOG_INFO("JsStaticSubscriberExtensionContext::Finalizer is called");
+        HILOG_DEBUG("JsStaticSubscriberExtensionContext::Finalizer is called");
         std::unique_ptr<JsStaticSubscriberExtensionContext>(
             static_cast<JsStaticSubscriberExtensionContext*>(data));
     }
@@ -47,7 +47,7 @@ NativeValue* CreateJsStaticSubscriberExtensionContext(NativeEngine& engine,
     std::shared_ptr<StaticSubscriberExtensionContext> context,
     DetachCallback detach, AttachCallback attach)
 {
-    HILOG_INFO("CreateJsStaticSubscriberExtensionContext begin");
+    HILOG_DEBUG("CreateJsStaticSubscriberExtensionContext begin");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();

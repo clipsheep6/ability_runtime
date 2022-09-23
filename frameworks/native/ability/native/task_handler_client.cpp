@@ -40,7 +40,7 @@ TaskHandlerClient::~TaskHandlerClient()
 
 bool TaskHandlerClient::PostTask(std::function<void()> task, long delayTime)
 {
-    HILOG_INFO("TaskHandlerClient::PostTask called");
+    HILOG_DEBUG("TaskHandlerClient::PostTask called");
 
     if (taskHandler_ == nullptr) {
         if (!CreateRunner()) {

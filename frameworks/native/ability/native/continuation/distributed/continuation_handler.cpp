@@ -354,7 +354,7 @@ bool ContinuationHandler::ContinuationBack(const Want &want)
 
     int result = 0;
     if (!continuationManagerTmp->RestoreFromRemote(want.GetParams())) {
-        HILOG_INFO("ContinuationBack: RestoreFromRemote failed.");
+        HILOG_DEBUG("ContinuationBack: RestoreFromRemote failed.");
         result = ABILITY_FAILED_RESTORE_DATA;
     }
 

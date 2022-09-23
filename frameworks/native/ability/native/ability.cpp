@@ -180,7 +180,7 @@ void Ability::OnStart(const Want &want)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
-    HILOG_INFO("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
+    HILOG_DEBUG("%{public}s begin, ability is %{public}s.", __func__, abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         Rosen::WindowType winType = Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW;
@@ -396,7 +396,7 @@ bool Ability::IsRestoredInContinuation() const
 
 void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_INFO("NotifyContinuationResult begin");
+    HILOG_DEBUG("NotifyContinuationResult begin");
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
@@ -569,7 +569,7 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 
 void Ability::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    HILOG_DEBUG("%{public}s start.", __func__);
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;

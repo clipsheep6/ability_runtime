@@ -343,7 +343,7 @@ bool DataAbilityOperation::Marshalling(Parcel &out) const
             return false;
         }
         if (referenceSize >= REFERENCE_THRESHOLD) {
-            HILOG_INFO("DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
+            HILOG_DEBUG("DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
             return true;
         }
         for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();

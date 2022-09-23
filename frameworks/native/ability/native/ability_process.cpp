@@ -63,7 +63,7 @@ AbilityProcess::~AbilityProcess()
 
 ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
 {
-    HILOG_INFO("AbilityProcess::StartAbility begin");
+    HILOG_DEBUG("AbilityProcess::StartAbility begin");
     if (ability == nullptr) {
         HILOG_ERROR("AbilityProcess::StartAbility ability is nullptr");
         return ERR_NULL_OBJECT;
@@ -80,11 +80,11 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
     ErrCode err = ERR_OK;
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
-            HILOG_INFO("%{public}s param.setting == nullptr call StartAbilityForResult.", __func__);
+            HILOG_DEBUG("%{public}s param.setting == nullptr call StartAbilityForResult.", __func__);
             param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
-            HILOG_INFO("%{public}s param.setting != nullptr call StartAbilityForResult.", __func__);
+            HILOG_DEBUG("%{public}s param.setting != nullptr call StartAbilityForResult.", __func__);
             err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
@@ -93,9 +93,9 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         std::map<int, CallbackInfo> map;
         auto it = abilityResultMap_.find(ability);
         if (it == abilityResultMap_.end()) {
-            HILOG_INFO("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
+            HILOG_DEBUG("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
         } else {
-            HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
+            HILOG_DEBUG("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
             map = it->second;
         }
         callback.errCode = err;
@@ -103,14 +103,14 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         abilityResultMap_[ability] = map;
     } else {
         if (param.setting == nullptr) {
-            HILOG_INFO("%{public}s param.setting == nullptr call StartAbility.", __func__);
+            HILOG_DEBUG("%{public}s param.setting == nullptr call StartAbility.", __func__);
             err = ability->StartAbility(param.want);
         } else {
-            HILOG_INFO("%{public}s param.setting != nullptr call StartAbility.", __func__);
+            HILOG_DEBUG("%{public}s param.setting != nullptr call StartAbility.", __func__);
             err = ability->StartAbility(param.want, *(param.setting));
         }
     }
-    HILOG_INFO("AbilityProcess::StartAbility end");
+    HILOG_DEBUG("AbilityProcess::StartAbility end");
     return err;
 }
 
@@ -122,9 +122,9 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
     std::map<int, CallbackInfo> map;
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        HILOG_INFO("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
+        HILOG_DEBUG("AbilityProcess::StartAbility ability: is not in the abilityResultMap_");
     } else {
-        HILOG_INFO("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
+        HILOG_DEBUG("AbilityProcess::StartAbility ability: is in the abilityResultMap_");
         map = it->second;
     }
     callback.errCode = errCode;
@@ -134,7 +134,7 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
 
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_INFO("AbilityProcess::OnAbilityResult begin");
+    HILOG_DEBUG("AbilityProcess::OnAbilityResult begin");
 
     std::lock_guard<std::mutex> lock_l(mutex_);
 
@@ -178,13 +178,13 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     map.erase(requestCode);
 
     abilityResultMap_[ability] = map;
-    HILOG_INFO("AbilityProcess::OnAbilityResult end");
+    HILOG_DEBUG("AbilityProcess::OnAbilityResult end");
 }
 
 void AbilityProcess::RequestPermissionsFromUser(
     Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo)
 {
-    HILOG_INFO("AbilityProcess::RequestPermissionsFromUser begin");
+    HILOG_DEBUG("AbilityProcess::RequestPermissionsFromUser begin");
     if (ability == nullptr) {
         HILOG_ERROR("AbilityProcess::RequestPermissionsFromUser ability is nullptr");
         return;

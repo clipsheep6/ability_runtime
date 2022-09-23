@@ -78,7 +78,7 @@ DataAbilityHelperImpl::DataAbilityHelperImpl(const sptr<IRemoteObject> &token)
 void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObject> &token)
 {
     if (token != nullptr && callerDeathRecipient_ != nullptr) {
-        HILOG_INFO("Remove death recipient.");
+        HILOG_DEBUG("Remove death recipient.");
         token->RemoveDeathRecipient(callerDeathRecipient_);
     }
     if (callerDeathRecipient_ == nullptr) {
@@ -92,7 +92,7 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
             });
     }
     if (token != nullptr) {
-        HILOG_INFO("Add death recipient.");
+        HILOG_DEBUG("Add death recipient.");
         token->AddDeathRecipient(callerDeathRecipient_);
     }
 }
@@ -582,7 +582,7 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
     {
         std::lock_guard<std::mutex> guard(lock_);
         if (!uri_) {
-            HILOG_INFO("uri_ is nullptr, no need check.");
+            HILOG_DEBUG("uri_ is nullptr, no need check.");
             return true;
         }
 
@@ -829,7 +829,7 @@ sptr<AAFwk::IAbilityScheduler> DataAbilityHelperImpl::GetDataAbilityProxy(const 
     // so, we need acquire the dataability before the operation.
     sptr<AAFwk::IAbilityScheduler> dataAbilityProxy = dataAbilityProxy_;
     if (uri_ == nullptr) {
-        HILOG_INFO("The uri_ is nullptr, need acquire data ability.");
+        HILOG_DEBUG("The uri_ is nullptr, need acquire data ability.");
         dataAbilityProxy = AbilityManagerClient::GetInstance()->AcquireDataAbility(uri, tryBind_, token_);
         if (dataAbilityProxy == nullptr) {
             HILOG_ERROR("Acquire data ability failed.");
@@ -847,12 +847,12 @@ void DataAbilityHelperImpl::ReleaseDataAbility(sptr<AAFwk::IAbilityScheduler> da
 {
     // if uri_ is nullptr, it indicates the operation(such as insert, delete and so on) is temporary,
     // so, we need release the dataability after the operation.
-    HILOG_INFO("ReleaseDataAbility start.");
+    HILOG_DEBUG("ReleaseDataAbility start.");
     if (!uri_ && dataAbilityProxy && token_) {
         int ret = AbilityManagerClient::GetInstance()->ReleaseDataAbility(dataAbilityProxy, token_);
         HILOG_INFO("Release data ability, ret: %{public}d.", ret);
     }
-    HILOG_INFO("ReleaseDataAbility end.");
+    HILOG_DEBUG("ReleaseDataAbility end.");
 }
 
 bool DataAbilityHelperImpl::CheckUri(const std::shared_ptr<Uri> &uri)
@@ -888,11 +888,11 @@ bool DataAbilityHelperImpl::CheckUriAndDataObserver(const Uri &uri,
 
 void DataAbilityDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("recv DataAbilityDeathRecipient death notice.");
+    HILOG_DEBUG("recv DataAbilityDeathRecipient death notice.");
     if (handler_) {
         handler_(remote);
     }
-    HILOG_INFO("OnRemoteDied end.");
+    HILOG_DEBUG("OnRemoteDied end.");
 }
 
 DataAbilityDeathRecipient::DataAbilityDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
