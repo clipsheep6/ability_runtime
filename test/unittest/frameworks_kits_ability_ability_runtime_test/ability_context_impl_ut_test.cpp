@@ -19,6 +19,7 @@
 #define protected public
 #include "ability_loader.h"
 #include "ability_thread.h"
+#include "iability_callback.h"
 #include "mock_serviceability_manager_service.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
@@ -27,6 +28,30 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS::AbilityRuntime;
+namespace {
+std::string TEST_LABEL = "testLabel";
+OHOS::sptr<MockServiceAbilityManagerService> g_mockAbilityMs = nullptr;
+}
+
+class MyAbilityCallback : public IAbilityCallback {
+public:
+    virtual int GetCurrentWindowMode()
+    {
+        return 0;
+    }
+
+    virtual ErrCode SetMissionLabel(const std::string &label)
+    {
+        return 0;
+    }
+
+    virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
+    {
+        GTEST_LOG_(INFO) << "========AbilityCallback SetMissionIcon------------------------.";
+        return 0;
+    }
+};
+
 class AbilityContextImplTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -39,14 +64,13 @@ public:
 
 void AbilityContextImplTest::SetUpTestCase(void)
 {
-    OHOS::sptr<OHOS::IRemoteObject> abilityObject = new (std::nothrow) MockServiceAbilityManagerService();
-
+    g_mockAbilityMs = new (std::nothrow) MockServiceAbilityManagerService();
     auto sysMgr = OHOS::DelayedSingleton<SysMrgClient>::GetInstance();
     if (sysMgr == NULL) {
         GTEST_LOG_(ERROR) << "fail to get ISystemAbilityManager";
         return;
     }
-    sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, abilityObject);
+    sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, g_mockAbilityMs);
 }
 
 void AbilityContextImplTest::TearDownTestCase(void)
@@ -149,6 +173,68 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_IsTerminating_0100, Functi
     context_->SetTerminating(false);
     ret = context_->IsTerminating();
     EXPECT_FALSE(ret);
+}
+
+/**
+ * @tc.name: Ability_Context_Impl_SetMissionLabel_0100
+ * @tc.desc: test set mission label.
+ * @tc.type: FUNC
+ * @tc.require: I5OB2Y
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionLabel_0100, Function | MediumTest | Level1)
+{
+    ASSERT_TRUE(g_mockAbilityMs != nullptr);
+    ASSERT_TRUE(context_ != nullptr);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = g_mockAbilityMs;
+    g_mockAbilityMs->SetCommonMockResult(false);
+
+    auto ret = context_->SetMissionLabel(TEST_LABEL);
+    EXPECT_NE(ret, 0);
+
+    g_mockAbilityMs->SetCommonMockResult(true);
+    ret = context_->SetMissionLabel(TEST_LABEL);
+    EXPECT_EQ(ret, 0);
+
+    std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
+    context_->RegisterAbilityCallback(abilityCallback);
+    ret = context_->SetMissionLabel(TEST_LABEL);
+    EXPECT_EQ(ret, 0);
+
+    abilityCallback.reset();
+    context_->RegisterAbilityCallback(abilityCallback);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
+}
+
+/**
+ * @tc.name: Ability_Context_Impl_SetMissionIcon_0100
+ * @tc.desc: test set mission icon.
+ * @tc.type: FUNC
+ * @tc.require: I5OB2Y
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0100, Function | MediumTest | Level1)
+{
+    ASSERT_TRUE(g_mockAbilityMs != nullptr);
+    ASSERT_TRUE(context_ != nullptr);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = g_mockAbilityMs;
+    g_mockAbilityMs->SetCommonMockResult(false);
+    usleep(10);
+
+    std::shared_ptr<OHOS::Media::PixelMap> icon = nullptr;
+    auto ret = context_->SetMissionIcon(icon);
+    EXPECT_NE(ret, 0);
+
+    g_mockAbilityMs->SetCommonMockResult(true);
+    ret = context_->SetMissionIcon(icon);
+    EXPECT_EQ(ret, 0);
+
+    std::shared_ptr<MyAbilityCallback> abilityCallback = std::make_shared<MyAbilityCallback>();
+    context_->RegisterAbilityCallback(abilityCallback);
+    ret = context_->SetMissionIcon(icon);
+    EXPECT_EQ(ret, 0);
+
+    abilityCallback.reset();
+    context_->RegisterAbilityCallback(abilityCallback);
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
 }
 } // namespace AppExecFwk
 } // namespace OHOS
