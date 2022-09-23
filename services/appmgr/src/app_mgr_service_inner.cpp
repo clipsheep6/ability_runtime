@@ -2256,7 +2256,8 @@ void AppMgrServiceInner::GetGlobalConfiguration()
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, hasPointerDevice);
 
     // Get DeviceType
-    std::string deviceType = system::GetParameter(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, ConfigurationInner::DEVICE_TYPE_DEFAULT);
+    std::string deviceType = system::GetParameter(AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
+        ConfigurationInner::DEVICE_TYPE_DEFAULT);
     HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, deviceType);
 }
