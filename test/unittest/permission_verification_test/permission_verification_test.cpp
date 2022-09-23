@@ -46,7 +46,7 @@ void PermissionVerificationTest::TearDown()
  * @tc.type: FUNC
  * @tc.require: issueI5QXCQ
  */
-HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0100, TestSize.Level0)
+HWTEST_F(PermissionVerificationTest, StartUpAbilityPermissionCheck_0100, TestSize.Level0)
 {
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.visible = true;
@@ -128,6 +128,408 @@ HWTEST_F(PermissionVerificationTest, StartUpServicePermissionCheck_0400, TestSiz
     verificationInfo.isBackgroundCall = false;
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallAbilityPermission_0100
+ * @tc.desc: CheckCallAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5QXCQ
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallAbilityPermission_0200
+ * @tc.desc: CheckCallAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5QXCQ
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0200, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallAbilityPermission_0300
+ * @tc.desc: CheckCallAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5QXCQ
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0300, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckStartByCallPermission_0100
+ * @tc.desc: CheckStartByCallPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5QXCQ
+ */
+HWTEST_F(PermissionVerificationTest, CheckStartByCallPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckStartByCallPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0100
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = true;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0200
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0200, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0300
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0300, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0400
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0400, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0500
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0500, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0600
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0600, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceAbilityPermission_0700
+ * @tc.desc: CheckCallServiceAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceAbilityPermission_0700, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceExtensionPermission_0100
+ * @tc.desc: CheckCallServiceExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceExtensionPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallServiceExtensionPermission_0200
+ * @tc.desc: CheckCallServiceExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceExtensionPermission_0200, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallServiceExtensionPermission_0300
+ * @tc.desc: CheckCallServiceExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallServiceExtensionPermission_0300, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallOtherExtensionPermission_0100
+ * @tc.desc: CheckCallOtherExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallOtherExtensionPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallOtherExtensionPermission_0200
+ * @tc.desc: CheckCallOtherExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallOtherExtensionPermission_0200, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallOtherExtensionPermission_0300
+ * @tc.desc: CheckCallOtherExtensionPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallOtherExtensionPermission_0300, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallOtherExtensionPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0100
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0100, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = true;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0200
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0200, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0300
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0300, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0400
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0400, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api9 = 9;
+    verificationInfo.apiTargetVersion = api9;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0500
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0500, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = true;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0600
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0600, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = true;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
+}
+
+/**
+ * @tc.name: CheckCallDataAbilityPermission_0700
+ * @tc.desc: CheckCallDataAbilityPermission Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PRJ7
+ */
+HWTEST_F(PermissionVerificationTest, CheckCallDataAbilityPermission_0700, TestSize.Level0)
+{
+    AAFwk::PermissionVerification::VerificationInfo verificationInfo;
+    int api8 = 8;
+    verificationInfo.apiTargetVersion = api8;
+    verificationInfo.visible = false;
+    verificationInfo.isBackgroundCall = false;
+    verificationInfo.associatedWakeUp = false;
+    int result = AAFwk::PermissionVerification::GetInstance()->CheckCallDataAbilityPermission(verificationInfo);
+    EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
