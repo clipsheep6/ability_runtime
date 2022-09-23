@@ -40,7 +40,7 @@ void ContinuationRegisterManager::Register(const std::string &bundleName, const 
     const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback,
     const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Register(bundleName, parameter, deviceCallback, requestCallback);
         HILOG_INFO("%{public}s called end", __func__);
@@ -57,7 +57,7 @@ void ContinuationRegisterManager::Register(const std::string &bundleName, const 
  */
 void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Unregister(token, requestCallback);
         HILOG_INFO("%{public}s called end", __func__);
@@ -77,7 +77,7 @@ void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<Re
 void ContinuationRegisterManager::UpdateConnectStatus(
     int token, const std::string &deviceId, int status, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->UpdateConnectStatus(token, deviceId, status, requestCallback);
         HILOG_INFO("%{public}s called end", __func__);
@@ -96,7 +96,7 @@ void ContinuationRegisterManager::UpdateConnectStatus(
 void ContinuationRegisterManager::ShowDeviceList(
     int token, const ExtraParams &parameter, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->ShowDeviceList(token, parameter, requestCallback);
         HILOG_INFO("%{public}s called end", __func__);
@@ -110,7 +110,7 @@ void ContinuationRegisterManager::ShowDeviceList(
  */
 void ContinuationRegisterManager::Disconnect(void)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Disconnect();
         HILOG_INFO("%{public}s called end", __func__);

@@ -64,7 +64,7 @@ private:
 
     NativeValue* OnUpdateForm(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s called.", __func__);
+        HILOG_DEBUG("%{public}s called.", __func__);
         if (info.argc < UPDATE_FORM_PARAMS_SIZE) {
             HILOG_ERROR("Not enough params, not enough params");
             return engine.CreateUndefined();
@@ -113,7 +113,7 @@ private:
 
     NativeValue* OnStartAbility(NativeEngine& engine, NativeCallbackInfo& info)
     {
-        HILOG_INFO("OnStartAbility is called");
+        HILOG_DEBUG("OnStartAbility is called");
         // only support one or two params
         if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
             HILOG_ERROR("Not enough params");
@@ -162,7 +162,7 @@ private:
 NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<FormExtensionContext> context,
                                           DetachCallback detach, AttachCallback attach)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
@@ -177,7 +177,7 @@ NativeValue* CreateJsFormExtensionContext(NativeEngine& engine, std::shared_ptr<
     BindNativeFunction(engine, *object, "updateForm", moduleName, JsFormExtensionContext::UpdateForm);
     BindNativeFunction(engine, *object, "startAbility", moduleName, JsFormExtensionContext::StartAbility);
 
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
     return objValue;
 }
 }  // namespace AbilityRuntime

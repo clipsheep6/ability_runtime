@@ -89,15 +89,15 @@ std::string ContinuationManager::GetOriginalDeviceId()
 
 void ContinuationManager::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 
     HandleContinueAbilityWithStack(deviceId, versionCode);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 
     if (!CheckAbilityToken()) {
         HILOG_ERROR("HandleContinueAbilityWithStack checkAbilityToken failed");
@@ -120,13 +120,13 @@ bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &devi
         return false;
     }
 
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
@@ -142,13 +142,13 @@ int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
         HILOG_ERROR("SaveData failed.");
         return CONTINUE_SAVE_DATA_FAILED;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return ERR_OK;
 }
 
 int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
@@ -175,13 +175,13 @@ int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
         return CONTINUE_GET_CONTENT_FAILED;
     }
 #endif
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return ERR_OK;
 }
 
 int32_t ContinuationManager::OnContinue(WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto ability = ability_.lock();
     auto abilityInfo = abilityInfo_.lock();
     if (ability == nullptr || abilityInfo == nullptr) {
@@ -201,7 +201,7 @@ int32_t ContinuationManager::OnContinue(WantParams &wantParams)
 #ifdef SUPPORT_GRAPHICS
 bool ContinuationManager::GetContentInfo(WantParams &wantParams)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
@@ -217,14 +217,14 @@ bool ContinuationManager::GetContentInfo(WantParams &wantParams)
     HILOG_INFO("ability pageStack: %{public}s", pageStack.c_str());
     wantParams.SetParam(PAGE_STACK_PROPERTY_NAME, String::Box(pageStack));
 
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 #endif
 
 void ContinuationManager::ContinueAbility(bool reversible, const std::string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
         HILOG_ERROR("ContinuationManager::ContinueAbility failed. Ability not available to continueAbility.");
         return;
@@ -248,12 +248,12 @@ void ContinuationManager::ContinueAbility(bool reversible, const std::string &de
         reversible_ = reversible;
         ChangeProcessState(ProgressState::WAITING_SCHEDULE);
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationManager::ReverseContinueAbility()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (progressState_ != ProgressState::INITIAL) {
         HILOG_ERROR(
             "ContinuationManager::ReverseContinueAbility failed. progressState_ is %{public}d.", progressState_);
@@ -277,39 +277,39 @@ bool ContinuationManager::ReverseContinueAbility()
         ChangeProcessState(ProgressState::WAITING_SCHEDULE);
         RestoreStateWhenTimeout(TIMEOUT_MS_WAIT_REMOTE_NOTIFY_BACK, ProgressState::WAITING_SCHEDULE);
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return requestSuccess;
 }
 
 bool ContinuationManager::StartContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoScheduleStartContinuation();
     if (!result) {
         ChangeProcessState(ProgressState::INITIAL);
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return result;
 }
 
 bool ContinuationManager::SaveData(WantParams &saveData)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     bool result = DoScheduleSaveData(saveData);
     if (!result) {
         ChangeProcessState(ProgressState::INITIAL);
     } else {
         RestoreStateWhenTimeout(TIMEOUT_MS_WAIT_DMS_NOTIFY_CONTINUATION_COMPLETE, ProgressState::IN_PROGRESS);
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return result;
 }
 
 bool ContinuationManager::RestoreData(
     const WantParams &restoreData, bool reversible, const std::string &originalDeviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoScheduleRestoreData(restoreData);
     if (reversible) {
@@ -317,22 +317,22 @@ bool ContinuationManager::RestoreData(
     }
     originalDeviceId_ = originalDeviceId;
     ChangeProcessState(ProgressState::INITIAL);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return result;
 }
 
 void ContinuationManager::NotifyCompleteContinuation(
     const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     AAFwk::AbilityManagerClient::GetInstance()->NotifyCompleteContinuation(
         originDeviceId, sessionId, success);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationManager::CompleteContinuation(int result)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
         HILOG_ERROR(
             "ContinuationManager::CompleteContinuation failed. Ability not available to complete continuation.");
@@ -356,12 +356,12 @@ void ContinuationManager::CompleteContinuation(int result)
     if (!reversible_) {
         ability->TerminateAbility();
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationManager::RestoreFromRemote(const WantParams &restoreData)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoRestoreFromRemote(restoreData);
     /*
@@ -372,13 +372,13 @@ bool ContinuationManager::RestoreFromRemote(const WantParams &restoreData)
     if (result) {
         continuationState_ = ContinuationState::LOCAL_RUNNING;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return result;
 }
 
 bool ContinuationManager::NotifyRemoteTerminated()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     continuationState_ = ContinuationState::LOCAL_RUNNING;
     ChangeProcessState(ProgressState::INITIAL);
 
@@ -390,13 +390,13 @@ bool ContinuationManager::NotifyRemoteTerminated()
     }
 
     ability->OnRemoteTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 bool ContinuationManager::CheckContinuationIllegal()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
@@ -409,13 +409,13 @@ bool ContinuationManager::CheckContinuationIllegal()
             ability->GetState());
         return true;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return false;
 }
 
 bool ContinuationManager::HandleContinueAbility(bool reversible, const std::string &deviceId)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
 
     if (!CheckAbilityToken()) {
         HILOG_ERROR("ContinuationManager::HandleContinueAbility failed. CheckAbilityToken failed");
@@ -439,7 +439,7 @@ bool ContinuationManager::HandleContinueAbility(bool reversible, const std::stri
         return false;
     }
 
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
@@ -470,7 +470,7 @@ void ContinuationManager::ChangeProcessStateToInit()
 
 void ContinuationManager::RestoreStateWhenTimeout(long timeoutInMs, const ProgressState &preState)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     InitMainHandlerIfNeed();
 
     auto timeoutTask = [continuationManager = shared_from_this(), preState]() {
@@ -483,12 +483,12 @@ void ContinuationManager::RestoreStateWhenTimeout(long timeoutInMs, const Progre
         }
     };
     mainHandler_->PostTask(timeoutTask, "Restore_State_When_Timeout", timeoutInMs);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ContinuationManager::InitMainHandlerIfNeed()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (mainHandler_ == nullptr) {
         HILOG_INFO("Try to init main handler.");
         std::lock_guard<std::mutex> lock_l(lock_);
@@ -496,17 +496,17 @@ void ContinuationManager::InitMainHandlerIfNeed()
             mainHandler_ = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
         }
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ContinuationManager::CheckAbilityToken()
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     if (continueToken_ == nullptr) {
         HILOG_INFO("%{public}s called failed", __func__);
         return false;
     }
-    HILOG_INFO("%{public}s called success", __func__);
+    HILOG_DEBUG("%{public}s called success", __func__);
     return true;
 }
 
@@ -519,7 +519,7 @@ void ContinuationManager::CheckDmsInterfaceResult(int result, const std::string 
 
 bool ContinuationManager::DoScheduleStartContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
         HILOG_ERROR(
             "ContinuationManager::DoScheduleStartContinuation called. Ability not available to startContinuation.");
@@ -536,13 +536,13 @@ bool ContinuationManager::DoScheduleStartContinuation()
         HILOG_INFO("%{public}s called failed to StartContinuation", __func__);
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
         HILOG_ERROR("ContinuationManager::DoScheduleSaveData failed. Ability not available to save data.");
         return false;
@@ -564,13 +564,13 @@ bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
     if (!ret) {
         HILOG_ERROR("ContinuationManager::DoScheduleSaveData failed. Ability save data failed.");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return ret;
 }
 
 bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     if (CheckContinuationIllegal()) {
         HILOG_ERROR("ContinuationManager::DoScheduleRestoreData failed. Ability not available to restore data.");
         return false;
@@ -592,13 +592,13 @@ bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
     if (!ret) {
         HILOG_ERROR("ContinuationManager::DoScheduleRestoreData failed. Ability restore data failed.");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return ret;
 }
 
 bool ContinuationManager::DoRestoreFromRemote(const WantParams &restoreData)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<Ability> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
@@ -615,7 +615,7 @@ bool ContinuationManager::DoRestoreFromRemote(const WantParams &restoreData)
     if (!ret) {
         HILOG_ERROR("ContinuationManager::DoRestoreFromRemote failed. Ability restore data failed.");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return ret;
 }
 }  // namespace AppExecFwk

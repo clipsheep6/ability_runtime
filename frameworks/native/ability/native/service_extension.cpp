@@ -46,7 +46,7 @@ void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<ServiceExtensionContext>::Init(record, application, handler, token);
-    HILOG_INFO("ServiceExtension begin init context");
+    HILOG_DEBUG("ServiceExtension begin init context");
 }
 
 std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(

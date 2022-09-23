@@ -21,7 +21,7 @@ namespace OHOS {
 namespace AppExecFwk {
 ErrCode StaticSubscriberStubImp::OnReceiveEvent(CommonEventData* data)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     auto extension = extension_.lock();
     if (extension != nullptr) {
         std::shared_ptr<CommonEventData> commonEventData(data);
@@ -29,7 +29,7 @@ ErrCode StaticSubscriberStubImp::OnReceiveEvent(CommonEventData* data)
         HILOG_INFO("%{public}s end successfully.", __func__);
         return 0;
     }
-    HILOG_INFO("%{public}s end failed.", __func__);
+    HILOG_DEBUG("%{public}s end failed.", __func__);
     return -1;
 }
 } // namespace AppExecFwk

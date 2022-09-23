@@ -28,7 +28,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Init begin.");
+    HILOG_DEBUG("Init begin.");
     if ((record == nullptr) || (application == nullptr) || (handler == nullptr) || (token == nullptr)) {
         HILOG_ERROR("Extension::init failed, some object is nullptr");
         return;
@@ -36,7 +36,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     application_ = application;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void Extension::OnStart(const AAFwk::Want &want)
@@ -83,7 +83,7 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
         restart ? "true" : "false",
         startId);
     SetLastRequestWant(want);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void Extension::SetLaunchWant(const AAFwk::Want &want)
@@ -98,17 +98,17 @@ void Extension::SetLastRequestWant(const AAFwk::Want &want)
 
 void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void Extension::OnMemoryLevel(int level)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 }
 }
 }

@@ -44,7 +44,7 @@ void StaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>& 
     std::shared_ptr<AbilityHandler>& handler,
     const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("StaticSubscriberExtension begin init");
+    HILOG_DEBUG("StaticSubscriberExtension begin init");
     ExtensionBase<StaticSubscriberExtensionContext>::Init(record, application, handler, token);
 }
 
@@ -65,8 +65,8 @@ std::shared_ptr<StaticSubscriberExtensionContext> StaticSubscriberExtension::Cre
 
 void StaticSubscriberExtension::OnReceiveEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -136,42 +136,42 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
             delete static_cast<std::weak_ptr<StaticSubscriberExtensionContext>*>(data);
         }, nullptr);
 
-    HILOG_INFO("JsStaticSubscriberExtension::Init end.");
+    HILOG_DEBUG("JsStaticSubscriberExtension::Init end.");
 }
 
 void JsStaticSubscriberExtension::OnStart(const AAFwk::Want& want)
 {
     Extension::OnStart(want);
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void JsStaticSubscriberExtension::OnStop()
 {
     Extension::OnStop();
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 sptr<IRemoteObject> JsStaticSubscriberExtension::OnConnect(const AAFwk::Want& want)
 {
     Extension::OnConnect(want);
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
     sptr<StaticSubscriberStubImp> remoteObject = new (std::nothrow) StaticSubscriberStubImp(
         std::static_pointer_cast<JsStaticSubscriberExtension>(shared_from_this()));
-    HILOG_INFO("%{public}s end. ", __func__);
+    HILOG_DEBUG("%{public}s end. ", __func__);
     return remoteObject->AsObject();
 }
 
 void JsStaticSubscriberExtension::OnDisconnect(const AAFwk::Want& want)
 {
     Extension::OnDisconnect(want);
-    HILOG_INFO("%{public}s begin.", __func__);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
 }
 
 void JsStaticSubscriberExtension::OnReceiveEvent(std::shared_ptr<EventFwk::CommonEventData> data)
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("%{public}s begin.", __func__);
 
     if (handler_ == nullptr) {
         return;

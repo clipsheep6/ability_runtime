@@ -79,7 +79,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
         HILOG_INFO("Handle ability transaction done, notify ability manager service.");
         AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
     }
-    HILOG_INFO("PageAbilityImpl::HandleAbilityTransaction end");
+    HILOG_DEBUG("PageAbilityImpl::HandleAbilityTransaction end");
 }
 
 /**
@@ -93,7 +93,7 @@ void PageAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Li
  */
 bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
-    HILOG_INFO("PageAbilityImpl::AbilityTransaction begin");
+    HILOG_DEBUG("PageAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -162,7 +162,7 @@ bool PageAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycl
  */
 void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoKeyDown begin");
+    HILOG_DEBUG("PageAbilityImpl::DoKeyDown begin");
     if (ability_ == nullptr) {
         HILOG_ERROR("PageAbilityImpl::DoKeyDown ability_ == nullptr");
         return;
@@ -173,7 +173,7 @@ void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnKeyDown(keyEvent);
-    HILOG_INFO("PageAbilityImpl::DoKeyDown end");
+    HILOG_DEBUG("PageAbilityImpl::DoKeyDown end");
 }
 
 /**
@@ -186,7 +186,7 @@ void PageAbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoKeyUp begin");
+    HILOG_DEBUG("PageAbilityImpl::DoKeyUp begin");
     if (ability_ == nullptr) {
         HILOG_ERROR("PageAbilityImpl::DoKeyUp ability_ == nullptr");
         return;
@@ -197,7 +197,7 @@ void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnKeyUp(keyEvent);
-    HILOG_INFO("PageAbilityImpl::DoKeyUp end");
+    HILOG_DEBUG("PageAbilityImpl::DoKeyUp end");
 }
 
 /**
@@ -210,7 +210,7 @@ void PageAbilityImpl::DoKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
  */
 void PageAbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    HILOG_INFO("PageAbilityImpl::DoPointerEvent begin");
+    HILOG_DEBUG("PageAbilityImpl::DoPointerEvent begin");
     if (ability_ == nullptr) {
         HILOG_ERROR("PageAbilityImpl::DoPointerEvent ability_ == nullptr");
         return;
@@ -221,7 +221,7 @@ void PageAbilityImpl::DoPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointer
         ability_->HasWindowFocus() ? "true" : "false");
 
     ability_->OnPointerEvent(pointerEvent);
-    HILOG_INFO("PageAbilityImpl::DoPointerEvent end");
+    HILOG_DEBUG("PageAbilityImpl::DoPointerEvent end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

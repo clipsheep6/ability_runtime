@@ -28,20 +28,20 @@ ConnectCallbackStub::ConnectCallbackStub()
 
 int ConnectCallbackStub::ConnectInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
     string deviceType = Str16ToStr8(data.ReadString16());
     Connect(deviceId, deviceType);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return OHOS::ERR_NONE;
 }
 
 int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     string deviceId = Str16ToStr8(data.ReadString16());
     Disconnect(deviceId);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return OHOS::ERR_NONE;
 }
 /**
@@ -54,7 +54,7 @@ int ConnectCallbackStub::DisconnectInner(MessageParcel &data, MessageParcel &rep
 int ConnectCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
     std::u16string token = data.ReadInterfaceToken();
     if (token.compare(IConnectCallback::GetDescriptor()) != 0) {
         HILOG_ERROR("%{public}s Descriptor is wrong", __func__);

@@ -28,7 +28,7 @@ ReverseContinuationSchedulerReplica::ReverseContinuationSchedulerReplica(
 
 void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject> &primary)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this, primary]() {
         reverseContinuationSchedulerReplica->HandlerPassPrimary(primary);
     };
@@ -42,12 +42,12 @@ void ReverseContinuationSchedulerReplica::PassPrimary(const sptr<IRemoteObject> 
     if (!ret) {
         HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplica::ReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this]() {
         reverseContinuationSchedulerReplica->HandlerReverseContinuation();
     };
@@ -61,13 +61,13 @@ bool ReverseContinuationSchedulerReplica::ReverseContinuation()
     if (!ret) {
         HILOG_ERROR("ReverseContinuationSchedulerReplica::ReverseContinuation PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerReplica::NotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     auto task = [reverseContinuationSchedulerReplica = this, reverseResult]() {
         reverseContinuationSchedulerReplica->HandlerNotifyReverseResult(reverseResult);
     };
@@ -81,12 +81,12 @@ void ReverseContinuationSchedulerReplica::NotifyReverseResult(int reverseResult)
     if (!ret) {
         HILOG_ERROR("ReverseContinuationSchedulerReplica::NotifyReverseResult PostTask error");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteObject> &primary)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
@@ -94,25 +94,25 @@ void ReverseContinuationSchedulerReplica::HandlerPassPrimary(const sptr<IRemoteO
         return;
     }
     replicaHandlerTmp->PassPrimary(primary);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplica::HandlerReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
         HILOG_ERROR("ReverseContinuationSchedulerReplica::PassPrimary get replicaHandlerTmp is nullptr");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
     return replicaHandlerTmp->ReverseContinuation();
 }
 
 void ReverseContinuationSchedulerReplica::HandlerNotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    HILOG_DEBUG("%{public}s called begin", __func__);
     std::shared_ptr<IReverseContinuationSchedulerReplicaHandler> replicaHandlerTmp = nullptr;
     replicaHandlerTmp = replicaHandler_.lock();
     if (replicaHandlerTmp == nullptr) {
@@ -120,7 +120,7 @@ void ReverseContinuationSchedulerReplica::HandlerNotifyReverseResult(int reverse
         return;
     }
     replicaHandlerTmp->NotifyReverseResult(reverseResult);
-    HILOG_INFO("%{public}s called end", __func__);
+    HILOG_DEBUG("%{public}s called end", __func__);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

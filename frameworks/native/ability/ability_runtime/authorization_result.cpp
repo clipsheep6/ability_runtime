@@ -21,7 +21,7 @@ namespace AbilityRuntime {
 void AuthorizationResult::GrantResultsCallback(const std::vector<std::string> &permissions,
     const std::vector<int> &grantResults)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     if (task_) {
         HILOG_DEBUG("%{public}s callback client function.", __func__);
         task_(permissions, grantResults);

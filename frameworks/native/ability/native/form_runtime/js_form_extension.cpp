@@ -36,7 +36,7 @@ const int ON_EVENT_PARAMS_SIZE = 2;
 
 NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*)
 {
-    HILOG_INFO("AttachFormExtensionContext");
+    HILOG_DEBUG("AttachFormExtensionContext");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -75,7 +75,7 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("JsFormExtension::Init begin.");
+    HILOG_DEBUG("JsFormExtension::Init begin.");
     FormExtension::Init(record, application, handler, token);
     std::string srcPath;
     GetSrcPath(srcPath);
@@ -139,12 +139,12 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
             delete static_cast<std::weak_ptr<FormExtensionContext>*>(data);
         }, nullptr);
 
-    HILOG_INFO("JsFormExtension::Init end.");
+    HILOG_DEBUG("JsFormExtension::Init end.");
 }
 
 OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::Want& want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(reinterpret_cast<napi_env>(nativeEngine), want);
@@ -174,13 +174,13 @@ OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::
 
     AppExecFwk::FormProviderData formData = AppExecFwk::FormProviderData(formDataStr);
     formProviderInfo.SetFormData(formData);
-    HILOG_INFO("%{public}s called end.", __func__);
+    HILOG_DEBUG("%{public}s called end.", __func__);
     return formProviderInfo;
 }
 
 void JsFormExtension::OnDestroy(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormExtension::OnDestroy(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -196,7 +196,7 @@ void JsFormExtension::OnDestroy(const int64_t formId)
 
 void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormExtension::OnEvent(formId, message);
 
     HandleScope handleScope(jsRuntime_);
@@ -216,7 +216,7 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 
 void JsFormExtension::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormExtension::OnUpdate(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -232,7 +232,7 @@ void JsFormExtension::OnUpdate(const int64_t formId)
 
 void JsFormExtension::OnCastToNormal(const int64_t formId)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormExtension::OnCastToNormal(formId);
 
     HandleScope handleScope(jsRuntime_);
@@ -248,7 +248,7 @@ void JsFormExtension::OnCastToNormal(const int64_t formId)
 
 void JsFormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formEventsMap)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     FormExtension::OnVisibilityChange(formEventsMap);
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();
@@ -263,7 +263,7 @@ void JsFormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formE
 
 sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     Extension::OnConnect(want);
     if (providerRemoteObject_ == nullptr) {
         HILOG_INFO("%{public}s providerRemoteObject_ is nullptr, need init.", __func__);
@@ -272,7 +272,7 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
         providerClient->SetOwner(formExtension);
         providerRemoteObject_ = providerClient->AsObject();
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("%{public}s end.", __func__);
     return providerRemoteObject_;
 }
 
@@ -327,7 +327,7 @@ void JsFormExtension::GetSrcPath(std::string &srcPath)
 void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     Extension::OnConfigurationUpdated(configuration);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
     auto& nativeEngine = jsRuntime_.GetNativeEngine();
@@ -348,7 +348,7 @@ void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& co
 
 FormState JsFormExtension::OnAcquireFormState(const Want &want)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
     auto state = (int32_t)FormState::DEFAULT;
     HandleScope handleScope(jsRuntime_);
     NativeEngine* nativeEngine = &jsRuntime_.GetNativeEngine();

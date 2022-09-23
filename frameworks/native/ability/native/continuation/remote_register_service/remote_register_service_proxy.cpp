@@ -27,7 +27,7 @@ namespace AppExecFwk {
 int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sptr<IRemoteObject> &token,
     const ExtraParams &extras, const sptr<IConnectCallback> &callback)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
 
     if (bundleName.empty() || token == nullptr || callback == nullptr) {
         HILOG_ERROR("%{public}s param invalid", __func__);
@@ -67,7 +67,7 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
  */
 bool RemoteRegisterServiceProxy::Unregister(int registerToken)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
 
     auto remote = Remote();
     if (remote == nullptr) {
@@ -102,7 +102,7 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
  */
 bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const std::string &deviceId, int status)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
 
     auto remote = Remote();
     if (remote == nullptr) {
@@ -137,7 +137,7 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
  */
 bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraParams &extras)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_DEBUG("%{public}s called", __func__);
 
     auto remote = Remote();
     if (remote == nullptr) {
