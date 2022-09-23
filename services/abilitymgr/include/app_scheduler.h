@@ -52,10 +52,11 @@ enum class AppState {
     BEGIN = 0,
     READY,
     FOREGROUND,
+    FOCUS,
     BACKGROUND,
-    SUSPENDED,
     TERMINATED,
     END,
+    SUSPENDED,
 };
 
 struct AppData {
