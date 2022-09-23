@@ -333,6 +333,7 @@ private:
 
 private:
     static constexpr size_t INFORMATION_MAX_LENGTH {1000};
+    const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 
 private:
     std::shared_ptr<AbilityRuntime::Context> appContext_;
