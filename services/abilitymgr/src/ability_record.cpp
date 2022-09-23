@@ -307,7 +307,7 @@ std::string AbilityRecord::GetLabel()
     }
 
 #ifdef SUPPORT_GRAPHICS
-    auto resourceMgr = CreateResourceManager(abilityInfo_);
+    auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
         return strLabel;
     }
@@ -597,12 +597,19 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const Abi
     return info;
 }
 
-std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResourceManager(
-    const AppExecFwk::AbilityInfo &abilityInfo) const
+std::shared_ptr<Global::Resource::ResourceManager> AbilityRecord::CreateResourceManager() const
 {
     std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
-    if (!resourceMgr->AddResource(abilityInfo.resourcePath.c_str())) {
-        HILOG_WARN("%{public}s AddResource failed.", __func__);
+    if (!abilityInfo_.hapPath.empty()) {
+        if (!resourceMgr->AddResource(abilityInfo_.hapPath.c_str())) {
+            HILOG_WARN("%{public}s AddResource failed.", __func__);
+            return nullptr;
+        }
+    } else {
+        if (!resourceMgr->AddResource(abilityInfo_.resourcePath.c_str())) {
+            HILOG_WARN("%{public}s AddResource failed.", __func__);
+            return nullptr;
+        }
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
@@ -725,7 +732,7 @@ void AbilityRecord::StartingWindowCold(const std::shared_ptr<StartOptions> &star
         return;
     }
 
-    auto resourceMgr = CreateResourceManager(abilityInfo_);
+    auto resourceMgr = CreateResourceManager();
     if (!resourceMgr) {
         HILOG_WARN("%{public}s, Get resourceMgr failed.", __func__);
         return;

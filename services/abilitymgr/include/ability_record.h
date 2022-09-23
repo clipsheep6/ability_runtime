@@ -866,8 +866,7 @@ private:
         const sptr<IRemoteObject> abilityToken) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
-    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager(
-        const AppExecFwk::AbilityInfo &abilityInfo) const;
+    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager() const;
     std::shared_ptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
         std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
     void StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
