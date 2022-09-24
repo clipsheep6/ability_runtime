@@ -328,8 +328,8 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
     // There is no process of switching the foreground, waiting for his first ability to start
-    appRecord->AddAbilityStage();
     if (appRecord->IsEmptyKeepAliveApp()) {
+        appRecord->AddAbilityStage();
         return;
     }
 
