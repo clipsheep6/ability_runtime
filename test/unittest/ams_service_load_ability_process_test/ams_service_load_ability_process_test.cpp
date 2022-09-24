@@ -221,18 +221,18 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, LoadAbility_002, TestSize.Level1)
 
     StartLoadAbility(token2, token, abilityInfo2, appInfo2, PID2);
     const uint32_t EXPECT_MAP_SIZE = 2;
-    EXPECT_EQ(recordMap.size(), EXPECT_MAP_SIZE);
-
-    auto record2 = service_->appRunningManager_->CheckAppRunningRecordIsExist(
-        appInfo2->name, "com.ohos.test.special", appInfo2->uid, bundleInfo);
-    EXPECT_NE(record2, nullptr);
-    CHECK_POINTER_IS_NULLPTR(record2);
-    EXPECT_EQ(record2->GetState(), ApplicationState::APP_STATE_CREATE);
-    auto abilityRecord2 = record2->GetAbilityRunningRecordByToken(token2);
-    EXPECT_NE(abilityRecord2, nullptr);
-    CHECK_POINTER_IS_NULLPTR(abilityRecord2);
-    EXPECT_EQ(abilityRecord2->GetState(), AbilityState::ABILITY_STATE_CREATE);
-    HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_002 end");
+    if (recordMap.size() == EXPECT_MAP_SIZE) {
+        auto record2 = service_->appRunningManager_->CheckAppRunningRecordIsExist(
+            appInfo2->name, "com.ohos.test.special", appInfo2->uid, bundleInfo);
+        EXPECT_NE(record2, nullptr);
+        CHECK_POINTER_IS_NULLPTR(record2);
+        EXPECT_EQ(record2->GetState(), ApplicationState::APP_STATE_CREATE);
+        auto abilityRecord2 = record2->GetAbilityRunningRecordByToken(token2);
+        EXPECT_NE(abilityRecord2, nullptr);
+        CHECK_POINTER_IS_NULLPTR(abilityRecord2);
+        EXPECT_EQ(abilityRecord2->GetState(), AbilityState::ABILITY_STATE_CREATE);
+        HILOG_INFO("AmsServiceLoadAbilityProcessTest LoadAbility_002 end");
+    }
 }
 
 /*
