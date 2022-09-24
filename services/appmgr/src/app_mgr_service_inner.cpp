@@ -1697,6 +1697,7 @@ void AppMgrServiceInner::StartResidentProcess(const std::vector<BundleInfo> &inf
             HILOG_INFO("processName [%{public}s] Already exists ", processName.c_str());
             continue;
         }
+        HILOG_INFO("Start empty resident process, processName = [%{public}s]", processName.c_str());
         StartEmptyResidentProcess(bundle, processName, restartCount, isEmptyKeepAliveApp);
     }
 }
