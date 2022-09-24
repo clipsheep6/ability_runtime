@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 #include "ability_context.h"
+#include <algorithm>
 #include "completed_callback.h"
 #include "context_container.h"
 #include "context_impl.h"
@@ -757,5 +758,55 @@ HWTEST_F(WantAgentHelperTest, WantAgentHelper_3700, Function | MediumTest | Leve
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(pendingWant);
     auto want = wantAgentHelper->GetWant(wantAgent);
     EXPECT_EQ(want, nullptr);
+}
+
+/*
+ * @tc.number    : WantAgentHelper_3800
+ * @tc.name      : WantAgentHelper ParseFlags
+ * @tc.desc      : 1.ParseFlags Check ParseFlags
+ */
+HWTEST_F(WantAgentHelperTest, WantAgentHelper_3800, Function | MediumTest | Level1)
+{
+    std::vector<WantAgentConstant::Flags> flagsVec;
+    nlohmann::json jsonObject;
+
+    jsonObject["flags"] = -1;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    EXPECT_EQ(flagsVec.size(), 0);
+
+    jsonObject.clear();
+    jsonObject["flags"] = 1111000000;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags>::iterator oneTimeIt = std::find(flagsVec.begin(), flagsVec.end(),
+        WantAgentConstant::Flags::ONE_TIME_FLAG);
+    EXPECT_EQ(oneTimeIt != flagsVec.end(), true);
+
+    jsonObject.clear();
+    jsonObject["flags"] = 111100000000000;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags>::iterator cancelPresentIt = std::find(flagsVec.begin(), flagsVec.end(),
+        WantAgentConstant::Flags::CANCEL_PRESENT_FLAG);
+    EXPECT_EQ(cancelPresentIt != flagsVec.end(), true);
+
+    jsonObject.clear();
+    jsonObject["flags"] = 111100000000000;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags>::iterator updateResentIt = std::find(flagsVec.begin(), flagsVec.end(),
+        WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
+    EXPECT_EQ(updateResentIt != flagsVec.end(), true);
+
+    jsonObject.clear();
+    jsonObject["flags"] = 111100000000000;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags>::iterator constantIt = std::find(flagsVec.begin(), flagsVec.end(),
+        WantAgentConstant::Flags::CONSTANT_FLAG);
+    EXPECT_EQ(constantIt != flagsVec.end(), true);
+
+    jsonObject.clear();
+    jsonObject["flags"] = 1000000000;
+    flagsVec = WantAgentHelper::ParseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags>::iterator noBuildIt = std::find(flagsVec.begin(), flagsVec.end(),
+        WantAgentConstant::Flags::NO_BUILD_FLAG);
+    EXPECT_EQ(noBuildIt != flagsVec.end(), true);
 }
 }  // namespace OHOS::AbilityRuntime::WantAgent
