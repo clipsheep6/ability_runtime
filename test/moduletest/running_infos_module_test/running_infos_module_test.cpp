@@ -28,6 +28,7 @@
 #include "mock_ability_scheduler.h"
 #include "mock_app_mgr_client.h"
 #include "mock_bundle_mgr.h"
+#include "mock_native_token.h"
 #include "ability_state.h"
 #include "ability_manager_errors.h"
 #include "sa_mgr_client.h"
@@ -133,6 +134,9 @@ void RunningInfosModuleTest::OnStartAms()
         EXPECT_TRUE(abilityMgrServ_->amsConfigResolver_);
         abilityMgrServ_->amsConfigResolver_->Parse();
 
+        abilityMgrServ_->interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+        EXPECT_TRUE(abilityMgrServ_->interceptorExecuter_);
+
         abilityMgrServ_->InitMissionListManager(userId, true);
         abilityMgrServ_->connectManager_->SetEventHandler(abilityMgrServ_->handler_);
         abilityMgrServ_->eventLoop_->Run();
@@ -156,6 +160,7 @@ void RunningInfosModuleTest::OnStopAms()
 
 void RunningInfosModuleTest::SetUpTestCase()
 {
+    MockNativeToken::SetNativeToken();
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
