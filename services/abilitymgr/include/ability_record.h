@@ -436,6 +436,8 @@ public:
         isStartingWindow_ = isStartingWindow;
     }
 
+    void PostCancelStartingWindowHotTask();
+
     /**
      * process request of foregrounding the ability.
      *
@@ -808,6 +810,9 @@ public:
 
     std::string GetLabel();
 
+    void SetPendingState(AbilityState state);
+    AbilityState GetPendingState() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut);
 
@@ -856,8 +861,7 @@ private:
         std::shared_ptr<StartOptions> &startOptions);
     void StartingWindowColdTask(bool isRecnet, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions);
-    void CancelStartingWindowColdTask();
-    void CancelStartingWindowHotTask();
+    void PostCancelStartingWindowColdTask();
     sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
     void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
     sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
@@ -948,6 +952,7 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     bool needTakeSnapShot_ = true;
+    std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;

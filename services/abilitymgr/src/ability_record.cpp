@@ -331,6 +331,17 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
     HILOG_DEBUG("SUPPORT_GRAPHICS: ability record: %{public}s", element.c_str());
 
     if (isReady_) {
+        auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+        if (!handler) {
+            HILOG_ERROR("Fail to get AbilityEventHandler.");
+            return;
+        }
+        auto taskName = std::to_string(missionId_) + "_hot";
+        handler->RemoveTask(taskName);
+        StartingWindowTask(isRecent, false, abilityRequest, startOptions);
+        AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
+        PostCancelStartingWindowHotTask();
+
         if (IsAbilityState(AbilityState::FOREGROUND)) {
             HILOG_DEBUG("Activate %{public}s", element.c_str());
             ForegroundAbility(sceneFlag);
@@ -338,11 +349,6 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
             // background to active state
             HILOG_DEBUG("MoveToForeground, %{public}s", element.c_str());
             lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
-
-            StartingWindowTask(isRecent, false, abilityRequest, startOptions);
-            AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
-            CancelStartingWindowHotTask();
-
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token_);
         }
     } else {
@@ -350,7 +356,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
         lifeCycleStateInfo_.sceneFlagBak = sceneFlag;
         StartingWindowTask(isRecent, true, abilityRequest, startOptions);
         AnimationTask(isRecent, abilityRequest, startOptions, callerAbility);
-        CancelStartingWindowColdTask();
+        PostCancelStartingWindowColdTask();
         LoadAbility();
     }
 }
@@ -471,7 +477,7 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
     }
 }
 
-void AbilityRecord::CancelStartingWindowHotTask()
+void AbilityRecord::PostCancelStartingWindowHotTask()
 {
     HILOG_INFO("%{public}s was called.", __func__);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -495,10 +501,11 @@ void AbilityRecord::CancelStartingWindowHotTask()
             abilityRecord->SetStartingWindow(false);
         }
     };
-    handler->PostTask(delayTask, "CancelStartingWindowHot", AbilityManagerService::FOREGROUND_TIMEOUT);
+    auto taskName = std::to_string(missionId_) + "_hot";
+    handler->PostTask(delayTask, taskName, AbilityManagerService::FOREGROUND_TIMEOUT);
 }
 
-void AbilityRecord::CancelStartingWindowColdTask()
+void AbilityRecord::PostCancelStartingWindowColdTask()
 {
     HILOG_INFO("%{public}s was called.", __func__);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
@@ -523,7 +530,8 @@ void AbilityRecord::CancelStartingWindowColdTask()
             abilityRecord->SetStartingWindow(false);
         }
     };
-    handler->PostTask(delayTask, "CancelStartingWindowCold", AbilityManagerService::FOREGROUND_TIMEOUT);
+    auto taskName = std::to_string(missionId_) + "_cold";
+    handler->PostTask(delayTask, taskName, AbilityManagerService::LOAD_TIMEOUT);
 }
 
 sptr<IWindowManagerServiceHandler> AbilityRecord::GetWMSHandler() const
@@ -708,7 +716,6 @@ void AbilityRecord::StartingWindowHot(const std::shared_ptr<StartOptions> &start
     auto pixelMap = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetSnapshot(missionId_);
     if (!pixelMap) {
         HILOG_WARN("%{public}s, Get snapshot failed.", __func__);
-        return;
     }
 
     auto info = CreateAbilityTransitionInfo(startOptions, want, abilityRequest);
@@ -2088,6 +2095,16 @@ void AbilityRecord::SetWindowMode(int32_t windowMode)
 void AbilityRecord::RemoveWindowMode()
 {
     want_.RemoveParam(Want::PARAM_RESV_WINDOW_MODE);
+}
+
+void AbilityRecord::SetPendingState(AbilityState state)
+{
+    pendingState_.store(state);
+}
+
+AbilityState AbilityRecord::GetPendingState() const
+{
+    return pendingState_.load();
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST

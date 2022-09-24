@@ -4086,8 +4086,19 @@ void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject>& tok
     CHECK_POINTER_LOG(currentMissionListManager_, "Current mission manager not init.");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (!isSaCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return;
+        auto bms = GetBundleManager();
+        CHECK_POINTER_IS_NULLPTR(bms);
+        AppExecFwk::ApplicationInfo appInfo;
+        if (!IN_PROCESS_CALL(bms->GetApplicationInfo(BUNDLE_NAME_LAUNCHER,
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetUserId(), appInfo))) {
+            HILOG_ERROR("Not found GetApplicationInfo according to the bundle name.");
+            return;
+        }
+        auto tokenId = IPCSkeleton::GetCallingTokenID();
+        if (tokenId != appInfo.accessTokenId) {
+            HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+            return;
+        }
     }
     currentMissionListManager_->UpdateSnapShot(token);
 }
