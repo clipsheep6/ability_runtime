@@ -22,6 +22,10 @@
 #include "form_provider_client.h"
 #include "mock_form_supply_callback.h"
 
+#define private public
+#include "form_runtime/form_extension_provider_client.h"
+#undef private
+
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
@@ -607,6 +611,100 @@ HWTEST_F(FormProviderClientTest, AaFwk_FormProviderClient_AcquireShareFormData_0
     EXPECT_TRUE((ERR_OK != instance_->AcquireShareFormData(formId, remoteDeviceId, callerToken, requestCode)));
 
     GTEST_LOG_(INFO) << "AaFwk_FormProviderClient_AcquireShareFormData_0500 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0100
+ * @tc.name: NotifyFormExtensionDelete
+ * @tc.desc: Test NotifyFormExtensionDelete function.
+ */
+HWTEST_F(FormProviderClientTest, formExtensionProviderClient_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0100 start";
+
+    Want want;
+    want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
+        .SetParam(Constants::ACQUIRE_TYPE, 103)
+        .SetParam(Constants::FORM_CONNECT_ID, 103L)
+        .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 103L)
+        .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
+
+    int64_t formId = 723L;
+    const sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    formExtensionProviderClient.NotifyFormExtensionDelete(formId, want, callerToken);
+
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0100 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0200
+ * @tc.name: NotifyFormExtensionUpdate
+ * @tc.desc: Test NotifyFormExtensionUpdate function.
+ */
+HWTEST_F(FormProviderClientTest, formExtensionProviderClient_0200, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0200 start";
+
+    Want want;
+    want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
+        .SetParam(Constants::ACQUIRE_TYPE, 103)
+        .SetParam(Constants::FORM_CONNECT_ID, 103L)
+        .SetParam(Constants::PARAM_FORM_IDENTITY_KEY, 103L)
+        .SetParam(Constants::FORM_SUPPLY_INFO, FORM_SUPPLY_INFO);
+
+    int64_t formId = 723L;
+    const sptr<IRemoteObject> callerToken = nullptr;
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    formExtensionProviderClient.NotifyFormExtensionUpdate(formId, want, callerToken);
+
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0200 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0300
+ * @tc.name: FireFormExtensionEvent
+ * @tc.desc: Test FireFormExtensionEvent function.
+ */
+HWTEST_F(FormProviderClientTest, formExtensionProviderClient_0300, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0300 start";
+
+    Want want;
+    want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
+        .SetParam(Constants::FORM_CONNECT_ID, 104L);
+
+    int64_t formId = 724L;
+    std::string message = "event message";
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    formExtensionProviderClient.FireFormExtensionEvent(formId, message, want, callerToken);
+
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0300 end";
+}
+
+/**
+ * @tc.number: formExtensionProviderClient_0400
+ * @tc.name: CheckParam
+ * @tc.desc: Test CheckParam function.
+ */
+HWTEST_F(FormProviderClientTest, formExtensionProviderClient_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0400 start";
+
+    bool result = false;
+    Want want;
+    want.SetParam(Constants::PARAM_FORM_MANAGER_SERVICE_BUNDLENAME_KEY, FORM_MANAGER_SERVICE_BUNDLE_NAME)
+        .SetParam(Constants::FORM_CONNECT_ID, 104L);
+
+    const sptr<IRemoteObject> callerToken = MockFormSupplyCallback::GetInstance();
+    AbilityRuntime::FormExtensionProviderClient formExtensionProviderClient;
+    if(formExtensionProviderClient.CheckParam(want, callerToken) == std::pair<ErrCode, ErrCode>(ERR_OK, ERR_OK)) {
+        result = true;
+    }
+    EXPECT_EQ(true, result);
+
+    GTEST_LOG_(INFO) << "formExtensionProviderClient_0400 end";
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
