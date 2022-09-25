@@ -230,7 +230,7 @@ public:
         for (const auto &fileName : fileNames) {
             std::string patchFile = hqfFile + "/" + fileName;
             HILOG_DEBUG("UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
-            bool ret = panda::JSNApi::UnLoadPatch(vm_, patchFile);
+            bool ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
             if (!ret) {
                 HILOG_ERROR("UnLoadPatch failed.");
                 return;
