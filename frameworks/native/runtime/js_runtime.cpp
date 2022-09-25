@@ -164,22 +164,22 @@ public:
 
     void LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
     {
-        HILOG_DEBUG("function called.");
+        HILOG_DEBUG("LoadRepairPatch, function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("LoadRepairPatch, vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("LoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
@@ -210,20 +210,20 @@ public:
     {
         HILOG_DEBUG("function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("UnLoadRepairPatch, vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
