@@ -82,6 +82,7 @@ const std::map<AppState, std::string> AbilityRecord::appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
     std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
     std::map<AppState, std::string>::value_type(AppState::END, "END"),
+    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
 };
 const std::map<AbilityLifeCycleState, AbilityState> AbilityRecord::convertStateMap = {
     std::map<AbilityLifeCycleState, AbilityState>::value_type(ABILITY_STATE_INITIAL, INITIAL),

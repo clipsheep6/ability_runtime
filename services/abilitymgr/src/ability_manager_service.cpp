@@ -5277,7 +5277,9 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
     if (backgroundJudgeFlag_) {
-        isBackgroundCall = callerAbility->GetAppState() != AAFwk::AppState::FOREGROUND;
+        auto callerAppState = callerAbility->GetAppState();
+        isBackgroundCall = callerAppState != AAFwk::AppState::FOREGROUND &&
+                            callerAppState != AAFwk::AppState::FOCUS;
     } else {
         AppExecFwk::RunningProcessInfo processInfo;
         DelayedSingleton<AppScheduler>::GetInstance()->
