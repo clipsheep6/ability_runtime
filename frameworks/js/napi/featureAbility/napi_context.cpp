@@ -374,9 +374,9 @@ napi_value SetWakeUpScreenPromise(napi_env env, SetWakeUpScreenCB *cbData)
             if (setWakeUpScreenCB->cbBase.ability == nullptr) {
                 HILOG_ERROR("%{public}s, input param is nullptr", __func__);
                 setWakeUpScreenCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
+            } else {
+                setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
             }
-
-            setWakeUpScreenCB->cbBase.ability->SetWakeUpScreen(setWakeUpScreenCB->wakeUp);
             napi_value result = GetCallbackErrorValue(env, setWakeUpScreenCB->cbBase.errCode);
             if (setWakeUpScreenCB->cbBase.errCode == NO_ERROR) {
                 napi_resolve_deferred(env, setWakeUpScreenCB->cbBase.deferred, result);
