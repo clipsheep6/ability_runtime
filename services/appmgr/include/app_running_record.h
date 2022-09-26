@@ -615,7 +615,6 @@ private:
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
     bool isDebugApp_ = false;
-    int32_t focusAbilityCount_ = 0;
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

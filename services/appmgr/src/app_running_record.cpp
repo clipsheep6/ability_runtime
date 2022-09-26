@@ -21,7 +21,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 int64_t AppRunningRecord::appEventId_ = 0;
-const int FOCUSED_ABILITY_MAX_SIZE = 2;
 
 RenderRecord::RenderRecord(pid_t hostPid, const std::string &renderParam,
     int32_t ipcFd, int32_t sharedFd, const std::shared_ptr<AppRunningRecord> &host)
@@ -221,10 +220,6 @@ void AppRunningRecord::SetState(const ApplicationState state)
         return;
     }
 
-    if (state == ApplicationState::APP_STATE_FOCUS) {
-        focusAbilityCount_++;
-    }
-
     if (curState_ != ApplicationState::APP_STATE_FOCUS) {
         lastState_ = curState_;
     }
@@ -236,15 +231,7 @@ void AppRunningRecord::Unfocused(const sptr<IRemoteObject> &token)
     if (curState_ != ApplicationState::APP_STATE_FOCUS) {
         return;
     }
-    if (focusAbilityCount_ > FOCUSED_ABILITY_MAX_SIZE) {
-        HILOG_ERROR("Invalid focus ability size");
-    } else if (focusAbilityCount_ == FOCUSED_ABILITY_MAX_SIZE) {
-        HILOG_INFO("Two ability is in focus, set the appRecord state to APP_STATE_FOCUS");
-        curState_ = ApplicationState::APP_STATE_FOCUS;
-    } else {
-        curState_ = lastState_;
-    }
-    focusAbilityCount_--;
+    curState_ = lastState_;
 
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (abilityRecord && abilityRecord->GetAbilityInfo() != nullptr &&
