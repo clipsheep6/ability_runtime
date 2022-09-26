@@ -21,6 +21,7 @@ ohos_moduletest("running_infos_module_test") {
   cflags_cc = []
   include_dirs = [
     "${ability_runtime_test_path}/moduletest/mock/include",
+    "${ability_runtime_test_path}/mock/common/include",
     "//third_party/jsoncpp/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/distributed_ability_runtime",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
@@ -29,6 +30,7 @@ ohos_moduletest("running_infos_module_test") {
   sources = [ "running_infos_module_test.cpp" ]
   sources += [
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_service.cpp",
+    "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/sa_mgr/src/sa_mgr_client_mock.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_app_mgr_client.cpp",
     "${ability_runtime_test_path}/moduletest/mock/src/mock_bundle_mgr.cpp",
@@ -74,6 +76,8 @@ ohos_moduletest("running_infos_module_test") {
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
     "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
