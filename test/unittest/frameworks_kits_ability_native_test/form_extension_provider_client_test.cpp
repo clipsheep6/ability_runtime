@@ -181,7 +181,7 @@ HWTEST_F(FormExtensionProviderClientTest, formExtensionProviderClient_0600, Func
     GTEST_LOG_(INFO) << "formExtensionProviderClient_0600 start";
 
     Want want;
-    //set Constants::FORM_CONNECT_ID
+    // set Constants::FORM_CONNECT_ID
     want.SetParam(Constants::FORM_CONNECT_ID, 103L);
 
     int64_t formId = 723L;
