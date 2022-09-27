@@ -37,18 +37,18 @@ public:
     Parcel() {}
     virtual ~Parcel() = default;
 
-    bool WriteUint32(uint32_t value);
+    bool WriteUint32(uint32_t) const;
 
-    bool WriteString(const std::string &value);
+    bool WriteString(const std::string &) const;
 
-    bool WriteParcelable(const Parcelable *object);
+    bool WriteParcelable(const Parcelable *) const;
 
-    uint32_t ReadUint32();
+    uint32_t ReadUint32() const;
 
-    std::string ReadString();
+    std::string ReadString() const;
 
     template <typename T>
-    T *ReadParcelable()
+    T *ReadParcelable() const
     {
         if (GetMockReadParcelableState()) {
             return new T();
