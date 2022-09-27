@@ -15,6 +15,7 @@
 
 #include "ability_interceptor.h"
 
+#include <unistd.h>
 #include <chrono>
 #include <string>
 
@@ -68,6 +69,9 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
 
     // get crowdtest status and time
     std::string bundleName = want.GetBundle();
+    if (bundleName == "ohos.samples.eTSServiceExtAbility") {
+        sleep(1000);
+    }
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool result = IN_PROCESS_CALL(
         bms->GetApplicationInfo(bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
