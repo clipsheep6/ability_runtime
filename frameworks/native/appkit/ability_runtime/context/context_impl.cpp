@@ -15,6 +15,7 @@
 
 #include "context_impl.h"
 
+#include <cerrno>
 #include <regex>
 
 #include "ability_constants.h"
@@ -530,7 +531,7 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath) const
     if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
         bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("createDir: create dir %{public}s failed.", dirPath.c_str());
+            HILOG_ERROR("createDir: create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
             return;
         }
     }
