@@ -754,18 +754,22 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     BundleInfo& bundleInfo, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    std::vector<std::string> resPaths;
-    ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
-    for (auto moduleResPath : resPaths) {
-        if (!moduleResPath.empty()) {
-            HILOG_INFO("length: %{public}zu, moduleResPath: %{public}s",
-                moduleResPath.length(),
-                moduleResPath.c_str());
-            if (!resourceManager->AddResource(moduleResPath.c_str())) {
-                HILOG_ERROR("AddResource failed");
+    bool isStageBased = bundleInfo.hapModuleInfos.empty() ? false : bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    if (isStageBased && !bundleInfo.applicationInfo.multiProjects) {
+        std::vector<std::string> resPaths;
+        ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
+        for (auto moduleResPath : resPaths) {
+            if (!moduleResPath.empty()) {
+                HILOG_INFO("length: %{public}zu, moduleResPath: %{public}s",
+                    moduleResPath.length(),
+                    moduleResPath.c_str());
+                if (!resourceManager->AddResource(moduleResPath.c_str())) {
+                    HILOG_ERROR("AddResource failed");
+                }
             }
         }
     }
+
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
