@@ -31,6 +31,8 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
     message.append(std::to_string(instanceId));
     message.append(",\"name\":\"");
     message.append(instanceName);
+    message.append(",\"tid\":\"");
+    message.append(std::to_string(gettid()));
     message.append("\"}");
     return message;
 }
