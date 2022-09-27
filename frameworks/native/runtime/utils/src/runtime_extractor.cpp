@@ -108,11 +108,8 @@ bool RuntimeExtractor::GetFileList(const std::string& srcPath, std::vector<std::
 
     std::regex replacePattern(srcPath);
     for (auto value : fileList) {
-        if (StringStartWith(value, srcPath.c_str(), sizeof(srcPath.c_str()) - 1)) {
+        if (StringStartWith(value, srcPath.c_str(), srcPath.length())) {
             std::string realpath = std::regex_replace(value, replacePattern, "");
-            if (realpath.find(Constants::FILE_SEPARATOR) != std::string::npos) {
-                continue;
-            }
             assetList.emplace_back(value);
         }
     }
@@ -195,7 +192,7 @@ void RuntimeExtractor::GetSpecifiedTypeFiles(std::vector<std::string> &fileNames
         auto position = fileName.rfind('.');
         if (position != std::string::npos) {
             std::string suffixStr = fileName.substr(position);
-            if (LowerStr(suffixStr) == ".abc") {
+            if (LowerStr(suffixStr) == suffix) {
                 fileNames.emplace_back(fileName);
             }
         }
