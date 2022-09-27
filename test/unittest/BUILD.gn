@@ -336,6 +336,7 @@ group("unittest") {
     "permission_verification_test:unittest",
     "quick_fix:unittest",
     "running_infos_test:unittest",
+    "runtime_extractor_test:unittest",
     "runtime_test:unittest",
     "sender_info_test:unittest",
     "trigger_Info_test:unittest",
