@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONNECTION_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_CONNECTION_H
 
+#include <mutex>
 #include "ability_connect_callback.h"
 #include "ability_connect_callback_stub.h"
 #include "want.h"
@@ -25,6 +26,13 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+enum {
+    CONNECTION_STATE_DISCONNECTED = -1,
+
+    CONNECTION_STATE_CONNECTED = 0,
+
+    CONNECTION_STATE_CONNECTING = 1
+};
 class AbilityConnection : public AAFwk::AbilityConnectionStub {
 public:
     /**
@@ -32,12 +40,6 @@ public:
      *
      */
     AbilityConnection() = default;
-
-    /**
-     * @brief Constructor.
-     * @param abilityConnectCallback is used to notify caller ability that connect or disconnect is complete
-     */
-    explicit AbilityConnection(const sptr<AbilityConnectCallback> &abilityConnectCallback);
 
     /**
      * @brief Destructor.
@@ -64,23 +66,33 @@ public:
     void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)  override;
 
     /**
-     * set abilityConnectCallback
+     * add abilityConnectCallback
      *
      * @param abilityConnectCallback is used to notify caller ability that connect or disconnect is complete
     */
-    void SetConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback);
+    void AddConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback);
+
+    void RemoveConnectCallback(const sptr<AbilityConnectCallback> &abilityConnectCallback);
 
     void SetRemoteObject(const sptr<IRemoteObject> &remoteObject);
 
     void SetResultCode(int resultCode);
 
+    void SetConnectionState(int connectionState);
+
     sptr<IRemoteObject> GetRemoteObject() const;
 
     int GetResultCode() const;
+
+    int GetConnectionState() const;
+
+    std::vector<sptr<AbilityConnectCallback>> GetCallbackList();
 private:
-    sptr<AbilityConnectCallback> abilityConnectCallback_ = nullptr;
+    std::vector<sptr<AbilityConnectCallback>> abilityConnectCallbackList_;
     sptr<IRemoteObject> remoteObject_ = nullptr;
     int resultCode_ = -1;
+    int connectionState_ = CONNECTION_STATE_DISCONNECTED;
+    std::mutex mutex_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

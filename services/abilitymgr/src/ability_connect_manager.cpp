@@ -261,7 +261,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     bool isCallbackConnected = !connectRecordList.empty();
     // 3. If this service ability and callback has been connected, There is no need to connect repeatedly
     if (isLoadedAbility && (isCallbackConnected) && IsAbilityConnected(targetService, connectRecordList)) {
-        HILOG_ERROR("Service and callback was connected.");
+        HILOG_INFO("Service and callback was connected.");
         return ERR_OK;
     }
 
@@ -280,6 +280,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     connectMap_.emplace(connect->AsObject(), connectRecordList);
 
     // 5. load or connect ability
+    int ret = ERR_OK;
     if (!isLoadedAbility) {
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
@@ -293,13 +294,13 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
             ConnectAbility(targetService);
         }
     } else {
-        HILOG_ERROR("Target service is already activating.");
+        HILOG_INFO("Target service ability is activating, just wait for callback");
     }
 
     auto token = targetService->GetToken();
     auto preToken = iface_cast<Token>(connectRecord->GetToken());
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
-    return ERR_OK;
+    return ret;
 }
 
 int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect)
@@ -710,7 +711,7 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
             HILOG_WARN("ConnectRecord is nullptr.");
             continue;
         }
-        connectRecord->CompleteConnect(resultCode);
+        connectRecord->CompleteDisconnect(ERR_OK, true);
         abilityRecord->RemoveConnectRecordFromList(connectRecord);
         RemoveConnectionRecordFromMap(connectRecord);
     }
@@ -776,9 +777,11 @@ void AbilityConnectManager::HandleDisconnectTask(const ConnectListType &connectl
             continue;
         }
         auto targetService = connectRecord->GetAbilityRecord();
-        if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
+        if (targetService && connectRecord->GetConnectState() == ConnectionState::DISCONNECTED &&
+            targetService->GetConnectRecordList().size() > 1) {
             HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
             connectRecord->CompleteDisconnect(ERR_OK, false);
+            targetService->RemoveConnectRecordFromList(connectRecord);
             RemoveConnectionRecordFromMap(connectRecord);
         };
     }
@@ -1111,6 +1114,14 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         return;
     }
 
+    ConnectListType connlist = abilityRecord->GetConnectRecordList();
+    for (auto &connectRecord : connlist) {
+        HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
+        connectRecord->CompleteDisconnect(ERR_OK, true);
+        abilityRecord->RemoveConnectRecordFromList(connectRecord);
+        RemoveConnectionRecordFromMap(connectRecord);
+    }
+
     if (IsAbilityNeedRestart(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         AbilityRequest requestInfo;
@@ -1133,14 +1144,6 @@ void AbilityConnectManager::HandleAbilityDiedTask(
 
         StartAbilityLocked(requestInfo);
         return;
-    }
-
-    ConnectListType connlist = abilityRecord->GetConnectRecordList();
-    for (auto &connectRecord : connlist) {
-        HILOG_WARN("This record complete disconnect directly. recordId:%{public}d", connectRecord->GetRecordId());
-        connectRecord->CompleteDisconnect(ERR_OK, true);
-        abilityRecord->RemoveConnectRecordFromList(connectRecord);
-        RemoveConnectionRecordFromMap(connectRecord);
     }
 
     RemoveServiceAbility(abilityRecord);
