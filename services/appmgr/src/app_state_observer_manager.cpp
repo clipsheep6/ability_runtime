@@ -214,8 +214,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         }
     }
 
-    if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED ||
-        state == ApplicationState::APP_STATE_FOCUS) {
+    if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED) {
         AppStateData data = WrapAppStateData(appRecord, state);
         HILOG_INFO("OnApplicationStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);
@@ -352,6 +351,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.state = static_cast<AppProcessState>(appRecord->GetState());
     processData.isContinuousTask = appRecord->IsContinuousTask();
     processData.isKeepAlive = appRecord->IsKeepAliveApp();
+    processData.isFocused = appRecord->GetFocusFlag();
     return processData;
 }
 
@@ -439,6 +439,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.state = static_cast<int32_t>(state);
     appStateData.uid = appRecord->GetUid();
     appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
+    appStateData.isFocused = appRecord->GetFocusFlag();
     return appStateData;
 }
 }  // namespace AppExecFwk

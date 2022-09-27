@@ -5278,13 +5278,12 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
     if (backgroundJudgeFlag_) {
         auto callerAppState = callerAbility->GetAppState();
-        isBackgroundCall = callerAppState != AAFwk::AppState::FOREGROUND &&
-                            callerAppState != AAFwk::AppState::FOCUS;
+        isBackgroundCall = callerAppState != AAFwk::AppState::FOREGROUND;
     } else {
         AppExecFwk::RunningProcessInfo processInfo;
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
-        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS;
+        isBackgroundCall = !processInfo.isFocused;
     }
 
     return ERR_OK;

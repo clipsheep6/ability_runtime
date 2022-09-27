@@ -192,13 +192,6 @@ public:
      */
     void SetState(const ApplicationState state);
 
-    /**
-     * @brief Setting the application last state.
-     *
-     * @param state, the application last state.
-     */
-    void SetLastState(const ApplicationState state);
-
     // Get abilities_ for this process
     /**
      * @brief Obtains the abilitys info for the application record.
@@ -540,7 +533,17 @@ public:
 
     void SetContinuousTaskAppState(bool isContinuousTask);
 
-    void Unfocused(const sptr<IRemoteObject> &token);
+    /**
+     * Update target ability focus state.
+     *
+     * @param token the token of target ability.
+     * @param isFocus focus state.
+     *
+     * @return true if process focus state changed, false otherwise.
+     */
+    bool UpdateAbilityFocusState(const sptr<IRemoteObject> &token, bool isFocus);
+
+    bool GetFocusFlag() const;
 
 private:
     /**
@@ -584,7 +587,9 @@ private:
     void AbilityBackground(const std::shared_ptr<AbilityRunningRecord> &ability);
     // drive application state changes when ability state changes.
 
-    void AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability);
+    bool AbilityFocused(const std::shared_ptr<AbilityRunningRecord> &ability);
+
+    bool AbilityUnfocused(const std::shared_ptr<AbilityRunningRecord> &ability);
 
     void SendEvent(uint32_t msg, int64_t timeOut);
 
@@ -595,7 +600,7 @@ private:
     bool isEmptyKeepAliveApp_ = false;  // Only empty resident processes can be set to true, please choose carefully
     bool isStageBasedModel_ = false;
     ApplicationState curState_ = ApplicationState::APP_STATE_CREATE;  // current state of this process
-    ApplicationState lastState_ = ApplicationState::APP_STATE_CREATE; // last state of this process
+    bool isFocused_ = false; // if process is focused.
 
     std::shared_ptr<ApplicationInfo> appInfo_ = nullptr;  // the application's info of this process
     int32_t appRecordId_ = 0;

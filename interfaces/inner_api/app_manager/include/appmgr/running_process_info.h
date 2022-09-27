@@ -55,6 +55,7 @@ struct RunningProcessInfo : public Parcelable {
     std::vector<std::string> bundleNames;
     bool isContinuousTask = false;
     bool isKeepAlive = false;
+    bool isFocused = false;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

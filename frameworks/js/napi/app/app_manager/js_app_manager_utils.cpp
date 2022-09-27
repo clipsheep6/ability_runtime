@@ -42,6 +42,7 @@ NativeValue* CreateJsAppStateData(NativeEngine &engine, const AppStateData &appS
     object->SetProperty("bundleName", CreateJsValue(engine, appStateData.bundleName));
     object->SetProperty("uid", CreateJsValue(engine, appStateData.uid));
     object->SetProperty("state", CreateJsValue(engine, appStateData.state));
+    object->SetProperty("isFocused", CreateJsValue(engine, appStateData.isFocused));
     HILOG_INFO("%{public}s end.", __func__);
     return objValue;
 }
@@ -68,6 +69,7 @@ NativeValue* CreateJsAbilityStateData(NativeEngine &engine, const AbilityStateDa
     object->SetProperty("uid", CreateJsValue(engine, abilityStateData.uid));
     object->SetProperty("state", CreateJsValue(engine, abilityStateData.abilityState));
     object->SetProperty("abilityType", CreateJsValue(engine, abilityStateData.abilityType));
+    object->SetProperty("isFocused", CreateJsValue(engine, abilityStateData.isFocused));
     HILOG_INFO("%{public}s end.", __func__);
     return objValue;
 }
@@ -93,6 +95,7 @@ NativeValue* CreateJsProcessData(NativeEngine &engine, const ProcessData &proces
     object->SetProperty("state", CreateJsValue(engine, processData.state));
     object->SetProperty("isContinuousTask", CreateJsValue(engine, processData.isContinuousTask));
     object->SetProperty("isKeepAlive", CreateJsValue(engine, processData.isKeepAlive));
+    object->SetProperty("isFocused", CreateJsValue(engine, processData.isFocused));
     HILOG_INFO("%{public}s end.", __func__);
     return objValue;
 }
@@ -133,6 +136,7 @@ NativeValue* CreateJsProcessRunningInfo(NativeEngine &engine, const RunningProce
     object->SetProperty("state", CreateJsValue(engine, info.state_));
     object->SetProperty("isContinuousTask", CreateJsValue(engine, info.isContinuousTask));
     object->SetProperty("isKeepAlive", CreateJsValue(engine, info.isKeepAlive));
+    object->SetProperty("isFocused", CreateJsValue(engine, info.isFocused));
     return objValue;
 }
 }  // namespace AbilityRuntime
