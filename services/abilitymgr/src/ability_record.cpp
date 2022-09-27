@@ -173,6 +173,10 @@ bool AbilityRecord::Init()
     CHECK_POINTER_RETURN_BOOL(lifecycleDeal_);
 
     token_ = new (std::nothrow) Token(weak_from_this());
+    if (token_ == nullptr) {
+        HILOG_ERROR("token_ == nullptr");
+        return false;
+    }
     CHECK_POINTER_RETURN_BOOL(token_);
 
     if (applicationInfo_.isLauncherApp) {
@@ -420,7 +424,11 @@ void AbilityRecord::NotifyAnimationFromRecentTask(const std::shared_ptr<StartOpt
 
     auto toInfo = CreateAbilityTransitionInfo(token_, startOptions, want);
     SetAbilityTransitionInfo(abilityInfo_, toInfo);
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) (std::nothrow) AbilityTransitionInfo();
+    if (fromInfo == nullptr) {
+        HILOG_ERROR("fromInfo == nullptr");
+        return;
+    }
     fromInfo->isRecent_ = true;
     windowHandler->NotifyWindowTransition(fromInfo, toInfo);
 }
@@ -434,7 +442,11 @@ void AbilityRecord::NotifyAnimationFromStartingAbility(const std::shared_ptr<Abi
         return;
     }
 
-    sptr<AbilityTransitionInfo> fromInfo = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> fromInfo = new (std::nothrow) AbilityTransitionInfo();
+    if (fromInfo == nullptr) {
+        HILOG_ERROR("fromInfo == nullptr");
+        return;
+    }
     if (callerAbility) {
         auto callerAbilityInfo = callerAbility->GetAbilityInfo();
         SetAbilityTransitionInfo(callerAbilityInfo, fromInfo);
@@ -557,7 +569,11 @@ void AbilityRecord::SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info,
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
     const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const
 {
-    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> info = new (std::nothrow) AbilityTransitionInfo();
+    if (info == nullptr) {
+        HILOG_ERROR("info == nullptr");
+        return nullptr;
+    }
     if (startOptions != nullptr) {
         info->mode_ = static_cast<uint32_t>(startOptions->GetWindowMode());
         HILOG_INFO("%{public}s: window mode is %{public}d.", __func__, info->mode_);
@@ -575,7 +591,11 @@ sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const spt
 sptr<AbilityTransitionInfo> AbilityRecord::CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
     const sptr<IRemoteObject> abilityToken) const
 {
-    sptr<AbilityTransitionInfo> info = new AbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> info = new (std::nothrow) AbilityTransitionInfo();
+    if (info == nullptr) {
+        HILOG_ERROR("info == nullptr");
+        return nullptr;
+    }
     auto abilityStartSetting = abilityRequest.startSetting;
     if (abilityStartSetting) {
         auto windowMode = abilityStartSetting->GetProperty(AbilityStartSetting::WINDOW_MODE_KEY);
@@ -836,12 +856,16 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (schedulerDeathRecipient_ == nullptr) {
             std::weak_ptr<AbilityRecord> thisWeakPtr(shared_from_this());
             schedulerDeathRecipient_ =
-                new AbilitySchedulerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+                new (std::nothrow) AbilitySchedulerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                     auto abilityRecord = thisWeakPtr.lock();
                     if (abilityRecord) {
                         abilityRecord->OnSchedulerDied(remote);
                     }
                 });
+            if (schedulerDeathRecipient_ == nullptr) {
+                HILOG_ERROR("schedulerDeathRecipient_ == nullptr");
+                return;
+            }
         }
         isReady_ = true;
         scheduler_ = scheduler;

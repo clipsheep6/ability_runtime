@@ -186,14 +186,18 @@ void DataObsMgrInner::AddObsDeathRecipient(const sptr<IDataAbilityObserver> &dat
     } else {
         std::weak_ptr<DataObsMgrInner> thisWeakPtr(shared_from_this());
         sptr<IRemoteObject::DeathRecipient> deathRecipient =
-            new DataObsCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) DataObsCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto dataObsMgrInner = thisWeakPtr.lock();
                 if (dataObsMgrInner) {
                     dataObsMgrInner->OnCallBackDied(remote);
                 }
             });
-            dataObserver->AsObject()->AddDeathRecipient(deathRecipient);
-            recipientMap_.emplace(dataObserver->AsObject(), deathRecipient);
+        if (deathRecipient == nullptr) {
+            HILOG_ERROR("deathRecipient == nullptr");
+            return;
+        }
+        dataObserver->AsObject()->AddDeathRecipient(deathRecipient);
+        recipientMap_.emplace(dataObserver->AsObject(), deathRecipient);
     }
 }
 

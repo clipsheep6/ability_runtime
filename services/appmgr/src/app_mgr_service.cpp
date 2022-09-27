@@ -239,7 +239,11 @@ void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
     if (!IsReady()) {
         return;
     }
-    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
+    sptr<AppDeathRecipient> appDeathRecipient = new (std::nothrow) AppDeathRecipient();
+    if (appDeathRecipient == nullptr) {
+        HILOG_ERROR("appDeathRecipient == nullptr");
+        return;
+    }
     appDeathRecipient->SetEventHandler(handler_);
     appDeathRecipient->SetAppMgrServiceInner(appMgrServiceInner_);
     std::function<void()> addAppRecipientFunc =

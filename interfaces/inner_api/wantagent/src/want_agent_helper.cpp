@@ -190,6 +190,10 @@ void WantAgentHelper::TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
     sptr<CompletedDispatcher> dispatcher = nullptr;
     if (callback != nullptr) {
         dispatcher = new (std::nothrow) CompletedDispatcher(pendingWant, callback, nullptr);
+        if (dispatcher == nullptr) {
+            HILOG_ERROR("dispatcher == nullptr.");
+            return;
+        }
     }
 
     Send(pendingWant, type, dispatcher, paramsInfo);

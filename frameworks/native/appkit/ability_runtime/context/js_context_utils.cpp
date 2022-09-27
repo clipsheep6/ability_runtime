@@ -54,6 +54,10 @@ NativeValue* AttachApplicationContext(NativeEngine* engine, void* value, void*)
     }
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachApplicationContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr application context is called");
@@ -223,6 +227,10 @@ NativeValue* JsBaseContext::OnCreateModuleContext(NativeEngine& engine, NativeCa
         return engine.CreateNull();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
@@ -416,6 +424,10 @@ NativeValue* JsBaseContext::OnCreateBundleContext(NativeEngine& engine, NativeCa
         return engine.CreateNull();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
@@ -454,6 +466,10 @@ NativeValue* JsBaseContext::OnGetApplicationContext(NativeEngine& engine, Native
         return engine.CreateNull();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachApplicationContext,
         workContext, nullptr);
     nativeObj->SetNativePointer(
@@ -493,6 +509,10 @@ NativeValue* AttachBaseContext(NativeEngine* engine, void* value, void*)
     }
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachBaseContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr base context is called");

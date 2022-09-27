@@ -120,7 +120,10 @@ struct AbilityTransitionInfo : public Parcelable {
 
     static AbilityTransitionInfo* Unmarshalling(Parcel& parcel)
     {
-        AbilityTransitionInfo* info = new AbilityTransitionInfo();
+        AbilityTransitionInfo* info = new (std::nothrow) AbilityTransitionInfo();
+        if (info == nullptr) {
+            return nullptr;
+        }
         info->bundleName_ = parcel.ReadString();
         info->abilityName_ = parcel.ReadString();
         info->mode_ = parcel.ReadUint32();

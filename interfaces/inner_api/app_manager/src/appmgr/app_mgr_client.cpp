@@ -53,7 +53,12 @@ public:
         }
 
         auto me = shared_from_this();
-        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AppMgrDeathRecipient(me));
+        auto recipient = new (std::nothrow) AppMgrDeathRecipient(me);
+        if (recipient == nullptr) {
+            HILOG_ERROR("recipient == nullptr");
+            return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+        }
+        deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(recipient);
         if (deathRecipient_ == nullptr) {
             HILOG_ERROR("%{public}s :Failed to create AppMgrDeathRecipient!", __func__);
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;

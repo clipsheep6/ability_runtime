@@ -225,7 +225,7 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
 
     ResultWaiter<int64_t> waiter;
 
-    work.data = new std::function<void()>([abilitySrcPath, this, &waiter] () {
+    work.data = new (std::nothrow) std::function<void()>([abilitySrcPath, this, &waiter] () {
         NativeObject* globalObj = ConvertNativeValueTo<NativeObject>(nativeEngine_->GetGlobal());
         NativeValue* exports = nativeEngine_->CreateObject();
         globalObj->SetProperty("exports", exports);
@@ -266,6 +266,10 @@ int64_t SimulatorImpl::StartAbility(const std::string& abilitySrcPath, Terminate
 
         waiter.NotifyResult(id);
     });
+    if (work.data == nullptr) {
+        HILOG_ERROR("work.data == nullptr");
+        return ERR_INVALID_VALUE;
+    }
 
     uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
         auto func = static_cast<std::function<void()>*>(work->data);
@@ -282,7 +286,7 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
 
     ResultWaiter<bool> waiter;
 
-    work.data = new std::function<void()>([abilityId, this, &waiter] () {
+    work.data = new (std::nothrow) std::function<void()>([abilityId, this, &waiter] () {
         auto it = abilities_.find(abilityId);
         if (it == abilities_.end()) {
             waiter.NotifyResult(false);
@@ -304,6 +308,10 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
 
         waiter.NotifyResult(true);
     });
+    if (work.data == nullptr) {
+        HILOG_ERROR("work.data == nullptr");
+        return ERR_INVALID_VALUE;
+    }
 
     uv_queue_work(nativeEngine_->GetUVLoop(), &work, [](uv_work_t*) {}, [](uv_work_t* work, int32_t status) {
         auto func = static_cast<std::function<void()>*>(work->data);

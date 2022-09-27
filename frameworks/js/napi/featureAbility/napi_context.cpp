@@ -463,7 +463,11 @@ napi_value NAPI_SetShowOnLockScreen(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    ShowOnLockScreenCB *showOnLockScreenCB = new ShowOnLockScreenCB();
+    ShowOnLockScreenCB *showOnLockScreenCB = new (std::nothrow) ShowOnLockScreenCB();
+    if (showOnLockScreenCB == nullptr) {
+        HILOG_ERROR("showOnLockScreenCB == nullptr.");
+        return nullptr;
+    }
     showOnLockScreenCB->cbBase.cbInfo.env = env;
     showOnLockScreenCB->cbBase.abilityType = AbilityType::PAGE;
     if (!UnwrapBoolFromJS2(env, args[PARAM0], showOnLockScreenCB->isShow)) {
@@ -778,8 +782,16 @@ void CallOnRequestPermissionsFromUserResult(int requestCode, const std::vector<s
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
-    OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB = new OnRequestPermissionsFromUserResultCallback;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work == nullptr.")
+        return;
+    }
+    OnRequestPermissionsFromUserResultCallback *onRequestPermissionCB = new (std::nothrow) OnRequestPermissionsFromUserResultCallback;
+    if (onRequestPermissionCB == nullptr) {
+        HILOG_ERROR("onRequestPermissionCB == nullptr.");
+        return;
+    }
     onRequestPermissionCB->requestCode = requestCode;
     onRequestPermissionCB->permissions = permissions;
     onRequestPermissionCB->grantResults = grantResults;

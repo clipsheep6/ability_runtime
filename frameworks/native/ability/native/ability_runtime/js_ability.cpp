@@ -157,6 +157,10 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(context);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return;
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachJsAbilityContext,
         workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());
@@ -498,7 +502,11 @@ void JsAbility::DoOnForeground(const Want &want)
     if (window) {
         HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
         std::weak_ptr<Ability> weakAbility = shared_from_this();
-        abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
+        abilityDisplayMoveListener_ = new (std::nothrow) AbilityDisplayMoveListener(weakAbility);
+        if (abilityDisplayMoveListener_ == nullptr) {
+            HILOG_ERROR("abilityDisplayMoveListener_ == nullptr.");
+            return;
+        }
         window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
         if (securityFlag_) {
             window->SetSystemPrivacyMode(true);

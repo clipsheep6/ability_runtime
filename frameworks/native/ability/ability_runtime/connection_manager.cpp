@@ -81,6 +81,10 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject> &connec
         }
     } else {
         abilityConnection = new AbilityConnection();
+        if (abilityConnection == nullptr) {
+            HILOG_ERROR("abilityConnection == nullptr");
+            return ERR_INVALID_VALUE;
+        }
         abilityConnection->AddConnectCallback(connectCallback);
         abilityConnection->SetConnectionState(CONNECTION_STATE_CONNECTING);
         ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(

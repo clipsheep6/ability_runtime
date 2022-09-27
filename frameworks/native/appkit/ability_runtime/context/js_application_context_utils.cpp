@@ -138,6 +138,10 @@ NativeValue *JsApplicationContextUtils::OnCreateBundleContext(NativeEngine &engi
         return engine.CreateUndefined();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,
@@ -247,6 +251,10 @@ NativeValue* JsApplicationContextUtils::OnCreateModuleContext(NativeEngine& engi
         return engine.CreateUndefined();
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return engine.CreateUndefined();
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     nativeObj->SetNativePointer(
         workContext,

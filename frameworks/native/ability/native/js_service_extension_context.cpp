@@ -434,7 +434,11 @@ private:
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         // unwarp connection
-        sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(engine);
+        sptr<JSServiceExtensionConnection> connection = new (std::nothrow) JSServiceExtensionConnection(engine);
+        if (connection == nullptr) {
+            HILOG_ERROR("connection == nullptr.");
+            return engine.CreateUndefined();
+        }
         connection->SetJsConnectionObject(info.argv[1]);
         int64_t connectId = serialNumber_;
         ConnecttionKey key;
@@ -495,7 +499,11 @@ private:
         }
 
         // unwarp connection
-        sptr<JSServiceExtensionConnection> connection = new JSServiceExtensionConnection(engine);
+        sptr<JSServiceExtensionConnection> connection = new (std::nothrow) JSServiceExtensionConnection(engine);
+        if (connection == nullptr) {
+            HILOG_ERROR("connection == nullptr.");
+            return engine.CreateUndefined();
+        }
         connection->SetJsConnectionObject(info.argv[1]);
         int64_t connectId = serialNumber_;
         ConnecttionKey key;

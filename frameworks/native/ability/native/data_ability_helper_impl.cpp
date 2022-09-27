@@ -90,6 +90,10 @@ void DataAbilityHelperImpl::AddDataAbilityDeathRecipient(const sptr<IRemoteObjec
                     DataAbilityHelperImpl->OnSchedulerDied(remote);
                 }
             });
+        if (callerDeathRecipient_ == nullptr) {
+            HILOG_ERROR("callerDeathRecipient_ == nullptr.");
+            return;
+        }
     }
     if (token != nullptr) {
         HILOG_INFO("Add death recipient.");

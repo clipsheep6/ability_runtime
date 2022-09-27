@@ -50,7 +50,11 @@ void LocalCallRecord::SetRemoteObject(const sptr<IRemoteObject> &call)
             }
             record->OnCallStubDied(remote);
         };
-        callRecipient_ = new CallRecipient(diedTask);
+        callRecipient_ = new (std::nothrow) CallRecipient(diedTask);
+        if (callRecipient_ == nullptr) {
+            HILOG_ERROR("callRecipient == nullptr");
+            return;
+        }
     }
     remoteObject_->AddDeathRecipient(callRecipient_);
     HILOG_DEBUG("SetRemoteObject complete.");

@@ -61,7 +61,12 @@ std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperationBuilder::WithVa
     std::map<std::string, NativeRdb::ValueObject> valuesMap;
     values->GetAll(valuesMap);
 
-    valuesBucket_.reset(new (std::nothrow) NativeRdb::ValuesBucket(valuesMap));
+    auto bucket = new (std::nothrow) NativeRdb::ValuesBucket(valuesMap);
+    if (bucket == nullptr) {
+        HILOG_ERROR("bucket == nullptr.");
+        return nullptr;
+    }
+    valuesBucket_.reset(bucket);
     HILOG_DEBUG("DataAbilityOperationBuilder::WithValuesBucket end");
     return shared_from_this();
 }

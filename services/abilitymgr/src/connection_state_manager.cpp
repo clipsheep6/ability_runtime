@@ -501,6 +501,10 @@ void ConnectionStateManager::InitAppStateObserver()
     appStateObserver_ = new (std::nothrow)InnerAppStateObserver([](int32_t pid) {
         DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleAppDied(pid);
     });
+    if (appStateObserver_ == nullptr) {
+        HILOG_ERROR("appStateObserver_ == nullptr");
+        return;
+    }
     int32_t err = appManager->RegisterApplicationStateObserver(appStateObserver_);
     if (err != 0) {
         HILOG_ERROR("%{public}s register to appmanager failed. err:%{public}d", __func__, err);

@@ -67,6 +67,10 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     }
 
     startSpecifiedAbilityResponse_ = new (std::nothrow) StartSpecifiedAbilityResponse();
+    if (startSpecifiedAbilityResponse_ == nullptr) {
+        HILOG_ERROR("startSpecifiedAbilityResponse_ == nullptr");
+        return false;
+    }
     appMgrClient_->RegisterStartSpecifiedAbilityResponse(startSpecifiedAbilityResponse_);
 
     HILOG_INFO("success to ConnectAppMgrService");

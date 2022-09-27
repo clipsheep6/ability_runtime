@@ -209,12 +209,16 @@ int DataAbilityRecord::AddClient(const sptr<IRemoteObject> &client, bool tryBind
     }
     if (callerDeathRecipient_ == nullptr) {
         std::weak_ptr<DataAbilityRecord> thisWeakPtr(weak_from_this());
-        callerDeathRecipient_ = new DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+        callerDeathRecipient_ = new (std::nothrow) DataAbilityCallerRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
             auto dataAbilityRecord = thisWeakPtr.lock();
             if (dataAbilityRecord) {
                 dataAbilityRecord->OnSchedulerDied(remote);
             }
         });
+        if (callerDeathRecipient_ == nullptr) {
+            HILOG_ERROR("callerDeathRecipient_ == nullptr");
+            return ERR_INVALID_STATE;
+        }
     }
     if (client != nullptr) {
         client->AddDeathRecipient(callerDeathRecipient_);

@@ -53,6 +53,10 @@ NativeValue *AttachAbilityStageContext(NativeEngine *engine, void *value, void *
     }
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachAbilityStageContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr ability stage context is called");
@@ -142,6 +146,10 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::Context>(context);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return;
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachAbilityStageContext,
         workContext, nullptr);
     context->Bind(jsRuntime_, shellContextRef_.get());

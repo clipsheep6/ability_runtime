@@ -162,6 +162,10 @@ void LocalCallContainer::OnAbilityConnectDone(
     if (GetCallLocalRecord(element, localCallRecord)) {
         auto callRecipient = new (std::nothrow) CallRecipient(
             std::bind(&LocalCallContainer::OnCallStubDied, this, std::placeholders::_1));
+        if (callRecipient == nullptr) {
+            HILOG_ERROR("callRecipient == nullptr");
+            return;
+        }
         localCallRecord->SetRemoteObject(remoteObject, callRecipient);
         localCallRecord->InvokeCallBack();
     }

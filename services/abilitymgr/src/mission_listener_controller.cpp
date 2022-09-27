@@ -60,12 +60,16 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
     if (!listenerDeathRecipient_) {
         std::weak_ptr<MissionListenerController> thisWeakPtr(shared_from_this());
         listenerDeathRecipient_ =
-            new ListenerDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            new (std::nothrow) ListenerDeathRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
                 auto controller = thisWeakPtr.lock();
                 if (controller) {
                     controller->OnListenerDied(remote);
                 }
             });
+        if (listenerDeathRecipient_ == nullptr) {
+            HILOG_ERROR("listenerDeathRecipient_ == nullptr");
+            return 0;
+        }
     }
     auto listenerObject = listener->AsObject();
     if (listenerObject) {

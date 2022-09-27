@@ -134,6 +134,10 @@ private:
         }
 
         missionListener_ = new JsMissionListener(&engine);
+        if (missionListener_ == nullptr) {
+            HILOG_ERROR("missionListener_ == nullptr");
+            return engine.CreateUndefined();
+        }
         auto ret = AbilityManagerClient::GetInstance()->RegisterMissionListener(missionListener_);
         if (ret == 0) {
             missionListener_->AddJsListenerObject(missionListenerId_, info.argv[0]);

@@ -407,7 +407,11 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     want.SetParam(PERMISSION_KEY, permissions);
     want.SetParam(STATE_KEY, permissionsState);
     want.SetParam(TOKEN_KEY, token_);
-    sptr<IRemoteObject> remoteObject = new AbilityRuntime::AuthorizationResult(std::move(task));
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) AbilityRuntime::AuthorizationResult(std::move(task));
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("remoteObject == nullptr.");
+        return remoteObject;
+    }
     want.SetParam(CALLBACK_KEY, remoteObject);
     StartAbility(want, -1);
     HILOG_DEBUG("%{public}s end.", __func__);

@@ -306,6 +306,10 @@ int AbilityManagerStub::ScheduleCommandAbilityDoneInner(MessageParcel &data, Mes
 int AbilityManagerStub::AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<Uri> uri(new Uri(data.ReadString()));
+    if (uri == nullptr) {
+        HILOG_ERROR("uri == nullptr.");
+        return ERR_INVALID_VALUE;
+    }
     bool tryBind = data.ReadBool();
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     sptr<IAbilityScheduler> result = AcquireDataAbility(*uri, tryBind, callerToken);

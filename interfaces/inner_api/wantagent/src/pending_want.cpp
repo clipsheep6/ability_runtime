@@ -316,6 +316,10 @@ void PendingWant::RegisterCancelListener(
     std::scoped_lock<std::mutex> lock(lock_object);
     if (cancelReceiver_ == nullptr) {
         cancelReceiver_ = new (std::nothrow) CancelReceiver(weak_from_this());
+        if (cancelReceiver_ == nullptr) {
+            HILOG_ERROR("cancelReceiver_ == nullptr.");
+            return;
+        }
     }
     bool isEmpty = cancelListeners_.empty();
     cancelListeners_.push_back(cancelListener);

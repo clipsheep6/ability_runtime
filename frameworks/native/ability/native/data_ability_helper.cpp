@@ -46,7 +46,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const std::shared_
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -80,7 +84,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
     if (dataShareHelper) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -115,7 +123,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataShareHelper = DataShare::DataShareHelper::Creator(context, dataShareUri.ToString());
     if (dataShareHelper) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -139,7 +151,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -163,7 +179,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(context, uri, tryBind);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -181,7 +201,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(const sptr<IRemote
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);
 }
@@ -207,7 +231,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
     DataAbilityHelper *ptrDataAbilityHelper = nullptr;
     auto dataAbilityHelperImpl = DataAbilityHelperImpl::Creator(token, uri);
     if (dataAbilityHelperImpl) {
-        ptrDataAbilityHelper = new DataAbilityHelper(dataAbilityHelperImpl);
+        ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataAbilityHelperImpl);
+        if (ptrDataAbilityHelper == nullptr) {
+            HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+            return nullptr;
+        }
     } else {
         HILOG_INFO("Call DataAbilityHelperImpl Creator failed, Call DataShareHelper Creator with token & uri.");
         Uri dataShareUri("");
@@ -216,7 +244,11 @@ std::shared_ptr<DataAbilityHelper> DataAbilityHelper::Creator(
         }
         auto dataShareHelper = DataShare::DataShareHelper::Creator(token, dataShareUri.ToString());
         if (dataShareHelper) {
-            ptrDataAbilityHelper = new DataAbilityHelper(dataShareHelper);
+            ptrDataAbilityHelper = new (std::nothrow) DataAbilityHelper(dataShareHelper);
+            if (ptrDataAbilityHelper == nullptr) {
+                HILOG_ERROR("ptrDataAbilityHelper == nullptr.");
+                return nullptr;
+            }
         }
     }
     return std::shared_ptr<DataAbilityHelper>(ptrDataAbilityHelper);

@@ -53,6 +53,10 @@ NativeValue* AttachFormExtensionContext(NativeEngine* engine, void* value, void*
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachFormExtensionContext,
         value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void * data, void *) {
             HILOG_INFO("Finalizer for weak_ptr form extension context is called");
@@ -125,6 +129,10 @@ void JsFormExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(context);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return;
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachFormExtensionContext,
         workContext, nullptr);
     HILOG_INFO("JsFormExtension::Init Bind.");
@@ -268,6 +276,10 @@ sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
     if (providerRemoteObject_ == nullptr) {
         HILOG_INFO("%{public}s providerRemoteObject_ is nullptr, need init.", __func__);
         sptr<FormExtensionProviderClient> providerClient = new (std::nothrow) FormExtensionProviderClient();
+        if (providerClient == nullptr) {
+            HILOG_ERROR("providerClient == nullptr.");
+            return nullptr;
+        }
         std::shared_ptr<JsFormExtension> formExtension = std::static_pointer_cast<JsFormExtension>(shared_from_this());
         providerClient->SetOwner(formExtension);
         providerRemoteObject_ = providerClient->AsObject();

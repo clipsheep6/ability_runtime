@@ -54,6 +54,10 @@ NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *
     nObject->ConvertToNativeBindingObject(engine,
         DetachCallbackFunc, AttachStaticSubscriberExtensionContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<StaticSubscriberExtensionContext>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr static subscriber extension context is called");
@@ -64,7 +68,12 @@ NativeValue *AttachStaticSubscriberExtensionContext(NativeEngine *engine, void *
 
 JsStaticSubscriberExtension* JsStaticSubscriberExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    return new JsStaticSubscriberExtension(static_cast<JsRuntime&>(*runtime));
+    auto extension = new JsStaticSubscriberExtension(static_cast<JsRuntime&>(*runtime));
+    if (extension == nullptr) {
+        HILOG_ERROR("extension == nullptr.");
+        return nullptr;
+    }
+    return extension;
 }
 
 JsStaticSubscriberExtension::JsStaticSubscriberExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
@@ -121,6 +130,10 @@ void JsStaticSubscriberExtension::Init(const std::shared_ptr<AbilityLocalRecord>
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<StaticSubscriberExtensionContext>(context);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc,
         AttachStaticSubscriberExtensionContext, workContext, nullptr);
     HILOG_INFO("JsStaticSubscriberExtension::Init Bind.");
@@ -158,6 +171,10 @@ sptr<IRemoteObject> JsStaticSubscriberExtension::OnConnect(const AAFwk::Want& wa
     HILOG_INFO("%{public}s begin.", __func__);
     sptr<StaticSubscriberStubImp> remoteObject = new (std::nothrow) StaticSubscriberStubImp(
         std::static_pointer_cast<JsStaticSubscriberExtension>(shared_from_this()));
+    if (remoteObj == nullptr) {
+        HILOG_ERROR("remoteObj == nullptr.");
+        return nullptr;
+    }
     HILOG_INFO("%{public}s end. ", __func__);
     return remoteObject->AsObject();
 }

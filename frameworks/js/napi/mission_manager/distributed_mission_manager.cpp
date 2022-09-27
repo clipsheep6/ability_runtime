@@ -205,6 +205,10 @@ napi_value NAPI_StartSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     auto syncContext = new SyncRemoteMissionsContext();
+    if (syncContext == nullptr) {
+        HILOG_ERROR("syncContext == nullptr");
+        return WrapVoidToJS(env);
+    }
     if (!ProcessSyncInput(env, info, true, syncContext)) {
         delete syncContext;
         syncContext = nullptr;
@@ -277,6 +281,10 @@ napi_value NAPI_StopSyncRemoteMissions(napi_env env, napi_callback_info info)
 {
     HILOG_INFO("%{public}s, called.", __func__);
     auto syncContext = new SyncRemoteMissionsContext();
+    if (syncContext == nullptr) {
+        HILOG_ERROR("syncContext == nullptr");
+        return WrapVoidToJS(env);
+    }
     if (!ProcessSyncInput(env, info, false, syncContext)) {
         delete syncContext;
         syncContext = nullptr;
@@ -328,6 +336,10 @@ void RegisterMissionExecuteCB(napi_env env, void *data)
     } else {
         HILOG_INFO("registration not exits.");
         registration = new (std::nothrow) NAPIRemoteMissionListener();
+        if (registration == nullpter) {
+            HILOG_ERROR("registration == nullptr.");
+            return;
+        }
     }
     registerMissionCB->missionRegistration = registration;
     if (registerMissionCB->missionRegistration == nullptr) {
@@ -658,7 +670,11 @@ void NAPIRemoteMissionListener::NotifyMissionsChanged(const std::string& deviceI
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullpter) {
+        HILOG_ERROR("work == nullptr");
+        return;
+    }
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
@@ -728,7 +744,12 @@ void NAPIRemoteMissionListener::NotifySnapshot(const std::string& deviceId, int3
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;    
+    if (work == nullpter) {
+        HILOG_ERROR("work == nullptr");
+        return;
+    }
+
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {
@@ -790,7 +811,11 @@ void NAPIRemoteMissionListener::NotifyNetDisconnect(const std::string& deviceId,
         return;
     }
 
-    uv_work_t *work = new uv_work_t;
+    uv_work_t *work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work == nullptr");
+        return;
+    }
 
     auto registerMissionCB = new (std::nothrow) RegisterMissionCB;
     if (registerMissionCB == nullptr) {

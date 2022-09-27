@@ -46,6 +46,10 @@ int ConnectionObserverController::AddObserver(const sptr<AbilityRuntime::IConnec
                     controller->HandleRemoteDied(remote);
                 }
             });
+        if (observerDeathRecipient_ == nullptr) {
+            HILOG_ERROR("observerDeathRecipient_ == nullptr");
+            return 0;
+        }
     }
     auto observerObj = observer->AsObject();
     if (observerObj) {

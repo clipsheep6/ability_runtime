@@ -86,6 +86,10 @@ sptr<IQuickFixManager> QuickFixManagerClient::ConnectQuickFixManagerService()
         };
 
         sptr<QfmsDeathRecipient> recipient(new (std::nothrow) QfmsDeathRecipient(onClearProxyCallback));
+        if (recipient == nullptr) {
+            HILOG_ERROR("recipient == nullptr.");
+            return nullptr;
+        }
         quickFixMgr_->AsObject()->AddDeathRecipient(recipient);
     }
 

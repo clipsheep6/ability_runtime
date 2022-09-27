@@ -2532,7 +2532,11 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
         return;
     }
 
-    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
+    sptr<AppDeathRecipient> appDeathRecipient = new (std::nothrow) AppDeathRecipient();
+    if (appDeathRecipient == nullptr) {
+        HILOG_ERROR("appDeathRecipient == nullptr");
+        return;
+    }
     appDeathRecipient->SetEventHandler(eventHandler_);
     appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
     appDeathRecipient->SetIsRenderProcess(true);
@@ -2650,7 +2654,11 @@ void AppMgrServiceInner::InitFocusListener()
         return;
     }
 
-    focusListener_ = new WindowFocusChangedListener(shared_from_this(), eventHandler_);
+    focusListener_ = new (std::nothrow) WindowFocusChangedListener(shared_from_this(), eventHandler_);
+    if (focusListener_ == nullptr) {
+        HILOG_ERROR("focusListener_ == nullptr");
+        return;
+    }
     auto registerTask = [innerService = shared_from_this()]() {
         if (innerService) {
             HILOG_INFO("RegisterFocusListener task");

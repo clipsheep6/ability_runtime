@@ -734,6 +734,10 @@ NativeValue* JsAbilityContext::OnConnectAbility(NativeEngine& engine, NativeCall
 
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(engine);
+    if (connection == nullptr) {
+        HILOG_ERROR("connection == nullptr");
+        return engine.CreateUndefined();
+    }
     connection->SetJsConnectionObject(info.argv[1]);
     int64_t connectId = g_serialNumber;
     ConnectionKey key;
@@ -794,6 +798,10 @@ NativeValue* JsAbilityContext::OnConnectAbilityWithAccount(NativeEngine& engine,
 
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(engine);
+    if (connection == nullptr) {
+        HILOG_ERROR("connection == nullptr");
+        return engine.CreateUndefined();
+    }
     connection->SetJsConnectionObject(info.argv[INDEX_TWO]);
     int64_t connectId = g_serialNumber;
     ConnectionKey key;

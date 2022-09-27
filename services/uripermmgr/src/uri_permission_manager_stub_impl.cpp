@@ -173,6 +173,10 @@ sptr<AppExecFwk::IBundleMgr> UriPermissionManagerStubImpl::ConnectBundleManager(
             }
         };
         sptr<BMSDeathRecipient> recipient(new BMSDeathRecipient(onClearProxyCallback));
+        if (recipient == nullptr) {
+            HILOG_ERROR("recipient == nullptr");
+            return nullptr;
+        }
         bundleManager_->AsObject()->AddDeathRecipient(recipient);
     }
     HILOG_DEBUG("%{public}s end.", __func__);

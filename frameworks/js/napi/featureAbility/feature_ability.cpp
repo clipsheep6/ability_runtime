@@ -683,8 +683,16 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
         return;
     }
 
-    auto work = new uv_work_t;
-    auto onAbilityCB = new OnAbilityCallback;
+    auto work = new (std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        HILOG_ERROR("work == nullptr.");
+        return;
+    }
+    auto onAbilityCB = new (std::nothrow) OnAbilityCallback;
+    if (onAbilityCB == nullptr) {
+        HILOG_ERROR("work == nullptr.");
+        return;
+    }
     onAbilityCB->requestCode = requestCode;
     onAbilityCB->resultCode = resultCode;
     onAbilityCB->resultData = resultData;

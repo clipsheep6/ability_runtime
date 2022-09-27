@@ -122,8 +122,13 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
             continuationManager_.reset();
         } else {
             std::weak_ptr<ContinuationHandler> continuationHandler = continuationHandler_;
+            auto schedulePrimary = new (std::nothrow) ReverseContinuationSchedulerPrimary(continuationHandler, handler_);
+            if (schedulePrimary == nullptr) {
+                HILOG_ERROR("schedulePrimary == nullptr.");
+                return;
+            }
             sptr<ReverseContinuationSchedulerPrimary> primary = sptr<ReverseContinuationSchedulerPrimary>(
-                new (std::nothrow) ReverseContinuationSchedulerPrimary(continuationHandler, handler_));
+                schedulePrimary);
             if (primary == nullptr) {
                 HILOG_ERROR("Ability::Init failed,primary create failed");
             } else {
@@ -134,7 +139,11 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_DEBUG("Ability::Init call RegisterDisplayListener");
-        abilityDisplayListener_ = new AbilityDisplayListener(ability);
+        abilityDisplayListener_ = new (std::nothrow) AbilityDisplayListener(ability);
+        if (abilityDisplayListener_ == nullptr) {
+            HILOG_ERROR("abilityDisplayListener_ == nullptr.");
+            return;
+        }
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif
@@ -225,7 +234,11 @@ void Ability::OnStart(const Want &want)
                 if (winType == Rosen::WindowType::WINDOW_TYPE_APP_MAIN_WINDOW) {
                     HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", windowId);
                     std::weak_ptr<Ability> weakAbility = shared_from_this();
-                    abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weakAbility);
+                    abilityDisplayMoveListener_ = new (std::nothrow) AbilityDisplayMoveListener(weakAbility);
+                    if (abilityDisplayMoveListener_ == nullptr) {
+                        HILOG_ERROR("abilityDisplayMoveListener_ == nullptr.");
+                        return;
+                    }
                     window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
                 }
             }
@@ -977,8 +990,13 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     if (success && reversible) {
         // Register this ability to receive reverse continuation callback.
         std::weak_ptr<IReverseContinuationSchedulerReplicaHandler> ReplicaHandler = continuationHandler_;
+        auto replica = new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler);
+        if (replica == nullptr) {
+            HILOG_ERROR("replica == nullptr.");
+            return;
+        }
         reverseContinuationSchedulerReplica_ = sptr<ReverseContinuationSchedulerReplica>(
-            new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
+            replica);
 
         if (reverseContinuationSchedulerReplica_ == nullptr) {
             HILOG_ERROR(
@@ -1708,6 +1726,10 @@ sptr<IRemoteObject> Ability::GetFormRemoteObject()
     HILOG_DEBUG("%{public}s start", __func__);
     if (providerRemoteObject_ == nullptr) {
         sptr<FormProviderClient> providerClient = new (std::nothrow) FormProviderClient();
+        if (providerClient == nullptr) {
+            HILOG_ERROR("providerClient == nullptr");
+            return nullptr;
+        }
         std::shared_ptr<Ability> thisAbility = this->shared_from_this();
         if (thisAbility == nullptr) {
             HILOG_ERROR("%{public}s failed, thisAbility is nullptr", __func__);
@@ -1726,7 +1748,7 @@ void Ability::SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener)
 
 sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 {
-    sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    sptr<Rosen::WindowOption> option = new (std::nothrow) Rosen::WindowOption();
     if (option == nullptr) {
         HILOG_ERROR("Ability::GetWindowOption option is null.");
         return nullptr;

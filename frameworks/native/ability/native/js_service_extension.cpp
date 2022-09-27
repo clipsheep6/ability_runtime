@@ -72,6 +72,10 @@ NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, vo
     nObject->ConvertToNativeBindingObject(engine, DetachCallbackFunc, AttachServiceExtensionContext,
         value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nObject->SetNativePointer(workContext,
         [](NativeEngine *, void *data, void *) {
             HILOG_INFO("Finalizer for weak_ptr service extension context is called");
@@ -82,7 +86,12 @@ NativeValue *AttachServiceExtensionContext(NativeEngine *engine, void *value, vo
 
 JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
-    return new JsServiceExtension(static_cast<JsRuntime&>(*runtime));
+    auto extension = new (std::nothrow) JsServiceExtension(static_cast<JsRuntime&>(*runtime));
+    if (extension == nullptr) {
+        HILOG_ERROR("extension == nullptr.");
+        return nullptr;
+    }
+    return extension;
 }
 
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
@@ -142,6 +151,10 @@ void JsServiceExtension::BindContext(NativeEngine& engine, NativeObject* obj)
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
+    if (workContext == nullptr) {
+        HILOG_ERROR("workContext == nullptr.");
+        return nullptr;
+    }
     nativeObj->ConvertToNativeBindingObject(&engine, DetachCallbackFunc, AttachServiceExtensionContext,
         workContext, nullptr);
     HILOG_INFO("JsServiceExtension::Init Bind.");

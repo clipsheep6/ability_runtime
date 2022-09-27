@@ -440,7 +440,11 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
     }
     auto resultTask =
         [&engine, requestCode](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
-        auto retCB = new ResultCallback();
+        auto retCB = new (std::nothrow) ResultCallback();
+        if (retCB == nullptr) {
+            HILOG_ERROR("retCB == nullptr.");
+            return;
+        }
         retCB->permissions_ = permissions;
         retCB->grantResults_ = grantResults;
         retCB->requestCode_ = requestCode;
@@ -450,7 +454,11 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
             HILOG_ERROR("StartGrantExtension, fail to get uv loop.");
             return;
         }
-        auto work = new uv_work_t;
+        auto work = new (std::nothrow) uv_work_t;
+        if (work == nullptr) {
+            HILOG_ERROR("work == nullptr.");
+            return;
+        }
         work->data = (void *)retCB;
         int rev = uv_queue_work(
             loop,
@@ -469,7 +477,11 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
         }
     };
 
-    sptr<IRemoteObject> remoteObject = new AuthorizationResult(std::move(resultTask));
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) AuthorizationResult(std::move(resultTask));
+    if (remoteObject == nullptr) {
+        HILOG_ERROR("remoteObject == nullptr.");
+        return;
+    }
     want.SetParam(CALLBACK_KEY, remoteObject);
 
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, -1);

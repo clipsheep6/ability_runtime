@@ -126,7 +126,12 @@ bool ConnectionObserverClientImpl::RegisterObserverToServiceLocked(const std::sh
     }
 
     if (!observer_) {
-        observer_ = sptr<IConnectionObserver>(new (std::nothrow) ConnectionObserverStubImpl(shared_from_this()));
+        auto observer = new (std::nothrow) ConnectionObserverStubImpl(shared_from_this());
+        if (observer == nullptr) {
+            HILOG_ERROR("observer == nullptr");
+            return false;
+        }
+        observer_ = sptr<IConnectionObserver>(observer);
     }
 
     if (proxy->RegisterObserver(observer_) != ERR_OK) {
