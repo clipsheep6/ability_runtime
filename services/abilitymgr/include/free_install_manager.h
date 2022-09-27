@@ -116,7 +116,6 @@ private:
     std::weak_ptr<AbilityManagerService> server_;
     std::vector<FreeInstallInfo> freeInstallList_;
     std::vector<FreeInstallInfo> dmsFreeInstallCbs_;
-    std::map<std::string, std::time_t> timeStampMap_;
     std::mutex distributedFreeInstallLock_;
     std::mutex freeInstallListLock_;
     /**
@@ -135,7 +134,6 @@ private:
     void NotifyFreeInstallResult(const Want &want, int resultCode);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
         const sptr<IRemoteObject> &callerToken);
-    std::time_t GetTimeStamp();
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -15,8 +15,6 @@
 
 #include "free_install_manager.h"
 
-#include <chrono>
-
 #include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "ability_manager_service.h"
@@ -33,7 +31,6 @@ const std::string PARAM_FREEINSTALL_APPID = "ohos.freeinstall.params.callingAppI
 const std::string PARAM_FREEINSTALL_BUNDLENAMES = "ohos.freeinstall.params.callingBundleNames";
 const std::string PARAM_FREEINSTALL_UID = "ohos.freeinstall.params.callingUid";
 constexpr uint32_t IDMS_CALLBACK_ON_FREE_INSTALL_DONE = 0;
-constexpr uint32_t UPDATE_ATOMOIC_SERVICE_TASK_TIMER = 24 * 60 * 60 * 1000; /* 24h */
 
 FreeInstallManager::FreeInstallManager(const std::weak_ptr<AbilityManagerService> &server)
     : server_(server)
@@ -339,34 +336,18 @@ int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
     return ERR_OK;
 }
 
-std::time_t FreeInstallManager::GetTimeStamp()
-{
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp =
-        std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
-    std::time_t timestamp = tp.time_since_epoch().count();
-    return timestamp;
-}
-
 void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int32_t userId)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     NotifyDmsCallback(want, resultCode);
     NotifyFreeInstallResult(want, resultCode);
 
-    std::weak_ptr<FreeInstallManager> thisWptr(shared_from_this());
     if (resultCode == ERR_OK) {
-        auto updateAtmoicServiceTask = [want, userId, thisWptr, &timeStampMap = timeStampMap_]() {
-            auto sptr = thisWptr.lock();
-            HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s", want.GetElement().GetBundleName().c_str(),
-                want.GetElement().GetModuleName().c_str());
-            std::string nameKey = want.GetElement().GetBundleName() + want.GetElement().GetModuleName();
-            if (timeStampMap.find(nameKey) == timeStampMap.end() ||
-                sptr->GetTimeStamp() - timeStampMap[nameKey] > UPDATE_ATOMOIC_SERVICE_TASK_TIMER) {
-                auto bms = AbilityUtil::GetBundleManager();
-                CHECK_POINTER(bms);
-                bms->UpgradeAtomicService(want, userId);
-                timeStampMap.emplace(nameKey, sptr->GetTimeStamp());
-            }
+        auto updateAtmoicServiceTask = [want, userId]() {
+            HILOG_DEBUG("Update atmoic service task start");
+            auto bms = AbilityUtil::GetBundleManager();
+            CHECK_POINTER(bms);
+            bms->UpgradeAtomicService(want, userId);
         };
 
         std::shared_ptr<AbilityEventHandler> handler =
