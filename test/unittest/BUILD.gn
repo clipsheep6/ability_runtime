@@ -313,6 +313,7 @@ group("unittest") {
     "dataobs_mgr_client_test:unittest",
     "dataobs_mgr_inner_test:unittest",
     "dataobs_mgr_proxy_test:unittest",
+    "dataobs_mgr_service_dump_test:unittest",
     "dataobs_mgr_service_test:unittest",
     "dataobs_mgr_stub_test:unittest",
     "dlp_utils_test:unittest",
