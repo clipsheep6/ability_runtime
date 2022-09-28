@@ -106,6 +106,7 @@ private:
     std::mutex cvMutex_;
     std::condition_variable cvWatchdog_;
     static std::shared_ptr<EventHandler> appMainHandler_;
+    uint64_t lastWatchTime_ = 0;
 };
 
 class MainHandlerDumper : public Dumper {
