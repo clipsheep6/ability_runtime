@@ -221,8 +221,11 @@ void JsAbility::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStop begin.");
+    if (abilityContext_) {
+        HILOG_DEBUG("OnStop, set terminating true.");
+        abilityContext_->SetTerminating(true);
+    }
     Ability::OnStop();
-
     CallObjectMethod("onDestroy");
     OnStopCallback();
     HILOG_DEBUG("OnStop end.");
@@ -238,6 +241,11 @@ void JsAbility::OnStop(AppExecFwk::AbilityTransactionCallbackInfo *callbackInfo,
 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("OnStop begin.");
+    if (abilityContext_) {
+        HILOG_DEBUG("OnStop, set terminating true.");
+        abilityContext_->SetTerminating(true);
+    }
+
     Ability::OnStop();
 
     HandleScope handleScope(jsRuntime_);
