@@ -116,7 +116,7 @@ void Watchdog::Timer()
         constexpr int RESET_RATIO = 2;
         if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
             HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
-                now, lastWatchTime_);
+                static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
             lastWatchTime_ = now;
             return;
         }
