@@ -873,6 +873,8 @@ private:
         const AbilityRequest &abilityRequest);
     void StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
+    void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);
+    void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
 #endif
 
     static int64_t abilityRecordId;
@@ -951,6 +953,8 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
+    uint32_t bgColor_ = 0;
+    std::shared_ptr<Media::PixelMap> startingWindowBg_ = nullptr;
 #endif
 };
 }  // namespace AAFwk
