@@ -245,5 +245,33 @@ HWTEST_F(MissionListManagerTest, OnAcceptWantResponse_002, TestSize.Level1)
     EXPECT_EQ(ability->IsNewWant(), false);
     missionListManager.reset();
 }
+
+/*
+ * Feature: MissionListManager
+ * Function: SetMissionLabel
+ * SubFunction: NA
+ * FunctionPoints: MissionListManager SetMissionLabel
+ * EnvConditions: NA
+ * CaseDescription: Verify SetMissionLabel
+ */
+HWTEST_F(MissionListManagerTest, SetMissionLabel_001, TestSize.Level1)
+{
+    int userId = 0;
+    auto missionListManager = std::make_shared<MissionListManager>(userId);
+    missionListManager->Init();
+
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    Want want;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto ability = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    auto mission = std::make_shared<Mission>(11, ability, "missionName");
+    mission->abilityRecord_ = ability;
+
+    EXPECT_EQ(missionListManager->SetMissionLabel(nullptr, "label"), -1);
+    EXPECT_EQ(missionListManager->SetMissionLabel(ability->GetToken(), "label"), -1);
+
+    missionListManager.reset();
+}
 }  // namespace AAFwk
 }  // namespace OHOS

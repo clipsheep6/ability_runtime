@@ -31,7 +31,7 @@ const std::string MAIN_ABILITY_PATH("ets/MainAbility");
 const std::string ERROR_PATH("ets/MainAbilityXXX");
 const std::string MAIN_ABILITY_FILENAME("ets/MainAbility/MainAbility.abc");
 const std::string ERROR_FILENAME("ets/MainAbility/XXX.abc");
-}
+} // namespace
 class RuntimeExtractorTest : public testing::Test {
 public:
     static void SetUpTestCase();
