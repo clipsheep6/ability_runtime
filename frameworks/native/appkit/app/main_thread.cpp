@@ -755,7 +755,9 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     bool isStageBased = bundleInfo.hapModuleInfos.empty() ? false : bundleInfo.hapModuleInfos.back().isStageBasedModel;
-    if (isStageBased && !bundleInfo.applicationInfo.multiProjects) {
+    if (isStageBased && bundleInfo.applicationInfo.multiProjects) {
+        HILOG_INFO("MainThread::InitResourceManager for multiProjects.");
+    } else {
         std::vector<std::string> resPaths;
         ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
         for (auto moduleResPath : resPaths) {
