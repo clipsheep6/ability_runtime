@@ -63,5 +63,47 @@ HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0100, TestSize.Level1)
 
     HILOG_INFO("DataobsMgrServiceDump_0100 end");
 }
+
+/*
+ * @tc.number    : DataobsMgrServiceDump_0200
+ * @tc.name      : DataobsMgrService dump
+ * @tc.desc      : 1.Test dump interface
+ */
+HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0200, TestSize.Level1)
+{
+    HILOG_INFO("DataobsMgrServiceDump_0200 start");
+
+    auto dataobsMgrService = std::make_shared<DataObsMgrService>();
+    EXPECT_NE(dataobsMgrService, nullptr);
+
+    constexpr int fd(0);
+    std::vector<std::u16string> args;
+    auto result = dataobsMgrService->Dump(fd, args);
+    EXPECT_EQ(result, ERR_OK);
+
+    HILOG_INFO("DataobsMgrServiceDump_0200 end");
+}
+
+/*
+ * @tc.number    : DataobsMgrServiceDump_0300
+ * @tc.name      : DataobsMgrService dump
+ * @tc.desc      : 1.Test dump interface
+ */
+HWTEST_F(DataobsMgrServiceDumpTest, DataobsMgrServiceDump_0300, TestSize.Level1)
+{
+    HILOG_INFO("DataobsMgrServiceDump_0300 start");
+
+    auto dataobsMgrService = std::make_shared<DataObsMgrService>();
+    EXPECT_NE(dataobsMgrService, nullptr);
+
+    constexpr int fd(0);
+    std::vector<std::u16string> args;
+    auto arg = Str8ToStr16("-i");
+    args.emplace_back(arg);
+    auto result = dataobsMgrService->Dump(fd, args);
+    EXPECT_EQ(result, ERR_OK);
+
+    HILOG_INFO("DataobsMgrServiceDump_0300 end");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
