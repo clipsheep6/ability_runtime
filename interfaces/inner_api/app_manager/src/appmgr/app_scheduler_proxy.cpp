@@ -253,23 +253,8 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
     HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage start");
     MessageParcel data;
-    constexpr int32_t max = 10000;
-    constexpr int32_t large = 60;
-    constexpr int32_t mid = 20;
-    auto abilityInfoSize = static_cast<int32_t>(abilityStage.abilityInfos.size());
-    auto extensionInfoSize = static_cast<int32_t>(abilityStage.extensionInfos.size());
-    if (abilityInfoSize > max || extensionInfoSize > max) {
-        HILOG_ERROR("size exceeds max");
-        return;
-    }
-    auto componentSize = abilityInfoSize + extensionInfoSize;
-    if (componentSize > large) {
-        constexpr int32_t size = 2 * 1024 * 1024; // 1.6 M
-        data.SetDataCapacity(size);
-    } else if (componentSize > mid) {
-        constexpr int32_t size = 800 * 1024; // 800 kb
-        data.SetDataCapacity(size);
-    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -283,9 +268,6 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
         HILOG_ERROR("Remote() is NULL");
         return;
     }
-
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO), data, reply, option);
     if (ret != NO_ERROR) {
