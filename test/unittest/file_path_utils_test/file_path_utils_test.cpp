@@ -233,5 +233,106 @@ HWTEST_F(FilePathUtilsTest, FixExtName_0100, TestSize.Level0)
     FixExtName(path4);
     EXPECT_TRUE(path4 == "123.abc");
 }
+
+/**
+ * @tc.name: GetInstallPath_0100
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0100, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/curJsModulePath";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, "/data/storage/el1/bundle/");
+}
+
+/**
+ * @tc.name: GetInstallPath_0200
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0200, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundle";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: GetInstallPath_0300
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0300, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundlescurJsModulePath";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: GetInstallPath_0400
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0400, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundles/curJsModulePath/module";
+    bool module = true;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: NormalizeUri_0100
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0100, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_FALSE(newJsModulePath.length());
+}
+
+/**
+ * @tc.name: NormalizeUri_0200
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0200, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "a";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_FALSE(newJsModulePath.length());
+}
+
+/**
+ * @tc.name: NormalizeUri_0300
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0300, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "a";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_FALSE(newJsModulePath.length());
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
