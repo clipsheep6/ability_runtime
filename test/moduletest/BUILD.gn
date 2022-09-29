@@ -61,7 +61,6 @@ group("moduletest") {
     "module_test_dump_util:module_test_dump_util",
     "on_new_want_module_test:moduletest",
     "panding_want_manager_test:moduletest",
-    "quick_fix:moduletest",
     "running_infos_module_test:moduletest",
     "start_option_display_id_test:moduletest",
     "//third_party/icu/icu4c:shared_icuuc",

@@ -126,8 +126,6 @@ public:
         return true;
     }
 
-    sptr<IQuickFixManager> GetQuickFixManagerProxy() override;
-
     BundleMgrService();
     virtual ~BundleMgrService() {}
     void MakingPackageData();
@@ -137,29 +135,6 @@ public:
     void MakingResidentProcData();
 private:
     std::vector<BundleInfo> bundleInfos_;
-    sptr<IQuickFixManager> quickFixManager_ = nullptr;
-};
-
-class QuickFixManagerHost : public IRemoteStub<IQuickFixManager> {
-public:
-    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-};
-
-class QuickFixManagerHostImpl : public QuickFixManagerHost {
-public:
-    MOCK_METHOD2(DeployQuickFix, ErrCode(const std::vector<std::string> &bundleFilePaths,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD3(SwitchQuickFix, ErrCode(const std::string &bundleName, bool enable,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD2(DeleteQuickFix, ErrCode(const std::string &bundleName,
-        const sptr<IQuickFixStatusCallback> &statusCallback));
-    MOCK_METHOD3(CreateFd, ErrCode(const std::string &fileName, int32_t &fd, std::string &path));
-
-    virtual ErrCode CopyFiles(const std::vector<std::string> &sourceFiles, std::vector<std::string> &destFiles) override
-    {
-        destFiles = sourceFiles;
-        return 0;
-    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
