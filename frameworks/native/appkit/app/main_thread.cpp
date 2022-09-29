@@ -761,13 +761,15 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
         std::vector<std::string> resPaths;
         ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
         for (auto moduleResPath : resPaths) {
-            if (!moduleResPath.empty()) {
-                HILOG_INFO("length: %{public}zu, moduleResPath: %{public}s",
-                    moduleResPath.length(),
-                    moduleResPath.c_str());
-                if (!resourceManager->AddResource(moduleResPath.c_str())) {
-                    HILOG_ERROR("AddResource failed");
-                }
+            if (moduleResPath.empty()) {
+                continue;
+            }
+
+            HILOG_INFO("length: %{public}zu, moduleResPath: %{public}s",
+                moduleResPath.length(),
+                moduleResPath.c_str());
+            if (!resourceManager->AddResource(moduleResPath.c_str())) {
+                HILOG_ERROR("AddResource failed");
             }
         }
     }

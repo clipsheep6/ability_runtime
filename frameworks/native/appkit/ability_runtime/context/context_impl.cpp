@@ -350,7 +350,8 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     }
 
     if (moduleContext || !bundleInfo.applicationInfo.multiProjects) {
-        HILOG_DEBUG("ContextImpl::InitResourceManager moduleResPaths count: %{public}zu", bundleInfo.moduleResPaths.size());
+        HILOG_DEBUG("ContextImpl::InitResourceManager moduleResPaths count: %{public}zu",
+            bundleInfo.moduleResPaths.size());
         std::vector<std::string> moduleResPaths;
         std::string inner(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
         std::string outer(ABS_CODE_PATH);
@@ -367,11 +368,13 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         }
 
         for (auto moduleResPath : moduleResPaths) {
-            if (!moduleResPath.empty()) {
-                if (!resourceManager->AddResource(moduleResPath.c_str())) {
-                    HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
-                        moduleResPath.c_str());
-                }
+            if (moduleResPath.empty()) {
+                continue;
+            }
+
+            if (!resourceManager->AddResource(moduleResPath.c_str())) {
+                HILOG_ERROR("ContextImpl::InitResourceManager AddResource fail, moduleResPath: %{public}s",
+                    moduleResPath.c_str());
             }
         }
     }
