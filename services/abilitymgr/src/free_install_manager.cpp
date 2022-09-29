@@ -238,12 +238,10 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     HILOG_INFO("isFromRemote = %{public}d", isFromRemote);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
-        int64_t requestTime = (*it).startInstallTime;
         std::string bundleName = (*it).want.GetElement().GetBundleName();
         std::string abilityName = (*it).want.GetElement().GetAbilityName();
-        if (want.GetElement().GetBundleName().compare(bundleName) != 0 &&
-            want.GetElement().GetAbilityName().compare(abilityName) != 0 &&
-            startInstallTime == requestTime) {
+        if (want.GetElement().GetBundleName().compare(bundleName) != 0 ||
+            want.GetElement().GetAbilityName().compare(abilityName) != 0) {
             it++;
             continue;
         }
@@ -253,12 +251,19 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
             continue;
         }
 
-        if ((*it).promise != nullptr) {
-            HILOG_INFO("Handle apps setvalue done.");
+        if ((*it).promise == nullptr) {
+            continue;
+        }
+        
+        if (resultCode == ERR_OK) {
+            HILOG_INFO("FreeInstall success.");
+            (*it).promise->set_value(resultCode);
+            (*it).isInstalled = true;
+        } else if ((*it).startInstallTime == startInstallTime) {
+            HILOG_INFO("FreeInstall failed.");
             (*it).promise->set_value(resultCode);
         }
 
-        (*it).isInstalled = true;
         it++;
     }
 }
