@@ -247,5 +247,168 @@ HWTEST_F(AbilityManagerServiceTest, CheckCallDataAbilityPermission_002, TestSize
     SetParameter(COMPONENT_STARTUP_NEW_RULES.c_str(), "false");
     HILOG_INFO("AbilityManagerServiceTest CheckCallDataAbilityPermission_002 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallOtherExtensionPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallOtherExtensionPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallOtherExtensionPermission_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_001 start");
+    bool oldFlag = abilityMs_->startUpNewRule_;
+    abilityMs_->startUpNewRule_ = true;
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), ERR_OK);
+    abilityMs_->startUpNewRule_ = oldFlag;
+    HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallOtherExtensionPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallOtherExtensionPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallOtherExtensionPermission_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_002 start");
+    abilityRequest_.abilityInfo.visible = false;
+    bool oldFlag = abilityMs_->startUpNewRule_;
+    abilityMs_->startUpNewRule_ = true;
+    EXPECT_EQ(abilityMs_->CheckCallOtherExtensionPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
+    abilityMs_->startUpNewRule_ = oldFlag;
+    HILOG_INFO("AbilityManagerServiceTest CheckCallOtherExtensionPermission_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallAbilityPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallAbilityPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_001 start");
+    bool oldFlag = abilityMs_->startUpNewRule_;
+    abilityMs_->startUpNewRule_ = true;
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
+    abilityMs_->startUpNewRule_ = oldFlag;
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallAbilityPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallAbilityPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_002 start");
+    bool oldFlag = abilityMs_->startUpNewRule_;
+    abilityMs_->startUpNewRule_ = false;
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
+    abilityMs_->startUpNewRule_ = oldFlag;
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallAbilityPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallAbilityPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_003, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_003 start");
+    abilityRequest_.abilityInfo.visible = false;
+    bool oldFlag = abilityMs_->startUpNewRule_;
+    abilityMs_->startUpNewRule_ = true;
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), CHECK_PERMISSION_FAILED);
+    abilityMs_->startUpNewRule_ = oldFlag;
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_003 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallAbilityPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallAbilityPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallAbilityPermission_004, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_004 start");
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
+    HILOG_INFO("AbilityManagerServiceTest CheckCallAbilityPermission_004 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckStartByCallPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckStartByCallPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_001 start");
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
+    HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckStartByCallPermission
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckStartByCallPermission
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckStartByCallPermission_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 start");
+    abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
+    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_NO_PERMISSIONS);
+    
+    abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::PAGE;
+    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
+    
+    abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::DATA;
+    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
+    
+    abilityRequest_.abilityInfo.type = AppExecFwk::AbilityType::DATA;
+    abilityRequest_.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
+    HILOG_INFO("AbilityManagerServiceTest CheckStartByCallPermission_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallerPermissionOldRule
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallerPermissionOldRule
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallerPermissionOldRule_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_001 start");
+    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, true), RESOLVE_CALL_NO_PERMISSIONS);
+    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, false), ERR_OK);
+    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckCallerPermissionOldRule
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckCallerPermissionOldRule
+ */
+HWTEST_F(AbilityManagerServiceTest, CheckCallerPermissionOldRule_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_002 start");
+    abilityRequest_.callerUid = USER_ID_U100;
+    EXPECT_EQ(abilityMs_->CheckCallerPermissionOldRule(abilityRequest_, true), RESOLVE_CALL_NO_PERMISSIONS);
+    HILOG_INFO("AbilityManagerServiceTest CheckCallerPermissionOldRule_002 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
