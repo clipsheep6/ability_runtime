@@ -56,6 +56,7 @@ struct AbilityStateData : public Parcelable {
     int32_t uid = 0;
     sptr<IRemoteObject> token;
     int32_t abilityType = 0;
+    bool isFocused = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

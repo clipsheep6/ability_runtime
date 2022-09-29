@@ -437,6 +437,9 @@ void AppRunningManager::GetRunningProcessInfoByToken(
     info.uid_ = appRecord->GetUid();
     info.bundleNames.emplace_back(appRecord->GetBundleName());
     info.state_ = static_cast<AppExecFwk::AppProcessState>(appRecord->GetState());
+    info.isContinuousTask = appRecord->IsContinuousTask();
+    info.isKeepAlive = appRecord->IsKeepAliveApp();
+    info.isFocused = appRecord->GetFocusFlag();
 }
 
 void AppRunningManager::ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr)
@@ -458,11 +461,12 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             return;
         }
         auto state = appRecord->GetState();
-        if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS) {
+        if (state == ApplicationState::APP_STATE_FOREGROUND) {
             AppStateData appData;
             appData.bundleName = appRecord->GetBundleName();
             appData.uid = appRecord->GetUid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
+            appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
             HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
         }
@@ -663,7 +667,7 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
             continue;
         }
         auto state = appRecord->GetState();
-        if ((state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS) &&
+        if (state == ApplicationState::APP_STATE_FOREGROUND &&
             appRecord->GetRecordId() != foregroundingRecord.GetRecordId()) {
             return false;
         }
@@ -679,7 +683,36 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
         const auto &appRecord = item.second;
         auto state = appRecord->GetState();
         if (appRecord && appRecord->GetBundleName() == bundleName &&
-            (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_FOCUS)) {
+            state == ApplicationState::APP_STATE_FOREGROUND) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
+{
+    HILOG_DEBUG("check focus function called.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != focusedRecord.GetBundleName()) {
+            continue;
+        }
+        if (appRecord->GetFocusFlag() && appRecord->GetRecordId() != focusedRecord.GetRecordId()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
+{
+    HILOG_DEBUG("check is application unfocused.");
+    std::lock_guard<std::recursive_mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName && appRecord->GetFocusFlag()) {
             return false;
         }
     }
