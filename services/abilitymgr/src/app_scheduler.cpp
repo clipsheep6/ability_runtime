@@ -34,7 +34,6 @@ const std::map<AppState, std::string> appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
     std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
     std::map<AppState, std::string>::value_type(AppState::END, "END"),
-    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
 };
 AppScheduler::AppScheduler() : appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>())
 {}
