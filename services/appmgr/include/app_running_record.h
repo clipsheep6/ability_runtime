@@ -194,9 +194,9 @@ public:
 
     // Get abilities_ for this process
     /**
-     * @brief Obtains the abilitys info for the application record.
+     * @brief Obtains the abilities info for the application record.
      *
-     * @return Returns the abilitys info for the application record.
+     * @return Returns the abilities info for the application record.
      */
     const std::map<const sptr<IRemoteObject>, std::shared_ptr<AbilityRunningRecord>> GetAbilities();
     // Update appThread with appThread
@@ -547,7 +547,7 @@ public:
 
 private:
     /**
-     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilitystage data.
+     * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
      *
      * @return If an uninitialized data is found return true,Otherwise return false.
      */
@@ -631,7 +631,7 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 
     bool isKilling_ = false;
-    bool isContinuousTask_ = false;    // Only continuestask processes can be set to true, please choose carefully
+    bool isContinuousTask_ = false;    // Only continuesTask processes can be set to true, please choose carefully
 
     // render record
     std::shared_ptr<RenderRecord> renderRecord_ = nullptr;

@@ -79,11 +79,11 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
     }
 
     ErrCode result = ERR_OK;
-    // openconnection failed, return fail
+    // open connection failed, return fail
     if (state_ != SpawnConnectionState::STATE_CONNECTED) {
         result = OpenConnection();
         if (FAILED(result)) {
-            HILOG_ERROR("connect to appspawn failed!");
+            HILOG_ERROR("connect to appSpawn failed!");
             return result;
         }
     }
@@ -125,11 +125,11 @@ ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
     }
 
     ErrCode result = ERR_OK;
-    // openconnection failed, return fail
+    // open connection failed, return fail
     if (state_ != SpawnConnectionState::STATE_CONNECTED) {
         result = OpenConnection();
         if (FAILED(result)) {
-            HILOG_ERROR("connect to appspawn failed!");
+            HILOG_ERROR("connect to appSpawn failed!");
             return result;
         }
     }

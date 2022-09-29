@@ -15,8 +15,6 @@
 
 #include "ability_running_record.h"
 
-#include "iremote_object.h"
-
 namespace OHOS {
 namespace AppExecFwk {
 AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token)

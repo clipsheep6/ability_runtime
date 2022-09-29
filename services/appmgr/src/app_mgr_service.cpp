@@ -143,7 +143,7 @@ ErrCode AppMgrService::Init()
         HILOG_WARN("failed to connect to AppSpawnDaemon! errCode: %{public}08x", openErr);
     }
     if (!Publish(this)) {
-        HILOG_ERROR("failed to publish appmgrservice to systemAbilityMgr");
+        HILOG_ERROR("failed to publish app mgr service to systemAbilityMgr");
         return ERR_APPEXECFWK_SERVICE_NOT_CONNECTED;
     }
     amsMgrScheduler_ = new (std::nothrow) AmsMgrScheduler(appMgrServiceInner_, handler_);
@@ -355,6 +355,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
     const AppExecFwk::BundleInfo &bundleInfo, int32_t userId)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
     std::function<void()> startUserTestProcessFunc =
@@ -366,6 +367,7 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
 int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
 
@@ -379,7 +381,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 int AppMgrService::Dump(int fd, const std::vector<std::u16string>& args)
 {
     if (!IsReady()) {
-        HILOG_ERROR("%{public}s, appms is not ready.", __func__);
+        HILOG_ERROR("%{public}s, not ready.", __func__);
         return ERR_APPEXECFWK_HIDUMP_ERROR;
     }
 
@@ -418,6 +420,7 @@ void AppMgrService::ShowHelp(std::string& result) const
 void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
@@ -427,6 +430,7 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {
+        HILOG_ERROR("%{public}s begin, not ready", __func__);
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->GetAbilityRecordsByProcessID(pid, tokens);

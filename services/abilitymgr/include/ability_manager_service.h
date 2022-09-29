@@ -917,10 +917,10 @@ private:
      */
     bool IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const;
     /**
-     * Get parameters from the global
+     * Init parameters from the global
      *
      */
-    void GetGlobalConfiguration();
+    void InitGlobalConfiguration();
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
     int StartRemoteAbility(const Want &want, int requestCode, int32_t validUserId,

@@ -60,13 +60,13 @@ using namespace OHOS::Security;
 namespace {
 // NANOSECONDS mean 10^9 nano second
 constexpr int64_t NANOSECONDS = 1000000000;
-// MICROSECONDS mean 10^6 millias second
+// MICROSECONDS mean 10^6 milli second
 constexpr int64_t MICROSECONDS = 1000000;
 // Kill process timeout setting
 constexpr int KILL_PROCESS_TIMEOUT_MICRO_SECONDS = 1000;
-// Kill process delaytime setting
+// Kill process delay time setting
 constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 200;
-// delay regist focus listener to wms
+// delay register focus listener to wms
 constexpr int REGISTER_FOCUS_DELAY = 5000;
 const std::string CLASS_NAME = "ohos.app.MainThread";
 const std::string FUNC_NAME = "main";
@@ -121,7 +121,7 @@ AppMgrServiceInner::AppMgrServiceInner()
 
 void AppMgrServiceInner::Init()
 {
-    GetGlobalConfiguration();
+    InitGlobalConfiguration();
     AddWatchParameter();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     InitFocusListener();
@@ -135,8 +135,8 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!CheckLoadabilityConditions(token, abilityInfo, appInfo)) {
-        HILOG_ERROR("CheckLoadabilityConditions failed");
+    if (!CheckLoadAbilityConditions(token, abilityInfo, appInfo)) {
+        HILOG_ERROR("CheckLoadAbilityConditions failed");
         return;
     }
     HILOG_INFO("AppMgrService start loading ability, name is %{public}s.", abilityInfo->name.c_str());
@@ -160,9 +160,8 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     auto appRecord =
         appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name, processName, appInfo->uid, bundleInfo);
     if (!appRecord) {
-        appRecord =
-            CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
-                processName, bundleInfo, hapModuleInfo, want);
+        appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
+            processName, bundleInfo, hapModuleInfo, want);
         if (!appRecord) {
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
@@ -179,7 +178,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     PerfProfile::GetInstance().Reset();
 }
 
-bool AppMgrServiceInner::CheckLoadabilityConditions(const sptr<IRemoteObject> &token,
+bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo)
 {
     if (!token || !abilityInfo || !appInfo) {
@@ -203,6 +202,7 @@ void AppMgrServiceInner::MakeProcessName(const std::shared_ptr<AbilityInfo> &abi
     std::string &processName)
 {
     if (!abilityInfo || !appInfo) {
+        HILOG_ERROR("param error");
         return;
     }
     if (!abilityInfo->process.empty()) {
@@ -272,14 +272,14 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
     return true;
 }
 
-void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppScheduler> &app)
+void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (pid <= 0) {
         HILOG_ERROR("invalid pid:%{public}d", pid);
         return;
     }
-    if (!app) {
+    if (!appScheduler) {
         HILOG_ERROR("app client is null");
         return;
     }
@@ -289,7 +289,7 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         HILOG_ERROR("no such appRecord");
         return;
     }
-    appRecord->SetApplicationClient(app);
+    appRecord->SetApplicationClient(appScheduler);
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
@@ -376,8 +376,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
-            appRecord->GetName().c_str(),
-            static_cast<ApplicationState>(appState));
+            appRecord->GetName().c_str(), static_cast<ApplicationState>(appState));
     }
 
     // push the foregrounded app front of RecentAppList.
@@ -409,8 +408,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessStateChanged(appRecord);
     } else {
         HILOG_WARN("app name(%{public}s), app state(%{public}d)!",
-            appRecord->GetName().c_str(),
-            static_cast<ApplicationState>(appRecord->GetState()));
+            appRecord->GetName().c_str(), static_cast<ApplicationState>(appRecord->GetState()));
     }
 
     HILOG_INFO("application is backgrounded");
@@ -479,7 +477,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
     }
 
     int result = ERR_OK;
-    int64_t startTime = SystemTimeMillis();
+    int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
 
     if (!appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
@@ -494,7 +492,7 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
         result = KillProcessByPid(*iter);
         if (result < 0) {
-            HILOG_ERROR("KillApplication is fail bundleName: %{public}s pid: %{public}d", bundleName.c_str(), *iter);
+            HILOG_ERROR("KillApplication failed for bundleName:%{public}s pid:%{public}d", bundleName.c_str(), *iter);
             return result;
         }
     }
@@ -516,7 +514,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
     }
 
     int result = ERR_OK;
-    int64_t startTime = SystemTimeMillis();
+    int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (remoteClientManager_ == nullptr) {
         HILOG_ERROR("remoteClientManager_ fail");
@@ -539,7 +537,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
         result = KillProcessByPid(*iter);
         if (result < 0) {
-            HILOG_ERROR("KillApplication is fail bundleName: %{public}s pid: %{public}d", bundleName.c_str(), *iter);
+            HILOG_ERROR("KillApplication failed for bundleName:%{public}s pid:%{public}d", bundleName.c_str(), *iter);
             return result;
         }
     }
@@ -560,7 +558,7 @@ int32_t AppMgrServiceInner::KillApplicationSelf()
     }
     std::list<pid_t> pids;
     pids.push_back(callerPid);
-    int64_t startTime = SystemTimeMillis();
+    int64_t startTime = SystemTimeMillisecond();
     if (WaitForRemoteProcessExit(pids, startTime)) {
         HILOG_INFO("The remote process exited successfully");
         return ERR_OK;
@@ -606,7 +604,7 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     }
 
     int result = ERR_OK;
-    int64_t startTime = SystemTimeMillis();
+    int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (remoteClientManager_ == nullptr) {
         HILOG_ERROR("remoteClientManager_ fail");
@@ -778,13 +776,13 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
 
 bool AppMgrServiceInner::WaitForRemoteProcessExit(std::list<pid_t> &pids, const int64_t startTime)
 {
-    int64_t delayTime = SystemTimeMillis() - startTime;
+    int64_t delayTime = SystemTimeMillisecond() - startTime;
     while (delayTime < KILL_PROCESS_TIMEOUT_MICRO_SECONDS) {
         if (CheckAllProcessExist(pids)) {
             return true;
         }
         usleep(KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
-        delayTime = SystemTimeMillis() - startTime;
+        delayTime = SystemTimeMillisecond() - startTime;
     }
     return false;
 }
@@ -803,7 +801,7 @@ bool AppMgrServiceInner::GetAllPids(std::list<pid_t> &pids)
     return (pids.empty() ? false : true);
 }
 
-bool AppMgrServiceInner::process_exist(pid_t &pid)
+bool AppMgrServiceInner::ProcessExist(pid_t &pid)
 {
     char pid_path[128] = {0};
     struct stat stat_buf;
@@ -822,7 +820,7 @@ bool AppMgrServiceInner::process_exist(pid_t &pid)
 bool AppMgrServiceInner::CheckAllProcessExist(std::list<pid_t> &pids)
 {
     for (auto iter = pids.begin(); iter != pids.end();) {
-        if (!process_exist(*iter)) {
+        if (!ProcessExist(*iter)) {
             iter = pids.erase(iter);
         } else {
             iter++;
@@ -834,7 +832,7 @@ bool AppMgrServiceInner::CheckAllProcessExist(std::list<pid_t> &pids)
     return false;
 }
 
-int64_t AppMgrServiceInner::SystemTimeMillis()
+int64_t AppMgrServiceInner::SystemTimeMillisecond()
 {
     struct timespec t;
     t.tv_sec = 0;
@@ -1079,7 +1077,7 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
     if (pid > 0) {
         pids.push_back(pid);
         appRecord->ScheduleProcessSecurityExit();
-        if (!WaitForRemoteProcessExit(pids, SystemTimeMillis())) {
+        if (!WaitForRemoteProcessExit(pids, SystemTimeMillisecond())) {
             int32_t result = KillProcessByPid(pid);
             if (result < 0) {
                 HILOG_ERROR("KillProcessByAbilityToken kill process is fail");
@@ -1096,7 +1094,7 @@ void AppMgrServiceInner::KillProcessesByUserId(int32_t userId)
         return;
     }
 
-    int64_t startTime = SystemTimeMillis();
+    int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (!appRunningManager_->GetPidsByUserId(userId, pids)) {
         HILOG_INFO("The process corresponding to the userId did not start");
@@ -1273,7 +1271,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!remoteClientManager_->GetSpawnClient() || !appRecord) {
-        HILOG_ERROR("appSpawnClient or apprecord is null");
+        HILOG_ERROR("appSpawnClient or appRecord is null");
         return;
     }
 
@@ -1372,12 +1370,12 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
         return;
     }
 
-    // Do not delete resident processes, berfor exec ScheduleProcessSecurityExit
+    // Do not delete resident processes, before exec ScheduleProcessSecurityExit
     if (appRecord->IsKeepAliveApp()) {
         return;
     }
 
-    startTime = SystemTimeMillis();
+    startTime = SystemTimeMillisecond();
     pids.push_back(appTaskInfo->GetPid());
     appRecord->ScheduleProcessSecurityExit();
     if (!WaitForRemoteProcessExit(pids, startTime)) {
@@ -1403,7 +1401,7 @@ void AppMgrServiceInner::ClearRecentAppList()
         return;
     }
 
-    startTime = SystemTimeMillis();
+    startTime = SystemTimeMillisecond();
     if (WaitForRemoteProcessExit(pids, startTime)) {
         appProcessManager_->ClearRecentAppList();
         return;
@@ -1464,7 +1462,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     // kill render if exist.
     auto renderRecord = appRecord->GetRenderRecord();
     if (renderRecord && renderRecord->GetPid() > 0) {
-        HILOG_DEBUG("Kill render process when nwebhost died.");
+        HILOG_DEBUG("Kill render process when host died.");
         KillProcessByPid(renderRecord->GetPid());
         DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessDied(renderRecord);
     }
@@ -1472,7 +1470,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     if (appRecord->IsKeepAliveApp()) {
         appRecord->DecRestartResidentProcCount();
         if (appRecord->CanRestartResidentProc()) {
-            auto restartProcss = [appRecord, innerService = shared_from_this()]() {
+            auto restartProcess = [appRecord, innerService = shared_from_this()]() {
                 innerService->RestartResidentProcess(appRecord);
             };
 
@@ -1480,7 +1478,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
                 HILOG_ERROR("eventHandler_ is nullptr");
                 return;
             }
-            eventHandler_->PostTask(restartProcss, "RestartResidentProcess");
+            eventHandler_->PostTask(restartProcess, "RestartResidentProcess");
         }
     }
 }
@@ -1888,20 +1886,20 @@ int AppMgrServiceInner::GetHapModuleInfoForTestRunner(const AAFwk::Want &want, c
         return ERR_INVALID_VALUE;
     }
 
-    bool moduelJson = false;
+    bool moduleJson = false;
     if (!bundleInfo.hapModuleInfos.empty()) {
-        moduelJson = bundleInfo.hapModuleInfos.back().isModuleJson;
+        moduleJson = bundleInfo.hapModuleInfos.back().isModuleJson;
     }
-    if (moduelJson) {
-        std::string moudleName = want.GetStringParam("-m");
-        if (moudleName.empty()) {
+    if (moduleJson) {
+        std::string moduleName = want.GetStringParam("-m");
+        if (moduleName.empty()) {
             UserTestAbnormalFinish(observer, "No module name is specified.");
             return ERR_INVALID_VALUE;
         }
 
         bool found = false;
         for (auto item : bundleInfo.hapModuleInfos) {
-            if (item.moduleName == moudleName) {
+            if (item.moduleName == moduleName) {
                 hapModuleInfo = item;
                 found = true;
                 break;
@@ -2016,10 +2014,10 @@ int AppMgrServiceInner::FinishUserTestLocked(
         return ERR_INVALID_VALUE;
     }
 
-    std::unique_lock<std::mutex> lck(userTestLock_);
+    std::unique_lock<std::mutex> lock(userTestLock_);
     auto userTestRecord = appRecord->GetUserTestInfo();
     if (!userTestRecord) {
-        HILOG_WARN("unstart user test");
+        HILOG_WARN("not start user test");
         return ERR_INVALID_VALUE;
     }
     if (!userTestRecord->isFinished) {
@@ -2170,25 +2168,25 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
     HILOG_INFO("changeKeyV size :%{public}zu", changeKeyV.size());
-    if (!changeKeyV.empty()) {
-        configuration_->Merge(changeKeyV, config);
-        // all app
-        int32_t result = appRunningManager_->UpdateConfiguration(config);
-        if (result == ERR_OK) {
-            // notify
-            for (auto &observer : confiurtaionObservers_) {
-                if (observer != nullptr) {
-                    observer->OnConfigurationUpdated(config);
-                }
-            }
-        } else {
-            HILOG_ERROR("update error, not notify");
-        }
-        return result;
-    } else {
+    if (changeKeyV.empty()) {
         HILOG_ERROR("changeKeyV is empty");
         return ERR_INVALID_VALUE;
     }
+    configuration_->Merge(changeKeyV, config);
+    // all app
+    int32_t result = appRunningManager_->UpdateConfiguration(config);
+    if (result != ERR_OK) {
+        HILOG_ERROR("update error, not notify");
+        return result;
+    }
+    // notify
+    std::lock_guard<std::recursive_mutex> notifyLock(configurationObserverLock_);
+    for (auto &observer : configurationObservers_) {
+        if (observer != nullptr) {
+            observer->OnConfigurationUpdated(config);
+        }
+    }
+    return result;
 }
 
 int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer)
@@ -2199,17 +2197,17 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> registerLock(confiurtaionObserverLock_);
-    auto it = std::find_if(confiurtaionObservers_.begin(), confiurtaionObservers_.end(),
+    std::lock_guard<std::recursive_mutex> registerLock(configurationObserverLock_);
+    auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
         }
     );
-    if (it != confiurtaionObservers_.end()) {
+    if (it != configurationObservers_.end()) {
         HILOG_ERROR("AppMgrServiceInner::Register error: observer exist");
         return ERR_INVALID_VALUE;
     }
-    confiurtaionObservers_.push_back(observer);
+    configurationObservers_.push_back(observer);
     return NO_ERROR;
 }
 
@@ -2220,21 +2218,21 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         HILOG_ERROR("AppMgrServiceInner::Register error: observer is null");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> unregisterLock(confiurtaionObserverLock_);
-    auto it = std::find_if(confiurtaionObservers_.begin(), confiurtaionObservers_.end(),
+    std::lock_guard<std::recursive_mutex> unregisterLock(configurationObserverLock_);
+    auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
         }
     );
-    if (it != confiurtaionObservers_.end()) {
-        confiurtaionObservers_.erase(it);
+    if (it != configurationObservers_.end()) {
+        configurationObservers_.erase(it);
         return NO_ERROR;
     }
     HILOG_INFO("AppMgrServiceInner ConfigurationObserver not register");
     return ERR_INVALID_VALUE;
 }
 
-void AppMgrServiceInner::GetGlobalConfiguration()
+void AppMgrServiceInner::InitGlobalConfiguration()
 {
     if (!configuration_) {
         HILOG_ERROR("configuration_ is null");
@@ -2248,8 +2246,8 @@ void AppMgrServiceInner::GetGlobalConfiguration()
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language);
 #endif
 
-    // Assign to default colormode "light"
-    HILOG_INFO("current global colormode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT);
+    // Assign to default colorMode "light"
+    HILOG_INFO("current global colorMode is : %{public}s", ConfigurationInner::COLOR_MODE_LIGHT);
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_LIGHT);
 
     // Get input pointer device
@@ -2271,9 +2269,8 @@ std::shared_ptr<AppExecFwk::Configuration> AppMgrServiceInner::GetConfiguration(
 void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     HILOG_DEBUG("Kill application by appRecord.");
-
-    if (!appRecord) {
-        HILOG_DEBUG("appRecord is nullptr.");
+    if (!appRecord || !eventHandler_) {
+        HILOG_WARN("appRecord or eventHandler_ is nullptr.");
         return;
     }
 
@@ -2281,10 +2278,10 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
     appRecord->SetTerminating();
     appRecord->ScheduleProcessSecurityExit();
 
-    auto startTime = SystemTimeMillis();
+    auto startTime = SystemTimeMillisecond();
     std::list<pid_t> pids = {pid};
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        HILOG_DEBUG("The remote process exited successfully");
+        HILOG_INFO("The remote process exited successfully");
         return;
     }
 
@@ -2292,14 +2289,10 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
         HILOG_INFO("KillProcessByPid %{public}d", pid);
         int32_t result = innerService->KillProcessByPid(pid);
         if (result < 0) {
-            HILOG_ERROR("Kill application by app record, pid: %{public}d", pid);
+            HILOG_ERROR("Kill application by app record failed, pid: %{public}d", pid);
             return;
         }
     };
-    if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
-        return;
-    }
     eventHandler_->PostTask(timeoutTask, "DelayKillProcess", AMSEventHandler::KILL_PROCESS_TIMEOUT);
 }
 
@@ -2354,12 +2347,7 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
 
     HILOG_DEBUG("SendHiSysEvent, eventName = %{public}s, uid = %{public}d, pid = %{public}d, \
         packageName = %{public}s, processName = %{public}s, msg = %{public}s",
-        eventName.c_str(),
-        uid,
-        pid,
-        packageName.c_str(),
-        processName.c_str(),
-        msg.c_str());
+        eventName.c_str(), uid, pid, packageName.c_str(), processName.c_str(), msg.c_str());
 
     OHOS::HiviewDFX::HiSysEvent::Write(
         OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK,
@@ -2395,17 +2383,16 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     }
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
-        HILOG_ERROR("no such appRecord");
+        HILOG_ERROR("no such appRecord for PID:%{public}d", pid);
         return ERR_NAME_NOT_FOUND;
     }
 
     auto info = appRecord->GetApplicationInfo();
-    if (info) {
-        application = *info;
-    } else {
+    if (info == nullptr) {
         HILOG_ERROR("ApplicationInfo is nullptr !");
         return ERR_NO_INIT;
     }
+    application = *info;
     return ERR_OK;
 }
 
@@ -2476,21 +2463,21 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
     int32_t ipcFd, int32_t sharedFd, pid_t &renderPid)
 {
-    HILOG_INFO("start render process, nweb hostpid:%{public}d", hostPid);
+    HILOG_INFO("start render process, hostPid:%{public}d", hostPid);
     if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0) {
-        HILOG_ERROR("invalid param, hostPid:%{public}d, renderParam:%{private}s, ipcFd:%{public}d, sharedFd:%{public}d",
+        HILOG_ERROR("invalid param: hostPid:%{public}d renderParam:%{private}s ipcFd:%{public}d sharedFd:%{public}d",
             hostPid, renderParam.c_str(), ipcFd, sharedFd);
         return ERR_INVALID_VALUE;
     }
 
     if (!appRunningManager_) {
-        HILOG_ERROR("appRunningManager_ is , not start render process");
+        HILOG_ERROR("appRunningManager_ is nullptr, not start render process");
         return ERR_INVALID_VALUE;
     }
 
     auto appRecord = GetAppRunningRecordByPid(hostPid);
     if (!appRecord) {
-        HILOG_ERROR("no such appRecord, hostpid:%{public}d", hostPid);
+        HILOG_ERROR("no such appRecord, hostPid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 
@@ -2503,7 +2490,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
 
     renderRecord = RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, appRecord);
     if (!renderRecord) {
-        HILOG_ERROR("create render record failed, hostpid:%{public}d", hostPid);
+        HILOG_ERROR("create render record failed, hostPid:%{public}d", hostPid);
         return ERR_INVALID_VALUE;
     }
 
@@ -2578,7 +2565,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     renderPid = pid;
     appRecord->SetRenderRecord(renderRecord);
     renderRecord->SetPid(pid);
-    HILOG_INFO("start render process successed, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
+    HILOG_INFO("start render process success, hostPid:%{public}d, pid:%{public}d uid:%{public}d",
         renderRecord->GetHostPid(), pid, startMsg.uid);
     DelayedSingleton<AppStateObserverManager>::GetInstance()->OnRenderProcessCreated(renderRecord);
     return 0;
@@ -2604,7 +2591,7 @@ int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &
         HILOG_ERROR("failed to get render process termination status, errCode %{public}08x", errCode);
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("Get render process termination status successed, renderPid:%{public}d, status:%{public}d",
+    HILOG_INFO("Get render process termination status success, renderPid:%{public}d, status:%{public}d",
         renderPid, status);
     return 0;
 }
@@ -2640,10 +2627,8 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
 void AppMgrServiceInner::AddWatchParameter()
 {
     HILOG_INFO("%{public}s called.", __func__);
-    int ret;
-
     auto context = new (std::nothrow) std::weak_ptr<AppMgrServiceInner>(shared_from_this());
-    ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, PointerDeviceEventCallback,
+    int ret = WatchParameter(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, PointerDeviceEventCallback,
         context);
     if (ret != 0) {
         HILOG_ERROR("watch parameter %{public}s failed with %{public}d.",
@@ -2690,6 +2675,7 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
     HILOG_DEBUG("focused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
 
     if (focusChangeInfo->pid_ <= 0) {
+        HILOG_ERROR("invalid pid:%{public}d", focusChangeInfo->pid_);
         return;
     }
 
@@ -2718,6 +2704,7 @@ void AppMgrServiceInner::HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo
     HILOG_DEBUG("unfocused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
 
     if (focusChangeInfo->pid_ <= 0) {
+        HILOG_ERROR("invalid pid:%{public}d", focusChangeInfo->pid_);
         return;
     }
 

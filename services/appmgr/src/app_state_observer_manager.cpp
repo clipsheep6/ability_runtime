@@ -19,8 +19,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
 const std::string THREAD_NAME = "AppStateObserverManager";
-const int BUNDLENAMELIST_MAX_SIZE = 128;
+const int BUNDLE_NAME_LIST_MAX_SIZE = 128;
+} // namespace
 AppStateObserverManager::AppStateObserverManager()
 {
     HILOG_INFO("AppStateObserverManager instance is created");
@@ -42,7 +44,7 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
     const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
     HILOG_INFO("Register applicationStateObserver begin.");
-    if (bundleNameList.size() > BUNDLENAMELIST_MAX_SIZE) {
+    if (bundleNameList.size() > BUNDLE_NAME_LIST_MAX_SIZE) {
         HILOG_ERROR("the bundleNameList passed in is too long");
         return ERR_INVALID_VALUE;
     }
@@ -54,11 +56,11 @@ int32_t AppStateObserverManager::RegisterApplicationStateObserver(
         HILOG_ERROR("The param observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    std::lock_guard<std::recursive_mutex> lockRegister(observerLock_);
     if (ObserverExist(observer)) {
         HILOG_ERROR("Observer exist.");
         return ERR_INVALID_VALUE;
     }
+    std::lock_guard<std::recursive_mutex> lockRegister(observerLock_);
     appStateObserverMap_.emplace(observer, bundleNameList);
     HILOG_DEBUG("%{public}s appStateObserverMap_ size:%{public}zu", __func__, appStateObserverMap_.size());
     AddObserverDeathRecipient(observer);
@@ -257,8 +259,8 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
+    HILOG_DEBUG("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid);
     HandleOnProcessCreated(data);
 }
 
@@ -269,8 +271,8 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
+    HILOG_DEBUG("RenderProcess Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid);
     HandleOnProcessCreated(data);
 }
 
@@ -293,9 +295,8 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process State Change, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu,"
-        "isContinuousTask:%{public}d",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size(), data.isContinuousTask);
+    HILOG_DEBUG("Process State Change, bundle:%{public}s pid:%{public}d uid:%{public}d isContinuousTask:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid, data.isContinuousTask);
     std::lock_guard<std::recursive_mutex> lockNotify(observerLock_);
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
@@ -313,8 +314,8 @@ void AppStateObserverManager::HandleOnAppProcessDied(const std::shared_ptr<AppRu
         return;
     }
     ProcessData data = WrapProcessData(appRecord);
-    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu.",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
+    HILOG_DEBUG("Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid);
     HandleOnProcessDied(data);
 }
 
@@ -325,8 +326,8 @@ void AppStateObserverManager::HandleOnRenderProcessDied(const std::shared_ptr<Re
         return;
     }
     ProcessData data = WrapRenderProcessData(renderRecord);
-    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d, size:%{public}zu.",
-        data.bundleName.c_str(), data.pid, data.uid, appStateObserverMap_.size());
+    HILOG_DEBUG("Render Process died, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
+        data.bundleName.c_str(), data.pid, data.uid);
     HandleOnProcessDied(data);
 }
 
@@ -370,6 +371,7 @@ bool AppStateObserverManager::ObserverExist(const sptr<IApplicationStateObserver
         HILOG_ERROR("The param observer is nullptr.");
         return false;
     }
+    std::lock_guard<std::recursive_mutex> lockRegister(observerLock_);
     for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
         if (it->first->AsObject() == observer->AsObject()) {
             return true;

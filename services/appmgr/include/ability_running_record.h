@@ -18,11 +18,10 @@
 
 #include <string>
 
-#include "iremote_object.h"
-
 #include "ability_info.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
+#include "iremote_object.h"
 #include "want.h"
 
 namespace OHOS {
@@ -151,7 +150,7 @@ public:
     /**
      * @brief Obtains the connection state to service ability.
      *
-     * @return Returnsthe connection state to service ability.
+     * @return Returns the connection state to service ability.
      */
     int32_t GetConnectionState() const;
 
