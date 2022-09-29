@@ -273,7 +273,6 @@ group("unittest") {
     "ability_record_test:unittest",
     "ability_scheduler_proxy_test:unittest",
     "ability_scheduler_stub_test:unittest",
-    "ability_service_start_test:unittest",
     "ability_timeout_test",
     "ability_token_proxy_test:unittest",
     "ability_token_stub_test:unittest",
