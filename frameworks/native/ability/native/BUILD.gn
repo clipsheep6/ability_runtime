@@ -251,7 +251,7 @@ ohos_shared_library("abilitykit_native") {
     external_deps += [
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
-      "multimedia_image_standard:image",
+      "multimedia_image_framework:image",
     ]
 
     public_deps += [

@@ -37,7 +37,7 @@ ohos_shared_library("napi_app_mgr") {
     "samgr:samgr_proxy",
   ]
   if (ability_runtime_graphics) {
-    external_deps += [ "multimedia_image_standard:image" ]
+    external_deps += [ "multimedia_image_framework:image" ]
   }
 
   relative_install_dir = "module"

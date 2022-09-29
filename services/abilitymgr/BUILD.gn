@@ -179,7 +179,7 @@ ohos_shared_library("abilityms") {
     external_deps += [
       "i18n:intl_util",
       "input:libmmi-client",
-      "multimedia_image_standard:image_native",
+      "multimedia_image_framework:image_native",
       "window_manager:libdm",
     ]
   }
