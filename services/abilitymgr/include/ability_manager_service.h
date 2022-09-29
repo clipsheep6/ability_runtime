@@ -923,7 +923,8 @@ private:
     void GetGlobalConfiguration();
 
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
-    int StartRemoteAbility(const Want &want, int requestCode);
+    int StartRemoteAbility(const Want &want, int requestCode, int32_t validUserId,
+        const sptr<IRemoteObject> &callerToken);
     int ConnectLocalAbility(
         const Want &want,
         const int32_t userId,
@@ -931,7 +932,7 @@ private:
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType);
     int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
-    int ConnectRemoteAbility(const Want &want, const sptr<IRemoteObject> &connect);
+    int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
     void UpdateCallerInfo(Want& want);
@@ -948,7 +949,8 @@ private:
         MissionInfo &missionInfo);
     int32_t GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& missionSnapshot);
-    int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &connect);
+    int StartRemoteAbilityByCall(const Want &want, const sptr<IRemoteObject> &callerToken,
+        const sptr<IRemoteObject> &connect);
     int ReleaseRemoteAbility(const sptr<IRemoteObject> &connect, const AppExecFwk::ElementName &element);
 
     void DumpInner(const std::string &args, std::vector<std::string> &info);
@@ -1143,6 +1145,8 @@ private:
 
     AAFwk::PermissionVerification::VerificationInfo CreateVerificationInfo(
         const AbilityRequest &abilityRequest);
+
+    int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

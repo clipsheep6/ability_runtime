@@ -268,6 +268,7 @@ group("unittest") {
     "ability_manager_client_test:unittest",
     "ability_manager_proxy_test:unittest",
     "ability_manager_service_anr_test:unittest",
+    "ability_manager_service_distributed_test:unittest",
     "ability_manager_service_test:unittest",
     "ability_manager_stub_test:unittest",
     "ability_record_dump_test:unittest",
