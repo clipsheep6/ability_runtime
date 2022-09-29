@@ -692,7 +692,7 @@ HWTEST_F(PendingWantTest, PendingWant_3900, Function | MediumTest | Level1)
 {
     sptr<AAFwk::IWantSender> target(new (std::nothrow) PendingWantRecord());
     PendingWant pendingWant(target);
-    Parcel parcel;
+    MessageParcel parcel;
     bool ret = pendingWant.Marshalling(parcel);
     EXPECT_EQ(ret, true);
 }
