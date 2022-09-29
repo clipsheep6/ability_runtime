@@ -667,4 +667,33 @@ HWTEST_F(PendingWantTest, PendingWant_3700, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant2(nullptr);
     EXPECT_EQ(pendingWant->Equals(pendingWant, pendingWant2), true);
 }
+
+/*
+ * @tc.number    : PendingWant_3800
+ * @tc.name      : Marshalling_01
+ * @tc.desc      : test Marshalling function when target is null
+ * tc.issue      : I5TGRZ
+ */
+HWTEST_F(PendingWantTest, PendingWant_3800, Function | MediumTest | Level1)
+{
+    PendingWant pendingWant(nullptr);
+    Parcel parcel;
+    bool ret = pendingWant.Marshalling(parcel);
+    EXPECT_EQ(ret, false);
+}
+
+/*
+ * @tc.number    : PendingWant_3900
+ * @tc.name      : Marshalling_02
+ * @tc.desc      : test Marshalling function when target is target
+ * tc.issue      : I5TGRZ
+ */
+HWTEST_F(PendingWantTest, PendingWant_3900, Function | MediumTest | Level1)
+{
+    sptr<AAFwk::IWantSender> target(new (std::nothrow) PendingWantRecord());
+    PendingWant pendingWant(target);
+    Parcel parcel;
+    bool ret = pendingWant.Marshalling(parcel);
+    EXPECT_EQ(ret, true);
+}
 }  // namespace OHOS::AbilityRuntime::WantAgent
