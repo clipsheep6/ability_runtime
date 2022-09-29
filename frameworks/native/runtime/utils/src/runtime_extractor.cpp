@@ -178,6 +178,11 @@ bool RuntimeExtractor::ExtractFile(const std::string &fileName, const std::strin
 bool RuntimeExtractor::GetZipFileNames(std::vector<std::string> &fileNames)
 {
     auto &entryMap = zipFile_.GetAllEntries();
+    if (entryMap.empty()) {
+        HILOG_ERROR("Zip file is empty");
+        return false;
+    }
+
     for (auto &entry : entryMap) {
         fileNames.emplace_back(entry.first);
     }
