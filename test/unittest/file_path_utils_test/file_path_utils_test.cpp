@@ -233,5 +233,370 @@ HWTEST_F(FilePathUtilsTest, FixExtName_0100, TestSize.Level0)
     FixExtName(path4);
     EXPECT_TRUE(path4 == "123.abc");
 }
+
+/**
+ * @tc.name: GetInstallPath_0100
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0100, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/curJsModulePath";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, "/data/storage/el1/bundle/");
+}
+
+/**
+ * @tc.name: GetInstallPath_0200
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0200, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundle";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: GetInstallPath_0300
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0300, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundlescurJsModulePath";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: GetInstallPath_0400
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0400, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundles/curJsModulePath/module";
+    bool module = false;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, "/data/bundles/curJsModulePath/");
+}
+
+/**
+ * @tc.name: GetInstallPath_0500
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0500, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundles/curJsModulePath/module";
+    bool module = true;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: GetInstallPath_0600
+ * @tc.desc: GetInstallPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, GetInstallPath_0600, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/module/curJsModulePath";
+    bool module = true;
+    std::string newJsModulePath = GetInstallPath(curJsModulePath, module);
+    EXPECT_EQ(newJsModulePath, "/data/storage/el1/bundle/module/");
+}
+
+/**
+ * @tc.name: MakeNewJsModulePath_0100
+ * @tc.desc: MakeNewJsModulePath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, MakeNewJsModulePath_0100, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/bundles/curJsModulePath/module";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: MakeNewJsModulePath_0200
+ * @tc.desc: MakeNewJsModulePath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, MakeNewJsModulePath_0200, TestSize.Level0)
+{
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/module/";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = MakeNewJsModulePath(curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: FindNpmPackageInPath_0100
+ * @tc.desc: FindNpmPackageInPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, FindNpmPackageInPath_0100, TestSize.Level0)
+{
+    std::string lengthPath(PATH_MAX, 'a');
+    const std::string& npmPath = lengthPath;
+    std::string newJsModulePath = FindNpmPackageInPath(npmPath);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: FindNpmPackageInPath_0200
+ * @tc.desc: FindNpmPackageInPath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, FindNpmPackageInPath_0200, TestSize.Level0)
+{
+    const std::string& npmPath = "npmPath";
+    std::string newJsModulePath = FindNpmPackageInPath(npmPath);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: FindNpmPackageInTopLevel_0100
+ * @tc.desc: FindNpmPackageInTopLevel Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, FindNpmPackageInTopLevel_0100, TestSize.Level0)
+{
+    const std::string& moduleInstallPath = "";
+    const std::string& npmPackage = "";
+    size_t start = 2;
+    std::string newJsModulePath = FindNpmPackageInTopLevel(moduleInstallPath, npmPackage, start);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0100
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0100, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "@bundle:originBundleName\bundleName";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0200
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0200, TestSize.Level0)
+{
+    const std::string& originBundleName = "bundleName1";
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/curJsModulePath";
+    const std::string& newJsModuleUri = "@bundle:originBundleName/bundleName1/bundleName2/bundleName3/bundleName4";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, "/data/bundles/originBundleName/bundleName1/bundleName2/bundleName3/bundleName4");
+}
+
+/**
+ * @tc.name: ParseOhmUri_0300
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0300, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "@module:originBundleName\bundleName";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0400
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0400, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "@module:originBundleName\bundleName1\bundleName2";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0500
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0500, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "/data/storage/el1/bundle/module/curJsModulePath";
+    const std::string& newJsModuleUri = "@module:originBundleName/bundleName1/bundleName2/bundleName3";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, "/data/storage/el1/bundle/originBundleName/bundleName1/bundleName2/bundleName3");
+}
+
+/**
+ * @tc.name: ParseOhmUri_0600
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0600, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "@local:originBundleName";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0700
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0700, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "/data/bundles/curJsModulePath/module";
+    const std::string& newJsModuleUri = "@local:originBundleName";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: ParseOhmUri_0800
+ * @tc.desc: ParseOhmUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, ParseOhmUri_0800, TestSize.Level0)
+{
+    const std::string& originBundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "@other:originBundleName\bundleName";
+    std::string newJsModulePath = ParseOhmUri(originBundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, std::string());
+}
+
+/**
+ * @tc.name: NormalizeUri_0100
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0100, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, "");
+}
+
+/**
+ * @tc.name: NormalizeUri_0200
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0200, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "";
+    const std::string& newJsModuleUri = "a";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, "");
+}
+
+/**
+ * @tc.name: NormalizeUri_0300
+ * @tc.desc: NormalizeUri Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, NormalizeUri_0300, TestSize.Level0)
+{
+    const std::string& bundleName = "";
+    const std::string& curJsModulePath = "a";
+    const std::string& newJsModuleUri = "";
+    std::string newJsModulePath = NormalizeUri(bundleName, curJsModulePath, newJsModuleUri);
+    EXPECT_EQ(newJsModulePath, "");
+}
+
+/**
+ * @tc.name: MakeFilePath_0100
+ * @tc.desc: MakeFilePath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, MakeFilePath_0100, TestSize.Level0)
+{
+    std::string bundleName(PATH_MAX, 'a');
+    const std::string& codePath = bundleName;
+    const std::string& modulePath = "";
+    std::string fileName = "";
+    bool newJsModulePath = MakeFilePath(codePath, modulePath, fileName);
+    EXPECT_FALSE(newJsModulePath);
+}
+
+/**
+ * @tc.name: MakeFilePath_0200
+ * @tc.desc: MakeFilePath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, MakeFilePath_0200, TestSize.Level0)
+{
+    const std::string& codePath = "codePath";
+    const std::string& modulePath = "";
+    std::string fileName = "";
+    bool newJsModulePath = MakeFilePath(codePath, modulePath, fileName);
+    EXPECT_FALSE(newJsModulePath);
+}
+
+/**
+ * @tc.name: MakeFilePath_0300
+ * @tc.desc: MakeFilePath Test
+ * @tc.type: FUNC
+ * @tc.require: issueI581SE
+ */
+HWTEST_F(FilePathUtilsTest, MakeFilePath_0300, TestSize.Level0)
+{
+    const std::string& codePath = "../codePath";
+    const std::string& modulePath = "";
+    std::string fileName = "";
+    bool newJsModulePath = MakeFilePath(codePath, modulePath, fileName);
+    EXPECT_FALSE(newJsModulePath);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
