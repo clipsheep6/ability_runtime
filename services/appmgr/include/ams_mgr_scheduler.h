@@ -18,6 +18,7 @@
 
 #include "ability_info.h"
 #include "ability_running_record.h"
+#include "ams_mgr_stub.h"
 #include "appexecfwk_errors.h"
 #include "application_info.h"
 #include "app_mgr_constants.h"
@@ -26,7 +27,6 @@
 #include "app_record_id.h"
 #include "app_running_record.h"
 #include "app_scheduler_proxy.h"
-#include "ams_mgr_stub.h"
 #include "if_system_ability_manager.h"
 #include "nocopyable.h"
 #include "system_ability.h"
