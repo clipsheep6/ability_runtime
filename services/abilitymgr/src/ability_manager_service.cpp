@@ -4530,6 +4530,13 @@ int AbilityManagerService::GetTopAbility(sptr<IRemoteObject> &token)
         HILOG_ERROR("token is nullptr");
         return ERR_INVALID_VALUE;
     }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (abilityRecord->GetUid() != callingUid) {
+        HILOG_ERROR("token is not match callingUid");
+        return ERR_INVALID_VALUE;
+    }
 #endif
     return ERR_OK;
 }
