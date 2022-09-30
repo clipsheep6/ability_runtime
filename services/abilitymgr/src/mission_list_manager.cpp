@@ -1007,12 +1007,7 @@ void MissionListManager::TerminatePreviousAbility(const std::shared_ptr<AbilityR
     abilityRecord->SetPreAbilityRecord(nullptr);
     auto self(shared_from_this());
     if (terminatingAbilityRecord->GetAbilityState() == AbilityState::FOREGROUND) {
-        auto task = [terminatingAbilityRecord, self] {
-            HILOG_INFO("%{public}s, terminatingAbilityRecord move to background.", __func__);
-            self->PrintTimeOutLog(terminatingAbilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
-            self->CompleteBackground(terminatingAbilityRecord);
-        };
-        terminatingAbilityRecord->BackgroundAbility(task);
+        MoveToBackgroundTask(terminatingAbilityRecord);
     }
     if (terminatingAbilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
         auto task = [terminatingAbilityRecord, self]() {
