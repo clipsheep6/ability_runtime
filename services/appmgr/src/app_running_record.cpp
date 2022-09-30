@@ -226,6 +226,11 @@ void AppRunningRecord::SetState(const ApplicationState state)
     curState_ = state;
 }
 
+void AppRunningRecord::SetLastState(const ApplicationState state)
+{
+    lastState_ = state;
+}
+
 void AppRunningRecord::Unfocused(const sptr<IRemoteObject> &token)
 {
     if (curState_ != ApplicationState::APP_STATE_FOCUS) {

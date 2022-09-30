@@ -754,10 +754,17 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     BundleInfo& bundleInfo, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    std::vector<std::string> resPaths;
-    ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
-    for (auto moduleResPath : resPaths) {
-        if (!moduleResPath.empty()) {
+    bool isStageBased = bundleInfo.hapModuleInfos.empty() ? false : bundleInfo.hapModuleInfos.back().isStageBasedModel;
+    if (isStageBased && bundleInfo.applicationInfo.multiProjects) {
+        HILOG_INFO("MainThread::InitResourceManager for multiProjects.");
+    } else {
+        std::vector<std::string> resPaths;
+        ChangeToLocalPath(bundleInfo.name, bundleInfo.moduleResPaths, resPaths);
+        for (auto moduleResPath : resPaths) {
+            if (moduleResPath.empty()) {
+                continue;
+            }
+
             HILOG_INFO("length: %{public}zu, moduleResPath: %{public}s",
                 moduleResPath.length(),
                 moduleResPath.c_str());
@@ -766,6 +773,7 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
             }
         }
     }
+
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
@@ -1925,7 +1933,7 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName)
     auto task = [weak, bundleName]() {
         auto appThread = weak.promote();
         if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("app thread or application is nullptr.");
+            HILOG_ERROR("ScheduleNotifyLoadRepairPatch, app thread or application is nullptr.");
             return;
         }
 
@@ -2025,7 +2033,7 @@ int32_t MainThread::ScheduleNotifyUnLoadRepairPatch(const std::string &bundleNam
     auto task = [weak, bundleName]() {
         auto appThread = weak.promote();
         if (appThread == nullptr || appThread->application_ == nullptr) {
-            HILOG_ERROR("app thread or application is nullptr.");
+            HILOG_ERROR("ScheduleNotifyUnLoadRepairPatch, app thread or application is nullptr.");
             return;
         }
 

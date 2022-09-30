@@ -52,6 +52,10 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);
     context->SetConfiguration(appContext->GetConfiguration());
+    if (abilityInfo->applicationInfo.multiProjects) {
+        auto rm = context->CreateModuleContext(abilityInfo->moduleName)->GetResourceManager();
+        context->SetResourceManager(rm);
+    }
     return context;
 }
 

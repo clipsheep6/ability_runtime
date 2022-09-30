@@ -15,8 +15,10 @@ group("unittest") {
   testonly = true
 
   deps = [
+    "quick_fix_info_test:unittest",
     "quick_fix_manager_client_test:unittest",
     "quick_fix_manager_proxy_test:unittest",
+    "quick_fix_manager_service_ability_test:unittest",
     "quick_fix_manager_service_test:unittest",
     "quick_fix_manager_stub_test:unittest",
   ]

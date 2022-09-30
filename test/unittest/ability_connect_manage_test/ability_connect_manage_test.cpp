@@ -950,12 +950,6 @@ HWTEST_F(AbilityConnectManageTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
     EXPECT_EQ(result5, OHOS::ERR_OK);
     auto serviceMap = ConnectManager()->GetServiceMap();
     EXPECT_EQ(static_cast<int>(serviceMap.size()), 2);
-
-    auto connectMap = ConnectManager()->GetConnectMap();
-    EXPECT_EQ(static_cast<int>(connectMap.size()), 1);
-    for (auto &it : connectMap) {
-        EXPECT_EQ(static_cast<int>(it.second.size()), 2);
-    }
 }
 
 /*

@@ -286,8 +286,8 @@ private:
     static const std::string CONTEXT_ELS[];
     int flags_ = 0x00000000;
 
-    void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
-        const std::shared_ptr<ContextImpl> &appContext, bool currentBundle) const;
+    void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
+                             bool currentBundle = false, bool moduleContext = false) const;
     bool IsCreateBySystemApp() const;
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);

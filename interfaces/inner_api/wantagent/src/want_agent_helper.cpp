@@ -396,7 +396,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
         operationType = static_cast<WantAgentConstant::OperationType>(jsonObject.at("operationType").get<int>());
     }
 
-    std::vector<WantAgentConstant::Flags> flagsVec = parseFlags(jsonObject);
+    std::vector<WantAgentConstant::Flags> flagsVec = ParseFlags(jsonObject);
 
     std::vector<std::shared_ptr<AAFwk::Want>> wants = {};
     if (jsonObject.contains("wants")) {
@@ -422,7 +422,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
     return GetWantAgent(info);
 }
 
-std::vector<WantAgentConstant::Flags> WantAgentHelper::parseFlags(nlohmann::json jsonObject)
+std::vector<WantAgentConstant::Flags> WantAgentHelper::ParseFlags(nlohmann::json jsonObject)
 {
     int flags = -1;
     std::vector<WantAgentConstant::Flags> flagsVec = {};

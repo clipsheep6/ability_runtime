@@ -89,6 +89,7 @@ const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRul
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
+const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 } // namespace
 
 using namespace std::chrono;
@@ -5267,10 +5268,18 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         return ERR_OK;
     }
 
+    if (!abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        // The call is form AbilityDelegator, no need to check premission
+        isBackgroundCall = false;
+        return ERR_OK;
+    }
+
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
     if (backgroundJudgeFlag_) {
-        isBackgroundCall = callerAbility->GetAppState() != AAFwk::AppState::FOREGROUND;
+        auto callerAppState = callerAbility->GetAppState();
+        isBackgroundCall = callerAppState != AAFwk::AppState::FOREGROUND &&
+                            callerAppState != AAFwk::AppState::FOCUS;
     } else {
         AppExecFwk::RunningProcessInfo processInfo;
         DelayedSingleton<AppScheduler>::GetInstance()->

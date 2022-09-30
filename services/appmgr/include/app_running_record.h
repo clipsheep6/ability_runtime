@@ -192,6 +192,13 @@ public:
      */
     void SetState(const ApplicationState state);
 
+    /**
+     * @brief Setting the application last state.
+     *
+     * @param state, the application last state.
+     */
+    void SetLastState(const ApplicationState state);
+
     // Get abilities_ for this process
     /**
      * @brief Obtains the abilitys info for the application record.

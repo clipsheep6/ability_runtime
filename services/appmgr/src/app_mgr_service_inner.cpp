@@ -328,8 +328,8 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
     // There is no ability when the empty resident process starts
     // The status of all resident processes is ready
     // There is no process of switching the foreground, waiting for his first ability to start
-    appRecord->AddAbilityStage();
     if (appRecord->IsEmptyKeepAliveApp()) {
+        appRecord->AddAbilityStage();
         return;
     }
 
@@ -372,6 +372,8 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
         appState == ApplicationState::APP_STATE_FOCUS) {
         if (appState != ApplicationState::APP_STATE_FOCUS) {
             appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
+        } else {
+            appRecord->SetLastState(ApplicationState::APP_STATE_FOREGROUND);
         }
         bool needNotifyApp = appRunningManager_->IsApplicationFirstForeground(*appRecord);
         OnAppStateChanged(appRecord, ApplicationState::APP_STATE_FOREGROUND, needNotifyApp);
