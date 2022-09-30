@@ -17,7 +17,6 @@
 #include <singleton.h>
 
 #include "ability_context.h"
-#include "ohos_application.h"
 #include "ability_info.h"
 #include "ability.h"
 #include "context_deal.h"

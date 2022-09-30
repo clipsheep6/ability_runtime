@@ -55,7 +55,6 @@
 #include "window_option.h"
 #include "window_scene.h"
 #include "wm_common.h"
-#include "inttypes.h"
 #endif
 
 namespace OHOS {

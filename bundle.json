@@ -194,6 +194,17 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
+                "extension.h",
+                "extension_base.h",
+                "extension_module_loader.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:extension_base"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": [
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:static_subscriber_extension"
@@ -202,6 +213,7 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
+                "service_extension.h"
               ]
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:service_extension"
@@ -218,11 +230,14 @@
             "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
-                "extension.h",
-                "extension_base.h",
-                "service_extension.h",
-                "extension_module_loader.h"
               ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:ability_thread"
+          },
+          {
+            "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
+              "header_files": []
             },
             "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:abilitykit_native"
           },

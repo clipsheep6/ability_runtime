@@ -74,7 +74,6 @@ ohos_unittest("ability_test") {
     "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "ability_test.cpp",
   ]
 
@@ -84,6 +83,7 @@ ohos_unittest("ability_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -95,6 +95,7 @@ ohos_unittest("ability_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_thread",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -366,6 +367,7 @@ ohos_unittest("data_ability_helper_test") {
     "ability_base:base",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_thread",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
@@ -420,7 +422,6 @@ ohos_unittest("ability_impl_active_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -458,7 +459,6 @@ ohos_unittest("ability_impl_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
   ]
 
   configs = [ ":module_private_config" ]
@@ -509,7 +509,6 @@ ohos_unittest("ability_thread_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_client.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_data_ability_impl.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
@@ -534,6 +533,7 @@ ohos_unittest("ability_thread_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_thread",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -571,6 +571,7 @@ ohos_unittest("ability_thread_call_request_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_thread",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -663,7 +664,6 @@ ohos_unittest("data_ability_impl_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_replace_ability_impl.cpp",
     "data_ability_impl_test.cpp",
   ]
@@ -709,7 +709,6 @@ ohos_unittest("data_ability_impl_file_secondpart_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_replace_ability_impl.cpp",
     "data_ability_impl_file_secondpart_test.cpp",
   ]
@@ -756,7 +755,6 @@ ohos_unittest("data_ability_impl_file_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_replace_ability_impl.cpp",
     "data_ability_impl_file_test.cpp",
   ]
@@ -803,7 +801,6 @@ ohos_unittest("ability_thread_dataability_test") {
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
     "${ability_runtime_native_path}/appkit/app/context_container.cpp",
     "${ability_runtime_native_path}/appkit/app/context_deal.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_ability_manager_client.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_data_ability_impl.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/sys_mgr_client_mock.cpp",
@@ -828,6 +825,7 @@ ohos_unittest("ability_thread_dataability_test") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_thread",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
@@ -1024,7 +1022,6 @@ ohos_unittest("form_host_client_test") {
       "${ability_runtime_native_path}/appkit/app/ability_record_mgr.cpp",
       "${ability_runtime_native_path}/appkit/app/app_context.cpp",
       "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-      "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/ability_start_setting.cpp",
       "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager_form.cpp",
       "form_host_client_test.cpp",
@@ -1065,7 +1062,6 @@ ohos_unittest("continuation_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
-    "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "continuation_test.cpp",
   ]
 

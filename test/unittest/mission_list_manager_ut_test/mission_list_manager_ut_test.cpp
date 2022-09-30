@@ -19,7 +19,6 @@
 #include <iremote_stub.h>
 
 #include "ability_connect_callback_interface.h"
-#include "ability_loader.h"
 #include "ability_thread.h"
 #define private public
 #define protected public

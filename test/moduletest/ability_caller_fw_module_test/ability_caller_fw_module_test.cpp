@@ -22,7 +22,6 @@
 #undef private
 #undef protected
 #include "ability_context.h"
-#include "ability_loader.h"
 #include "ability_manager_client.h"
 #include "mock_serviceability_manager_service.h"
 #include "system_ability_definition.h"

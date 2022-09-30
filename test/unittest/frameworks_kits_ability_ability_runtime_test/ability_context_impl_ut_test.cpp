@@ -17,7 +17,6 @@
 #define private public
 #include "ability_context_impl.h"
 #define protected public
-#include "ability_loader.h"
 #include "ability_thread.h"
 #include "iability_callback.h"
 #include "mock_serviceability_manager_service.h"
