@@ -156,7 +156,7 @@ void AbilityManagerServiceAnrTest::TearDown()
  * FunctionPoints: Kill anr process
  * EnvConditions: NA
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
- * click close buntton, kill the new process
+ * click close button, kill the new process
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
@@ -181,7 +181,7 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
  * FunctionPoints: Waiting anr process
  * EnvConditions: NA
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
- * click waiting buntton, do not kill the new process
+ * click waiting button, do not kill the new process
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {
