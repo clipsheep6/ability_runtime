@@ -15,7 +15,8 @@
 
 #include "mission_data_storage.h"
 
-#include "file_util.h"
+#include "directory_ex.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "image_source.h"
 #include "media_errors.h"
@@ -50,6 +51,8 @@ constexpr uint32_t RGBA8888_MASK_BLUE = 0x000000FF;
 constexpr uint32_t RGBA8888_MASK_GREEN = 0x0000FF00;
 constexpr uint32_t RGBA8888_MASK_RED = 0x00FF0000;
 
+const mode_t MODE = 0770;
+
 struct mission_error_mgr : public jpeg_error_mgr {
     jmp_buf environment;
 };
@@ -83,7 +86,7 @@ bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &mission
     std::vector<std::string> fileNameVec;
     std::vector<int32_t> tempMissions;
     std::string dirPath = GetMissionDataDirPath();
-    OHOS::HiviewDFX::FileUtil::GetDirFiles(dirPath, fileNameVec);
+    OHOS::GetDirFiles(dirPath, fileNameVec);
 
     for (auto fileName : fileNameVec) {
         if (!CheckFileNameValid(fileName)) {
@@ -92,7 +95,7 @@ bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &mission
         }
 
         std::string content;
-        bool loadFile = OHOS::HiviewDFX::FileUtil::LoadStringFromFile(fileName, content);
+        bool loadFile = OHOS::LoadStringFromFile(fileName, content);
         if (!loadFile) {
             HILOG_ERROR("load string from file %{public}s failed.", fileName.c_str());
             continue;
@@ -119,17 +122,18 @@ bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &mission
 void MissionDataStorage::SaveMissionInfo(const InnerMissionInfo &missionInfo)
 {
     std::string filePath = GetMissionDataFilePath(missionInfo.missionInfo.id);
-    std::string dirPath = OHOS::HiviewDFX::FileUtil::ExtractFilePath(filePath);
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
-        bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
+    std::string dirPath = OHOS::ExtractFilePath(filePath);
+    if (!OHOS::FileExists(dirPath)) {
+        bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
             HILOG_ERROR("create dir %{public}s failed.", dirPath.c_str());
             return;
         }
+        chmod(dirPath.c_str(), MODE);
     }
 
     std::string jsonStr = missionInfo.ToJsonStr();
-    bool saveMissionFile = OHOS::HiviewDFX::FileUtil::SaveStringToFile(filePath, jsonStr, true);
+    bool saveMissionFile = OHOS::SaveStringToFile(filePath, jsonStr, true);
     if (!saveMissionFile) {
         HILOG_ERROR("save mission file %{public}s failed.", filePath.c_str());
     }
@@ -138,7 +142,7 @@ void MissionDataStorage::SaveMissionInfo(const InnerMissionInfo &missionInfo)
 void MissionDataStorage::DeleteMissionInfo(int missionId)
 {
     std::string filePath = GetMissionDataFilePath(missionId);
-    bool removeMissionFile = OHOS::HiviewDFX::FileUtil::RemoveFile(filePath);
+    bool removeMissionFile = OHOS::RemoveFile(filePath);
     if (!removeMissionFile) {
         HILOG_ERROR("remove mission file %{public}s failed.", filePath.c_str());
         return;
@@ -211,7 +215,7 @@ std::string MissionDataStorage::GetMissionSnapshotPath(int32_t missionId, bool i
 
 bool MissionDataStorage::CheckFileNameValid(const std::string &fileName)
 {
-    std::string fileNameExcludePath = OHOS::HiviewDFX::FileUtil::ExtractFileName(fileName);
+    std::string fileNameExcludePath = OHOS::ExtractFileName(fileName);
     if (fileNameExcludePath.find(MISSION_JSON_FILE_PREFIX) != 0) {
         return false;
     }
@@ -251,13 +255,14 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
     }
 
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
-    std::string dirPath = OHOS::HiviewDFX::FileUtil::ExtractFilePath(filePath);
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
-        bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
+    std::string dirPath = OHOS::ExtractFilePath(filePath);
+    if (!OHOS::FileExists(dirPath)) {
+        bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
             HILOG_ERROR("snapshot: create dir %{public}s failed.", dirPath.c_str());
             return;
         }
+        chmod(dirPath.c_str(), MODE);
     }
 
     if (isPrivate) {
@@ -331,12 +336,12 @@ bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
 void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId, bool isLowResolution)
 {
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
-    std::string dirPath = OHOS::HiviewDFX::FileUtil::ExtractFilePath(filePath);
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(filePath)) {
+    std::string dirPath = OHOS::ExtractFilePath(filePath);
+    if (!OHOS::FileExists(filePath)) {
         HILOG_WARN("snapshot: remove snapshot file %{public}s failed, file not exists", filePath.c_str());
         return;
     }
-    bool removeResult = OHOS::HiviewDFX::FileUtil::RemoveFile(filePath);
+    bool removeResult = OHOS::RemoveFile(filePath);
     if (!removeResult) {
         HILOG_ERROR("snapshot: remove snapshot file %{public}s failed.", filePath.c_str());
     }
@@ -355,7 +360,7 @@ std::shared_ptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, 
 std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, bool isLowResolution) const
 {
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(filePath)) {
+    if (!OHOS::FileExists(filePath)) {
         HILOG_INFO("snapshot: storage snapshot not exists, missionId = %{public}d", missionId);
         return nullptr;
     }

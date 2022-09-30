@@ -15,7 +15,7 @@
 
 #include "task_data_persistence_mgr.h"
 #include "ability_util.h"
-#include "file_util.h"
+#include "directory_ex.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -113,7 +113,7 @@ bool TaskDataPersistenceMgr::RemoveUserDir(int32_t userId)
         return false;
     }
     std::string userDir = std::string(TASK_DATA_FILE_BASE_PATH) + "/" + std::to_string(userId);
-    bool ret = OHOS::HiviewDFX::FileUtil::ForceRemoveDirectory(userDir);
+    bool ret = OHOS::ForceRemoveDirectory(userDir);
     if (!ret) {
         HILOG_ERROR("remove user dir %{public}s failed.", userDir.c_str());
         return false;
