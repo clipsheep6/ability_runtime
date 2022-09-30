@@ -90,6 +90,8 @@ const std::string NEW_RULES_EXCEPT_LAUNCHER_SYSTEMUI = "component.startup.newRul
 const std::string BACKGROUND_JUDGE_FLAG = "component.startup.backgroundJudge.flag";
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SYSTEMUI = "com.ohos.systemui";
+const std::string BUNDLE_NAME_SETTINGSDATA = "com.ohos.settingsdata";
+const std::string BUNDLE_NAME_DEVICE_TEST = "com.ohos.devicetest";
 const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 } // namespace
 
@@ -5181,7 +5183,12 @@ AAFwk::PermissionVerification::VerificationInfo AbilityManagerService::CreateVer
     AAFwk::PermissionVerification::VerificationInfo verificationInfo;
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
-    verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+    if (abilityRequest.appInfo.bundleName == BUNDLE_NAME_SETTINGSDATA ||
+        abilityRequest.appInfo.bundleName == BUNDLE_NAME_DEVICE_TEST) {
+        verificationInfo.associatedWakeUp = true;
+    } else {
+        verificationInfo.associatedWakeUp = abilityRequest.appInfo.associatedWakeUp;
+    }
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     if (callerAbility) {
         verificationInfo.apiTargetVersion = callerAbility->GetApplicationInfo().apiTargetVersion;
@@ -5317,22 +5324,25 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     }
 
     if (!abilityRequest.callerToken && abilityRequest.want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
-        // The call is form AbilityDelegator, no need to check premission
+        // The call is from AbilityDelegator, no need to check permission
         isBackgroundCall = false;
         return ERR_OK;
     }
 
     std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
     CHECK_POINTER_AND_RETURN(callerAbility, ERR_INVALID_VALUE);
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
-        auto callerAppState = callerAbility->GetAppState();
-        isBackgroundCall = callerAppState != AAFwk::AppState::FOREGROUND;
+        isBackgroundCall = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND;
     } else {
-        AppExecFwk::RunningProcessInfo processInfo;
-        DelayedSingleton<AppScheduler>::GetInstance()->
-            GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
         isBackgroundCall = !processInfo.isFocused;
     }
+    HILOG_DEBUG("backgroundJudgeFlag: %{public}d, isBackgroundCall: %{public}d, callerAppState: %{public}d.",
+        static_cast<int32_t>(backgroundJudgeFlag_),
+        static_cast<int32_t>(isBackgroundCall),
+        static_cast<int32_t>(processInfo.state_));
 
     return ERR_OK;
 }
