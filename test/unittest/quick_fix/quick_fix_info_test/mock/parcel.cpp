@@ -61,12 +61,12 @@ bool GetMockReadParcelableState()
     return g_mockReadParcelable;
 }
 
-bool Parcel::WriteUint32(uint32_t value)
+bool Parcel::WriteUint32(uint32_t) const
 {
     return g_mockWriteUint32;
 }
 
-bool Parcel::WriteString(const std::string &value)
+bool Parcel::WriteString(const std::string &) const
 {
     if (g_mockWriteStringCount < g_mockWriteStringMax) {
         g_mockWriteStringCount++;
@@ -75,17 +75,17 @@ bool Parcel::WriteString(const std::string &value)
     return g_mockWriteString;
 }
 
-bool Parcel::WriteParcelable(const Parcelable *object)
+bool Parcel::WriteParcelable(const Parcelable *) const
 {
     return g_mockWriteParcelable;
 }
 
-uint32_t Parcel::ReadUint32()
+uint32_t Parcel::ReadUint32() const
 {
     return 0;
 }
 
-std::string Parcel::ReadString()
+std::string Parcel::ReadString() const
 {
     return "";
 }

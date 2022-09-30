@@ -127,7 +127,6 @@ bool DisposedInterceptor::CheckDisposed(const Want &want)
     // get disposed status
     std::string bundleName = want.GetBundle();
     int disposedStatus = bms->GetDisposedStatus(bundleName);
-
     if (disposedStatus != 0) {
         HILOG_DEBUG("The target app's status is abnormal, the status is: %{public}d", disposedStatus);
         return true;

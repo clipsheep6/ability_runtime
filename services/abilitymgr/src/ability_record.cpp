@@ -483,24 +483,18 @@ void AbilityRecord::StartingWindowTask(bool isRecent, bool isCold, const Ability
 
 void AbilityRecord::PostCancelStartingWindowHotTask()
 {
-    HILOG_INFO("%{public}s was called.", __func__);
+    HILOG_INFO("PostCancelStartingWindowHotTask was called.");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (!handler) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
-        return;
-    }
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
 
     auto windowHandler = GetWMSHandler();
-    if (!windowHandler) {
-        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
-        return;
-    }
+    CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
 
     auto abilityRecord(shared_from_this());
     auto delayTask = [windowHandler, abilityRecord] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
             abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
-            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            HILOG_INFO("PostCancelStartingWindowHotTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
         }
@@ -511,25 +505,19 @@ void AbilityRecord::PostCancelStartingWindowHotTask()
 
 void AbilityRecord::PostCancelStartingWindowColdTask()
 {
-    HILOG_INFO("%{public}s was called.", __func__);
+    HILOG_INFO("PostCancelStartingWindowColdTask was called.");
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
-    if (!handler) {
-        HILOG_ERROR("Fail to get AbilityEventHandler.");
-        return;
-    }
+    CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
 
     auto windowHandler = GetWMSHandler();
-    if (!windowHandler) {
-        HILOG_ERROR("%{public}s, Get WMS handler failed.", __func__);
-        return;
-    }
+    CHECK_POINTER_LOG(windowHandler, "PostCancelStartingWindowColdTask, Get WMS handler failed.");
 
     auto abilityRecord(shared_from_this());
     auto delayTask = [windowHandler, abilityRecord] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
             (abilityRecord->GetScheduler() == nullptr ||
             abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
-            HILOG_INFO("%{public}s, call windowHandler CancelStartingWindow.", __func__);
+            HILOG_INFO("PostCancelStartingWindowColdTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
         }

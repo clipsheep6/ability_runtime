@@ -90,7 +90,8 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), info.startInstallTime);
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
+        info.startInstallTime);
     auto bms = AbilityUtil::GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
@@ -129,7 +130,8 @@ int FreeInstallManager::RemoteFreeInstall(const Want &want, int32_t userId, int 
         std::lock_guard<std::mutex> lock(freeInstallListLock_);
         freeInstallList_.push_back(info);
     }
-    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), info.startInstallTime);
+    sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(),
+        info.startInstallTime);
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     DistributedClient dmsClient;
@@ -387,7 +389,8 @@ void FreeInstallManager::OnInstallFinished(int resultCode, const Want &want, int
     }
 }
 
-void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime)
+void FreeInstallManager::OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
+    int64_t startInstallTime)
 {
     HILOG_INFO("%{public}s resultCode = %{public}d", __func__, resultCode);
     NotifyFreeInstallResult(want, resultCode, startInstallTime);

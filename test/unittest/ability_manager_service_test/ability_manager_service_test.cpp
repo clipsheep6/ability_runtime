@@ -142,7 +142,8 @@ HWTEST_F(AbilityManagerServiceTest, CheckOptExtensionAbility_001, TestSize.Level
 {
     HILOG_INFO("AbilityManagerServiceTest CheckOptExtensionAbility_001 start");
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SERVICE;
-    auto result = abilityMs_->CheckOptExtensionAbility(want_, abilityRequest_, USER_ID_U100, AppExecFwk::ExtensionAbilityType::SERVICE);
+    auto result = abilityMs_->CheckOptExtensionAbility(want_, abilityRequest_, USER_ID_U100,
+        AppExecFwk::ExtensionAbilityType::SERVICE);
     EXPECT_EQ(OHOS::ERR_OK, result);
     HILOG_INFO("AbilityManagerServiceTest CheckOptExtensionAbility_001 end");
 }
@@ -157,7 +158,8 @@ HWTEST_F(AbilityManagerServiceTest, CheckOptExtensionAbility_002, TestSize.Level
 {
     HILOG_INFO("AbilityManagerServiceTest CheckOptExtensionAbility_002 start");
     abilityRequest_.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::FORM;
-    auto result = abilityMs_->CheckOptExtensionAbility(want_, abilityRequest_, USER_ID_U100, AppExecFwk::ExtensionAbilityType::FORM);
+    auto result = abilityMs_->CheckOptExtensionAbility(want_, abilityRequest_, USER_ID_U100,
+        AppExecFwk::ExtensionAbilityType::FORM);
     EXPECT_EQ(OHOS::ERR_OK, result);
     HILOG_INFO("AbilityManagerServiceTest CheckOptExtensionAbility_002 end");
 }

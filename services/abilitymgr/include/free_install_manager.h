@@ -64,7 +64,8 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime);
+    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
+        int64_t startInstallTime);
 
     /**
      * Start to free install.

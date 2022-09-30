@@ -1527,7 +1527,7 @@ void AppMgrServiceInner::HandleTimeOut(const InnerEvent::Pointer &event)
     const char *hook_mode = "startup:";
     int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
     if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
-        HILOG_DEBUG("Hook_mode: no handle time out");
+        HILOG_DEBUG("HandleTimeOut, Hook_mode: no handle time out");
         return;
     }
 
@@ -2256,7 +2256,8 @@ void AppMgrServiceInner::InitGlobalConfiguration()
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, hasPointerDevice);
 
     // Get DeviceType
-    std::string deviceType = system::GetParameter(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, ConfigurationInner::DEVICE_TYPE_DEFAULT);
+    std::string deviceType = system::GetParameter(AAFwk::GlobalConfigurationKey::DEVICE_TYPE,
+        ConfigurationInner::DEVICE_TYPE_DEFAULT);
     HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
     configuration_->AddItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE, deviceType);
 }
@@ -2314,7 +2315,7 @@ void AppMgrServiceInner::SendHiSysEvent(const int32_t innerEventId, const int64_
     const char *hook_mode = "startup:";
     int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
     if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
-        HILOG_DEBUG("Hook_mode: no handle time out");
+        HILOG_DEBUG("SendHiSysEvent, Hook_mode: no handle time out");
         return;
     }
 

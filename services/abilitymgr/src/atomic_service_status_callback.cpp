@@ -21,7 +21,8 @@
 
 namespace OHOS {
 namespace AAFwk {
-AtomicServiceStatusCallback::AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server, const int64_t startInstallTime)
+AtomicServiceStatusCallback::AtomicServiceStatusCallback(const std::weak_ptr<FreeInstallManager> &server,
+    const int64_t startInstallTime)
     : server_(server), startInstallTime_(startInstallTime)
 {
 }

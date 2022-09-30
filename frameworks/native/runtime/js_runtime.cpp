@@ -172,22 +172,22 @@ public:
 
     void LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override
     {
-        HILOG_DEBUG("function called.");
+        HILOG_DEBUG("LoadRepairPatch function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("LoadRepairPatch, vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("LoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("LoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
@@ -196,54 +196,54 @@ public:
             std::string baseFile = hapPath + "/" + fileName;
             std::ostringstream outStream;
             if (!extractor.ExtractByName(fileName, outStream)) {
-                HILOG_ERROR("Extract %{public}s failed.", patchFile.c_str());
+                HILOG_ERROR("LoadRepairPatch, Extract %{public}s failed.", patchFile.c_str());
                 return;
             }
 
             const auto &outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
-            HILOG_DEBUG("LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+            HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
                 patchFile.c_str(), baseFile.c_str());
             bool ret = panda::JSNApi::LoadPatch(vm_, patchFile, buffer.data(), buffer.size(), baseFile);
             if (!ret) {
-                HILOG_ERROR("LoadPatch failed.");
+                HILOG_ERROR("LoadRepairPatch, LoadPatch failed.");
                 return;
             }
-            HILOG_DEBUG("Load patch %{private}s succeed.", patchFile.c_str());
+            HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
         }
     }
 
     void UnLoadRepairPatch(const std::string& hqfFile) override
     {
-        HILOG_DEBUG("function called.");
+        HILOG_DEBUG("UnLoadRepairPatch function called.");
         if (vm_ == nullptr) {
-            HILOG_ERROR("vm is nullptr.");
+            HILOG_ERROR("UnLoadRepairPatch vm is nullptr.");
             return;
         }
 
         AbilityRuntime::RuntimeExtractor extractor(hqfFile);
         if (!extractor.Init()) {
-            HILOG_ERROR("Extractor of %{private}s init failed.", hqfFile.c_str());
+            HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
             return;
         }
 
         std::vector<std::string> fileNames;
         extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
         if (fileNames.empty()) {
-            HILOG_WARN("There's no abc file in hqf %{private}s.", hqfFile.c_str());
+            HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
             return;
         }
 
         for (const auto &fileName : fileNames) {
             std::string patchFile = hqfFile + "/" + fileName;
-            HILOG_DEBUG("UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
+            HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
             bool ret = panda::JSNApi::UnloadPatch(vm_, patchFile);
             if (!ret) {
-                HILOG_ERROR("UnLoadPatch failed.");
+                HILOG_ERROR("UnLoadRepairPatch, UnLoadPatch failed.");
                 return;
             }
-            HILOG_DEBUG("UnLoad patch %{private}s succeed.", patchFile.c_str());
+            HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
         }
     }
 
