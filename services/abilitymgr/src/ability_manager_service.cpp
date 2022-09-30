@@ -5420,14 +5420,13 @@ int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteOb
     int32_t apiVersion = abilityRecord->GetApplicationInfo().apiTargetVersion;
     want.SetParam(DMS_API_VERSION, apiVersion);
     bool isCallerBackground = true;
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
     if (backgroundJudgeFlag_) {
-        auto callerAppState = abilityRecord->GetAppState();
-        isCallerBackground = callerAppState != AAFwk::AppState::FOREGROUND && callerAppState != AAFwk::AppState::FOCUS;
+        isCallerBackground = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOREGROUND;
     } else {
-        AppExecFwk::RunningProcessInfo processInfo;
-        DelayedSingleton<AppScheduler>::GetInstance()->
-            GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
-        isCallerBackground = processInfo.state_ != AppExecFwk::AppProcessState::APP_STATE_FOCUS;
+        isCallerBackground = !processInfo.isFocused;
     }
     want.SetParam(DMS_IS_CALLER_BACKGROUND, isCallerBackground);
     return ERR_OK;
