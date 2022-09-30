@@ -463,7 +463,7 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
     want.SetParam(PATCH_VERSION, patchVersionCode_);
 
     std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
-        [moduleName = moduleNames_](std::string name, const std::string &str) {
+        [moduleName = moduleNames_](const std::string &name, const std::string &str) {
             return (str == moduleName.front()) ? (name + str) : (name + "," + str);
         });
     want.SetModuleName(moduleName);
