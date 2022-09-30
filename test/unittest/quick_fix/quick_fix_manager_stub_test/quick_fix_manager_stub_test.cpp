@@ -219,7 +219,7 @@ HWTEST_F(QuickFixManagerStubTest, GetApplyedQuickFixInfoInner_0100, TestSize.Lev
     reply.allocator_ = nullptr;
     ApplicationQuickFixInfo expectQuickFixInfo;
     expectQuickFixInfo.asRemote_ = true;
-    EXPECT_CALL(*mockQuickFixMgrService_, GetApplyedQuickFixInfo(_,_))
+    EXPECT_CALL(*mockQuickFixMgrService_, GetApplyedQuickFixInfo(_, _))
         .WillOnce(DoAll(SetArgReferee<1>(expectQuickFixInfo), Return(QUICK_FIX_OK)));
     auto result = mockQuickFixMgrService_->GetApplyedQuickFixInfoInner(data, reply);
     EXPECT_EQ(result, QUICK_FIX_WRITE_PARCEL_FAILED);
