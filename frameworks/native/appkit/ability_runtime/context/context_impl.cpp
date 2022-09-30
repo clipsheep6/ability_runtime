@@ -18,7 +18,8 @@
 #include <regex>
 
 #include "ability_constants.h"
-#include "file_util.h"
+#include "directory_ex.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
@@ -37,6 +38,7 @@ using namespace OHOS::AbilityRuntime::Constants;
 
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
+const mode_t MODE = 0770;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
@@ -527,12 +529,13 @@ sptr<IRemoteObject> ContextImpl::GetToken()
 void ContextImpl::CreateDirIfNotExist(const std::string& dirPath) const
 {
     HILOG_DEBUG("createDir: create directory if not exists.");
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
-        bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
+    if (!OHOS::FileExists(dirPath)) {
+        bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
             HILOG_ERROR("createDir: create dir %{public}s failed.", dirPath.c_str());
             return;
         }
+        chmod(dirPath.c_str(), MODE);
     }
 }
 
