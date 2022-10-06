@@ -45,6 +45,11 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 std::mutex AbilityContextImpl::mutex_;
 std::map<int, PermissionRequestTask> AbilityContextImpl::permissionRequestCallbacks;
 
+Global::Resource::DeviceType AbilityContextImpl::GetDeviceType() const
+{
+    return (stageContext_ != nullptr) ? stageContext_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
+}
+
 std::string AbilityContextImpl::GetBaseDir() const
 {
     return stageContext_ ? stageContext_->GetBaseDir() : "";
@@ -435,17 +440,17 @@ void AbilityContextImpl::StartGrantExtension(NativeEngine& engine, const std::ve
     }
     auto resultTask =
         [&engine, requestCode](const std::vector<std::string> &permissions, const std::vector<int> &grantResults) {
-        ResultCallback* retCB = new ResultCallback();
+        auto retCB = new ResultCallback();
         retCB->permissions_ = permissions;
         retCB->grantResults_ = grantResults;
         retCB->requestCode_ = requestCode;
 
-        uv_loop_t* loop = engine.GetUVLoop();
+        auto loop = engine.GetUVLoop();
         if (loop == nullptr) {
             HILOG_ERROR("StartGrantExtension, fail to get uv loop.");
             return;
         }
-        uv_work_t *work = new uv_work_t;
+        auto work = new uv_work_t;
         work->data = (void *)retCB;
         int rev = uv_queue_work(
             loop,
@@ -478,9 +483,11 @@ void AbilityContextImpl::ResultCallbackJSThreadWorker(uv_work_t* work, int statu
         HILOG_ERROR("ResultCallbackJSThreadWorker, uv_queue_work input work is nullptr");
         return;
     }
-    ResultCallback *retCB = (ResultCallback *)work->data;
+    ResultCallback* retCB = (ResultCallback *)work->data;
     if (retCB == nullptr) {
         HILOG_ERROR("ResultCallbackJSThreadWorker, retCB is nullptr");
+        delete work;
+        work = nullptr;
         return;
     }
 

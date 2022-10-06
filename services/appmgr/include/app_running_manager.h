@@ -164,6 +164,11 @@ public:
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
     int32_t NotifyLoadRepairPatch(const std::string &bundleName);
     int32_t NotifyHotReloadPage(const std::string &bundleName);
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+    bool IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord);
+    bool IsApplicationBackground(const std::string &bundleName);
+    bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
+    bool IsApplicationUnfocused(const std::string &bundleName);
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
 

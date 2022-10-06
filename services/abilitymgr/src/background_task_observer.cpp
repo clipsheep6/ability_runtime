@@ -16,6 +16,8 @@
 #include "background_task_observer.h"
 #include "hilog_wrapper.h"
 #include <unistd.h>
+#include "sa_mgr_client.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -31,6 +33,12 @@ void BackgroundTaskObserver::OnContinuousTaskStart(const std::shared_ptr<Backgro
     HILOG_DEBUG("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
+    if (appManager_ == nullptr) {
+        GetAppManager();
+    }
+    if (appManager_ != nullptr) {
+        appManager_->SetContinuousTaskProcess(continuousTaskCallbackInfo->GetCreatorPid(), true);
+    }
 }
 
 void BackgroundTaskObserver::OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
@@ -39,6 +47,12 @@ void BackgroundTaskObserver::OnContinuousTaskStop(const std::shared_ptr<Backgrou
     HILOG_DEBUG("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
+    if (appManager_ == nullptr) {
+        GetAppManager();
+    }
+    if (appManager_ != nullptr) {
+        appManager_->SetContinuousTaskProcess(continuousTaskCallbackInfo->GetCreatorPid(), false);
+    }
 }
 
 void BackgroundTaskObserver::OnRemoteDied(const wptr<IRemoteObject> &object)
@@ -72,6 +86,20 @@ bool BackgroundTaskObserver::IsBackgroundTaskUid(const int uid)
         return true;
     }
     return false;
+}
+
+sptr<AppExecFwk::IAppMgr> BackgroundTaskObserver::GetAppManager()
+{
+    if (appManager_ == nullptr) {
+        auto appObj =
+            OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
+        if (appObj == nullptr) {
+            HILOG_ERROR("Failed to get app manager service.");
+            return nullptr;
+        }
+        appManager_ = iface_cast<AppExecFwk::IAppMgr>(appObj);
+    }
+    return appManager_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

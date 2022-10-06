@@ -23,6 +23,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "ability_util.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -442,10 +443,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
         HILOG_ERROR("want write failed.");
         return ERR_INVALID_VALUE;
     }
-    if (connect == nullptr) {
-        HILOG_ERROR("connect ability fail, connect is nullptr");
-        return ERR_INVALID_VALUE;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect ability fail, connect is nullptr");
     if (connect->AsObject()) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(connect->AsObject())) {
             HILOG_ERROR("flag and connect write failed.");
@@ -476,9 +474,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
         HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
         return INNER_ERR;
     }
-    if (Remote() == nullptr) {
-        return INNER_ERR;
-    }
+    CHECK_POINTER_AND_RETURN_LOG(Remote(), INNER_ERR, "connect ability fail, remote is nullptr");
     int error = Remote()->SendRequest(IAbilityManager::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);

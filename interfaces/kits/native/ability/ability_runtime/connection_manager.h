@@ -143,6 +143,9 @@ private:
     std::map<ConnectionInfo, std::vector<sptr<AbilityConnectCallback>>> abilityConnections_;
     ErrCode ConnectAbilityInner(const sptr<IRemoteObject> &connectCaller,
         const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback);
+    ErrCode CreateConnection(const sptr<IRemoteObject> &connectCaller,
+        const AAFwk::Want &want, int accountId, const sptr<AbilityConnectCallback> &connectCallback,
+        const AppExecFwk::ElementName &connectReceiver);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

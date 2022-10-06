@@ -13,6 +13,6 @@
 
 bootevent.appfwk.ready=false
 compress=false
-component.startup.newRules=false
-component.startup.newRules.except.LauncherSystemUI=true
+component.startup.newRules=true
+component.startup.newRules.except.LauncherSystemUI=false
 component.startup.backgroundJudge.flag=true

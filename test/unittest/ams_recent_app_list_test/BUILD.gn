@@ -37,6 +37,7 @@ ohos_unittest("AmsRecentAppListTest") {
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/module_running_record.cpp",
     "${ability_runtime_services_path}/appmgr/src/remote_client_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/window_focus_changed_listener.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
   ]
 
@@ -68,6 +69,7 @@ ohos_unittest("AmsRecentAppListTest") {
     "hiviewdfx_hilog_native:libhilog",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "window_manager:libwm",
   ]
 }
 

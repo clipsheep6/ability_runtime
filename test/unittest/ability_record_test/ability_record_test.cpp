@@ -172,6 +172,11 @@ HWTEST_P(AbilityRecordTest, AaFwk_AbilityMS_SetGetAbilityState, TestSize.Level1)
     abilityRecord_->SetAbilityState(state);
     EXPECT_EQ(static_cast<int>(state), static_cast<int>(abilityRecord_->GetAbilityState()));
 }
+INSTANTIATE_TEST_SUITE_P(AbilityRecordTestCaseP, AbilityRecordTest,
+    testing::Values(AbilityState::INITIAL, AbilityState::INACTIVE, AbilityState::ACTIVE, AbilityState::INACTIVATING,
+                    AbilityState::ACTIVATING, AbilityState::TERMINATING, AbilityState::FOREGROUND,
+                    AbilityState::BACKGROUND, AbilityState::FOREGROUNDING, AbilityState::BACKGROUNDING,
+                    AbilityState::FOREGROUND_FAILED, AbilityState::FOREGROUND_INVALID_MODE));
 
 /*
  * Feature: AbilityRecord
@@ -679,6 +684,34 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_SetSpecifiedFlag_001, TestSize.Level
     abilityRecord_->SetSpecifiedFlag("flag");
     auto flag = abilityRecord_->GetSpecifiedFlag();
     EXPECT_EQ(flag, "flag");
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetAbilityRecordByToken
+ * SubFunction: GetAbilityRecordByToken
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord token GetAbilityRecordByToken
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetAbilityRecordByToken_001, TestSize.Level1)
+{
+    EXPECT_EQ(Token::GetAbilityRecordByToken(nullptr), nullptr);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GetPixelMap
+ * SubFunction: GetPixelMap
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GetPixelMap
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GetPixelMap_001, TestSize.Level1)
+{
+    EXPECT_EQ(abilityRecord_->GetPixelMap(1, nullptr), nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceMgr(Global::Resource::CreateResourceManager());
+    EXPECT_EQ(abilityRecord_->GetPixelMap(1, resourceMgr), nullptr);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

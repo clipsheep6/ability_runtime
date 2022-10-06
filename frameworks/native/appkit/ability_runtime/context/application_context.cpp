@@ -206,7 +206,18 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
 void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration &config)
 {
     for (auto envCallback : envCallbacks_) {
-        envCallback->OnConfigurationUpdated(config);
+        if (envCallback != nullptr) {
+            envCallback->OnConfigurationUpdated(config);
+        }
+    }
+}
+
+void ApplicationContext::DispatchMemoryLevel(const int level)
+{
+    for (auto envCallback : envCallbacks_) {
+        if (envCallback != nullptr) {
+            envCallback->OnMemoryLevel(level);
+        }
     }
 }
 
@@ -332,6 +343,11 @@ std::shared_ptr<AppExecFwk::Configuration> ApplicationContext::GetConfiguration(
 std::string ApplicationContext::GetBaseDir() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetBaseDir() : nullptr;
+}
+
+Global::Resource::DeviceType ApplicationContext::GetDeviceType() const
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetDeviceType() : Global::Resource::DeviceType::DEVICE_PHONE;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

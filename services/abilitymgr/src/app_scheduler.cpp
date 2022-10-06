@@ -34,6 +34,7 @@ const std::map<AppState, std::string> appStateToStrMap_ = {
     std::map<AppState, std::string>::value_type(AppState::SUSPENDED, "SUSPENDED"),
     std::map<AppState, std::string>::value_type(AppState::TERMINATED, "TERMINATED"),
     std::map<AppState, std::string>::value_type(AppState::END, "END"),
+    std::map<AppState, std::string>::value_type(AppState::FOCUS, "FOCUS"),
 };
 AppScheduler::AppScheduler() : appMgrClient_(std::make_unique<AppExecFwk::AppMgrClient>())
 {}
@@ -86,11 +87,6 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     if (ret != ERR_OK) {
         HILOG_ERROR("AppScheduler fail to LoadAbility. ret %d", ret);
         return INNER_ERR;
-    }
-    if (DelayedSingleton<AbilityManagerService>::GetInstance()->IsBackgroundTaskUid(applicationInfo.uid)) {
-        (const_cast<Want &>(want)).SetParam("isContinuousTask", true);
-    } else {
-        (const_cast<Want &>(want)).SetParam("isContinuousTask", false);
     }
     return ERR_OK;
 }

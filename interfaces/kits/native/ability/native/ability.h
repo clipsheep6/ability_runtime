@@ -1121,7 +1121,6 @@ public:
      */
     void SetSceneListener(const sptr<Rosen::IWindowLifeCycle> &listener);
 
-#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Called back at ability context.
      *
@@ -1144,7 +1143,6 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon) override;
-#endif
 
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {

@@ -41,6 +41,7 @@ ohos_unittest("ams_mgr_scheduler_dump_test") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
   ]
 }
 

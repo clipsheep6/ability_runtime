@@ -33,17 +33,17 @@ public:
      * LaunchApplication, call ScheduleLaunchApplication() through proxy project,
      * Notify application to launch application.
      *
-     * @param The app data value.
-     *
+     * @param launchData The app data when launch.
+     * @param config The app config when launch.
      * @return
      */
-    void LaunchApplication(const AppLaunchData &launchData_, const Configuration &config);
+    void LaunchApplication(const AppLaunchData &launchData, const Configuration &config);
 
     /**
      * AddAbilityStageInfo, call ScheduleAbilityStageInfo() through proxy project,
      * Notify application to launch application.
      *
-     * @param The app data value.
+     * @param abilityStage The app data value.
      *
      * @return
      */
@@ -53,7 +53,7 @@ public:
      * LaunchAbility, call ScheduleLaunchAbility() through proxy project,
      * Notify application to launch ability.
      *
-     * @param The ability info.
+     * @param ability The ability info.
      * @return
      */
     void LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability);
@@ -86,14 +86,14 @@ public:
      * ScheduleTrimMemory, call ScheduleShrinkMemory() through proxy project,
      * Notifies the application of the memory seen.
      *
-     * @param The memory value.
+     * @param timeLevel The memory value.
      *
      * @return
      */
     void ScheduleTrimMemory(int32_t timeLevel);
 
     /**
-     * ScheduleMemoryLevel, call ScheduleMemorylevel() through proxy project,
+     * ScheduleMemoryLevel, call ScheduleMemoryLevel() through proxy project,
      * Notifies the application of the current memory.
      *
      * @param The memory level.
@@ -154,6 +154,8 @@ public:
     int32_t NotifyLoadRepairPatch(const std::string &bundleName);
 
     int32_t NotifyHotReloadPage();
+
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
 
 private:
     sptr<IAppScheduler> appThread_ = nullptr;

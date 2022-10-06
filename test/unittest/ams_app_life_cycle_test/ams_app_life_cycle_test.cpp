@@ -2124,12 +2124,12 @@ HWTEST_F(AmsAppLifeCycleTest, UpdateConfiguration_003, TestSize.Level1)
 
 /*
  * Feature: AMS
- * Function: AppLifeCycle::GetGlobalConfiguration
+ * Function: AppLifeCycle::InitGlobalConfiguration
  * SubFunction: initialization
  * FunctionPoints: NA
  * CaseDescription: Initialize a persistent environment variable object
  */
-HWTEST_F(AmsAppLifeCycleTest, GetGlobalConfiguration_001, TestSize.Level1)
+HWTEST_F(AmsAppLifeCycleTest, InitGlobalConfiguration_001, TestSize.Level1)
 {
     auto configMgr = serviceInner_->GetConfiguration();
     EXPECT_TRUE(configMgr);
@@ -2137,7 +2137,7 @@ HWTEST_F(AmsAppLifeCycleTest, GetGlobalConfiguration_001, TestSize.Level1)
     auto language = configMgr->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     EXPECT_TRUE(language.empty());
 
-    serviceInner_->GetGlobalConfiguration();
+    serviceInner_->InitGlobalConfiguration();
     language = configMgr->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     EXPECT_TRUE(!language.empty());
 }

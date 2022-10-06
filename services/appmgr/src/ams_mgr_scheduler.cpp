@@ -37,7 +37,7 @@ const std::string TASK_UPDATE_EXTENSION_STATE = "UpdateExtensionStateTask";
 const std::string TASK_REGISTER_APP_STATE_CALLBACK = "RegisterAppStateCallbackTask";
 const std::string TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
 const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
-const std::string TASK_KILL_PROCESS_BY_ABILITYTOKEN = "KillProcessByAbilityTokenTask";
+const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
 const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
 const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
 };  // namespace
@@ -62,7 +62,6 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     }
 
     if (!IsReady()) {
-        HILOG_ERROR("AmsMgrScheduler not Ready");
         return;
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
@@ -119,12 +118,7 @@ void AmsMgrScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject> &token, 
         return;
     }
     std::function<void()> abilityBehaviorAnalysisFunc = std::bind(&AppMgrServiceInner::AbilityBehaviorAnalysis,
-        amsMgrServiceInner_,
-        token,
-        preToken,
-        visibility,
-        perceptibility,
-        connectionState);
+        amsMgrServiceInner_, token, preToken, visibility, perceptibility, connectionState);
     amsHandler_->PostTask(abilityBehaviorAnalysisFunc, TASK_ABILITY_BEHAVIOR_ANALYSIS);
 }
 
@@ -140,13 +134,13 @@ void AmsMgrScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token
     }
     std::function<void()> killProcessByAbilityTokenFunc =
         std::bind(&AppMgrServiceInner::KillProcessByAbilityToken, amsMgrServiceInner_, token);
-    amsHandler_->PostTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITYTOKEN);
+    amsHandler_->PostTask(killProcessByAbilityTokenFunc, TASK_KILL_PROCESS_BY_ABILITY_TOKEN);
 }
 
 void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 {
-    if (amsMgrServiceInner_->VerifyAccountPermission(AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES,
-        userId) == ERR_PERMISSION_DENIED) {
+    auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
+    if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return;
     }
@@ -161,15 +155,10 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
 
 int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)
 {
-    HILOG_INFO("enter");
     HILOG_INFO("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
-
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-
-    HILOG_INFO("end");
-
     return amsMgrServiceInner_->KillApplicationByUserId(bundleName, accountId);
 }
 

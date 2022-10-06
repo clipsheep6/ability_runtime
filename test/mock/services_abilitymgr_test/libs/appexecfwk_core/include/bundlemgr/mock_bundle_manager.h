@@ -256,6 +256,8 @@ public:
 
     bool GetBundleInfo(
         const std::string &bundleName, const BundleFlag flag, BundleInfo &bundleInfo, int32_t userId) override;
+    
+    int32_t GetDisposedStatus(const std::string &bundleName) override;
 
     virtual bool ImplicitQueryInfoByPriority(const Want &want, int32_t flags, int32_t userId,
         AbilityInfo &abilityInfo, ExtensionAbilityInfo &extensionInfo) override
@@ -294,6 +296,13 @@ public:
         abilityInfo.name = "MainAbility";
         abilityInfo.bundleName = "com.ohos.launcher";
         return true;
+    }
+    virtual int32_t GetDisposedStatus(const std::string &bundleName)
+    {
+        if (bundleName.compare("com.test.disposed") == 0) {
+            return -1;
+        }
+        return 0;
     }
 public:
     using QueryAbilityInfoFunType =

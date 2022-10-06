@@ -83,7 +83,7 @@ HWTEST_F(SenderInfoTest, SenderInfoTest_0100, TestSize.Level1)
     cance->performReceiveCount = 10;
     info.finishedReceiver = cance;
     info.requiredPermission = "xiaoming";
-    Parcel parcel;
+    MessageParcel parcel;
     info.Marshalling(parcel);
     auto unInfo = SenderInfo::Unmarshalling(parcel);
     EXPECT_NE(unInfo, nullptr);

@@ -28,6 +28,8 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+const int32_t ERROR_USER_ID_U256 = 256;
+const int32_t USER_ID_U600 = 600;
 class BundleMgrProxy : public IRemoteProxy<IBundleMgr> {
 public:
     explicit BundleMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IBundleMgr>(impl)
@@ -43,7 +45,7 @@ public:
     int GetUidByBundleName(const std::string &bundleName, const int userId) override
     {
         if (bundleName.compare("com.form.host.app600") == 0) {
-            return 600;
+            return USER_ID_U600;
         }
         return 0;
     }
@@ -56,7 +58,7 @@ public:
 
     bool CheckIsSystemAppByUid(const int uid) override
     {
-        if (uid == 600) {
+        if (uid == USER_ID_U600) {
             return true;
         }
         return false;
@@ -94,7 +96,7 @@ public:
     }
     bool CheckIsSystemAppByUid(const int uid) override
     {
-        if (uid == 600) {
+        if (uid == USER_ID_U600) {
             return false;
         }
 

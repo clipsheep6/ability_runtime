@@ -123,8 +123,8 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
         HILOG_ERROR("GetAbilityByTerminateLists error, token is null");
         return nullptr;
     }
-    const auto &iter = terminateAbilitys_.find(token);
-    if (iter != terminateAbilitys_.end()) {
+    const auto &iter = terminateAbilities_.find(token);
+    if (iter != terminateAbilities_.end()) {
         return iter->second;
     }
     return nullptr;
@@ -175,10 +175,10 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
         return iter->second;
     }
 
-    const auto &finder = std::find_if(terminateAbilitys_.begin(),
-        terminateAbilitys_.end(),
+    const auto &finder = std::find_if(terminateAbilities_.begin(),
+        terminateAbilities_.end(),
         [eventId](const auto &pair) { return pair.second->GetEventId() == eventId; });
-    if (finder != terminateAbilitys_.end()) {
+    if (finder != terminateAbilities_.end()) {
         return finder->second;
     }
     return nullptr;
@@ -245,7 +245,7 @@ void ModuleRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, con
         return;
     }
 
-    terminateAbilitys_.emplace(token, abilityRecord);
+    terminateAbilities_.emplace(token, abilityRecord);
     abilities_.erase(token);
 
     if (!isForce) {
@@ -297,7 +297,7 @@ void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     }
 
     if (RemoveTerminateAbilityTimeoutTask(token)) {
-        terminateAbilitys_.erase(token);
+        terminateAbilities_.erase(token);
     }
 }
 

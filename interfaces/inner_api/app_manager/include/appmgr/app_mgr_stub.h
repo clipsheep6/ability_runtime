@@ -89,6 +89,10 @@ private:
     int32_t HandleGetAppRunningStateByBundleName(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    int32_t HandleSetContinuousTaskProcess(MessageParcel &data, MessageParcel &reply);
+#endif
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

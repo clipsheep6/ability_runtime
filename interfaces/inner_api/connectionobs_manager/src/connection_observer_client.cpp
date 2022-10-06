@@ -51,5 +51,15 @@ int32_t ConnectionObserverClient::UnregisterObserver(const std::shared_ptr<Conne
 
     return clientImpl_->UnregisterObserver(observer);
 }
+
+int32_t ConnectionObserverClient::GetDlpConnectionInfos(std::vector<DlpConnectionInfo> &infos)
+{
+    if (!clientImpl_) {
+        HILOG_ERROR("ConnectionObserverClient::GetDlpConnectionInfos impl is nullptr.");
+        return ERR_NO_CLIENT_IMPL;
+    }
+
+    return clientImpl_->GetDlpConnectionInfos(infos);
+}
 }
 }

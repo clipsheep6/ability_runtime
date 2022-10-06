@@ -229,6 +229,8 @@ public:
 
     int32_t ScheduleNotifyHotReloadPage() override;
 
+    int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName) override;
+
 private:
     /**
      *
@@ -517,8 +519,7 @@ private:
         Profile &appProfile);
     bool CheckForHandleLaunchApplication(const AppLaunchData &appLaunchData);
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
-        std::shared_ptr<ContextDeal> &contextDeal, ApplicationInfo &appInfo, BundleInfo& bundleInfo,
-        const Configuration &config);
+        BundleInfo& bundleInfo, const Configuration &config);
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);

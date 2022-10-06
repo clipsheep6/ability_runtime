@@ -39,6 +39,16 @@ bool DlpStateItem::RemoveDlpConnectionState(const std::shared_ptr<AbilityRecord>
     return HandleDlpConnectionState(record, false, data);
 }
 
+int32_t DlpStateItem::GetDlpUid() const
+{
+    return dlpUid_;
+}
+
+int32_t DlpStateItem::GetOpenedAbilitySize() const
+{
+    return static_cast<int32_t>(dlpAbilities_.size());
+}
+
 bool DlpStateItem::HandleDlpConnectionState(const std::shared_ptr<AbilityRecord> &record, bool isAdd,
     AbilityRuntime::DlpStateData &data)
 {

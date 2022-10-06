@@ -37,6 +37,7 @@ ohos_moduletest("AmsIpcAmsmgrModuleTest") {
     "hicollie_native:libhicollie",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "window_manager:libwm",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

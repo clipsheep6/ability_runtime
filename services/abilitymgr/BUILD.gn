@@ -48,7 +48,6 @@ config("abilityms_config") {
     "${relational_store_innerapi_path}/dataability/include",
     "${ability_runtime_innerkits_path}/dataobs_manager/include",
     "${ability_runtime_path}/tools/aa/include",
-    "//base/hiviewdfx/hiview/adapter/utility/include",
     "//base/account/os_account/frameworks/common/account_error/include",
     "//base/account/os_account/frameworks/common/database/include",
     "//base/account/os_account/interfaces/innerkits/osaccount/native/include",
@@ -62,6 +61,10 @@ config("abilityms_config") {
   ]
 
   defines = []
+
+  if (is_asan) {
+    defines += [ "SUPPORT_ASAN" ]
+  }
 
   if (ability_command_for_test) {
     defines += [ "ABILITY_COMMAND_FOR_TEST" ]
@@ -89,6 +92,11 @@ config("abilityms_config") {
   if (efficiency_manager) {
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
+
+  if (is_asan) {
+    defines += [ "SUPPORT_ASAN" ]
+  }
+
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -119,6 +127,7 @@ ohos_shared_library("abilityms") {
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "ability_runtime:connection_obs_manager",
@@ -170,7 +179,7 @@ ohos_shared_library("abilityms") {
     external_deps += [
       "i18n:intl_util",
       "input:libmmi-client",
-      "multimedia_image_standard:image_native",
+      "multimedia_image_framework:image_native",
       "window_manager:libdm",
     ]
   }

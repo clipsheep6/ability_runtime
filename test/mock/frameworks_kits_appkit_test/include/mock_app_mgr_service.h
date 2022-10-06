@@ -60,6 +60,7 @@ public:
     MOCK_METHOD1(GetAppRunningStateByBundleName, bool(const std::string &bundleName));
     MOCK_METHOD1(NotifyLoadRepairPatch, int32_t(const std::string &bundleName));
     MOCK_METHOD1(NotifyHotReloadPage, int32_t(const std::string &bundleName));
+    MOCK_METHOD1(NotifyUnLoadRepairPatch, int32_t(const std::string &bundleName));
 
     void AttachApplication(const sptr<IRemoteObject> &app)
     {

@@ -46,6 +46,7 @@
 #include "istart_specified_ability_response.h"
 
 #include "want.h"
+#include "window_focus_changed_listener.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -153,11 +154,11 @@ public:
      * AttachApplication, get all the information needed to start the Application
      * (data related to the Application ).
      *
-     * @param app, information needed to start the Application.
+     * @param appScheduler, information needed to start the Application.
      *
      * @return
      */
-    virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &app);
+    virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler);
 
     /**
      * ApplicationForegrounded, set the application to Foreground State.
@@ -425,13 +426,8 @@ public:
 
     void PrepareTerminate(const sptr<IRemoteObject> &token);
 
-    /**
-     * OnAppStateChanged, Application state changed.
-     *
-     * @param appRecord, the app information.
-     * @param state, the app state.
-     */
-    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state);
+    void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
+        bool needNotifyApp);
 
     void GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info);
 
@@ -557,6 +553,15 @@ public:
 
     int32_t NotifyHotReloadPage(const std::string &bundleName);
 
+    int32_t NotifyUnLoadRepairPatch(const std::string &bundleName);
+
+    void HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
+    void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
+
+#ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
+    int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask);
+#endif
+
 private:
 
     void StartEmptyResidentProcess(const BundleInfo &info, const std::string &processName, int restartCount,
@@ -564,7 +569,7 @@ private:
 
     void RestartResidentProcess(std::shared_ptr<AppRunningRecord> appRecord);
 
-    bool CheckLoadabilityConditions(const sptr<IRemoteObject> &token,
+    bool CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo);
 
     bool GetBundleInfo(const std::string &bundleName, BundleInfo &bundleInfo);
@@ -674,13 +679,13 @@ private:
     bool GetAllPids(std::list<pid_t> &pids);
 
     /**
-     * process_exist, Judge whether the process exists.
+     * ProcessExist, Judge whether the process exists.
      *
      * @param pids, process number collection to exit.
      *
      * @return true, return back existed，others non-existent.
      */
-    bool process_exist(pid_t &pid);
+    bool ProcessExist(pid_t &pid);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
@@ -692,11 +697,11 @@ private:
     bool CheckAllProcessExist(std::list<pid_t> &pids);
 
     /**
-     * SystemTimeMillis, Get system time.
+     * SystemTimeMillisecond, Get system time.
      *
      * @return the system time.
      */
-    int64_t SystemTimeMillis();
+    int64_t SystemTimeMillisecond();
 
     // Test add the bundle manager instance.
     void SetBundleManager(sptr<IBundleMgr> bundleManager);
@@ -720,7 +725,7 @@ private:
 
     void HandleStartSpecifiedAbilityTimeOut(const int64_t eventId);
 
-    void GetGlobalConfiguration();
+    void InitGlobalConfiguration();
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
 
@@ -732,6 +737,9 @@ private:
     void AddWatchParameter();
 
     bool VerifyAPL() const;
+
+    void InitFocusListener();
+    void RegisterFocusListener();
 
     static void PointerDeviceEventCallback(const char *key, const char *value, void *context);
 
@@ -776,8 +784,9 @@ private:
     std::shared_ptr<Configuration> configuration_;
     std::mutex userTestLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
-    std::recursive_mutex confiurtaionObserverLock_;
-    std::vector<sptr<IConfigurationObserver>> confiurtaionObservers_;
+    std::recursive_mutex configurationObserverLock_;
+    std::vector<sptr<IConfigurationObserver>> configurationObservers_;
+    sptr<WindowFocusChangedListener> focusListener_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -79,7 +79,7 @@ NativeValue* CreateJsHapModuleInfo(NativeEngine& engine, AppExecFwk::HapModuleIn
     return objValue;
 }
 
-void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> properties,
+void SetProperty(NativeEngine &engine, NativeObject* &object, const std::vector<std::string> &properties,
     const std::string &proName)
 {
     NativeValue *arrayValue = engine.CreateArray(properties.size());

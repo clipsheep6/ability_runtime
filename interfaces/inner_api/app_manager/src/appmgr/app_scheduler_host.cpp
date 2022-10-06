@@ -56,6 +56,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleNotifyLoadRepairPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE)] =
         &AppSchedulerHost::HandleNotifyHotReloadPage;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH)] =
+        &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -242,6 +244,14 @@ int32_t AppSchedulerHost::HandleNotifyHotReloadPage(MessageParcel &data, Message
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ScheduleNotifyHotReloadPage();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    ScheduleNotifyUnLoadRepairPatch(bundleName);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

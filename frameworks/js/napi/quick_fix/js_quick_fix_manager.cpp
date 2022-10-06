@@ -126,7 +126,7 @@ private:
                 if (errcode == 0) {
                     task.Resolve(engine, engine.CreateUndefined());
                 } else {
-                    task.Reject(engine, CreateJsError(engine, errcode, "update config failed."));
+                    task.Reject(engine, CreateJsError(engine, errcode, "apply quick fix failed."));
                 }
             };
         } while (0);

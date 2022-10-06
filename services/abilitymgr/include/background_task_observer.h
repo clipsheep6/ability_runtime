@@ -20,6 +20,7 @@
 #include "background_task_mgr_helper.h"
 #include "background_task_subscriber.h"
 #include "iremote_object.h"
+#include "app_mgr_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -41,9 +42,12 @@ private:
 
     void OnRemoteDied(const wptr<IRemoteObject> &object);
 
+    sptr<AppExecFwk::IAppMgr> GetAppManager();
+
 private:
     std::list<int> bgTaskUids_;
     std::mutex bgTaskMutex_;
+    sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

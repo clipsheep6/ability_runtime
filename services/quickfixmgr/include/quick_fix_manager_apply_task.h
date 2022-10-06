@@ -63,6 +63,7 @@ private:
     bool isRunning_ = false;
     bool isSoContained_ = false;
     AppExecFwk::QuickFixType type_ = AppExecFwk::QuickFixType::UNKNOWN;
+    std::vector<std::string> moduleNames_;
 };
 } // namespace AAFwk
 } // namespace OHOS

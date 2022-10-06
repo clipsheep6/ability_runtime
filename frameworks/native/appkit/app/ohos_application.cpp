@@ -470,6 +470,8 @@ void OHOSApplication::OnMemoryLevel(int level)
             callback->OnMemoryLevel(level);
         }
     }
+
+    abilityRuntimeContext_->DispatchMemoryLevel(level);
 }
 
 /**
@@ -571,6 +573,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     auto stageContext = std::make_shared<AbilityRuntime::ContextImpl>();
     stageContext->SetParentContext(abilityRuntimeContext_);
     stageContext->InitHapModuleInfo(hapModuleInfo);
+    stageContext->SetConfiguration(GetConfiguration());
     auto moduleInfo = stageContext->GetHapModuleInfo();
     if (moduleInfo == nullptr) {
         HILOG_ERROR("OHOSApplication::%{public}s: moduleInfo is nullptr", __func__);
@@ -665,6 +668,16 @@ void OHOSApplication::NotifyHotReloadPage()
     }
 
     runtime_->NotifyHotReloadPage();
+}
+
+void OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
+{
+    if (runtime_ == nullptr) {
+        HILOG_DEBUG("runtime is nullptr.");
+        return;
+    }
+
+    runtime_->UnLoadRepairPatch(hqfFile);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

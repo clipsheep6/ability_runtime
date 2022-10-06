@@ -23,10 +23,17 @@
 #include <unistd.h>
 
 #include "connect_server_manager.h"
+#ifdef SUPPORT_GRAPHICS
+#include "core/common/container_scope.h"
+#endif
 #include "hilog_wrapper.h"
 #include "js_console_log.h"
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+
+#ifdef SUPPORT_GRAPHICS
+using OHOS::Ace::ContainerScope;
+#endif
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -145,6 +152,26 @@ struct AssetHelper final {
 
     std::string codePath_;
 };
+
+int32_t GetContainerId()
+{
+#ifdef SUPPORT_GRAPHICS
+int32_t scopeId = ContainerScope::CurrentId();
+return scopeId;
+#endif
+}
+void UpdateContainerScope(int32_t id)
+{
+#ifdef SUPPORT_GRAPHICS
+ContainerScope::UpdateCurrent(id);
+#endif
+}
+void RestoreContainerScope(int32_t id)
+{
+#ifdef SUPPORT_GRAPHICS
+ContainerScope::UpdateCurrent(-1);
+#endif
+}
 }
 
 void InitWorkerModule(NativeEngine& engine, const std::string& codePath)
@@ -152,6 +179,10 @@ void InitWorkerModule(NativeEngine& engine, const std::string& codePath)
     engine.SetInitWorkerFunc(InitWorkerFunc);
     engine.SetOffWorkerFunc(OffWorkerFunc);
     engine.SetGetAssetFunc(AssetHelper(codePath));
+
+    engine.SetGetContainerScopeIdFunc(GetContainerId);
+    engine.SetInitContainerScopeFunc(UpdateContainerScope);
+    engine.SetFinishContainerScopeFunc(RestoreContainerScope);
 }
 
 void StartDebuggerInWorkerModule()

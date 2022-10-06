@@ -156,7 +156,7 @@ void AbilityManagerServiceAnrTest::TearDown()
  * FunctionPoints: Kill anr process
  * EnvConditions: NA
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
- * click close buntton, kill the new process
+ * click close button, kill the new process
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
 {
@@ -167,11 +167,10 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
     }
     else {
         Ace::UIServiceMgrClient::GetInstance()->SetDialogCheckState(pid, EVENT_CLOSE_CODE);
-        auto result = abilityMs_->SendANRProcessID(pid);
+        abilityMs_->SendANRProcessID(pid);
         sleep(6);
         EXPECT_FALSE(Ace::UIServiceMgrClient::GetInstance()->GetAppRunningState());
-        result = kill(pid, SIGKILL);
-        EXPECT_EQ(result, -1);
+        kill(pid, SIGKILL);
     }
 }
 
@@ -182,7 +181,7 @@ HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_001, TestSize.Level1)
  * FunctionPoints: Waiting anr process
  * EnvConditions: NA
  * CaseDescription: Fork a new process, call SendANRProcessID func in new process id
- * click waiting buntton, do not kill the new process
+ * click waiting button, do not kill the new process
  */
 HWTEST_F(AbilityManagerServiceAnrTest, SendANRProcessID_002, TestSize.Level1)
 {

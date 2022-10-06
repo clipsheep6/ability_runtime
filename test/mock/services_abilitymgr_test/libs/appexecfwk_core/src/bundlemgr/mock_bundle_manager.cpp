@@ -24,6 +24,7 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const int32_t ERROR_USER_ID_U256 = 256;
+const int32_t USER_ID_U1000 = 1000;
 }
 using namespace OHOS::AAFwk;
 
@@ -57,7 +58,19 @@ bool BundleMgrProxy::GetApplicationInfo(
     }
     appInfo.name = "Helloworld";
     appInfo.bundleName = "com.ix.hiworld";
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
+}
+
+int32_t BundleMgrProxy::GetDisposedStatus(const std::string &bundleName)
+{
+    if (bundleName.compare("com.test.disposed") == 0) {
+        return -1;
+    }
+    return 0;
 }
 
 int BundleMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -159,6 +172,10 @@ bool BundleMgrService::GetApplicationInfo(
     appInfo.name = appName;
     appInfo.bundleName = appName;
     appInfo.uid = userId * BASE_USER_RANGE;
+    if (appName.compare("com.test.crowdtest") == 0) {
+        appInfo.appDistributionType = "crowdtesting";
+        appInfo.crowdtestDeadline = 0;
+    }
     return true;
 }
 
@@ -193,7 +210,7 @@ bool BundleMgrService::CheckWantEntity(const AAFwk::Want &want, AbilityInfo &abi
 
 int BundleMgrService::GetUidByBundleName(const std::string &bundleName, const int userId)
 {
-    return 1000;
+    return USER_ID_U1000;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

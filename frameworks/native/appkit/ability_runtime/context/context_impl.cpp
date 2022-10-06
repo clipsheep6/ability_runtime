@@ -15,10 +15,12 @@
 
 #include "context_impl.h"
 
+#include <cerrno>
 #include <regex>
 
 #include "ability_constants.h"
-#include "file_util.h"
+#include "directory_ex.h"
+#include "file_ex.h"
 #include "hilog_wrapper.h"
 #include "ipc_singleton.h"
 #include "js_runtime_utils.h"
@@ -29,6 +31,7 @@
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
 #include "bundle_mgr_proxy.h"
+#include "configuration_convertor.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -36,6 +39,7 @@ using namespace OHOS::AbilityRuntime::Constants;
 
 const size_t Context::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Context"));
 const int64_t ContextImpl::CONTEXT_CREATE_BY_SYSTEM_APP(0x00000001);
+const mode_t MODE = 0770;
 const std::string ContextImpl::CONTEXT_DATA_APP("/data/app/");
 const std::string ContextImpl::CONTEXT_BUNDLE("/bundle/");
 const std::string ContextImpl::CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE("/mnt/hmdfs/");
@@ -52,6 +56,7 @@ const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
+Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -216,8 +221,9 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 
     bundleInfo.moduleResPaths.swap(moduleResPaths);
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
+    appContext->SetConfiguration(config_);
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName);
-    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
+    appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
 
@@ -329,11 +335,11 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     appContext->SetFlags(CONTEXT_CREATE_BY_SYSTEM_APP);
+    appContext->SetConfiguration(config_);
 
     // init resourceManager.
     InitResourceManager(bundleInfo, appContext, false);
-
-    appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
+    appContext->SetApplicationInfo(GetApplicationInfo());
     return appContext;
 }
 
@@ -389,6 +395,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         HILOG_ERROR("ContextImpl::InitResourceManager language: GetLocaleInfo is null.");
     }
 #endif
+    resConfig->SetDeviceType(GetDeviceType());
     resourceManager->UpdateResConfig(*resConfig);
     appContext->SetResourceManager(resourceManager);
 }
@@ -523,12 +530,13 @@ sptr<IRemoteObject> ContextImpl::GetToken()
 void ContextImpl::CreateDirIfNotExist(const std::string& dirPath) const
 {
     HILOG_DEBUG("createDir: create directory if not exists.");
-    if (!OHOS::HiviewDFX::FileUtil::FileExists(dirPath)) {
-        bool createDir = OHOS::HiviewDFX::FileUtil::ForceCreateDirectory(dirPath);
+    if (!OHOS::FileExists(dirPath)) {
+        bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("createDir: create dir %{public}s failed.", dirPath.c_str());
+            HILOG_ERROR("createDir: create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
             return;
         }
+        chmod(dirPath.c_str(), MODE);
     }
 }
 
@@ -540,6 +548,26 @@ void ContextImpl::SetConfiguration(const std::shared_ptr<AppExecFwk::Configurati
 std::shared_ptr<AppExecFwk::Configuration> ContextImpl::GetConfiguration() const
 {
     return config_;
+}
+
+Global::Resource::DeviceType ContextImpl::GetDeviceType() const
+{
+    if (deviceType_ != Global::Resource::DeviceType::DEVICE_NOT_SET) {
+        return deviceType_;
+    }
+
+    auto config = GetConfiguration();
+    if (config != nullptr) {
+        auto deviceType = config->GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
+        HILOG_INFO("deviceType is %{public}s.", deviceType.c_str());
+        deviceType_ = AppExecFwk::ConvertDeviceType(deviceType);
+    }
+
+    if (deviceType_ == Global::Resource::DeviceType::DEVICE_NOT_SET) {
+        deviceType_ = Global::Resource::DeviceType::DEVICE_PHONE;
+    }
+    HILOG_DEBUG("deviceType is %{public}d.", deviceType_);
+    return deviceType_;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

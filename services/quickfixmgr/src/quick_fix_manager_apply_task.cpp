@@ -35,6 +35,7 @@ constexpr const char *QUICK_FIX_BUNDLE_VERSION_CODE = "bundleVersionCode";
 constexpr const char *QUICK_FIX_PATCH_VERSION_CODE = "patchVersionCode";
 constexpr const char *QUICK_FIX_IS_SO_CONTAINED = "isSoContained";
 constexpr const char *QUICK_FIX_TYPE = "type";
+constexpr const char *QUICK_FIX_MODULE_NAME = "moduleNames";
 
 // common event key
 constexpr const char *APPLY_RESULT = "applyResult";
@@ -183,16 +184,16 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
 
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Appmgr is nullptr.");
+        NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+        RemoveSelf();
+        return;
+    }
+
     isRunning_ = GetRunningState();
     if (isRunning_ && isSoContained_) {
         HILOG_INFO("Start to register application state observer.");
-        if (appMgr_ == nullptr) {
-            HILOG_ERROR("Appmgr is nullptr.");
-            NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
-            RemoveSelf();
-            return;
-        }
-
         std::vector<std::string> bundleNameList;
         bundleNameList.push_back(bundleName_);
         sptr<AppExecFwk::IApplicationStateObserver> callback = new QuickFixMgrAppStateObserver(shared_from_this());
@@ -204,6 +205,28 @@ void QuickFixManagerApplyTask::HandlePatchDeployed()
         }
         HILOG_DEBUG("Register application state observer succeed.");
         return;
+    } else if (isRunning_ && !isSoContained_) {
+        ApplicationQuickFixInfo quickFixInfo;
+        auto service = quickFixMgrService_.promote();
+        if (service == nullptr) {
+            HILOG_ERROR("Quick fix service is nullptr.");
+            NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+            RemoveSelf();
+            return;
+        }
+
+        auto ret = service->GetApplyedQuickFixInfo(bundleName_, quickFixInfo);
+        if (ret == QUICK_FIX_OK && !quickFixInfo.appqfInfo.hqfInfos.empty()) {
+            // if there exist old version hqfInfo, need to unload.
+            HILOG_DEBUG("Need unload patch firstly.");
+            ret = appMgr_->NotifyUnLoadRepairPatch(bundleName_);
+            if (ret != 0) {
+                HILOG_ERROR("Notify app unload patch failed.");
+                NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+                RemoveSelf();
+                return;
+            }
+        }
     }
 
     PostSwitchQuickFixTask();
@@ -224,7 +247,7 @@ void QuickFixManagerApplyTask::HandlePatchSwitched()
 
         auto ret = appMgr_->NotifyLoadRepairPatch(bundleName_);
         if (ret != 0) {
-            HILOG_ERROR("Notify app enable quick fix.");
+            HILOG_ERROR("Notify app load patch failed.");
             NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
             RemoveSelf();
             return;
@@ -249,7 +272,7 @@ void QuickFixManagerApplyTask::HandlePatchDeleted()
 
         auto ret = appMgr_->NotifyHotReloadPage(bundleName_);
         if (ret != 0) {
-            HILOG_ERROR("Notify app enable quick fix.");
+            HILOG_ERROR("Notify app reload page failed.");
             NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
             RemoveSelf();
             return;
@@ -391,7 +414,8 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         || (resultJson.find(QUICK_FIX_BUNDLE_VERSION_CODE) == jsonObjectEnd)
         || (resultJson.find(QUICK_FIX_PATCH_VERSION_CODE) == jsonObjectEnd)
         || (resultJson.find(QUICK_FIX_IS_SO_CONTAINED) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_TYPE) == jsonObjectEnd)) {
+        || (resultJson.find(QUICK_FIX_TYPE) == jsonObjectEnd)
+        || (resultJson.find(QUICK_FIX_MODULE_NAME) == jsonObjectEnd)) {
         HILOG_ERROR("Incomplete result.");
         return false;
     }
@@ -405,6 +429,7 @@ bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk:
         HILOG_ERROR("Quick fix type is invalid.");
         return false;
     }
+    moduleNames_ = resultJson.at(QUICK_FIX_MODULE_NAME).get<std::vector<std::string>>();
 
     HILOG_INFO("bundleName: %{public}s, bundleVersion: %{public}d, patchVersion: %{public}d, soContained: %{public}d, "
                "type: %{public}d.", bundleName_.c_str(), bundleVersionCode_, patchVersionCode_, isSoContained_,
@@ -436,6 +461,13 @@ void QuickFixManagerApplyTask::NotifyApplyStatus(int32_t applyResult)
     want.SetParam(BUNDLE_NAME, bundleName_);
     want.SetParam(BUNDLE_VERSION, bundleVersionCode_);
     want.SetParam(PATCH_VERSION, patchVersionCode_);
+
+    std::string moduleName = std::accumulate(moduleNames_.begin(), moduleNames_.end(), std::string(""),
+        [moduleName = moduleNames_](const std::string &name, const std::string &str) {
+            return (str == moduleName.front()) ? (name + str) : (name + "," + str);
+        });
+    want.SetModuleName(moduleName);
+
     EventFwk::CommonEventData commonData {want};
     EventFwk::CommonEventManager::PublishCommonEvent(commonData);
 }
@@ -455,6 +487,7 @@ std::string QuickFixManagerApplyTask::GetApplyResultInfo(int32_t applyResult)
         { QUICK_FIX_BUNDLEMGR_INVALID, "bundlemgr is invalid" },
         { QUICK_FIX_SET_INFO_FAILED, "set quick fix info failed" },
         { QUICK_FIX_PROCESS_TIMEOUT, "process apply timeout" },
+        { QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED, "unload patch failed" },
     };
 
     for (const auto &[temp, value] : resolutions) {

@@ -41,6 +41,8 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
     if (appMainHandler_ != nullptr) {
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
+    lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
     auto watchdogTask = std::bind(&Watchdog::Timer, this);
     OHOS::HiviewDFX::Watchdog::GetInstance().RunPeriodicalTask("AppkitWatchdog", watchdogTask,
         CHECK_INTERVAL_TIME, INI_TIMER_FIRST_SECOND);
@@ -109,6 +111,15 @@ void Watchdog::Timer()
         return;
     }
     if (IsReportEvent()) {
+        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+            system_clock::now().time_since_epoch()).count();
+        constexpr int RESET_RATIO = 2;
+        if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME)) {
+            HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
+                static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
+            lastWatchTime_ = now;
+            return;
+        }
         const int bufferLen = 128;
         char paramOutBuf[bufferLen] = {0};
         const char *hook_mode = "startup:";
@@ -120,6 +131,8 @@ void Watchdog::Timer()
     if (appMainHandler_ != nullptr) {
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE);
     }
+    lastWatchTime_ = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count();
 }
 
 void Watchdog::reportEvent()

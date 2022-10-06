@@ -1045,23 +1045,32 @@ void NAPIDataAbilityObserver::SafeReleaseJSCallback()
         loop, work, [](uv_work_t* work) {},
         [](uv_work_t* work, int status) {
             // JS Thread
-            DelRefCallbackInfo* delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
-            napi_delete_reference(delRefCallbackInfo->env_, delRefCallbackInfo->ref_);
-            if (delRefCallbackInfo != nullptr) {
-                delete delRefCallbackInfo;
-                delRefCallbackInfo = nullptr;
+            if (work == nullptr) {
+                HILOG_ERROR("uv_queue_work input work is nullptr");
+                return;
             }
-            if (work != nullptr) {
+            auto delRefCallbackInfo =  reinterpret_cast<DelRefCallbackInfo*>(work->data);
+            if (delRefCallbackInfo == nullptr) {
+                HILOG_ERROR("uv_queue_work delRefCallbackInfo is nullptr");
                 delete work;
                 work = nullptr;
+                return;
             }
+
+            napi_delete_reference(delRefCallbackInfo->env_, delRefCallbackInfo->ref_);
+            delete delRefCallbackInfo;
+            delRefCallbackInfo = nullptr;
+            delete work;
+            work = nullptr;
         });
     if (ret != 0) {
         if (delRefCallbackInfo != nullptr) {
             delete delRefCallbackInfo;
+            delRefCallbackInfo = nullptr;
         }
         if (work != nullptr) {
             delete work;
+            work = nullptr;
         }
     }
     ref_ = nullptr;
@@ -1089,6 +1098,8 @@ static void OnChangeJSThreadWorker(uv_work_t *work, int status)
     DAHelperOnOffCB *onCB = (DAHelperOnOffCB *)work->data;
     if (onCB == nullptr) {
         HILOG_ERROR("OnChange, uv_queue_work onCB is nullptr");
+        delete work;
+        work = nullptr;
         return;
     }
 

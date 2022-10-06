@@ -30,6 +30,7 @@
 #include "sa_mgr_client.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
+#include "mock_native_token.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 
@@ -129,6 +130,7 @@ void RunningInfosTest::SetUpTestCase()
 {
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
+    MockNativeToken::SetNativeToken();
 }
 
 void RunningInfosTest::TearDownTestCase()
@@ -336,6 +338,35 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 }
 
 /*
+ * @tc.name: GetAbilityRunningInfos_007
+ * @tc.desc: GetAbilityRunningInfos Test Foucs State
+ * @tc.type: FUNC
+ * @tc.require: issueI5PXW4
+ */
+HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
+{
+    Want want;
+    ElementName element("device", "com.ix.hiMusic", "MusicAbility");
+    want.SetElement(element);
+    auto result = abilityMs_->StartAbility(want);
+    EXPECT_EQ(OHOS::ERR_OK, result);
+
+    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    EXPECT_TRUE(topAbility);
+    topAbility->SetAbilityState(AbilityState::ACTIVE);
+
+    std::vector<AbilityRunningInfo> infos;
+    abilityMs_->GetAbilityRunningInfos(infos);
+
+    size_t infoCount {1};
+    EXPECT_TRUE(infos.size() == infoCount);
+    if (infos.size() == infoCount) {
+        EXPECT_TRUE(infos[0].ability.GetAbilityName() == element.GetAbilityName());
+        EXPECT_TRUE(infos[0].abilityState == static_cast<int>(AbilityState::ACTIVE));
+    }
+}
+
+/*
  * Feature: AbilityManagerService
  * Function: GetExtensionRunningInfos
  * SubFunction: NA
@@ -394,12 +425,10 @@ HWTEST_F(RunningInfosTest, GetExtensionRunningInfos_002, TestSize.Level1)
 }
 
 /*
- * Feature: AbilityManagerService
- * Function: GetProcessRunningInfos
- * SubFunction: NA
- * FunctionPoints:query process running infos
- * EnvConditions: NA
- * CaseDescription: start service ability, call query function.
+ * @tc.name: GetAbilityRunningInfos_006
+ * @tc.desc: GetAbilityRunningInfos Test
+ * @tc.type: FUNC
+ * @tc.require: issueI5PXW4
  */
 HWTEST_F(RunningInfosTest, GetProcessRunningInfos_001, TestSize.Level1)
 {

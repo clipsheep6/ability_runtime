@@ -60,6 +60,7 @@ struct VerificationInfo {
     bool VerifyInstallBundlePermission();
 
     bool VerifyGetBundleInfoPrivilegedPermission();
+
     int CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo);
 
     int CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo);

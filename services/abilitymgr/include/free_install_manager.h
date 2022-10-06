@@ -32,6 +32,7 @@ struct FreeInstallInfo {
     Want want;
     int32_t userId = -1;
     int32_t requestCode = -1;
+    int64_t startInstallTime = 0;
     std::shared_ptr<std::promise<int32_t>> promise;
     bool isInstalled = false;
     sptr<IRemoteObject> callerToken = nullptr;
@@ -54,7 +55,7 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnInstallFinished(int resultCode, const Want &want, int32_t userId, int64_t startInstallTime);
 
     /**
      * OnRemoteInstallFinished, DMS has finished.
@@ -63,7 +64,8 @@ public:
      * @param want, installed ability.
      * @param userId, user`s id.
      */
-    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId);
+    void OnRemoteInstallFinished(int resultCode, const Want &want, int32_t userId,
+        int64_t startInstallTime);
 
     /**
      * Start to free install.
@@ -132,7 +134,7 @@ private:
 
     int NotifyDmsCallback(const Want &want, int resultCode);
     bool IsTopAbility(const sptr<IRemoteObject> &callerToken);
-    void NotifyFreeInstallResult(const Want &want, int resultCode);
+    void NotifyFreeInstallResult(const Want &want, int resultCode, int64_t startInstallTime);
     FreeInstallInfo BuildFreeInstallInfo(const Want &want, int32_t userId, int requestCode,
         const sptr<IRemoteObject> &callerToken);
     std::time_t GetTimeStamp();
