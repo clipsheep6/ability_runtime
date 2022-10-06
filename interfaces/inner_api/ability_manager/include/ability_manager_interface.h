@@ -567,7 +567,7 @@ public:
      * @param token, the token of top ability.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int GetTopAbility(sptr<IRemoteObject> &token) = 0;
+    virtual int GetTopAbility(sptr<IRemoteObject> &token, bool flag) = 0;
 
     /**
      * The delegator calls this interface to move the ability to the foreground.

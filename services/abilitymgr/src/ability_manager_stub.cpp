@@ -1281,7 +1281,7 @@ int AbilityManagerStub::FinishUserTestInner(MessageParcel &data, MessageParcel &
 int AbilityManagerStub::GetTopAbilityTokenInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> token;
-    auto result = GetTopAbility(token);
+    auto result = GetTopAbility(token, false);
     if (!reply.WriteRemoteObject(token)) {
         HILOG_ERROR("data write failed.");
         return ERR_INVALID_VALUE;
