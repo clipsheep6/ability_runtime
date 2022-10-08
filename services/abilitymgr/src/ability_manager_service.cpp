@@ -5107,7 +5107,7 @@ int32_t AbilityManagerService::ShowPickerDialog(
     newWant.SetParam(TOKEN_KEY, callerToken);
     // note: clear actions
     newWant.SetAction("");
-    return StartAbility(newWant, DEFAULT_INVAL_VALUE, userId);
+    return IN_PROCESS_CALL(StartAbility(newWant, DEFAULT_INVAL_VALUE, userId));
 }
 #endif
 
