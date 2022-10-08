@@ -1007,24 +1007,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         });
 #ifdef __aarch64__
         LoadAllExtensions("system/lib64/extensionability");
-        LoadAndRegisterExtension("system/lib64/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libworkschedextension.z.so", "WorkSchedulerExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libaccessibility_extension_module.z.so", "AccessibilityExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib64/libwallpaper_extension_module.z.so", "WallpaperExtension",
-            application_->GetRuntime());
 #else
         LoadAllExtensions("system/lib/extensionability");
-        LoadAndRegisterExtension("system/lib/libdatashare_ext_ability_module.z.so", "DataShareExtAbility",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libworkschedextension.z.so", "WorkSchedulerExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libaccessibility_extension_module.z.so", "AccessibilityExtension",
-            application_->GetRuntime());
-        LoadAndRegisterExtension("system/lib/libwallpaper_extension_module.z.so", "WallpaperExtension",
-            application_->GetRuntime());
 #endif
     }
 
@@ -1132,20 +1116,6 @@ void MainThread::HandleAbilityStage(const HapModuleInfo &abilityStage)
     }
 
     appMgr_->AddAbilityStageDone(applicationImpl_->GetRecordId());
-}
-
-void MainThread::LoadAndRegisterExtension(const std::string &libName,
-    const std::string &extensionName, const std::unique_ptr<AbilityRuntime::Runtime>& runtime)
-{
-    HILOG_INFO("libName:%{public}s,extensionName:%{public}s,", libName.c_str(), extensionName.c_str());
-    if (application_ == nullptr) {
-        HILOG_ERROR("application launch failed");
-        return;
-    }
-    HILOG_DEBUG("load success.");
-    AbilityLoader::GetInstance().RegisterExtension(extensionName, [application = application_, libName]() {
-        return AbilityRuntime::ExtensionModuleLoader::GetLoader(libName.c_str()).Create(application->GetRuntime());
-    });
 }
 
 void MainThread::LoadAllExtensions(const std::string &filePath)

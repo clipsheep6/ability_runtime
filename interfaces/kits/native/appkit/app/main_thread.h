@@ -417,9 +417,6 @@ private:
      */
     bool IsApplicationReady() const;
 
-    void LoadAndRegisterExtension(const std::string &libName, const std::string &extensionName,
-        const std::unique_ptr<Runtime>& runtime);
-
     void LoadAllExtensions(const std::string &filePath);
 
     /**
