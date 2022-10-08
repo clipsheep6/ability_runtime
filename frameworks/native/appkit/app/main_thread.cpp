@@ -17,6 +17,7 @@
 
 #include <new>
 #include <regex>
+#include <thread>
 #include <unistd.h>
 
 #include "ability_constants.h"
@@ -43,6 +44,7 @@
 #include "iservice_registry.h"
 #include "js_runtime.h"
 #include "mix_stack_dumper.h"
+#include "nweb_pre_dns_adapter.h"
 #include "ohos_application.h"
 #include "resource_manager.h"
 #include "runtime.h"
@@ -1042,6 +1044,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     } else {
         HILOG_ERROR("HandleLaunchApplication::application pAppEvnIml is null");
     }
+
+    // pre dns for nweb
+    std::thread(&OHOS::NWeb::PreDnsInThread).detach();
 
     HILOG_DEBUG("MainThread::handleLaunchApplication called end.");
 }

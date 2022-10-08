@@ -83,6 +83,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "//base/web/webview/ohos_adapter/interfaces",
   ]
 
   configs = [
@@ -118,6 +119,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/runtime:string_utils",
+    "//base/web/webview/ohos_adapter:nweb_ohos_adapter",
   ]
 
   public_deps =
