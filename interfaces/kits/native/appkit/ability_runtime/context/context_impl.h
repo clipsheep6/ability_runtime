@@ -292,7 +292,7 @@ private:
     int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
     int GetCurrentActiveAccountId() const;
-    void CreateDirIfNotExist(const std::string& dirPath) const;
+    void CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const;
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
