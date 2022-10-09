@@ -445,6 +445,9 @@ public:
     void ProcessForegroundAbility(bool isRecent, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
         uint32_t sceneFlag = 0);
+
+    void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, uint32_t sceneFlag = 0);
+    void NotifyAnimationFromTerminatingAbility() const;
 #endif
 
     /**
@@ -847,34 +850,38 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
-    void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
-        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;
     void SetAbilityTransitionInfo(const AppExecFwk::AbilityInfo &abilityInfo,
         sptr<AbilityTransitionInfo> &info) const;
+    void SetAbilityTransitionInfo(sptr<AbilityTransitionInfo>& info) const;
+    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
+    void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo();
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest) const;
+    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
+        const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
+    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager() const;
+    std::shared_ptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
+        std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
+
+    void AnimationTask(bool isRecent, const AbilityRequest &abilityRequest,
+        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility);
     void NotifyAnimationFromStartingAbility(const std::shared_ptr<AbilityRecord> &callerAbility,
         const AbilityRequest &abilityRequest) const;
     void NotifyAnimationFromRecentTask(const std::shared_ptr<StartOptions> &startOptions,
         const std::shared_ptr<Want> &want) const;
+    void NotifyAnimationFromTerminatingAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool flag);
 
     void StartingWindowTask(bool isRecent, bool isCold, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions);
     void StartingWindowColdTask(bool isRecnet, const AbilityRequest &abilityRequest,
         std::shared_ptr<StartOptions> &startOptions);
     void PostCancelStartingWindowColdTask();
-    sptr<IWindowManagerServiceHandler> GetWMSHandler() const;
-    void SetWindowModeAndDisplayId(sptr<AbilityTransitionInfo> &info, const std::shared_ptr<Want> &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const sptr<IRemoteObject> abilityToken,
-        const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const AbilityRequest &abilityRequest,
-        const sptr<IRemoteObject> abilityToken) const;
-    sptr<AbilityTransitionInfo> CreateAbilityTransitionInfo(const std::shared_ptr<StartOptions> &startOptions,
-        const std::shared_ptr<Want> &want, const AbilityRequest &abilityRequest);
-    std::shared_ptr<Global::Resource::ResourceManager> CreateResourceManager() const;
-    std::shared_ptr<Media::PixelMap> GetPixelMap(const uint32_t windowIconId,
-        std::shared_ptr<Global::Resource::ResourceManager> resourceMgr) const;
     void StartingWindowHot(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
+    void StartingWindowHot();
     void StartingWindowCold(const std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<Want> &want,
         const AbilityRequest &abilityRequest);
     void InitColdStartingWindowResource(const std::shared_ptr<Global::Resource::ResourceManager> &resourceMgr);

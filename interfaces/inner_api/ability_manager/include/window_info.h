@@ -28,6 +28,14 @@ namespace AAFwk {
 namespace {
     constexpr int32_t WINDOW_MODE_MAX_SIZE = 4;
 }
+
+enum class TransitionReason : uint32_t {
+    MINIMIZE = 0,
+    CLOSE,
+    ABILITY_TRANSITION,
+    BACK_TRANSITION,
+};
+
 struct AbilityTransitionInfo : public Parcelable {
     std::string bundleName_;
     std::string abilityName_;
@@ -44,6 +52,7 @@ struct AbilityTransitionInfo : public Parcelable {
     uint32_t maxWindowHeight_;
     uint32_t minWindowHeight_;
     int32_t missionId_;
+    TransitionReason reason_ = TransitionReason::ABILITY_TRANSITION;
 
     virtual bool Marshalling(Parcel& parcel) const override
     {
@@ -88,6 +97,10 @@ struct AbilityTransitionInfo : public Parcelable {
         }
 
         if (!parcel.WriteInt32(missionId_)) {
+            return false;
+        }
+
+        if (!parcel.WriteUint32(static_cast<uint32_t>(reason_))) {
             return false;
         }
         return true;
@@ -143,6 +156,7 @@ struct AbilityTransitionInfo : public Parcelable {
         info->maxWindowHeight_ = parcel.ReadUint32();
         info->minWindowHeight_ = parcel.ReadUint32();
         info->missionId_ = parcel.ReadInt32();
+        info->reason_ = static_cast<TransitionReason>(parcel.ReadUint32());
         return info;
     }
 };

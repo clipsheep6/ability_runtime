@@ -1151,8 +1151,14 @@ int MissionListManager::TerminateAbilityLocked(const std::shared_ptr<AbilityReco
         auto nextAbilityRecord = abilityRecord->GetNextAbilityRecord();
         if (nextAbilityRecord) {
             nextAbilityRecord->SetPreAbilityRecord(abilityRecord);
+#ifdef SUPPORT_GRAPHICS
+            nextAbilityRecord->ProcessForegroundAbility(abilityRecord);
+        } else {
+            abilityRecord->NotifyAnimationFromTerminatingAbility();
+#else
             nextAbilityRecord->ProcessForegroundAbility();
         } else {
+#endif
             MoveToBackgroundTask(abilityRecord);
         }
         return ERR_OK;
