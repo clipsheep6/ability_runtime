@@ -58,7 +58,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #endif
 
 constexpr char TIMER_TASK[] = "uv_timer_task";
-static constexpr char MERGE_ABC_PATH[] = "/data/storage/el1/bundle/entry/ets/modules.abc";
+// static constexpr char MERGE_ABC_PATH[] = "/data/storage/el1/bundle/entry/ets/modules.abc";
 
 class ArkJsRuntime : public JsRuntime {
 public:
@@ -117,7 +117,7 @@ public:
     bool RunScript(const std::string& srcPath, const std::string& hapPath) override
     {
         bool result = false;
-        if (!hapPath.empty()) {
+        if (isBundle_ && !hapPath.empty()) {
             std::ostringstream outStream;
             std::shared_ptr<RuntimeExtractor> runtimeExtractor;
             if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
@@ -130,23 +130,16 @@ public:
             } else {
                 runtimeExtractor = runtimeExtractorMap_.at(hapPath);
             }
-            if (isBundle_) {
-                if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-                    HILOG_ERROR("Get abc file failed");
-                    return result;
-                }
-            } else {
-                if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
-                    HILOG_ERROR("Get Module abc file failed");
-                    return result;
-                }
+            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+                HILOG_ERROR("RunScript, Get abc file failed");
+                return result;
             }
 
             const auto& outStr = outStream.str();
             std::vector<uint8_t> buffer;
             buffer.assign(outStr.begin(), outStr.end());
 
-            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
+            result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
         } else {
             result = nativeEngine_->RunScriptPath(srcPath.c_str()) != nullptr;
         }
@@ -657,7 +650,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath)
 {
     bool result = false;
-    if (!hapPath.empty()) {
+    if (isBundle_ && !hapPath.empty()) {
         std::ostringstream outStream;
         std::shared_ptr<RuntimeExtractor> runtimeExtractor;
         if (runtimeExtractorMap_.find(hapPath) == runtimeExtractorMap_.end()) {
@@ -670,23 +663,15 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         } else {
             runtimeExtractor = runtimeExtractorMap_.at(hapPath);
         }
-        if (isBundle_) {
-            if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
-                return result;
-            }
-        } else {
-            if (!runtimeExtractor->GetFileBuffer(MERGE_ABC_PATH, outStream)) {
-                HILOG_ERROR("Get Module abc file failed");
-                return result;
-            }
+        if (!runtimeExtractor->GetFileBuffer(srcPath, outStream)) {
+            HILOG_ERROR("RunScript, Get abc file failed");
+            return result;
         }
-
         const auto& outStr = outStream.str();
         std::vector<uint8_t> buffer;
         buffer.assign(outStr.begin(), outStr.end());
 
-        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer, isBundle_) != nullptr;
+        result = nativeEngine_->RunScriptBuffer(srcPath.c_str(), buffer) != nullptr;
     } else {
         result = nativeEngine_->RunScript(srcPath.c_str()) != nullptr;
     }
