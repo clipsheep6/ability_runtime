@@ -293,9 +293,6 @@ bool DataAbilityHelperImpl::Release()
         return false;
     }
 
-    std::lock_guard<std::mutex> guard(lock_);
-    dataAbilityProxy_ = nullptr;
-    uri_.reset();
     return true;
 }
 

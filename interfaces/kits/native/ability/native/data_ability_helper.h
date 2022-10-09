@@ -291,6 +291,11 @@ public:
 private:
     DataAbilityHelper(const std::shared_ptr<DataAbilityHelperImpl> &helperImpl);
 
+    inline auto GetDataAbilityHelperImpl() const
+    {
+        return dataAbilityHelperImpl_;
+    }
+
     std::shared_ptr<DataAbilityHelperImpl> dataAbilityHelperImpl_;
 };
 }  // namespace AppExecFwk

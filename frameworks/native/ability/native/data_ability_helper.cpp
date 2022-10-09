@@ -210,8 +210,9 @@ std::vector<std::string> DataAbilityHelper::GetFileTypes(Uri &uri, const std::st
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("GetFileTypes called.");
     std::vector<std::string> matchedMIMEs;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->GetFileTypes(uri, mimeTypeFilter);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->GetFileTypes(uri, mimeTypeFilter);
     }
     return matchedMIMEs;
 }
@@ -231,8 +232,9 @@ int DataAbilityHelper::OpenFile(Uri &uri, const std::string &mode)
 {
     HILOG_INFO("OpenFile Called.");
     int fd = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->OpenFile(uri, mode);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->OpenFile(uri, mode);
     }
     return fd;
 }
@@ -253,8 +255,9 @@ int DataAbilityHelper::OpenRawFile(Uri &uri, const std::string &mode)
 {
     HILOG_INFO("OpenRawFile called.");
     int fd = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->OpenRawFile(uri, mode);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->OpenRawFile(uri, mode);
     }
     return fd;
 }
@@ -272,8 +275,9 @@ int DataAbilityHelper::Insert(Uri &uri, const NativeRdb::ValuesBucket &value)
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Insert called.");
     int index = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Insert(uri, value);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Insert(uri, value);
     }
     return index;
 }
@@ -283,8 +287,9 @@ std::shared_ptr<AppExecFwk::PacMap> DataAbilityHelper::Call(
 {
     std::shared_ptr<AppExecFwk::PacMap> result = nullptr;
     HILOG_INFO("Call called.");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Call(uri, method, arg, pacMap);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Call(uri, method, arg, pacMap);
     }
     return result;
 }
@@ -304,8 +309,9 @@ int DataAbilityHelper::Update(
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Update called.");
     int index = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Update(uri, value, predicates);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Update(uri, value, predicates);
     }
     return index;
 }
@@ -323,8 +329,9 @@ int DataAbilityHelper::Delete(Uri &uri, const NativeRdb::DataAbilityPredicates &
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Delete called.");
     int index = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Delete(uri, predicates);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Delete(uri, predicates);
     }
     return index;
 }
@@ -344,8 +351,9 @@ std::shared_ptr<NativeRdb::AbsSharedResultSet> DataAbilityHelper::Query(
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("Query called.");
     std::shared_ptr<NativeRdb::AbsSharedResultSet> resultset = nullptr;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Query(uri, columns, predicates);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Query(uri, columns, predicates);
     }
     return resultset;
 }
@@ -363,8 +371,9 @@ std::string DataAbilityHelper::GetType(Uri &uri)
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("GetType called.");
     std::string type;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->GetType(uri);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->GetType(uri);
     }
     return type;
 }
@@ -383,8 +392,9 @@ bool DataAbilityHelper::Reload(Uri &uri, const PacMap &extras)
 {
     HILOG_INFO("Reload called.");
     bool ret = false;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->Reload(uri, extras);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->Reload(uri, extras);
     }
     return ret;
 }
@@ -402,8 +412,9 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("BatchInsert called.");
     int ret = -1;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->BatchInsert(uri, values);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->BatchInsert(uri, values);
     }
     return ret;
 }
@@ -417,8 +428,9 @@ int DataAbilityHelper::BatchInsert(Uri &uri, const std::vector<NativeRdb::Values
 void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_INFO("RegisterObserver called.");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->RegisterObserver(uri, dataObserver);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->RegisterObserver(uri, dataObserver);
     }
 }
 
@@ -431,8 +443,9 @@ void DataAbilityHelper::RegisterObserver(const Uri &uri, const sptr<AAFwk::IData
 void DataAbilityHelper::UnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
     HILOG_INFO("UnregisterObserver called.");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->UnregisterObserver(uri, dataObserver);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->UnregisterObserver(uri, dataObserver);
     }
 }
 
@@ -445,8 +458,9 @@ void DataAbilityHelper::NotifyChange(const Uri &uri)
 {
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("NotifyChange called.");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->NotifyChange(uri);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->NotifyChange(uri);
     }
 }
 
@@ -467,8 +481,9 @@ Uri DataAbilityHelper::NormalizeUri(Uri &uri)
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("NormalizeUri called.");
     Uri urivalue("");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->NormalizeUri(uri);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->NormalizeUri(uri);
     }
     return urivalue;
 }
@@ -488,8 +503,9 @@ Uri DataAbilityHelper::DenormalizeUri(Uri &uri)
     HITRACE_METER_NAME(HITRACE_TAG_DISTRIBUTEDDATA, __PRETTY_FUNCTION__);
     HILOG_INFO("DenormalizeUri called.");
     Uri urivalue("");
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->DenormalizeUri(uri);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->DenormalizeUri(uri);
     }
     return urivalue;
 }
@@ -499,8 +515,9 @@ std::vector<std::shared_ptr<DataAbilityResult>> DataAbilityHelper::ExecuteBatch(
 {
     HILOG_INFO("ExecuteBatch called.");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
-    if (dataAbilityHelperImpl_) {
-        return dataAbilityHelperImpl_->ExecuteBatch(uri, operations);
+    auto dataAbilityHelperImpl = GetDataAbilityHelperImpl();
+    if (dataAbilityHelperImpl) {
+        return dataAbilityHelperImpl->ExecuteBatch(uri, operations);
     }
     return results;
 }
