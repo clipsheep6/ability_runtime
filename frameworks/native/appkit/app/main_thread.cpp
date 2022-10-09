@@ -307,6 +307,7 @@ void MainThread::ScheduleForegroundApplication()
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("PostTask task failed");
     }
+    watchdog_->SetBackgroundStatus(false);
     HILOG_DEBUG("Schedule the application to foreground end.");
 }
 
@@ -330,6 +331,7 @@ void MainThread::ScheduleBackgroundApplication()
     if (!mainHandler_->PostTask(task)) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
+    watchdog_->SetBackgroundStatus(true);
     HILOG_DEBUG("MainThread::scheduleBackgroundApplication called end.");
 }
 
